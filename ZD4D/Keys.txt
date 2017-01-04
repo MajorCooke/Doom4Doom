@@ -1,0 +1,147 @@
+// ALL KEYS MUST INHERIT FROM D4KeyBase. NO EXCEPTIONS OR ELSE IT WON'T WORK.
+
+Class D4KeyBase : CustomInventory {}
+
+Class D4RedCard : D4KeyBase replaces RedCard
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+		Scale .2;
+		Inventory.PickupMessage "Picked up the Red keycard";
+	}
+	States
+	{
+	Spawn:
+		KEYC R 10;
+		KEYD R 3;
+		KEYE R 2;
+		KEYF R 2;
+		KEYG R 3;
+		KEYH R 10;
+		KEYG R 3;
+		KEYF R 2;
+		KEYE R 2;
+		KEYD R 3;
+		Loop;
+	Pickup:
+		TNT1 A 0 A_GiveInventory("RedCard",1);
+		Stop;
+	}
+}
+
+Class D4YellowCard : D4KeyBase replaces YellowCard
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+		Scale .2;
+		Inventory.PickupMessage "Picked up the Yellow keycard";
+	}
+	States
+	{
+	Spawn:
+		KEYC Y 10;
+		KEYD Y 3;
+		KEYE Y 2;
+		KEYF Y 2;
+		KEYG Y 3;
+		KEYH Y 10;
+		KEYG Y 3;
+		KEYF Y 2;
+		KEYE Y 2;
+		KEYD Y 3;
+		Loop;
+	Pickup:
+		TNT1 A 0 A_GiveInventory("YellowCard",1);
+		Stop;
+	}
+}
+
+Class D4BlueCard : D4KeyBase replaces BlueCard
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+		Scale .2;
+		Inventory.PickupMessage "Picked up the Blue keycard";
+	}
+	States
+	{
+	Spawn:
+		KEYC B 10;
+		KEYD B 3;
+		KEYE B 2;
+		KEYF B 2;
+		KEYG B 3;
+		KEYH B 10;
+		KEYG B 3;
+		KEYF B 2;
+		KEYE B 2;
+		KEYD B 3;
+		Loop;
+	Pickup:
+		TNT1 A 0 A_GiveInventory("BlueCard",1);
+		Stop;
+	}
+}
+
+Class D4RedSkull : D4KeyBase replaces RedSkull
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+		Scale .4;
+		Inventory.PickupMessage "Picked up the Red skull";
+	}
+	States
+	{
+	Spawn:
+		SKKY R 10;
+		SKKY R 10 Bright;
+		Loop;
+	Pickup:
+		TNT1 A 0 A_GiveInventory("RedSkull",1);
+		Stop;
+	}
+}
+
+Class D4YellowSkull : D4KeyBase replaces YellowSkull
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+		Scale .4;
+		Inventory.PickupMessage "Picked up the Yellow skull";
+	}
+	States
+	{
+	Spawn:
+		SKKY Y 10;
+		SKKY Y 10 Bright;
+		Loop;
+	Pickup:
+		TNT1 A 0 A_GiveInventory("YellowSkull",1);
+		Stop;
+	}
+}
+
+Class D4BlueSkull : D4KeyBase replaces BlueSkull
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+		Scale .4;
+		Inventory.PickupMessage "Picked up the Blue skull";
+	}
+	States
+	{
+	Spawn:
+		SKKY B 10;
+		SKKY B 10 Bright;
+		Loop;
+	Pickup:
+		TNT1 A 0 A_GiveInventory("BlueSkull",1);
+		Stop;
+	}
+}

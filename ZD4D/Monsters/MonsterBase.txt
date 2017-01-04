@@ -1,0 +1,955 @@
+//===================================================================================
+//===================================================================================
+//
+//	Chance to spawn demon rune
+//  This value is "x". Formula to spawn any rune is 
+//   "if(random(1,X)==x)" 
+//===================================================================================
+//===================================================================================
+enum RuneChances
+{
+	RuneChance_Knight = 18,
+	RuneChance_Baron = 15,
+	RuneChance_Rev = 18,
+	RuneChance_Caco = 18,
+	RuneChance_Fatso = 15,
+	RuneChance_PainEl = 12,
+	RuneChance_Cyber = 6,
+	RuneChance_Master = 6,
+	RuneChance_Arach = 15,
+	RuneChance_Archie = 10,
+}
+
+//==============================================================================
+//==============================================================================
+//
+//	Base items
+//
+//==============================================================================
+//==============================================================================
+
+// Defines how many pinatas to drop.
+
+Struct D4DropList
+{
+	const MaxSize = 20;
+	
+	int Health;
+	int Armor;
+	
+	int Carrion;
+	int BulletsSmall, BulletsBig;
+	int ShellsSmall, ShellsBig;
+	int RocketsSmall, RocketsBig;
+	int CellsSmall, CellsBig;
+	int BFG;
+	
+	int Credits;
+	
+	Class<Actor> ItemName[MaxSize];
+	int ItemCount[MaxSize];
+	
+	//--------------------------------------------------------------------------
+	// ResetList()
+	//
+	// Wipes out all items on the drop list and sets all counts to 0.
+	//--------------------------------------------------------------------------
+	
+	void ResetList()
+	{
+		for (int i = 0; i < MaxSize; i++)
+		{
+			ItemName[i] = null;
+			ItemCount[i] = 0;
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+	// AddItem(actor, count)
+	//
+	// Adds an item to the list and how many to spawn. Can store up to 20 items.
+	//--------------------------------------------------------------------------
+	
+	void AddItem(Class<Actor> newitem, int count = 1, bool adding = true)
+	{
+		if (newitem == null)	return;
+		
+		for (int i = 0; i < MaxSize; i++)
+		{
+			bool isNull = (ItemName[i] == null);
+			bool isSame = (ItemName[i] == newitem);
+			if (isNull)
+			{
+				ItemName[i] = newitem;
+				ItemCount[i] = (adding ? (ItemCount[i] + count) : count);
+				return;
+			}
+			if (isSame)
+			{
+				ItemCount[i] = (adding ? (ItemCount[i] + count) : count);
+				return;
+			}
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+	// DropItems(actor)
+	//
+	// Causes an actor to spawn its entire list of items.
+	//--------------------------------------------------------------------------
+	
+	void DropItems(Actor dropper)
+	{
+		if (!dropper)	return;
+		
+		for (int i = 0; i < MaxSize; i++)
+		{
+			if (ItemName[i] == null || ItemCount[i] < 1)	continue;
+			
+			for (; ItemCount[i] > 0; ItemCount[i]--)
+			{
+				int ZHeight = 32;
+				dropper.A_SpawnItemEx(ItemName[i],0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+			}
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+	// SetCredits(
+	//--------------------------------------------------------------------------
+}
+
+Class D4AbstractMonster : Actor 
+{
+	int CashMultiplier;
+	Name MOD;
+	D4DropList Pinatas;
+	
+	override void BeginPlay()
+	{
+		Pinatas.ResetList();
+		Super.BeginPlay();
+	}
+	
+	//--------------------------------------------------------------------------
+	//
+	// D4Chase(melee, missile, flags, max turn)
+	//
+	// A_Chase enhanced, + new parameter: Max turn.
+	// Specifies how much in degrees the monster should turn towards its target.
+	// -1 will not turn it.
+	//--------------------------------------------------------------------------
+	void D4Chase(statelabel melee = "Melee", statelabel missile = "Missile", int flags = 0, double maxturn = 30.0)
+	{
+		int newflags = 0;
+		if (GetCvar("D4D_EnhancedChase"))
+		{
+			if (!target || target.bKilled)
+			{	A_Chase(null,null,CHF_DONTMOVE|CHF_DONTTURN|CHF_NODIRECTIONTURN|CHF_NORANDOMTURN|CHF_NOPOSTATTACKTURN);	}
+			
+			if (A_JumpIfTargetInLOS("Null",360,JLOSF_DEADNOJUMP))
+			{
+				double ang = angle;
+				
+				if (maxturn >= 0.0)
+				{	A_FaceTarget(maxturn,0);	}
+				
+				Vector3 movepos = Vec2OffsetZ((cos(angle) * speed), (sin(angle) * speed), 0);
+				Vector2 nmpos = (movepos.x, movepos.y);
+				
+				if (TryMove(nmpos, bDROPOFF))
+				{
+					newflags = CHF_DONTMOVE|CHF_DONTTURN|CHF_NODIRECTIONTURN|CHF_NOPOSTATTACKTURN;
+				}
+				else
+				{	angle = ang;	}
+			}
+		}
+		A_Chase(melee, missile, flags|newflags);
+	}
+	
+	//==========================================================================
+	//
+	// RuneChance(id)
+	//
+	// Determines the chance of a rune dropping.
+	//==========================================================================
+	
+	int RuneChance(int id)
+	{
+		int rarity = int(GetCvar("D4D_DemonRunes"));
+		
+		if (rarity == 2)		// Common
+		{
+			return (random(1, (id / 2)) == 1) ? 1 : 0;
+		}
+		else if (rarity == 1) 	// Rare
+		{
+			return (random(1, id) == 1) ? 1 : 0;
+		}
+		return 0;
+	}
+	
+	//==========================================================================
+	//
+	// D4SetupLoot
+	//
+	// Sets up which pinatas to drop based on damage type.
+	//==========================================================================
+	
+	void D4SetupLoot()
+	{
+		MOD = DamagetypeReceived;
+		if (MOD == 'ChainsawPinata')
+		{
+			CashMultiplier = 4;
+			AddPinataSmashedChainsaw(); 
+		}
+		else if (MOD == 'BerserkKill' || 
+				MOD == 'ChainsawKill' || 
+				MOD == 'MeleePunch' ||
+				MOD == 'GloryKill')
+		{
+			CashMultiplier = 2;
+			AddPinataSmashedNormal();
+			if (GetCvar("user_LootDrop")) { Pinatas.Health += 5; }
+		}
+		else
+		{	
+			CashMultiplier = 1;
+			AddPinataSmashedNormal();
+		}
+	}
+	
+	//==========================================================================
+	//
+	// D4DropCash(int multiplier, name of cash giver actor)
+	//
+	// Spawns the monster related credit giver with a multiplier.
+	//==========================================================================
+	void D4DropCash(int CashMul, Class<Actor> CashGiver)
+	{
+		if (CashGiver == null)
+		{	return;		}
+		for (; CashMul > 0; CashMul--)
+		{
+			A_SpawnItemEx(CashGiver,0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		return;
+	}
+	
+	//==========================================================================
+	//
+	// D4DropItems
+	//
+	// Drops the pinatas list as-is, at the time of calling.
+	//==========================================================================
+	void D4DropItems()
+	{
+		Pinatas.DropItems(self);
+		/*
+		int MaxTicker = 100;
+		int ZHeight = 32;
+		for (; Pinatas.Health > 0; Pinatas.Health--)
+		{
+			A_SpawnItemEx("D4PinataHealth",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+			if (--MaxTicker < 1)	{	A_Log("Health"); A_LogInt(Pinatas.Health);	return;	}
+		}
+		for (; Pinatas.Armor > 0; Pinatas.Armor--)
+		{
+			A_SpawnItemEx("D4PinataArmor",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+			if (--MaxTicker < 1)	{	A_Log("Armor"); A_LogInt(Pinatas.Armor);	return;	}
+		}
+		for (; Pinatas.Carrion > 0; Pinatas.Carrion--)
+		{
+			A_SpawnItemEx("D4PinataCarrion",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+			if (--MaxTicker < 1)	{	A_Log("Pinatas.Carrion"); A_LogInt(Pinatas.Carrion);	return;	}
+		}
+		for (; Pinatas.BulletsSmall > 0; Pinatas.BulletsSmall--)
+		{
+			A_SpawnItemEx("D4PinataBullets",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+			if (--MaxTicker < 1)	{	A_Log("Pinatas.BulletsSmall"); A_LogInt(Pinatas.BulletsSmall);	return;	}
+		}
+		for (; Pinatas.BulletsBig > 0; Pinatas.BulletsBig--)
+		{
+			A_SpawnItemEx("D4PinataBulletsBig",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+			if (--MaxTicker < 1)	{	A_Log("Pinatas.BulletsBig"); A_LogInt(Pinatas.BulletsBig);	return;	}
+		}
+		for (; Pinatas.ShellsSmall > 0; Pinatas.ShellsSmall--)
+		{
+			A_SpawnItemEx("D4PinataShells",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+			if (--MaxTicker < 1)	{	A_Log("Pinatas.ShellsSmall"); A_LogInt(Pinatas.ShellsSmall);	return;	}
+		}
+		for (; Pinatas.ShellsBig > 0; Pinatas.ShellsBig--)
+		{
+			A_SpawnItemEx("D4PinataShellsBig",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+			if (--MaxTicker < 1)	{	A_Log("Pinatas.ShellsBig"); A_LogInt(Pinatas.ShellsBig);	return;	}
+		}
+		for (; Pinatas.CellsSmall > 0; Pinatas.CellsSmall--)
+		{
+			A_SpawnItemEx("D4PinataCells",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+			if (--MaxTicker < 1)	{	A_Log("Pinatas.CellsSmall"); A_LogInt(Pinatas.CellsSmall);	return;	}
+		}
+		for (; Pinatas.CellsBig > 0; Pinatas.CellsBig--)
+		{
+			A_SpawnItemEx("D4PinataCellsBig",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+			if (--MaxTicker < 1)	{	A_Log("Pinatas.CellsBig"); A_LogInt(Pinatas.CellsBig);	return;	}
+		}
+		for (; Pinatas.RocketsSmall > 0; Pinatas.RocketsSmall--)
+		{
+			A_SpawnItemEx("D4PinataRockets",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+			if (--MaxTicker < 1)	{	A_Log("Pinatas.RocketsSmall"); A_LogInt(Pinatas.RocketsSmall);	return;	}
+		}
+		for (; Pinatas.RocketsBig > 0; Pinatas.RocketsBig--)
+		{
+			A_SpawnItemEx("D4PinataRocketsBig",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+			if (--MaxTicker < 1)	{	A_Log("Pinatas.RocketsBig"); A_LogInt(Pinatas.RocketsBig);	return;	}
+		}
+		for (; Pinatas.BFG > 0; Pinatas.BFG--)
+		{
+			A_SpawnItemEx("D4PinataBFG",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+			if (--MaxTicker < 1)	{	A_Log("Pinatas.BFG"); A_LogInt(Pinatas.BFG);	return;	}
+		}
+		return;
+		*/
+	}
+	
+	// How this works is pretty simple. Behaves just like A_SpawnItemEx's 'chance'
+	// parameter to NOT spawn. So basically returns false more often the higher 
+	// the number is.
+	int RNG256(int num)	{	return (random(1,256) > num) ? 1 : 0;	}
+	
+	//==========================================================================
+	//
+	// AddPinataSmashedChainsaw
+	//
+	// Adds standard pinata drops to Pinatas list.
+	//==========================================================================
+	void AddPinataSmashedChainsaw()
+	{
+		if (GetCvar("user_LootDrop"))
+		{
+			//D4PinataBullets
+			//health giver
+			if (A_JumpIfHealthLower(60,"Null",AAPTR_PLAYER1))
+			{
+				Pinatas.AddItem("D4PinataHealth", 2 + RNG256(128) + RNG256(240));
+				//Pinatas.Health += 2 + RNG256(128) + RNG256(192);
+			}
+			
+			//armor giver
+			if (CountInv("D4ArmorCapRaiser",Player1) >= 25)
+			{
+				Pinatas.AddItem("D4PinataArmor", RNG256(128) + RNG256(128));
+				//Pinatas.Armor += RNG256(128) + RNG256(128);
+			}
+			if (CountInv("D4ArmorCapRaiser",Player1) >= 50)
+			{
+				Pinatas.AddItem("D4PinataArmor", RNG256(128) + RNG256(128));
+				//Pinatas.Armor += RNG256(128) + RNG256(128);
+			}
+			if (CountInv("D4ArmorCapRaiser",Player1) >= 100)
+			{
+				Pinatas.AddItem("D4PinataArmor", 2);
+				//Pinatas.Armor += 2;
+			}
+			
+			Pinatas.AddItem("D4PinataBulletsBig", 4);
+			Pinatas.AddItem("D4PinataShellsBig", 4);
+			Pinatas.AddItem("D4PinataCellsBig", 5);
+			Pinatas.AddItem("D4PinataRocketsBig", 3);
+			
+			//Pinatas.BulletsBig += 4;
+			//Pinatas.ShellsBig += 3;
+			//Pinatas.CellsBig += 5;
+			//Pinatas.RocketsBig += 3;
+			
+			//BFG ammo giver, this one doesnt check for ammo low, but it does check for the weapon
+			if (CountInv("D4BFG",AAPTR_PLAYER1))
+			{
+				Pinatas.AddItem("D4PinataBFG", RNG256(232));
+				//Pinatas.BFG += RNG256(232); //very rarely
+			}
+		}
+		else
+		{
+			Pinatas.AddItem("D4PinataBulletsBig", 	1);
+			Pinatas.AddItem("D4PinataShellsBig", 	1);
+			Pinatas.AddItem("D4PinataCellsBig", 	1);
+			Pinatas.AddItem("D4PinataRocketsBig", 	1);
+		//	Pinatas.BulletsBig++;
+		//	Pinatas.ShellsBig++;
+		//	Pinatas.CellsBig++;
+		//	Pinatas.RocketsBig++;
+		}
+	}
+	//==========================================================================
+	//
+	// AddPinataSmashedNormal
+	//
+	// Adds standard pinata drops to Pinatas list.
+	//==========================================================================
+	void AddPinataSmashedNormal()
+	{
+		if (GetCvar("user_LootDrop"))
+		{
+			//health giver
+			if (A_JumpIfHealthLower(40,"Null",AAPTR_PLAYER1))
+			{
+				Pinatas.AddItem("D4PinataHealth", 1 + RNG256(192));
+				//Pinatas.Health += 1 + RNG256(192);
+			}
+			
+			//Armor giver
+			if (CountInv("BasicArmor",AAPTR_PLAYER1) < 200 && CountInv("D4ArmorCapRaiser",AAPTR_PLAYER1)>=50)	//only if player isnt at full armor and has upgraded his armor
+			{
+				Pinatas.AddItem("D4PinataArmor", RNG256(192));
+				//Pinatas.Armor += RNG256(230); //very rarely they will drop armor
+			}
+			
+			//bullets giver
+			if ((CountInv("D4AssaultRifle",AAPTR_PLAYER1) || 
+				CountInv("D4Chaingun",AAPTR_PLAYER1) ||
+				CountInv("D4Repeater",AAPTR_PLAYER1)) && 
+				CountInv("D4Bullets",AAPTR_PLAYER1) < 10)
+			{
+				Pinatas.AddItem("D4PinataBullets", RNG256(128) + RNG256(240));
+				//Pinatas.BulletsSmall += RNG256(128) + RNG256(240);
+			}
+			
+			//Shells giver
+			if ((CountInv("D4Shotgun",AAPTR_PLAYER1) || 
+				CountInv("D4SuperShotgun",AAPTR_PLAYER1)) && 
+				CountInv("D4Shells",AAPTR_PLAYER1) < 5)
+			{
+				Pinatas.AddItem("D4PinataShells", RNG256(128) + RNG256(240));
+				//Pinatas.ShellsSmall += RNG256(128) + RNG256(240);
+			}
+			
+			//Cells giver
+			if ((CountInv("D4PlasmaRifle",AAPTR_PLAYER1) ||
+				CountInv("D4GaussCannon",AAPTR_PLAYER1) ||
+				CountInv("D4LightningGun",AAPTR_PLAYER1)) && 
+				CountInv("D4Cells",AAPTR_PLAYER1) < 16)
+			{
+				Pinatas.AddItem("D4PinataCells", RNG256(128) + RNG256(240));
+				//Pinatas.CellsSmall += RNG256(128) + RNG256(240);
+			}
+			//Rockets giver
+			if(CountInv("D4RocketLauncher",AAPTR_PLAYER1) && CountInv("D4Rockets",AAPTR_PLAYER1) < 5)
+			{
+				Pinatas.AddItem("D4PinataRockets", RNG256(196));
+				//Pinatas.RocketsSmall += RNG256(196);
+			}
+			
+			//BFG ammo giver, this one doesnt check for ammo low, but it does check for the weapon
+			if (CountInv("D4BFG",AAPTR_PLAYER1) && CountInv("BFGUpgrade1",AAPTR_PLAYER1))
+			{
+				Pinatas.AddItem("D4PinataBFG", RNG256(253));
+				Pinatas.BFG += RNG256(253);
+			}
+		}
+	}
+	
+	//==========================================================================
+	//
+	// XDeathGush(int bcolor)
+	//
+	// Splatters the enemy. Accept 0, Color_Green, Color_Blue or Color_Black
+	// for blood colors on the gib dropper.
+	//==========================================================================
+	
+	void XDeathGush(int bcolor = 0)
+	{
+		MOD = DamagetypeReceived;
+		if ((MOD != 'Massacre'))
+		{
+			A_SpawnItemEx("BloodGibDropper",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_USEBLOODCOLOR,0,bcolor);
+			A_XScream();
+			A_PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
+		}
+		A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+	}
+}
+
+
+Class D4AbstractBiggie : D4AbstractMonster {}
+Class D4AbstractBoss : D4AbstractBiggie {}
+Class D4AbstractMissile : Actor {}
+
+Class PainSoundToken : Inventory
+{}
+
+//for previous iteration of the system
+Class MonsterHealer : CustomInventory
+{
+	Default
+	{
+		+INVENTORY.AUTOACTIVATE
+		Inventory.MaxAmount 10000;
+	}
+	
+	States
+	{
+	Use:
+		TNT1 A 0 A_SetHealth(health+1);
+		Stop;
+	}
+}
+// debug actor
+Class DecoTest : Actor
+{
+	Default
+	{
+		+NOINTERACTION
+		Scale 2.0;
+		alpha 0.4;
+	}
+	
+	States
+	{
+	Spawn:
+		TROO A 2 Bright;
+		Stop;
+	}
+}
+
+
+
+//==================================================================================================
+//	Wound health values, just for reference
+// 
+// Monster; NAME       HEALTH    WOUND    |     HEALTH-D4D   WOUND-D4D    |  HEAL TO
+// Zombieman            20       10      |        20          10         |     15          
+// ShotgunGuy           30       10      |        30          10         |     15   
+// ChaingunGuy          70       30      |        70          30         |     40   
+// DoomImp              60       25      |        60          25         |     30    
+// Demon/spectre       150       50      |       150          50         |     60   
+// LostSoul            N/A      N/A      |       N/A         N/A         |    N/A   
+// Cacodemon           300       80      |       400          80         |    100          
+// PainElemental       400      100      |       400         100         |    101
+// Revenant            300       80      |       400          80         |    100
+// HellKnight          500      100      |       500         100         |    130
+// BaronOfHell        1000      150      |      1000         150         |    180
+// Fatso               600      110      |       800         120         |    130
+// Arachnotron         500      100      |       500         100         |    130	
+// Archvile            700      120      |      1000         150         |    130 - 180
+// Cyberdemon         4000      150      |      4000         150         |    201
+// SpiderMastermind   3000      150      |      3000         150         |    201
+//
+//==================================================================================================
+
+//===================================================================================
+//	Base actor from which they inherit
+//===================================================================================
+Class HighlightBase : Actor
+{
+	int user_MainCounter;
+	int user_woundvalue;
+	int user_RecoverToAmount;
+	int user_StgrPainCounter;
+	Default
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		Scale 1.1;
+		Translation "0:255=%[0.2,0.2,0.2]:[1.5,0.75,0.0]";
+		Alpha 0.4;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY 
+		{
+			user_RecoverToAmount=15;
+		}
+		Goto Looper;
+	Looper:
+		TNT1 A 1 Bright //by default, is invisible
+		{
+			if(user_MainCounter>=(GetCvar("D4D_StaggerLenght")*35) )
+			{
+				A_SetHealth(user_RecoverToAmount,MasterPtr);	//heals the Monster;
+				A_TakeInventory("FinisherToken",32768,0,AAPTR_MASTER); // removes the finisher token
+				return ResolveState("Null");	//and this actor dies
+			}
+			else
+			{
+				if(GetCvar("D4D_ExecutionHighlight")==1/* && GetCvar("vid_renderer")==0*/)	//if the highlight is ON and in software mode
+				{	A_CopySpriteFrame(MasterPtr,0);	}	//copies the sprite
+				
+				if(user_StgrPainCounter==35 || user_MainCounter==0) //if the stagger just started or one second has passed
+				{ 
+					A_GiveInventory("PainSoundToken",1,MasterPtr);  //makes the parent actor play pain sound
+					user_StgrPainCounter=0;
+				}
+					
+				//Checks if it can warp (and warps) and ensures the master is alive	
+				if (A_Warp(MasterPtr,  1  ,0,0,0,WARPF_NOCHECKPOSITION,"Null") && !A_JumpIfHealthLower(1,"Null",MasterPtr)) 
+				{
+					//nothing happens here, really
+					//A_SpawnItemEx("DecoTest",0,0,0,0,0,0,0,32);	//debug
+				}
+				else	//it couldnt warp or the master is dead
+				{
+					//A_PrintBold("taking the item away"); //debug
+					A_TakeInventory("FinisherToken",32768,0,AAPTR_MASTER);	//removes the finisher token
+					return ResolveState("Null");	//this actor dies, because is no longer needed
+				}
+					
+				user_MainCounter++;	//increases the main counter
+				user_StgrPainCounter++; //increases the 1 second counter for pain sounds
+				return ResolveState(null);
+			}
+		}
+		Loop;
+	}
+}
+
+
+//===================================================================================
+//	Zombieman & ShotgunGuy
+//===================================================================================
+Class ZombieHighlight : HighlightBase
+{
+	Default
+	{	
+		Scale 1.05;
+	}
+	States
+	{	Spawn:
+			TNT1 A 0 NODELAY 
+			{	
+				user_RecoverToAmount=15; //to how much will it heal after stagger times out
+			}
+			Goto Looper;
+	}
+}
+
+
+//===================================================================================
+//	ChaingunGuy
+//===================================================================================
+Class ChaingunnerHighlight : HighlightBase
+{
+	Default
+	{	
+		Scale 1.1;
+	}
+	States
+	{	Spawn:
+			TNT1 A 0 NODELAY 
+			{	user_RecoverToAmount=40;	}	//to how much will it heal after stagger times out
+			Goto Looper;
+	}
+}
+
+//===================================================================================
+//	Imp
+//===================================================================================
+Class ImpHighlight : HighlightBase
+{
+	Default
+	{	
+		Scale 1.1;
+	}
+	States
+	{	Spawn:
+			TNT1 A 0 NODELAY 
+			{	user_RecoverToAmount=30;	}	//to how much will it heal after stagger times out
+			Goto Looper;
+	}
+}
+
+//===================================================================================
+//	Demon & spectre
+//===================================================================================
+Class DemonHighlight : HighlightBase
+{
+	Default
+	{	
+		Scale 0.765;
+	}
+	States
+	{	Spawn:
+			TNT1 A 0 NODELAY 
+			{	user_RecoverToAmount=60;	}	//to how much will it heal after stagger times out
+			Goto Looper;
+	}
+}
+Class OldDemonHighlight : HighlightBase
+{
+	Default
+	{	
+		Scale 1.1;
+	}
+	States
+	{	Spawn:
+			TNT1 A 0 NODELAY 
+			{	user_RecoverToAmount=60;	}	//to how much will it heal after stagger times out
+			Goto Looper;
+	}
+}
+
+//===================================================================================
+//	Cacodemon
+//===================================================================================
+Class CacoHighlight : HighlightBase
+{
+	Default
+	{	
+		Scale 1.1;
+	}
+	States
+	{	Spawn:
+			TNT1 A 0 NODELAY 
+			{	user_RecoverToAmount=100;	}	//to how much will it heal after stagger times out
+			Goto Looper;
+	}
+}
+//===================================================================================
+//	Pain Elemental
+//===================================================================================
+Class D4DPainElementalHighlight : HighlightBase
+{
+	Default
+	{	
+		Scale 1.22;
+	}
+	States
+	{	Spawn:
+			TNT1 A 0 NODELAY 
+			{	user_RecoverToAmount=101;	}	//to how much will it heal after stagger times out
+			Goto Looper;
+	}
+}
+Class OldPainElementalHighlight : D4DPainElementalHighlight
+{
+	Default
+	{	
+		Scale 1.1;
+	}
+}
+
+//===================================================================================
+//	Revenant
+//===================================================================================
+Class D4DRevenantHighlight : HighlightBase
+{
+	Default
+	{	
+		Scale 0.95;
+	}
+	States
+	{	Spawn:
+			TNT1 A 0 NODELAY 
+			{	user_RecoverToAmount=100;	}	//to how much will it heal after stagger times out
+			Goto Looper;
+	}
+}
+Class OldRevenantHighlight : D4DRevenantHighlight
+{
+	Default
+	{	
+		Scale 1.1;
+	}
+}
+
+//===================================================================================
+//	Hell knight
+//===================================================================================
+Class D4DHellKnightHighlight : HighlightBase
+{
+	Default
+	{	
+		Scale 0.69;
+	}
+	States
+	{	Spawn:
+			TNT1 A 0 NODELAY 
+			{	user_RecoverToAmount=130;	}	//to how much will it heal after stagger times out
+			Goto Looper;
+	}
+}
+Class OldHellKnightHighlight : D4DHellKnightHighlight
+{
+	Default
+	{	
+		Scale 1.1;
+	}
+}
+
+//===================================================================================
+//	Baron Of Hell
+//===================================================================================
+Class D4DBaronHighlight : HighlightBase
+{
+	Default
+	{	
+		Scale 0.77;
+	}
+	States
+	{	Spawn:
+			TNT1 A 0 NODELAY 
+			{	user_RecoverToAmount=180;	}	//to how much will it heal after stagger times out
+			Goto Looper;
+	}
+}
+Class BaronHighlight : HighlightBase
+{
+	Default
+	{	
+		Scale 1.1;
+	}
+	States
+	{	Spawn:
+			TNT1 A 0 NODELAY 
+			{	user_RecoverToAmount=180;	}	//to how much will it heal after stagger times out
+			Goto Looper;
+	}
+}
+//===================================================================================
+//	Both Fatso variations
+//===================================================================================
+Class D4DFatsoHighlight : HighlightBase
+{
+	Default
+	{	
+		Scale 1.2;
+	}
+	States
+	{	Spawn:
+			TNT1 A 0 NODELAY 
+			{	user_RecoverToAmount=130;	}	//to how much will it heal after stagger times out
+			Goto Looper;
+	}
+}
+Class OldFatsoHighlight : D4DFatsoHighlight
+{
+	Default
+	{	
+		Scale 1.1;
+	}
+}
+//===================================================================================
+//	Arachnotron
+//===================================================================================
+Class ArachnoHighlight : HighlightBase
+{
+	Default
+	{	
+		Scale 1.1;
+	}
+	States
+	{	Spawn:
+			TNT1 A 0 NODELAY 
+			{	user_RecoverToAmount=130;	}	//to how much will it heal after stagger times out
+			Goto Looper;
+	}
+}
+
+//===================================================================================
+//	Archvile
+//===================================================================================
+Class D4DArchHighlight : HighlightBase
+{
+	Default
+	{	
+		Scale 1.1;
+	}
+	States
+	{	Spawn:
+			TNT1 A 0 NODELAY 
+			{	user_RecoverToAmount=180;	}	//to how much will it heal after stagger times out
+			Goto Looper;
+	}
+}
+Class OldArchHighlight : HighlightBase
+{
+	Default
+	{	
+		Scale 1.1;
+	}
+	States
+	{	Spawn:
+			TNT1 A 0 NODELAY 
+			{	user_RecoverToAmount=130;	}	//to how much will it heal after stagger times out
+			Goto Looper;
+	}
+}
+
+//===================================================================================
+//	Cyberdemon
+//===================================================================================
+Class CyberdemonHighlight : HighlightBase	//had to redefine, since these guys stay less time in their stagger state
+{
+	
+	Default
+	{	
+		Scale 1.1;
+	}
+	States
+	{	
+	Spawn:
+		TNT1 A 0 NODELAY 
+		{	user_RecoverToAmount=201;	}	//to how much will it heal after stagger times out
+		Goto Looper;
+	Looper:
+		TNT1 A 1 Bright //by default, is invisible
+		{
+			if(user_MainCounter>=((GetCvar("D4D_StaggerLenght")*0.5)*35) )	//lasts only half of the time
+			{
+				A_SetHealth(user_RecoverToAmount,MasterPtr);	//heals the Monster;
+				A_TakeInventory("FinisherToken",32768,0,AAPTR_MASTER); // removes the finisher token
+				return ResolveState("Null");	//and this actor dies
+			}
+			else
+			{
+				if(GetCvar("D4D_ExecutionHighlight")==1  && GetCvar("vid_renderer")==0)	//if the highlight is ON
+				{	A_CopySpriteFrame(MasterPtr,0);	}	//copies the sprite
+				
+				if(user_StgrPainCounter==35 || user_MainCounter==0) //if the stagger just started or one second has passed
+				{ 
+					A_GiveInventory("PainSoundToken",1,MasterPtr);  //makes the parent actor play pain sound
+					user_StgrPainCounter=0;
+				}
+					
+				//Checks if it can warp (and warps) and ensures the master is alive	
+				if (A_Warp(MasterPtr,  1  ,0,0,0,WARPF_NOCHECKPOSITION,"Null") && !A_JumpIfHealthLower(1,"Null",MasterPtr)) 
+				{
+					//nothing happens here, really
+					//A_SpawnItemEx("DecoTest",0,0,0,0,0,0,0,32);	//debug
+				}
+				else	//it couldnt warp or the master is dead
+				{
+					//A_PrintBold("taking the item away"); //debug
+					A_TakeInventory("FinisherToken",32768,0,AAPTR_MASTER);	//removes the finisher token
+					return ResolveState("Null");	//this actor dies, because is no longer needed
+				}
+					
+				user_MainCounter++;	//increases the main counter
+				user_StgrPainCounter++; //increases the 1 second counter for pain sounds
+				return ResolveState(null);
+			}
+		}
+		Loop;
+	}
+}
+
+//===================================================================================
+//	Mastermind
+//===================================================================================
+Class MastermindHighlight : CyberdemonHighlight
+{
+	
+	Default
+	{	
+		Scale 1.1;
+	}
+	States
+	{	Spawn:
+			TNT1 A 0 NODELAY 
+			{	user_RecoverToAmount=201;	}	//to how much will it heal after stagger times out
+			Goto Looper;
+	}
+}

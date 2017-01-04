@@ -1,0 +1,898 @@
+//================================================================================================================
+//================================================================================================================
+//
+//	"D4D mode" version
+//
+//================================================================================================================
+//================================================================================================================
+Class ArchAttacking : Inventory {}
+Class D4Archvile : D4AbstractBiggie
+{
+	int user_flee;	
+	int user_staggertimer;
+	Default 
+	{
+		Health 1000;
+		Radius 20;
+		Height 56;
+		Mass 500;
+		Speed 15;
+		PainChance 10;
+		Monster;
+		MaxTargetRange 896;
+		+QUICKTORETALIATE 
+		+FLOORCLIP
+		+DONTCORPSE
+		BloodColor "Black";
+		BloodType "D4BloodBlack";
+		SeeSound "Doom4/Monsters/Archvile/Sight";
+		PainSound "Doom4/Monsters/Archvile/Pain";
+		DeathSound "Doom4/Monsters/Archvile/Death";
+		ActiveSound "Doom4/Monsters/Archvile/Idle";
+		MeleeSound "vile/Stop";
+		Obituary "$OB_VILE";
+		MeleeRange 256;
+		PainChance "GloryKill", 255;
+		WoundHealth 150;
+		PainChance "StunBomb", 255;
+	}
+	States
+	{
+	Spawn:
+		DIAB A 0 NODELAY	//in case player/target died somehow in the middle of his teleport
+		{					//it will reset everything back to normal
+			A_SetSpeed(15);
+			A_SetShootable();
+			bNoPain = false;
+			bFrightened = false;
+		}
+		DIAB AB 10 A_Look();
+		Loop;
+	See:
+		TNT1 A 0 A_Jump(64,"TeleportTowards"); //rarely it will teleport even when you´re too far
+		DIAB AABBCCDDEEFF 2 
+		{
+			if (GetCvar("user_ArchvileInfighting") > 0)
+			{	bNoTarget = false;	}
+			else
+			{	bNoTarget = true;	}
+			D4Chase();
+		}
+		Loop;
+		
+	//I had to create this one to stop this guy from teleporting away every time you made it enter wound
+	SeeAfterWound:
+		DIAB AABBCCDDEEFFAABBCCDDEEFF 2 
+		{
+			if (GetCvar("user_ArchvileInfighting") > 0)
+			{	bNoTarget = false;	}
+			else
+			{	bNoTarget = true;	}
+			D4Chase(null,"Missile");
+		}
+		Goto See;
+		
+
+	//==============================================
+	// teleport "attack"
+	Melee:
+		TeleportAway:	//melee range teleport will always make it flee
+			TNT1 A 0 {user_flee = 1;}
+			Goto TeleportCommon;
+			
+		TeleportTowards:	//when he's too far, he "teleports" towards you 
+			TNT1 A 0 {user_flee = 0;} //just in case
+			Goto TeleportCommon;
+
+		TeleportCommon:
+			TNT1 A 0 
+			{	
+				A_SetSpeed(40);
+				bNonShootable = true;
+				bNoPain = true;
+				if (user_flee)
+				{	
+					bFrightened = true;
+				}
+			}
+			TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 1
+			{
+				A_Chase(null,null);
+				A_SpawnItemEx("ArchvileTPortTrail",0,0,20,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("ArchvileTPortTrail",0,0,40,0,0,0,0,SXF_NOCHECKPOSITION);
+			}
+			TNT1 A 0 
+			{	
+				A_SetSpeed(15);
+				bNonShootable = false;
+				bNoPain = false;
+				bFrightened = false;
+				user_flee = 0; //always set it to not flee
+			}
+			Goto SeeNoTeleport; //after doing the teleport move, will go for a little bit without trying it again
+			
+			SeeNoTeleport:
+				DIAB AABBCCDDEEFF 2 D4Chase(null,"Missile");
+				DIAB AABBCCDDEEFF 2 D4Chase(null,"Missile");
+				DIAB AABBCCDDEEFF 2 D4Chase(null,"Missile");
+				DIAB AABBCCDDEEFF 2 D4Chase(null,"Missile");
+				DIAB AABBCCDDEEFF 2 D4Chase(null,"Missile");
+				Goto See;
+	//==============================================
+	// Summon and Argent attack
+	Missile:
+		TNT1 A 0 A_Jump(64,"Summon");
+		Goto ArgentAttack;
+		
+		ArgentAttack:
+			DIAB M 0 A_SpawnItemEx("SummonerSparks",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_TRANSFERPOINTERS);
+			DIAB MMMMMMMMMMMMM 3 Bright 
+			{
+				A_FaceTarget();
+				A_GiveInventory("ArchAttacking",1);
+				A_SpawnItemEx("SummonerHandSparks",0,0,35,frandom(0.1,2.0),frandom(3,-3),frandom(1,-1),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("SummonerHandSparks",0,0,35,frandom(0.1,2.0),frandom(3,-3),frandom(1,-1),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("SummonerHandSparks",0,0,35,frandom(0.1,2.0),frandom(3,-3),frandom(1,-1),0,SXF_NOCHECKPOSITION);
+			}
+			DIAB LKJ 3 Bright;
+			DIAB I 25 Bright A_SpawnProjectile("SummonerProjectile");
+			Goto See;
+		Summon:
+			DIAB "[[[" 3 BRIGHT
+			{
+				A_SpawnItemEx("SummonerTargetingSparks",0,22,35,frandom(0.1,2.0),frandom(3,-3),frandom(1,-1),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("SummonerTargetingSparks",0,-22,35,frandom(0.1,2.0),frandom(3,-3),frandom(1,-1),0,SXF_NOCHECKPOSITION);
+			}
+			DIAB A 0 A_SpawnProjectile("SummonerMonsterSpawner",40,0,random(80,-80));
+			DIAB "[\\\\]]]]" 3 BRIGHT
+			{
+				A_SpawnItemEx("SummonerTargetingSparks",0,22,35,frandom(0.1,2.0),frandom(3,-3),frandom(1,-1),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("SummonerTargetingSparks",0,-22,35,frandom(0.1,2.0),frandom(3,-3),frandom(1,-1),0,SXF_NOCHECKPOSITION);
+			}
+			DIAB "#" 0 A_SetInventory("ArchAttacking",0);
+			Goto See;
+	Pain:
+		DIAB Q 5 A_SetInventory("ArchAttacking",0);
+		DIAB Q 5 A_Pain();
+		Goto See;
+	Pain.StunBomb:
+		"####" "#" 0 { bNoPain = true; }
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#" 0 { bNoPain = false; }
+		Goto See;
+	Death:
+		DIAB Q 7 
+		{
+			bThruActors = true;
+			D4DropCash(CashMultiplier,"ArchieCashGiver");
+			D4SetupLoot();
+			D4DropItems();
+			A_SetInventory("ArchAttacking",0);
+			
+			if (RuneChance(RuneChance_Archie))
+			{	A_SpawnItemEx("ArchvileRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+		}
+		DIAB R 7 A_Scream();
+		DIAB S 7 A_NoBlocking();
+		DIAB TUVWXY 7;
+		DIAB Z -1 {bCorpse = true;}
+		Stop;
+
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:
+	XDeath:
+		"####" "#" 0  //loot drop
+		{
+			D4SetupLoot();
+			
+			if (GetCvar("MPWeapons"))
+			{	Pinatas.Carrion++;	}
+		}
+		Goto XDeathNoDrops;
+		
+	XDeathNoDrops:	
+		TNT1 A 0
+		{
+			bThruActors = true;
+			XDeathGush(Color_Black);
+			D4DropItems();
+			D4DropCash(CashMultiplier,"ArchieCashGiver");
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+			A_SetInventory("ArchAttacking",0);
+			A_NoBlocking();	//just in case
+			
+			if (RuneChance(RuneChance_Archie))
+			{	A_SpawnItemEx("ArchvileRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+			
+		}
+		Stop;
+	//------------------------------------------------------------------------
+	// Start of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	Wound:
+		"####" "#" 1
+		{
+			if (GetCvar("D4D_ExecutionsON"))
+			{
+				A_SetShootable();
+				if (CountInv("FinisherToken")==0) //if it isnt healing already
+				{								//will heal and give the token that indicates it's executable
+					A_SpawnItemEx("D4DArchHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
+					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
+				}
+				
+				if (GetCvar("D4D_MonsterStagger")==1) //will the monsters stagger at all?
+				{
+					return ResolveState("Stagger");	//stays there for a few seconds
+				}
+				else
+				{
+					return ResolveState(null);
+				}
+			}
+			return ResolveState(null);
+		}
+		Goto SeeAfterWound; //special case for archvile, this state prevents it from teleporting right away
+	Stagger:
+		DIAB Q 0 
+		{
+			if (GetCvar("D4D_ExecutionHighlight")==1)
+			{	return ResolveState("PrepareStaggerHighlight");}
+			else
+			{	return ResolveState("StagLooper");	}
+		}
+		Goto StagLooper;
+	PrepareStaggerHighlight:
+		DIAU U 0;
+		Goto StagLooper;
+	
+	StagLooper:
+		"####" "#" 1
+		{
+			if (!CountInv("FinisherToken"))
+			{
+				return ResolveState("See"); 
+			}
+			if (GetCvar("D4D_NoisyStagger") && CountInv("PainSoundToken"))
+			{ 
+				A_Pain(); 
+				A_TakeInventory("PainSoundToken");
+			}
+			
+			return ResolveState(null);
+		}
+		Loop;
+		
+	// Finisher attack(s) with animations ON
+	Death.GloryKill:
+		TNT1 A 0 { bSolid = false; }
+		DIAB AA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0
+		{
+			if (CountInv("GloryKill1Token"))
+			{	return ResolveState("GloryEnd1"); }
+			
+			if (CountInv("GloryKill2Token"))
+			{	return ResolveState("GloryEnd2"); }
+			
+			if (CountInv("GloryKill3Token"))
+			{	return ResolveState("GloryEnd3"); }
+			return ResolveState(null);
+		}
+	GloryEnd1:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" QQQQQQ 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd2:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" QQQQQQ 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd3:
+		"####" AAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" I 0 A_ChangeVelocity(-8,0,10,CVF_RELATIVE);
+		Goto GloryEnd;
+
+	//------------------------------------------------------------------------
+	// End of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	}
+}
+
+Class SummonerMonsterSpawner : Actor 
+{
+	Default 
+	{
+		Speed 12;
+		Radius 32;
+		Height 4;
+		Damage 0;
+		Projectile;
+		+THRUACTORS
+		+DONTSPLASH
+		-NOGRAVITY
+		+FORCEXYBILLBOARD
+		+BOUNCEONWALLS
+		+SKYEXPLODE
+		+STEPMISSILE
+		MaxStepHeight 32;
+		BounceFactor 1.0;
+		WallBounceFactor 1.0;
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		//TNT1 A 0 NODELAY ThrustThingZ(0,20,0,1)
+		BAL1 A 8;
+		BAL1 A 0 A_Stop();
+		Goto Death;
+	Death:
+		TNT1 A 0 A_SpawnItemEx("SummonTeleportFog",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+		TNT1 A 1 A_SpawnItemEx("TporDropBallSpawner",0,0,0,0,0,0,0,SXF_TRANSFERPOINTERS);
+		Stop;
+	}
+}
+
+Class TporDropBallSpawner : RandomSpawner
+{
+	Default 
+	{
+		DropItem "D4Zombieman", 255, 10;
+		DropItem "D4ShotgunGuy", 255, 10;
+		DropItem "D4ChaingunGuy", 255, 10;
+		DropItem "D4DoomImp", 255, 10;
+		DropItem "D4Demon", 255, 6;
+		DropItem "D4LostSoul", 255, 10;
+		DropItem "D4Revenant", 255, 2;
+		DropItem "D4HellKnight", 255, 2;
+	}
+}
+
+
+Class SummonTeleportFog : D4AbstractMissile
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		Alpha 0.99;
+		Scale 1.3;
+	}
+	States
+	{
+	Spawn:
+		DB26 A 0 NODELAY
+		{
+			A_PlaySound("Doom4/Monsters/ArchSummonSFX1",6);
+			A_PlaySound("Doom4/Monsters/QuakeTport",7,0.6);
+		}
+		DB26 ABCDEFGHIIJJKKLLMMNNOO 1 Bright;
+		DB26 PQQRRSSTTUUVV 1 Bright A_FadeOut(0.035);
+		Stop;
+	}
+}
+		
+
+//------------------------------------------
+// The trails used for when it "teleports"
+Class ArchvileTPortTrail : Actor 
+{
+	Default 
+	{
+		//Translation "0:255=%[0,0,0]:[1.5,0.0,0.0]"
+		+NOINTERACTION
+		XScale 0.4;
+		YScale 0.2;
+		RenderStyle "Add";
+		Alpha 1.0;
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(256,random(1,9));
+		HSPL ABCDEFGHJ 0 A_Jump(256,"Perform");
+	Perform:
+		"####" "#" 1 Bright A_FadeOut(0.05);
+		Wait;
+	}
+}
+
+
+//------------------------------------------
+// Argent energy attack
+Class SummonerProjectile : FastProjectile
+{
+	Default 
+	{
+		Projectile;
+		Speed 50;
+		FastSpeed 80;
+		Radius 8;
+		Height 16;
+		DamageFunction (random(30,60));
+		RenderStyle "Add";
+		Xscale 0.3;
+		Yscale 0.8;
+		Translation "0:255=%[0,0,0]:[1.0,0.0,0.0]";
+		SeeSound "Doom4/Monsters/ArgentWaveFire";
+		MissileType "SummonerTrailSpawner";
+		MissileHeight 8;
+	}
+	States
+	{
+	Spawn:
+		X016 ABCDEFGHIJKLMNOPQRSTUVWXY 1 Bright A_Explode(10,64,0);
+		Loop;
+	Death:
+		TNT1 A 10;
+		Stop;
+	}
+}
+
+Class SummonerTrailSpawner : Actor //dummy to spawn muliple trails through fastprojectile's method
+{
+	Default 
+	{
+		+NOINTERACTION
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 3 NODELAY
+		{
+			if (GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("SummonerTrail",-2,0,random(0,10),0,0,frandom(0.5,3),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("SummonerTrail",-2,0,random(0,-10),0,0,frandom(-0.5,-3),0,SXF_NOCHECKPOSITION);
+			}
+			else
+			{
+				A_SpawnItemEx("SummonerTrail",-2,0,random(0,10),0,0,frandom(0.5,3),0,SXF_NOCHECKPOSITION,160);
+				A_SpawnItemEx("SummonerTrail",-2,0,random(0,-10),0,0,frandom(-0.5,-3),0,SXF_NOCHECKPOSITION,160);
+			}
+		}
+		Stop;
+	}
+}
+
+Class SummonerTrail : ArchvileTPortTrail
+{
+	Default 
+	{
+		Scale 0.2;
+		Translation "0:255=%[0,0,0]:[1.0,0.0,0.0]";
+	}
+}
+
+
+Class SummonerSparks : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		Translation "0:255=%[0,0,0]:[1.0,0.0,0.0]";
+		Scale 0.4;
+		RenderStyle "Add";
+		Alpha 0.99;
+		Height 1;
+		Radius 1;
+	}
+	States
+	{
+	Spawn:
+		DB08 A 0 Nodelay A_PlaySound("Doom4/Monsters/ArgentCharge",6,0.8);
+		DB08 ABCDEFGHIJKLMNOPQRSTUVWXYABCDEFGHIJKLMNOPQRSTUVWXY 1 Bright 
+		{
+			if (IsPointerEqual(MasterPtr,NullPtr) || A_JumpIfHealthLower(1,"Null",MasterPtr))
+			{	return ResolveState("Null");	}
+			if (A_CheckLOF("Null",CLOFF_SKIPOBSTACLES,0,0,0,0,0,0,MasterPtr))
+			{	
+				A_Warp(TargetPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",0.5,1.0);
+				A_FadeTo(0.99,1.0,FTF_CLAMP);
+				if (GetCvar("HQEffects"))
+				{
+					A_SpawnItemEx("SummonerTargetingSparks",0,0,0,1,frandom(3,-3),frandom(0.5,-0.5), 0,SXF_NOCHECKPOSITION,128);
+				}				
+				A_SetScale(frandom(0.25,0.45));
+			}
+			else
+			{
+				A_Warp(TargetPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",0.5,1.0);
+				A_FadeTo(0.3,1.0,FTF_CLAMP);
+				if (GetCvar("HQEffects"))
+				{
+					A_SpawnItemEx("SummonerTargetingSparks",0,0,0,1,frandom(3,-3),frandom(0.5,-0.5), 0,SXF_NOCHECKPOSITION,128);
+				}	
+				A_SetScale(frandom(0.1,0.3));
+			}
+			return ResolveState(null);
+		}
+		Stop;
+	}
+}
+
+Class SummonerTargetingSparks : Actor //spawned in front of the player
+{
+	Default 
+	{
+		+NOINTERACTION
+		Scale 0.2;
+		RenderStyle "Add";
+		Translation "0:255=%[0,0,0]:[1.0,0.0,0.0]";
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(256,1,2,3,4,5,6,7,8);
+		X079 ABCDEFGH 0	A_Jump(256,"Perform");
+	Perform:
+		"####" "#" 1 Bright 
+		{
+			A_FadeOut(0.05);
+		}
+		Loop;
+	}
+}
+
+Class SummonerHandSparks : Actor //spawned in the hands of the archvile
+{
+	Default 
+	{
+		+NOINTERACTION
+		Scale 0.3;
+		RenderStyle "Add";
+		Translation "0:255=%[0,0,0]:[2.0,0.0,0.0]";
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(256,1,2,3,4,5,6,7,8);
+		X079 ABCDEFGH 0	A_Jump(256,"Perform");
+	Perform:
+		"####" "#" 1 Bright 
+		{
+			A_FadeOut(0.05);
+			A_SetScale(Scale.X+0.02);
+		}
+		Loop;
+	}
+}
+
+//================================================================================================================
+//================================================================================================================
+//
+//	Regular Doom version 
+//
+//================================================================================================================
+//================================================================================================================
+Class D4OldArchVile : D4AbstractBiggie // ArchVile replaces ArchVile
+{
+		
+	int user_staggertimer;
+	Default 
+	{
+		Health 700;
+		Radius 20;
+		Height 56;
+		Mass 500;
+		Speed 15;
+		PainChance 10;
+		Monster;
+		MaxTargetRange 896;
+		+QUICKTORETALIATE 
+		+FLOORCLIP 
+		+NOTARGET
+		SeeSound "vile/sight";
+		PainSound "vile/pain";
+		DeathSound "vile/death";
+		ActiveSound "vile/active";
+		MeleeSound "vile/Stop";
+		Obituary "$OB_VILE";
+		PainChance "GloryKill", 255;
+		WoundHealth 120;
+		PainChance "StunBomb", 255;
+		+DONTCORPSE
+	}
+	States
+	{
+	Spawn:
+		VILE AB 10 A_Look();
+		Loop;
+	See:
+		VILE AABBCCDDEEFF 2 A_VileChase;
+		Loop;
+	Missile:
+		VILE G 0 BRIGHT A_VileStart;
+		VILE G 10 BRIGHT A_FaceTarget();
+		VILE H 8 BRIGHT A_VileTarget;
+		VILE IJKLMN 8 BRIGHT A_FaceTarget();
+		VILE O 8 BRIGHT A_VileAttack;
+		VILE P 20 BRIGHT;
+		Goto See;
+	Heal:
+		VILE "[\]" 10 BRIGHT;
+		Goto See;
+	Pain:
+		VILE Q 5;  
+		VILE Q 5 A_Pain();
+		Goto See;
+		
+	Pain.StunBomb:
+		"####" "#" 0 { bNoPain = true; }
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#" 0 { bNoPain = false; }
+		Goto See;
+		
+	Death:
+		VILE Q 7 
+		{
+			bThruActors = true;
+			XDeathGush(Color_Green);
+			D4DropItems();
+			D4DropCash(CashMultiplier,"ArchieCashGiver");
+			if (RuneChance(RuneChance_Archie))
+			{	A_SpawnItemEx("ArchvileRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+		}
+		VILE R 7 A_Scream();
+		VILE S 7 A_NoBlocking();
+		VILE TUVWXY 7;
+		VILE Z -1 {bCorpse = true;}
+		Stop;
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:
+	XDeath:
+		"####" "#" 0  //loot drop
+		{
+			D4SetupLoot();
+			
+			if (GetCvar("MPWeapons"))
+			{	Pinatas.Carrion++;	}
+		}
+		Goto XDeathNoDrops;
+		
+	XDeathNoDrops:	
+		TNT1 A 0
+		{
+			bThruActors = true;
+			XDeathGush(Color_Green);
+			D4DropItems();
+			D4DropCash(CashMultiplier,"ArchieCashGiver");
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+			if (RuneChance(RuneChance_Archie))
+			{	A_SpawnItemEx("ArchvileRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+		}
+		VILE R 7 A_Scream();
+		VILE S 7 A_NoBlocking();
+		VILE TUVWXY 7;
+		VILE Z -1 {bCorpse = true;}
+		Stop;
+	//------------------------------------------------------------------------
+	// Start of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	Wound:
+		"####" "#" 1
+		{
+			if (GetCvar("D4D_ExecutionsON"))
+			{
+				if (CountInv("FinisherToken")==0) //if it isnt healing already
+				{								//will heal and give the token that indicates it's executable
+					A_SpawnItemEx("OldArchHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
+					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
+				}
+				
+				if (GetCvar("D4D_MonsterStagger")==1) //will the monsters stagger at all?
+				{
+					return ResolveState("Stagger");	//stays there for a few seconds
+				}
+				else
+				{
+					return ResolveState(null);
+				}
+			}
+			return ResolveState(null);
+		}
+		Goto See;
+	Stagger:
+		VILE Q 0 
+		{
+			if (GetCvar("D4D_ExecutionHighlight")==1)
+			{	return ResolveState("PrepareStaggerHighlight");}
+			else
+			{	return ResolveState("StagLooper");	}
+		}
+		Goto StagLooper;
+	PrepareStaggerHighlight:
+		VILU U 0;
+		Goto StagLooper;
+	
+	StagLooper:
+		"####" "#" 1
+		{
+			if (!CountInv("FinisherToken"))
+			{
+				return ResolveState("See"); 
+			}
+			if (GetCvar("D4D_NoisyStagger") && CountInv("PainSoundToken"))
+			{ 
+				A_Pain(); 
+				A_TakeInventory("PainSoundToken");
+			}
+			
+			return ResolveState(null);
+		}
+		Loop;
+		
+	// Finisher attack(s) with animations ON
+	Death.GloryKill:
+		TNT1 A 0 { bSolid = false; }
+		VILE AA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0
+		{
+			if (CountInv("GloryKill1Token"))
+			{	return ResolveState("GloryEnd1"); }
+			
+			if (CountInv("GloryKill2Token"))
+			{	return ResolveState("GloryEnd2"); }
+			
+			if (CountInv("GloryKill3Token"))
+			{	return ResolveState("GloryEnd3"); }
+			return ResolveState(null);
+		}
+	GloryEnd1:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" QQQQQQ 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd2:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" QQQQQQ 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd3:
+		"####" AAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" I 0 A_ChangeVelocity(-8,0,10,CVF_RELATIVE);
+		Goto GloryEnd;
+	//------------------------------------------------------------------------
+	// End of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	}
+}
+
+
+Class DBTArchvileFire : D4AbstractMissile replaces ArchvileFire
+{
+	Default 
+	{
+		RenderStyle "None";
+		Alpha 1;
+		+NOBLOCKMAP
+		+NOGRAVITY
+	}
+	States
+	{
+	Spawn:
+		FIRE A 2 NoDelay bright { A_StartFire();	A_SpawnItemEx("ArchvileFireFx",0,0,0,0,0,0,0,32);	}
+		FIRE BABCBCBCDCDCDEDEDEFEFEFGHGHGH 2
+		{
+			A_Fire();
+			A_SpawnItemEx("ArchvileFireFx",0,0,0,0,0,0,0,32);
+		}
+		Stop;
+	}
+}
+
+Class ArchvileFireFx : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+	}
+	States
+	{
+	Spawn:
+		TNT1 AA 0 NoDelay A_SpawnItemEx("FlmThrwrSmoke",random(15,-15),random(0,10),random(25,47),0,0,frandom(0.2,1.0),0,32,128);
+		TNT1 AAA 0 A_SpawnItemEx("FTFlameTrail2",random(15,-15),random(0,10),random(20,40),0,0,frandom(0,1),0,32,64);
+		TNT1 A 1;
+		TNT1 AA 0 A_SpawnItemEx("FlmThrwrSmoke",random(15,-15),random(0,10),random(25,47),0,0,frandom(0.2,1.0),0,32,128);
+		TNT1 AAA 0 A_SpawnItemEx("FTFlameTrail2",random(15,-15),random(0,10),random(20,40),0,0,frandom(0,1),0,32,64);
+		Stop;
+	}
+}
+
+Class FlmThrwrSmoke : Actor 
+{
+	Default 
+	{
+		Scale 0.25;
+		+NOINTERACTION
+		Radius 2;
+		Height 2;
+		RenderStyle "Translucent";
+		Alpha 0.0;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(256,random(1,4));
+		X037 ABCD 0 { return ResolveState("Play"); }
+	Play:
+		"####" "##########" 1 A_FadeIn;
+		"####" "#" 2 A_FadeOut(0.03);
+		Wait;
+	}
+}
+
+Class FTFlameTrail2 : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		/*Projectile;
+		+THRUACTORS
+		+BOUNCEONWALLS
+		+BOUNCEONCEILINGS
+		+BOUNCEONFLOORS
+		BounceFactor 0
+		WallBounceFactor 0.2*/
+		Scale 0.2;
+		RenderStyle "Add";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(256,"F1","F2","F3","F4","F5");
+	F1:
+		X052 AB 2 bright;
+		X052 CDEFGH 3 bright A_ScaleVelocity(0.92);
+		X052 IJKLMNO 2 bright A_ScaleVelocity(0.9);
+		X052 PQRS 1 bright A_ScaleVelocity(0.87);
+		Stop;
+	F2:
+		X053 AB 2 bright;
+		X053 CDEFGHIJ 3 bright A_ScaleVelocity(0.92);
+		X053 KLMN 2 bright A_ScaleVelocity(0.9);
+		X053 OPQRS 1 bright A_ScaleVelocity(0.87);
+		Stop;
+	F3:
+		X054 ABCD 2 bright;
+		X054 EFGHIJK 3 bright A_ScaleVelocity(0.92);
+		X054 LMNO 2 bright A_ScaleVelocity(0.9);
+		X054 PQRS 2 bright A_ScaleVelocity(0.87);
+		Stop;
+	F4:
+		X055 ABC 2 bright;
+		X055 DEFGHIJKLMN 3 bright A_ScaleVelocity(0.92);
+		X055 OP 2 bright A_ScaleVelocity(0.9);
+		X055 QRS 2 bright A_ScaleVelocity(0.87);
+		Stop;
+	F5:
+		X056 ABCDE 2 bright; //A_ScaleVelocity(0.98)
+		X056 FGHIJ 3 bright A_ScaleVelocity(0.92);
+		X056 KLMN 2 bright A_ScaleVelocity(0.9);
+		X056 OPQR 1 bright A_ScaleVelocity(0.87);
+		Stop;
+	}
+}

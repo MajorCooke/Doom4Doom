@@ -1,0 +1,306 @@
+//=================================================================================================
+//=================================================================================================
+
+//		Hell Knight
+
+//=================================================================================================
+//=================================================================================================
+Class KnightRune : DemonRuneBase
+{
+	Default 
+	{
+		Inventory.PickupMessage "Hell Knight rune";
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0 
+		{
+			if (CountInv("IamADemonToken") || CountInv("PowerInvulBase") || countinv("D4DoomDollHands") || countinv("BusyToken")) //if already a demon...
+			{
+				return false;	//...cant pickup
+			}
+			else	//otherwise..
+			{
+				A_GiveInventory("SoundStopper",1); //stops any sound (mostly for the looping ones)
+				A_GiveInventory("HealthArmorSaver",1);
+				A_GiveInventory("IamADemonToken",1); //...gives token and morphs
+				A_GiveInventory("IamHellKnight",1);
+				A_GiveInventory("KnightMorpher",1);
+				return true;
+			}
+		}
+		Stop;
+	}
+}
+
+Class KnightMorpher: PowerupGiver
+{
+	Default 
+	{
+		Inventory.MaxAmount 1;
+		Inventory.Amount 1;
+		Powerup.Type "PowerKnightMorph";
+		Powerup.Duration -60;
+		+Inventory.AutoActivate
+	}
+	States
+	{
+		Spawn:
+			PLAY A 3;
+			Loop;
+	}
+}
+
+Class PowerKnightMorph : PowerMorph
+{
+	Default 
+	{
+		PowerMorph.PlayerClass "PlayerKnight";
+		PowerMorph.MorphStyle (MRF_FULLHEALTH|MRF_UNDOBYDEATH|MRF_UNDOBYDEATHSAVES|MRF_UNDOBYTOMEOFPOWER|MRF_LOSEACTUALWEAPON|MRF_NEWTIDBEHAVIOUR|MRF_UNDOALWAYS|MRF_FAILNOTELEFRAG);
+		PowerMorph.UnMorphFlash "DemonRuneMorphOff";
+		PowerMorph.MorphFlash "DemonRuneMorphOn";
+	}
+}
+
+Class Tester : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+	}
+	States
+	{
+	Spawn:
+		PLAY A 10 NODELAY A_Explode(100,1024,XF_HURTSOURCE,0,1024);
+		Stop;
+	}
+}
+
+Class PlayerKnight : DemonPlayerBase
+{
+	double  user_speed;
+	Default 
+	{
+		Speed 1;
+		Health 500;
+		Radius 18;
+		Height 60;
+		Mass 800;
+		PainChance 40;
+		Gravity 0.5;
+		Player.JumpZ 10;
+		Player.MorphWeapon "D4DKnightWeapon";
+		Player.ViewHeight 54;
+		Player.AttackZOffset 10;
+		Player.CrouchSprite "E02I";
+		Player.SoundClass "PlayerDemonCommon";
+		PainSound "Doom4/Monsters/HellKnight/Pain";
+		DeathSound "Doom4/Monsters/HellKnight/Death";
+		Scale 0.65;
+		DamageFactor "Normal", 0.5;
+		+NOSKIN
+		-PICKUP
+		+SLIDESONWALLS
+		+EXTREMEDEATH
+	}
+	States
+	{
+	Spawn:
+		E02I A -1;
+		Stop;
+	See:
+		E02W ABCDEFGH 3;
+		Loop;
+	Pain:
+		E02P A 5 A_Pain();
+		Goto Spawn;
+	Missile:
+	Melee:
+		E02M A 0 A_Jump(256,"Missile1","Missile2");
+	Missile1:
+		E02M ABCDEFG 3;
+		Goto Spawn;
+	Missile2:
+		E02N ABCDEFG 3;
+		Goto Spawn;
+	Death:
+		E02D A 3 A_Scream();
+		BOS2 B 3 A_NoBlocking();
+		BOS2 CDEFGH 3;
+		BOS2 I -1;
+		Stop;
+	Overlay.IdleSound:
+		TNT1 A 35;
+		TNT1 A 0
+		{
+			if (!GetCvar("D4D_SilentMorphs") && random(1,5)==5)
+			{
+				A_PlaySound("Doom4/Monsters/HellKnight/Idle",5);
+			}
+		}
+		Loop;
+	Overlay.Steps:
+		TNT1 A 5
+		{
+			user_speed = (vel.x*vel.x + vel.y*vel.y);
+			if(A_CheckFloor("Null"))
+			{
+				if(user_speed > 150)
+				{
+					A_PlaySound("Player/Demon/HeavyStep",CHAN_AUTO,0.7);
+					A_SetTics(12);
+				}
+				else if(user_speed > 20)
+				{
+					A_PlaySound("Player/Demon/HeavyStep",CHAN_AUTO,0.7);
+					A_SetTics(15);
+				}
+			}
+		}
+		Loop;
+	}
+}
+
+
+Class D4DKnightWeapon : DoomWeapon
+{
+	Default 
+	{
+		Weapon.BobStyle "Alpha";
+		Weapon.BobSpeed 2.0;
+		Weapon.BobRangeX 0.7;
+		Weapon.BobRangeY 0.5;
+		Tag "Big Brown Hands";
+	}
+	States
+	{
+	Ready:
+		HB2S A 0 A_TakeInventory("PunchedAlready");
+		HB2S A 1 A_WeaponReady(WRF_DISABLESWITCH);
+		Wait;
+	Deselect:
+		HB2S A 1 A_Lower;
+		Loop;
+	Select:
+		HB2S A 1 A_Raise;
+		Wait;
+	User2:
+	Fire:
+		TNT1 A 0 { if(random(1,6)==6) { A_PlaySound("Doom4/Monsters/HellKnight/Attack",7); } }
+		TNT1 A 0 A_Jump(256,"SwingRight","SwingLeft");
+	SwingRight:
+		HB2M ABC 1;
+		HB2M D 1 		{ A_GiveInventory("ShorterKnightPunchFeelerProc"); A_SetAngle(angle+2, SPF_INTERPOLATE); A_SetPitch(pitch+1, SPF_INTERPOLATE); A_SetRoll(-3,SPF_INTERPOLATE); }
+		HB2M EF 1 		{ A_GiveInventory("KnightPunchFeelerProc"); A_SetAngle(angle+2, SPF_INTERPOLATE); A_SetPitch(pitch+1, SPF_INTERPOLATE); }
+		HB2M GH 1 		{ A_GiveInventory("ShorterKnightPunchFeelerProc"); A_SetAngle(angle-0.5, SPF_INTERPOLATE); A_SetPitch(pitch-0.25, SPF_INTERPOLATE); }
+		W666 AAAAAA 1 	{ A_GiveInventory("WeakerKnightPunchFeelerProc"); A_SetAngle(angle-0.5, SPF_INTERPOLATE); A_SetPitch(pitch-0.25, SPF_INTERPOLATE); }
+		W666 A 1 		{ A_SetAngle(angle-0.5, SPF_INTERPOLATE); A_SetPitch(pitch-0.25, SPF_INTERPOLATE); A_SetRoll(0,SPF_INTERPOLATE); }
+		W666 AAA 1 		{ A_SetAngle(angle-0.5, SPF_INTERPOLATE); A_SetPitch(pitch-0.25, SPF_INTERPOLATE); }
+		W666 A 3;
+		Goto Ready;
+	SwingLeft:
+		HB2N ABC 1;
+		HB2N D 1 		{ A_GiveInventory("ShorterKnightPunchFeelerProc"); A_SetAngle(angle-2, SPF_INTERPOLATE); A_SetPitch(pitch+1, SPF_INTERPOLATE); A_SetRoll(+3,SPF_INTERPOLATE); }
+		HB2N EF 1 		{ A_GiveInventory("KnightPunchFeelerProc"); A_SetAngle(angle-2, SPF_INTERPOLATE); A_SetPitch(pitch+1, SPF_INTERPOLATE); }
+		HB2N GH 1 		{ A_GiveInventory("ShorterKnightPunchFeelerProc"); A_SetAngle(angle+0.5, SPF_INTERPOLATE); A_SetPitch(pitch-0.25, SPF_INTERPOLATE); }
+		W666 AAAAAA 1 	{ A_GiveInventory("WeakerKnightPunchFeelerProc"); A_SetAngle(angle+0.5, SPF_INTERPOLATE); A_SetPitch(pitch-0.25, SPF_INTERPOLATE); }
+		W666 A 1 		{ A_SetAngle(angle+0.5, SPF_INTERPOLATE); A_SetPitch(pitch-0.25, SPF_INTERPOLATE); A_SetRoll(0,SPF_INTERPOLATE); }
+		W666 AAA 1 		{ A_SetAngle(angle+0.5, SPF_INTERPOLATE); A_SetPitch(pitch-0.25, SPF_INTERPOLATE); }
+		W666 A 3;
+		Goto Ready;
+	
+	
+	
+	AltFire:
+		W666 A 0
+		{
+			if (vel.z==0||A_CheckFloor("Null")) //if its in the floor or if vel.z is zero...
+			{	return ResolveState("CantDoGroundAttack"); } //...will jump slightly
+			else
+			{	return ResolveState("CanDoGroundAttack"); }
+		}
+		
+		CanDoGroundAttack:
+			W666 A 0 
+			{	A_ChangeVelocity(vel.x,vel.y,-8,CVF_REPLACE);	}
+			W666 A 1; //waits a bit to register the negative v-speed
+			
+			W666 A 1
+			{
+				if (pitch<50)
+				{	A_SetPitch(pitch+5, SPF_INTERPOLATE); }
+				if (vel.z==0)
+				{
+					return ResolveState("Crashing");
+				}
+				else
+				{ return ResolveState(null); }
+			}
+			goto CanDoGroundAttack+2;
+			
+			Crashing:
+				HB2S A 0
+				{	//A_PrintBold("Hiting the floor, or a head",0.7);
+					A_Stop();
+					A_Explode(128,256,XF_NOTMISSILE);
+					A_PlaySound("Doom4/Monsters/BaronCrash",7);
+					
+					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("BaronShockwave",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				}
+				HB2S A 1
+				{
+					if (pitch>0)
+					{	A_SetPitch(pitch-5, SPF_INTERPOLATE);
+						return ResolveState(null);
+					}
+					else
+					{ return ResolveState("EndGroundAttack");}
+				}
+				Wait;
+				
+				EndGroundAttack:
+					HB2S AAAAAAAAAA 3 A_WeaponReady(WRF_NOSECONDARY|WRF_ALLOWUSER1);
+					Goto Ready;
+		
+		
+	CantDoGroundAttack:
+		W666 A 8 A_ChangeVelocity(8,0,8,CVF_RELATIVE) ;
+		Goto Ready;
+
+	Spawn:
+		SHOT A -1;
+		Stop;
+	}
+}	
+
+
+Class KnightPunchFeelerProc : CustomInventory
+{ States { Pickup:
+		TNT1 A 0 { if(!countInv("PunchedAlready")) {
+				A_CustomPunch(random(90,200),1,0,"DemonPuffMelee",80,0,0,null,"Doom4/Weapon/Melee/Punch","Doom4/Other/MeleeSwing1");
+		}	}
+		Stop;
+}	}
+
+Class ShorterKnightPunchFeelerProc : CustomInventory
+{ States { Pickup:
+		TNT1 A 0 { if(!countInv("PunchedAlready")) {
+				A_CustomPunch(random(90,200),1,0,"DemonPuffMelee",66,0,0,null,"Doom4/Weapon/Melee/Punch","");
+		}	}
+		Stop;
+}	}
+
+Class WeakerKnightPunchFeelerProc : CustomInventory
+{ States { Pickup:
+		TNT1 A 0 { if(!countInv("PunchedAlready")) {
+				A_CustomPunch(random(10,100),1,0,"DemonPuffMelee",60,0,0,null,"Doom4/Weapon/Melee/Punch","");
+		}	}
+		Stop;
+}	}

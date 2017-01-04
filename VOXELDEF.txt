@@ -1,0 +1,262 @@
+//Chainsaw
+M668A = "M668A" 
+M669A = "M669A" 
+WPPKA = "WPPKA" {Spin=50}
+
+//Pistol
+M668B = "M668B" 
+M669B = "M669B" 
+WPPKB = "WPPKB" {Spin=50}
+
+//Shotgun
+M668C = "M668C" 
+M669C = "M669C" 
+WPPKC = "WPPKC" {Spin=50}
+
+//Super Shotgun
+M668D = "M668D" 
+M669D = "M669D" 
+WPPKD = "WPPKD" {Spin=50}
+
+//Heavy Assault Rifle
+M668E = "M668E" 
+M669E = "M669E" 
+WPPKE = "WPPKE" {Spin=50}
+
+//Chaingun
+M668F = "M668F" 
+M669F = "M669F" 
+WPPKF = "WPPKF" {Spin=50}
+
+//Rocket Launcher
+M668G = "M668G" 
+M669G = "M669G" 
+WPPKG = "WPPKG" {Spin=50}
+
+//Plasma Rifle
+M668H = "M668H" 
+M669H = "M669H" 
+WPPKH = "WPPKH" {Spin=50}
+
+//BFG 9000
+M668I = "M668I" 
+M669I = "M669I" 
+WPPKI = "WPPKI" {Spin=50}
+
+//Gauss Cannon
+M668J = "M668J" 
+M669J = "M669J" 
+WPPKJ = "WPPKJ" {Spin=50}
+
+//Static rifle
+M668K = "Voxels/staticNOTSELECTED.kvx" {scale=0.7}
+M669K = "Voxels/staticSELECTED.kvx" {scale=0.7}
+WPPKK = "WPPKK" {Spin=50}
+
+//Repeater
+M668L = "Voxels/repeaterNOTSELECTED.kvx" {scale=0.85}
+M669L = "Voxels/repeaterSELECTED.kvx" {scale=0.85}
+WPPKL = "Voxels/PickupRepeater.kvx" {Spin=50}
+
+//Vortex Rifle
+M668M = "Voxels/vortexNOTSELECTED.kvx" {scale=0.7}
+M669M = "Voxels/vortexSELECTED.kvx" {scale=0.7}
+WPPKM = "Voxels/PickupVortex.kvx" {Spin=50}
+
+//Lightning Gun 
+M668N = "Voxels/lgunNOTSELECTED.kvx" {scale=0.7}
+M669N = "Voxels/lgunSELECTED.kvx" {scale=0.7}
+WPPKN = "WPPKN" {Spin=50}
+
+//Carrion Cannon
+M668O = "Voxels/hellNOTSELECTED.kvx" {scale=0.7}
+M669O = "Voxels/hellSELECTED.kvx" {scale=0.7}
+WPPKO = "Voxels/PickupHellshot.kvx" {scale=0.7}
+
+
+
+//Grenades
+D4GRE = "D4GRE"	//frag
+D4GRF = "D4GRF"	//holo
+D4GRG = "D4GRG"	//syphon
+
+//Health pickups
+D4HLA = "D4HLA"  // stimpack 
+D4HLB = "D4HLB" // medikit
+D4HLC = "D4HLC" {Spin=75} // Health bonus
+
+D4ARA = "D4ARA" {Spin=75} // Armor
+D4ARB = "D4ARB" {Spin=75} // shard
+D4ARC = "D4ARC" {Spin=75} // Shield
+
+
+//Ammo pikcups
+AMBLA = "AMBLA" //bullets
+AMGSA = "AMGSA" //gas can
+AMPLA = "AMPLA" //plasma
+AMRKA = "AMRKA" //rockets
+AMSHA = "AMSHA" //shells
+AMBFA = "AMBFA" {Spin=75} //BFG ammo
+
+AMBLB = "AMBLB" //bullets small
+AMPLB = "AMPLB" //plasma small
+AMRKB = "AMRKB" //rockets small
+AMSHB = "AMSHB" //shells small
+
+// Pinata pickups WITH border
+PINAA = "PINAA" {Spin=150} //armor
+PINAB = "PINAB" {Spin=150} //health
+PINAC = "PINAC" {Spin=50} //coin - not there yet
+PINAD = "PINAD" {Spin=150} //Bullets
+PINAE = "PINAE" {Spin=150} //Shells
+PINAF = "PINAF" {Spin=150} //Cells
+PINAG = "PINAG" {Spin=150} //Rockets
+PINAH = "PINAH" {Spin=150} //BFG
+
+// Pinata pickups without border
+PIN2A = "PIN2A" {Spin=150} //armor
+PIN2B = "PIN2B" {Spin=150} //health
+//PIN2C = "PIN2C" {Spin=150} //coin - not there yet
+PIN2D = "PIN2D" {Spin=150} //Bullets
+PIN2E = "PIN2E" {Spin=150} //Shells
+PIN2F = "PIN2F" {Spin=150} //Cells
+PIN2G = "PIN2G" {Spin=150} //Rockets
+PIN2H = "PIN2H" {Spin=150} //BFG
+
+
+/*	Indicator Voxels
+M670A: Checkmark Empty
+M671A: Checkmark Full
+M670B: Diagonal arrow empty cyan
+M670C: ^ white
+M671B: ^ full cyan
+M671C: ^ white
+M670D: Right empty cyan
+M670E: ^ white
+M671D: ^ full cyan
+M671E: ^ white
+M670F: Up empty cyan
+M670G: ^ white
+M671F: ^ full cyan
+M671G: ^ white
+M670H: X empty
+M671H: X full
+*/
+
+M670A = "M670A"
+M670B = "M670B"
+M670C = "M670C"
+M670D = "M670D"
+M670E = "M670E"
+M670F = "M670F"
+M670G = "M670G"
+M670H = "M670H"
+
+M671A = "M671A"
+M671B = "M671B"
+M671C = "M671C"
+M671D = "M671D"
+M671E = "M671E"
+M671F = "M671F"
+M671G = "M671G"
+M671H = "M671H"
+
+/*	Upgrade Token Icons
+A: MAR1		Assault Rifle Scope
+B: MAR2		Assault Rifle Micro Missile
+C: MCG1		Chaingun Gatling Rotator
+D: MCG2		Chaingun Turret
+E: MGC1		Gauss Cannon Precision Shot (aught to be the same as A)
+F: MGC2		Gauss Cannon Siege Mode
+G: MPR1		Plasma Rifle Heat Wave
+H: MPR2		Plasma Rifle Stun Bomb
+I: MRL1		Rocket Launcher Detonate
+J: MRL2		Rocket Launcher Lock On
+K: MSG1		Shotgun Triple Shot
+L: MSG2		Shotgun Grenade
+*/
+
+M672A = "Voxels/ScopeNotSelected.kvx"
+M672B = "Voxels/MicroMissileNotSelected.kvx"
+M672C = "Voxels/RotatorNotSelected.kvx"
+M672D = "Voxels/TurretNotSelected.kvx"
+M672E = "Voxels/PrecisionNotSelected.kvx"
+M672F = "Voxels/SiegeNotSelected.kvx"
+M672G = "Voxels/HeatNotSelected.kvx"
+M672H = "Voxels/StunBombNotSelected.kvx"
+M672I = "Voxels/DetonateNotSelected.kvx"
+M672J = "Voxels/LockOnNotSelected.kvx"
+M672K = "Voxels/TripleShotNotSelected.kvx"
+M672L = "Voxels/GrenadeNotSelected.kvx"
+M672M = "Voxels/SSGFasterNOTSelected.kvx"
+M672N = "Voxels/SSGPierceNOTSelected.kvx"
+M672O = "Voxels/SSGnewDoubleTroubleNOTSelected.kvx"
+M672P = "Voxels/SSGDoubleSSGNOTSelected.kvx"
+M672Q = "Voxels/BFGammoNOTSelected.kvx"
+M672R = "Voxels/BFGSpinNOTSelected.kvx"
+M672Z = "Voxels/SovietNOTSelected.kvx"
+
+M673A = "Voxels/ScopeSelected.kvx"
+M673B = "Voxels/MicroMissileSelected.kvx"
+M673C = "Voxels/RotatorSelected.kvx"
+M673D = "Voxels/TurretSelected.kvx"
+M673E = "Voxels/PrecisionSelected.kvx"
+M673F = "Voxels/SiegeSelected.kvx"
+M673G = "Voxels/HeatSelected.kvx"
+M673H = "Voxels/StunBombSelected.kvx"
+M673I = "Voxels/DetonateSelected.kvx"
+M673J = "Voxels/LockOnSelected.kvx"
+M673K = "Voxels/TripleShotSelected.kvx"
+M673L = "Voxels/GrenadeSelected.kvx"
+M673M = "Voxels/SSGFasterSelected.kvx"
+M673N = "Voxels/SSGPierceSelected.kvx"
+M673O = "Voxels/SSGnewDoubleTroubleSelected.kvx"
+M673P = "Voxels/SSGDoubleSSGSelected.kvx"
+M673Q = "Voxels/BFGammoSelected.kvx"
+M673R = "Voxels/BFGSpinSelected.kvx"
+M673Z = "Voxels/SovietSelected.kvx"
+
+M674A = "Voxels/ScopeBlink.kvx"
+M674B = "Voxels/MicroMissileBlink.kvx"
+M674C = "Voxels/RotatorBlink.kvx"
+M674D = "Voxels/TurretBlink.kvx"
+M674E = "Voxels/PrecisionBlink.kvx"
+M674F = "Voxels/SiegeBlink.kvx"
+M674G = "Voxels/HeatBlink.kvx"
+M674H = "Voxels/StunBombBlink.kvx"
+M674I = "Voxels/DetonateBlink.kvx"
+M674J = "Voxels/LockOnBlink.kvx"
+M674K = "Voxels/TripleShotBlink.kvx"
+M674L = "Voxels/GrenadeBlink.kvx"
+M674M = "Voxels/SSGFasterBlink.kvx"
+M674N = "Voxels/SSGPierceBlink.kvx"
+M674O = "Voxels/SSGnewDoubleTroubleBlink.kvx"
+M674P = "Voxels/SSGDoubleSSGBlink.kvx"
+M674Q = "Voxels/BFGammoBlink.kvx"
+M674R = "Voxels/BFGSpinBlink.kvx"
+M674Z = "Voxels/SovietBlink.kvx"
+
+//Doll
+DOLLA = "DOLLA" {Spin=150}
+
+//powerlightamp by DBT
+PVISA="PVISA"
+PVISB="PVISB"
+
+//-------------------------------------
+// Vanilla stuff by Voxelbro
+
+//computer map
+PMAPA="PMAPA"
+PMAPB="PMAPB"
+PMAPC="PMAPC"
+PMAPD="PMAPD"
+
+// berserk
+PSTRA="PSTRA"
+
+//radsuit
+SUITA="SUITA"
+
+//backpack
+BPAKA="BPAKA"

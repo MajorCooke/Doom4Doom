@@ -1,0 +1,913 @@
+//======================================================================================
+//======================================================================================
+//		Grenades
+//======================================================================================
+//======================================================================================
+
+//------------------------------------------------------
+// tokens to indicate that the grenade exists in the player inventory
+Class FragGrenadePickup : Inventory
+{ Default { +INVENTORY.UNDROPPABLE }}
+Class SyphonGrenadePickup : Inventory
+{ Default { +INVENTORY.UNDROPPABLE }}
+Class HoloGrenadePickup : Inventory
+{ Default { +INVENTORY.UNDROPPABLE }}
+
+
+//------------------------------------------------------
+// tokens to indicate which grenade is selected
+Class FragGrenadeSelected : Inventory
+{ Default { +INVENTORY.UNDROPPABLE }}
+Class SyphonGrenadeSelected : Inventory
+{ Default { +INVENTORY.UNDROPPABLE }}
+Class MarineHoloSelected : Inventory
+{ Default { +INVENTORY.UNDROPPABLE }}
+
+
+//------------------------------------------------------
+//Actors to be picked up in world
+Class FragGrenadeWorld : CustomInventory
+{
+	Default 
+	{
+		Inventory.PickupMessage "Frag Grenade equipment";
+		Scale 0.3;
+	}
+	States
+	{
+	Spawn:
+		D4GR E -1;
+		Stop;
+	Pickup:
+		TNT1 A 0 
+		{
+			A_GiveInventory("FragGrenadePickup",1);
+			A_GiveInventory("FragGrenadeSelected",1);
+			ACS_NamedExecute("GrenadePrint",0,1); //print frag
+			
+			A_TakeInventory("SyphonGrenadeSelected",32767);
+			A_TakeInventory("MarineHoloSelected",32767);
+		}
+		Stop;
+	}
+}
+Class SyphonGrenadeWorld : CustomInventory
+{
+	Default 
+	{
+		Inventory.PickupMessage "Syphon Grenade equipment";
+		Scale 0.3;
+	}
+	States
+	{
+	Spawn:
+		D4GR G -1;
+		Stop;
+	Pickup:
+		TNT1 A 0 
+		{
+			A_GiveInventory("SyphonGrenadePickup",1);
+			A_GiveInventory("SyphonGrenadeSelected",1);
+			ACS_NamedExecute("GrenadePrint",0,2); //print syphon
+			
+			A_TakeInventory("FragGrenadeSelected",32767);
+			A_TakeInventory("MarineHoloSelected",32767);
+		}
+		Stop;
+	}
+}
+
+Class HoloGrenadeWorld : CustomInventory
+{
+	Default 
+	{
+		Inventory.PickupMessage "Holograph equipment";
+		Scale 0.25;
+	}
+	States
+	{
+	Spawn:
+		D4GR F -1;
+		Stop;
+	Pickup:
+		TNT1 A 0 
+		{
+			A_GiveInventory("HoloGrenadePickup",1);
+			A_GiveInventory("MarineHoloSelected",1);
+			ACS_NamedExecute("GrenadePrint",0,3); //print holo
+			
+			A_TakeInventory("FragGrenadeSelected",32767);
+			A_TakeInventory("SyphonGrenadeSelected",32767);
+		}
+		Stop;
+	}
+}
+//--------------------------------------------------------------
+// Timer for the cooldown
+Class GrenadeCooldown : Inventory
+{
+	Default 
+	{
+		Inventory.MaxAmount 35;
+		Inventory.InterHubAmount 0;
+	}
+}
+
+//--------------------------------------------------------------
+// To select next/prev grenade
+//Next
+
+Class GrenadeSelectedStripper : CustomInventory
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			A_TakeInventory("FragGrenadeSelected",32767);
+			A_TakeInventory("SyphonGrenadeSelected",32767);
+			A_TakeInventory("MarineHoloSelected",32767);
+		}
+		Stop;
+	}
+}
+
+Class GrenadeSwitchNext : CustomInventory
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0		//order goes Frag-Syphon-Holo
+		{
+			if (CountInv("FragGrenadeSelected"))	//if you have frag selected
+			{
+				if (CountInv("SyphonGrenadePickup"))	//next in line is syphon
+				{
+					A_GiveInventory("GrenadeSelectedStripper");
+					A_GiveInventory("SyphonGrenadeSelected",1);
+					ACS_NamedExecute("GrenadePrint",0,2); //print Syphon
+				}
+				else if (CountInv("HoloGrenadePickup"))	//otherwise, syphon wasnt there, and goes to holo
+				{
+					A_GiveInventory("GrenadeSelectedStripper");
+					A_GiveInventory("MarineHoloSelected",1);
+					ACS_NamedExecute("GrenadePrint",0,3); //print holo
+				}
+				else	//had no other grenade
+				{
+					ACS_NamedExecute("GrenadePrint",0,1); //print frag
+				}
+			}
+			
+			
+			else if (CountInv("SyphonGrenadeSelected"))	//if you have syphon selected
+			{
+				if (CountInv("HoloGrenadePickup"))	//next in line is holo
+				{
+					A_GiveInventory("GrenadeSelectedStripper");
+					A_GiveInventory("MarineHoloSelected",1);
+					ACS_NamedExecute("GrenadePrint",0,3); //print holo
+				}
+				else if (CountInv("FragGrenadePickup"))	//otherwise, syphon wasnt there, and goes to frag
+				{
+					A_GiveInventory("GrenadeSelectedStripper");
+					A_GiveInventory("FragGrenadeSelected",1);
+					ACS_NamedExecute("GrenadePrint",0,1); //print frag
+				}
+				else	//had no other grenade
+				{
+					ACS_NamedExecute("GrenadePrint",0,2); //print syphon
+				}
+			}
+			
+			
+			else if (CountInv("MarineHoloSelected"))
+			{
+				if (CountInv("FragGrenadePickup"))	//next in line is frag
+				{
+					A_GiveInventory("GrenadeSelectedStripper");
+					A_GiveInventory("FragGrenadeSelected",1);
+					ACS_NamedExecute("GrenadePrint",0,1); //print frag
+				}
+				else if (CountInv("SyphonGrenadePickup"))	//otherwise, syphon wasnt there, and goes to syphon
+				{
+					A_GiveInventory("GrenadeSelectedStripper");
+					A_GiveInventory("SyphonGrenadeSelected",1);
+					ACS_NamedExecute("GrenadePrint",0,2); //print syphon
+				}
+				else	//had no other grenade
+				{
+					ACS_NamedExecute("GrenadePrint",0,3); //print holo
+				}
+			}
+		}
+	}
+}
+
+//Prev
+Class GrenadeSwitchPrev : CustomInventory
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0 //order goes Frag-Holo-Syphon
+		{
+			if (CountInv("FragGrenadeSelected"))	//if you have frag selected
+			{
+				if (CountInv("HoloGrenadePickup")) //next in line is syphon
+				{
+					A_GiveInventory("GrenadeSelectedStripper");
+					A_GiveInventory("MarineHoloSelected",1);
+					ACS_NamedExecute("GrenadePrint",0,3); //print Syphon
+				}
+				else if (CountInv("SyphonGrenadePickup"))	//otherwise, syphon wasnt there, and goes to holo
+				{
+					A_GiveInventory("GrenadeSelectedStripper");
+					A_GiveInventory("SyphonGrenadeSelected",1);
+					ACS_NamedExecute("GrenadePrint",0,2); //print Syphon
+				}
+				else	//had no other grenade
+				{
+					ACS_NamedExecute("GrenadePrint",0,1); //print frag
+				}
+			}
+			
+			else if (CountInv("SyphonGrenadeSelected"))	//if you have syphon selected
+			{
+				if (CountInv("FragGrenadePickup"))	//next in line is frage
+				{
+					A_GiveInventory("GrenadeSelectedStripper");
+					A_GiveInventory("FragGrenadeSelected",1);
+					ACS_NamedExecute("GrenadePrint",0,1); //print frag
+				}
+				else if (CountInv("HoloGrenadePickup"))	//otherwise, syphon wasnt there, and goes to frag
+				{
+					A_GiveInventory("GrenadeSelectedStripper");
+					A_GiveInventory("MarineHoloSelected",1);
+					ACS_NamedExecute("GrenadePrint",0,3); //print holo
+				}
+				else	//had no other grenade
+				{
+					ACS_NamedExecute("GrenadePrint",0,2); //print syphon
+				}
+			}
+			
+			else if (CountInv("MarineHoloSelected"))
+			{
+				if (CountInv("SyphonGrenadePickup"))	//next in line is frag
+				{
+					A_GiveInventory("GrenadeSelectedStripper");
+					A_GiveInventory("SyphonGrenadeSelected",1);
+					ACS_NamedExecute("GrenadePrint",0,2); //print syphon
+				}
+				else if (CountInv("FragGrenadePickup"))	//otherwise, syphon wasnt there, and goes to syphon
+				{
+					A_GiveInventory("GrenadeSelectedStripper");
+					A_GiveInventory("FragGrenadeSelected",1);
+					ACS_NamedExecute("GrenadePrint",0,1); //print frag
+				}
+				else	//had no other grenade
+				{
+					ACS_NamedExecute("GrenadePrint",0,3); //print holo
+				}
+			}
+		}
+	}
+}
+
+
+//==============================================================================
+// Syphon Grenade
+//==============================================================================
+
+Class SyphonDestroyer : CustomInventory
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			if (CheckClass("D4SyphonGrenade"))
+			{	A_Remove(DefPtr,RMVF_EVERYTHING,"D4SyphonGrenade");	}
+		}
+		Stop;
+	}
+}
+
+Class SyphonHealth : HealthBonus
+{
+	Default 
+	{
+		+INVENTORY.IGNORESKILL
+		+INVENTORY.ALWAYSPICKUP
+		Inventory.Amount 1;
+		Inventory.MaxAmount 200;
+	}
+}
+
+Class SyphonArmor : BasicArmorBonus
+{
+	Default 
+	{
+		+INVENTORY.IGNORESKILL
+		+INVENTORY.ALWAYSPICKUP
+		Armor.SavePercent 100;
+		Armor.SaveAmount 1;
+		Armor.MaxSaveAmount 200;
+	}
+}
+
+Class D4SyphonGrenade : Actor 
+{
+	int user_c;
+	int user_d;
+	int user_e;
+	int user_rng;
+	double user_dist;
+	double user_cos;
+	int user_ss;
+	
+	Default 
+	{
+		Projectile;
+		Speed 28;
+		+ROLLSPRITE
+		+ROLLCENTER
+		-NOGRAVITY
+		+FORCERADIUSDMG
+		+CANBOUNCEWATER
+		Gravity 0.2;
+		Scale 0.09;
+		Radius 5;
+		Height 10;
+		DeathSound "Doom4/Weapon/Grenade/SyphonExplo";
+	}
+	
+	States
+	{
+	Spawn:
+		D4GR C 0 Bright NoDelay A_RearrangePointers(DefPtr, TargetPtr, DefPtr, 4);
+	Moving:
+		D4GR CCCCC 1 Bright A_SetRoll(roll+10,SPF_INTERPOLATE);
+		Loop;
+	Death:
+		TNT1 A 12 
+		{
+			bNOINTERACTION = true;
+			A_Stop();
+			if (pos.z <= floorz + 1)	{ A_Warp(DefPtr,0,0,2,0,WARPF_NOCHECKPOSITION|WARPF_TOFLOOR);	}
+			A_SpawnItemEx("SyphonShockwaveBig",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("SyphonShockwaveBigFlat",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH);
+			A_PlaySound("Doom4/Weapon/Grenade/FragArm",5);
+			A_PlaySound("Doom4/Weapon/Grenade/SyphonExplo",CHAN_WEAPON);
+			A_AlertMonsters();
+		}
+		Goto Explode;
+	Explode:
+		TNT1 A 0
+		{
+			A_PlaySound("Doom4/Weapon/Grenade/SyphonSuck",((user_c % 3) + 5),0.5);
+			user_ss = int(GetCvar("user_SyphonStrength"));
+			user_d = A_RadiusGive("PinkShadowSpawner",256,RGF_MONSTERS|RGF_CUBE,1,null,"None",0,5);
+		}
+	ExplodeLoop:
+		TNT1 A 0
+		{
+			if (user_d > 0 && target && !target.bKILLED)
+			{
+				if (target.health < (100 + int(GetCvar("D4Stamina"))))
+				{	
+					if (user_ss > 2 && target.health < (100 + int(GetCvar("D4Stamina"))))	{ target.A_GiveInventory("SyphonHealth",1); }
+					if (user_ss > 1 && target.health < (100 + int(GetCvar("D4Stamina"))))	{ target.A_GiveInventory("SyphonHealth",1); }
+					if (user_ss > 0 && target.health < (100 + int(GetCvar("D4Stamina"))))	{ target.A_GiveInventory("SyphonHealth",1); }
+				}
+				else if (target.CountInv("BasicArmor") < 100 + int(GetCvar("D4ArmorCapRaiser")))
+				{
+					
+					if (user_ss > 2 && target.CountInv("BasicArmor") < 100 + int(GetCvar("D4ArmorCapRaiser")))	{ target.A_GiveInventory("SyphonArmor",1); }
+					if (user_ss > 1 && target.CountInv("BasicArmor") < 100 + int(GetCvar("D4ArmorCapRaiser")))	{ target.A_GiveInventory("SyphonArmor",1); }
+					if (user_ss > 0 && target.CountInv("BasicArmor") < 100 + int(GetCvar("D4ArmorCapRaiser")))	{ target.A_GiveInventory("SyphonArmor",1); }
+				}
+				user_d--;
+				return ResolveState("ExplodeLoop");
+			}
+			A_Explode(2,256,0,0,256);
+			return ResolveState(null);
+		}
+		
+		TNT1 AAAAAAAAAA 0
+		{
+			if (random(1,10) <= 4)
+			{
+				user_rng = random(1,4);
+				user_dist = frandom (64.0, 128.0);
+				if (GetZAt(0,0) >= pos.z - 2)
+				{	user_cos = frandom(0.0,90.0);	}
+				else
+				{	user_cos = frandom(0.0,180.0);	}
+				A_SpawnParticle("FF0033",SPF_FULLBRIGHT|SPF_RELATIVE,10,0.1,random(0,359),
+				
+				cos(-user_cos) * user_dist,0,sin(user_cos) * user_dist, 
+				0,0,0, 
+				cos(user_cos) * -1.20,0,sin(user_cos) * -1.20,1.0,0.0,3.0);
+			}
+		}
+		TNT1 A 8
+		{
+			user_c++;
+			if (user_c >= 10)
+			{	return ResolveState("Null");	}
+			return ResolveState(null);
+		}
+		Goto Explode;
+	}
+}
+
+Class SyphonShockwaveBig : Actor 
+{
+	const RollAmount = 8.0;
+	const ScaleMul = 2.0;
+	double user_c;
+	double user_roll;
+	double user_dist;
+	double user_cos;
+	int user_floor;
+	int user_t;
+	int user_rng;
+	
+	Default 
+	{
+		+NOINTERACTION
+		+BRIGHT
+		+ROLLSPRITE
+		+ROLLCENTER
+		RenderStyle "Add";
+		Alpha 0;
+		Scale 0;
+		Translation "0:255=%[0,0,0]:[1.0,0.0,0.2]";
+	}
+	
+	States
+	{
+	Spawn:
+		X060 A 0 NoDelay
+		{
+			user_roll = RollAmount * randompick(-1,1);
+		}
+	Looping:
+		X060 A 1
+		{
+			if (user_c >= 90)
+			{	return ResolveState("SpawnRing");	}
+			user_c += (90/12);
+			A_SetRoll((roll + RollAmount) % 360,SPF_INTERPOLATE);
+			A_FadeTo(0.99,(1.0/12.0),FTF_CLAMP);
+			A_SetScale(sin(user_c) * ScaleMul);
+			return ResolveState(null);
+		}
+		Loop;
+	SpawnRing:
+		"####" "#" 0
+		{
+			if ((user_t < 80) && ((user_t % 4) == 0))
+			{	A_SpawnItemEx("SyphonShrinkRing",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_ORIGINATOR|SXF_TRANSFERPITCH|SXF_TRANSFERROLL|SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERTRANSLATION);	}
+		}
+	Shrink:
+		"####" "#" 1
+		{	
+			if (user_t < 80)
+			{	user_t++;	}
+			else
+			{
+				user_c += (90.0/12.0);
+				A_SetScale(sin(user_c) * ScaleMul);
+				if (Scale.X <= 0)	{	return ResolveState("Null");	}
+			}
+			
+			A_SetRoll((roll + RollAmount) % 360,SPF_INTERPOLATE);
+			return ResolveState(null);
+		}
+		Goto SpawnRing;
+	}
+}
+
+//Everything handled with the FLATSPRITE flag check.
+Class SyphonShockwaveBigFlat : SyphonShockwaveBig
+{	Default { +FLATSPRITE		}}
+
+Class SyphonShrinkRing : Actor 
+{
+	double user_scale;
+	double user_t;
+	
+	Default 
+	{
+		+ROLLCENTER
+		+ROLLSPRITE
+		+NOINTERACTION
+		+BRIGHT
+		RenderStyle "Add";
+		Alpha 0;
+	}
+	States
+	{
+	Spawn:
+		X060 B 0 NoDelay
+		{
+			if (master)
+			{	bFlatSprite = master.bFlatSprite;	}
+			user_t = 90;
+			user_scale = Scale.X;
+		}
+	Looping:
+		X060 B 1
+		{
+			user_t -= (90.0/10.0);
+			A_SetScale(sin(user_t) * user_scale);
+			A_FadeIn(0.1,FTF_CLAMP);
+			if (Scale.X <= 0)	{ return ResolveState("Null"); }
+			return ResolveState(null);
+		}
+		Loop;
+	}
+}
+
+//Class SyphonShrinkRingFlat : SyphonShrinkRing
+//{	+FLATSPRITE		}
+
+Class PinkShadowSpawner : CustomInventory
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0 A_SpawnItemEx("PinkShadow",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSPRITEFRAME|SXF_TRANSFERSCALE);
+		Stop;
+	}
+}
+
+Class PinkShadow : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+BRIGHT
+		RenderStyle "Stencil";
+		StencilColor "Pink";
+		Alpha 0.99 ;
+	}
+	
+	States
+	{
+	Spawn:
+		"----" A 1 A_FadeOut(0.12);
+		Wait;
+	}
+}
+
+
+
+//======================================================================================
+//	Frag grenade
+//======================================================================================
+Class D4FragGrenade : Actor 
+{
+	int user_timer;
+	int user_armed;
+	Default 
+	{
+		Projectile;
+		Speed 25;
+		BounceType "Doom";
+		BounceFactor 0.1;
+		WallBounceFactor 0.1;
+		-NOGRAVITY
+		+FORCERADIUSDMG
+		+ROLLSPRITE
+		+CANBOUNCEWATER
+		+EXTREMEDEATH
+		Scale 0.06;
+		Gravity 0.4;
+		Radius 5;
+		Height 10;
+		ReactionTime 10;	//~1.4 secs to explode
+		BounceSound "Doom4/Weapon/Grenade/FragBounce";
+	}
+	States
+	{
+	Spawn:
+		D4GR D 1 NODELAY 
+		{
+			A_SetRoll(roll+16,SPF_INTERPOLATE);
+			if (GetCvar("HQEffectsWeapons"))
+			{
+				A_SpawnItemEx("GrenadeSmoke",0,0,0,0,0,frandom(0.2,0.7),0,SXF_NOCHECKPOSITION);
+			}
+			else
+			{
+				A_SpawnItemEx("GrenadeSmoke",0,0,0,0,0,frandom(0.2,0.7),0,SXF_NOCHECKPOSITION,128);
+			}
+
+			if (user_timer==75&&user_armed==0) //if 50 tics passed, plays the arm sound
+			{
+				A_PlaySound("Doom4/Weapon/Grenade/FragArm",6);
+				user_armed = 1;	//and marks the grenade as "armed"
+			}
+			if (user_timer>=100)
+			{
+				return ResolveState("Explode");
+			}
+			user_timer++;
+			return ResolveState(null);
+		}
+		Loop;
+	XDeath:
+		D4GR D 0;
+		Goto Explode;
+		
+	// THERE IS SUCH A THING AS TOO MANY COMMENTS. 
+	Death:
+		D4GR D 1
+		{
+			A_PlaySound("Doom4/Weapon/Grenade/FragBounce",5);
+			user_timer = 0;
+			if (A_CheckFloor("Null"))	//if it hits the floor
+			{
+				return ResolveState("ArmOnFloor");	//arms the grenade
+			}
+			
+			//otherwise
+			if (user_timer == 25 && user_armed == 0) //if 25 tics passed, plays the arm sound
+			{
+				A_PlaySound("Doom4/Weapon/Grenade/FragArm",6);
+				user_armed = 1;	//and marks the grenade as "armed"
+			}
+			if (user_timer >= 50)
+			{
+				return ResolveState("Explode");
+			}
+			user_timer++;
+			return ResolveState(null);
+		} 
+		Wait;
+	ArmOnFloor:
+		D4GR D 1 
+		{
+			A_PlaySound("Doom4/Weapon/Grenade/FragBounce",5);
+			if (!user_armed) //if it hadnt played the sound before
+			{
+				A_PlaySound("Doom4/Weapon/Grenade/FragArm",6);
+				user_armed = 1;
+			}
+			if (user_timer >= 25)
+			{
+				return ResolveState("Explode");
+			}
+			user_timer++;
+			return ResolveState(null);
+		}
+		Wait;
+	Explode:
+		TNT1 A 0 
+		{
+			A_PlaySound("Doom4/Weapon/RocketLauncher/HRExplo",6);
+			A_AlertMonsters();
+			if (CountInv("ProtectionBonus2", TargetPtr))
+			{			
+				A_Explode(32,128);
+				A_Explode(224,192,0,0,96);
+			}
+			else
+			{			
+				A_Explode(64,128);	
+				A_Explode(192,192,0,0,96);
+			}
+			A_RadiusThrust(64,128,RTF_THRUSTZ|RTF_AFFECTSOURCE|RTF_NOIMPACTDAMAGE);
+			A_RadiusThrust(192,192,RTF_THRUSTZ|RTF_NOIMPACTDAMAGE,96);
+			
+			if (GetCvar("HQEffectsWeapons"))
+			{
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("GenericExplosionParticleSpawner",0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			}
+		}
+		TNT1 A 50
+		{
+			A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			if (GetCvar("user_quakexplosions")==1)
+			{
+				A_QuakeEx(2,2,2,15,0,768,"",QF_SCALEDOWN,0,0,0,1);
+			}
+			bNOINTERACTION = true;
+		}
+		Stop;
+	}
+}
+Class GrenadeSmoke : Actor 
+{
+	double user_add;
+	
+	Default 
+	{
+		+ROLLSPRITE
+		+CLIENTSIDEONLY
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+		RenderStyle "Add";
+		Alpha 0.5;
+		Scale 0.1;
+	}
+	
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay 
+		{
+			user_add = frandom(-3.0,3.0);
+			A_SetRoll(random(0,359));
+			return A_Jump(256,random(1,18));
+		}
+		X102 ABCDEFGHIJKLMNOPQRSTUV 0 { return ResolveState("Act"); }
+	Act:
+		"####" "#" 1
+		{
+			A_SetRoll(roll + user_add, SPF_INTERPOLATE);
+			A_FadeOut(0.015);
+			//A_ScaleVelocity(0.986);
+			A_SetScale(Scale.X+0.01);
+		}
+		Loop;
+	}
+}
+//======================================================================================
+//	Player holograph
+//======================================================================================
+Class D4PlayerHolograph : Actor 
+{
+	int user_countdowntimer;
+	
+	Default 
+	{
+		Monster;
+		Radius 20;
+		Height 56;
+		Health 300;
+		+DONTTHRUST
+		+FRIENDLY
+		+FORCERADIUSDMG
+		+THRUACTORS
+		+FOILINVUL
+		-COUNTKILL
+		+OLDRADIUSDMG
+		+PAINLESS
+		+CAUSEPAIN
+		+BLOODLESSIMPACT
+		+NODAMAGE
+		+INVULNERABLE
+		+LOOKALLAROUND
+		+NOPAIN
+		+NODAMAGETHRUST
+		+NOBLOOD
+		DamageType "HoloAttract";
+		DamageFactor 0;
+	}
+	
+	States
+	{
+	Spawn:
+		PLAZ E 0 NoDelay 
+		{
+			A_RadiusGive("InfightResetter",10240,RGF_MONSTERS|RGF_NOSIGHT,1);
+			A_SetAngle(random(0,359));
+		}
+	Idle:
+		PLAZ E 2 
+		{
+			A_ClearTarget();
+			A_LookEx(0,0,0,0,360,"TickTock");
+			user_countdowntimer += 2;
+			return A_Jumpif (user_countdowntimer >= (35*6),"Death");
+		}
+		Loop;
+	TickTock:
+		PLAZ E 0 A_PlaySound("Doom4/Weapon/PlasmaGun/PlasmaLoop",5,1,2);
+	TickTockLoop:
+		PLAZ F 1 bright 
+		{
+			user_countdowntimer++;
+			if (user_countdowntimer >= (35*6))
+			{	return ResolveState("Death");	}
+			A_Explode(1,10280,XF_NOTMISSILE,0,10280); //Constantly draw their attention.
+			A_FaceTarget();
+			A_SpawnProjectile("NewPlasmaBallNoDamage");
+			if (IsPointerEqual(TargetPtr,NullPtr) || A_JumpIfHealthLower(1,"Null",TargetPtr))
+			{	
+				A_Chase(null,null,CHF_DONTMOVE);
+				if (IsPointerEqual(TargetPtr,NullPtr) || A_JumpIfHealthLower(1,"Null",TargetPtr))
+				{	return ResolveState("SoundStop");	}
+			}
+			return ResolveState(null);
+		}
+		PLAZ EE 1
+		{
+			user_countdowntimer++;
+			if (user_countdowntimer >= (35*6))
+			{	return ResolveState("Death");	}
+			
+			if (IsPointerEqual(TargetPtr,NullPtr) || A_JumpIfHealthLower(1,"Null",TargetPtr))
+			{	
+				A_Chase(null,null,CHF_DONTMOVE);
+				if (IsPointerEqual(TargetPtr,NullPtr) || A_JumpIfHealthLower(1,"Null",TargetPtr))
+				{	return ResolveState("SoundStop");	}
+			}
+			return ResolveState(null);
+		}
+		Loop;
+	SoundStop:
+		PLAZ "#" 0
+		{
+			A_PlaySound("Doom4/Weapon/PlasmaGun/Fire",5,1);
+			return ResolveState("Idle");
+		}
+	Death:
+		PLAZ E 1 A_FadeOut();
+		Wait;
+	}
+}
+
+
+Class InfightResetter : CustomInventory
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+	}
+	
+	States
+	{
+	Pickup:
+		TNT1 A 0 A_SetChaseThreshold(0,0);
+		Stop;
+	}
+}
+
+
+Class NewPlasmaBallNoDamage : Actor 
+{
+	Default 
+	{
+		Projectile;
+		Scale 0.07;
+		Height 8;
+		Radius 4;
+		Speed 30;
+		Damage 0;
+		RenderStyle "Add";
+		Alpha 0.99;
+		+FORCEXYBILLBOARD
+		Translation "0:255=%[0,0,0]:[0.7,0.9,1.5]";
+		DamageType "HoloAttract";
+	}
+	
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay 
+		{
+			A_SetScale(frandom(0.04,0.06));
+			return A_Jump(256,random(1,26));
+		}
+	Moving:
+		PLSY AB 1 Light("BlueSmallPoint1") Bright;
+		Loop;
+	Death:
+		TNT1 A 10 A_SpawnItemEx("D4PistolPuffBig1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+		Stop;
+	}
+}
+

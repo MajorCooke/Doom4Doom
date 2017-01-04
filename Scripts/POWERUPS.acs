@@ -1,0 +1,69 @@
+#library "POWERUPS"
+#include "zcommon.acs"
+
+#define QUADFLASH_ID_MIN 	3384
+#define REGENFLASH_ID_MIN 	3396
+#define HASTEFLASH_ID_MIN 	3408
+#define MONEYFLASH_ID_MIN 	3420
+#define TIMERDOT_ID_MIN 	3432
+
+Script "D4QuadFlash" (int parity)
+{
+	SetActivatorToTarget(0);
+	SetHudSize(0,0,true);
+	SetFont("SHADEUMA");	HudMessage (s:"A"; HUDMSG_FADEINOUT, QUADFLASH_ID_MIN   + (parity*4), 0, 0.0, 0.0, 0.1, 1.0, 1.0, 1.0); 	delay(8);
+	SetFont("SHADELMA");	HudMessage (s:"A"; HUDMSG_FADEINOUT, QUADFLASH_ID_MIN+1 + (parity*4), 0, 0.0, 0.0, 0.1, 1.0, 1.0, 1.0); 	delay(11);
+	SetFont("SHADEDMA");	HudMessage (s:"A"; HUDMSG_FADEINOUT, QUADFLASH_ID_MIN+2 + (parity*4), 0, 0.0, 1.0, 0.1, 1.0, 1.0, 1.0); 	delay(8);
+	SetFont("SHADERMA");	HudMessage (s:"A"; HUDMSG_FADEINOUT, QUADFLASH_ID_MIN+3 + (parity*4), 0, 1.0, 0.0, 0.1, 1.0, 1.0, 1.0); // no delay
+}
+
+Script "D4RegenFlash" (int parity)
+{
+	SetActivatorToTarget(0);
+	SetHudSize(0,0,true);
+	SetFont("SHADEUCY");	HudMessage (s:"A"; HUDMSG_FADEINOUT, REGENFLASH_ID_MIN   + (parity*4), 0, 0.0, 0.0, 0.4, 1.5, 1.5, 1.0);	delay(15);
+	SetFont("SHADELCY");	HudMessage (s:"A"; HUDMSG_FADEINOUT, REGENFLASH_ID_MIN+1 + (parity*4), 0, 0.0, 0.0, 0.4, 1.5, 1.5, 1.0);	delay(15);
+	SetFont("SHADEDCY");	HudMessage (s:"A"; HUDMSG_FADEINOUT, REGENFLASH_ID_MIN+2 + (parity*4), 0, 0.0, 1.0, 0.4, 1.5, 1.5, 1.0);	delay(15);
+	SetFont("SHADERCY");	HudMessage (s:"A"; HUDMSG_FADEINOUT, REGENFLASH_ID_MIN+3 + (parity*4), 0, 1.0, 0.0, 0.4, 1.5, 1.5, 1.0);
+}
+
+Script "D4HasteFlash" (int parity)
+{
+	SetActivatorToTarget(0);
+	SetHudSize(0,0,true);
+	SetFont("SHADEUYE");	HudMessage (s:"A"; HUDMSG_FADEINOUT, HASTEFLASH_ID_MIN   + (parity*4), 0, 0.0, 0.0+random(0,100), 0.1, 0.2, 0.4, 1.0);
+	SetFont("SHADEDYE");	HudMessage (s:"A"; HUDMSG_FADEINOUT, HASTEFLASH_ID_MIN+1 + (parity*4), 0, 0.0, 1.0-random(0,100), 0.1, 0.2, 0.4, 1.0);	delay(6);
+	SetFont("SHADELYE");	HudMessage (s:"A"; HUDMSG_FADEINOUT, HASTEFLASH_ID_MIN+2 + (parity*4), 0, 0.0+random(0,100), 0.0, 0.1, 0.2, 0.4, 1.0);
+	SetFont("SHADERYE");	HudMessage (s:"A"; HUDMSG_FADEINOUT, HASTEFLASH_ID_MIN+3 + (parity*4), 0, 1.0-random(0,100), 0.0, 0.1, 0.2, 0.4, 1.0); //delay(6);
+}
+
+Script "D4MoneyFlash" (int parity)
+{
+	SetActivatorToTarget(0);
+	SetHudSize(0,0,true);
+	SetFont("SHADERGR");	HudMessage (s:"A"; HUDMSG_FADEINOUT, MONEYFLASH_ID_MIN   + (parity*4), 0, 1.0, 0.0, 0.1, 0.2, 1.7, 0.4); delay(1);
+	SetFont("SHADEDGR");	HudMessage (s:"A"; HUDMSG_FADEINOUT, MONEYFLASH_ID_MIN+1 + (parity*4), 0, 0.0, 1.0, 0.1, 0.2, 1.7, 0.4); delay(1);
+	SetFont("SHADELGR");	HudMessage (s:"A"; HUDMSG_FADEINOUT, MONEYFLASH_ID_MIN+2 + (parity*4), 0, 0.0, 0.0, 0.1, 0.2, 1.7, 0.4); delay(1);
+	SetFont("SHADEUGR");	HudMessage (s:"A"; HUDMSG_FADEINOUT, MONEYFLASH_ID_MIN+3 + (parity*4), 0, 0.0, 0.0, 0.1, 0.2, 1.7, 0.4);
+}
+
+Script "D4DemonTimer" (int demontype)
+{
+	SetActivatorToTarget(0);
+	SetHudSize(0,0,true);
+	SetFont("DOT5IN7"); 
+	
+	int angle, time = 60.0, x, y, id = TIMERDOT_ID_MIN;
+	for(angle = 0.0; angle < 360.0; angle += 6.0)
+	{
+		time -= 1.0;
+		x = sin((angle >> 8) * 256 / 360) / -17 / 2 +  0.5;
+		y = cos((angle >> 8) * 256 / 360) / -10 / 2 +  0.92;
+		HudMessage (s:"A"; HUDMSG_FADEINOUT, id++, 0, x, y, time, 0.2, 1.7, 1.0);
+	}
+}
+
+Script "ResetOverlayState" (void)
+{
+	SetActorState(0,"Spawn",true);
+}

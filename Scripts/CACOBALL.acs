@@ -1,0 +1,89 @@
+#library "CACOBALL"
+#include "zcommon.acs"
+
+#define CACOBALL_ID_BELOW 	2999
+#define CACOBALL_ID_MAX 	3063
+#define BLOOD_ID_BELOW 	3063
+#define BLOOD_ID_MAX 	3383
+
+int cacospot=CACOBALL_ID_BELOW;
+script "Cacoball" (void)
+{
+	SetActivator(0,AAPTR_TARGET);
+	
+	str filename = strparam(s:"cacohit", d:random(1,4));
+	
+	SetFont(filename);
+	HudMessage(s:"A"; HUDMSG_FADEOUT|HUDMSG_ALPHA , ++cacospot, 0, 
+			random(-2.0,2.0), random(-2.0,2.0), 
+			3.0, 6.0, 0.85); 
+	
+	if(cacospot > CACOBALL_ID_MAX) cacospot = CACOBALL_ID_BELOW;
+}
+
+// Graphic name, fade in time, fade out time
+str BloodProg[16][3]={
+		{"blddroq", 0.02, 5.0}, // 1
+		{"blddrob", 0.04, 4.0}, // 2
+		{"speckle", 0.06, 6.0}, // 3
+		{"blddroq", 0.08, 4.5}, // 4
+		{"blddrop", 0.10, 3.5}, // 5
+		{"bldspry", 0.16, 3.5}, // 6
+		{"blddrob", 0.14, 3.0}, // 7
+		{"speckle", 0.08, 2.5}, // 8
+		{"blddrob", 0.06, 3.0}, // 9
+		{"blddroq", 0.08, 6.0}, // 10
+		{"blddrop", 0.19, 2.0}, // 11
+		{"blddrop", 0.15, 1.5}, // 12
+		{"bldspry", 0.28, 1.0}, // 13
+		{"blddrop", 0.16, 1.0}, // 14
+		{"bldmist", 0.14, 5.5}, // 15
+		{"speckle", 0.12, 5.0}, // 16
+		};
+
+int bloodspot = BLOOD_ID_BELOW;
+script "Blood" (int degree)
+{
+	if(degree <  1) terminate;
+	if(degree > 16) degree = 16;
+	
+	if(PlayerNumber() < 0) // For pukename to work
+		SetActivator(0,AAPTR_TARGET);
+	
+	int radius = random(-0.99, -0.01);
+	int sel = random(0,3);
+	
+	bool x; // type mismatch 
+	str y;  // but who cares in ACS, right
+	
+	switch(sel)
+	{
+	case 1:
+		x = -0.01;
+		y = radius;
+		break;
+	case 2:
+		x = -0.99;
+		y = radius;
+		break;
+	case 3:
+		y = -0.01;
+		x = radius;
+		break;
+	default:
+		y = -0.99;
+		x = radius;
+		break;
+	}
+	
+	for(int i=0; i < degree; i++)
+	{
+		int filename = strparam(s:BloodProg[i][0], d:random(1,4));
+		SetFont(filename);
+		HudMessage(s:"A"; HUDMSG_FADEINOUT|HUDMSG_ALPHA , ++bloodspot, 0, 
+				x+random(random(-0.2,0.04),random(-0.04, 0.2)), 
+				y+random(random(-0.2,0.04),random(-0.04, 0.2)), 
+				1.0, BloodProg[i][1], BloodProg[i][2], 0.85); 
+	}
+	if(bloodspot > BLOOD_ID_MAX) bloodspot = BLOOD_ID_BELOW;
+}

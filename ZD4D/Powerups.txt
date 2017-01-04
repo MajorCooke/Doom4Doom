@@ -1,0 +1,1173 @@
+//=======================================================================
+//=======================================================================
+// MegaHealth
+//=======================================================================
+//=======================================================================
+Class MegaSphereReplacer : RandomSpawner replaces Megasphere
+{
+	Default 
+	{
+		DropItem "D4Megasphere", 255, 5;
+		DropItem "DoomDoll", 255, 1;
+	}
+}
+
+
+Class D4BlueArmorMegasphere : ArmorBonus replaces BlueArmorForMegasphere 
+{
+	Default 
+	{
+		+INVENTORY.IGNORESKILL
+		Armor.SavePercent 100;
+		Armor.SaveAmount 200;
+		Armor.MaxAbsorb 200;
+		Armor.MaxFullAbsorb 200;
+		DistanceCheck "user_MaxDrawDistance";
+	}
+}
+
+Class D4Megasphere : Megasphere 
+{
+	Default 
+	{
+		Inventory.PickUpSound "Doom4/Pickups/MegaHealth";
+		Translation "0:255=%[0.3,0.15,0.05]:[2,1,0.3]";
+		+INVENTORY.FANCYPICKUPSOUND
+		+COUNTITEM
+		+BRIGHT
+		+FLOATBOB
+		+ROLLSPRITE
+		+ROLLCENTER
+		+FORCEXYBILLBOARD
+		Scale 0.17;
+	}
+	states
+	{
+	Spawn:
+		M680 D 1 Light("MegaSphereLightWorld") 
+		{
+			if (!A_CheckSight("Null"))
+			{
+				A_SpawnItemEx("PentaShadow",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERROLL|SXF_TRANSFERSPRITEFRAME|SXF_TRANSFERTRANSLATION);
+			}
+			A_SetRoll(roll + 1,SPF_INTERPOLATE);
+		}
+		Wait;
+		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			if (health < 200)
+			{	A_SetHealth(200);	}
+			if (A_GiveInventory("ArmorStripper",1))
+			{	A_GiveInventory("D4BlueArmorMegasphere",1);	}
+		}
+		Stop;
+	}
+}
+
+
+//=======================================================================
+//=======================================================================
+// Radsuit
+//=======================================================================
+//=======================================================================
+
+Class PowerRadSuit : PowerProtection
+{
+	Default 
+	{
+		DamageFactor "PlasmaPool",			0.1;
+		DamageFactor "PlasmaExploder",		0.5;
+		DamageFactor "Plasma", 				0.75;
+		DamageFactor "CyberdemonFireWave",	0.9;
+		DamageFactor "Slime",				0.0;
+		RadiusDamageFactor					0.9;
+	}
+}
+
+Class D4RadSuit : RadSuit replaces RadSuit
+{
+	Default 
+	{
+		Scale 0.85;
+		Powerup.Type "PowerRadSuit";
+	}
+	States
+	{
+	Spawn:
+		SUIT A 0 NODELAY A_SpawnItemEx("D4RadBoots");
+		SUIT A -1 A_SetAngle(random(0,359));
+		Stop;
+	}
+}
+
+Class D4RadBoots : RadSuit { States { Spawn: TNT1 A -1; Stop; } }
+
+//=======================================================================
+//=======================================================================
+// Allmap
+//=======================================================================
+//=======================================================================
+Class D4AllMap : AllMap replaces AllMap
+{
+	Default 
+	{
+		+INVENTORY.TRANSFER //Fucking LOVE this flag!
+		+THRUACTORS
+		+NOGRAVITY
+		Scale 0.6;
+	}
+	States
+	{
+	Spawn:
+		PMAP A 0 Bright NODELAY 
+		{
+			A_GiveInventory("MapScanner",1);
+			A_GiveInventory("Allmap",1);
+			A_SetAngle(random(0,359));
+			bThruActors = 0;
+			A_Gravity();
+		}
+		PMAP ABCDCB 6 Bright;
+		Goto Spawn+1;
+	}
+}
+
+Class MapScanner : PowerupGiver replaces Scanner
+{
+	Default 
+	{
+		+INVENTORY.AUTOACTIVATE
+		+INVENTORY.ALWAYSPICKUP
+		+DONTGIB
+		Powerup.Type "PowerScanner";
+		Powerup.Duration 0x7FFFFFFD;
+	}
+}
+
+//=======================================================================
+//=======================================================================
+// light amp
+//=======================================================================
+//=======================================================================
+Class D4Infrared : Infrared replaces Infrared
+{
+	Default 
+	{
+		Scale 0.6;
+	}
+	States
+	{
+	Spawn:
+		PVIS A 0 Bright NODELAY A_SetAngle(random(0,359));
+		PVIS A 6 Bright;
+		PVIS B 6;
+		Goto Spawn+1;
+	}
+}
+
+
+//=======================================================================
+//=======================================================================
+// Quad Damage
+//=======================================================================
+//=======================================================================
+
+Class BerserkSpawner : RandomSpawner replaces Berserk
+{
+	Default 
+	{
+		DropItem "D4DBerserk", 255, 10;
+		DropItem "D4QuadDamage", 255, 5;
+	}
+}
+
+Class PowerD4QuadDamage : PowerDamage
+{
+	Default 
+	{
+		damagefactor "normal", 4;
+	}
+}
+
+Class QuadDamageGiver : PowerupGiver
+{
+	Default 
+	{
+		inventory.maxamount 0;
+		Powerup.Type "PowerD4QuadDamage";
+		powerup.duration 900000;
+		+INVENTORY.AUTOACTIVATE
+		+INVENTORY.ALWAYSPICKUP
+	}
+}
+
+Class D4QuadDamage : CustomInventory
+{
+	Default 
+	{
+		Inventory.PickupSound "QuadDamage/Pickup";
+		inventory.pickupmessage "Quad Damage!";
+		//translation "0:255=%[.00,.00,.10]:[.99,.10,.99]"
+		+INVENTORY.FANCYPICKUPSOUND
+		+COUNTITEM
+		+BRIGHT
+		+FLOATBOB
+		Scale 0.17;
+	}
+	states
+	{
+	Spawn:
+		M680 B 1 Light("QuadDamageLightWorld") NoDelay
+		{
+			if (!A_CheckSight("Null"))
+			{
+				A_SpawnItemEx("PentaShadow",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERSPRITEFRAME);
+			}
+		}
+		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			A_GiveInventory("QuadDamageTimer",1000);
+			if (!CountInv("PowerD4QuadDamage"))
+			{
+				// [MC] Target is just in case Michaelis' scripts rely on target
+				// retrieval, and I don't want to touch them.
+				A_SpawnItemEx("QuadDamageManager",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
+				A_SpawnItemEx("QuadDamageLight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
+			}
+			A_GiveInventory("QuadDamageGiver", 1);
+		}
+		Stop;
+	}
+}
+
+Class QuadDamageTimer : Inventory
+{
+	Default 
+	{
+		Inventory.MaxAmount 1000000;
+		Inventory.InterhubAmount 0;
+	}
+}
+
+Class QuadDamageManager : Actor 
+{
+	int user_time;
+	Default 
+	{
+		+NOINTERACTION
+		+NOTONAUTOMAP
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 1 
+		{
+			if (CountInv("QuadDamageTimer",MasterPtr))
+			{
+				user_time += CountInv("QuadDamageTimer",MasterPtr);
+				A_TakeInventory("QuadDamageTimer",32767,0,MasterPtr);
+				A_StopSound(5);
+			}
+			else
+			{
+				user_time--;
+			}
+			
+			if (user_time == 105 || user_time == 70 || user_time == 35)
+			{
+				if (user_time == 105)
+				{
+					A_PlaySound("QuadDamage/Warning",5,1,0,ATTN_NONE);
+				}
+				A_GiveInventory("QuadDamageFade",1,MasterPtr);
+			}
+			
+			if (user_time <= 0)
+			{
+				A_TakeInventory("PowerD4QuadDamage",32767,0,MasterPtr);
+				A_TakeInventory("QuadDamageTimer",32767,0,MasterPtr);
+				return ResolveState("Null");
+			}
+			return ResolveState(null);
+		}
+		Wait;
+	}
+}
+
+Class QuadDamageFade : CustomInventory
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+		Inventory.InterhubAmount 0;
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0 A_SetBlend("Purple",0.4,12);
+		Stop;
+	}
+}
+
+Class QuadDamageLight : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 1 Light("QuadLight") 
+		{
+			if (CountInv("PowerD4QuadDamage",MasterPtr))
+			{
+				A_Warp(MasterPtr, 0,0,0, 0, WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION);
+				return ResolveState(null);
+			}
+			return ResolveState("Null");
+		}
+		Wait;
+	}
+}
+/*
+Class QuadDamageController : Actor 
+{
+	int user_alt;
+	+NOINTERACTION
+	RenderStyle "None";
+	States
+	{
+	Spawn:
+		TNT1 A 36 NoDelay
+		{
+			if (CountInv("PowerD4QuadDamage",MasterPtr))
+			{
+				//ACS_NamedExecuteAlways("D4QuadFlash", 0, user_alt);
+				user_alt = (user_alt + 1) % 2;
+				return ResolveState(null);
+			}
+			A_PlaySound("QuadDamage/Warning",CHAN_AUTO,1,0,ATTN_NONE);
+			return ResolveState("Null");
+		}
+		Wait;
+	}
+} */
+
+Class QuadNoise : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+NOTONAUTOMAP
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 35 NoDelay A_PlaySound("QuadDamage/Firing",7,1,0,ATTN_NONE);
+		Stop;
+	}
+}
+
+
+//=======================================================================
+//=======================================================================
+// Regeneration
+//=======================================================================
+//=======================================================================
+
+Class SoulSphereHP : SoulSphere { Default { +INVENTORY.IGNORESKILL }}
+
+Class PowerD4Regen : PowerRegeneration { }
+
+Class RegenerationGiver : PowerupGiver
+{
+	Default 
+	{
+		inventory.maxamount 0;
+		Powerup.Type "PowerD4Regen";
+		powerup.duration 900000;
+		+INVENTORY.AUTOACTIVATE
+		+INVENTORY.ALWAYSPICKUP
+	}
+}
+
+Class D4Regeneration : CustomInventory replaces SoulSphere
+{
+	Default 
+	{
+		inventory.pickupmessage "Supercharge!";
+		Inventory.PickupSound "Regen/Pickup";
+		translation "0:255=%[.30,.30,.50]:[.10,1.99,1.99]";
+		+INVENTORY.FANCYPICKUPSOUND
+		+COUNTITEM
+		+BRIGHT
+		+FLOATBOB
+		+ROLLSPRITE
+		+ROLLCENTER
+		+FORCEXYBILLBOARD
+		Scale 0.17;
+	}
+	states
+	{
+	Spawn:
+		M680 D 1 Light("RegenLightWorld") 
+		{
+			if (!A_CheckSight("Null"))
+			{
+				A_SpawnItemEx("PentaShadow",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERROLL|SXF_TRANSFERSPRITEFRAME);
+			}
+			A_SetRoll(roll + 1,SPF_INTERPOLATE);
+		}
+		Wait;
+		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			A_GiveInventory("SoulSphereHP",1);
+			A_GiveInventory("RegenTimer",1050);
+			if (!CountInv("PowerD4Regen"))
+			{
+				A_SpawnItemEx("RegenerationManager",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
+				A_SpawnItemEx("RegenerationLight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
+			}
+			A_GiveInventory("RegenerationGiver", 1);
+		}
+		Stop;
+	}
+}
+
+Class RegenTimer : Inventory
+{
+	Default 
+	{
+		Inventory.MaxAmount 1000000;
+		Inventory.InterhubAmount 0;
+	}
+}
+
+Class RegenerationManager : Actor 
+{
+	int user_time;
+	
+	Default 
+	{
+		+NOINTERACTION
+		+NOTONAUTOMAP
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 1 
+		{
+			if (CountInv("RegenTimer",MasterPtr))
+			{
+				user_time += CountInv("RegenTimer",MasterPtr);
+				A_TakeInventory("RegenTimer",32767,0,MasterPtr);
+				A_StopSound(5);
+			}
+			else
+			{
+				user_time--;
+			}
+			
+			if (user_time == 105 || user_time == 70 || user_time == 35)
+			{
+				if (user_time == 105)
+				{
+					A_PlaySound("Regen/Warning",5,1,0,ATTN_NONE);
+				}
+				A_GiveInventory("RegenFade",1,MasterPtr);
+			}
+			
+			if (user_time <= 0)
+			{
+				A_TakeInventory("PowerD4Regen",32767,0,MasterPtr);
+				A_TakeInventory("RegenTimer",32767,0,MasterPtr);
+				return ResolveState("Null");
+			}
+			return ResolveState(null);
+		}
+		Wait;
+	}
+}
+
+Class RegenFade : CustomInventory
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+		Inventory.InterhubAmount 0;
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0 A_SetBlend("Cyan",0.4,12);
+		Stop;
+	}
+}
+
+Class RegenerationLight : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 1 Light("RegenLight") 
+		{
+			if (CountInv("PowerRegeneration",MasterPtr))
+			{
+				A_Warp(MasterPtr,0,0,0,0,WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION);
+				return ResolveState(null);
+			}
+			return ResolveState("Null");
+		}
+		Wait;
+	}
+}
+/*
+Class RegenerationController : Actor 
+{
+	int user_alt;
+	+NOINTERACTION
+	RenderStyle "None";
+	States
+	{
+	Spawn:
+		TNT1 A 60 NoDelay
+		{
+			if (CountInv("PowerRegeneration",MasterPtr))
+			{
+				//ACS_NamedExecuteAlways("D4RegenFlash", 0, user_alt);
+				user_alt = (user_alt + 1) % 2;
+				return ResolveState(null);
+			}
+			return ResolveState("Null");
+		}
+		Wait;
+	}
+} */
+
+
+//=======================================================================
+//=======================================================================
+// Haste
+//=======================================================================
+//=======================================================================
+
+Class D4BlurSphere : BlurSphere {}
+
+Class BlurSphereSpawner : CustomInventory replaces BlurSphere
+{
+	const SpawnFlags = SXF_NOCHECKPOSITION|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL|SXF_CLEARCALLERTID;
+	Default 
+	{
+		+INVENTORY.BIGPOWERUP
+		+INVENTORY.ALWAYSPICKUP
+		+INVENTORY.QUIET
+		-COUNTITEM
+	}
+	States
+	{
+	Spawn:
+		TNT1 A -1 NoDelay
+		{
+			if (GetCvar("D4D_HasteSpawn") == 0)
+			{
+				A_SpawnItemEx("D4BlurSphere",0,0,0,0,0,0,0,SpawnFlags,0,tid);
+			}
+			else if (GetCvar("D4D_HasteSpawn") == 1)
+			{
+				if (random(0,1))
+				{
+					A_SpawnItemEx("D4Haste",0,0,0,0,0,0,0,SpawnFlags,0,tid);
+				}
+				else
+				{
+					A_SpawnItemEx("D4BlurSphere",0,0,0,0,0,0,0,SpawnFlags,0,tid);
+				}
+			}
+			else
+			{
+				A_SpawnItemEx("D4Haste",0,0,0,0,0,0,0,SpawnFlags,0,tid);
+			}
+		}
+		Stop;
+	}
+}
+
+Class PowerD4Haste : PowerSpeed {} // Make sure some mapsets don't mix this up.
+Class PowerD4DFS : PowerDoubleFiringSpeed {}
+
+Class HasteGiver : PowerupGiver
+{
+	Default 
+	{
+		inventory.maxamount 0;
+		Powerup.Type "PowerD4Haste";
+		powerup.duration 900000;
+		+INVENTORY.AUTOACTIVATE
+		+INVENTORY.ALWAYSPICKUP
+	}
+}
+
+Class DoubleFiringSpeedGiver : HasteGiver
+{
+	Default 
+	{
+		Powerup.Type "PowerD4DFS";
+	}
+}
+
+Class D4Haste : CustomInventory
+{
+	Default 
+	{
+		Inventory.PickupSound "Haste/Pickup";
+		inventory.pickupmessage "Haste!";
+		translation "0:255=%[.00,.00,.10]:[.99,.99,.10]";
+		+INVENTORY.FANCYPICKUPSOUND
+		+COUNTITEM
+		+BRIGHT
+		+FLOATBOB
+		+FORCEXYBILLBOARD
+		Scale 0.17;
+	}
+	states
+	{
+	Spawn:
+		M680 E 1 Light("HasteLightWorld") 
+		{
+			if (!A_CheckSight("Null"))
+			{
+				A_SpawnItemEx("PentaShadow",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERROLL|SXF_TRANSFERSPRITEFRAME);
+			}
+		}
+		Wait;
+	Pickup:
+		TNT1 A 0
+		{
+			A_GiveInventory("HasteTimer",1000);
+			if (!CountInv("PowerD4Haste"))
+			{
+				A_SpawnItemEx("HasteManager",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
+				A_SpawnItemEx("HasteLight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
+			}
+			A_GiveInventory("HasteGiver", 1);
+			A_GiveInventory("DoubleFiringSpeedGiver", 1);
+		}
+		Stop;
+	}
+}
+
+Class HasteTimer : Inventory
+{
+	Default 
+	{
+		Inventory.MaxAmount 1000000;
+		Inventory.InterhubAmount 0;
+	}
+}
+
+Class HasteManager : Actor 
+{
+	int user_time;
+	int user_wait;
+	int user_delay;
+	Default 
+	{
+		+NOINTERACTION
+		+NOTONAUTOMAP
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 1 
+		{
+			if (CountInv("HasteTimer",MasterPtr))
+			{
+				user_time += CountInv("HasteTimer",MasterPtr);
+				A_TakeInventory("HasteTimer",32767,0,MasterPtr);
+				A_StopSound(5);
+			}
+			else
+			{
+				user_time--;
+			}
+			
+			if (user_time > 105)
+			{
+				if (!user_wait)	{ user_wait = random(35*2,35*7);	}
+				A_Warp(MasterPtr, 0,0,0, 0, WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION);
+				user_delay++;
+				
+				if (user_delay >= 35*3)
+				{
+					if (random(1,30) == 1)
+					{
+						user_delay = 0;
+						user_wait = random(35*2,35*7);
+						A_PlaySound("Haste/Whisper",5,1,0);
+					}
+				}
+			}
+			else if (user_time == 105 || user_time == 70 || user_time == 35)
+			{
+				if (user_time == 105)
+				{
+					A_PlaySound("Haste/Warning",5,1,0,ATTN_NONE);
+				}
+				A_GiveInventory("HasteFade",1,MasterPtr);
+			}
+			
+			if (user_time <= 0)
+			{
+				A_TakeInventory("PowerD4DFS",32767,0,MasterPtr);
+				A_TakeInventory("PowerD4Haste",32767,0,MasterPtr);
+				A_TakeInventory("HasteTimer",32767,0,MasterPtr);
+				return ResolveState("Null");
+			}
+			return ResolveState(null);
+		}
+		Wait;
+	}
+}
+
+Class HasteFade : CustomInventory
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+		Inventory.InterhubAmount 0;
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0 A_SetBlend("Gold",0.4,12);
+		Stop;
+	}
+}
+
+Class HasteLight : Actor 
+{
+	int user_delay;
+	int user_wait;
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 1 Light("HasteLight") 
+		{
+			if (CountInv("PowerD4Haste",MasterPtr))
+			{
+				A_Warp(MasterPtr, 0,0,0, 0, WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION);
+				return ResolveState(null);
+			}
+			return ResolveState("Null");
+		}
+		Wait;
+	}
+}
+/*
+Class HasteController : Actor 
+{
+	int user_alt;
+	+NOINTERACTION
+	RenderStyle "None";
+	States
+	{
+	Spawn:
+		TNT1 A 12 NoDelay
+		{
+			if (CountInv("PowerSpeed",MasterPtr))
+			{
+				//ACS_NamedExecuteAlways("D4HasteFlash", 0, user_alt);
+				//user_alt = (user_alt + 1) % 3;
+				return ResolveState(null);
+			}
+			return ResolveState("Null");
+		}
+		Wait;
+	}
+}
+*/
+
+//=======================================================================
+//=======================================================================
+// Quad Money
+//=======================================================================
+//=======================================================================
+
+Class PowerD4Money : Powerup {}
+
+Class QuadMoneyGiver : PowerupGiver
+{
+	Default 
+	{
+		inventory.maxamount 0;
+		Powerup.Type "PowerD4Money";
+		powerup.duration 900000;
+		+INVENTORY.AUTOACTIVATE
+		+INVENTORY.ALWAYSPICKUP
+	}
+}
+
+Class D4QuadMoney : CustomInventory
+{
+	Default 
+	{
+		Inventory.PickupSound "Regen/Pickup";
+		inventory.pickupmessage "Quad Money!!";
+		translation "0:255=%[.00,.00,.10]:[.10,.99,.10]";
+		+INVENTORY.FANCYPICKUPSOUND
+		+COUNTITEM
+		+BRIGHT
+		+FLOATBOB
+		+ROLLSPRITE
+		+ROLLCENTER
+		+FORCEXYBILLBOARD
+		Scale 0.17;
+	}
+	states
+	{
+	Spawn:
+		M680 C 1 Light("QuadMoneyLightWorld") 
+		{
+			if (!A_CheckSight("Null"))
+			{
+				A_SpawnItemEx("PentaShadow",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERROLL|SXF_TRANSFERSPRITEFRAME);
+			}
+			A_SetRoll(roll + 1,SPF_INTERPOLATE);
+		}
+		Wait;
+	Pickup:
+		TNT1 A 0
+		{
+			A_GiveInventory("QuadMoneyTimer",1000);
+			if (!CountInv("PowerD4Money"))
+			{
+				A_SpawnItemEx("QuadMoneyManager",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
+				A_SpawnItemEx("QuadMoneyLight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
+				A_GiveInventory("CashPercentBonus", 300);
+			}
+			A_GiveInventory("QuadMoneyGiver", 1);
+		}
+		Stop;
+	}
+}
+
+Class QuadMoneyTimer : Inventory
+{
+	Default 
+	{
+		Inventory.MaxAmount 1000000;
+		Inventory.InterhubAmount 0;
+	}
+}
+
+Class QuadMoneyManager : Actor 
+{
+	int user_time;
+	
+	Default 
+	{
+		+NOINTERACTION
+		+NOTONAUTOMAP
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 1 
+		{
+			if (CountInv("QuadMoneyTimer",MasterPtr))
+			{
+				user_time += CountInv("QuadMoneyTimer",MasterPtr);
+				A_TakeInventory("QuadMoneyTimer",32767,0,MasterPtr);
+				A_StopSound(5);
+			}
+			else
+			{
+				user_time--;
+			}
+			
+			if (user_time == 105 || user_time == 70 || user_time == 35)
+			{
+				if (user_time == 105)
+				{
+					A_PlaySound("Regen/Warning",5,1,0,ATTN_NONE);
+				}
+				A_GiveInventory("QuadMoneyFade",1,MasterPtr);
+			}
+			
+			if (user_time <= 0)
+			{
+				A_TakeInventory("PowerD4Money",32767,0,MasterPtr);
+				A_TakeInventory("QuadMoneyTimer",32767,0,MasterPtr);
+				A_TakeInventory("CashPercentBonus",300,0,MasterPtr);
+				return ResolveState("Null");
+			}
+			return ResolveState(null);
+		}
+		Wait;
+	}
+}
+
+Class QuadMoneyFade : CustomInventory
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+		Inventory.InterhubAmount 0;
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0 A_SetBlend("Green",0.4,12);
+		Stop;
+	}
+}
+
+Class QuadMoneyLight : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 1 Light("MoneyLight") 
+		{
+			if (CountInv("PowerD4Money",MasterPtr))
+			{
+				A_Warp(MasterPtr, 0,0,0, 0, WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION);
+				return ResolveState(null);
+			}
+			return ResolveState("Null");
+		}
+		Wait;
+	}
+}
+/*
+Class QuadMoneyController : Actor 
+{
+	int user_alt;
+	+NOINTERACTION
+	RenderStyle "None";
+	States
+	{
+	Spawn:
+		TNT1 A 36 NoDelay
+		{
+			if (CountInv("PowerD4Money",MasterPtr))
+			{
+				//ACS_NamedExecuteAlways("D4MoneyFlash", 0, user_alt);
+				user_alt = (user_alt + 1) % 2;
+				return ResolveState(null);
+			}
+			return ResolveState("Null");
+		}
+		Wait;
+	}
+} */
+
+//==============================================================================
+//==============================================================================
+// Pentagram of Protection (Invulnerability)
+//==============================================================================
+//==============================================================================
+
+/*
+PentagramOfProtection/Pickup		"Sounds/Pickups/penta1.wav"
+PentagramOfProtection/Warning		"Sounds/Pickups/penta2.wav"
+PentagramOfProtection/Protect		"Sounds/Pickups/penta3.wav"
+QuadDamage/Pickup					"Sounds/Pickups/quad1.wav"
+QuadDamage/Warning					"Sounds/Pickups/quad2.wav"
+QuadDamage/Firing					"Sounds/Pickups/quad3.wav"
+*/
+
+Class InvulPickupNoise : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+NOTONAUTOMAP
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 200 NoDelay A_PlaySound("PentagramOfProtection/Pickup",CHAN_AUTO,1,0,ATTN_NONE);
+		Stop;
+	}
+}
+
+Class PentaShadow : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+ROLLSPRITE
+		+ROLLCENTER
+		RenderStyle "Add";
+	}
+	States
+	{
+	Spawn:
+		"####" "#" 1 A_FadeOut(0.2);
+		Wait;
+	}
+}
+
+Class PentagramOfProtection : CustomInventory replaces InvulnerabilitySphere
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+		+INVENTORY.BIGPOWERUP
+		+INVENTORY.FANCYPICKUPSOUND
+		+DONTGIB
+		+FLOATBOB
+		+BRIGHT
+		+ROLLSPRITE
+		+ROLLCENTER
+		+FORCEXYBILLBOARD
+		Inventory.PickupMessage "Pentagram Of Protection";
+		Inventory.PickupSound "PentagramOfProtection/Pickup";
+		Scale 0.17;
+		Inventory.MaxAmount 0;
+		Inventory.InterhubAmount 0;
+	}
+	States
+	{
+	Spawn:
+		M680 A 1 Light("InvulLightWorld") 
+		{
+			if (!A_CheckSight("Null"))
+			{
+				A_SpawnItemEx("PentaShadow",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERROLL|SXF_TRANSFERSPRITEFRAME);
+			}
+			A_SetRoll(roll + 1,SPF_INTERPOLATE);
+		}
+		Wait;
+	Pickup:
+		TNT1 A 0
+		{
+			A_SpawnItemEx("InvulPickupNoise",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			A_GiveInventory("InvulTimer",1050);
+			if (!CountInv("PowerInvulBase"))
+			{	A_SpawnItemEx("PentagramManager",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);	}
+			A_GiveInventory("Invulnerability");
+		}
+		Stop;
+	}
+}
+
+Class Invulnerability : PowerupGiver
+{
+	Default 
+	{
+		Inventory.InterhubAmount 0;
+		+INVENTORY.ALWAYSPICKUP
+		+INVENTORY.AUTOACTIVATE
+		+INVENTORY.QUIET
+		Powerup.Color "Gold", 0.15;
+		Powerup.Type "PowerInvulBase";
+		Powerup.Duration 9000000; //THIS IS NOT THE REAL TIME. This is to Stop; the blinking screens!
+		//See the PentagramManager Class below for more info.
+	}
+}
+
+Class PowerInvulBase : PowerInvulnerable
+{ Default { Inventory.InterhubAmount 0; }}
+
+Class InvulTimer : Inventory
+{
+	Default 
+	{
+		Inventory.MaxAmount 1000000;
+		Inventory.InterhubAmount 0;
+	}
+}
+
+Class PentagramManager : Actor 
+{
+	int user_time;
+	
+	Default 
+	{
+		+NOINTERACTION
+		+NOTONAUTOMAP
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 1 
+		{
+			if (CountInv("InvulTimer",MasterPtr))
+			{
+				user_time += CountInv("InvulTimer",MasterPtr);
+				A_TakeInventory("InvulTimer",32767,0,MasterPtr);
+				A_StopSound(5);
+			}
+			else
+			{
+				user_time--;
+			}
+			
+			if (user_time == 105 || user_time == 70 || user_time == 35)
+			{
+				if (user_time == 105)
+				{
+					A_PlaySound("PentagramOfProtection/Warning",5,1,0,ATTN_NONE);
+				}
+				A_GiveInventory("PentagramFade",1,MasterPtr);
+			}
+			
+			if (user_time <= 0)
+			{
+				A_TakeInventory("PowerInvulBase",32767,0,MasterPtr);
+				A_TakeInventory("PentagramOfProtection",32767,0,MasterPtr);
+				A_TakeInventory("InvulTimer",32767,0,MasterPtr);
+				return ResolveState("Null");
+			}
+			return ResolveState(null);
+		}
+		Wait;
+	}
+}
+
+Class PentagramFade : CustomInventory
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+		Inventory.InterhubAmount 0;
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0 A_SetBlend("Yellow",0.4,12);
+		Stop;
+	}
+}

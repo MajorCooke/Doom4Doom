@@ -1,0 +1,949 @@
+//===================================================================================================
+//===================================================================================================
+//
+//		Plasma Rifle
+//
+//	Sprites: Neccronixis
+//	MuzzleFlash sprite edit: DBThanatos
+//	Original Code: DBThanatos
+//	Code enhancement: Major Cooke
+//
+//===================================================================================================
+//===================================================================================================
+
+Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
+{
+	Default 
+	{
+		+WEAPON.NOALERT
+		+INVENTORY.UNDROPPABLE
+		+INVENTORY.UNTOSSABLE
+		Inventory.PickupMessage "Plasma Rifle! Hotter than the Sun surface!";
+		Tag "Plasma Rifle";
+		Weapon.AmmoType1 "D4Cells";
+		Weapon.AmmoGive1 40;
+		Weapon.AmmoUse1 1;
+		Scale 0.6;
+		Weapon.SelectionOrder 50;
+		+DONTGIB
+	}
+	States
+	{
+	Spawn:
+		WPPK H -1;
+		Stop;
+	//-------------------------------------------------------
+	// Ready sequence
+	//-------------------------------------------------------
+	Ready:
+		PrepareSpritesReady:
+			
+			PRNI A 0 
+			{
+				if (CountInv("StunBombActive"))	{ return ResolveState("SpritesStunBombReady"); }
+				if (CountInv("HeatBlastActive")) { return ResolveState("SpritesHeatBlastReady"); }
+				return ResolveState("ContinueReady");
+			}
+		SpritesStunBombReady:
+			PRSI A 0 ACS_NamedExecute("ModSelectedText",0,6,0,0);	//print stun bomb
+			Goto ContinueReady;
+		SpritesHeatBlastReady:
+			PRHI A 0 
+			{
+				A_Overlay(2,"Overlay.HeatGeneration",true);
+				ACS_NamedExecute("ModSelectedText",0,5,0,0);	//print heat
+			}
+			Goto ContinueReady;
+			
+	ContinueReady:
+		"####" AAAAAAAAA 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+		Loop;
+	
+	Overlay.HeatGeneration:
+		M666 A 60
+		{
+			if (CountInv("PlasmaHeatBlastCounter") < 30)
+			{	A_GiveInventory("PlasmaHeatBlastCounter",1);	}
+		}
+		Loop;
+		
+	//-------------------------------------------------------
+	// Deselect sequence
+	//-------------------------------------------------------
+	Deselect:
+		"####" A 0 
+		{
+			A_RemoveChildren(true,RMVF_EVERYTHING,"PlasmaHeatMuzzle");
+			A_TakeInventory("PlasmaMuzzlePresent",1);
+			A_StopSound(5);
+			ACS_NamedExecute("RemoveModText",0,0,0,0);
+		}
+	DesLoop:
+		"####" A 1 A_Lower;
+		"####" AAA 0 A_Lower;
+		Loop;
+	//-------------------------------------------------------
+	// Select sequence
+	//-------------------------------------------------------
+	Select:
+		TNT1 A 0
+		{
+			if(countinv("HeatBlastActive")>=1 && countinv("PlasmaMuzzlePresent")==0)
+			{
+				A_SpawnItemEx("PlasmaHeatMuzzle",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+				A_GiveInventory("PlasmaMuzzlePresent",1);
+			}
+		}
+		PRNI A 0 ACS_NamedExecute("RemoveModText",0,0,0,0);	//remove previous wep text
+		PRNI A 1 A_Raise;
+		PRNI AAA 0 A_Raise;
+		Goto Select+2;
+		
+	//-------------------------------------------------------
+	// Primary fire
+	//-------------------------------------------------------
+	Fire:
+		"####" "#" 0 
+		{
+			if (countinv("HeatBlastActive")>=1)	//if it has the "heat shot" mod
+			{
+				return ResolveState("HeatBuilderFire");
+			}
+			return ResolveState(null); //does nothing, but this line is needed because "not all paths return a value"
+		}
+		Goto PrepareSpritesPrimaryFire;
+		
+		//-------------------------------------------------------
+		// Regular primary fire
+		
+		PrepareSpritesPrimaryFire:
+			TNT1 A 0 A_JumpIfInventory("StunBombActive",1,"PrepareSpritesStunBombFire");
+			Goto PrepareSpritesNoModsFire;
+		
+		PrepareSpritesNoModsFire:
+			PRNF A 0;
+			Goto FireNormal;
+		PrepareSpritesStunBombFire:
+			PRSF A 0;
+			Goto FireNormal;
+		
+		FireNormal:
+			"####" A 1 Bright 
+			{
+				if(countinv("PlasmaShotCounter")>=1)
+				{
+					A_PlaySound("Doom4/Weapon/PlasmaGun/PlasmaLoop",5,1,2);
+				}
+				else if(countinv("PlasmaShotCounter")==0)
+				{
+					A_PlaySound("Doom4/Weapon/PlasmaGun/Fire",CHAN_WEAPON,1);
+				}
+				A_SetBlend("skyblue",0.03,3);
+				A_AlertMonsters();
+				A_GunFlash("Null");
+				A_FireProjectile("D4DPlasmaBall",0,1,3,1.5);
+				A_SetPitch(pitch-0.8);
+				A_ZoomFactor(0.995,ZOOM_NOSCALETURNING);
+				A_GiveInventory("PlasmaShotCounter",1);
+				A_WeaponOffset(4,5,WOF_ADD);
+			}
+			"####" B 1 Bright 
+			{
+				A_ZoomFactor(1,ZOOM_NOSCALETURNING);
+				A_SetPitch(pitch+0.8);
+				A_WeaponOffset(-2,-3,WOF_ADD);
+			}
+			"####" D 1 {	A_WeaponOffset(-2,-2,WOF_ADD);	A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			"####" D 0 A_Refire("FireNormal");
+			Goto EndFire;
+			
+			EndFire:
+				"####" A 0
+				{
+					if(countinv("PlasmaShotCounter")>=2) //if player fired more than 2 shots, the looping sound was active, and needs to end with an echoey sound
+					{ A_PlaySound("Doom4/Weapon/PlasmaGun/Fire",CHAN_WEAPON,1); }
+					A_TakeInventory("PlasmaShotCounter",32767);
+					A_StopSound(5);
+				}
+				Goto Ready;
+		
+		//-------------------------------------------------------
+		// heat builder primary fire
+		HeatBuilderFire:
+			PRHF A 1 Bright
+			{
+				if(countinv("PlasmaShotCounter")>=1)
+				{
+					A_PlaySound("Doom4/Weapon/PlasmaGun/PlasmaHeatLoop",5,1,2);
+				}
+				else if(countinv("PlasmaShotCounter")==0)
+				{
+					A_PlaySound("Doom4/Weapon/PlasmaGun/PlasmaHeatFire",CHAN_WEAPON,1);
+				}
+				A_SetBlend("skyblue",0.03,3);
+				A_AlertMonsters();
+				A_GunFlash("Null");
+				A_FireProjectile("D4DPlasmaBall",0,1,3,1.5);
+				A_SetPitch(pitch-0.8);
+				A_ZoomFactor(0.995,ZOOM_NOSCALETURNING);
+				A_GiveInventory("PlasmaShotCounter",1);
+				//A_PrintBold("Firing and heating up",0.5);
+				A_GiveInventory("PlasmaHeatBlastCounter",1);
+				A_WeaponOffset(4,5,WOF_ADD);
+			}
+			PRHF B 1 Bright 
+			{
+				A_ZoomFactor(1,ZOOM_NOSCALETURNING);
+				A_SetPitch(pitch+0.8);
+				A_WeaponOffset(-2,-3,WOF_ADD);
+			}
+			PRHI A 1 {	A_WeaponOffset(-2,-2,WOF_ADD);	A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			PRHI A 0 A_Refire("HeatBuilderFire");
+			Goto EndHeatBuilderFire;
+			
+			EndHeatBuilderFire:
+				"----" A 0
+				{
+					if(countinv("PlasmaShotCounter")>=2) //if player fired more than 2 shots, the looping sound was active, and needs to end with an echoey sound
+					{ A_PlaySound("Doom4/Weapon/PlasmaGun/PlasmaHeatFire",CHAN_WEAPON,1); }
+					A_TakeInventory("PlasmaShotCounter",100);
+					A_StopSound(5);
+				}
+				Goto Ready;
+				
+	//-------------------------------------------------------
+	// Alt fire
+	//-------------------------------------------------------
+	AltFire:
+		"####" A 0 
+		{
+			if(countinv("HeatBlastActive")>=1)
+			{
+				return ResolveState("FireMod1");
+			}
+			else if(countinv("StunBombActive")>=1)
+			{
+				return ResolveState("FireMod2");
+			}
+			return ResolveState(null);
+		}
+		"####" A 5 ACS_NamedExecute("NoModsAvailable",0,0,0,0);
+		Goto Ready;
+			
+			//-------------------------------------------------------
+			// Heat shot
+			FireMod1:
+				"####" "#" 0 
+				{
+					if (CountInv("PlasmaHeatBlastCounter") < 1)
+					{
+						A_SetTics(1);
+						return ResolveState(null);
+					}
+					return ResolveState("ReleaseHeat");
+				}
+				Goto Ready;
+			ReleaseHeat:
+				PRHF A 1 bright
+				{
+					A_GunFlash("Null");
+					A_AlertMonsters();
+					A_SpawnItemEx("HeatBlastExplo",0,6,32*GetCrouchFactor(DefPtr),0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_SETMASTER|SXF_SETTARGET);
+					A_PlaySound("Doom4/Weapon/PlasmaGun/PlasmaHeatExplo",CHAN_WEAPON,1);
+					A_SetBlend("SkyBlue",0.2,10);
+					A_SetPitch(pitch-4.0);
+					A_WeaponOffset(10,10,WOF_ADD);
+				}
+				PRHF B 1 Bright A_WeaponOffset(10,10,WOF_ADD);
+				PRHF C 1 Bright;
+				PRHI AAAAAAAAAA 1
+				{
+					A_SetPitch(pitch+0.4);
+					A_WeaponOffset(-2,-2,WOF_ADD);
+				}
+				//WEP6 BCDEFG 4
+				PRHI A 10 A_SetTics(CountInv("PowerD4DFS") ? 0 : 10);
+				Goto Ready;
+			//-------------------------------------------------------
+			// Stun bomb
+			FireMod2: 
+				"####" A 0
+				{
+					if(countinv("D4Cells")>=10)		//do you have the ammo required?
+					{
+						if(countinv("PlasmaStunBombCounter")==0)	//is the weapon no longer cooling off?
+						{
+							return ResolveState("StunBomb"); // then fire :)
+						}
+						else
+						{
+							ACS_NamedExecute("ModNotReady",0,0,0);
+							return ResolveState(null);
+						}
+					}
+					else
+					{
+						ACS_NamedExecute("NotEnoughAmmo",0,0,0);	//if it reaches here, weapon doesnt have enough ammo for this
+						return ResolveState(null);
+					}
+				}
+				"####" A 5; //waits a bit before going to ready again, to avoid endless loops
+				Goto Ready; 
+			
+			StunBomb:
+				PRSF A 1 Bright 
+				{
+					A_PlaySound("Doom4/Weapon/PlasmaGun/AltFire",CHAN_WEAPON);
+					A_GunFlash("Null");
+					A_FireProjectile("StunBomb",0,0,0);
+					A_AlertMonsters();
+					A_TakeInventory("D4Cells",10);
+				}
+				//Timer starts
+				PRSF B 1 
+				{
+					A_GiveInventory("PlasmaStunBombCounter",CountInv("PowerD4DFS") ? 26 : 52); //this is for the cool off
+					//ACS_NamedExecute("PlasmaRifleStunBombTimer",0,0,0,0); //starts decreasing the cool off counter
+					A_WeaponOffset(10,10,WOF_ADD);
+					A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); 
+				}
+				PRSF C 1 Bright A_WeaponOffset(10,10,WOF_ADD);
+				PRSI AAAAA 1 A_WeaponOffset(-4,-4,WOF_ADD);
+				PRSI BCDDDCB 4;
+				Goto Ready;
+		
+		
+	//-------------------------------------------------------
+	// Alt fire switcheroo
+	//-------------------------------------------------------
+	User1:
+		
+		"####" "#" 0 
+		{
+			if(countinv("PlasmaRifleMod1")>=1) //if has HeatBlast
+			{
+				if(countinv("StunBombActive")>=1) //but StunBomb was active
+				{
+					return ResolveState("FromStunBombToHeatBlast");
+				}
+				else if(countinv("HeatBlastActive")==0)
+				{
+					return ResolveState("FromNormalToHeatBlast"); //but if it didnt have StunBomb active, then it was in "normal"
+				}
+			}
+			if(countinv("PlasmaRifleMod2")>=1) //if it has StunBomb
+			{
+				if(countinv("HeatBlastActive")>=1) //but HeatBlast was active
+				{
+					return ResolveState("FromHeatBlastToStunBomb");
+				}
+				else if(countinv("StunBombActive")==0)	//if nothing was active,
+				{
+					return ResolveState("FromNormalToStunBomb"); //then it was in "normal" SG
+				}
+			}
+			else
+			{
+				ACS_NamedExecute("NoModsAvailable",0,0,0,0);
+			}
+			return ResolveState(null);
+		}
+		"####" "#" 5;
+		Goto Ready;
+
+
+		FromNormalToStunBomb:
+			//"####" "#" 0 A_PrintBold("From normal to StunBomb")
+			//hide normal fire
+			"####" "####" 1 A_WeaponOffset(0,20,WOF_ADD); //+0 +80
+			"####" "#" 5;
+			//pull up StunBomb
+			PRSS AAAAABCD 1 A_WeaponOffset(0,-10,WOF_ADD); // 0 -80
+			PRSS D 0 A_PlaySound("Doom4/Weapon/PlasmaGun/SwitchToElectro",5,1);
+			PRSS D 0 A_GiveInventory("StunBombActive",1);
+			PRSS EFGHIJK 1;
+			PRSS LLLL 1 A_WeaponOffset(0,3,WOF_ADD);
+			PRSS L 5;
+			PRSS MNOP 2 A_WeaponOffset(0,-3,WOF_ADD);
+			PRSI A 8;
+			Goto Ready;
+			
+		FromNormalToHeatBlast:
+			//"####" "#" 0 A_PrintBold("From normal to HeatBlast")
+			//hide normal fire
+			"####" "####" 1 A_WeaponOffset(0,20,WOF_ADD); //+0 +80
+			"####" "#" 5;
+			//pull up HeatBlast
+			PRHS X 0 A_PlaySound("Doom4/Weapon/PlasmaGun/SwitchToHeat",5,1);
+			PRHS X 0 A_GiveInventory("HeatBlastActive",1);
+			PRHS AAAAAABC 1 A_WeaponOffset(0,-10,WOF_ADD); // 0 -80
+			PRHS DEFGHIJK 1;
+			PRHS KKKK 1 A_WeaponOffset(0,3,WOF_ADD);
+			PRHS K 10;
+			PRHS LMNO 2 A_WeaponOffset(0,-3,WOF_ADD);
+			PRHI A 8;
+			// heatblast muzzle, to spawn steam
+			"####" "#" 0
+			{
+				A_SpawnItemEx("PlasmaHeatMuzzle",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+				A_GiveInventory("PlasmaMuzzlePresent",1);
+			}
+			Goto Ready;
+
+			
+		FromHeatBlastToStunBomb:
+			//"####" "#" 0 A_PrintBold("From HeatBlast to StunBomb")
+			//removes heat steam spawner
+			"####" A 0 A_RemoveChildren(true,RMVF_EVERYTHING,"PlasmaHeatMuzzle");
+			"####" A 0 A_TakeInventory("PlasmaMuzzlePresent",1);
+			//hide HeatBlast
+			"####" "####" 1 A_WeaponOffset(0,20,WOF_ADD); //+0 +80
+			"####" "#" 5;
+			//pull up StunBomb
+			PRSS AAAAABCD 1 A_WeaponOffset(0,-10,WOF_ADD); // 0 -80
+			PRSS D 0 A_PlaySound("Doom4/Weapon/PlasmaGun/SwitchToElectro",5,1);
+			PRSS D 0 A_TakeInventory("HeatBlastActive",1);
+			PRSS D 0 A_GiveInventory("StunBombActive",1);
+			PRSS EFGHIJK 1;
+			PRSS LLLL 1 A_WeaponOffset(0,3,WOF_ADD);
+			PRSS L 5;
+			PRSS MNOP 2 A_WeaponOffset(0,-3,WOF_ADD);
+			PRSI A 8;
+			Goto Ready;
+
+
+			
+		FromStunBombToHeatBlast:
+			//"####" "#" 0 A_PrintBold("From StunBomb to HeatBlast")
+			//hide StunBomb
+			"####" "####" 1 A_WeaponOffset(0,20,WOF_ADD); //+0 +80
+			"####" "#" 5;
+			//pull HeatBlast
+			TNT1 A 0 A_PlaySound("Doom4/Weapon/PlasmaGun/SwitchToHeat",5,1);
+			TNT1 A 0 A_TakeInventory("StunBombActive",1);
+			PRHS X 0 A_GiveInventory("HeatBlastActive",1);
+			PRHS AAAAAABC 1 A_WeaponOffset(0,-10,WOF_ADD); // 0 -80
+			PRHS DEFGHIJK 1;
+			PRHS KKKK 1 A_WeaponOffset(0,3,WOF_ADD);
+			PRHS K 10;
+			PRHS LMNO 2 A_WeaponOffset(0,-3,WOF_ADD);
+			PRHI A 8;
+			// spawns heatblast muzzle, to spawn steam
+			"####" "#"  0
+			{
+				A_SpawnItemEx("PlasmaHeatMuzzle",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+				A_GiveInventory("PlasmaMuzzlePresent",1);
+			}
+			Goto Ready;
+	}
+}
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//	Upgrade tokens
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+Class PlasmaRifleMod1 : Inventory // heat shot upgrade
+{
+	Default 
+	{
+		+INVENTORY.UNDROPPABLE
+		Scale 0.2;
+		Inventory.PickupMessage "heat blast module";
+	}
+	States
+	{
+	Spawn:
+		POSS A 10;
+		Loop;
+	}
+}
+Class PlasmaRifleMod2 : Inventory // electric grenade upgrade
+{
+	Default 
+	{
+		+INVENTORY.UNDROPPABLE
+		Scale 0.2;
+		Inventory.PickupMessage "stun bomb module";
+	}
+	States
+	{
+	Spawn:
+		SPOS A 10;
+		Loop;
+	}
+}
+
+
+Class StunBombActive : Inventory	
+{	Default { +INVENTORY.UNDROPPABLE	} }
+
+Class HeatBlastActive : Inventory	
+{	Default { +INVENTORY.UNDROPPABLE	} }
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//	Primary Fire related
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+
+Class PlasmaShotCounter : Inventory //this is used only to know if it should Loop; the firing sound
+{
+	Default 
+	{
+		Inventory.MaxAmount 2;
+	}
+}
+
+
+Class D4DPlasmaBall : Actor 
+{
+	Default 
+	{
+		Projectile;
+		Scale 0.1;
+		Height 8;
+		Radius 4;
+		Speed 30;
+		Damage 6;
+		RenderStyle "Add"; 
+		Alpha 0.99;
+		+FORCEXYBILLBOARD
+		Translation "0:255=%[0,0,0]:[0.7,0.9,1.5]";
+		DeathSound "Doom4/Weapon/PlasmaGun/PlasmaCrash";
+		Decal "D4Plasma";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay 
+		{
+			A_SetScale(frandom(0.04,0.06));
+			return A_Jump(256,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26);
+		}
+	Moving:
+		PLS1 ABCDEFGHIJKLMNOPQRSTUVWXYZ 1 Light("BlueSmallPoint1") Bright ;
+		PLS2 ABCDEF 1 Light("BlueSmallPoint1") Bright ;
+		Loop;
+	Death:
+		TNT1 A 10 A_SpawnItemEx("D4PistolPuffBig1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+		Stop;
+	}
+}
+
+
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//	Heat shot related
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+
+Class HeatBlastExplo : Actor 
+{
+	const Flags = WARPF_NOCHECKPOSITION|WARPF_COPYPITCH|WARPF_COPYVELOCITY;
+	const Distance = 20;
+	const YOff = 8;
+	const ZOff = 32;
+	const BaseVel = 6.5;
+	double user_xa, user_xb;
+	double user_za, user_zb;
+	// [0] = Velocity
+	// [1] = Acceleration
+	
+	double user_v;
+	int user_strength;
+	int user_rng;
+	double user_ang;
+	int user_stage;
+	
+	Default 
+	{
+		Projectile;
+		+INVULNERABLE
+		+NOINTERACTION
+		+NOTONAUTOMAP
+		+FORCERADIUSDMG
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay
+		{	
+			if (master) { pitch = master.pitch; }
+			A_Warp(MasterPtr,cos(-pitch)*(Distance),YOff,(ZOff*GetCrouchFactor(MasterPtr))+sin(-pitch)*Distance,0,Flags);
+			
+			// Sets the damage of the wave via plasma heat counters.
+			user_strength = CountInv("PlasmaHeatBlastCounter",MasterPtr);
+			A_TakeInventory("PlasmaHeatBlastCounter",32767,0,MasterPtr);
+			A_Explode(user_strength * random(10,18) , 128 + (user_strength * 3), 0, 0, 48 + user_strength);
+		}
+		TNT1 A 0 
+		{
+			if(GetCvar("HQEffectsWeapons"))
+			{
+				A_SpawnParticle("80CCFF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+				A_SpawnParticle("80CCFF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+				A_SpawnParticle("BDE4FF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+				A_SpawnParticle("BDE4FF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+				A_SpawnParticle("24A7FF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+				A_SpawnParticle("24A7FF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+				A_SpawnParticle("0091F2",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+				A_SpawnParticle("0091F2",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+			}
+			
+			A_SpawnParticle("80CCFF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("80CCFF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("80CCFF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("80CCFF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("80CCFF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("80CCFF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("BDE4FF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("BDE4FF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("BDE4FF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("BDE4FF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("BDE4FF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("BDE4FF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("24A7FF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("24A7FF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("24A7FF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("24A7FF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("24A7FF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("24A7FF",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("0091F2",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("0091F2",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("0091F2",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("0091F2",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("0091F2",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnParticle("0091F2",SPF_FULLBRIGHT|SPF_RELATIVE|SPF_NOTIMEFREEZE,random(20,50),random(2,6),random(75,-75),0,0,0,frandom(2,8),0,frandom(1,-1));
+			A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("PlasmaRifleHeatCloud",0,0,0,frandom(3,8),0,frandom(2,-2),random(75,-75),SXF_NOCHECKPOSITION);
+
+		}
+	Particle1:
+		TNT1 A 0
+		{
+			if(GetCvar("HQEffectsWeapons"))
+			{
+				// Fling the particles based on pitch, then the wave amplifier.
+				user_xa = cos(-pitch) * (BaseVel + (cos(user_ang * 8)));
+				user_za = sin(-pitch) * (BaseVel + (cos(user_ang * 8)));
+				user_xb = (-cos(-pitch) * (cos(user_ang * 8)))*0.12;
+				user_zb = (-sin(-pitch) * (cos(user_ang * 8)))*0.12;
+				
+				user_rng = random(1,4);
+					 if (user_rng == 1)	{ A_SpawnParticle("80CCFF",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,user_ang,0,0,0,user_xa,0,user_za,user_xb,0,user_zb,1,-1,0.2); }
+				else if (user_rng == 2) { A_SpawnParticle("BDE4FF",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,user_ang,0,0,0,user_xa,0,user_za,user_xb,0,user_zb,1,-1,0.2); }
+				else if (user_rng == 3) { A_SpawnParticle("24A7FF",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,user_ang,0,0,0,user_xa,0,user_za,user_xb,0,user_zb,1,-1,0.2); }
+				else					{ A_SpawnParticle("0091F2",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,user_ang,0,0,0,user_xa,0,user_za,user_xb,0,user_zb,1,-1,0.2); }
+				
+				if (user_ang > 0)
+				{	
+					user_rng = random(1,4);
+						 if (user_rng == 1)	{ A_SpawnParticle("80CCFF",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,-user_ang,0,0,0,user_xa,0,user_za,user_xb,0,user_zb,1,-1,0.2); }
+					else if (user_rng == 2) { A_SpawnParticle("BDE4FF",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,-user_ang,0,0,0,user_xa,0,user_za,user_xb,0,user_zb,1,-1,0.2); }
+					else if (user_rng == 3) { A_SpawnParticle("24A7FF",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,-user_ang,0,0,0,user_xa,0,user_za,user_xb,0,user_zb,1,-1,0.2); }
+					else					{ A_SpawnParticle("0091F2",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,-user_ang,0,0,0,user_xa,0,user_za,user_xb,0,user_zb,1,-1,0.2); }
+				}
+				
+				if (user_ang > 90)
+				{	return ResolveState("Null");	}
+				
+				user_ang += 1.0;
+				return ResolveState("Particle1");
+			}
+			else
+			{
+				return ResolveState("Null"); //dies
+			}
+		}
+		Stop;
+	}
+}
+
+Class PlasmaRifleHeatCloud : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		Alpha 0.5;
+		Xscale 0.8;
+		YScale 0.3;
+		Translation "0:255=%[0,0,0]:[0,0.6,1.4]";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(190,2,3,4,5,6,7);
+		FX58 AAABBBCCCDDDEEEFFFGGGHHHIIIJJJKKKLLLMMMNNNOOOPPP 1
+		{
+			A_FadeOut(0.01);
+			A_ScaleVelocity(0.9);
+		}
+		Stop;
+	}
+	
+}
+
+Class PlasmaHeatBlastCounter : Inventory 
+{ 	Default { Inventory.MaxAmount 30;	} }
+
+Class PlasmaMuzzlePresent : Inventory 
+{}
+
+Class PlasmaHeatMuzzle : Actor 
+{
+	const Flags = WARPF_NOCHECKPOSITION|WARPF_COPYPITCH;
+	const Distance = 17;
+	const YOff = 10;
+	const ZOff = 37;
+	double  user_pos;
+	int user_t;
+	
+	Default 
+	{
+		Projectile;
+		+NOINTERACTION
+		Scale 0.30;
+		Alpha 0.0;
+		/*RenderStyle "Add";
+		Alpha 0.1*/
+		RenderStyle "None";
+		Translation "0:255=%[0,0,0]:[0,1,0]";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 1 NoDelay
+		{
+			if (master) { pitch = master.pitch; } //Grab the pitch...
+			
+			// And set a multiplier for taking from the distance so it actually goes well with the gun.
+			
+			if (pitch > 0) //Looking down
+			{	user_pos = (sin(pitch) * 12);	}
+			else //Looking up
+			{	user_pos = (sin(pitch) * 6);	}
+			
+			
+			A_Warp(MasterPtr,
+				(cos(-pitch)*(Distance)) - user_pos,
+				YOff,
+				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
+			if(A_JumpIfInTargetInventory("PlasmaHeatBlastCounter",15,"Nothing"))
+			{
+				if(GetCvar("HQEffectsWeapons"))
+				{
+					A_SpawnItemEx("PlasmaRifleSteam",0,-6,-3,sin(-pitch)*frandom(0.1,0.5),frandom(-0.7,-1.3),cos(pitch)*frandom(-0.1,-0.5),0,SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("PlasmaRifleSteam",0,-6,-3,sin(-pitch)*frandom(0.1,0.5),frandom(0.7,1.3),cos(pitch)*frandom(-0.1,-0.5),0,SXF_NOCHECKPOSITION);
+				}
+				else
+				{
+					A_SpawnItemEx("PlasmaRifleSteam",0,-6,-3,sin(-pitch)*frandom(0.1,0.5),frandom(-0.7,-1.3),cos(pitch)*frandom(-0.1,-0.5),0,SXF_NOCHECKPOSITION,128);
+					A_SpawnItemEx("PlasmaRifleSteam",0,-6,-3,sin(-pitch)*frandom(0.1,0.5),frandom(0.7,1.3),cos(pitch)*frandom(-0.1,-0.5),0,SXF_NOCHECKPOSITION,128);
+				}
+			}
+		}
+		Loop;
+	Nothing:
+		TNT1 A 100;
+		Stop;
+	}
+}
+Class PlasmaRifleSteam : Actor 
+{
+	int user_c;
+	
+	Default 
+	{
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+		+BRIGHT
+		RenderStyle "Add";
+		Alpha 0.0;
+		XScale 0.1;
+		YScale 0.03;
+		Translation "0:255=%[0,0,0]:[0,0.5,1]";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(230,2,4,6,8,10,12,14,16,18);
+	Anim:
+		X102 ABCDEFGHIJKLMNOPQRSTUV 1 
+		{
+				 if (user_c == 0)	{	}
+			else if (user_c <= 5)	{	A_FadeTo(0.8,0.1,FTF_CLAMP);	}
+			else					{	A_FadeOut(0.03);	}
+			user_c++;
+		}
+		Loop;
+	}
+}
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//	Electric charge related
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+Class PlasmaStunBombCounter : Counter {}
+
+Class StunBomb : Actor 
+{
+	int user_angle;
+	
+	Default 
+	{
+		Projectile;
+		Speed 28;
+		Radius 8;
+		Height 12;
+		-NOGRAVITY
+		Gravity 0.35;
+		Scale 0.25;
+		RenderStyle "Add";
+		Translation "0:255=%[0,0,0]:[1.0,1.3,2.0]";
+		DamageType "StunBomb";
+		DamageFunction (1);
+		+FORCEXYBILLBOARD
+		Decal "StunBombDecal";
+	}
+	States
+	{
+	Spawn:
+		X016 ABCDEFGHIJKLMNOPQRSTUVWXY 1 Light("BlueMediumFlicker2")  Bright
+		{
+			if(GetCvar("HQEffectsWeapons"))
+			{
+				A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,-10),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+				A_SpawnParticle("B3D2FF",SPF_FULLBRIGHT,20,4,0,0,0,0,frandom(1,-1),0,frandom(0.1,1.0));
+				A_SpawnParticle("85B8FF",SPF_FULLBRIGHT,20,4,0,0,0,0,frandom(1,-1),0,frandom(0.1,1.0));
+				A_SpawnParticle("086FFF",SPF_FULLBRIGHT,20,4,0,0,0,0,frandom(1,-1),0,frandom(0.1,1.0));
+			}
+			A_SpawnParticle("B3D2FF",SPF_FULLBRIGHT,20,4,0,0,0,0,frandom(1,-1),0,frandom(0.1,1.0));
+			A_SpawnParticle("086FFF",SPF_FULLBRIGHT,20,4,0,0,0,0,frandom(1,-1),0,frandom(0.1,1.0));
+		}
+		Loop;
+	Death:
+		TNT1 A 0 A_JumpIf(GetCvar("HQEffectsWeapons")==0,"DeathEnd");
+		TNT1 A 0 A_JumpIf(user_angle>=360,"DeathEnd");
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(5,6),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION);
+		TNT1 A 0 {user_angle += 15;}
+		Loop;
+	DeathEnd:
+		TNT1 A 0 A_Explode(2,256,0,0,256);
+		TNT1 A 2 Light("BlueBigFlicker3") A_SpawnItemEx("StunBombShockwave1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+		TNT1 A 2 Light("BlueMediumFlicker1") A_SpawnItemEx("StunBombShockwave2",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+		TNT1 A 2 Light("BlueMediumFlicker2");
+		TNT1 A 2 Light("BlueMediumFlicker3");
+		TNT1 A 2 Light("BlueSmallFlicker1");
+		TNT1 A 2 Light("BlueSmallFlicker2");
+		TNT1 A 2 Light("BlueSmallFlicker3");
+		Stop;
+	}
+}
+
+Class StunBombSpark : Actor 
+{
+	Default 
+	{
+		//Translation "0:255=%[0,0,0]:[0.2,1.2,0.2]"
+		+NOINTERACTION
+		Scale 0.1;
+		RenderStyle "Add";
+		Translation "0:255=%[0,0,0]:[0.5,0.9,1.5]";
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		//TNT1 A 0 NoDelay A_Jump(256,1,2,3,4,5,6,7,8);
+		X079 ABCDEFGH 0	A_Jump(256,"Perform");
+	Perform:
+		"####" "#" 1 Bright 
+		{
+			A_SetScale(Scale.X+0.01);
+			A_FadeOut(0.05);
+		}
+		Loop;
+	}
+}
+
+Class StunBombShockwave1 : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		Scale 0.1;
+		Translation "0:255=%[0,0,0]:[0.5,0.9,1.5]";
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		//X060 AAAAA 1 Bright A_SetScale(Scale.X+0.12)
+		X060 A 1 Bright
+		{
+			A_SetScale(Scale.X+0.12);
+			A_FadeOut(0.05);
+		}
+		Wait;
+	}
+}
+
+Class StunBombShockwave2 : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		Scale 0.1;
+		Translation "0:255=%[0,0,0]:[0.5,0.9,1.5]";
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		//X060 BBBBB 1 Bright A_SetScale(Scale.X+0.25)
+		X060 B 1 Bright
+		{
+			A_SetScale(Scale.X+0.25);
+			A_FadeOut(0.09);
+		}
+		Wait;
+	}
+}

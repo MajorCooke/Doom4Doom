@@ -1,0 +1,348 @@
+enum PickupConstants
+{
+	//Armor Per Difficulty
+	ArmorCapGreen =				100,
+	ArmorCapBlue =				200,
+	ArmorCapGreenNormal =		100,	//UV
+	ArmorCapGreenNightmare =	100,		//Nightmare
+	ArmorCapGreenUltra =		100,		//Ultra Nightmare
+	ArmorCapBlueNormal =		200,
+	ArmorCapBlueNightmare =		200,
+	ArmorCapBlueUltra =			200,
+	
+	ArmorGreenNormal =		100,	//UV
+	ArmorGreenNightmare =	75,		//Nightmare
+	ArmorGreenUltra =		50,		//Ultra Nightmare
+	ArmorBlueNormal =		200,
+	ArmorBlueNightmare =	150,
+	ArmorBlueUltra =		100,
+	
+
+	PinataLifetime = 			175, 
+	PinataLifetimeLong = 		700, 
+	PinataLifetimeSuperLong = 	4200, //2min
+	RadiusPull = 				192,
+	DelayVacuum =				20,
+	PSpeed = 					24,
+	VelFlags =					CVF_RELATIVE|CVF_REPLACE,
+};
+
+//=======================================================================
+//=======================================================================
+// Health
+//=======================================================================
+//=======================================================================
+
+Class D4Stimpack : Health replaces Stimpack
+{	
+	Default 
+	{
+		Inventory.PickupMessage "Small health";
+		Inventory.Amount 10;
+		Inventory.PickUpSound "Doom4/Pickups/Health";
+		DistanceCheck "user_MaxDrawDistance";
+		Scale 0.5;
+	}
+	States
+	{
+	Spawn:
+		D4HL A -1 NODELAY A_SetAngle(random(0,359));
+		Stop;
+	}
+}
+
+Class D4Medikit : Health replaces Medikit
+{	
+	Default 
+	{
+		Inventory.PickupMessage "Big health";
+		Inventory.PickUpSound "Doom4/Pickups/Health";
+		Inventory.Amount 30;
+		Scale 0.5;
+		DistanceCheck "user_MaxDrawDistance";
+	}
+	States
+	{
+	Spawn:
+		D4HL B -1 NODELAY A_SetAngle(random(0,359));
+		Stop;
+	}
+}
+
+Class D4HealthBonus : HealthBonus replaces HealthBonus
+{	
+	Default 
+	{
+		Inventory.PickUpSound "Doom4/Pickups/HealthBonus";
+		Scale 0.55;
+		Inventory.Amount 3;
+		DistanceCheck "user_MaxDrawDistance";
+	}
+	States
+	{
+	Spawn:
+		D4HL C -1 NODELAY A_SetAngle(random(0,359));
+		Stop;
+	}
+}
+
+//=======================================================================
+//=======================================================================
+// Armor
+//=======================================================================
+//=======================================================================
+
+Class D4ArmorPickup : BasicArmorPickup replaces BasicArmorPickup
+{	
+	Default 
+	{
+		DistanceCheck "user_MaxDrawDistance";
+		Armor.SavePercent 100;
+		Armor.MaxAbsorb 200;
+		Armor.MaxFullAbsorb 200;
+	}
+}
+
+Class D4BasicArmorBonus : BasicArmorBonus replaces BasicArmorBonus
+{
+	Default 
+	{
+		DistanceCheck "user_MaxDrawDistance";
+		Armor.SavePercent 100;
+		Armor.MaxAbsorb 200;
+		Armor.MaxFullAbsorb 200;
+	}
+}
+
+Class D4ArmorBonus : ArmorBonus replaces ArmorBonus
+{
+	Default 
+	{
+		Armor.SavePercent 100;
+		Armor.MaxAbsorb 200;
+		Armor.MaxFullAbsorb 200;
+		DistanceCheck "user_MaxDrawDistance";
+		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
+		Armor.SaveAmount 3;
+		Scale 0.55;
+		+ALLOWPAIN 
+	}
+	States
+	{
+	Spawn:
+		D4AR B -1 NODELAY A_SetAngle(random(0,359));
+		Stop;
+	}
+}
+
+Class ArmorStripper : CustomInventory
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			A_TakeInventory("Armor",32767);
+			A_TakeInventory("ArmorBonus",32767);
+			A_TakeInventory("BasicArmor",32767);
+			A_TakeInventory("BasicArmorBonus",32767);
+			A_TakeInventory("BasicArmorPickup",32767);
+			A_TakeInventory("D4ArmorBonus",32767);
+			A_TakeInventory("D4GreenArmor",32767);
+			A_TakeInventory("D4BlueArmor",32767);
+			A_TakeInventory("D4BasicArmorBonus",32767);
+			A_TakeInventory("D4ArmorBonus",32767);
+			A_TakeInventory("D4ArmorPickup",32767);
+			A_TakeInventory("D4BlueArmorMegasphere",32767);
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class D4GreenArmorGiver : ArmorBonus
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+		Armor.SavePercent 100;
+		Armor.SaveAmount 100;
+		Armor.MaxAbsorb 200;
+		Armor.MaxFullAbsorb 200;
+	}
+}
+
+Class D4GreenArmor100 : D4GreenArmorGiver { Default { +INVENTORY.IGNORESKILL }}
+
+Class D4BlueArmorGiver : ArmorBonus
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+		Armor.SavePercent 100;
+		Armor.SaveAmount 200;
+		Armor.MaxAbsorb 200;
+		Armor.MaxFullAbsorb 200;
+	}
+}
+
+// Allow me to explain wtf is going on here...
+// When it comes to syphon armor and the regular armor pickup, the two just
+// did not get along well. So I came up with a system utilizing CustomInventory
+// to do the measuring instead, and voila! Problem solved. It can now be picked
+// up at any time while wearing any kind of armor, provided the armor is lower
+// than the specified amount.
+
+Class ArmorCount : Inventory { Default { Inventory.MaxAmount 200;	Inventory.InterhubAmount 0; }}
+
+Class ArmorSinglePoint : D4ArmorBonus
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+		+INVENTORY.IGNORESKILL
+		Armor.SaveAmount 1;
+	}
+}
+
+Class D4GreenArmor : CustomInventory replaces GreenArmor
+{
+	Default 
+	{
+		Inventory.PickUpSound "Doom4/Pickups/Armor";
+		Inventory.PickUpMessage "Big Armor Chunk";
+		DistanceCheck "user_MaxDrawDistance";
+		Scale 0.5;
+	}
+	States
+	{
+	Spawn:
+		D4AR C -1 NODELAY A_SetAngle(random(0,359));
+		Stop;
+	Pickup:
+		TNT1 A 0
+		{ // See top of file for armor cap definitions.
+			if (CountInv("BasicArmor") < ArmorCapGreen + CountInv("D4ArmorCapRaiser"))
+			{
+				A_TakeInventory("ArmorCount",32767);
+				if (CountInv("BasicArmor"))
+				{	A_GiveInventory("ArmorCount",CountInv("BasicArmor"));	}
+				if (A_GiveInventory("ArmorStripper",1))
+				{
+					while (CountInv("ArmorCount"))
+					{
+						A_GiveInventory("ArmorSinglePoint",1);
+						A_TakeInventory("ArmorCount",1,0);
+					}
+					A_GiveInventory("D4GreenArmorGiver",1);	
+					
+					if (CountInv("BasicArmor") > ArmorCapGreen + CountInv("D4ArmorCapRaiser"))
+					{
+						A_GiveInventory("ArmorStripper");
+						A_GiveInventory("D4GreenArmor100");
+						
+						while (CountInv("BasicArmor") < ArmorCapGreen + CountInv("D4ArmorCapRaiser"))
+						{
+							A_GiveInventory("ArmorSinglePoint",1);
+						}
+					}
+					
+				}
+				return true;
+			}
+			return false;
+		}
+		Stop;
+	}
+}
+
+Class D4BlueArmor : CustomInventory replaces BlueArmor
+{
+	Default 
+	{
+		Inventory.PickUpSound "Doom4/Pickups/Armor";
+		Inventory.PickUpMessage "Full Armor Casing";
+		DistanceCheck "user_MaxDrawDistance";
+		Scale 0.75;
+	}
+	States
+	{
+	Spawn:
+		D4AR A -1 NODELAY A_SetAngle(random(0,359));
+		Stop;
+	Pickup:
+		TNT1 A 0
+		{
+			if (CountInv("BasicArmor") < ArmorCapBlue)
+			{
+				A_TakeInventory("ArmorCount",32767);
+				if (CountInv("BasicArmor"))
+				{	A_GiveInventory("ArmorCount",CountInv("BasicArmor"));	}
+				if (A_GiveInventory("ArmorStripper",1))
+				{
+					while (CountInv("ArmorCount"))
+					{
+						A_GiveInventory("ArmorSinglePoint",1);
+						A_TakeInventory("ArmorCount",1,0);
+					}
+					A_GiveInventory("D4BlueArmorGiver",1);
+					
+				}
+				return true;
+			}
+			return false;
+		}
+		Stop;
+	}
+}
+
+
+//=======================================================================
+//=======================================================================
+// Backpack
+//=======================================================================
+//=======================================================================
+Class D4Backpack : BackpackItem replaces Backpack 
+{
+	int user_rangle;
+	Default 
+	{
+		Scale 0.7;
+		Inventory.PickupMessage "Picked up a backpack";
+		Height 26;
+	}
+	States
+	{
+	Spawn:
+		BPAK A -1 NoDelay
+		{
+			user_rangle = random(0,359);
+			
+			A_SetAngle(user_rangle);
+			
+			if (!CountInv("FragGrenadePickup",Player1))
+			{
+				A_SpawnItemEx("FragGrenadeWorld",0,0,0,0,0,0,user_rangle,SXF_NOCHECKPOSITION|SXF_ABSOLUTEANGLE);
+				
+			}
+			else if (!CountInv("HoloGrenadePickup",Player1))
+			{
+				A_SpawnItemEx("HoloGrenadeWorld",0,0,0,0,0,0,user_rangle,SXF_NOCHECKPOSITION|SXF_ABSOLUTEANGLE);
+				
+			}
+			else if (!CountInv("SyphonGrenadePickup",Player1))
+			{
+				A_SpawnItemEx("SyphonGrenadeWorld",0,0,0,0,0,0,user_rangle,SXF_NOCHECKPOSITION|SXF_ABSOLUTEANGLE);
+			}
+		}
+		Stop;
+	}
+}
+
+
+
+

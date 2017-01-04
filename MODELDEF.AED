@@ -1,0 +1,47 @@
+Model PistolTracerNormal
+{ 
+	Path "MD3/Projectiles" 
+	SKIN 0 "tracer1.tga" 
+	MODEL 0 "Tracer.md3" 
+	Scale 4.5 4.5 1.5
+	PITCHFROMMOMENTUM 
+	FrameIndex TRAC A 0 0 
+}
+Model PistolTracerRed
+{ 
+	Path "MD3/Projectiles" 
+	SKIN 0 "tracer1.tga" 
+	MODEL 0 "Tracer.md3" 
+	Scale 4.5 4.5 1.5
+	PITCHFROMMOMENTUM 
+	FrameIndex TRAC A 0 0 
+}
+
+Model BulletSmallTracer
+{ 
+	Path "MD3/Projectiles" 
+	SKIN 0 "tracer1.tga" 
+	MODEL 0 "Tracer.md3"
+	Scale 4.5 4.5 1.5 
+	PITCHFROMMOMENTUM
+	FrameIndex TRAC A 0 0
+}
+
+Model IncendiaryBullet //for the repeater
+{ 
+	Path "MD3/Projectiles" 
+	SKIN 0 "tracer1.tga" 
+	MODEL 0 "Tracer.md3"
+	Scale 4.5 4.5 1.5 
+	PITCHFROMMOMENTUM
+	FrameIndex TRAC A 0 0
+}
+Model IncendiaryBulletDMG //for the repeater upgraded
+{ 
+	Path "MD3/Projectiles" 
+	SKIN 0 "tracer1.tga" 
+	MODEL 0 "Tracer.md3"
+	Scale 4.5 4.5 1.5 
+	PITCHFROMMOMENTUM
+	FrameIndex TRAC A 0 0
+}

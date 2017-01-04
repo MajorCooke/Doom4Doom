@@ -1,0 +1,85 @@
+Map TITLEMAP "Doom 4 For Doom"
+{
+	// There's a noticeable lag spike when the titlemap plays. This fixes that issue.
+	PrecacheSounds = "Doom4/Menu/Menu", "Doom4/Menu/RipAndTear", "Doom4/Menu/IntroLower"
+}
+
+
+AddDefaultMap
+{
+	AirControl = 0.02
+	TeamDamage = 0
+	TeamPlayOn
+	TotalInfighting
+}
+
+GameInfo
+{
+   PlayerClasses = "Doom4Player"
+}
+
+
+Clearskills
+
+skill Easy
+{
+	SpawnFilter = Easy
+	DamageFactor = 0.75
+	Aggressiveness = 1.1
+	EasyBossBrain
+	Name = "I'm too young to die"
+	PicName = "M_JKILL"
+}
+
+skill Normal
+{
+	SpawnFilter = Normal
+	DamageFactor = 1.0
+	Aggressiveness = 1.2
+	Name = "Hurt me plenty"
+	DefaultSkill
+	PicName = "M_ROUGH"
+}
+
+skill Hard
+{
+	SpawnFilter = Nightmare
+	DamageFactor = 1.2
+	Aggressiveness = 1.4
+	Name = "Ultra Violence"
+	PicName = "M_HURT"
+}
+
+skill Nightmare
+{
+	SpawnFilter = Nightmare
+	DamageFactor = 1.5
+	Aggressiveness = 2.0
+	Name = "Nightmare"
+	HealthFactor = 0.75
+	ArmorFactor = 0.75
+	PicName = "M_ULTRA"
+}
+
+skill UNightmare
+{
+	SpawnFilter = Nightmare
+	DamageFactor = 2.0
+	Name = "Ultra Nightmare"
+	FastMonsters
+	HealthFactor = 0.5	//you better be good at dodging
+	ArmorFactor = 0.5
+	AmmoFactor = 1.5	//at least you will have a lot to shoot with
+	Mustconfirm = "Fast, extremely damaging and aggressive monsters. Not sure if is beatable. Test your metal?"
+	PicName = "M_NMARE"
+}
+
+DoomEdNums
+{
+	31000 = titlemapsmokeemitter
+	31001 = titlemapfiresmokeemitter
+	31002 = titlemapFlaresSpawner
+	7450 = FireSpawnerSmall
+	7451 = GenericSparkSpawner
+	6660 = D4HologramTooOld
+}

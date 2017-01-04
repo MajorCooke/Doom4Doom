@@ -1,0 +1,62 @@
+A reminder to those who are confused about sin, cos, etc. 
+Think of a graph as a ship's radar with its spinning pointer. 
+-----
+Sine
+-----
+Sine waves measure how 'up' and 'down' the reticle is. So if the reticle is aiming
+directly left (180) or right (0) from the center of (0,0), sin(0) and sin(90) = 0.
+Simply, they're not angled towards any north or south direction but perfectly even.
+
+Thus, when pointer aims up north (90) or down south (270), sin(90) = 1 because 
+it aims upwards. Sin (270) is -1 as it aims down.
+
+------
+Cosine
+------
+Cosine is like sine, but for left and right respectively.  Cos(0) = 1 because
+the pointer is aiming directly to the right along the positive X axis, and vice
+versa for cos(180) = -1. 
+
+See http://zdoom.org/wiki/Trigonometry for more details.
+
+================================================================================
+Get Current Actor Velocity (+ Z)
+Relativity doesn't matter here.
+================================================================================
+sqrt((velx * velx) + (vely * vely)) 
+sqrt((velx * velx) + (vely * vely) + (velz * velz)) 
+
+================================================================================
+Set Relative Velocity With Pitch 
+(Assuming a DECORATE function has relativity enabled)
+================================================================================
+X: cos(-pitch) * <Forward Vel> (i.e. VelX)
+Y: 0
+Z: sin(pitch) * <Up/Down Vel> (i.e. VelZ)
+
+================================================================================
+Set Velocity For Angle
+================================================================================
+X: (cos(angle) * <Forward Vel>) - (sin(angle) * <Sideway Vel>)
+Y: (sin(angle) * <Forward Vel>) + (cos(angle) * <Sideway Vel>)
+Z: 0
+
+================================================================================
+Set Velocity For Angle + Pitch (untested)
+================================================================================
+X: ((cos(angle) * (cos(-pitch) * <Forward Vel>)) - (sin(angle) * (cos(-pitch) * <Sideway Vel>)))
+Y: ((sin(angle) * (cos(-pitch) * <Forward Vel>)) + (cos(angle) * (cos(-pitch) * <Sideway Vel>)))
+Z: sin(pitch) * <Up/Down Vel>
+
+Note that this is following based on the previous formula. The source code says:
+
+	double sina = ref->Angles.Yaw.Sin();
+	double cosa = ref->Angles.Yaw.Cos(); 
+	
+	if (flags & CVF_RELATIVE)	// relative axes - make x, y relative to actor's current angle
+	{
+		vel.X = x*cosa - y*sina;
+		vel.Y = x*sina + y*cosa;
+	}
+	
+inside of A_ChangeVelocity.

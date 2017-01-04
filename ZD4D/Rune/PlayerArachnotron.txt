@@ -1,0 +1,274 @@
+//=================================================================================================
+//=================================================================================================
+
+//		Arachnotron
+
+//=================================================================================================
+//=================================================================================================
+Class ArachnotronRune : DemonRuneBase
+{
+	Default 
+	{
+		Inventory.PickupMessage "Arachnotron rune";
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0 
+		{
+			if (CountInv("IamADemonToken") || CountInv("PowerInvulBase") || countinv("D4DoomDollHands") || countinv("BusyToken")) //if already a demon...
+			{
+				return false;	//...cant pickup
+			}
+			else	//otherwise..
+			{	
+				A_GiveInventory("SoundStopper",1); //stops any sound (mostly for the looping ones)
+				A_GiveInventory("HealthArmorSaver",1);
+				A_GiveInventory("IamADemonToken",1); //...gives token and morphs
+				A_GiveInventory("IamArachnotron",1); 
+				A_GiveInventory("ArachnotronMorpher",1);
+				return true;
+			}
+		}
+		Stop;
+	}
+}
+
+Class ArachnotronMorpher : PowerupGiver
+{
+	Default 
+	{
+		Inventory.MaxAmount 1;
+		Inventory.Amount 1;
+		Powerup.Type "PowerArachnotronMorph";
+		Powerup.Duration -60;
+		+Inventory.AutoActivate
+	}
+	States
+	{
+		Spawn:
+			PLAY A 3;
+			Loop;
+	}
+}
+
+Class PowerArachnotronMorph : PowerMorph
+{
+	Default 
+	{
+		PowerMorph.PlayerClass "PlayerArachnotron";
+		PowerMorph.MorphStyle (MRF_FULLHEALTH|MRF_UNDOBYDEATH|MRF_UNDOBYDEATHSAVES|MRF_UNDOBYTOMEOFPOWER|MRF_LOSEACTUALWEAPON|MRF_NEWTIDBEHAVIOUR|MRF_UNDOALWAYS|MRF_FAILNOTELEFRAG);
+		PowerMorph.UnMorphFlash "DemonRuneMorphOff";
+		PowerMorph.MorphFlash "DemonRuneMorphOn";
+	}
+}
+
+
+Class PlayerArachnotron : DemonPlayerBase
+{
+	Default 
+	{
+		Speed 1;
+		Health 500;
+		Radius 30;
+		Height 64;
+		Mass 600;
+		PainChance 20;
+		Gravity 0.7;
+		Player.JumpZ 7;
+		Player.MorphWeapon "D4DArachnotronWeapon";
+		Player.ViewHeight 56;
+		Player.AttackZOffset 10;
+		Player.CrouchSprite "ARAC";
+		Player.SoundClass "PlayerDemonCommon";
+		PainSound "Doom4/Monsters/Arachnotron/Pain";
+		DeathSound "Doom4/Monsters/Arachnotron/Pain";
+		Player.ForwardMove 0.85, 0.425;
+		Player.SideMove 0.85, 0.425;
+		DamageFactor "Normal", 0.5;
+		+NOSKIN
+		-PICKUP
+	}
+	States
+	{
+	Spawn:
+		ARAC A -1;
+		Stop;
+	See:
+		ARAC ABCDEF 3;
+		Loop;
+	Pain:
+		ARAC I 5 A_Pain();
+		Goto Spawn;
+	Missile:
+	Melee:
+		ARAC GH 4;
+		Goto Spawn;
+	Death:
+		TNT1 A 3 A_Scream();
+		TNT1 B 3 A_NoBlocking();
+		TNT1 CDEFGH 3;
+		TNT1 I -1;
+		Stop;
+	Overlay.IdleSound:
+		TNT1 A 35;
+		TNT1 A 0 
+		{
+			//checks if "fire/altfire" to avoid the idle sound interrupting stuff
+			if ((GetPlayerInput(MODINPUT_BUTTONS) & BT_ATTACK  )|| (GetPlayerInput(MODINPUT_BUTTONS) & BT_ALTATTACK  ))
+			{
+				//A_PrintBold("Firing something",0.2);
+			}
+			else
+			{
+				if (!GetCvar("D4D_SilentMorphs") && random(1,5)==5)
+				{	A_PlaySound("Doom4/Monsters/Arachnotron/Idle",5);	}
+			}
+		}
+		Loop;
+	Overlay.Steps:
+		TNT1 A 18
+		{
+			if(((vel.x*vel.x + vel.y*vel.y) > 1) && A_CheckFloor("Null"))
+			{
+				A_PlaySound("Player/Demon/ArachnotronStep",CHAN_BODY);
+			}
+		}
+		Loop;
+	}
+}
+
+Class D4DArachnotronWeapon : DoomWeapon
+{
+	Default 
+	{
+		Tag "Demonic Plasma Launcher";
+	}
+	States
+	{
+	Ready:
+		ARPL MLMMLMLL 1 A_WeaponReady(WRF_DISABLESWITCH);
+		Loop;
+	Deselect:
+		ARPL M 1 A_Lower;
+		Loop;
+	Select:
+		ARPL M 1 A_Raise;
+		Loop;
+	Fire:
+		ARPL N 1
+		{
+			A_PlaySound("Doom4/Monsters/PlasmaShot",CHAN_WEAPON,0.7);
+			A_FireProjectile("PlayerArachnoPlasma",0,0,0);
+			A_SetBlend("Purple",0.05,3);
+			A_SetPitch(pitch-0.9, SPF_INTERPOLATE);
+		}
+		ARPL JKL 1 A_SetPitch(pitch+0.3, SPF_INTERPOLATE);
+		ARPL N 1
+		{
+			A_PlaySound("Doom4/Monsters/PlasmaShot",7,0.7);
+			A_FireProjectile("PlayerArachnoPlasma",0,0,0);
+			A_SetBlend("Purple",0.05,3);
+			A_SetPitch(pitch-0.9, SPF_INTERPOLATE);
+		}
+		ARPL IJK 1 A_SetPitch(pitch+0.3, SPF_INTERPOLATE);
+		ARPL L 1 A_Refire;
+		Goto Ready;
+	AltFire:
+		ARPL N 1 
+		{
+			A_PlaySound("Doom4/Monsters/PlasmaShotgun",CHAN_WEAPON);
+			A_FireProjectile("PlayerArachnoPlasma2",frandom(1.0,-1.0),0);
+			A_FireProjectile("PlayerArachnoPlasma2",frandom(1.0,-1.0),0);
+			A_FireProjectile("PlayerArachnoPlasma2",frandom(1.0,-1.0),0);
+			A_FireProjectile("PlayerArachnoPlasma2",frandom(1.0,-1.0),0);
+			A_FireProjectile("PlayerArachnoPlasma2",frandom(1.0,-1.0),0);
+			A_FireProjectile("PlayerArachnoPlasma2",frandom(1.0,-1.0),0);
+			A_FireProjectile("PlayerArachnoPlasma2",frandom(1.0,-1.0),0);
+			A_FireProjectile("PlayerArachnoPlasma2",frandom(1.0,-1.0),0);
+			A_SetPitch(pitch-5, SPF_INTERPOLATE);
+		}
+		ARPL AAABB 1 A_SetPitch(pitch+.8, SPF_INTERPOLATE);
+		ARPL BCCDDEEFFG 1 A_SetPitch(pitch+.01, SPF_INTERPOLATE);
+		ARPL HIJKL 1;
+		Goto Ready;
+		
+		
+	Flash:
+		CHGF A 5 Bright A_Light1();
+		Goto LightDone;
+		CHGF B 5 Bright A_Light2();
+		Goto LightDone;
+
+
+	Spawn:
+		SHOT A -1;
+		Stop;
+	}
+}	
+
+Class PlayerArachnoPlasma : ArachnoPlasma
+{
+	Default 
+	{
+		Damage 6;
+		Speed 30;
+		SeeSound "";
+		+EXTREMEDEATH
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay 
+		{
+			A_SetScale(frandom(0.06,0.08));
+			return A_Jump(256,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26);
+		}
+	Moving:
+		PLS1 ABCDEFGHIJKLMNOPQRSTUVWXYZ 1 Light("PurpleSmallPoint1") Bright 
+		{
+			A_SpawnParticle("FFC5FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,0);
+			A_SpawnParticle("FF93FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,0);
+		}
+		PLS2 ABCDEF 1 Light("PurpleSmallPoint1") Bright 
+		{
+			A_SpawnParticle("FFC5FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,0);
+			A_SpawnParticle("FF93FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,0);
+		}
+		Loop;
+	}
+}
+
+Class PlayerArachnoPlasma2 : ArachnoPlasma
+{
+	Default 
+	{
+		Damage 6;
+		Speed 45;
+		SeeSound "";
+		+EXTREMEDEATH
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay 
+		{
+			ThrustThingZ(0,random(5,-5),0,1);
+			A_SetScale(frandom(0.06,0.08));
+			return A_Jump(256,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26);
+		}
+	Moving:
+		PLS1 ABCDEFGHIJKLMNOPQRSTUVWXYZ 1 Light("PurpleSmallPoint1") Bright 
+		{
+			A_SpawnParticle("FFC5FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,0);
+			A_SpawnParticle("FF93FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,0);
+		}
+		PLS2 ABCDEF 1 Light("PurpleSmallPoint1") Bright 
+		{
+			A_SpawnParticle("FFC5FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,0);
+			A_SpawnParticle("FF93FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,0);
+			A_ChangeVelocity(random(-1,1),random(-1,1),random(-1,1));
+		}
+		Loop;
+	}
+}

@@ -1,0 +1,1330 @@
+//================================================================================================================
+//================================================================================================================
+//
+//	"D4D Mode" version
+//
+//================================================================================================================
+//================================================================================================================
+Class D4BaronOfHell : D4AbstractBiggie
+{
+	int user_timer;
+	int user_count;
+	int user_chasecount;
+	int user_staggertimer;
+	
+	Default 
+	{
+		Health 1000;
+		Radius 24;
+		Height 64;
+		Mass 1000;
+		Speed 5.667;
+		PainChance 50;
+		Monster;
+		+FLOORCLIP
+		+BOSSDEATH
+		+DONTCORPSE
+		SeeSound "Doom4/Monsters/Baron/Sight";
+		PainSound "Doom4/Monsters/Baron/Pain";
+		DeathSound "Doom4/Monsters/Baron/Death";
+		ActiveSound "Doom4/Monsters/Baron/Idle";
+		Obituary "$OB_BARON";
+		HitObituary "$OB_BARONHIT";
+		Scale 0.72;
+		Gravity 0.83;
+		BloodColor "Green";
+		BloodType "D4BloodGreen";
+		PainChance "StunBomb", 255;
+		PainChance "GloryKill", 255;
+		WoundHealth 150;
+	}
+	
+	States
+	{
+	Spawn:
+		E01I A 10 A_Look ;
+		Loop;
+	See:
+		E01W AAABBBCCCDDDEEEFFFGGGHHH 1 
+		{
+			user_chasecount = (user_chasecount + 1) % 3;
+			
+			if (!user_chasecount) //only 1/3rd of the times it will call missile state
+			{	D4Chase(); 	}
+			else
+			{	D4Chase("Melee",null,CHF_DONTTURN|CHF_NODIRECTIONTURN|CHF_STOPIFBLOCKED);	}
+		}
+		Loop;
+		
+	SeeNoMissile:		//reached only when landing after a jump
+		
+		E01W AAABBBCCCDDDEEEFFFGGGHHHAAABBBCCCDDDEEEFFFGGGHHH 1 
+		{
+			user_chasecount = (user_chasecount + 1) % 3;
+			
+			// Makes it look... smoother.
+			if (!user_chasecount)
+			{	D4Chase("Melee",null); 	}
+			else
+			{	D4Chase("Melee",null,CHF_DONTTURN|CHF_NODIRECTIONTURN|CHF_STOPIFBLOCKED);	}
+		}
+		Goto See;
+		
+	Missile:
+		"####" "#" 0 A_Jump(256,"Leap"); //debug
+		E01I A 0 A_PlaySound("Doom4/Monsters/Baron/Attack",CHAN_AUTO);
+		"####" "#" 0 A_Jump(170,"FireBall");
+		Goto Leap;
+	//--------------------------------------
+	// Regular fireball
+	FireBall:	
+		"####" "#" 0 A_Jump(128,"FireBallBig");
+		E01M AAAAAA 1 
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",0,28+random(6,-6),40,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",0,28,64,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		E01M B 1
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",-15,15+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronOfHellHandFlamelet",-15,15+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",3,24,56,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		E01M B 1
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",-20,12+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronOfHellHandFlamelet",-20,12+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",3,24,56,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		E01M B 1
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",-25,8+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronOfHellHandFlamelet",-25,8+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",3,24,56,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		E01M B 1
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",-30,4+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronOfHellHandFlamelet",-30,4+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",3,24,56,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		E01M C 1
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",-35,0+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronOfHellHandFlamelet",-35,0+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",6,27,48,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		E01M CCC 1
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",-40,0+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronOfHellHandFlamelet",-40,0+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",6,27,48,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		E01M D 1
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",25,8+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronOfHellHandFlamelet",25,8+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronOfHellHandFlamelet",25,8+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",15,-5,20,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		E01M D 1
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",10,15+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronOfHellHandFlamelet",10,15+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",15,-5,20,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		E01M D 1
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",0,20+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronOfHellHandFlamelet",0,20+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronOfHellHandFlamelet",0,20+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",15,-5,20,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		
+		E01M E 5 A_SpawnProjectile("D4BaronBallNormal");
+		E01M FG 6;
+		Goto See;
+	//--------------------------------------
+	// Charged fireball
+	FireBallBig:	
+		E01M AA 2 
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",0,28+random(6,-6),40,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronHandFlare",0,28+random(6,-6),40,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",0,28,64,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		E01M B 1
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",-15,15+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronHandFlare",-15,15+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",3,24,56,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		E01M B 1
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",-20,12+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronHandFlare",-20,12+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",3,24,56,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		E01M B 1
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",-25,8+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronHandFlare",-25,8+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",3,24,56,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		E01M B 1
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",-30,4+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronHandFlare",-30,4+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",3,24,56,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		E01M C 1
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",-35,0+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronHandFlare",-35,0+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",6,27,48,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		E01M CCCCCCCCCCCCCCCCCCCCCCCCC 2
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",-40,0+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronHandFlare",-40,0+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",6,27,48,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		E01M D 1
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",25,8+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronHandFlare",25,8+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",15,-5,20,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		E01M D 1
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",10,15+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronHandFlare",10,15+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",15,-5,20,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		E01M D 1
+		{
+			A_FaceTarget();
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",0,20+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronHandFlare",0,20+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("BaronFlameletSmallLight",15,-5,20,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		
+		E01M E 5 A_SpawnProjectile("D4BaronBallBig");
+		E01M FG 6;
+		Goto See;
+	
+		
+	//--------------------------------------
+	// leap attack
+	Leap:
+		E01L A 0 A_JumpIfCloser(250,"FireBall"); //if too close, dont leap
+		E01L A 0 A_JumpIfCloser(768,"CanLeap"); //if middle point, jump
+		Goto FireBall;
+	CanLeap:
+		E01I AAAA 3 A_FaceTarget();
+		E01L A 3
+		{
+			user_timer = 0;
+			//{ bNoPain = true; }
+			//A_PlaySound("L4D/Hunter/Lunge",6);
+			A_FaceTarget();
+			A_RearrangePointers(DefPtr, DefPtr, NullPtr, 4);
+		}
+		E01L A 1 
+		{
+			if (A_JumpIfHigherOrLower("Null",null)) //Target is below
+			{
+				A_FaceTarget(0,0,0,0,FAF_TOP,-4);
+			}
+			else if (A_JumpIfHigherOrLower(null,"Null")) //Target is above
+			{
+				A_FaceTarget(0,0,0,0,FAF_TOP,10 + GetDistance(true)/5.0);
+			}
+			else //Target's on (near) equal z
+			{
+				A_FaceTarget(0,0,0,0,FAF_TOP,GetDistance(true)/5.0);
+			}
+			A_ChangeVelocity(cos(pitch)*(GetDistance(true)/25) ,0, -sin(pitch)*(GetDistance(true)/11)  ,CVF_RELATIVE|CVF_REPLACE);
+		}
+		E01L A 1;
+		
+		LeapLoop:
+			E01L BBBBC 1
+			{
+				A_RearrangePointers(DefPtr, DefPtr, NullPtr, 4);
+				A_SpawnItemEx("BaronLeapTrail",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSPRITEFRAME|SXF_TRANSFERSCALE);
+				if (A_CheckFloor("Null"))
+				{	return ResolveState("LeapEnd");	}
+				if (vel.z == 0)
+				{
+					user_timer++;
+					if (user_timer >= 35)
+					{	return ResolveState("LeapEnd");	}
+				}
+				
+				/*if (A_CheckLOF("Null",CLOFF_SETTRACER|CLOFF_JUMPENEMY|CLOFF_JUMPNONHOSTILE|CLOFF_JUMPFRIEND|CLOFF_JUMPOBJECT|CLOFF_FROMBASE|CLOFF_MUSTBESHOOTABLE,64+radius,0,0,0,height/2.0) ||
+					A_CheckLOF("Null",CLOFF_SETTRACER|CLOFF_JUMPENEMY|CLOFF_JUMPNONHOSTILE|CLOFF_JUMPFRIEND|CLOFF_JUMPOBJECT|CLOFF_FROMBASE|CLOFF_MUSTBESHOOTABLE|CLOFF_ALLOWNULL|CLOFF_JUMP_ON_MISS,64+radius,0,0,-pitch,height/2.0,0,NullPtr))
+				{	
+					if (!tracer || !tracer.bShootable)
+					{	return ResolveState("LeapEnd");	}
+					return ResolveState("QuickMelee");	
+				}*/
+				return ResolveState(null);
+			}
+			Wait;
+		LeapEnd:
+			E01L C 1 
+			{
+				A_PlaySound("fiend/land");
+				//{ bNoPain = false; }
+				A_Stop();
+			}
+			E01L C 1;
+		LeapLander:
+			"####" "#" 1 A_JumpIf(vel.z >= 0 || pos.z <= GetZAt(0,0) || pos.z <= floorz,"LeepEndCont");
+			Loop;
+		LeepEndCont:
+			"----" A 0 //Don't bother leaping again if something else is in the way such as a static actor.
+			{
+				if(GetCvar("HQEffects"))
+				{
+					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);	
+				}
+				A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronShockwave",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_PlaySound("Doom4/Monsters/BaronCrash",7);
+				A_QuakeEx(4,4,0,20,0,512,"",QF_SCALEDOWN);
+			}
+			
+			E01L E 0 
+			{
+				A_RadiusThrust(8000,384,RTF_NOIMPACTDAMAGE);
+				if(A_JumpIfCloser(192,"null"))
+				{
+					A_DamageTarget(random(15,30),"Melee",DMSS_AFFECTARMOR);
+				}
+			}
+			E01L DEFGH 3;
+			Goto SeeNoMissile;
+			
+		QuickMelee:
+			"####" "#" 1 
+			{
+				A_DamageTracer(random(15,30),"Melee",DMSS_AFFECTARMOR);
+				A_PlaySound("quake4/Misc/MeleeHit",5);
+				A_PlaySound("fiend/land");
+				//{ bNoPain = false; }	
+				A_RadiusThrust(8000,128,RTF_NOIMPACTDAMAGE);
+			}
+			E01L C 4 A_Stop();
+			E01L C 1 A_CheckFloor("QuickMeleeFloorHit");
+			Wait;
+		QuickMeleeFloorHit:
+			BOS4 P 0 
+			{
+				if(GetCvar("HQEffects"))
+				{
+					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);	
+				}
+				A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_PlaySound("Doom4/Monsters/BaronCrash",7);
+				A_SpawnItemEx("BaronShockwave",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_QuakeEx(4,4,0,20,0,512,"",QF_SCALEDOWN);
+			}
+			E01L E 0 A_RadiusThrust(8000,384,RTF_NOIMPACTDAMAGE);
+			E01L DEFGH 3;
+			Goto SeeNoMissile;
+		
+	Melee:
+		BOS4 E 0 A_Jump(256,"Melee1","Melee2");
+	Melee1:
+		E01M ABCC 3 A_FaceTarget();
+		E01M D 3 
+		{
+			A_FaceTarget();
+			A_PlaySound("Doom4/Other/MeleeSwing");
+		}
+		E01M E 3 A_CustomMeleeAttack(random(20,30),"Doom4/Other/MeleeHit");
+		E01M FG 5;
+		Goto See;
+	Melee2:
+		E01N ABCC 3 A_FaceTarget();
+		E01N D 3 
+		{
+			A_FaceTarget();
+			A_PlaySound("Doom4/Other/MeleeSwing");
+		}
+		E01N E 3 A_CustomMeleeAttack(random(20,30),"Doom4/Other/MeleeHit");
+		E01N FG 5;
+		Goto See;
+	
+	Pain:
+		E01P A 2;
+		E01P A 2 A_Pain();
+		Goto See;
+		
+	Pain.StunBomb:
+		"####" "#" 0 { bNoPain = true; }
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#" 0 { bNoPain = false; }
+		Goto See;
+
+	Death:
+		"####" "#" 0  //loot drop
+		{
+			bThruActors = true;
+			D4DropCash(CashMultiplier,"BaronCashGiver");
+			D4SetupLoot();
+			D4DropItems();
+			if (RuneChance(RuneChance_Baron))
+			{	A_SpawnItemEx("BaronRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+		}
+		E01D A  3 ;
+		E01D B  3 A_Scream();
+		E01D C  3;
+		E01D D  3 A_NoBlocking();
+		E01D EFGH 3;
+		E01D I -1 {bCorpse = true;}
+		Stop;
+
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:
+	XDeath:
+		"####" "#" 0  //loot drop
+		{
+			D4SetupLoot();
+			
+			if (GetCvar("MPWeapons"))
+			{	Pinatas.Carrion++;	}
+		}
+		Goto XDeathNoDrops;
+		
+	XDeathNoDrops:	
+		TNT1 A 0
+		{
+			bThruActors = true;
+			XDeathGush(Color_Green);
+			D4DropItems();
+			D4DropCash(CashMultiplier,"BaronCashGiver");
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+			A_NoBlocking();	//just in case
+			if (RuneChance(RuneChance_Baron))
+			{	A_SpawnItemEx("BaronRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+		}
+		Stop;
+		
+	Raise:
+		E01D I 3;
+		E01D HGFEDCBA  3;
+		Goto See;
+	//------------------------------------------------------------------------
+	// Start of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	Wound:
+		"####" "#" 1
+		{
+			if(GetCvar("D4D_ExecutionsON"))
+			{
+				if(countinv("FinisherToken")==0) //if it isnt healing already
+				{								//will heal and give the token that indicates it's executable
+					A_SpawnItemEx("D4DBaronHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
+					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
+				}
+				
+				if(GetCvar("D4D_MonsterStagger")==1) //will the monsters stagger at all?
+				{
+					return ResolveState("Stagger");	//stays there for a few seconds
+				}
+				else
+				{
+					return ResolveState(null);
+				}
+			}
+			return ResolveState(null);
+		}
+		Goto See;
+	Stagger:
+		E01P A 0 
+		{
+			if(GetCvar("D4D_ExecutionHighlight")==1)
+			{	return ResolveState("PrepareStaggerHighlight");}
+			else
+			{	return ResolveState("StagLooper");	}
+		}
+		Goto StagLooper;
+	PrepareStaggerHighlight:
+		E01P U 0;
+		Goto StagLooper;
+	
+	StagLooper:
+		"####" "#" 1
+		{
+			if(!countinv("FinisherToken"))
+			{
+				return ResolveState("See");
+			}
+			if(GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
+			{ 
+				A_Pain(); 
+				A_TakeInventory("PainSoundToken");
+			}
+			
+			return ResolveState(null);
+		}
+		Loop;
+		
+	// Finisher attack(s) with animations ON
+	Death.GloryKill:
+		TNT1 A 0 { bSolid = false; }
+		E01I AA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0
+		{
+			if(countinv("GloryKill1Token"))
+			{	return ResolveState("GloryEnd1"); }
+			
+			if(countinv("GloryKill2Token"))
+			{	return ResolveState("GloryEnd2"); }
+			
+			if(countinv("GloryKill3Token"))
+			{	return ResolveState("GloryEnd3"); }
+			return ResolveState(null);
+		}
+	GloryEnd1:
+		E01I AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		E01P AAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		E01I AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd2:
+		E01I AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		E01P AAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		E01I AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd3:
+		E01I AAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" I 0 A_ChangeVelocity(-8,0,10,CVF_RELATIVE);
+		Goto GloryEnd;
+	}
+}
+
+Class HellBaronSoul : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+	}
+	States
+	{
+	Spawn:
+		BFX1 AAABBBCCCDDD 2 Bright A_FadeOut(0.07);
+		Wait;
+	}
+}
+
+Class BaronLeapTrail : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Translucent";
+		Alpha 0.5;
+		Scale 1.1;
+	}
+	States
+	{
+	Spawn:
+		BOS4 O 1 A_FadeOut(0.03);
+		Wait;
+	}
+}
+
+Class BaronShockwave : D4AbstractMissile
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		Scale 0.3;
+		Translation "0:255=%[0,0,0]:[0.5,1.2,0.0]";
+		Alpha 0.99;
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(0.2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(0.2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(0.2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(0.2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(0.2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(0.2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+			}
+			A_SpawnItemEx("DoomImpExploParticle",0,0,0,0,0,0,random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		}
+		X072 LLLLLL 1 Bright
+		{
+			A_SetScale(Scale.X+0.12);
+		}
+		X072 LLLL 1 Bright
+		{
+			A_SetScale(Scale.X+0.05);
+			A_FadeOut(0.05);
+		}
+		Wait;
+	}
+}
+//------------------------------------------------------------
+Class BaronOfHellHandFlamelet : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.28;
+		Translation "0:255=%[0,0,0]:[0.6,1.4,0]";
+	}
+	States
+	{
+	Spawn:
+		PROJ D 0 NODELAY A_Jump(220,5,6,7,8,9,10,11,12,13);
+		X056 ABCDEFGHIJKLMNOPR 1 Bright;
+		Stop;
+	}
+}
+
+Class BaronFlameletSmallLight : Actor //this one is just to display some lights
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 2 Light("GreenSmallFlicker1");
+		Stop;
+	}
+}
+
+Class BaronHandFlare : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+		Alpha 0.5;
+		Scale 0.7;
+		RenderStyle "Add";
+		Alpha 0.99;
+		Translation "0:255=%[0,0,0]:[0.6,1.4,0]";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SetScale(frandom(0.25,0.5));
+		PROJ DEFGHI 1 Light("GreenSmallFlicker2") Bright
+		{
+			A_FadeOut(0.07);
+			A_SetScale(Scale.X+0.2);
+		}
+		Wait;
+	}
+}
+
+//*********************************************
+Class D4BaronBallNormal : D4AbstractMissile
+{
+	Default 
+	{
+		Radius 6;
+		Height 8;
+		Speed 20;
+		FastSpeed 25;
+		Damage 9;
+		Projectile;
+		+RANDOMIZE
+		+FORCEXYBILLBOARD
+		RenderStyle "Add";
+		Alpha 1;
+		SeeSound "imp/attack";
+		DeathSound "Doom4/Other/FireballHit2";
+		scale 0.65;
+		Translation "0:255=%[0,0,0]:[0.6,1.4,0]";
+		Decal "BaronFireballScorch";
+	}
+	States
+	{
+	Spawn:
+		HIB1 AB 2 BRIGHT Light("GreenMediumFlicker2")
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",random(-2,-8),random(8,-8),random(8,-8),0,0,frandom(0,0.6),0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("BaronOfHellHandFlamelet",random(-2,-8),random(8,-8),random(8,-8),0,0,frandom(0,0.6),0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("BaronOfHellHandFlamelet",random(-2,-8),random(8,-8),random(8,-8),0,0,frandom(0,0.6),0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("DoomImpBallSmokeTrail",-5,random(2,-2),random(2,-2),0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronBallFlareTrail",-3,random(2,-2),random(2,-2),0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+			}
+		}
+		Loop;
+	Death:
+		TNT1 A 0
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnParticle("46D200",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("46D200",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("46D200",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("46D200",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("419900",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("419900",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("419900",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("419900",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("7BFF00",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("7BFF00",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("7BFF00",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("7BFF00",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("BaronBallImpactVapor",3,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("BaronBallImpactVapor",3,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("BaronBallImpactVapor",3,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("BaronBallImpactVapor",3,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),0,SXF_NOCHECKPOSITION,128);
+			}
+		}
+		
+		HIB1 CC 1 BRIGHT Light("GreenMediumFlicker1")	//had to separate
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.1);
+		}
+		HIB1 DD 1 BRIGHT Light("GreenMediumFlicker2")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.1);
+		}
+		HIB1 EE 1 BRIGHT Light("GreenMediumFlicker3")
+		{
+			A_FadeOut(0.088); 
+			A_SetScale(Scale.X+0.1);
+		}
+		HIB1 FF 1 BRIGHT Light("GreenSmallFlicker1")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.1);
+		}
+		HIB1 GG 1 BRIGHT Light("GreenSmallFlicker1")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.1);
+		}
+		Stop;
+	}
+}
+
+
+Class BaronBallFlareTrail : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+		Alpha 0.6;
+		Scale 0.7;
+		RenderStyle "Add";
+		Alpha 0.99;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SetScale(frandom(0.3,0.5));
+		PROJ DEFGHI 1 Bright
+		{
+			A_FadeOut(0.07);
+			A_SetScale(Scale.X+0.07);
+		}
+		Wait;
+	}
+}
+
+Class BaronBallImpactVapor : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+		Scale 0.1;
+		RenderStyle "Add";
+		Translation "0:255=%[0,0,0]:[0.6,1.4,0]";
+		Alpha 0.99;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(240,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40);
+		X102 AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVV 1 Bright
+		{
+			A_FadeOut(0.02);
+			A_SetScale(Scale.X+0.05);
+			if(random(1,2)==2)
+			{
+				A_ScaleVelocity(0.9);
+				A_FadeOut(0.015);
+			}
+		}
+		Goto Spawn+1;
+	}
+}
+
+//*********************************************
+Class D4BaronBallBig : D4AbstractMissile
+{
+	Default 
+	{
+		Radius 6;
+		Height 8;
+		Speed 35;
+		FastSpeed 42;
+		Damage 14;
+		Projectile;
+		+RANDOMIZE
+		RenderStyle "Add";
+		Alpha 1;
+		SeeSound "imp/attack";
+		DeathSound "Doom4/Other/FireballHit1";
+		scale 1.2;
+		Translation "0:255=%[0,0,0]:[0.6,1.4,0]";
+		+FORCEXYBILLBOARD
+		Decal "BaronFireballScorchBig";
+	}
+	States
+	{
+	Spawn:
+		HIB1 AABB 2 BRIGHT Light("GreenMediumFlicker1")
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronBallBigTrail",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("BaronOfHellBallBigFlamelet",random(-2,-8),random(12,-12),random(12,-12),frandom(4,-4),frandom(4,-4),frandom(1.0,5.0),0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("BaronOfHellBallBigFlamelet",random(-2,-8),random(12,-12),random(12,-12),frandom(4,-4),frandom(4,-4),frandom(1.0,5.0),0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("DoomImpBallFlareTrail",-3,random(2,-2),random(2,-2),0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);	
+			}
+		}
+		Loop;
+	Death:
+		TNT1 A 0
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnParticle("46D200",SPF_FULLBRIGHT,random(60,90),8,random(0,359),0,0,0,frandom(3.5,-3.5),frandom(3.5,-3.5),frandom(3,-3));
+				A_SpawnParticle("46D200",SPF_FULLBRIGHT,random(60,90),8,random(0,359),0,0,0,frandom(3.5,-3.5),frandom(3.5,-3.5),frandom(3,-3));
+				A_SpawnParticle("46D200",SPF_FULLBRIGHT,random(60,90),8,random(0,359),0,0,0,frandom(3.5,-3.5),frandom(3.5,-3.5),frandom(3,-3));
+				A_SpawnParticle("46D200",SPF_FULLBRIGHT,random(60,90),8,random(0,359),0,0,0,frandom(3.5,-3.5),frandom(3.5,-3.5),frandom(3,-3));
+				A_SpawnParticle("419900",SPF_FULLBRIGHT,random(60,90),8,random(0,359),0,0,0,frandom(3.5,-3.5),frandom(3.5,-3.5),frandom(3,-3));
+				A_SpawnParticle("419900",SPF_FULLBRIGHT,random(60,90),8,random(0,359),0,0,0,frandom(3.5,-3.5),frandom(3.5,-3.5),frandom(3,-3));
+				A_SpawnParticle("419900",SPF_FULLBRIGHT,random(60,90),8,random(0,359),0,0,0,frandom(3.5,-3.5),frandom(3.5,-3.5),frandom(3,-3));
+				A_SpawnParticle("419900",SPF_FULLBRIGHT,random(60,90),8,random(0,359),0,0,0,frandom(3.5,-3.5),frandom(3.5,-3.5),frandom(3,-3));
+				A_SpawnParticle("7BFF00",SPF_FULLBRIGHT,random(60,90),8,random(0,359),0,0,0,frandom(3.5,-3.5),frandom(3.5,-3.5),frandom(3,-3));
+				A_SpawnParticle("7BFF00",SPF_FULLBRIGHT,random(60,90),8,random(0,359),0,0,0,frandom(3.5,-3.5),frandom(3.5,-3.5),frandom(3,-3));
+				A_SpawnParticle("7BFF00",SPF_FULLBRIGHT,random(60,90),8,random(0,359),0,0,0,frandom(3.5,-3.5),frandom(3.5,-3.5),frandom(3,-3));
+				A_SpawnParticle("7BFF00",SPF_FULLBRIGHT,random(60,90),8,random(0,359),0,0,0,frandom(3.5,-3.5),frandom(3.5,-3.5),frandom(3,-3));
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("BaronBallImpactVapor",3,0,0,frandom(-3,3),frandom(-3,3),frandom(-3,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("BaronBallImpactVapor",3,0,0,frandom(-3,3),frandom(-3,3),frandom(-3,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("BaronBallImpactVapor",3,0,0,frandom(-3,3),frandom(-3,3),frandom(-3,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("BaronBallImpactVapor",3,0,0,frandom(-3,3),frandom(-3,3),frandom(-3,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("BaronBallImpactVapor",3,0,0,frandom(-3,3),frandom(-3,3),frandom(-3,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("BaronBallImpactVapor",3,0,0,frandom(-3,3),frandom(-3,3),frandom(-3,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("BaronBallImpactVapor",3,0,0,frandom(-3,3),frandom(-3,3),frandom(-3,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("BaronBallImpactVapor",3,0,0,frandom(-3,3),frandom(-3,3),frandom(-3,3),0,SXF_NOCHECKPOSITION,128);
+			}
+		}
+		
+		TNT1 A 0 A_Explode(64,128);
+
+		HIB1 CC 1 BRIGHT Light("GreenMediumFlicker1")	//had to separate
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.1);
+		}
+		HIB1 DD 1 BRIGHT Light("GreenMediumFlicker2")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.1);
+		}
+		HIB1 EE 1 BRIGHT Light("GreenMediumFlicker3")
+		{
+			A_FadeOut(0.088); 
+			A_SetScale(Scale.X+0.1);
+		}
+		HIB1 FF 1 BRIGHT Light("GreenSmallFlicker1")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.1);
+		}
+		HIB1 GG 1 BRIGHT Light("GreenSmallFlicker1")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.1);
+		}
+		Stop;
+	}
+}
+Class BaronBallBigTrail : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		Scale 0.2;
+		Alpha 0.6;
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		X025 AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVWWXXYY 1 Bright
+		{
+			A_SetScale(Scale.X+0.1);
+			A_FadeOut(0.04);
+		}
+		Loop;
+	}
+}
+Class BaronOfHellBallBigFlamelet : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.3;
+		Translation "0:255=%[0,0,0]:[0.6,1.4,0]";
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		PROJ D 0 NODELAY A_Jump(220,5,6,7,8,9,10,11,12,13);
+		X056 ABCDEFGHIJKLMNOPR 2 Bright;
+		Stop;
+	}
+}
+
+
+
+
+
+//================================================================================================================
+//================================================================================================================
+//
+//	Original Doom version 
+//
+//================================================================================================================
+//================================================================================================================
+
+Class D4OldBaronOfHell : D4AbstractBiggie // : BaronOfHell
+{
+	int user_staggertimer;
+	Default 
+	{
+		Health 1000;
+		Radius 24;
+		Height 64;
+		Mass 1000;
+		Speed 8;
+		PainChance 50;
+		Monster;
+		+FLOORCLIP
+		+BOSSDEATH
+		SeeSound "baron/sight";
+		PainSound "baron/pain";
+		DeathSound "baron/death";
+		ActiveSound "baron/active";
+		Obituary "$OB_BARON";
+		HitObituary "$OB_BARONHIT";
+		
+		PainChance "StunBomb", 255;
+		PainChance "GloryKill", 255;
+		WoundHealth 150;
+	}
+	States
+	{
+	Spawn:
+		BOSS AB 10 A_Look();
+		Loop;
+	See:
+		BOSS AABBCCDD 3 D4Chase();
+		Loop;
+	Melee:
+	Missile:
+		BOSS EF 8 A_FaceTarget();
+		BOSS G 8 A_BruisAttack;
+		Goto See;
+	Pain:
+		BOSS H  2;
+		BOSS H  2 A_Pain();
+		Goto See;
+	Raise:
+		BOSS O 8;
+		BOSS NMLKJI  8;
+		Goto See;
+		
+	Pain.StunBomb:
+		"####" "#" 0 { bNoPain = true; }
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#" 0 { bNoPain = false; }
+		Goto See;
+	Death:
+		"####" "#" 0  //loot drop
+		{
+			bThruActors = true;
+			D4DropCash(CashMultiplier,"BaronCashGiver");
+			D4SetupLoot();
+			D4DropItems();
+			
+			if (RuneChance(RuneChance_Baron))
+			{	A_SpawnItemEx("BaronRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+		}
+		BOSS I  5 ;
+		BOSS J  5 A_Scream();
+		BOSS K  5;
+		BOSS L  5 A_NoBlocking();
+		BOSS MN 5;
+		BOSS O 0 A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+		BOSS O -1 
+		{
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+			{bCorpse = true;}
+			if (RuneChance(RuneChance_Baron))
+			{	A_SpawnItemEx("BaronRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+		}
+		Stop;
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:
+	XDeath:
+		"####" "#" 0  //loot drop
+		{
+			D4SetupLoot();
+			
+			if (GetCvar("MPWeapons"))
+			{	Pinatas.Carrion++;	}
+		}
+		Goto XDeathNoDrops;
+		
+	XDeathNoDrops:	
+		TNT1 A 0
+		{
+			bThruActors = true;
+			XDeathGush(Color_Green);
+			D4DropItems();
+			D4DropCash(CashMultiplier,"BaronCashGiver");
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+		}
+		BOSS I  5 ;
+		BOSS J  5 A_Scream();
+		BOSS K  5;
+		BOSS L  5 A_NoBlocking();
+		BOSS MN 5;
+		BOSS O -1 
+		{
+			
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+			
+			{bCorpse = true;}
+			if (RuneChance(RuneChance_Baron))
+			{	A_SpawnItemEx("BaronRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+		}
+		Stop;
+	//------------------------------------------------------------------------
+	// Start of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	Wound:
+		"####" "#" 1
+		{
+			if(GetCvar("D4D_ExecutionsON"))
+			{
+				if(countinv("FinisherToken")==0) //if it isnt healing already
+				{								//will heal and give the token that indicates it's executable
+					A_SpawnItemEx("BaronHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
+					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
+				}
+				
+				if(GetCvar("D4D_MonsterStagger")==1) //will the monsters stagger at all?
+				{
+					return ResolveState("Stagger");	//stays there for a few seconds
+				}
+				else
+				{
+					return ResolveState(null);
+				}
+			}
+			return ResolveState(null);
+		}
+		Goto See;
+	Stagger:
+		BOSS H 0 
+		{
+			if(GetCvar("D4D_ExecutionHighlight")==1)
+			{	return ResolveState("PrepareStaggerHighlight");}
+			else
+			{	return ResolveState("StagLooper");	}
+		}
+		Goto StagLooper;
+	PrepareStaggerHighlight:
+		BOSS U 0;
+		Goto StagLooper;
+	
+	StagLooper:
+		"####" "#" 1
+		{
+			if(!countinv("FinisherToken"))
+			{
+				return ResolveState("See");
+			}
+			if(GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
+			{ 
+				A_Pain(); 
+				A_TakeInventory("PainSoundToken");
+			}
+			
+			return ResolveState(null);
+		}
+		Loop;
+		
+	// Finisher attack(s) with animations ON
+	Death.GloryKill:
+		TNT1 A 0 { bSolid = false; }
+		BOSS AA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0
+		{
+			if(countinv("GloryKill1Token"))
+			{	return ResolveState("GloryEnd1"); }
+			
+			if(countinv("GloryKill2Token"))
+			{	return ResolveState("GloryEnd2"); }
+			
+			if(countinv("GloryKill3Token"))
+			{	return ResolveState("GloryEnd3"); }
+			return ResolveState(null);
+		}
+	GloryEnd1:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" HHHHHH 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd2:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" HHHHHH 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd3:
+		"####" AAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" I 0 A_ChangeVelocity(-8,0,10,CVF_RELATIVE);
+		Goto GloryEnd;
+	}
+}
+
+Class OldBaronBall : D4AbstractMissile replaces BaronBall
+{
+	Default 
+	{
+		Radius 6;
+		Height 16;
+		Speed 15;
+		FastSpeed 20;
+		Damage 8;
+		Projectile; 
+		+RANDOMIZE
+		SeeSound "baron/attack";
+		DeathSound "baron/shotx";
+		
+		+FORCEXYBILLBOARD
+		RenderStyle "Add";
+		Alpha 1;
+		scale 0.65;
+		Decal "BaronFireballScorch";
+		Translation "0:255=%[0,0,0]:[0.6,1.4,0]";
+	}
+	States
+	{
+	Spawn:
+		HIB1 AB 3 BRIGHT Light("GreenMediumFlicker2")
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("BaronOfHellHandFlamelet",random(-2,-8),random(8,-8),random(8,-8),0,0,frandom(0,0.6),0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("DoomImpBallSmokeTrail",-5,random(2,-2),random(2,-2),0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BaronBallFlareTrail",-3,random(2,-2),random(2,-2),0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);	
+			}
+		}
+		Loop;
+	Death:
+		TNT1 A 0
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnParticle("46D200",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("46D200",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("46D200",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("419900",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("419900",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("419900",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("7BFF00",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("7BFF00",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("7BFF00",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));	
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+			}
+		}
+		
+		HIB1 CC 1 BRIGHT Light("GreenMediumFlicker1")	//had to separate
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.1);
+		}
+		HIB1 DD 1 BRIGHT Light("GreenMediumFlicker2")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.1);
+		}
+		HIB1 EE 1 BRIGHT Light("GreenMediumFlicker3")
+		{
+			A_FadeOut(0.088); 
+			A_SetScale(Scale.X+0.1);
+		}
+		HIB1 FF 1 BRIGHT Light("GreenSmallFlicker1")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.1);
+		}
+		HIB1 GG 1 BRIGHT Light("GreenSmallFlicker1")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.1);
+		}
+		Stop;
+	}
+}
+

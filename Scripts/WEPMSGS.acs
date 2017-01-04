@@ -1,0 +1,231 @@
+#library "WEPMSGS"
+#include "zcommon.acs"
+str ModTextArray[15]={
+		" ",	//0
+		//machinegun
+		"Tactical Scope",		// 1	
+		"Micro Missiles",		// 2
+		//Shotgun
+		"Burst Shot", 		//3
+		"Explosive Shot", 		//4
+		//Plasma rifle
+		"Heat Blast", 		//5
+		"Stun Bomb", 		//6
+		//Rocket launcher
+		"Detonate",			//7
+		"Lock on",		//8
+		//Chaingun
+		"Gatling Rotator",			//9
+		"Mobile Turret",		//10
+		//Gauss
+		"Precision Shot",			//11
+		"Siege Mode",		//12
+		//Super shotgun
+		"Single Barrel",			//13
+		"Double Barrel"		//14
+		};
+str DemonTextArray[11]={
+		" ",	//0
+		"Arachnotron",		// 1	
+		"Baron Of Hell",		// 2
+		"Cacodemon", 		//3
+		"Cyberdemon", 		//4
+		"Mancubus", 		//5
+		"Hell Knight", 		//6
+		"Spider Mastermind",			//7
+		"Pain Elemental",		//8
+		"Revenant",			//9
+		"Summoner"		//10
+		};
+		
+str GrenTextArray[6]={
+		" ",	//0
+		"Frag  ",		// 1	
+		"Syphon",		// 2
+		"Holo  ",		//3
+		"No grenades acquired",		//4
+		"Grenade not ready"		//5
+		};
+		
+str LastWeaponUsed;
+
+Script "ForceUnmorph" (void)
+{
+	UnMorphActor(0,1);
+}
+
+Script "SaveWeapon" (void)
+{
+	if(stricmp(GetWeapon(),"ClimbingHands"))
+	{
+		LastWeaponUsed = GetWeapon();
+	}
+}
+
+Script "LoadWeapon" ENTER
+{
+	while(2)
+	{
+		if(!stricmp(GetWeapon(),"ClimbingHands")) 
+		{
+			SetWeapon(LastWeaponUsed);
+			TakeInventory("ClimbingHands",1);
+		}
+		delay(1);
+	}
+}
+
+script "GrenadePrint" (int GrenNumber)
+{
+	SetHUDSize(800,600,1);
+	SetFont("SMALLFONT");
+	HudMessage(s:GrenTextArray[GrenNumber];HUDMSG_FADEOUT,110,CR_WHITE,678.2,527.0,0,1.0);
+}
+script "GrenadeUnavailPrint" (int GrenNumber)
+{
+	SetHUDSize(800,600,1);
+	SetFont("SMALLFONT");
+	HudMessage(s:GrenTextArray[GrenNumber];HUDMSG_FADEOUT,100,CR_ORANGE,400.0,560.0,0,1.0);	//id 100 as any status messages
+}
+		
+//==============================================================================
+//==============================================================================
+// Mod Selections Text
+//==============================================================================
+//==============================================================================
+		
+script "ModSelectedText" (int modnumber)
+{
+	SetHUDSize(800,600,1);
+	SetFont("SMALLFONT");
+	HudMessage(s:ModTextArray[modnumber];HUDMSG_PLAIN,101,CR_WHITE,790.2,573.0,0);
+}
+script "RemoveModText" (int modnumber)
+{
+	HudMessage(s:" ";HUDMSG_PLAIN,101,"SkyBlue",0.75,1.0,0.1);
+}
+		
+script "NoModsAvailable" (void)
+{
+	SetHUDSize(800,600,1);
+	SetFont("SMALLFONT");
+	HudMessage(s:"No mods available";HUDMSG_FADEOUT,100,CR_ORANGE,400.0,560.0,0.4,1.0);
+}
+script "YouOnlyHaveOneMod" (void)
+{
+	SetHUDSize(800,600,1);
+	SetFont("SMALLFONT");
+	HudMessage(s:"No other mod to switch";HUDMSG_FADEOUT,100,CR_ORANGE,400.0,560.0,0.4,1.0);
+}
+script "ModNotReady" (void)
+{
+	SetHUDSize(800,600,1);
+	SetFont("SMALLFONT");
+	HudMessage(s:"Mod not ready";HUDMSG_FADEOUT,100,CR_ORANGE,400.0,560.0,0.4,1.0);
+}
+script "NotEnoughAmmo" (void)
+{
+	SetHUDSize(800,600,1);
+	SetFont("SMALLFONT");
+	HudMessage(s:"Not enough ammo";HUDMSG_FADEOUT,100,CR_ORANGE,400.0,560.0,0.4,1.0);
+}
+script "ChargeTooLow" (void)	//for the static rifle
+{
+	SetHUDSize(800,600,1);
+	SetFont("SMALLFONT");
+	HudMessage(s:"Not enough charge";HUDMSG_FADEOUT,100,CR_ORANGE,400.0,560.0,0.4,1.0);
+}
+
+//==============================================================================
+//==============================================================================
+// Random crate 
+//==============================================================================
+//==============================================================================
+		
+script "BuyingCrate" (int success)
+{
+	SetHUDSize(600,450,1);
+	SetFont("SMALLFONT");
+	if(success==1)
+	{
+		HudMessage(s:"UAC: Enjoy your random crate";HUDMSG_FADEOUT,111,CR_GREEN,300.0,420.0,1.5,1.0);
+	}
+	else if(success==0)
+	{
+		HudMessage(s:"Not enough credits";HUDMSG_FADEOUT,111,CR_RED,300.0,420.0,1.5,1.0);
+	}
+}
+
+//==============================================================================
+//==============================================================================
+//	DT Toggle
+//==============================================================================
+//==============================================================================
+Script "ToggleDoubleTrouble" (void)
+{
+	SetHUDSize(600,450,1);
+	SetFont("SMALLFONT");
+	if (GetCvar("D4D_DTMode"))
+	{
+		HudMessage(s:"Double Mode";HUDMSG_FADEOUT,111,CR_ORANGE,300.0,420.0,1.5,1.0);
+		SetCvar("D4D_DTMode",false);
+		
+		SetHUDSize(800,600,1);
+		SetFont("SMALLFONT");
+		HudMessage(s:ModTextArray[14];HUDMSG_PLAIN,101,CR_WHITE,790.2,573.0,0);
+	}
+	else
+	{
+		HudMessage(s:"Single Mode";HUDMSG_FADEOUT,111,CR_ORANGE,300.0,420.0,1.5,1.0);
+		SetCvar("D4D_DTMode",true);
+		
+		SetHUDSize(800,600,1);
+		SetFont("SMALLFONT");
+		HudMessage(s:ModTextArray[13];HUDMSG_PLAIN,101,CR_WHITE,790.2,573.0,0);
+	}
+}
+
+script "DoubleTroubleDisplay" (void)
+{
+	SetHUDSize(800,600,1);
+	SetFont("SMALLFONT");
+	if (GetCvar("D4D_DTMode"))
+	{
+		HudMessage(s:ModTextArray[13];HUDMSG_PLAIN,101,CR_WHITE,790.2,573.0,0);
+	}
+	else
+	{
+		HudMessage(s:ModTextArray[14];HUDMSG_PLAIN,101,CR_WHITE,790.2,573.0,0);
+	}
+}
+
+script "DontSaveAsDemon" (int DemonId)
+{
+	int MSGTimer=0;
+	SetHUDSize(400,300,1);
+	while (MSGTimer<=120 && CheckInventory("IamADemonToken"))
+	{
+		if(GetCvar("D4D_DemonNameDisplay"))
+		{
+			SetFont("SMALLFONT");
+			HudMessage(s:DemonTextArray[DemonId];HUDMSG_PLAIN,357,CR_ORANGE,250.0,290.0,0.6);
+		}
+		
+		if(GetCvar("D4D_DemonWarning"))
+		{
+			SetFont("BIGFONT");
+			HudMessage(s:"PSA: DON'T SAVE WHEN YOU ARE A DEMON";HUDMSG_PLAIN,351,CR_ORANGE,200.0,50.0,0.6);
+			SetFont("SMALLFONT");
+			HudMessage(s:"If you save/load as demon, or if you exit a level as a demon";HUDMSG_PLAIN,352,CR_WHITE,200.0,65.0,0.6);
+			HudMessage(s:"you will NOT be able to unmorph, EVER. It's an engine bug.";HUDMSG_PLAIN,353,CR_WHITE,200.0,75.0,0.6);
+			HudMessage(s:"Turn this message OFF in D4D Options -> Demon Rune Warning";HUDMSG_PLAIN,354,CR_WHITE,200.0,85.0,0.6);
+			delay(18);
+		}
+		else
+		{
+			delay(18);
+		}
+		MSGTimer++;
+	}
+	terminate;
+}

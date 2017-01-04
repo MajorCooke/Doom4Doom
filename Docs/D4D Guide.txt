@@ -1,0 +1,716 @@
+The Ultimate Guide to D4D
+
+This is a little guide for whoever feels like D4D is perhaps too much to handle, 
+or everything seems too confusing. Spoilers ahead.
+
+
+Contents
+
+  
+   0. Gameplay tips
+
+      *D4D options*
+
+   1. D4D Key Bindings
+   2. Gore Options
+   3. Display Options
+   4. Gameplay Options
+
+      *D4D weapons*
+
+   5. D4D weapons
+   6. Praetor Suit Upgrades
+   7. Demon Runes
+
+
+
+//-------------------------------------------------------------------------------
+
+0 . * Gameplay tips * 
+
+//-------------------------------------------------------------------------------
+
+In this section I will just cover the most "obscure" yet useful pieces of 
+information.
+
+0.1 If you are low on any ammo type, and "Drop loot" option is "on", upon
+    dying, monsters will drop ammo of the weapons you need ammo for. Only 
+    exceptions are BFG and Chainsaw ammo.
+
+0.2 Syphon grenades are there to keep you healthy. The more monsters hit by
+    this grenade, the more you will heal. 
+
+0.3 Hologram "grenade" will always attract monsters to attack it. Use this to
+    distract them while you reposition yourself to avoid incoming damage
+
+0.4 Pinkies have a frontal shield. It absorbs PART of the damage, however, they
+    are completely vulnerable to any piercing rounds, explosives, and also
+    the shield does not protect them from your pistol, fists or Chainsaw.
+    Spectres lack their shielding.
+
+0.5 D4D Archviles will teleport away from you if you get too close. Snipe on 
+    them to take them down.
+
+0.6 Any monster hit with by the BFG lasers, will die as soon as the BFG shot
+    explodes, no matter how far away it crashes from the monsters. Only
+    exceptions are the Cyberdemon and SpiderMastermind
+
+0.7 Monsters killed with Berserk or Chainsaw's primary fire, will ALWAYS drop
+    health.
+
+0.8 Monsters killed with the Chainsaw's secondary fire, will ALWAYS drop ammo.
+
+0.9 Monsters killed with the Chainsaw's primary will give out twice as many 
+    credits as they normally would. When killed with the secondary, they will 
+    drop x4 the amount of credits.
+
+0.10 Monsters can be weakened with other weapons, then killed with the
+     Chainsaw alt fire, to save some Chainsaw ammo. If you weaken it enough
+     with other weapons first, you can even Chainsaw-execute a cyberdemon or
+     a SpiderMastermind and get waaaay more credits than you'd expect! $$$$
+
+
+
+//-------------------------------------------------------------------------------
+
+1 . * Keybindings * 
+
+//-------------------------------------------------------------------------------
+
+The mod has quite a few custom keys to use. Make sure to go under
+   D4D options -> Customize Keybinds
+
+1.1  Upgrade Menu: This is to access the upgrade menu, if the name wasn't
+     explicit enough.
+
+1.2  Switch Weapon Mod: Whenever you get your first mod for a weapon, this will
+     equip it. Whenever you get a second mod for the same weapon, this will 
+     switch between the mods.
+
+1.3  Melee Attack: Throws a quick punch while you are holding any weapon. Will
+     finish a staggering monster, making it drop health.
+
+1.4  Select Next/Previous Grenade Type. Since you can get up to 3 types, these
+     keys are to cycle between them. In game, you will see the icon and name
+     of the grenade change as you press this key.
+
+1.5  Throw Grenade: Once you have found any of the 3 types of grenades in
+     game, this key is gonna throw one.
+
+     * Special Use *
+
+1.6  Buy Crate (500cr): At any point in game, you can press this key and 
+     it will spawn a random item for the price of 500 credits. Good for when 
+     you just don't have anything else to buy in the upgrade store. This
+     crate can be upgraded (through upgrade menu) to contain better items.
+
+1.7  Brofist (when available): Because you know you want to do it again.
+
+1.8  Chaingun Special Mode: Triggers the "special mode" of the chaingun if
+     the required criteria is met.
+
+1.9  Panic Button (clear gibs): As it says, by pressing this key, all gibs in 
+     the current map will disappear. Good for if you went too overboard with the
+     gore settings and it's lagging on you.
+
+1.10  Weapon Keybinds: In this sub menu, you can bind weapons to keys per slot
+      or per weapon.
+
+
+
+//-------------------------------------------------------------------------------
+
+2 . * Glory Kill options * 
+
+//-------------------------------------------------------------------------------
+
+D4D has a glory kill system which by default consist of this behaviour:
+If a monster is weak enough, it will enter a "staggered" state where will be
+unable to move or attack for four seconds. During this time, the monster will
+be highlighted to indicate that you can perform a glory kill on the monster by
+hitting it with the quick melee key. If the monster is not killed quickly, it
+will heal itself by a small amount, and proceed to behave as usual.
+
+Many aspects of this system can be customized.
+
+2.1 Melee Execution Monster Switch: Enables or completely disables the options
+    of the glory kill system. When "OFF", all the settings below will be ignored
+    and none of the special behaviour will take place. Default "ON".
+
+2.2 Glory Kill Animations: When "ON", upon hitting a staggered/highlighted monster
+    with a quick melee attack, will perform a "finisher" animation (glory kill)
+    on the monster. When "OFF", in the same scenario, only a deadly punch will
+    be delivered, instead of locking the player into the animation. Default "ON".
+
+2.3 Monster Highlight When Weak: When "ON", if a monster is weakened enough, it
+    will display a highlight on itself signifying it's vulnerability to be
+    quicly executed with a quick melee attack. When "OFF", the monster will NOT
+    display the highlight when weakened, however, it will still be vulnerable
+    to the execution. Read 2.x below for how it combines with point 2.4.
+
+2.4 Monster Stagger When Weak: When ON, a weakened monster will enter the 
+    "stagger" state which will make them unable to move or attack for a period of 
+    time. When "OFF" the monster will NOT be staggered when weakened, however, it
+    will still be vulnerable to the execution. Read 2.x below for how it combines
+    with point 2.3.
+
+2.5 Noisy Staggered Monsters: If "monster stagger" is ON, this option will make
+    the staggered monsters play the "pain" sound at intervals of one second.
+    When "OFF", even if a monster is staggered, no pain sound will be played.
+    Default "ON".
+
+2.6 Stagger/Highlight (in seconds): Determines the amount of seconds a weakened
+    monster will be staggered and/or highlighted. Default "4". Note: Cyberdemon
+    and SpiderMastermind monsters will only stagger/highlight for half of the
+    time set in this option.
+
+
+2.x The behaviour of 2.3 and 2.4 are completely independent. Here's a simple
+    list of scenarios and how it works
+
+    a) Stagger ON, Hihglight ON: When monster is weakened, it will stagger
+       and be highlighted for the amount of time set in 2.6. The monster is
+       vulnerable to glory kills during this time.
+
+    b) Stagger ON, Highlight OFF: When monster is weakened, it will stagger
+       but not be highlighted. Vulnerable to glory kill while staggered.
+
+    c) Stagger OFF, Highlight ON: When monster is weakened, it will not stagger
+       which allows the monster to behave as usual, walk, attack, etc., but it
+       will be highlighted for the amount of time set in 2.6. Note: The highlight
+       will look different than the highlight shown in a) or b), this is due to
+       technical limitations.
+
+    d) Stagger OFF, Highlight OFF: when a monster is weakened, it will not 
+       stagger, nor it will be highlighted, however, IT WILL STILL BE VULNERABLE
+       TO GLORY KILL for the amount of time set in 2.6; however, as you might
+       imagine, without any indication of the monster being weak enough, it will
+       be really hard to figure out if he's actually vulnerable to GK or not.
+
+Remember, turning 2.3 and 2.4 off, does NOT MEAN that glory kills system is OFF.
+For that use option 2.1.
+
+
+
+//-------------------------------------------------------------------------------
+
+2 . * Gore options * 
+
+//-------------------------------------------------------------------------------
+
+Also found under Options, here you can adjust how much gore you want in the game.
+General rule is: The more you increase these numbers, the laggier the game will get.
+
+
+2.1 Panic command: Similar to the "Panic button" it will clear the gibs in the map
+    but this one, from the menu, rather than by a keybind.
+
+2.2 Bullet Giblets: How many flying giblets will appear randomly for every shot
+    than hits a monster. Default is "1".
+
+2.3 Splatter Giblets: How many giblets will spawn when a monster is exploded. 
+    Default is "5".
+
+2.4 Blood Clouds: Another part of the extreme death of monsters. Default is "5".
+
+2.5 Blood Trails: Do the spawned giblets leave blood trails as they fly? 
+    Default "on".
+
+2.6 Blood FX type: You can choose between having all blood effects be rendered as
+    "Sprites", "Particles" or both.
+
+2.7 Short Gib life: When "On", it will make all gibs disappear quite quickly instead
+    of laying on the floor for a while. Default "off".
+
+2.8 SuperShotgun Gibs Monsters: In Doom4 the SSG tends to gib monsters constantly,
+    however, in here you can choose between "sometimes" (not all monsters will
+    gib all the time), "Always" (will gib no matter what or how far) or "Never"
+    (will not gib at all).
+
+2.9 Restore Giblet Defaults: By selecting this option, all custom gore settings will
+    reset to default. Requires confirmation.
+
+    ** Special section **
+
+2.10 Bullet Giblets Unleashed
+2.11 Splatter Giblets Unleashed
+
+     Both of these are the same as 2.2 and 2.3 respectively, but in this section
+     you can increase the number up to 10k. This is NOT RECOMMENDED as it will
+     probably make your computer explode because of so many instructions to process. 
+      - You have been warned -
+
+
+
+//-------------------------------------------------------------------------------
+
+3 . * Display options * 
+
+//-------------------------------------------------------------------------------
+
+Here you can change several settings of how D4D displays some stuff.
+
+    ** D4D Messages **
+
+3.1 Performance/V-Noise Master switches: The options here disable a lot of visual
+    effects, which in theory should improve performance since much less stuff
+    will be on screen at all times. However, by removing all the visual effects,
+    you are getting rid of a lot of visual noise, which is good for some players'
+    play-style. Use at your discretion.
+3.1.1 Monster HQ Effects: Toggles monsters high quality effects on/off. This
+      affects all their projectile trails and extra visual effects. They become
+      much more simplistic visually, but the behavior remains the same. This also
+      removes some "flame charging" effects from Imps and Baron of hell. This
+      option affects monster type D4D and Classic Doom types.
+3.1.2 Weapons HQ Effects: Toggles weapons high quality effects on/off. This affects
+      the smoke released by the weapon barrel and the projectiles' trails. However
+      this option does NOT affect other weapon settings like: casings spawning, 
+      tracer effects or explosion quakes, since all these have their own
+      switches.
+
+3.2 Message Style
+3.2.1 Doom-esque: Will show the D4D quota messages with a small font in the lower 
+      side of the screen. Default.
+3.2.2 Arcade: Will display the messages in a bigger and more "festive" style.
+3.2.3 None: Will not show them at all.
+
+3.3 Show Monster Quota: Toggle to show/hide all monster quota messages.
+
+3.4 Show Secret Quota: Toggle to show/hide the secret found messages.
+
+
+    ** Effects Options **
+    * Weapons *
+3.5 Spawn casings: Toggles if any casings will spawn from the player's weapon
+
+3.6 Short casing lives: Toggles between having casings disappear almost
+    immediately (for performance gain) or have them stay there for a while
+    before disappearing.
+
+3.7 Silent Casings: Toggles if you want casings to play a sound or not.
+
+3.8 Bullet Tracer Effects
+3.8.1 Model: Uses a 3d model to show the weapon tracer effects.
+3.8.2 Particle: Uses a particle based projectile for the tracers.
+3.8.3 Trail: Uses an instant trail showing the trajectory, a beam of light.
+3.8.4 Particle Trail: Combines both "particle" and "trail" options.
+3.8.5 None: No tracers at all.
+
+3.9 BFG Lasers: Toggles on/off the visual effect of the BFG lasers when
+    it attacks monsters. Turn this off if the BFG lags too much for you.
+    Default is "on".
+
+3.10 ZDoom Crosshair: Since D4D includes custom reticles, ZDoom's crosshair 
+     is recommended to be OFF (none).
+
+
+    * Other effects *
+3.11 Monster Lazers: Toggles between "Fancy" and "Faster" lazer effects for some
+     monsters. This is particularly relevant in cases where there are too
+	 many laser monsters at the same time, as it can have a big hit in performance.
+
+3.12 Voxels: Toggle voxels on/off. If you turn this off, visual glitches will
+     occur, yet it might help with performance in some extreme cases. GZDOOM RESETS
+     THIS VALUE BACK TO "ON" EVERY TIME YOU OPEN GZDOOM.
+
+3.13 Blood HUD effect: Toggles on/off the effect of blood splattered on screen when
+     you take damage (this only appears when you have no armor). Default "on".
+
+3.14 Rocket Explosion Quakes: Toggles on/off quake effects when explosions
+     happen near you. On by default.
+
+3.15 Particle Type: To select whether you want square, round or smooth zdoom
+     particles.
+    
+3.16 Max Amount of Particles: It is suggested to go as high as possible, since
+     D4D uses a lot of particles for all the effects.
+
+3.17 Max Fx Render Distance
+3.18 Max Fx Dist (faster)
+     These two options changes how far away from player will some fx stop rendering,
+     The second option increases the number much faster than the first.
+    
+
+
+
+//-------------------------------------------------------------------------------
+
+4 . * D4D General Options * 
+
+//-------------------------------------------------------------------------------
+
+General options that you might want to change right away
+
+    ** Gameplay options **
+
+4.1 Monster type:
+4.1.1 D4D: This replaces all vanilla monsters with their D4D counterpart. These
+      monsters are more aggressive and more challenging than their vanilla
+      versions. This is the default, since the mod was balanced towards using
+      these. Monsters have no undodgeable attacks, but their projectiles are
+      much faster than the vanilla doom monsters. Almost all of the D4D
+      monsters use custom graphics.
+4.1.2 Original Doom: They look and behave like vanilla. No changes to any of
+      their values, being health, damage, or speed. They only have slighly
+      visually updated projectile attacks, but the behavior remains the same.
+      These monsters are the "easy" ones compared to D4D.
+
+4.2 Monster Drop Loot: Toggles on/off the loot monsters might drop when they
+    are killed in a variety of ways. This does not affect the ammo they would
+    drop in vanilla Doom. When "off" Chainsaw finishers (Chainsaw alt fire)
+    will still drop ammo, but much less.
+
+4.3 Double Jump: Toggles on/off the ability to perform a double jump. This is
+    recommened to use at your own discretion, since vanilla maps are not
+    designed with jumping in mind, much less double jumping. However, if you
+    do have double jump enabled, it's highly recommended to set SV_AIRCONTROL
+    on the console to 0.2.
+
+4.4 Ledge Grabbing: Toggles on/off the ability to grab ledges. Much like 
+    "double jump", use at your own discration. It can lead to some unexpected
+	results, and allow to climb to places you werent supposed to reach. 
+	Default "On"
+
+4.5 Syphon Strength: This affects how much health/armor the syphon grenade
+    gives when hitting monsters. "Easy" gives more health, while "hard" gives
+    less.
+
+
+    ** Monster behaviour **
+
+4.5 Archvile Monster Infights: By default, D4D archviles cannot be targetted
+    by other monsters. When you turn this on, they can be targeted by other 
+    monsters to cause infights.
+	
+4.6 D4D HellKnight Melee Only: Toggles ON/OFF the HK being able to only
+    perform melee attacks. When this is ON, HK will be faster and more
+	aggressive, and still be able to perform "Leap" attacks, but not
+	projectile attacks. When This is OFF, HK will be regular speed,
+	and also able to do projectile attacks.
+
+
+    ** Demon Runes **
+	
+4.8 Spawn Demon Runes: This option allows you to choose how often do
+    you want demon runes to spawn in the game.
+	OFF: Runes will never spawn
+	Common: Runes will be fairly easy to get
+	Rare:  Runes will be difficult to find
+	
+4.9 Silent Idle Demon-Player: Toggles ON/OFF. Default "ON". A demon player
+    will by default play idle noises at random intervals. Setting this
+	option to "OFF" will prevent these sounds from playing.
+	
+4.10 Show HUD Demon Name: Default YES. Displays the name of the demon you
+     morphed into, for as long as you're morphed.
+
+4.11 Demon Rune Warning: Default ON. Displays a warning to not save/load
+     nor exit a level while morphed. "When ON" message displays for as long
+	 as you are in demon form.
+
+    ** Multiplayer Weapons **
+
+4.12 Multiplayer Weapons Spawn in SP: Toggles ON/OFF the spawning of the Doom4
+     multiplayer weapons that are included in D4D. When OFF, these weapons
+     (Lightning Gun, Static Rifle, Vortex Rifle, Repeater, Carrion Cannon*) will 
+	 no longer spawn in game.
+	 * Carrion Cannon: This is the former "Hellshot". 
+
+4.13 Spawn Style: Determines how are the MP weapons going to spawn throughout
+     the game. 
+	 -Progressive (default): The MP weapons will spawn based on the weapons
+	  you already have. A static rifle will only spawn until you have a 
+	  Combat Shotgun, a LightningGun will spawn only until you have a Plasma
+	  Rifle, etc. This is to space out the rate at which you obtain weapons in
+	  the game. Recommended for multiple-map wads, since it relies on reaching 
+	  the next level to spawn the new weapons.
+	 -Random: MP weapons will spawn alongside any other weapon placed in the map.
+	  This allows to get the MP weapons rather quickly. Recommended for single
+	  huge maps, since it doesnt require player to reach new maps in order
+	  for the weapons to spawn.
+    NOTE: Regardless of which option is selected here, the Carrion Cannon
+	still spawns under it's own rules. See section 5 "D4D Weapons" for more
+	details.
+
+    ** Footsteps **
+
+4.14 Footsteps frequency: Alters how often footsteps are played. The higher the
+     number, the more frequent the footsteps are.
+
+4.15 Footsteps volume: Alters the volume of the footsteps. The higher the value,
+     the louder the sounds.
+
+
+
+//-------------------------------------------------------------------------------
+
+5 . * Weapons *
+
+//-------------------------------------------------------------------------------
+
+Fist: Basic melee weapon. You should avoid using this one, since you have your
+  blaster all the time, and it has infinite ammo. The fist is only useful for
+  the Berserk powerup. Will perform glory kill automatically.
+
+Blaster: Hitscan attack, unlimited ammo. While the weapon is weak, it's very easy
+  to spam the primary fire and keep small monsters at bay. Alt fire will charge
+  energy, when released, depending on the charge, is how much damage it will deal.
+  The max charge shot will always be enough to take down an imp.
+ - Upgrade 1, Faster Charge: Allows secondary fire to charge faster.
+ - Upgrade 2, Secondary Damage: Charged shot will deal more damage.
+ - Upgrade 3, Primary Damage: Increases damage for primary fire.
+ - Upgrade 4, Full Auto: Allows the weapon to be fired continuously by holding
+   the "fire" button. Tapping is still faster, but you now can save your mouse's
+   lifespan a little longer. Heh.
+
+Shotgun: You know how the regular shotgun works.
+ - Trishot module: It fires 3 shots in a row, however, these are stronger than
+   your regular shotgun shots, so it's pretty good to deal that extra chunk of 
+   damage to those revenants. 
+ - Explosive round: I call it "Grenade". It's basically a rocket affected by
+   gravity. This projectile deals no impact damage, only explosive damage, so 
+   you better aim it in a way it deals the most damage to several enemies.
+
+Super Shotgun: Double barrelled fun.
+ - NOTE: You can now turn Double Trouble on and off with the "Mod Switch" key at
+        any time.
+ - Upgrade 1, Faster Reload: Reloading faster means you can shoot again, sooner.
+ - Upgrade 2, Piercing Shots: Penetrates all enemies.
+ - Upgrade 3, Narrowed Cylinders: Increases the horizontal accuracy. Stacks VERY
+        nicely with Piercing Shots.
+ - Upgrade 4, Double Double Trouble trouble: 
+    "DOUBLE THE GUN. DOUBLE THE FUN." - Serious Sam 2
+    What's not to like about quick slinging two super shotguns that you can
+    single OR dual fire both barrels? If mastered, one can easily stunlock 
+    enemies into their pain states with enough practice.
+
+Repeater: Semi auto, high precision hitscan. Primary fires a burst of 3 bullets.
+   Secondary fires a flare shot.
+ - Upgrade 1, Pierce Shot: Allows primary fire to pierce ONE target.
+ - Upgrade 2, Primary Damage: Increases damage significantly while also 
+   raising the ammo cost.
+ - Upgrade 3, Secondary Damage: Flares will deal more damage over time.
+ - Upgrade 4, Secondary Ammo: Decreases the ammo used by the alt fire.
+   
+
+Heavy Assault Rifle: Rapid fire hitscan. Simple enough.
+ - Scope Module: Not only it gives you the ability to zoom, it also gives you
+   piercing bullets that go through monsters.
+ - Micro Missiles: And bottomless too. They stick into monsters and deal explosion
+   damage. They might look weak, but once you stick enough of them into a monster
+   you dont even have to worry about aiming at it. It'll just die.
+
+Chaingun: Rotates. Shoots bullets. Really fast.
+ - Gatling rotator: Similar to Doom4's, it rotates the barrels to have the weapon
+   ready to fire at any time. However, it shoots explosive bullets. And they wreck.
+ - Mobile Turret: When deployed, it will make you slower, but firing this thing
+   means killing anything in front of you, quickly, so long as you have ammo for it.
+ - ???: Rumor has it that someone has something special for you, should you put
+   the effort into it... comrade.
+
+Rocket Launcher: Launches a rocket.
+ - Lock On: While you hold alt fire, it will attempt to lock to a monster you are
+   aiming at. If successful, you'll see the monster marked. Press fire after that
+   and three rockets will go after that one target. One target at the time folks.
+ - Detonate: Alt fire detonates the "charges around the rocket", meaning, it will
+   explode, but wont destroy the rocket. Time it well and you can deal a ton of
+   damage to one single enemy.
+
+Plasma Rifle: Projectile based, rapid fire weapon.
+ - Heatblast: While equipped, it will passively build up heat. Alternatively, you
+   can just "fire" and it will build the charge up much faster. Once you release
+   the charge, things very close to you will very likely die. The damage depends
+   on the amount of heat charged.
+ - Stun Bomb: When the projectile hits something it will create a "stun explosion"
+   paralyzing any monster near the explosion. Cyberdemons and Masterminds are 
+   unaffected.
+
+Lightning Gun: Your highly damaging, ammo eater, beam lightning gun.
+ - Upgrade 1, Ammo Saving: Allows the weapon to use less ammo randomly.
+ - Upgrade 2, Range: Increases the maximum range for the weapon.
+ - Upgrade 3, Damage: Increases damage of the weapon all around.
+ - Upgrade 4, Chain Lightning: Allows to use the chain lightning alt fire.
+ 
+ Vortex Rifle: Basically a railgun, with a scope. Scope also increases damage
+  ever so slightly. Primary fire pierces targes while unzoomed.
+  - Upgrade 1, Extra Base Damage: Increases the non-scoped damage.
+  - Upgrade 2, Ammo Saving: Allows the weapon to use less ammo per shot.
+  - Upgrade 3, Zoom Movement: Removes the movement speed penalty when zooming.
+  - Upgrade 4, Zoomed Pierce: Allows zoomed shots to pierce through targets.
+
+Static Rifle: This one is easy. Unlimited ammo, but you MUST charge the weapon
+   before you can fire it. You charge it by moving around. Once it has a charge,
+   you can fire the laser-like attack. Depending on the charge level is the damage
+   output. You should use this one for cool flick shots in the middle of a big arena
+   while you run around like crazy. When fully charged, the shot will pierce
+   monsters. Stayin still will slowly discharge the weapon.
+ - Upgrade 1, Faster Charge: Charges faster.
+ - Upgrade 2, Reduced Drain: Charges faster, charge drains slower.
+ - Upgrade 3, Pierce Shots: All of the above, and shots pierce targets.
+ - Upgrade 4, Multi Shot: Weapon allows several shots with one charge.
+
+Gauss Cannon: Fires a laser-like powerful hitscan attack. Keep in mind if you're
+   not on the floor, the weapon will push you in the opposite direction to where
+   you are aiming. Meaning, you can technically do cool "Gauss Cannon jumping", or
+   fall into a bottomless pit because you shot at the wrong time. 
+ - Precision Shot: You can use a scope, and the weapon will charge. The bigger the
+   charge, the more damage it deals. When the shot hits a target, it creates an
+   explosion around it. Good for dealing with crowds.
+ - Siege Mode: You will move like a snail when you have this deployed, but the shot 
+   goes through monsters and deals a ton of damage to things around the beam. It 
+   doesn't even have to hit them directly to devastate just about everything.
+   Expensive as hell on the ammo though.
+
+Chainsaw: It's both the chainsaw from the original Doom and Doom4.
+ - Primary fire uses no ammo, and acts like the original doom's. Close and personal.
+   Added bonus: Monsters killed with primary fire will always drop health and 
+   DOUBLE the amount of credits given by the monster killed.
+ - Secondary fire, it uses fuel ammo to perform a supercharged attack which will
+   destroy whatever was in front of you, so long as you have the ammo to do so.
+   Monsters killed with alt fire will drop x4 credits.
+   (So many credits! One could do a "barrel" roll in excitement!)
+
+BFG: Ammo is very scarce, but for good reason. The energy ball fired from this
+   weapon fires argent beams to nearby monsters. Any monsters that were beamed,
+   will die helplessly when the main projectile explodes. Also, the explosion is
+   huge and kills just about anything around it. Cyberdemons and Masterminds are
+   unnafected by the "death sentence" tagging of the argent beams. They, however,
+   still take all the damage from the explosion. Everything dies with one shot,
+   except those big mofos. They take two shots.
+  - Upgrade 1, Ammo Capacity: Increases max BFG ammo by 1 (3 to 4).
+  - Upgrade 2, Orbit Shot: Using alt fire, a BFG energy ball orbits the player. 
+        It also electrocutes all nearby enemies. Passes through all objects but
+        explodes with the same force as the primary.
+  - Upgrade 3, Faster Shot: Projectile moves faster, lighning deals more damage.
+  - Upgrade 4, Redirect Shot: "Switch Mod" key gains a use. While a BFG ball is
+        flying (primary only), press the key to send the projectile towards the
+        aimed location. This can only be done once per projectile.
+   
+Carrion Cannon: See below.
+   
+Grenades: The following 3 types of grenades are unlimited, but they have a
+          regenerating time of about 10 seconds, is said time, you cannot use any 
+          of the grenades.
+ - Frag Grenade: If it hits a monster, it will explode on impact. If it doesn't hit a
+   monster, it will start a quick fuse that will detonate it.
+ - Holo Grenade: When used, it spawns in front of you a holographic marine that will
+   attract all nearby monsters to attack it.
+ - Syphon Grenade: Upon impact on a surface or object, it will detonate, creating an
+   area of effect explosion. This will steal life or armor from the monsters caught 
+   in the sphere.
+
+- d4d_JumpExploit - 
+Grants disproportionate jumping height when multi jump is tapped fast, by stacking z-speed.
+This allows players to go flying sky high. Set this to true if you enjoy flying sky high. 
+Not all the developers agree it was an exploit so we left it as a toggle, and this is your
+reward for getting through this. Congratulations!
+
+================================================================================
+                                Carrion Cannon
+================================================================================
+- What kind of weapon is this?
+
+    One you build from demon guts. 
+    
+    This weapon rivals the BFG where the BFG struggles, against singular big 
+    targets like the Cyberdemon and Spider Mastermind. This weapon is excellent
+    for wiping out blind spots and ambush corners where enemies can usually
+    rain Hell down upon you from afar with annoyingly pin point accuracy. 
+    You can also dish out lots of damage by charging out of sight after 
+    hooking an enemy on the run and blowing them apart without needing to be 
+    in view.
+
+- How do I get it?
+    
+    You will need to acquire an uncertain amount of carrion which drops from
+    GIBBED ENEMIES. Gotta make 'em go SPLAT. Pick up the pinkish red bullets
+    (ewww) to further the progress. It will take a while, however. The more
+    monsters are available for the WAD you play, the more likely you'll wrack 
+    up the necessary amount to earn it (Chillax, anyone? ;))
+    
+- How do I use it?
+
+                           --- Primary Fire ---
+    Press and hold. The weapon shoots out a projectile that seeks after
+    the nearest enemy. Costs no ammo to shoot or miss. When it connects
+    with an enemy, it will latch on and start sucking out carrion from 
+    your supply. FAST. Drains 14 carrion per tic, or 1000 over 2 seconds.
+    For every tic carrion is consumed, the damage increases by ~75. 
+    Hint: 800 Carrion is enough to kill a Cyberdemon.
+    
+    Let go of the primary at any time while hooked to detonate.
+    
+                           --- Secondary Fire ---
+    Opens portals over a maximum of five enemies and spills forth a
+    column of fire. This fire cannot be dodged and will always hit the
+    target. Consumes 500 carrion no matter how many portals are opened,
+    but the fewer targets there are, the stronger the flame.
+    
+                            --- Mod Switch ---
+    Absorbs all nearby corpses, feeding you with double the carrion per
+    corpse. Simply put, non-gibbed enemies have lots more to harvest
+    from. 'Nuff said.
+    
+- Upgrade 1, Decay Minimizer: Each carrion pickup provides more ammo.
+- Upgrade 2, Cell Purifier: Decreases ammo cost of each shot.
+- Upgrade 3, Vorpal Stinger: Primary pains the target every 7 tics.
+- Upgrade 4, Argent Accumulator: Alt fire portals last longer.
+
+
+
+//------------------------------------------------------------------------------
+
+6. * Praetor Suit Upgrades * 
+
+//------------------------------------------------------------------------------
+
+- Health: Upgrades the maximum health, allowing medikits and non-bonuses to heal
+    by the amount listed.
+- Armor: Upgrades the maximum armor, allowing lesser armor pickups to fulfill up
+    to the amount listed.
+- Jumping: Allows for higher jump, triple jump, and better air control when
+    purchasing each.
+- Credits: Enhances how much credits one receives in ALL categories:
+    - Kills
+    - Secrets
+    - Quotas
+    - Completionist
+    - Melee
+    - Chainsaw Instakill
+- Protection: Provides various protections against different elements based on
+    upgrade.
+    - Environmental Protection reduces crushing, falling, slime, etc. by 50%.
+    - Self Protection mitigates 50% damage from your own explosions.
+    - Radius Protection mitigates 50% radius damage from enemies.
+- Crates:
+    - Heavy removes small items from spawning.
+    - Situational attempts to bias towards what you need more (what you're lowest on such as 
+    health, armor, and ammo -- not guaranteed, but biased!)
+    - Weapon crates add the chance to spawn a weapon, or increased amounts of good stuff.
+    ***NOTE:*** Carrion (Cannon) will NEVER spawn.
+	
+//------------------------------------------------------------------------------
+
+7. * Demon Runes * 
+
+//------------------------------------------------------------------------------
+
+	***NOTE:***
+	To prematurely end a morph, simply press your "Mod Switch" key.
+
+	Demon runes drop from various enemies, spanning the range of the 
+	cacodemon to the cyberdemon and spider mastermind (in terms of Doom 
+	caste, excluding the lost soul). All of them last for one minute and
+	grant vast demonic powers to the wielder. All morphs have a primary
+	and secondary attack.
+	
+	The runes themselves will vanish after a minute. However, that timer
+	is frozen if you have a pentagram of protection or are already morphed.
+	This allows you to return to the area and use another rune after the
+	pentagram/morph expires.
+	
+	Once a morph expires, you have three seconds of invulnerability. Use
+	it to get away from a sticky situation immediately.
+	
+	
+	

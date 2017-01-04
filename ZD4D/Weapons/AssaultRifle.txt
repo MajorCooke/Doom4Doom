@@ -1,0 +1,1068 @@
+//===================================================================================================
+//===================================================================================================
+//
+//		Machinegun
+//
+//	Sprites: Neccronixis
+//	MuzzleFlash sprite edit: DBThanatos
+//	Original Code: DBThanatos
+//	Code rewrite + layer support: Major Cooke
+//	Offset tweaks: Xaser
+//
+//===================================================================================================
+//===================================================================================================
+Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
+{
+	Default 
+	{
+		+WEAPON.NOALERT
+		+INVENTORY.UNDROPPABLE
+		+INVENTORY.UNTOSSABLE
+		Weapon.SlotNumber 1;
+		Inventory.PickupMessage "Heavy Assault Rifle! The classic catch-all solution.";
+		Tag "Heavy Assault Rifle";
+		Weapon.AmmoType1 "D4Bullets";
+		Weapon.AmmoGive1 20;
+		Weapon.AmmoUse1 1;
+		Scale 0.6;
+		Weapon.SelectionOrder 40;
+		+DONTGIB
+	}
+	States
+	{
+	Spawn:
+		WPPK E -1;
+		Stop;
+	
+	//-------------------------------------------------------
+	// Deselect sequence
+	//-------------------------------------------------------
+	Deselect:
+		"####" "#" 0
+		{
+			A_TakeInventory("AltFireToken",32767,0);
+			ACS_NamedExecute("RemoveModText",0,0,0,0);
+			A_TakeInventory("MGMissileToken",32767,0);
+			if (CountInv("MGZoomToken"))
+			{
+				A_TakeInventory("MGZoomToken",32767,0);
+				return ResolveState("ZoomDeselect");
+			}
+			return ResolveState("DesLoop");
+		}
+	DesLoop:
+		"####" "#" 1 A_Lower;
+		"####" "###" 0 A_Lower;
+		Loop;
+	ZoomDeselect:	//this one has assigned sprites because if it reached here, it HAD to had the scope
+		ARSI A 1
+		{
+			A_TakeInventory("MGZoomToken",32767,0);
+		//Zoom Out
+			A_ZoomFactor(1.0);
+			A_PlaySound("Doom4/Weapon/Machinegun/ZoomOut", 8, 1.0, 0);
+		}
+		Goto DesLoop;
+	//-------------------------------------------------------
+	// Select sequence
+	//-------------------------------------------------------
+	Select:
+		M666 A 0 // Be safer about sprite selection.
+		{
+			ACS_NamedExecute("RemoveModText",0,0,0,0);
+			if (CountInv("MicroMissilesActive"))
+			{	return ResolveState("PrepareMicroMissilesSpriteSelect");	}
+			if (CountInv("TacticalScopeActive"))
+			{	return ResolveState("PrepareTacticalScopeSpriteSelect");	}
+			return ResolveState("PrepareNormalSpriteSelect");
+		}
+		
+		PrepareNormalSpriteSelect:
+			ARNI A 0 A_Jump(256,"ResumeSelectSequence");
+			Goto ResumeSelectSequence;
+		PrepareMicroMissilesSpriteSelect:
+			ARMI A 0 A_Jump(256,"ResumeSelectSequence");
+			Goto ResumeSelectSequence;
+		PrepareTacticalScopeSpriteSelect:
+			ARSI A 0 A_Jump(256,"ResumeSelectSequence");
+			Goto ResumeSelectSequence;
+			
+	ResumeSelectSequence:
+		"####" "#" 1 A_Raise;
+		"####" "###" 0 A_Raise;
+		Loop;
+	
+	//-------------------------------------------------------
+	// Ready sequence
+	//-------------------------------------------------------
+	Ready:
+		ARSI A 0
+		{
+			if (CountInv("TacticalScopeActive"))
+			{
+				if (CountInv("AltFireToken"))
+				{	return ResolveState("HoldScope");	}			// We're holding it zoomed.
+				else
+				{	return ResolveState("TacticalScopeReady");	}	// Just the normal unzoomed sprite.
+			}
+			else if (CountInv("MicroMissilesActive"))
+			{
+				if (CountInv("AltFireToken"))
+				{	return ResolveState("MissilesReady");	}		// Up and open
+				else
+				{	return ResolveState("MicroMissilesReady");	}	// Closed
+			}
+			return ResolveState("NormalSpriteReady");	
+		}
+		
+		MicroMissilesReady:
+			ARMI A 0 A_Jump(256,"ResumeReadySequence"); //I just know someone's going to abuse fast weapons.
+			Goto ResumeReadySequence;
+		
+		TacticalScopeReady:
+			ARSI A 0 A_Jump(256,"ResumeReadySequence");
+			Goto ResumeReadySequence;
+		
+		NormalSpriteReady:
+			ARNI A 0 A_Jump(256,"ResumeReadySequence");
+			Goto ResumeReadySequence;
+			
+	ResumeReadySequence:
+		"####" "#" 0
+		{
+			if(countinv("TacticalScopeActive")>=1)
+			{	ACS_NamedExecute("ModSelectedText",0,1,0,0); }	//print Tactical scope
+			if(countinv("MicroMissilesActive")>=1)
+			{	ACS_NamedExecute("ModSelectedText",0,2,0,0); }	//print Micro missiles
+			
+			if (CountInv("MGZoomToken"))
+			{	return ResolveState("ZoomOut");	}
+			if (CountInv("MGMissileToken"))
+			{	return ResolveState("MissilesClose");	}
+			return ResolveState("VeryReady");
+		}
+	VeryReady:
+		"####" "#####" 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+		Loop;
+	//-------------------------------------------------------
+	// Regular fire
+	//-------------------------------------------------------
+	Fire:
+		"----" A 0
+		{
+			// If holding the alt-fire, go to fire zoomed.
+			// Otherwise, grab the sprite and get rolling.
+			if (CountInv("TacticalScopeActive"))
+			{	
+				if (CountInv("AltFireToken"))
+				{
+					if (GetPlayerInput(INPUT_BUTTONS) & BT_ALTATTACK)
+					{	return ResolveState("FireZoomed");	}
+					return ResolveState("ZoomOut");
+				}
+				else
+				{	return ResolveState("TacticalScopeSprite");	}
+			}
+			
+			
+			// Same thing here.
+			if (CountInv("MicroMissilesActive") && CountInv("AltFireToken"))
+			{	return ResolveState("MissilesFire");	}
+			else if (CountInv("MicroMissilesActive"))
+			{	return ResolveState("MicroMissilesSprite");	}
+			
+			// We don't have a mod. Don't keep the token.
+			A_TakeInventory("AltFireToken",32767,0);
+			return ResolveState("NormalSprite");
+		}
+	FireNormal:
+		NormalSprite:
+			ARNF A 0 A_Jump(256,"FireNormalLooper");
+			Goto FireNormalLooper;
+		MicroMissilesSprite:
+			ARMF A 0 A_Jump(256,"FireNormalLooper");
+			Goto FireNormalLooper;
+		TacticalScopeSprite:
+			ARSF A 0 A_Jump(256,"FireNormalLooper");
+			Goto FireNormalLooper;
+	FireNormalLooper:
+		"####" A 1 Bright
+		{
+			if(!CountInv("MachinegunFireToken"))
+			{
+				A_PlaySound("Doom4/Weapon/Machinegun/Fire",5,1);
+				A_GiveInventory("MachinegunFireToken",1);
+			}
+			else
+			{
+				A_PlaySound("Doom4/Weapon/Machinegun/Fire",6,1);	//it plays in another channel
+				A_TakeInventory("MachinegunFireToken",1);
+			}
+			if (GetCvar("user_Casings"))
+			{	A_SpawnItemEx("HARCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);	}
+			
+			if (GetCvar("user_TracerFX") > 0)	{	A_FireBullets(1,1,1,6,"D4BulletPuff",PuffTracer|FBF_USEAMMO,0,"BulletTracerFX",-1,7); 	}
+			else							{	A_FireBullets(1,1,1,6); 	}
+			
+			A_AlertMonsters();
+			A_GunFlash("Null");
+			if(GetCvar("HQEffectsWeapons"))
+			{
+				A_FireProjectile("MGSmokeSpawner",0,0,5,2);
+			}
+			A_SetPitch(pitch-0.5);
+			A_ZoomFactor(0.995,ZOOM_NOSCALETURNING);
+			A_SetBlend("orange",0.03,6);
+			A_SetTics(CountInv("PowerD4DFS") ? 0 : 1);
+		}
+		"####" B 1 Bright 
+		{	
+			A_WeaponOffset(4,4,WOF_ADD);
+			A_ZoomFactor(1,ZOOM_NOSCALETURNING);
+		}
+		"####" C 1 Bright 
+		{
+			A_WeaponOffset(-2,-2,WOF_ADD);
+			A_SetPitch(pitch+0.25);
+		}
+		"####" D 1 Bright
+		{
+			A_WeaponOffset(-2,-2,WOF_ADD);
+			A_SetPitch(pitch+0.25);
+		}
+		"####" D 1
+		{
+			if ((GetPlayerInput(INPUT_BUTTONS) & BT_ALTATTACK) && 
+				(CountInv("TacticalScopeActive") || (CountInv("MicroMissilesActive"))))
+			{	return ResolveState("AltFire");	}
+			A_SetTics(CountInv("PowerD4DFS") ? 0 : 1);
+			return ResolveState(null);
+		}
+		"####" D 0 A_Refire("FireNormalLooper");
+		Goto Ready;
+		
+		
+	//-------------------------------------------------------
+	// No ammo, used for the alt fires
+	//-------------------------------------------------------
+	NotEnoughAmmo:
+		"####" "#" 5 
+		{
+			ACS_NamedExecute("NotEnoughAmmo",0,0,0);
+			A_TakeInventory("MGMissileToken",32767,0);
+			A_TakeInventory("AltFireToken",32767,0);
+		}
+		Goto Ready;
+	//-------------------------------------------------------
+	// Alt fires
+	//-------------------------------------------------------
+	AltFire:
+		"####" "#" 0 
+		{
+			
+			if (!CountInv("AltFireToken"))		//Always give at least a token.
+			{	A_GiveInventory("AltFireToken",1);	}
+			if (CountInv("AssaultRifleMod1") && CountInv("TacticalScopeActive"))
+			{	
+				if (CountInv("MGZoomToken"))
+				{	return ResolveState("HoldScope");	}	// Already scoped.
+				return ResolveState("StartScope");			// Begin zooming in.
+			} 	
+			if (CountInv("AssaultRifleMod2") && CountInv("MicroMissilesActive"))
+			{	
+				if (CountInv("MGMissileToken") && CountInv("D4Bullets") > 1)
+				{	
+					return ResolveState("MissilesReady");	
+				}	// Already raised.
+				A_PlaySound("Doom4/Weapon/Machinegun/MinMissilePrepare",6);
+				return ResolveState("StartMicro");				// Begin raising the micro missiles.
+			}
+			
+			
+			return ResolveState("AltHoldNone");
+		}
+	AltHoldNone:
+		"####" "#" 1 A_WeaponReady(WRF_NOSECONDARY);
+		"####" "#" 0 A_Refire("AltHoldNone");
+		"####" "#" 0 A_TakeInventory("AltFireToken",32767,0);
+		Goto Ready;
+		
+
+		//-------------------------------------------------------
+		// Scope
+		StartScope:
+			//Zoom In
+			ARSI A 3
+			{
+				A_ZoomFactor(2.5);
+				A_PlaySound("Doom4/Weapon/Machinegun/ZoomIn", 8, 1.0, 0);
+				A_GiveInventory("MGZoomToken",1);
+			}
+		HoldScope:
+			R016 N 1 A_WeaponReady(WRF_NOSECONDARY|WRF_NOBOB); // Allow primary fire.
+			"####" "#" 0 
+			{
+				if (GetPlayerInput(MODINPUT_BUTTONS) & BT_ALTATTACK)
+				{	return ResolveState("HoldScope");	}
+				return ResolveState(null);
+			}
+		ZoomOut:
+			//Zoom Out
+			ARSI A 3
+			{
+				A_ZoomFactor(1.0);
+				A_StopSound(6);
+				A_PlaySound("Doom4/Weapon/Machinegun/ZoomOut", 8, 1.0, 0);
+				A_TakeInventory("MGZoomToken",32767);
+				A_TakeInventory("AltFireToken",32767,0);
+			}
+			Goto Ready;
+			
+		FireZoomed:
+			R016 N 1 Bright
+			{
+				if (!CountInv("MachinegunFireToken"))
+				{
+					A_PlaySound("Doom4/Weapon/Machinegun/FireZoomed",5,1);
+					A_GiveInventory("MachinegunFireToken",1);
+				}
+				else
+				{
+					A_PlaySound("Doom4/Weapon/Machinegun/FireZoomed",6,1);	//it plays in another channel
+					A_TakeInventory("MachinegunFireToken",1);
+				}
+				A_AlertMonsters();
+				A_GunFlash("Null");
+				A_FireBullets(0,0,1,2);	//while this is there for the puff, it also deals 2*random(1,3) extra damage to first target hit
+				A_RailAttack(6*random(1,3),0,0,-1,-1,RGF_SILENT);
+				//casings check
+				if (GetCvar("user_Casings"))
+				{	
+					A_SpawnItemEx("HARCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);	
+				}
+				//tracer check
+				if (GetCvar("user_TracerFX") > 0)	
+				{	
+					A_FireBullets(0,0,1,0,"D4BulletPuff",PuffTracer,0,"BulletTracerFX",-1,0); 	
+				}
+				else							
+				{	A_FireBullets(0,0,1,0); 	}
+				
+				A_SetPitch(pitch-0.4);
+				A_SetBlend("orange",0.03,6);
+			}
+			"####" N 1 Bright A_SetTics(CountInv("PowerD4DFS") ? 0 : 1);
+			"####" NN 1 Bright A_SetPitch(pitch+0.2);
+			"####" N 1
+			{
+				A_SetTics(CountInv("PowerD4DFS") ? 0 : 1);
+				//Holding both
+				if ((GetPlayerInput(INPUT_BUTTONS) & BT_ALTATTACK) &&
+					(GetPlayerInput(INPUT_BUTTONS) & BT_ATTACK))
+				{
+					return ResolveState(null);
+				}
+				//Secondary
+				else if (GetPlayerInput(INPUT_BUTTONS) & BT_ALTATTACK)
+				{
+					return ResolveState("HoldScope");
+				}
+				//Primary
+				else if (GetPlayerInput(INPUT_BUTTONS) & BT_ATTACK)
+				{
+					return ResolveState("ZoomOut");
+				}
+				return ResolveState(null);
+			}
+			"####" N 0 A_Refire("FireZoomed");
+			Goto HoldScope;
+		
+		//-------------------------------------------------------
+		// MiniMissiles
+		FireMod2:
+		StartMicro:
+			ARMI A 0 
+			{
+				if (CountInv("D4Bullets") >= 2 || GetCvar("sv_infiniteammo") > 0)
+				{	return ResolveState("MissilesOpen");	}
+				return ResolveState("NotEnoughAmmo");
+			}			
+		MissilesOpen:
+			ARMR A 0 
+			{
+				A_GiveInventory("MGMissileToken",1);
+				return A_JumpIf(CountInv("PowerD4DFS"),"MissilesOpenFast");
+			}
+			ARMR ABCDEF 1;
+			Goto MissilesReady;
+		MissilesOpenFast:
+			ARMR ACE 1;
+			Goto MissilesReady;
+		MissilesReady:
+			ARMR F 1 A_WeaponReady(WRF_NOSECONDARY);
+			ARMR F 0 A_Refire("MissilesReady");
+			Goto MissilesClose;
+		MissilesClose:
+			ARMR A 0 
+			{
+				A_TakeInventory("MGMissileToken",32767,0);
+				A_TakeInventory("AltFireToken",32767,0);
+				A_PlaySound("Doom4/Weapon/Machinegun/MinMissileRelease",6);
+			}
+			ARMR E 1 { A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMR D 1;
+			ARMR C 1 { A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMR B 1;
+			ARMR A 1 { A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			Goto Ready;
+		
+		
+		MissilesFire:
+			ARMR F 0
+			{
+				if (CountInv("D4Bullets") < 2 && !GetCvar("sv_infiniteammo"))
+				{	return ResolveState("MissilesClose");	}
+				A_AlertMonsters();
+				A_GunFlash("Null");
+				if(GetCvar("HQEffectsWeapons"))
+				{
+					A_FireProjectile("MGSmokeSpawner",0,0,5,2);
+					A_FireProjectile("MGMiniMissile",0,0,5,2);	//fires the regular micro missiles
+				}
+				else
+				{
+					A_FireProjectile("MGMiniMissileNoTrail",0,0,5,2);	//micro missiles without trail
+				}
+				
+				A_TakeInventory("D4Bullets",2,TIF_NOTAKEINFINITE);
+				A_SetPitch(pitch-0.5);
+				A_PlaySound("Doom4/Weapon/Machinegun/MiniMissileFire",5,1);
+				A_SetBlend("orange",0.03,6);
+				
+				// Go by n-1 here. 
+					 if (CountInv("MicroMissilesCounter") <= 0)	{	A_GiveInventory("MicroMissilesCounter",1); 			return ResolveState("MissilesFire1"); }
+				else if (CountInv("MicroMissilesCounter") == 1)	{	A_GiveInventory("MicroMissilesCounter",1); 			return ResolveState("MissilesFire2"); }
+				else if (CountInv("MicroMissilesCounter") == 2)	{	A_GiveInventory("MicroMissilesCounter",1); 			return ResolveState("MissilesFire3"); }
+				else if (CountInv("MicroMissilesCounter") == 3)	{	A_GiveInventory("MicroMissilesCounter",1); 			return ResolveState("MissilesFire4"); }
+				else if (CountInv("MicroMissilesCounter") == 4)	{	A_GiveInventory("MicroMissilesCounter",1); 			return ResolveState("MissilesFire5"); }
+				else 											{	A_TakeInventory("MicroMissilesCounter",32767,0);	return ResolveState("MissilesFire6");	}
+			}
+		
+		MissilesFire1:
+			ARMA B 1 Bright A_WeaponOffset(1.0, 33.0);
+			ARMA C 1      { A_WeaponOffset(3.0, 35.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA D 1      { A_WeaponOffset(1.5, 33.5); A_SetPitch(pitch+0.25); }
+			ARMA D 1      { A_WeaponOffset(0.0, 32.0); A_SetPitch(pitch+0.25); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA D 1;
+			ARMA D 0 A_Refire("MissilesFire");
+			"####" "#" 0 A_WeaponReady(WRF_NOPRIMARY);
+			Goto MissilesReady;
+		MissilesFire2:
+			ARMA E 1 Bright  A_WeaponOffset(1.0, 33.0);
+			ARMA F 1      { A_WeaponOffset(3.0, 35.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA G 1      { A_WeaponOffset(1.5, 33.5); A_SetPitch(pitch+0.25); }
+			ARMA G 1      { A_WeaponOffset(0.0, 32.0); A_SetPitch(pitch+0.25); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA G 1;
+			ARMA G 0 A_Refire("MissilesFire");
+			"####" "#" 0 A_WeaponReady(WRF_NOPRIMARY);
+			Goto MissilesReady;
+		MissilesFire3:
+			ARMA H 1 Bright A_WeaponOffset(1.0, 33.0);
+			ARMA I 1      { A_WeaponOffset(3.0, 35.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA J 1      { A_WeaponOffset(1.5, 33.5); A_SetPitch(pitch+0.25); }
+			ARMA J 1      { A_WeaponOffset(0.0, 32.0); A_SetPitch(pitch+0.25); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA J 1;
+			ARMA J 0 A_Refire("MissilesFire");
+			"####" "#" 0 A_WeaponReady(WRF_NOPRIMARY);
+			Goto MissilesReady;
+		MissilesFire4:
+			ARMA K 1 Bright A_WeaponOffset(1.0, 33.0);
+			ARMA L 1	{	A_WeaponOffset(3.0, 35.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA M 1	{	A_WeaponOffset(1.5, 33.5); A_SetPitch(pitch+0.25); }
+			ARMA M 1	{	A_WeaponOffset(0.0, 32.0); A_SetPitch(pitch+0.25); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA M 1;
+			ARMA M 0 A_Refire("MissilesFire");
+			"####" "#" 0 A_WeaponReady(WRF_NOPRIMARY);
+			Goto MissilesReady;
+		MissilesFire5:
+			ARMA N 1 Bright A_WeaponOffset(1.0, 33.0);
+			ARMA O 1	{ 	A_WeaponOffset(3.0, 35.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA P 1	{	A_WeaponOffset(1.5, 33.5); A_SetPitch(pitch+0.25); }
+			ARMA P 1 	{	A_WeaponOffset(0.0, 32.0); A_SetPitch(pitch+0.25); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA P 1	;
+			ARMA P 0 A_Refire("MissilesFire");
+			"####" "#" 0 A_WeaponReady(WRF_NOPRIMARY);
+			Goto MissilesReady;
+		MissilesFire6:
+			ARMA Q 1 Bright A_WeaponOffset(1.0, 33.0);
+			ARMA R 1      { A_WeaponOffset(3.0, 35.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA F 1      { A_WeaponOffset(1.5, 33.5); A_SetPitch(pitch+0.25); }
+			ARMA F 1      { A_WeaponOffset(0.0, 32.0); A_SetPitch(pitch+0.25); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMR F 1;
+			ARMR F 0 A_Refire("MissilesFire");
+			"####" "#" 0 A_WeaponReady(WRF_NOPRIMARY);
+			Goto MissilesReady;
+
+				
+		
+		
+
+	//-------------------------------------------------------
+	// Alt fire switcheroo
+	//-------------------------------------------------------
+	//PlasmaRifleMod1 - HeatBlast - TacticalScope
+	//PlasmaRifleMod2 - StunBomb - MicroMissiles
+
+	User1:
+		
+		"####" "#" 0 
+		{
+			if(countinv("AssaultRifleMod1")>=1) //if has TacticalScope
+			{
+				if(countinv("MicroMissilesActive")>=1) //but MicroMissiles was active
+				{
+					return ResolveState("FromMicroMissilesToTacticalScope");
+				}
+				else if(countinv("TacticalScopeActive")==0)
+				{
+					return ResolveState("FromNormalToTacticalScope"); //but if it didnt have MicroMissiles active, then it was in "normal"
+				}
+			}
+			if(countinv("AssaultRifleMod2")>=1) //if it has MicroMissiles
+			{
+				if(countinv("TacticalScopeActive")>=1) //but TacticalScope was active
+				{
+					return ResolveState("FromTacticalScopeToMicroMissiles");
+				}
+				else if(countinv("MicroMissilesActive")==0)	//if nothing was active,
+				{
+					return ResolveState("FromNormalToMicroMissiles"); //then it was in "normal" SG
+				}
+			}
+			else
+			{
+				ACS_NamedExecute("NoModsAvailable",0,0,0,0);
+			}
+			return ResolveState(null);
+		}
+		"####" "#" 5;
+		Goto Ready;
+
+
+		FromNormalToMicroMissiles:
+			"####" "####" 1 A_WeaponOffset(4,20,WOF_ADD);
+			TNT1 A 5;
+			ARMS AA 1 A_WeaponOffset(0,-15,WOF_ADD);
+			"####" "#" 0 A_PlaySound("Doom4/Weapon/Machinegun/SwitchToMissiles",5,1);
+			"####" "#" 0 A_GiveInventory("MicroMissilesActive",1);
+			ARMS BCDEFGHIJ 1 A_WeaponOffset(0,-4,WOF_ADD);
+			ARMS KKK 1 A_WeaponOffset(2,2,WOF_ADD);
+			ARMS KKK 1 A_WeaponOffset(-2,-2,WOF_ADD);
+			ARMS LMNN 1 A_WeaponOffset(-4,-2,WOF_ADD);
+			ARMI A 1 A_WeaponOffset(0,-2,WOF_ADD);
+			Goto Ready;
+			
+		FromNormalToTacticalScope:
+			"####" "####" 1 A_WeaponOffset(4,20,WOF_ADD);
+			TNT1 A 5;
+			ARSS AA 1 A_WeaponOffset(0,-10,WOF_ADD);
+			ARSS F 0  A_PlaySound("Doom4/Weapon/Machinegun/SwitchToScope",5,1);
+			ARSS F 0 A_GiveInventory("TacticalScopeActive",1);
+			ARSS ABCD 1 A_WeaponOffset(0,-10,WOF_ADD);
+			ARSS EF 1;
+			ARSS GGGHIII 2;
+			ARSS IJK 1;
+			ARSS LMNO 1 A_WeaponOffset(-4,-5,WOF_ADD);
+			Goto Ready;
+			
+		FromTacticalScopeToMicroMissiles:
+			"####" "####" 1 A_WeaponOffset(4,20,WOF_ADD);
+			TNT1 A 5;
+			"####" "#" 0 A_PlaySound("Doom4/Weapon/Machinegun/SwitchToMissiles",5,1);
+			"####" "#" 0 A_TakeInventory("TacticalScopeActive",1);
+			"####" "#" 0 A_GiveInventory("MicroMissilesActive",1);
+			ARMS AA 1 A_WeaponOffset(0,-15,WOF_ADD);
+			ARMS BCDEFG 1 A_WeaponOffset(0,-4,WOF_ADD);
+			ARMS G 3;
+			ARMS HIJ 1 A_WeaponOffset(0,-4,WOF_ADD);
+			ARMS KKK 1 A_WeaponOffset(2,2,WOF_ADD);
+			ARMS K 3;
+			ARMS KKK 1 A_WeaponOffset(-2,-2,WOF_ADD);
+			ARMS LMNN 1 A_WeaponOffset(-4,-2,WOF_ADD);
+			//ARMI A 1 A_WeaponOffset(0,-2,WOF_ADD);
+			Goto Ready;
+			
+		FromMicroMissilesToTacticalScope:
+			"####" "####" 1 A_WeaponOffset(4,20,WOF_ADD);
+			TNT1 A 5;
+			ARSS AA 1 A_WeaponOffset(0,-10,WOF_ADD);
+			ARSS F 0 
+			{
+				A_PlaySound("Doom4/Weapon/Machinegun/SwitchToScope",5,1);
+				A_TakeInventory("MicroMissilesActive",1);
+				A_GiveInventory("TacticalScopeActive",1);
+			}
+			ARSS ABCD 1 A_WeaponOffset(0,-10,WOF_ADD);
+			ARSS EF 1 ;
+			ARSS GGGHIII 2;
+			ARSS IJK 1;
+			ARSS LMNO 1 A_WeaponOffset(-4,-5,WOF_ADD);
+			Goto Ready;
+	}
+}
+
+
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//	Mod tokens
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+Class AssaultRifleMod1 : Inventory // Scope mod
+{
+	Default 
+	{
+		+INVENTORY.UNDROPPABLE
+		Scale 0.2;
+		Inventory.PickupMessage "Scope module";
+	}
+	States
+	{
+	Spawn:
+		POSS A 10;
+		Loop;
+	}
+}
+Class AssaultRifleMod2 : Inventory // mini missiles mod
+{ 
+	Default 
+	{
+		+INVENTORY.UNDROPPABLE
+		Scale 0.2;
+		Inventory.PickupMessage "Mini Missiles module";
+	}
+	States
+	{
+	Spawn:
+		SPOS A 10;
+		Loop;
+	}
+}
+
+
+Class AssaultRifleModSecondary : Inventory	//the token to switch between mods
+{	Default { +INVENTORY.UNDROPPABLE } }
+
+Class MicroMissilesActive : Inventory	
+{	Default { +INVENTORY.UNDROPPABLE } }
+
+Class TacticalScopeActive : Inventory	
+{	Default { +INVENTORY.UNDROPPABLE } }
+
+
+
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//	Primary Fire related
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+Class MachinegunFireToken : Inventory	//this one is to play the fire sounds in different channels
+{
+	Default 
+	{
+		Inventory.Amount 1;
+		Inventory.MaxAmount 1;
+	}
+}
+
+Class MGSmokeSpawner : Actor 
+{
+	Default 
+	{
+		Radius 1;
+		Height 1;
+		Speed 14;
+		Projectile;
+		+NOINTERACTION
+		+NOTIMEFREEZE
+	}
+    States
+    {
+    Spawn:
+        TNT1 A 1;
+	Death:
+		TNT1 A 0 A_SpawnItemEx("MGSmoke",0,random(1,-1),0,0,0,frandom(0.1,0.25),0,32);
+		TNT1 A 2;
+        Stop;
+    }
+}
+
+Class MGSmoke : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+		Alpha 0.8;
+	}
+	States
+	{
+	Spawn:
+	   TNT1 A 0 NoDelay A_Jump(256,random(1,2));
+	   X201 EF 0 { return ResolveState("Cont"); }
+	Cont:
+	   "####" "#" 0 A_SetScale(frandom(0.03,0.035));
+	   "####" "###" 2 
+	   {
+			A_SetScale(Scale.X+0.003);
+			A_FadeOut(frandom(0.035,0.099));
+	   }
+	Looper:
+	   "####" "#" 0 A_SetScale(Scale.X+0.003);
+	   "####" "#" 2 A_FadeOut(0.035);
+	   Loop;
+	}
+}
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//	Zoom mod related
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+Class MGZoomToken : Inventory {	Default { Inventory.InterhubAmount 0; } }
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//	Mini missiles mod related
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+Class MicroMissilesCounter : Inventory	//this one is to keep track of whic micro rocket firing animation to play
+{	Default { Inventory.MaxAmount 6;	} }
+
+Class MGMissileToken : Inventory { Default { Inventory.InterhubAmount 0; } }
+
+Class MGMiniMissile : FastProjectile
+{
+	const TimerMax = 35;
+	int user_value1;
+	int user_value2;
+	double  user_value3;
+	double  user_value4;
+	int user_counter;
+	
+	double user_anglea;
+	double user_angleb;
+	int user_count;
+	double user_x;
+	double user_y;
+	double user_z;
+	double user_oldangle;
+	
+	Default 
+	{
+		Projectile;
+		Speed 30;
+		Damage 0;
+		Radius 3;
+		Height 6;
+		Scale 0.25;
+		MissileType "MGMiniMissileSmoke";
+		MissileHeight 8;
+		+HITTRACER
+		WeaveIndexXY 10;
+		WeaveIndexZ 10;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay
+		{
+			user_value1 = random(-3,3);
+			user_value2 = random(-3,3);
+			user_value3 = frandom(-2.0,2.0);
+			user_value4 = frandom(-1.5, 1.5);
+		}
+	Looper:
+		SWMS A 1 Bright 
+		{
+			if(user_counter>=TimerMax)
+			{
+				return ResolveState("Explode");
+			}
+			else
+			{
+				user_counter++;
+				A_Weave(user_value1, user_value2, user_value3, user_value4);
+			}
+			return ResolveState(null);
+		}
+		Loop;
+		
+	//crashes on a wall
+	Death:	
+		SWMS A 1 Bright
+		{
+			if(user_counter>=TimerMax)
+			{
+				return ResolveState("Explode");
+			}
+			else
+			{
+				user_counter++;
+				if(GetCvar("HQEffectsWeapons"))
+				{
+					A_SpawnItemEx("MGMiniMissileSmokeStuck",-5,0,0,frandom(0.3,-0.3),frandom(0.3,-0.3),frandom(0.2,1.5),0,SXF_NOCHECKPOSITION,64);
+				}
+			}
+			return ResolveState(null);
+		}
+		Loop;
+
+	// hits a bleeding Monster;
+	XDeath:
+		TNT1 A 0
+		{
+			if (!tracer)	{	return ResolveState("Dropout");	}
+			user_anglea = angle;
+			user_z = pos.z;
+			A_Warp(AAPTR_TRACER,0,0,0,0,WARPF_NOCHECKPOSITION);
+			user_angleb = angle;
+			user_z -= pos.z;
+			A_Warp(AAPTR_TRACER,0,0,user_z,user_anglea-user_angleb,WARPF_NOCHECKPOSITION,null,0,-0.5);
+			return ResolveState(null);
+		}
+	Warping:
+		D008 P 0 A_JumpIf(IsPointerEqual(AAPTR_TRACER,AAPTR_NULL),"Dropout");
+		D008 P 0 A_JumpIfHealthLower(1,"DropOut",AAPTR_TRACER);
+		D008 P 0 A_Warp(AAPTR_TRACER,0,0,user_z,user_anglea-user_angleb,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,null,0,-0.5);
+		SWMS A 1 Bright {user_count++;}
+		D008 P 0 
+		{
+			if (!tracer || tracer.health < 1)	{	return ResolveState("Dropout");	}
+			if(user_counter>=TimerMax)
+			{
+				return ResolveState("Explode");
+			}
+			else
+			{
+				user_counter++;
+				if(GetCvar("HQEffectsWeapons"))
+				{
+					A_SpawnItemEx("MGMiniMissileSmokeStuck",-5,0,0,frandom(0.3,-0.3),frandom(0.3,-0.3),frandom(0.2,1.5),0,SXF_NOCHECKPOSITION,64);
+				}
+			}
+			return ResolveState(null);
+		}
+		Loop;
+
+	Dropout:
+		D008 P 0 
+		{
+			bNoGravity = bDropoff =  bMissile = false;
+			A_ChangeLinkFlags(false);
+			A_Gravity();
+			A_ChangeVelocity(frandom(-0.3,0.3),frandom(-0.3,0.3),-9,CVF_REPLACE);
+		}
+	LoopDropout:
+		SWMS A 1 Bright 
+		{
+			if(GetCvar("HQEffectsWeapons"))
+			{
+				A_SpawnItemEx("MGMiniMissileSmokeStuck",-5,0,0,frandom(0.3,-0.3),frandom(0.3,-0.3),frandom(0.2,1.5),0,SXF_NOCHECKPOSITION,128);
+			}
+			user_count += 3;
+		}
+		D008 P 0 
+		{
+			if(user_counter >= TimerMax)
+			{
+				return ResolveState("Explode");
+			}
+			else
+			{
+				user_counter++;
+				if(GetCvar("HQEffectsWeapons"))
+				{
+					A_SpawnItemEx("MGMiniMissileSmokeStuck",-5,0,0,frandom(0.3,-0.3),frandom(0.3,-0.3),frandom(0.2,1.5),0,SXF_NOCHECKPOSITION,64);
+				}
+			}
+			return ResolveState(null);
+		}
+		Loop;
+		
+	Explode:
+		TNT1 A 0 
+		{
+			A_PlaySound("Doom4/Weapon/Machinegun/MiniMissileExplo");
+			if (CountInv("ProtectionBonus2", TargetPtr))
+			{			
+				A_Explode(24,32);
+				A_Explode(24,32,0);
+			}
+			else
+			{			
+				A_Explode(48,32);	
+			}
+			A_RadiusThrust(48,32,RTF_THRUSTZ|RTF_AFFECTSOURCE|RTF_NOIMPACTDAMAGE);
+			if(GetCvar("HQEffectsWeapons"))
+			{
+				A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("BD0000",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("BD0000",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("BD0000",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+			}
+			A_SpawnItemEx("MGMiniMissileExplo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		Stop;
+	}
+}
+
+Class MGMiniMissileNoTrail : MGMiniMissile
+{
+	Default 
+	{
+		MissileType "";
+	}
+}
+
+Class MGMiniMissileExplo : Actor 
+{
+	Default 
+	{
+		+FORCEXYBILLBOARD
+		+NOINTERACTION
+		Scale 0.05;
+	}
+	States
+	{
+	Spawn:
+		X132 AABBCC 1 Bright A_SetScale(Scale.X+0.038);
+		X132 DEFGHIJKLMNOPQR 2 Bright
+		{
+			A_FadeOUt(0.15);
+			A_SetScale(Scale.X+0.038);
+		}
+		Stop;
+	}
+}
+
+Class MGMiniMissileExploSlightlyBigger : Actor 
+{
+	Default 
+	{
+		+FORCEXYBILLBOARD
+		+NOINTERACTION
+		Scale 0.07;
+	}
+	States
+	{
+	Spawn:
+		X132 AABBCC 1 Bright A_SetScale(Scale.X+0.038);
+		X132 DEFGHIJKLMNOPQR 2 Bright
+		{
+			A_FadeOut(0.15);
+			A_SetScale(Scale.X+0.055);
+		}
+		Stop;
+	}
+}
+
+Class MGMiniMissileSmoke : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+		Scale 0.01;
+		RenderStyle "Add";
+		Alpha 0.8;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(256, random(1,15));
+		X102 ABCDEFGHIJKLMNOPQRSTUV 2
+		{
+			A_FadeOut(0.15);
+			A_SetScale(Scale.X+0.005);
+		}
+		Goto Spawn;
+	}
+}
+Class MGMiniMissileSmokeStuck : MGMiniMissileSmoke
+{
+	Default 
+	{
+		Scale 0.03;
+	}
+}
+
+
+
+
+
+
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//	Casing
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+Class HARCasingSpawner : Actor 
+{
+	const Flags = WARPF_NOCHECKPOSITION|WARPF_COPYPITCH;
+	const Distance = 22;
+	const YOff = 14;
+	const ZOff = 37;
+	double user_pos;
+	int user_t;
+	
+	Default 
+	{
+		Projectile;
+		+NOINTERACTION
+		Scale 0.30;
+		Alpha 0.0;
+		RenderStyle "None";
+		Translation "0:255=%[0,0,0]:[0,1,0]";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 1 NoDelay
+		{
+			if (master) { pitch = master.pitch; }
+			
+			// And set a multiplier for taking from the distance so it actually goes well with the gun.
+			
+			if (pitch > 0) //Looking down
+			{	user_pos = (sin(pitch) * 12);	}
+			else //Looking up
+			{	user_pos = (sin(pitch) * 6);	}
+			
+			
+			A_Warp(MasterPtr,
+				(cos(-pitch)*(Distance)) - user_pos,
+				YOff,
+				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
+			
+			if (GetCvar("user_Casings"))
+			{
+				if (GetCvar("user_SilentCasings"))
+				{	A_SpawnItemEx("BulletCasingSilent",0,0,0,0,frandom(1,3),frandom(0.5,1.4),0,SXF_NOCHECKPOSITION);	}
+				else
+				{	A_SpawnItemEx("BulletCasing",0,0,0,0,frandom(1,3),frandom(0.5,1.4),0,SXF_NOCHECKPOSITION);	}
+			}
+		}
+		Stop;
+	Nothing:
+		TNT1 A 100;
+		Stop;
+	}
+}

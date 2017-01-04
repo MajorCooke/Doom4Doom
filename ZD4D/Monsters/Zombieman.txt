@@ -1,0 +1,847 @@
+
+
+//-----------------------------------------------------------------
+//-----------------------------------------------------------------
+//
+//-----------------------------------------------------------------
+//-----------------------------------------------------------------
+Class D4Zombieman : D4AbstractMonster // : Zombieman //replaces Zombieman
+{
+	int user_staggertimer;
+	Default 
+	{
+		DropItem "D4PinataBulletsZombieman";
+		Health 30;
+		Radius 20;
+		Height 56;
+		Speed 8;
+		PainChance 200;
+		Monster;
+		+FLOORCLIP +DONTCORPSE
+		//+NODROPOFF
+		SeeSound "Doom4/Monsters/Grunt/Sight";
+		PainSound "Doom4/Monsters/Grunt/Pain";
+		DeathSound "Doom4/Monsters/Grunt/Death";
+		ActiveSound "Doom4/Monsters/Grunt/Idle";
+		Obituary "$OB_ZOMBIE";
+		DamageFactor "PlasmaExploder", 0.3;	//because otherwise, zombiemen would be killing everyone else easily
+		PainChance "StunBomb", 255;
+		PainChance "GloryKill", 255;
+		WoundHealth 10;
+	}
+	States
+	{
+	Spawn:
+		RFTR AB 10 A_Look();
+		Loop;
+	See:
+		RFTR AABBCCDD 3 D4Chase();
+		Loop;
+	
+		
+	//------------------------	
+	Missile:
+		TNT1 A 0 { if(random(1,8)==8) { A_PlaySound("Doom4/Monsters/Grunt/Attack",CHAN_AUTO); } }
+		TNT1 A 0 A_Jump(200,"PlasmaBurst"); // most of the time will do the plasma 4shot
+		
+		//------------------------
+		PlasmaBomb:
+			TNT1 A 0 A_JumpIfCloser(64,"PlasmaBurst");	//if too close, goes to plasmaburst anyway
+			RFTR EEEEE 5 A_FaceTarget();
+			TNT1 A 0 A_JumpIfCloser(128,"PlasmaExplo128");
+			TNT1 A 0 A_JumpIfCloser(192,"PlasmaExplo192");
+			TNT1 A 0 A_JumpIfCloser(256,"PlasmaExplo256");
+			TNT1 A 0 A_JumpIfCloser(320,"PlasmaExplo320");
+			TNT1 A 0 A_JumpIfCloser(384,"PlasmaExplo384");
+			TNT1 A 0 A_JumpIfCloser(448,"PlasmaExplo448");
+			TNT1 A 0 A_JumpIfCloser(512,"PlasmaExplo512");
+			TNT1 A 0 A_JumpIfCloser(576,"PlasmaExplo576");
+			TNT1 A 0 A_JumpIfCloser(640,"PlasmaExplo640");
+			TNT1 A 0 A_JumpIfCloser(704,"PlasmaExplo704");
+			TNT1 A 0 A_JumpIfCloser(768,"PlasmaExplo768");
+			TNT1 A 0 A_JumpIfCloser(832,"PlasmaExplo832");
+			
+			PlasmaExplo128:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder128",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo192:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder192",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo256:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder256",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo320:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder320",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo384:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder384",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo448:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder448",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo512:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder512",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo576:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder576",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo640:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder640",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo704:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder704",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo768:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder768",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo832:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder832",35,0,0);
+				Goto FinishPlasmaExplo;
+				
+				FinishPlasmaExplo:
+					TNT1 A 0 A_PlaySound("Doom4/Monsters/PlasmaShotBig");
+					RFTR F 5 Bright;
+					RFTR E 15;
+					Goto See;
+		//------------------------
+		PlasmaBurst:
+			RFTR E 10 A_FaceTarget();
+			//TNT1 A 0 A_PlaySound("Doom4/Monsters/PlasmaShot",CHAN_AUTO,0.6)
+			RFTR F 5 Bright A_SpawnProjectile("ZombiemanPlasmaBall",31,7,0);
+			RFTR E 5 A_FaceTarget();
+			//TNT1 A 0 A_PlaySound("Doom4/Monsters/PlasmaShot",CHAN_AUTO,0.6)
+			RFTR F 5 Bright A_SpawnProjectile("ZombiemanPlasmaBall",31,7,0);
+			RFTR E 5 A_FaceTarget();
+			//TNT1 A 0 A_PlaySound("Doom4/Monsters/PlasmaShot",CHAN_AUTO,0.6)
+			RFTR F 5 Bright A_SpawnProjectile("ZombiemanPlasmaBall",31,7,0);
+			RFTR E 5 A_FaceTarget();
+			//TNT1 A 0 A_PlaySound("Doom4/Monsters/PlasmaShot",CHAN_AUTO,0.6)
+			RFTR F 5 Bright A_SpawnProjectile("ZombiemanPlasmaBall",31,7,0);
+			RFTR E 5 A_FaceTarget();
+			Goto See;
+		
+	Pain:
+		RFTR G 3;
+		RFTR G 3 A_Pain();
+		Goto See;
+	Pain.StunBomb:
+		"####" "#" 0 { bNoPain = true; }
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#" 0 { bNoPain = false; }
+		Goto See;
+	Death:
+		"####" "#" 0  //loot drop
+		{
+			bThruActors = true;
+			D4DropCash(CashMultiplier,"ZombieCashGiver");
+			D4SetupLoot();
+			D4DropItems();
+		}
+		RFTR H 4 ;
+		RFTR I 4 A_Scream();
+		RFTR J 4 A_NoBlocking();
+		RFTR K 4;
+		RFTR L -1 {bCorpse = true;}
+		Stop;
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:
+	XDeath:
+		"####" "#" 0  //loot drop
+		{
+			D4SetupLoot();
+			
+			if (GetCvar("MPWeapons"))
+			{	Pinatas.Carrion++;	}
+		}
+		Goto XDeathNoDrops;
+		
+	XDeathNoDrops:	
+		TNT1 A 0
+		{
+			bThruActors = true;
+			XDeathGush();
+			D4DropItems();
+			D4DropCash(CashMultiplier,"ZombieCashGiver");
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+			A_NoBlocking();	//just in case;
+		}
+		Stop;
+	Raise:
+		RFTR LK 3;
+		RFTR JIH 3;
+		Goto See;
+		
+	//------------------------------------------------------------------------
+	// Start of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	Wound:
+		"####" "#" 1
+		{
+			if(GetCvar("D4D_ExecutionsON"))
+			{
+				if(countinv("FinisherToken")==0) //if it isnt healing already
+				{								//will heal and give the token that indicates it's executable
+					A_SpawnItemEx("ZombieHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
+					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
+				}
+				
+				if(GetCvar("D4D_MonsterStagger")==1) //will the monsters stagger at all?
+				{
+					return ResolveState("Stagger");	//stays there for a few seconds
+				}
+				else
+				{
+					return ResolveState(null);
+				}
+			}
+			return ResolveState(null);
+		}
+		Goto See;
+	Stagger:
+		RFTR G 0 
+		{
+			if(GetCvar("D4D_ExecutionHighlight")==1)
+			{	return ResolveState("PrepareStaggerHighlight");}
+			else
+			{	return ResolveState("StagLooper");	}
+		}
+		Goto StagLooper;
+	PrepareStaggerHighlight:
+		RFTR X 0;
+		Goto StagLooper;
+	
+	StagLooper:
+		"####" "#" 1
+		{
+			if(!countinv("FinisherToken"))
+			{
+				return ResolveState("See");
+			}
+			if(GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
+			{ 
+				A_Pain(); 
+				A_TakeInventory("PainSoundToken");
+			}
+			
+			return ResolveState(null);
+		}
+		Loop;
+		
+	// Finisher attack(s) with animations ON
+	Death.GloryKill:
+		TNT1 A 0 { bSolid = false; }
+		RFTR AA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0
+		{
+			if(countinv("GloryKill1Token"))
+			{	return ResolveState("GloryEnd1"); }
+			
+			if(countinv("GloryKill2Token"))
+			{	return ResolveState("GloryEnd2"); }
+			
+			if(countinv("GloryKill3Token"))
+			{	return ResolveState("GloryEnd3"); }
+			return ResolveState(null);
+		}
+	GloryEnd1:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" GGGGGG 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd2:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" GGGGGG 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd3:
+		"####" AAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" I 0 A_ChangeVelocity(-8,0,10,CVF_RELATIVE);
+		Goto GloryEnd;
+	//------------------------------------------------------------------------
+	// End of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	}
+}
+
+
+//----------------------------------------
+Class PlasmaExploder128 : D4AbstractMissile
+{
+	int user_angle;
+	
+	Default 
+	{
+		Projectile;
+		Speed 16;
+		Scale 0.5;
+		Alpha 0.99;
+		Damage 3;
+		Radius 6;
+		Height 12;
+		RenderStyle "Add";
+		Alpha 0.99;
+		DamageType "PlasmaExploder";
+		Translation "0:255=%[0,0,0]:[1.3,0.7,0.3]";
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		DB19 AABBCCDD 1 Bright Light("OrangeMediumFlicker1");
+		Goto StopTravel;
+	StopTravel:
+		TNT1 A 0 A_Stop();
+		DB19 ABCDEFGHIJKL 2 Bright Light("OrangeMediumFlicker1");
+		Goto ExplodeTimer;
+	ExplodeTimer:
+		TNT1 A 0 A_SetScale(0.8);
+		TNT1 A 0 A_Explode(32,64);
+		Goto Looper;
+	Looper:
+		TNT1 A 0 A_JumpIf(user_angle>=360,"ExplosionEnd");
+		TNT1 A 0 
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("StunBombSpark",0,0,0,frandom(5,6),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATIoN);
+			}
+			user_angle += 15;
+		}
+		Loop;
+	ExplosionEnd:
+		// TNT1 A 0 A_Explode(2,256,0,0,256) //removed for now, until I can remember what this is for
+		TNT1 A 2 Light("OrangeBigFlicker3") A_SpawnItemEx("PlasmaBombExplo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATIoN);
+		TNT1 A 2 Light("OrangeMediumFlicker1") 
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("PlasmaBombExploSparkSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+			}
+		}
+		TNT1 A 2 Light("OrangeMediumFlicker2");
+		TNT1 A 2 Light("OrangeMediumFlicker3");
+		TNT1 A 2 Light("OrangeSmallFlicker1");
+		TNT1 A 2 Light("OrangeSmallFlicker2");
+		TNT1 A 2 Light("OrangeSmallFlicker3");
+		Stop;
+		
+	Death:	//if hits wall, it will Wait;, and then do AOE damage
+		Goto StopTravel;
+	XDeath:	//if hit bleeder, will not do AOE
+		TNT1 A 0;
+		Goto Looper;
+	Crash:	//if hit nonbleeder, will not do AOE
+		TNT1 A 0;
+		Goto Looper;
+	}
+}
+
+Class PlasmaBombExplo : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		Scale 0.3;
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		X072 LLLL 1 Bright
+		{
+			A_SetScale(Scale.X+0.12);
+			A_FadeOut(0.03);
+		}
+		X072 LLLL 1 Bright
+		{
+			A_SetScale(Scale.X+0.05);
+			A_FadeOut(0.07);
+		}
+		Wait;
+	}
+}
+
+Class PlasmaBombExploSparkSpawner : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0;
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), 1.85*2.2, 0   ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), 1.8*2.2, 0.5*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), 1.7*2.2, 1.0*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), 1.4*2.2, 1.4*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), 1.0*2.2, 1.7*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), 0.6*2.2, 1.8*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), 0,   1.85*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), -1.85*2.2, 0   ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), -1.8*2.2, 0.5*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), -1.7*2.2, 1.0*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), -1.4*2.2, 1.4*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), -1.0*2.2, 1.7*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), -0.6*2.2, 1.8*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), 1.8*2.2, -0.5*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), 1.7*2.2, -1.0*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), 1.4*2.2, -1.4*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), 1.0*2.2, -1.7*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), 0.6*2.2, -1.8*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), 0,   -1.85*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), -1.8*2.2, -0.5*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), -1.7*2.2, -1.0*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), -1.4*2.2, -1.4*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), -1.0*2.2, -1.7*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 10 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-0.5,-1.0), -0.6*2.2, -1.8*2.2 ,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		Stop;
+	}
+}
+
+
+
+
+Class PlasmaExploder192 : PlasmaExploder128
+{
+	States
+	{
+	Spawn:
+		DB19 AABBCCDDEEFF 1 Bright Light("OrangeMediumFlicker1") A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-5,-5),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,128);
+		Goto StopTravel;
+	}
+}
+Class PlasmaExploder256 : PlasmaExploder128
+{
+	States
+	{
+	Spawn:
+		DB19 AABBCCDDEEFFGGHH 1 Bright Light("OrangeMediumFlicker1") A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-5,-5),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,128);
+		Goto StopTravel;
+	}
+}
+Class PlasmaExploder320 : PlasmaExploder128
+{
+	States
+	{
+	Spawn:
+		DB19 AABBCCDDEEFFGGHHIIJJ 1 Bright Light("OrangeMediumFlicker1") A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-5,-5),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,128);
+		Goto StopTravel;
+	}
+}
+Class PlasmaExploder384 : PlasmaExploder128
+{
+	States
+	{
+	Spawn:
+		DB19 AABBCCDDEEFFGGHHIIJJKKLL 1 Bright Light("OrangeMediumFlicker1") A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-5,-5),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,128);
+		Goto StopTravel;
+	}
+}
+Class PlasmaExploder448 : PlasmaExploder128
+{
+	States
+	{
+	Spawn:
+		DB19 AABBCCDDEEFFGGHHIIJJKKLLMMNN 1 Bright Light("OrangeMediumFlicker1") A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-5,-5),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,128);
+		Goto StopTravel;
+	}
+}
+Class PlasmaExploder512 : PlasmaExploder128
+{
+	States
+	{
+	Spawn:
+		DB19 AABBCCDDEEFFGGHHHHIIJJKKLLMMNNOO 1 Bright Light("OrangeMediumFlicker1") A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-5,-5),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,128);
+		Goto StopTravel;
+	}
+}
+Class PlasmaExploder576 : PlasmaExploder128
+{
+	States
+	{
+	Spawn:
+		DB19 AABBCCDDEEFFGGHHII 1 Bright Light("OrangeMediumFlicker1") A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-5,-5),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,128);
+		DB19 AABBCCDDEEFFGGHHII 1 Bright Light("OrangeMediumFlicker1") A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-5,-5),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,128);
+		Goto StopTravel;
+	}
+}
+Class PlasmaExploder640 : PlasmaExploder128
+{
+	States
+	{
+	Spawn:
+		DB19 AABBCCDDEEFFGGHHIIJJ 1 Bright Light("OrangeMediumFlicker1") A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-5,-5),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,128);
+		DB19 AABBCCDDEEFFGGHHIIJJ 1 Bright Light("OrangeMediumFlicker1") A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-5,-5),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,128);
+		Goto StopTravel;
+	}
+}
+Class PlasmaExploder704 : PlasmaExploder128
+{
+	States
+	{
+	Spawn:
+		DB19 AABBCCDDEEFFGGHHIIJJKK 1 Bright Light("OrangeMediumFlicker1") A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-5,-5),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,128);
+		DB19 AABBCCDDEEFFGGHHIIJJKK 1 Bright Light("OrangeMediumFlicker1") A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-5,-5),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,128);
+		Goto StopTravel;
+	}
+}
+Class PlasmaExploder768 : PlasmaExploder128
+{
+	States
+	{
+	Spawn:
+		DB19 AABBCCDDEEFFGGHHIIJJKKLL 1 Bright Light("OrangeMediumFlicker1") A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-5,-5),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,128);
+		DB19 AABBCCDDEEFFGGHHIIJJKKLL 1 Bright Light("OrangeMediumFlicker1") A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-5,-5),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,128);
+		Goto StopTravel;
+	}
+}
+Class PlasmaExploder832 : PlasmaExploder128
+{
+	States
+	{
+	Spawn:
+		DB19 AABBCCDDEEFFGGHHIIJJKKLLMM 1 Bright Light("OrangeMediumFlicker1") A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-5,-5),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,128);
+		DB19 AABBCCDDEEFFGGHHIIJJKKLLMM 1 Bright Light("OrangeMediumFlicker1") A_SpawnItemEx("StunBombSpark",0,0,0,frandom(-5,-5),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,128);
+		Goto StopTravel;
+	}
+}
+
+//----------------------------------------
+Class ZombiemanPlasmaBall : D4AbstractMissile //: FastProjectile
+{
+	Default 
+	{
+		Projectile;
+		Radius 7;
+		Height 12;
+		Scale 0.2;
+		RenderStyle "Add";
+		Alpha 0.99;
+		Speed 20;
+		FastSpeed 25;
+		DamageFunction (random(3,10));
+		SeeSound "Doom4/Monsters/PlasmaShot";
+		Translation "0:255=%[0,0,0]:[1.3,0.7,0.3]";
+		+FORCEXYBILLBOARD
+		Decal "D4PlasmaMonster";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY;
+		Goto Looper;
+	Looper:
+		SPIR P 2 Bright Light("OrangeSmallPoint2")
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("ZombiePlasmaTrail",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+			}
+		}
+		Loop;
+	Death:
+		TNT1 A 0 A_SpawnItemEx("ZombiePlasmaBallPuff",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 3 Light("OrangeSmallPoint1");
+		TNT1 A 3 Light("OrangeSmallPoint2");
+		TNT1 A 3 Light("OrangeSmallPoint3");
+		Stop;
+	}
+}
+
+Class ZombiePlasmaTrail : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		Scale 0.085;
+		Translation "0:255=%[0,0,0]:[1.3,0.6,0.4]";
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		DB19 ABCDEFGHUIJKLMNOPQRSTUVWXYZ 1 Bright
+		{
+			A_FadeOut(0.05);
+			A_SetScale(Scale.X-0.005);
+		}
+		Loop;
+	}
+}
+Class ZombiePlasmaBallPuff : Actor 
+{
+	double  user_scaler;	//this one is to easily tweak the inherited versions
+	Default 
+	{
+		+CLIENTSIDEONLY
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+		+PUFFONACTORS
+		Scale 0.1;
+		RenderStyle "Add";
+		Alpha 0.99;
+		Translation "0:255=%[0,0,0]:[1.3,0.7,0.3]";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay
+		{
+			user_scaler = 0.025;
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnParticle("FF974D",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.3,1.4),0,0,vel.z-0.08);
+				A_SpawnParticle("FF974D",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.3,1.4),0,0,vel.z-0.08);
+				A_SpawnParticle("FFAD29",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.3,1.4),0,0,vel.z-0.08);
+				A_SpawnParticle("FFAD29",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.3,1.4),0,0,vel.z-0.08);
+				A_SpawnParticle("FF8000",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.3,1.4),0,0,vel.z-0.08);
+				A_SpawnParticle("FF8000",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.3,1.4),0,0,vel.z-0.08);
+			}
+		}
+		TNT1 a 0 A_Jump(256,"Type1","Type2","Type3","Type4","Type5","Type6","Type7","Type8");
+		Goto Type1;
+	Type1:
+		DB21 ABCDEFGHI 1 Bright A_SetScale(Scale.X+user_scaler);
+		Stop;
+	Type2:
+		DB21 JKLMNOPQR 1 Bright A_SetScale(Scale.X+user_scaler);
+		Stop;
+	Type3:
+		DB22 ABCDEFGHI 1 Bright A_SetScale(Scale.X+user_scaler);
+		Stop;
+	Type4:
+		DB22 JKLMNOPQR 1 Bright A_SetScale(Scale.X+user_scaler);
+		Stop;
+	Type5:
+		DB23 ABCDEFGHI 1 Bright A_SetScale(Scale.X+user_scaler);
+		Stop;
+	Type6:
+		DB23 JKLMNOPQR 1 Bright A_SetScale(Scale.X+user_scaler);
+		Stop;
+	Type7:
+		DB24 ABCDEFGHI 1 Bright A_SetScale(Scale.X+user_scaler);
+		Stop;
+	Type8:
+		DB24 JKLMNOPQR 1 Bright A_SetScale(Scale.X+user_scaler);
+		Stop;
+	}
+}
+
+
+
+//================================================================================================================
+//================================================================================================================
+//
+//	Regular Doom version 
+//
+//================================================================================================================
+//================================================================================================================
+
+
+Class D4OldZombieman : D4AbstractMonster // : Zombieman //replaces Zombieman
+{
+	int user_staggertimer;
+	
+	Default 
+	{
+		Health 20;
+		Radius 20;
+		Height 56;
+		Speed 8;
+		PainChance 200;
+		Monster;
+		+FLOORCLIP
+		SeeSound "grunt/sight";
+		AttackSound "grunt/attack";
+		PainSound "grunt/pain";
+		DeathSound "grunt/death";
+		ActiveSound "grunt/active";
+		Obituary "$OB_ZOMBIE";
+		DropItem "Clip";
+		PainChance "StunBomb", 255;
+		PainChance "GloryKill", 255;
+		WoundHealth 10;
+		+DONTCORPSE
+	}
+	States
+	{
+	Spawn:
+		POSS AB 10 A_Look();
+		Loop;
+	See:
+		POSS AABBCCDD 4 D4Chase();
+		Loop;
+	Missile:
+		POSS E 10 A_FaceTarget();
+		POSS F 8 A_PosAttack;
+		POSS E 8;
+		Goto See;
+	Pain:
+		POSS G 3;
+		POSS G 3 A_Pain();
+		Goto See;
+	Raise:
+		POSS K 5;
+		POSS JIH 5;
+		Goto See;
+		
+	Pain.StunBomb:
+		"####" "#" 0 { bNoPain = true; }
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#" 0 { bNoPain = false; }
+		Goto See;
+	Death:
+		POSS H 4
+		{
+			bThruActors = true;
+			D4DropCash(CashMultiplier,"ZombieCashGiver");
+			D4SetupLoot();
+			D4DropItems();
+		}
+		POSS I 4 A_Scream();
+		POSS J 4 A_NoBlocking();
+		POSS K 4;
+		POSS L -1 {bCorpse = true;}
+		Stop;
+
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:
+	XDeath:
+		"####" "#" 0  //loot drop
+		{
+			D4SetupLoot();
+			
+			if (GetCvar("MPWeapons"))
+			{	Pinatas.Carrion++;	}
+		}
+		Goto XDeathNoDrops;
+		
+	XDeathNoDrops:
+		POSS M 4
+		{
+			bThruActors = true;
+			XDeathGush();
+			D4DropItems();
+			D4DropCash(CashMultiplier,"ZombieCashGiver");
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+		}
+		
+		POSS N 4 A_XScream();
+		POSS O 4 A_NoBlocking();
+		POSS PQRST 4;
+		POSS U -1 {bCorpse = true;}
+		Stop;
+		
+	//------------------------------------------------------------------------
+	// Start of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	Wound:
+		"####" "#" 1
+		{
+			if(GetCvar("D4D_ExecutionsON"))
+			{
+				if(countinv("FinisherToken")==0) //if it isnt healing already
+				{								//will heal and give the token that indicates it's executable
+					A_SpawnItemEx("ZombieHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
+					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
+				}
+				
+				if(GetCvar("D4D_MonsterStagger")==1) //will the monsters stagger at all?
+				{
+					return ResolveState("Stagger");	//stays there for a few seconds
+				}
+				else
+				{
+					return ResolveState(null);
+				}
+			}
+			return ResolveState(null);
+		}
+		Goto See;
+	Stagger:
+		POSS G 0 
+		{
+			if(GetCvar("D4D_ExecutionHighlight")==1)
+			{	return ResolveState("PrepareStaggerHighlight");}
+			else
+			{	return ResolveState("StagLooper");	}
+		}
+		Goto StagLooper;
+	PrepareStaggerHighlight:
+		POSS X 0;
+		Goto StagLooper;
+	
+	StagLooper:
+		"####" "#" 1
+		{
+			if (!countinv("FinisherToken"))
+			{
+				return ResolveState("See");
+			}
+			if (GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
+			{ 
+				A_Pain(); 
+				A_TakeInventory("PainSoundToken");
+			}
+			
+			return ResolveState(null);
+		}
+		Loop;
+		
+	// Finisher attack(s) with animations ON
+	Death.GloryKill:
+		TNT1 A 0 { bSolid = false; }
+		POSS AA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION) ;
+		"####" A 0
+		{
+			if(countinv("GloryKill1Token"))
+			{	return ResolveState("GloryEnd1"); }
+			
+			if(countinv("GloryKill2Token"))
+			{	return ResolveState("GloryEnd2"); }
+			
+			if(countinv("GloryKill3Token"))
+			{	return ResolveState("GloryEnd3"); }
+			return ResolveState(null);
+		}
+	GloryEnd1:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" GGGGGG 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd2:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" GGGGGG 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd3:
+		"####" AAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" I 0 A_ChangeVelocity(-8,0,10,CVF_RELATIVE);
+		Goto GloryEnd;
+	}
+} 

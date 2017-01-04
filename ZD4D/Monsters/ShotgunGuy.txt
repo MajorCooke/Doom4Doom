@@ -1,0 +1,531 @@
+//================================================================================================================
+//================================================================================================================
+//
+//	"D4D mode" version
+//	
+//================================================================================================================
+//================================================================================================================
+Class D4ShotgunGuy : D4AbstractMonster
+{
+	int user_staggertimer;
+	
+	Default 
+	{
+		Health 30;
+		Radius 20;
+		Height 56;
+		Mass 100;
+		Speed 8;
+		PainChance 170;
+		Monster;
+		+FLOORCLIP
+		+DONTCORPSE
+		Translation "112:127=176:191";
+		SeeSound "Doom4/Monsters/Grunt/Sight";
+		//AttackSound "shotguy/attack";
+		PainSound "Doom4/Monsters/Grunt/Pain";
+		DeathSound "Doom4/Monsters/Grunt/Death";
+		ActiveSound "Doom4/Monsters/Grunt/Idle";
+		Obituary "$OB_SHOTGUY";
+		DropItem "ShotgunAmmoOrWep";
+		DamageFactor "PlasmaExploder", 0.3;	//because otherwise, zombiemen would be killing everyone else easilY"
+		PainChance "StunBomb", 255;
+		PainChance "GloryKill", 255;
+		WoundHealth 10;
+		Scale 0.93;
+	}
+	States
+	{
+	Spawn:
+		BBRG AB 10 A_Look();
+		Loop;
+	See:
+		BBRG AABBCCDD 3 D4Chase();
+		Loop;
+	Missile:
+	//------------------------	
+	Missile:
+		TNT1 A 0 { if(random(1,8)==8) { A_PlaySound("Doom4/Monsters/Grunt/Attack",CHAN_AUTO); } }
+		TNT1 A 0 A_Jump(200,"PlasmaBurst"); // most of the time will do the plasma 3shot
+		
+		//------------------------
+		PlasmaBomb:
+			TNT1 A 0 A_JumpIfCloser(64,"PlasmaBurst");	//if too close, goes to plasmaburst anyway
+			BBRG EEEEE 5 A_FaceTarget();
+			TNT1 A 0 A_JumpIfCloser(128,"PlasmaExplo128");
+			TNT1 A 0 A_JumpIfCloser(192,"PlasmaExplo192");
+			TNT1 A 0 A_JumpIfCloser(256,"PlasmaExplo256");
+			TNT1 A 0 A_JumpIfCloser(320,"PlasmaExplo320");
+			TNT1 A 0 A_JumpIfCloser(384,"PlasmaExplo384");
+			TNT1 A 0 A_JumpIfCloser(448,"PlasmaExplo448");
+			TNT1 A 0 A_JumpIfCloser(512,"PlasmaExplo512");
+			TNT1 A 0 A_JumpIfCloser(576,"PlasmaExplo576");
+			TNT1 A 0 A_JumpIfCloser(640,"PlasmaExplo640");
+			TNT1 A 0 A_JumpIfCloser(704,"PlasmaExplo704");
+			TNT1 A 0 A_JumpIfCloser(768,"PlasmaExplo768");
+			TNT1 A 0 A_JumpIfCloser(832,"PlasmaExplo832");
+			
+			PlasmaExplo128:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder128",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo192:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder192",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo256:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder256",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo320:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder320",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo384:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder384",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo448:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder448",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo512:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder512",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo576:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder576",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo640:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder640",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo704:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder704",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo768:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder768",35,0,0);
+				Goto FinishPlasmaExplo;
+			PlasmaExplo832:
+				TNT1 A 0 A_SpawnProjectile("PlasmaExploder832",35,0,0);
+				Goto FinishPlasmaExplo;
+				
+				FinishPlasmaExplo:
+					TNT1 A 0 A_PlaySound("Doom4/Monsters/PlasmaShotBig");
+					BBRG F 5 Bright;
+					BBRG E 15;
+					Goto See;
+		//------------------------
+		PlasmaBurst:
+			BBRG E 10 A_FaceTarget();
+			BBRG F 5 Bright 
+			{
+				A_PlaySound("Doom4/Monsters/PlasmaShotgun",CHAN_AUTO);
+				A_SpawnProjectile("ShotgunnerPlasmaBall",35,4,frandom(7,-7));
+				A_SpawnProjectile("ShotgunnerPlasmaBall",35,4,frandom(7,-7));
+				A_SpawnProjectile("ShotgunnerPlasmaBall",35,4,frandom(7,-7));
+				A_SpawnProjectile("ShotgunnerPlasmaBall",35,4,frandom(7,-7));
+				A_SpawnProjectile("ShotgunnerPlasmaBall",35,4,frandom(7,-7));
+			}
+			BBRG E 10;
+			Goto See;
+			
+	Pain:
+		BBRG G 3;
+		BBRG G 3 A_Pain();
+		Goto See;
+	Pain.StunBomb:
+		"####" "#" 0 { bNoPain = true; }
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#" 0 { bNoPain = false; }
+		Goto See;
+	Death:
+		"####" "#" 0  //loot drop
+		{
+			bThruActors = true;
+			D4DropCash(CashMultiplier,"ShotguyCashGiver");
+			D4SetupLoot();
+			D4DropItems();
+		}
+		BBRG H 3 ;
+		BBRG I 3 A_Scream();
+		BBRG J 3 A_NoBlocking();
+		BBRG KLM 3;
+		BBRG N -1 {bCorpse = true;}
+		Stop;
+		
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:
+	XDeath:
+		"####" "#" 0  //loot drop
+		{
+			D4SetupLoot();
+			
+			if (GetCvar("MPWeapons"))
+			{	Pinatas.Carrion++;	}
+		}
+		Goto XDeathNoDrops;
+		
+	XDeathNoDrops:	
+		TNT1 A 0
+		{
+			bThruActors = true;
+			XDeathGush();
+			D4DropItems();
+			D4DropCash(CashMultiplier,"ShotguyCashGiver");
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+			A_NoBlocking();	//just in case
+		}
+		Stop;
+	Raise:
+		BBRG NML 3;
+		BBRG KJIH 3;
+		Goto See;
+		
+	//------------------------------------------------------------------------
+	// Start of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	Wound:
+		"####" "#" 1
+		{
+			if(GetCvar("D4D_ExecutionsON"))
+			{
+				if(countinv("FinisherToken")==0) //if it isnt healing already
+				{								//will heal and give the token that indicates it's executable
+					A_SpawnItemEx("ZombieHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
+					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
+				}
+				
+				if(GetCvar("D4D_MonsterStagger")==1) //will the monsters stagger at all?
+				{
+					return ResolveState("Stagger");	//stays there for a few seconds
+				}
+				else
+				{
+					return ResolveState(null);
+				}
+			}
+			return ResolveState(null);
+		}
+		Goto See;
+	Stagger:
+		BBRG G 0 
+		{
+			if(GetCvar("D4D_ExecutionHighlight")==1)
+			{	return ResolveState("PrepareStaggerHighlight");}
+			else
+			{	return ResolveState("StagLooper");	}
+		}
+		Goto StagLooper;
+	PrepareStaggerHighlight:
+		BBRG X 0;
+		Goto StagLooper;
+	
+	StagLooper:
+		"####" "#" 1
+		{
+			if(!countinv("FinisherToken"))
+			{
+				return ResolveState("See");
+			}
+			if(GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
+			{ 
+				A_Pain(); 
+				A_TakeInventory("PainSoundToken");
+			}
+			
+			return ResolveState(null);
+		}
+		Loop;
+		
+	// Finisher attack(s) with animations ON
+	Death.GloryKill:
+		TNT1 A 0 { bSolid = false; }
+		BBRG AA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0
+		{
+			if(countinv("GloryKill1Token"))
+			{	return ResolveState("GloryEnd1"); }
+			
+			if(countinv("GloryKill2Token"))
+			{	return ResolveState("GloryEnd2"); }
+			
+			if(countinv("GloryKill3Token"))
+			{	return ResolveState("GloryEnd3"); }
+			return ResolveState(null);
+		}
+	GloryEnd1:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" GGGGGG 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd2:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" GGGGGG 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd3:
+		"####" AAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" I 0 A_ChangeVelocity(-8,0,10,CVF_RELATIVE);
+		Goto GloryEnd;
+	}
+}
+
+Class ShotgunnerPlasmaBall : ZombiemanPlasmaBall // the only difference is the fact that this spreads vertically a bit
+{
+	Default 
+	{
+		Damage 2;
+		+STRIFEDAMAGE
+		Speed 30;
+		FastSpeed 36;
+		SeeSound "";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY ThrustThingZ(0,random(2,-2),0,1);
+		Goto LooperSG;
+	LooperSG:
+		SPIR P 1 Bright Light("OrangeSmallPoint2")
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("ZombiePlasmaTrail",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+			}
+		}
+		Loop;
+	}
+}
+
+
+
+
+
+
+//================================================================================================================
+//================================================================================================================
+//
+//	Regular Doom version 
+//
+//================================================================================================================
+//================================================================================================================
+
+
+Class D4OldShotgunGuy : D4AbstractMonster // : ShotgunGuy //replaces ShotgunGuy
+{
+	int user_staggertimer;
+	
+	Default 
+	{
+		Health 30;
+		Radius 20;
+		Height 56;
+		Mass 100;
+		Speed 8;
+		PainChance 170;
+		Monster;
+		+FLOORCLIP
+		SeeSound "shotguy/sight";
+		AttackSound "shotguy/attack";
+		PainSound "shotguy/pain";
+		DeathSound "shotguy/death";
+		ActiveSound "shotguy/active";
+		Obituary "$OB_SHOTGUY";
+		DropItem "Shotgun";
+		
+		PainChance "StunBomb", 255;
+		PainChance "GloryKill", 255;
+		WoundHealth 10;
+		+DONTCORPSE
+	}
+	States
+	{
+	Spawn:
+		SPOS AB 10 A_Look();
+		Loop;
+	See:
+		SPOS AABBCCDD 3 D4Chase();
+		Loop;
+	Missile:
+		SPOS E 10 A_FaceTarget();
+		SPOS F 10 BRIGHT A_SposAttackUseAtkSound;
+		SPOS E 10;
+		Goto See;
+	Pain:
+		SPOS G 3;
+		SPOS G 3 A_Pain();
+		Goto See;
+	Raise:
+		SPOS L 5;
+		SPOS KJIH 5;
+		Goto See;
+		
+	Pain.StunBomb:
+		"####" "#" 0 { bNoPain = true; }
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#" 0 { bNoPain = false; }
+		Goto See;
+	Death:
+		"####" "#" 0  //loot drop
+		{
+			bThruActors = true;
+			D4DropCash(CashMultiplier,"ShotguyCashGiver");
+			D4SetupLoot();
+			D4DropItems();
+		}
+		SPOS H 3 ;
+		SPOS I 3 A_Scream();
+		SPOS J 3 A_NoBlocking();
+		SPOS K 3;
+		SPOS L -1 {bCorpse = true;}
+		Stop;
+		
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:
+	XDeath:
+		"####" "#" 0  //loot drop
+		{
+			D4SetupLoot();
+			
+			if (GetCvar("MPWeapons"))
+			{	Pinatas.Carrion++;	}
+		}
+		Goto XDeathNoDrops;
+		
+	XDeathNoDrops:	
+		TNT1 A 0
+		{
+			bThruActors = true;
+			XDeathGush();
+			D4DropItems();
+			D4DropCash(CashMultiplier,"ShotguyCashGiver");
+		}
+		SPOS N 5 A_XScream();
+		SPOS O 5 A_NoBlocking();
+		SPOS PQRST 5;
+		SPOS U -1 {bCorpse = true;}
+		Stop;
+		
+	//------------------------------------------------------------------------
+	// Start of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	Wound:
+		"####" "#" 1
+		{
+			if(GetCvar("D4D_ExecutionsON"))
+			{
+				if(countinv("FinisherToken")==0) //if it isnt healing already
+				{								//will heal and give the token that indicates it's executable
+					A_SpawnItemEx("ZombieHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
+					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
+				}
+				
+				if(GetCvar("D4D_MonsterStagger")==1) //will the monsters stagger at all?
+				{
+					return ResolveState("Stagger");	//stays there for a few seconds
+				}
+				else
+				{
+					return ResolveState(null);
+				}
+			}
+			return ResolveState(null);
+		}
+		Goto See;
+	Stagger:
+		SPOS G 0 
+		{
+			if(GetCvar("D4D_ExecutionHighlight")==1)
+			{	return ResolveState("PrepareStaggerHighlight");}
+			else
+			{	return ResolveState("StagLooper");	}
+		}
+		Goto StagLooper;
+	PrepareStaggerHighlight:
+		SPOS X 0;
+		Goto StagLooper;
+	
+	StagLooper:
+		"####" "#" 1
+		{
+			if(!countinv("FinisherToken"))
+			{
+				return ResolveState("See");
+			}
+			if(GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
+			{ 
+				A_Pain(); 
+				A_TakeInventory("PainSoundToken");
+			}
+			
+			return ResolveState(null);
+		}
+		Loop;
+		
+	// Finisher attack(s) with animations ON
+	Death.GloryKill:
+		TNT1 A 0 { bSolid = false; }
+		SPOS AA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0
+		{
+			if(countinv("GloryKill1Token"))
+			{	return ResolveState("GloryEnd1"); }
+			
+			if(countinv("GloryKill2Token"))
+			{	return ResolveState("GloryEnd2"); }
+			
+			if(countinv("GloryKill3Token"))
+			{	return ResolveState("GloryEnd3"); }
+			return ResolveState(null);
+		}
+	GloryEnd1:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" GGGGGG 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd2:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" GGGGGG 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd3:
+		"####" AAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" I 0 A_ChangeVelocity(-8,0,10,CVF_RELATIVE);
+		Goto GloryEnd;
+	}
+}
+
+Class ShotgunAmmoOrWep : Actor
+{
+	Default
+	{
+		+NOINTERACTION
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay
+		{
+			if (!CountInv("D4Shotgun",Player1))
+			{
+				A_DropItem("D4Shotgun");
+			}
+			else
+			{
+				A_SpawnItemEx("D4PinataShellsShotgunGuy",0,0,32,0,0,0,0,SXF_NOCHECKPOSITION);
+			}
+		}
+		Stop;
+	}
+}

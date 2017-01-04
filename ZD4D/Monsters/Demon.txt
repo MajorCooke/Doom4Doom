@@ -1,0 +1,596 @@
+//================================================================================================================
+//================================================================================================================
+//
+//	"D4D mode" version
+//	Demon, sprites "Doom 64 demon"
+//================================================================================================================
+//================================================================================================================
+Class D4Demon : D4AbstractMonster 
+{
+	int user_staggertimer;
+	int user_Shielded;
+	int user_accelerator;
+	int user_chargecooldown;
+	Default 
+	{
+		Health 150;
+		PainChance 180;
+		Speed 10;
+		Radius 30;
+		Height 56;
+		Mass 400;
+		Monster;
+		+FLOORCLIP
+		+FORCERADIUSDMG
+		+DONTCORPSE
+		SeeSound "Doom4/Monsters/Pinky/Sight";
+		AttackSound "Player/Demon/Cacodemon/Bite";
+		PainSound "Doom4/Monsters/Pinky/Pain";
+		DeathSound "Doom4/Monsters/Pinky/Death";
+		ActiveSound "Doom4/Monsters/Pinky/Idle";
+		Obituary "$OB_DEMONHIT";
+		PainChance "StunBomb", 255;
+		PainChance "PinkieShield", 0;
+		DamageFactor "PinkieRam", 0;
+		MaxTargetRange 512;	//increased from 256 since now it gives you a lot of chance to dodge it
+		Scale 0.75;
+		PainChance "GloryKill", 255;
+		WoundHealth 50;
+	}
+	States
+	{
+	Spawn:
+		D4DG A 0 NODELAY 
+		{
+			if(user_Shielded==0)
+			{
+				A_SpawnItemEx("DemonShield",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION);
+				user_Shielded=1;
+			}
+		}
+	Idle:
+		D4DG A 10 A_Look();
+		Wait;
+	See:
+		D4DG A 0
+		{
+			if(user_Shielded==0)
+			{
+				A_SpawnItemEx("DemonShield",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION);
+				user_Shielded=1;
+			}
+		}
+		D4DG AABBCCDD 2 Fast 
+		{
+			//Don't bother charging enemies that are beyond reach.
+			if (!A_JumpIfHigherOrLower("Null","Null") && user_chargecooldown <= 0)
+			{	D4Chase();	}
+			else
+			{	D4Chase("Melee",null);	}
+		}
+		D4DG A 0 {user_chargecooldown--;}
+		Loop;
+	Missile:
+		D4DG E 8 
+		{
+			A_FaceTarget();
+			A_PlaySound("Doom4/Monsters/Pinky/Charge");
+			user_accelerator = 5;
+			user_chargecooldown = 5; //how many "see" cycles it takes him to try to charge again
+		}
+		D4DG A 0 
+		{
+			A_FaceTarget();
+			A_Recoil(-user_accelerator);
+		}
+		D4DG ABCDABCD 4 // full acceleration
+		{
+			if(A_CheckBlock("Null",0,DefPtr,speed) || (vel.x==0 && vel.y==0))	//when it stops
+			{
+				return ResolveState("CrashedSomewhere");
+			}
+			A_Recoil(-user_accelerator);
+			user_accelerator += 2;
+			return ResolveState(null);
+		}
+		D4DG ABCD 4 //slowing down
+		{
+			if(A_CheckBlock("Null",0,DefPtr,speed) || (vel.x==0 && vel.y==0))	//when it stops
+			{
+				return ResolveState("CrashedSomewhere");
+			}
+			A_ChangeVelocity(vel.x*0.8,vel.y*0.8,vel.z*0.8,CVF_REPLACE);
+			return ResolveState(null);
+		}
+		Goto See;
+	CrashedSomewhere:
+		D4DG G 35 Fast  
+		{
+			A_QuakeEx(0,1,1,10,0,128,"",QF_Relative|QF_ScaleDown,0,0,0,0,0,1);
+			A_PlaySound("Doom4/Monsters/Pinky/Crash",7);
+			A_SetDamageType("PinkieRam");
+			A_Explode(30,50,XF_NOTMISSILE,0,50);
+			A_SetDamageType("Normal");
+		}
+		Goto See;
+	Melee:
+		D4DG EF 4 Fast A_FaceTarget();
+		D4DG G 4 Fast A_SargAttack;
+		Goto See;
+	Pain:
+		D4DG H 2 Fast;
+		D4DG H 2 Fast A_Pain();
+		Goto See;
+	Pain.StunBomb:
+		"####" "#" 0 { bNoPain = true; }
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#" 0 { bNoPain = false; }
+		Goto See;
+	Death:
+		"####" "#" 0  //loot drop
+		{
+			bThruActors = true;
+			D4DropCash(CashMultiplier,"DemonCashGiver");
+			D4SetupLoot();
+			D4DropItems();
+		}
+		D4DG I 8 A_RemoveChildren(True,RMVF_EVERYTHING,"DemonShield");
+		D4DG J 8 A_Scream();
+		D4DG K 4;
+		D4DG L 4 A_NoBlocking();
+		D4DG M 4;
+		D4DG N -1 {bCorpse = true;}
+		Stop;
+
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:
+	XDeath:
+		"####" "#" 0  //loot drop
+		{
+			D4SetupLoot();
+			
+			if (GetCvar("MPWeapons"))
+			{	Pinatas.Carrion++;	}
+		}
+		Goto XDeathNoDrops;
+		
+	XDeathNoDrops:	
+		TNT1 A 0
+		{
+			bThruActors = true;
+			XDeathGush();
+			D4DropItems();
+			D4DropCash(CashMultiplier,"DemonCashGiver");
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+			A_NoBlocking();	//just in case
+		}
+		Stop;
+	Raise:
+		D4DG N 5;
+		D4DG MLKJI 5;
+		Goto See;
+		
+		
+	//------------------------------------------------------------------------
+	// Start of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	Wound:
+		"####" "#" 1
+		{
+			user_Shielded=0;
+			if(GetCvar("D4D_ExecutionsON"))
+			{
+				if(countinv("FinisherToken")==0) //if it isnt healing already
+				{								//will heal and give the token that indicates it's executable
+					A_SpawnItemEx("DemonHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
+					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
+				}
+				
+				if(GetCvar("D4D_MonsterStagger")==1) //will the monsters stagger at all?
+				{
+					return ResolveState("Stagger");	//stays there for a few seconds
+				}
+				else
+				{
+					return ResolveState(null);
+				}
+			}
+			return ResolveState(null);
+		}
+		Goto See;
+	Stagger:
+		D4DG H 0 
+		{
+			if(GetCvar("D4D_ExecutionHighlight")==1)
+			{	return ResolveState("PrepareStaggerHighlight");}
+			else
+			{	return ResolveState("StagLooper");	}
+		}
+		Goto StagLooper;
+	PrepareStaggerHighlight:
+		D4DG U 0;
+		Goto StagLooper;
+	
+	StagLooper:
+		"####" "#" 1
+		{
+			if(!countinv("FinisherToken"))
+			{
+				return ResolveState("See");
+			}
+			if(GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
+			{ 
+				A_Pain(); 
+				A_TakeInventory("PainSoundToken");
+			}
+			
+			return ResolveState(null);
+		}
+		Loop;
+		
+	// Finisher attack(s) with animations ON
+	Death.GloryKill:
+		TNT1 A 0 { bSolid = false; }
+		D4DG AA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0
+		{
+			if(countinv("GloryKill1Token"))
+			{	return ResolveState("GloryEnd1"); }
+			
+			if(countinv("GloryKill2Token"))
+			{	return ResolveState("GloryEnd2"); }
+			
+			if(countinv("GloryKill3Token"))
+			{	return ResolveState("GloryEnd3"); }
+			return ResolveState(null);
+		}
+	GloryEnd1:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" HHHHHH 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd2:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" HHHHHH 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd3:
+		"####" AAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" I 0 A_ChangeVelocity(-8,0,10,CVF_RELATIVE);
+		Goto GloryEnd;
+		
+	}
+}
+
+
+Class DemonShield : Actor 
+{
+	int user_damage;
+	int MasterCheck1, MasterCheck2, HealthCheck1, HealthCheck2;
+	Default 
+	{
+		+NOBLOOD
+		+NEVERTARGET
+		+SHOOTABLE
+		+NOPAIN
+		+NOTONAUTOMAP
+		-SOLID
+		+QUICKTORETALIATE
+		+DONTTHRUST
+		+GHOST
+		-COUNTKILL
+		Health 1000000;
+		Radius 26;
+		Height 56;
+		RenderStyle "None";
+		Alpha 0.4;
+		DamageFactor "PinkieRam", 0;
+		DamageFactor "BFGBeam", 0;
+		PainType "PinkieShield";
+	}
+	States
+	{
+	Spawn:
+		PLAY A 1 NoDelay
+		{
+			if (master && master.health > 50 && !master.CountInv("FinisherToken"))
+			{
+				A_Warp(MasterPtr,8,0,0,0,WARPF_NOCHECKPOSITION);
+				
+				if (health < GetSpawnHealth())
+				{
+					// Damage the pinkie for the total amount of health lost. The pinkie will
+					// absorb half of it because of the damagetype. Transfer the damager
+					// for the sake of infighting.
+					A_DamageMaster((GetSpawnHealth() - health) / 2,DamageTypeReceived,0,null,"none",TargetPtr);
+					A_ResetHealth(); //Needed to ensure 
+					A_ClearTarget();
+				}
+				return ResolveState(null);
+			}
+			//Couldn't warp because master is non-existant or dead.
+			return ResolveState("Null");
+		}
+		Loop;
+	}
+}
+
+//===========================================================================
+//
+// Spectre
+//
+//===========================================================================
+Class D4Spectre : D4Demon //replaces Spectre
+{
+	Default 
+	{
+		+SHADOW
+		RenderStyle "OptFuzzy";
+		Alpha 0.5;
+		Health 150;
+		SeeSound "Doom4/Monsters/Pinky/Sight";
+		AttackSound "Player/Demon/Cacodemon/Bite";
+		PainSound "Doom4/Monsters/Pinky/Pain";
+		DeathSound "Doom4/Monsters/Pinky/Death";
+		ActiveSound "Doom4/Monsters/Pinky/Idle";
+		HitObituary "$OB_SPECTREHIT";
+	}
+	States
+	{
+	Spawn:
+		D4DG A 0 NODELAY 
+		{
+			user_Shielded=1;	//to avoid spawning the shield for if any reason it jumps to a state that respawns it
+		}
+	Idle:
+		D4DG A 10 A_Look();
+		Wait;
+	See:
+		D4DG A 0
+		{
+			user_Shielded=1;
+		}
+		D4DG AABBCCDD 2 Fast 
+		{
+			//Don't bother charging enemies that are beyond reach.
+			if (!A_JumpIfHigherOrLower("Null","Null") && user_chargecooldown <= 0)
+			{	D4Chase();	}
+			else
+			{	D4Chase("Melee",null);	}
+		}
+		D4DG A 0 {user_chargecooldown--;}
+		Loop;
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+//================================================================================================================
+//================================================================================================================
+//
+//	Original Doom version 
+//
+//================================================================================================================
+//================================================================================================================
+
+Class D4OldDemon : D4AbstractMonster // : Demon //replaces Demon
+{
+	int user_staggertimer;
+	Default 
+	{
+		Health 150;
+		PainChance 180;
+		Speed 10;
+		Radius 30;
+		Height 56;
+		Mass 400;
+		Monster;
+		+FLOORCLIP
+		SeeSound "demon/sight";
+		AttackSound "demon/melee";
+		PainSound "demon/pain";
+		DeathSound "demon/death";
+		ActiveSound "demon/active";
+		Obituary "$OB_DEMONHIT";
+		
+		PainChance "StunBomb", 255;
+		PainChance "GloryKill", 255;
+		WoundHealth 20;
+		+DONTCORPSE
+	}
+	States
+	{
+	Spawn:
+		SARG AB 10 A_Look();
+		Loop;
+	See:
+		SARG AABBCCDD 2 Fast D4Chase();
+		Loop;
+	Melee:
+		SARG EF 8 Fast A_FaceTarget();
+		SARG G 8 Fast A_SargAttack;
+		Goto See;
+	Pain:
+		SARG H 2 Fast;
+		SARG H 2 Fast A_Pain();
+		Goto See;
+
+	Raise:
+		SARG N 5;
+		SARG MLKJI 5;
+		Goto See;
+		
+	Pain.StunBomb:
+		"####" "#" 0 { bNoPain = true; }
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#" 0 { bNoPain = false; }
+		Goto See;
+	Death:
+		SARG I 4 
+		{
+			bThruActors = true;
+			D4DropCash(CashMultiplier,"DemonCashGiver");
+			D4SetupLoot();
+			D4DropItems();
+		}
+		SARG J 4 A_Scream();
+		SARG K 4;
+		SARG L 4 A_NoBlocking();
+		SARG M 4;
+		SARG N -1 {bCorpse = true;}
+		Stop;
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:
+	XDeath:
+		"####" "#" 0  //loot drop
+		{
+			D4SetupLoot();
+			
+			if (GetCvar("MPWeapons"))
+			{	Pinatas.Carrion++;	}
+		}
+		Goto XDeathNoDrops;
+		
+	XDeathNoDrops:
+		SARG I 4
+		{
+			bThruActors = true;
+			XDeathGush();
+			D4DropItems();
+			D4DropCash(CashMultiplier,"DemonCashGiver");
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+		}
+		
+		SARG J 4 A_Scream();
+		SARG K 4;
+		SARG L 4 A_NoBlocking();
+		SARG M 4;
+		SARG N -1 {bCorpse = true;}
+		Stop;
+	//------------------------------------------------------------------------
+	// Start of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	Wound:
+		"####" "#" 1
+		{
+			if(GetCvar("D4D_ExecutionsON"))
+			{
+				if(countinv("FinisherToken")==0) //if it isnt healing already
+				{								//will heal and give the token that indicates it's executable
+					A_SpawnItemEx("OldDemonHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
+					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
+				}
+				
+				if(GetCvar("D4D_MonsterStagger")==1) //will the monsters stagger at all?
+				{
+					return ResolveState("Stagger");	//stays there for a few seconds
+				}
+				else
+				{
+					return ResolveState(null);
+				}
+			}
+			return ResolveState(null);
+		}
+		Goto See;
+	Stagger:
+		SARG H 0 
+		{
+			if(GetCvar("D4D_ExecutionHighlight")==1)
+			{	return ResolveState("PrepareStaggerHighlight");}
+			else
+			{	return ResolveState("StagLooper");	}
+		}
+		Goto StagLooper;
+	PrepareStaggerHighlight:
+		SARG U 0;
+		Goto StagLooper;
+	
+	StagLooper:
+		"####" "#" 1
+		{
+			if(!countinv("FinisherToken"))
+			{
+				return ResolveState("See");
+			}
+			if(GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
+			{ 
+				A_Pain(); 
+				A_TakeInventory("PainSoundToken");
+			}
+			
+			return ResolveState(null);
+		}
+		Loop;
+		
+	// Finisher attack(s) with animations ON
+	Death.GloryKill:
+		TNT1 A 0 { bSolid = false; }
+		SARG AA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0
+		{
+			if(countinv("GloryKill1Token"))
+			{	return ResolveState("GloryEnd1"); }
+			
+			if(countinv("GloryKill2Token"))
+			{	return ResolveState("GloryEnd2"); }
+			
+			if(countinv("GloryKill3Token"))
+			{	return ResolveState("GloryEnd3"); }
+			return ResolveState(null);
+		}
+	GloryEnd1:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" HHHHHH 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd2:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" HHHHHH 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd3:
+		"####" AAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" I 0 A_ChangeVelocity(-8,0,10,CVF_RELATIVE);
+		Goto GloryEnd;
+	}
+}
+
+Class D4OldSpectre : D4OldDemon //replaces Spectre
+{
+	Default 
+	{
+		PainChance "StunBomb", 255;
+		+SHADOW
+		RenderStyle "OptFuzzy";
+		Alpha 0.5;
+	}
+
+}

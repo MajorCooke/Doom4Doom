@@ -1,0 +1,816 @@
+//=======================================================================
+//=======================================================================
+// Special ammo spawners
+//=======================================================================
+//=======================================================================
+Class ClipReplacer : CustomInventory replaces Clip
+{
+	Default
+	{
+		+INVENTORY.QUIET
+		+INVENTORY.ALWAYSPICKUP
+		-COUNTITEM
+		Inventory.Amount 0;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("D4BulletsSmall",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
+		TNT1 A -1 
+		{
+			if (CountInv("D4Chainsaw",Player1) || A_CheckProximity("Null","D4Chainsaw",20000,1))
+			{
+				A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION,245);
+			}
+		}
+		Stop;
+	}
+}
+
+Class ClipBoxReplacer : CustomInventory replaces ClipBox
+{
+	Default
+	{
+		+INVENTORY.QUIET
+		+INVENTORY.ALWAYSPICKUP
+		-COUNTITEM
+		Inventory.Amount 0;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("D4Bullets",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
+		TNT1 A -1 
+		{
+			if (CountInv("D4Chainsaw",Player1) || A_CheckProximity("Null","D4Chainsaw",20000,1))
+			{
+				A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION,230);
+			}
+		}
+		Stop;
+	}
+}
+
+Class ShellReplacer : CustomInventory replaces Shell
+{
+	Default
+	{
+		+INVENTORY.QUIET
+		+INVENTORY.ALWAYSPICKUP
+		-COUNTITEM
+		Inventory.Amount 0;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("D4ShellsSmall",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
+		TNT1 A -1 
+		{
+			if (CountInv("D4Chainsaw",Player1) || A_CheckProximity("Null","D4Chainsaw",20000,1))
+			{
+				A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION,245);
+			}
+		}
+		Stop;
+	}
+}
+
+Class ShellBoxReplacer : CustomInventory replaces ShellBox
+{
+	Default
+	{
+		+INVENTORY.QUIET
+		+INVENTORY.ALWAYSPICKUP
+		-COUNTITEM
+		Inventory.Amount 0;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("D4Shells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
+		TNT1 A -1  
+		{
+			if (CountInv("D4Chainsaw",Player1) || A_CheckProximity("Null","D4Chainsaw",20000,1))
+			{
+				A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION,230);
+			}
+		}
+		Stop;
+	}
+}
+
+
+Class RocketAmmoReplacer : CustomInventory replaces RocketAmmo
+{
+	Default
+	{
+		+INVENTORY.QUIET
+		+INVENTORY.ALWAYSPICKUP
+		-COUNTITEM
+		Inventory.Amount 0;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("D4RocketsSmall",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
+		TNT1 A -1 
+		{
+			if (CountInv("D4Chainsaw",Player1) || A_CheckProximity("Null","D4Chainsaw",20000,1))
+			{
+				A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION,200);
+			}
+		}
+		Stop;
+	}
+}
+
+Class RocketBoxReplacer : CustomInventory replaces RocketBox
+{
+	Default
+	{
+		+INVENTORY.QUIET
+		+INVENTORY.ALWAYSPICKUP
+		-COUNTITEM
+		Inventory.Amount 0;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SpawnItemEx("D4Rockets",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
+		TNT1 A -1 
+		{
+			if (CountInv("D4Chainsaw",Player1) || A_CheckProximity("Null","D4Chainsaw",20000,1))
+			{
+				A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION,160);
+			}
+		}
+		Stop;
+	}
+}
+
+
+Class CellReplacer : CustomInventory replaces Cell
+{
+	Default
+	{
+		+INVENTORY.QUIET
+		+INVENTORY.ALWAYSPICKUP
+		-COUNTITEM
+		Inventory.Amount 0;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A -1 NODELAY 
+		{
+			A_SpawnItemEx("D4CellsSmall",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
+			if (CountInv("D4Chainsaw",Player1) || A_CheckProximity("Null","D4Chainsaw",20000,1))
+			{
+				A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION,200);
+			}
+			if (CountInv("D4BFG",Player1) || A_CheckProximity("Null","D4BFG",20000,1))
+			{
+				A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION,245);
+			}
+		}
+		Stop;
+	}
+}
+Class CellPackReplacer : CustomInventory replaces CellPack
+{
+	Default
+	{
+		+INVENTORY.QUIET
+		+INVENTORY.ALWAYSPICKUP
+		-COUNTITEM
+		Inventory.Amount 0;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A -1 NODELAY
+		{
+			A_SpawnItemEx("D4Cells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
+			if (CountInv("D4Chainsaw",Player1) || A_CheckProximity("Null","D4Chainsaw",20000,1))
+			{
+				A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION,160);
+			}
+			if (CountInv("D4BFG",Player1) || A_CheckProximity("Null","D4BFG",20000,1))
+			{
+				A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION,220);
+			}			
+		}
+		Stop;
+	}
+}
+//=============================================================================
+//
+//=============================================================================
+Class D4Fuel : Ammo 
+{
+	
+	Default
+	{
+		+FLOORCLIP
+		-TELESTOMP
+		Radius 20;
+		Height 16;
+		Inventory.PickupMessage "Chainsaw fuel";
+		//Inventory.Icon "AMMON0"
+		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
+		Inventory.Amount 2;
+		Inventory.MaxAmount 5;
+		Ammo.BackpackMaxAmount 8;
+		DistanceCheck "user_MaxDrawDistance";
+		Scale 0.45;
+	}
+	States
+	{
+	Spawn:
+		AMGS A -1 NODELAY A_SetAngle(random(0,359));
+		Stop;
+	}
+}
+
+Class D4FuelSmall : D4Fuel 
+{
+	
+	Default
+	{
+		Inventory.PickupSound "Doom4/Pickups/AmmoSmall";
+		Inventory.Amount 1;
+		Scale 0.3;
+	}
+}
+
+//=============================================================================
+//
+//=============================================================================
+Class D4Bullets : Ammo replaces ClipBox
+{
+	
+	Default
+	{
+		+FLOORCLIP
+		-TELESTOMP
+		Radius 20;
+		Height 16;
+		Inventory.PickupMessage "Bullets";
+		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
+		Inventory.Amount 50;
+		Inventory.MaxAmount 250;
+		Ammo.BackpackMaxAmount 350;
+		Ammo.BackpackAmount 16;
+		DistanceCheck "user_MaxDrawDistance";
+		Scale 0.3;
+	}
+	
+	States
+	{
+	Spawn:
+		AMBL A -1  NODELAY A_SetAngle(random(0,359));
+		Stop;
+	}
+}
+
+Class D4BulletsSmall : D4Bullets replaces clip
+{
+	
+	Default
+	{
+		Inventory.Amount 16;
+		Inventory.PickupSound "Doom4/Pickups/AmmoSmall";
+	}
+	States
+	{
+	Spawn:
+		AMBL B -1  NODELAY A_SetAngle(random(0,359));
+		Stop;
+	}
+}
+
+//=============================================================================
+//
+//=============================================================================
+Class D4Shells : Ammo replaces ShellBox
+{
+	
+	Default
+	{
+		+FLOORCLIP
+		-TELESTOMP
+		Radius 20;
+		Height 16;
+		Inventory.PickupMessage "Shotgun shells";
+		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
+		Inventory.Amount 20;
+		Inventory.MaxAmount 45;
+		Ammo.BackpackMaxAmount 75;
+		Ammo.BackpackAmount 6;
+		DistanceCheck "user_MaxDrawDistance";
+		Scale 0.3;
+	}
+	
+	States
+	{
+	Spawn:
+		AMSH A -1 NODELAY A_SetAngle(random(0,359));
+		Stop;
+	}
+}
+
+Class D4ShellsSmall : D4Shells replaces Shell
+{
+	
+	Default
+	{
+		Inventory.Amount 6;
+		Inventory.PickupSound "Doom4/Pickups/AmmoSmall";
+	}
+	States
+	{
+	Spawn:
+		AMSH B -1  NODELAY A_SetAngle(random(0,359));
+		Stop;
+	}
+}
+//=============================================================================
+//
+//=============================================================================
+Class D4Cells : Ammo //replaces CellPack
+{
+	Default
+	{
+	+FLOORCLIP
+	-TELESTOMP
+	Radius 20;
+	Height 16;
+	Inventory.PickupMessage "Plasma cells";
+	Inventory.PickupSound "Doom4/Pickups/AmmoBig";
+	Inventory.Amount 30;
+	Inventory.MaxAmount 200;
+	Ammo.BackpackMaxAmount 300;
+	Ammo.BackpackAmount 10;
+	DistanceCheck "user_MaxDrawDistance";
+	Scale 0.4;
+	}
+	States
+	{
+	Spawn:
+		AMPL A -1 NODELAY A_SetAngle(random(0,359));
+		Stop;
+	}
+}
+
+Class D4CellsSmall : D4Cells //replaces Cell
+{
+	Default
+	{
+	Inventory.Amount 10;
+	Inventory.PickupSound "Doom4/Pickups/AmmoSmall";
+	}
+	States
+	{
+	Spawn:
+		AMPL B -1  NODELAY A_SetAngle(random(0,359));
+		Stop;
+	}
+}
+
+
+
+//=============================================================================
+//
+//=============================================================================
+Class D4Rockets : Ammo //replaces RocketBox
+{
+	Default
+	{
+		+FLOORCLIP
+		-TELESTOMP
+		Radius 20;
+		Height 16;
+		Inventory.PickupMessage "Rockets";
+		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
+		Inventory.Amount 5;
+		Inventory.MaxAmount 30;
+		Ammo.BackpackMaxAmount 40;
+		Ammo.BackpackAmount 1;
+		DistanceCheck "user_MaxDrawDistance";
+		Scale 0.3;
+	}
+	States
+	{
+	Spawn:
+		AMRK A -1 NODELAY A_SetAngle(random(0,359));
+		Stop;
+	}
+}
+
+Class D4RocketsSmall : D4Rockets //replaces RocketAmmo
+{
+	Default
+	{
+		Inventory.Amount 3;
+		Inventory.PickupSound "Doom4/Pickups/AmmoSmall";
+	}
+	States
+	{
+	Spawn:
+		AMRK B -1  NODELAY A_SetAngle(random(0,359));
+		Stop;
+	}
+}
+
+//==============================================================================
+//
+//==============================================================================
+Class D4BFGAmmo : Ammo
+{
+	Default
+	{
+		Inventory.PickupMessage "BFG cells";
+		Inventory.Amount 1;
+		Inventory.MaxAmount 3;
+		Inventory.Icon "BFUGA0";
+		Ammo.BackpackAmount 0;
+		Ammo.BackpackMaxAmount 3;
+		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
+		DistanceCheck "user_MaxDrawDistance";
+		Scale 0.40;
+	}
+	States
+	{
+	Spawn:
+		AMBF A 120 Bright NODELAY Light("GreenSmallPoint3") A_PlaySound("Doom4/Weapon/BFG/AmmoLoop",7,0.5,0,5);
+		Wait;
+	}
+}
+
+//==============================================================================
+//
+//==============================================================================
+
+Class D4Carrion : Ammo
+{
+	Default
+	{
+		+INVENTORY.IGNORESKILL
+		Inventory.Amount 1;	//Don't touch this. See "PickupAmount" in D4PinataCarrion below.
+		Inventory.MaxAmount 5000;
+		Ammo.BackpackAmount 0;
+		Ammo.BackpackMaxAmount 5000;
+	}
+}
+
+Class D4CarrionToken : Inventory
+{
+	Default
+	{
+		+INVENTORY.IGNORESKILL
+		+INVENTORY.UNDROPPABLE
+		Inventory.MaxAmount 2000;
+		Inventory.InterhubAmount 2000;
+	}
+}
+
+Class Vacuumed : Inventory {}
+
+Class D4PinataCarrion : CustomInventory
+{
+	enum Pinata
+	{
+		PickupMax = 5000,			//How much they can carry.
+		PickupAmountBase = 10,		//The very minimal amount to always be given for ammo.
+		PickupAmountAdd = 5,		//The random amount to give for ammo.
+		CarrionLifeTime = 3000,		//How long these linger for.
+		SuckDistance = 512,			//How close the player must be to magnetize.
+		MergeDistance = SuckDistance*4,		//How close another carrion piece must be to merge.
+		MaxMergeTimer = 160,				//Maximum time in tics until merge.
+	};
+	
+	int user_mul;		// Multiplier based on upgrades
+	int user_count;
+	int user_landed;
+	int user_spawned;
+	int user_safety;
+	int user_absorb;
+	int user_timer;
+	int user_mergetime;
+	
+	
+	Default
+	{
+		Scale 0.3;
+		Radius 8;
+		Height 16;
+		Gravity 0.4;
+		Inventory.PickupMessage "Carrion";
+		Inventory.PickupSound "Doom4/Pickups/AmmoSmall";
+		+BRIGHT
+		+BOUNCEONFLOORS
+		+BOUNCEONWALLS
+		+BOUNCEONCEILINGS
+		+NOBLOCKMONST
+		+NOTELESTOMP
+		+INVENTORY.TRANSFER
+		BounceFactor 0.5;
+		DistanceCheck "user_MaxDrawDistance";
+		Translation "0:255=%[0,0,0]:[1.0,0.1,0.1]";
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			if (CountInv("D4CarrionToken") < BuildRequirement - 1)	
+			{	
+				A_GiveInventory("D4CarrionToken",1);	
+				//A_LogInt(CountInv("D4CarrionToken"));
+			}
+			else if (!CountInv("D4CarrionCannon"))		
+			{	
+				A_PrintBold("The Carrion Cannon is yours.\n\cgReturn the fires of Hell to them.");
+				A_SpawnItemEx("CarrionPortalOpener",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTARGET,0,666);
+				A_GiveInventory("D4CarrionCannon",1);
+			}
+			else if (GetCvar("sv_unlimited_pickup") || CountInv("D4Carrion") < PickupMax)
+			{
+				if (CountInv("CarrionUpgradePickup"))
+				{	A_GiveInventory("D4Carrion",(PickupAmountBase + random(0,PickupAmountAdd)) * 2);	}
+				else
+				{	A_GiveInventory("D4Carrion",PickupAmountBase + random(0,PickupAmountAdd));	}
+				//A_LogInt(CountInv("D4Carrion"));
+				
+			}
+			else	
+			{	return false;	}
+			
+			return true;
+		}
+		Stop;
+	Spawn:
+		PIN2 D 1 NoDelay 
+		{
+			A_SetTics(random(1,6));
+			if (!invoker.user_spawned)
+			{
+				A_SpawnItemEx("D4CarrionBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+				A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+				invoker.user_spawned = 1;
+			}
+			invoker.user_mergetime = random(5,MaxMergeTimer);
+		}
+	Looping:
+		"----" A 1
+		{
+			if (invoker.user_count >= DelayVacuum)
+			{
+				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
+				if (A_CheckProximity("Null","PlayerPawn",SuckDistance,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR) && countinv("IamADemonToken",TracerPtr)==0)
+				{
+					if (GetCvar("sv_unlimited_pickup") > 0 || 
+						CountInv("D4Carrion",TracerPtr) < PickupMax ||
+						CountInv("D4CarrionToken",TracerPtr) < BuildRequirement)
+					{	
+						//A_GiveInventory("Vacuumed",1);
+						return ResolveState("Suckage");	
+					}
+				}
+			}
+			else if (invoker.user_landed || invoker.user_count < DelayVacuum)
+			{	invoker.user_count++;	}
+			
+			// There's some nearby carrion. Lets merge it together. Thanks to the
+			// power that be TRANSFER flag, it's fully possible to now combine
+			// the efforts and have inventory actors deliver others.
+			// So lets stack them up.
+			
+			invoker.user_timer++;
+			
+			if (invoker.user_timer % invoker.user_mergetime == 0)
+			{
+				invoker.user_safety = 0;
+				if (A_CheckProximity("Null", "D4PinataCarrion", MergeDistance * invoker.user_mergetime/MaxMergeTimer, 1, CPXF_SETTRACER|CPXF_CHECKSIGHT))
+				{
+					if (CountInv("D4CarrionToken",Player1) < BuildRequirement)
+					{	
+						A_GiveInventory("D4CarrionToken",CountInv("D4CarrionToken")+1,TracerPtr);
+					}
+					else
+					{	
+						A_GiveInventory("D4Carrion",CountInv("D4Carrion")+1,TracerPtr);
+					}
+					if (!IsPointerEqual(TracerPtr,NullPtr))
+					{
+						A_RemoveChildren(true,RMVF_EVERYTHING);
+						A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+						A_SpawnItemEx("CarrionMergeBeam",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS);
+						
+						//Jumping to state null requires a little more calculation.
+						//This must destroy itself super fast to prevent gaining unwanted tokens.
+						A_Remove(DefPtr,RMVF_EVERYTHING);
+					}
+				}
+			}
+			
+			if (!invoker.user_landed && A_CheckFloor("Null"))	{	invoker.user_landed = 1;	}
+			return ResolveState(null);
+		}
+		Loop;
+	Fading:
+		"####" "#" 1 A_FadeOut();
+		Wait;
+	Suckage:
+		"####" "#" 1
+		{
+			if ((CountInv("D4Carrion",TracerPtr) >= PickupMax &&
+				CountInv("D4CarrionToken",TracerPtr) >= BuildRequirement && 
+				GetCvar("sv_unlimited_pickup") == 0) || A_JumpIfHealthLower(1,"Null",TracerPtr) || countinv("IamADemonToken",TracerPtr))
+			{	
+				bNoClip = false;
+				bNoInteraction = false;
+				//A_TakeInventory("Vacuumed",32767);
+				return ResolveState("Looping");	
+			}
+			bNoclip = bNoInteraction = true;
+			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+			A_SetTics(2); A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
+			if (GetDistance(true,TracerPtr) <= 32)
+			{
+				bNoClip = bNoInteraction = false;
+				A_ChangeLinkFlags(false);
+				A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
+				
+				
+			}
+			return ResolveState(null);
+		}
+		Loop;
+	}
+}
+
+
+
+Class D4CarrionBorder : Actor
+{
+	Default
+	{
+		+BRIGHT
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+		Scale 0.3;
+		DistanceCheck "user_MaxDrawDistance";
+		Translation "0:255=%[0,0,0]:[1.0,0.1,0.1]";
+	}
+	States
+	{
+	Spawn:
+		PIN3 D 1 NoDelay
+		{
+			if (!A_Warp(MasterPtr,0,0,5,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_COPYVELOCITY,"Null"))		
+			{	return ResolveState("Null");	}
+			return ResolveState(null);			
+		}
+		Loop;
+	}
+}
+
+Class CarrionMergeBeam : Actor
+{
+	enum Carrion
+	{
+		MaxDistance = 2048,	// Maximum distance of the effect
+		AngleRandom = 7,	// The boundaries of angle changing (random(-AngleRandom,AngleRandom))
+		PitchRandom = 7,	// ^ for pitch
+		ChokeMin = 1,		// How sooner or later the beam needs to correct itself to
+		ChokeMax = 5,		// 	"stay on target".
+	};
+	const StepDistance = 31;
+	const StepDistHalf = StepDistance / 2.0;
+	double user_pitch;
+	double user_angle;
+	double user_dista;
+	double user_distb;
+	double user_x;
+	double user_y;
+	double user_z;
+	//[0] = Current distance travelled
+	//[1] = How much further to go
+	int user_choke;
+	int user_t;
+	int user_count;
+	int user_render;
+	
+	Default
+	{
+		+NOCLIP
+		+NOINTERACTION
+		+NOBLOCKMAP
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay
+		{
+			// The angle and pitch won't change so go ahead and save it now.
+			invoker.user_pitch = pitch;
+			invoker.user_angle = angle;
+			invoker.user_distb = Min(MaxDistance, GetDistance(true,TracerPtr));
+			invoker.user_choke = random(ChokeMin, ChokeMax);
+			invoker.user_x = pos.x;
+			invoker.user_y = pos.y;
+			invoker.user_z = pos.z;
+			invoker.user_render = int(GetCvar("vid_renderer"));
+		}
+		TNT1 A 1
+		{
+			// invoker.user_dista = distance currently travelled.
+			// invoker.user_distb = maximum distance.			
+			while ((invoker.user_dista < invoker.user_distb))
+			{
+				if (IsPointerEqual(TracerPtr,NullPtr))
+				{	A_Remove(DefPtr,RMVF_EVERYTHING);	}
+				// Don't randomize the very first beam.
+				if (invoker.user_dista > 0)
+				{	A_FaceTracer(0,0,0,0,FAF_MIDDLE);	}
+				
+				// Randomizes the angle of the beams. 
+				if (invoker.user_dista < (invoker.user_distb - StepDistance))
+				{
+					// If we're not about to reach the end, or not hitting the 
+					// choker, randomize it. Otherwise, stay on target and go 
+					// for the puff.
+					if (invoker.user_choke > 0)
+					{
+						A_SetPitch(pitch + frandom(-PitchRandom, PitchRandom));
+						A_SetAngle(angle + frandom(-AngleRandom, AngleRandom));
+						invoker.user_choke--;
+					}
+					else 
+					{	invoker.user_choke = random(ChokeMin,ChokeMax);	}
+				}
+				// Spawn the beam with the same angle and pitch. Note that the
+				// beam is being centered so we have to take that into account
+				// and spawn it FORWARD based on half the beam's length.
+				// Then move forward by a beam's length and repeat until done.
+				
+				if (invoker.user_render)
+				{	A_SpawnItemEx("CarrionTrailBeam",cos(pitch) * StepDistHalf,0,-sin(pitch) * StepDistHalf,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS);	}
+				else
+				{
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) * (StepDistHalf * (1 / 6)), 0, -sin(pitch) * (StepDistHalf * (1 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) * (StepDistHalf * (2 / 6)), 0, -sin(pitch) * (StepDistHalf * (2 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) * (StepDistHalf * (3 / 6)), 0, -sin(pitch) * (StepDistHalf * (3 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) * (StepDistHalf * (4 / 6)), 0, -sin(pitch) * (StepDistHalf * (4 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) * (StepDistHalf * (5 / 6)), 0, -sin(pitch) * (StepDistHalf * (5 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) * StepDistHalf	 		, 0, -sin(pitch) * (StepDistHalf			 ));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-(StepDistHalf * (1 / 6)), 0, -sin(pitch) *-(StepDistHalf * (1 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-(StepDistHalf * (2 / 6)), 0, -sin(pitch) *-(StepDistHalf * (2 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-(StepDistHalf * (3 / 6)), 0, -sin(pitch) *-(StepDistHalf * (3 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-(StepDistHalf * (4 / 6)), 0, -sin(pitch) *-(StepDistHalf * (4 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-(StepDistHalf * (5 / 6)), 0, -sin(pitch) *-(StepDistHalf * (5 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-StepDistHalf			, 0, -sin(pitch) *-(StepDistHalf			 ));
+				}
+				
+				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
+				invoker.user_dista += StepDistance;
+			}
+			
+			if (invoker.user_count < 3 && !IsPointerEqual(TracerPtr,NullPtr))
+			{
+				invoker.user_count++;
+				invoker.user_dista = 0;
+				pitch = invoker.user_pitch;
+				
+				A_Warp(DefPtr,invoker.user_x,invoker.user_y,invoker.user_z,invoker.user_angle,WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEPOSITION|WARPF_ABSOLUTEANGLE);
+				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+				return ResolveState(null);
+			}
+			return ResolveState("Null");
+		}
+		Wait;
+	}
+}
+
+Class CarrionTrailBeam : TrailBeam
+{
+	Default
+	{
+		XScale 0.03;
+		YScale 0.25; //Don't touch.
+	}
+	States
+	{
+	Spawn:
+		X202 I 0 NoDelay
+		{
+			// invoker.user_time = time to shrink to nothing
+			invoker.user_time = 5.0;
+			A_SpawnItemEx("CarrionTrailBeam",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
+			
+		}
+		Goto Process;
+	}
+}

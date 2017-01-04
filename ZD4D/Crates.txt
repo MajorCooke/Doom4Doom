@@ -1,0 +1,827 @@
+//==============================================================================
+//==============================================================================
+//				Surprise crate
+//==============================================================================
+//==============================================================================
+
+Class BuyCrate : CustomInventory
+{
+	Default
+	{
+		+INVENTORY.ALWAYSPICKUP
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			if (CountInv("D4DCash")>=500)
+			{
+				A_FireProjectile("CrateSpawner",0,0,0);
+				
+				//A_GiveInventory("D4DCashFake",500);
+				A_TakeInventory("D4DCash",500);	
+				//A_GiveInventory("CashUpdaterNegative",1);
+				ACS_NamedExecute("BuyingCrate",0,1);
+				ACS_NamedExecute("RefreshCredits",0,0,0,0);
+			}
+			else
+			{
+				ACS_NamedExecute("BuyingCrate",0,0);
+			}
+		}
+		Stop;
+	}
+}
+
+
+Class CrateSpawner : Actor
+{
+	Default
+	{
+		Projectile;
+		+SKYEXPLODE
+		+EXPLODEONWATER
+		+DONTSPLASH
+		+NOTELESTOMP
+		Speed 50;
+		Damage 0;
+		Radius 12;
+		Height 10;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 2;
+	Death:
+		TNT1 A 0 
+		{
+			A_SpawnItemEx("TeleportFog",0,0,-30,0,0,0,0,SXF_NOCHECKPOSITION);
+			A_PlaySound("Doom4/Other/Crate1",6);
+			A_PlaySound("Doom4/Other/Crate1",7);
+			if (CountInv("D4CrateUpgrade", TargetPtr) >= 3)
+			{
+				A_SpawnItemEx("CrateItemSpawner3",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS);
+			}
+			else if (CountInv("D4CrateUpgrade", TargetPtr) >= 2)
+			{
+				A_SpawnItemEx("CrateItemSpawner2",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS);
+			}
+			else if (CountInv("D4CrateUpgrade", TargetPtr))
+			{
+				if (CountInv("D4BFG", TargetPtr))
+				{	A_SpawnItemEx("CrateItemSpawner1BFG",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	}
+				else
+				{	A_SpawnItemEx("CrateItemSpawner1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	}
+			}
+			else if (CountInv("D4BFG", TargetPtr))
+			{
+				A_SpawnItemEx("CrateItemSpawnerBFG",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			}
+			else
+			{
+				A_SpawnItemEx("CrateItemSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			}
+		}
+		Stop;
+	}
+}
+
+
+
+Class CrateItemSpawner : RandomSpawner
+{
+	Default
+	{
+		DropItem "D4Bullets", 	255, 40;
+		DropItem "D4Shells", 	255, 40;
+		DropItem "D4Cells", 	255, 40;
+		DropItem "D4Rockets", 	255, 40;
+		
+		DropItem "D4GreenArmor", 	255, 40;
+		DropItem "D4BlueArmor", 	255, 20;
+		DropItem "D4Medikit", 		255, 40;
+		
+		DropItem "D4BulletsSmall", 	255, 30;
+		DropItem "D4ShellsSmall", 	255, 30;
+		DropItem "D4CellsSmall", 	255, 30;
+		DropItem "D4RocketsSmall", 	255, 30;
+		
+		DropItem "Allmap", 				 255, 10;
+		DropItem "BlurSphere", 			 255, 10;
+		DropItem "RadSuit", 			 255, 10;
+		DropItem "Infrared", 			 255, 10;
+		DropItem "D4Regeneration", 		 255, 10;
+		DropItem "D4Haste", 			 255, 10;
+		DropItem "Berserk", 			 255, 5;
+		DropItem "InvulnerabilitySphere",255, 5;
+		DropItem "D4QuadDamage",		 255, 5;
+		DropItem "SoulSphere",			 255, 5;
+		DropItem "D4QuadMoney",			 255, 3;
+		DropItem "D4Megasphere",		 255, 3;
+		DropItem "DoomDoll",			 255, 1;
+	}
+}
+
+Class CrateItemSpawnerBFG : RandomSpawner
+{
+	Default
+	{
+		DropItem "D4Bullets", 	255, 40;
+		DropItem "D4Shells", 	255, 40;
+		DropItem "D4Cells", 	255, 40;
+		DropItem "D4Rockets", 	255, 40;
+		DropItem "D4BFGAmmo", 	255, 10;
+		
+		DropItem "D4GreenArmor", 	255, 40;
+		DropItem "D4BlueArmor", 	255, 20;
+		DropItem "D4Medikit", 		255, 40;
+		
+		DropItem "D4BulletsSmall", 	255, 30;
+		DropItem "D4ShellsSmall", 	255, 30;
+		DropItem "D4CellsSmall", 	255, 30;
+		DropItem "D4RocketsSmall", 	255, 30;
+		
+		DropItem "Allmap", 				 255, 10;
+		DropItem "BlurSphere", 			 255, 10;
+		DropItem "RadSuit", 			 255, 10;
+		DropItem "Infrared", 			 255, 10;
+		DropItem "D4Regeneration", 		 255, 10;
+		DropItem "D4Haste", 			 255, 10;
+		DropItem "Berserk", 			 255, 5;
+		DropItem "InvulnerabilitySphere",255, 5;
+		DropItem "D4QuadDamage",		 255, 5;
+		DropItem "SoulSphere",			 255, 5;
+		DropItem "D4QuadMoney",			 255, 3;
+		DropItem "D4Megasphere",		 255, 3;
+		DropItem "DoomDoll",			 255, 1;
+	}
+}
+
+Class CrateItemSpawner1 : RandomSpawner
+{
+	Default
+	{
+		DropItem "D4Bullets",	255, 50;
+		DropItem "D4Shells", 	255, 50;
+		DropItem "D4Cells", 	255, 50;
+		DropItem "D4Rockets", 	255, 50;
+		DropItem "D4BFGAmmo", 	255, 10;
+		
+		DropItem "D4BlueArmor", 	255, 40;
+		DropItem "D4Medikit", 		255, 40;
+		
+		DropItem "D4Regeneration", 	255, 10;
+		DropItem "D4Haste", 		255,  8;
+		DropItem "SoulSphere", 		255,  6;
+		DropItem "D4Megasphere",	255,  4;
+		DropItem "DoomDoll", 		255,  1;
+
+		DropItem "BlurSphere", 	255, 10;
+		DropItem "D4QuadDamage",255,  6;
+		DropItem "RadSuit", 	255,  5;
+		DropItem "Infrared", 	255,  5;
+		DropItem "InvulnerabilitySphere", 255, 5;
+
+		DropItem "Berserk", 	255, 8;
+		DropItem "Allmap", 		255, 5;
+		DropItem "D4QuadMoney", 255, 3;
+	}
+}
+
+Class CrateItemSpawner1BFG : RandomSpawner
+{
+	Default
+	{
+		DropItem "D4Bullets", 	255, 45;
+		DropItem "D4Shells", 	255, 45;
+		DropItem "D4Cells",		255, 45;
+		DropItem "D4Rockets",	255, 45;
+		DropItem "D4BFGAmmo", 	255, 15;
+		
+		DropItem "D4BlueArmor", 	255, 40;
+		DropItem "D4Medikit", 		255, 40;
+		
+		DropItem "D4Regeneration", 	255, 10;
+		DropItem "D4Haste", 		255,  8;
+		DropItem "SoulSphere", 		255,  6;
+		DropItem "D4Megasphere",	255,  4;
+		DropItem "DoomDoll", 		255,  1;
+
+		DropItem "BlurSphere", 	255, 10;
+		DropItem "D4QuadDamage",255,  6;
+		DropItem "RadSuit", 	255,  5;
+		DropItem "Infrared", 	255,  5;
+		DropItem "InvulnerabilitySphere", 255, 5;
+
+		DropItem "Berserk", 	255, 8;
+		DropItem "Allmap", 		255, 5;
+		DropItem "D4QuadMoney", 255, 3;
+	}
+}
+
+Class CrateWeaponSpawner : RandomSpawner
+{
+	Default
+	{
+		DropItem "D4Shotgun", 		255, 25;
+		DropItem "D4AssaultRifle",	255, 25;
+		DropItem "D4Chainsaw",		255, 23;
+		DropItem "D4Repeater",		255, 22;
+		DropItem "D4StaticRifle",	255, 20;
+		DropItem "D4SuperShotgun", 	255, 19;
+		DropItem "D4Chaingun",		255, 19;
+		DropItem "D4PlasmaRifle",	255, 17;
+		DropItem "D4VortexRifle",	255, 17;
+		DropItem "D4RocketLauncher",255, 15;
+		DropItem "D4LightningGun",	255, 13;
+		DropItem "D4GaussCannon",	255, 10;
+		DropItem "D4BFG",			255,  5;
+	}
+}
+
+
+
+
+
+Class CrateItemSpawner2 : Actor
+{
+	int user_has_bulletguns;
+	int user_has_shellguns;
+	int user_has_cellguns;
+	int user_has_rocketguns;
+	int user_has_bigfuckingguns;
+	int user_has_fuelguns;
+	int user_w;
+	
+	Default
+	{
+		+NOINTERACTION
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay
+		{
+			user_has_bulletguns = CountInv("D4Repeater"		, TargetPtr) 
+								| CountInv("D4AssaultRifle"	, TargetPtr)
+								| CountInv("D4Chaingun"		, TargetPtr);
+			user_has_shellguns 	= CountInv("D4Shotgun"		, TargetPtr)
+								| CountInv("D4SuperShotgun"	, TargetPtr);
+			user_has_cellguns 	= CountInv("D4PlasmaRifle"	, TargetPtr) 
+								| CountInv("D4LightningGun"	, TargetPtr)
+								| CountInv("D4VortexRifle"	, TargetPtr) 
+								| CountInv("D4GaussCannon"	, TargetPtr);
+			user_has_rocketguns = CountInv("D4RocketLauncher",TargetPtr);
+			user_has_bigfuckingguns = CountInv("D4BFG", TargetPtr);
+			user_has_fuelguns = CountInv("D4Chainsaw", TargetPtr);
+			
+			
+			
+			// 1. Prioritize low ammo
+			
+			
+			if (user_has_bulletguns && 
+				CountInv("D4Bullets", TargetPtr) < 50 && 
+				random(0,100) < 30 )
+			{
+				A_SpawnItemEx("D4Bullets",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_has_shellguns && 
+				CountInv("D4Shells", TargetPtr) < 20 && 
+				random(0,100) < 40 )
+			{
+				A_SpawnItemEx("D4Shells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_has_cellguns && 
+				CountInv("D4Cells", TargetPtr) < 100 && 
+				random(0,100) < 25 )
+			{
+				A_SpawnItemEx("D4Cells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_has_rocketguns && 
+				CountInv("D4Rockets", TargetPtr) < 5 && 
+				random(0,100) < 20 )
+			{
+				A_SpawnItemEx("D4Rockets",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_has_bigfuckingguns && 
+				CountInv("D4BFGAmmo", TargetPtr) < 1 && 
+				random(0,100) < 20 )
+			{
+				A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_has_fuelguns && 
+				CountInv("D4Fuel", TargetPtr) < 1 && 
+				random(0,100) < 20 )
+			{
+				A_SpawnItemEx("D4Fuel",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			
+			
+			// 2. Restore ammo to the no-backpack capacity
+			
+			
+			if (user_has_bulletguns && 
+				CountInv("D4Bullets", TargetPtr) < 250 && 
+				random(0,100) < 25 )
+			{
+				A_SpawnItemEx("D4Bullets",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_has_shellguns && 
+				CountInv("D4Shells", TargetPtr) < 45 && 
+				random(0,100) < 25 )
+			{
+				A_SpawnItemEx("D4Shells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_has_cellguns && 
+				CountInv("D4Cells", TargetPtr) < 200 && 
+				random(0,100) < 25 )
+			{
+				A_SpawnItemEx("D4Cells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_has_rocketguns && 
+				CountInv("D4Rockets", TargetPtr) < 30 && 
+				random(0,100) < 25 )
+			{
+				A_SpawnItemEx("D4Rockets",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_has_bigfuckingguns && 
+				CountInv("D4BFGAmmo", TargetPtr) < 2 && 
+				random(0,100) < 15 )
+			{
+				A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_has_fuelguns && 
+				CountInv("D4Fuel", TargetPtr) < 3 && 
+				random(0,100) < 20 )
+			{
+				A_SpawnItemEx("D4Fuel",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			
+			
+			// 3. Give armor if in dire need
+			
+			
+			if (CountInv("BasicArmor", TargetPtr) < 10 &&
+				random(0,100) < 15 )
+			{
+				A_SpawnItemEx("BlueArmor",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			
+			
+			// 4. Maybe give ammo for current weapon
+			
+			
+			user_w = CallAcs('WhichWeapon',0,0,0,0);
+			
+			if (user_w == 1 &&
+				random(0,100) < 50 )
+			{
+				A_SpawnItemEx("D4Shells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_w == 2 &&
+				random(0,100) < 50 )
+			{
+				A_SpawnItemEx("D4Shells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_w == 3 &&
+				random(0,100) < 50 )
+			{
+				A_SpawnItemEx("D4Bullets",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_w == 4 &&
+				random(0,100) < 50 )
+			{
+				A_SpawnItemEx("D4Bullets",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_w == 5 &&
+				random(0,100) < 50 )
+			{
+				A_SpawnItemEx("D4Rockets",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_w == 6 &&
+				random(0,100) < 50 )
+			{
+				A_SpawnItemEx("D4Cells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_w == 7 &&
+				random(0,100) < 50 )
+			{
+				A_SpawnItemEx("D4Cells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_w == 8 &&
+				random(0,100) < 50 )
+			{
+				A_SpawnItemEx("D4Cells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_w == 11 &&
+				random(0,100) < 50 )
+			{
+				A_SpawnItemEx("D4Fuel",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_w == 12 &&
+				random(0,100) < 50 )
+			{
+				A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_w == 13 &&
+				random(0,100) < 50 )
+			{
+				A_SpawnItemEx("D4Bullets",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_w == 14 &&
+				random(0,100) < 50 )
+			{
+				A_SpawnItemEx("D4Cells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			
+			
+			// 99. If all else fails, take a wild guess
+			
+			
+			if (user_has_bigfuckingguns)
+			{	A_SpawnItemEx("CrateItemSpawner1BFG",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	}
+			else
+			{	A_SpawnItemEx("CrateItemSpawner1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	}
+		}
+		Stop;
+	}
+}
+
+
+
+
+Class CrateItemSpawner3 : Actor
+{
+	int user_missilesAround;
+	int user_monstersAround;
+	int user_biggiesAround;
+	int user_bossesAround;
+	int user_ammoScore;
+	int user_weapons;
+	int user_money;
+	int user_bfg;
+	int user_cs;
+	
+	Default
+	{
+		+NOINTERACTION
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+	Death:
+		TNT1 A 0 NoDelay
+		{
+			user_bfg = (CountInv("D4BFG", Player1));
+			user_cs = (CountInv("D4Chainsaw",Player1));
+			user_missilesAround = CountProximity("D4AbstractMissile", 1024);
+			user_monstersAround = CountProximity("D4AbstractMonster", 1024);
+			user_biggiesAround 	= CountProximity("D4AbstractBiggie", 1024);
+			user_bossesAround 	= CountProximity("D4AbstractBoss", 2048);
+			
+			user_ammoScore =CountInv("D4Bullets", TargetPtr) 	+
+							CountInv("D4Shells", TargetPtr) *2	+
+							CountInv("D4Cells", TargetPtr) 	+
+							CountInv("D4Rockets", TargetPtr)*3;
+			
+			user_money = CountInv("D4DCash", TargetPtr);
+			
+			user_weapons =	CountInv("D4Pistol",  		TargetPtr)+
+							CountInv("D4Shotgun", 		TargetPtr)+
+							CountInv("D4AssaultRifle",	TargetPtr)+
+							CountInv("D4Chainsaw",		TargetPtr)+
+							CountInv("D4Repeater",		TargetPtr)+
+							CountInv("D4StaticRifle",	TargetPtr)+
+							CountInv("D4SuperShotgun", 	TargetPtr)+
+							CountInv("D4Chaingun",		TargetPtr)+
+							CountInv("D4PlasmaRifle",	TargetPtr)+
+							CountInv("D4VortexRifle",	TargetPtr)+
+							CountInv("D4RocketLauncher",TargetPtr)+
+							CountInv("D4LightningGun",	TargetPtr)+
+							CountInv("D4GaussCannon",	TargetPtr)+
+							CountInv("D4BFG",			TargetPtr);
+			
+			
+			
+			// 1. Surrounded by (sleeping) monsters: need ammo to wake them up
+			
+			
+			if (user_monstersAround > 10 && 
+				user_missilesAround < 2 && 
+				random(0,100) < 20 )
+			{
+				if (user_bfg)	{	A_SpawnItemEx("D4BFGAmmo",	0,0,0,random(-1,1),random(-1,1),random(1,2),0,SXF_NOCHECKPOSITION,128);	}
+				if (user_cs) 	{	A_SpawnItemEx("D4Fuel",		0,0,0,random(-1,1),random(-1,1),random(1,2),0,SXF_NOCHECKPOSITION,128);	}
+				A_SpawnItemEx("D4Cells",	0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			
+			
+			// 2. Surrounded by evil horde: so many heads, so few bullets
+			
+			
+			if (user_monstersAround > 100 && 
+				user_ammoScore < 100 && 
+				random(0,100) < 20 )
+			{
+				if (user_bfg)	{	A_SpawnItemEx("D4BFGAmmo",	0,0,0,random(-1,1),random(-1,1),random(1,2),0,SXF_NOCHECKPOSITION,192);	}
+				if (user_cs)	{	A_SpawnItemEx("D4Fuel",		0,0,0,random(-1,1),random(-1,1),random(1,2),0,SXF_NOCHECKPOSITION,128);	}
+				A_SpawnItemEx("D4Bullets",	0,0,0,random(-2,2),random(-2,2),random(1,3),0,SXF_NOCHECKPOSITION,96);
+				A_SpawnItemEx("D4Shells",	0,0,0,random(-2,2),random(-2,2),random(1,3),0,SXF_NOCHECKPOSITION,96);
+				A_SpawnItemEx("D4Rockets",	0,0,0,random(-2,2),random(-2,2),random(1,3),0,SXF_NOCHECKPOSITION,96);
+				A_SpawnItemEx("D4Cells",	0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			
+			
+			// 3. Battle rages on and on: safety is never enough
+			
+			
+			if (user_monstersAround > 100 && 
+				user_missilesAround > 5 && 
+				user_ammoScore < 500 && 
+				random(0,100) < 20 )
+			{
+				if (user_bfg)	{	A_SpawnItemEx("D4BFGAmmo",	0,0,0,random(-1,1),random(-1,1),random(1,2),0,SXF_NOCHECKPOSITION,240);	}
+				if (user_cs)	{	A_SpawnItemEx("D4Fuel",		0,0,0,random(-1,1),random(-1,1),random(1,2),0,SXF_NOCHECKPOSITION,192);	}
+				A_SpawnItemEx("D4Bullets",	0,0,0,random(-2,2),random(-2,2),random(1,3),0,SXF_NOCHECKPOSITION,192);
+				A_SpawnItemEx("D4Shells",	0,0,0,random(-2,2),random(-2,2),random(1,3),0,SXF_NOCHECKPOSITION,192);
+				A_SpawnItemEx("D4Rockets",	0,0,0,random(-2,2),random(-2,2),random(1,3),0,SXF_NOCHECKPOSITION,192);
+				A_SpawnItemEx("D4ArmorBonus", 15, 15,0,0,0,0,  0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4ArmorBonus",-15, 15,0,0,0,0, 90,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4ArmorBonus",-15,-15,0,0,0,0,180,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4ArmorBonus", 15,-15,0,0,0,0,270,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4ArmorBonus",0,0,0,random(-4,4),random(-4,4),random(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4ArmorBonus",0,0,0,random(-4,4),random(-4,4),random(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4ArmorBonus",0,0,0,random(-4,4),random(-4,4),random(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4ArmorBonus",0,0,0,random(-4,4),random(-4,4),random(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4ArmorBonus",0,0,0,random(-4,4),random(-4,4),random(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4ArmorBonus",0,0,0,random(-4,4),random(-4,4),random(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4ArmorBonus",0,0,0,random(-4,4),random(-4,4),random(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4ArmorBonus",0,0,0,random(-4,4),random(-4,4),random(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4Medikit",	0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			
+			
+			// 4. iwrestledabearonce: quality, not quantity
+			
+			
+			if (user_monstersAround < 5 &&
+				user_bossesAround > 0 && 
+				random(0,100) < 30 )
+			{
+				if(random(0,100) < 60)
+				{ A_SpawnItemEx("SoulSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				else if(random(0,100) < 50)
+				{ A_SpawnItemEx("D4MegaSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				else if(random(0,100) < 30)
+				{ A_SpawnItemEx("InvulnerabilitySphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				else if(random(0,100) < 30)
+				{ A_SpawnItemEx("BlurSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				else if(random(0,100) < 70)
+				{ A_SpawnItemEx("DoomDoll",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				else if(!CountInv("PowerScanner", TargetPtr))
+				{ A_SpawnItemEx("AllMap",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				else 
+				{ A_SpawnItemEx("CrateWeaponSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				return;
+			}
+			
+			
+			
+			// 5. I don't need another
+			
+			
+			if (CountInv("PowerScanner", TargetPtr) == 0 &&
+				random(0,100) < 30 )
+			{
+				A_SpawnItemEx("D4HealthBonus", 20,  0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4HealthBonus",-20,  0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4HealthBonus",  0, 20,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4HealthBonus",  0,-20,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4HealthBonus", 14, 14,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4HealthBonus",-14, 14,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4HealthBonus",-14,-14,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4HealthBonus", 14,-14,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4ArmorBonus",0,0,0,random(-4,4),random(-4,4),random(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4ArmorBonus",0,0,0,random(-4,4),random(-4,4),random(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4ArmorBonus",0,0,0,random(-4,4),random(-4,4),random(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4ArmorBonus",0,0,0,random(-4,4),random(-4,4),random(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4ArmorBonus",0,0,0,random(-4,4),random(-4,4),random(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4ArmorBonus",0,0,0,random(-4,4),random(-4,4),random(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4ArmorBonus",0,0,0,random(-4,4),random(-4,4),random(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4ArmorBonus",0,0,0,random(-4,4),random(-4,4),random(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("AllMap",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			
+			
+			// 6. I've got a sunshine in my: how comes you're so deep and don't have one yet?
+			
+			
+			if (countInv("D4Backpack", TargetPtr) <= 0 &&
+				random(0,100) < 60 )
+			{
+				A_SpawnItemEx("D4CellsSmall", 20,  0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4CellsSmall",-20,  0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4CellsSmall",  0, 20,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4CellsSmall",  0,-20,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4CellsSmall", 14, 14,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4CellsSmall",-14, 14,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4CellsSmall",-14,-14,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4CellsSmall", 14,-14,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4Bullets",random(-40,40),random(-40,40),160,0,0, 5,random(0,360),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4Shells", random(-40,40),random(-40,40),160,0,0,10,random(0,360),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4Rockets",random(-40,40),random(-40,40),160,0,0,15,random(0,360),SXF_NOCHECKPOSITION);
+				if (user_cs)	{	A_SpawnItemEx("D4Fuel",   random(-40,40),random(-40,40),160,0,0,20,random(0,360),SXF_NOCHECKPOSITION);	}
+				if (user_bfg)	{	A_SpawnItemEx("D4BFGAmmo",random(-40,40),random(-40,40),160,0,0,25,random(0,360),SXF_NOCHECKPOSITION);	}
+				A_SpawnItemEx("D4Backpack",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			
+			
+			// 7. Slagsmalsklubben's dance floor hit
+			
+			
+			if (user_weapons < 4 &&
+				random(0,100) < 5)
+			{
+				A_SpawnItemEx("CrateWeaponSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_weapons < 7 &&
+				random(0,100) < 4)
+			{
+				A_SpawnItemEx("CrateWeaponSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (random(0,100) < 3)
+			{
+				A_SpawnItemEx("CrateWeaponSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			
+			
+			// 8. Heat in the jungle
+			
+			
+			if (user_missilesAround > 10 &&
+				random(0,100) < 30)
+			{
+				A_SpawnItemEx("BlueArmor",  0,  0,0,0,0,0,  0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4Stimpack", 10, 10,0,0,0,0, 45,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4Stimpack",-10, 10,0,0,0,0,135,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4Stimpack",-10,-10,0,0,0,0,225,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4Stimpack", 10,-10,0,0,0,0,315,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			
+			
+			// 9. Lifebuoy
+			
+			
+			if (user_missilesAround > 50 &&
+				random(0,100) < 30)
+			{
+				if(random(0,100) < 20)
+				{ A_SpawnItemEx("SoulSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				else if(random(0,100) < 20)
+				{ A_SpawnItemEx("D4MegaSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				else if(random(0,100) < 20)
+				{ A_SpawnItemEx("InvulnerabilitySphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				else if(random(0,100) < 20)
+				{ A_SpawnItemEx("BlurSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				else if(random(0,100) < 10)
+				{ A_SpawnItemEx("DoomDoll",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				else if(random(0,100) < 20)
+				{ A_SpawnItemEx("D4QuadDamage",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				else if(random(0,100) < 20)
+				{ A_SpawnItemEx("D4Haste",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				else if(random(0,100) < 80)
+				{ A_SpawnItemEx("D4Regeneration",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				else 
+				{ A_SpawnItemEx("CrateWeaponSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				return;
+			}
+			
+			
+			
+			// 10. Rich Bitch
+			
+			
+			if (user_money < 1000 &&
+				random(0,100) < 10)
+			{
+				A_SpawnItemEx("D4QuadMoney",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (user_money < 100 &&
+				random(0,100) < 20)
+			{
+
+				A_SpawnItemEx("D4QuadMoney",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			
+			
+			// 11. Fokken Trippin Bolz!! !
+			// BITCH BE TRIPPIN' BALLS!
+			
+			
+			if (random(0,1000) < 2)
+			{
+				A_SpawnItemEx("D4QuadDamage"			,random(-128,128),random(-128,128),0,random(-60,60),random(-60,60),random(0,60),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4Regeneration"			,random(-128,128),random(-128,128),0,random(-60,60),random(-60,60),random(0,60),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4Haste"					,random(-128,128),random(-128,128),0,random(-60,60),random(-60,60),random(0,60),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("SoulSphere"				,random(-128,128),random(-128,128),0,random(-60,60),random(-60,60),random(0,60),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("BlurSphere"				,random(-128,128),random(-128,128),0,random(-60,60),random(-60,60),random(0,60),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("InvulnerabilitySphere"	,random(-128,128),random(-128,128),0,random(-60,60),random(-60,60),random(0,60),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("BlurSphere"				,random(-128,128),random(-128,128),0,random(-60,60),random(-60,60),random(0,60),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4QuadMoney",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			
+			
+			
+			if(random(0,100) < 50)
+			{
+			// 98. Probably rerun this
+				A_SpawnItemEx("CrateItemSpawner3",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS);
+			}
+			else
+			{
+			// 99. If all else fails, take a wild guess
+			
+				A_SpawnItemEx("CrateItemSpawner2",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS);
+			}
+		}
+		Stop;
+	}
+}

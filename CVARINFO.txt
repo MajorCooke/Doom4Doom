@@ -1,0 +1,254 @@
+server int user_TracerFX = 3;
+server int user_ShortGibLives = 0;
+server int user_BloodSprites = 1;
+server int user_MaxDrawDistance = 2048;
+server bool user_MultiJump = true;
+server int user_MonsterType = 1;
+server bool user_LootDrop = true;
+server int user_Giblets = 1;
+server int user_BloodClouds = 2;
+server int user_SplatterGiblets = 5;
+server bool user_BloodTrails = true;
+server bool user_BiggerFont = false;
+server int user_Completionist = 2;
+server bool user_MonsterQuota = true;
+server bool user_SecretQuota = true;
+server bool user_SecondaryExit = true;
+server int user_MenuMouseSpeed = 70;
+server bool user_CamRoll = true;
+server bool user_ArchvileInfighting = true;
+server bool user_BloodScreen = true;
+server int user_SSGGib = 1;	//0=none, 1=some, 2=all
+server int user_SyphonStrength = 2;
+server bool user_Casings = true;
+server bool user_ShortCasingLives = false;
+server bool user_SilentCasings = false;
+server bool user_quakexplosions = true;
+server bool D4BFGEffects = true;
+server bool HQEffects = true;
+server bool HQEffectsWeapons = true;
+server bool MPWeapons = true;
+server bool MPSpawnProgressive = True;
+server bool ExtraTurretSound = True;
+server bool D4D_AllowClimbing = true;
+server bool D4D_PitchMod = false;
+server bool D4D_TurningBehavior = false;
+server bool D4D_PinataParticles = true;
+server bool D4D_BloodSplatters = true;
+server int D4D_BloodTime = 10;
+server int D4D_BeamTexture = 0;
+server bool D4D_BloodGiblets = true;
+server bool D4D_HKMeleeOnly = false;
+server bool D4D_DTMode = false;
+server bool D4D_JumpExploit = false;
+server int D4D_DemonRunes = 1; 
+server bool D4D_SilentMorphs = false;
+server bool D4D_DemonWarning = True;
+server bool D4D_DemonNameDisplay  = True;
+server int D4D_HasteSpawn = 1; //Sometimes
+server bool D4D_EnhancedChase = true;
+
+// The Zombie Killer's Footsteps
+server float fs_volume_mul = 1.4;
+server float fs_delay_mul = 1.05;
+
+server bool D4D_ExecutionsON = true;
+server bool D4D_ExecutionHighlight = true;
+server bool D4D_MonsterStagger = true;
+server bool D4D_NoisyStagger = true;
+server bool D4D_ExecutionAnimation = true;
+server int D4D_StaggerLenght = 4;
+server bool D4D_PitchCompat = true;
+server bool D4D_MonsterLasers = true;
+
+
+
+server noarchive int D4DCash = 0;
+server noarchive bool AssaultRifleMod1 = false;
+server noarchive bool AssaultRifleMod2 = false;
+server noarchive bool ChaingunMod1 = false;
+server noarchive bool ChaingunMod2 = false;
+server noarchive bool ChaingunMod3 = false;
+server noarchive bool ChaingunSpec = false;
+server noarchive bool SovietActive = false;
+server noarchive bool SovietToken = false;
+server noarchive bool GaussCannonMod1 = false;
+server noarchive bool GaussCannonMod2 = false;
+server noarchive bool PlasmaRifleMod1 = false;
+server noarchive bool PlasmaRifleMod2 = false;
+server noarchive bool RocketLauncherMod1 = false;
+server noarchive bool RocketLauncherMod2 = false;
+server noarchive bool ShotgunMod1 = false;
+server noarchive bool ShotgunMod2 = false;
+server noarchive bool SSGUpgrade1 = false;
+server noarchive bool SSGUpgrade2 = false;
+server noarchive bool SSGUpgrade3 = false;
+server noarchive bool SSGUpgrade4 = false;
+server noarchive bool StaticUpgrade1 = false;
+server noarchive bool StaticUpgrade2 = false;
+server noarchive bool StaticUpgrade3 = false;
+server noarchive bool StaticUpgrade4 = false;
+server noarchive bool LGUpgradeAmmo = false;
+server noarchive bool LGUpgradeRange = false;
+server noarchive bool LGUpgradeDamage = false;
+server noarchive bool LGUpgradeAltFire = false;
+server noarchive bool VortexUpgradeDamage = false;
+server noarchive bool VortexUpgradeAmmo = false;
+server noarchive bool VortexUpgradeAltSpeed = false;
+server noarchive bool VortexUpgradeAltCharge = false;
+server noarchive bool RepeaterUpgradePiercing = false;
+server noarchive bool RepeaterUpgradeDamage = false;
+server noarchive bool RepeaterUpgradeAltDamage = false;
+server noarchive bool RepeaterUpgradeAltAmmo = false;
+server noarchive bool PistolUpgradeAutomatic = false;
+server noarchive bool PistolUpgradeAltDamage = false;
+server noarchive bool PistolUpgradeAltCharge = false;
+server noarchive bool PistolUpgradeDamage = false;
+server noarchive bool BFGUpgrade1 = false;
+server noarchive bool BFGUpgrade2 = false;
+server noarchive bool BFGUpgrade3 = false;
+server noarchive bool BFGUpgrade4 = false;
+server noarchive bool D4CarrionToken = false;
+server noarchive bool CarrionLevel = false;
+server noarchive bool CarrionUpgradePickup = false;
+server noarchive bool CarrionUpgradeAmmo = false;
+server noarchive bool CarrionUpgradeStun = false;
+server noarchive bool CarrionUpgradeTime = false;
+server noarchive bool FragGrenadePickup = false;
+server noarchive bool HoloGrenadePickup = false;
+server noarchive bool SyphonGrenadePickup = false;
+server noarchive bool FragGrenadeSelected = false;
+server noarchive bool MarineHoloSelected = false;
+server noarchive bool SyphonGrenadeSelected = false;
+
+server noarchive int D4Stamina = 0;
+server noarchive int D4ArmorCapRaiser = 0;
+server noarchive bool D4HigherJump = false;
+server noarchive int D4MultiJump = 2;
+server noarchive bool D4AirControl = false;
+server noarchive bool ProtectionBonus1 = false;
+server noarchive bool ProtectionBonus2 = false;
+server noarchive bool ProtectionBonus3 = false;
+server noarchive int D4CrateUpgrade = 0;
+server noarchive int CashPercentBonus = 0;
+server noarchive int DollUses = 0;
+
+server noarchive bool D4CarrionCannon = 	false;
+server noarchive bool D4GaussCannon = 		false;
+server noarchive bool D4PlasmaRifle = 		false;
+server noarchive bool D4RocketLauncher = 	false;
+server noarchive bool D4AssaultRifle = 		false;
+server noarchive bool D4Chaingun = 			false;
+server noarchive bool D4Supershotgun = 		false;
+server noarchive bool D4Shotgun = 			false;
+server noarchive bool D4StaticRifle = 		false;
+server noarchive bool D4LightningGun = 		false;
+server noarchive bool D4Pistol = 			false;
+server noarchive bool D4BFG = 				false;
+server noarchive bool D4Repeater = 			false;
+server noarchive bool D4VortexRifle = 		false;
+
+//==============================================================================
+// For the akimbo system.
+
+user noarchive int D4Left =		0;
+user noarchive int D4Right =	0;
+
+// -1 means left, 1 means right.
+user int D4Pistol_Side = 			0;
+user int D4Shotgun_Side = 			0;
+user int D4Supershotgun_Side = 		0;
+user int D4Repeater_Side = 			0;
+user int D4AssaultRifle_Side = 		0;
+user int D4Chaingun_Side = 			0;
+user int D4RocketLauncher_Side = 	0;
+user int D4PlasmaRifle_Side = 		0;
+user int D4LightningGun_Side = 		0;
+user int D4GaussCannon_Side = 		0;
+user int D4VortexRifle_Side = 		0;
+user int D4StaticRifle_Side = 		0;
+user int D4BFG_Side = 				0;
+user int D4CarrionCannon_Side = 	0;
+
+// Indicates whether the akimbo system has been used yet or not for this game.
+user noarchive bool AkimboSystemUsed =		false;
+
+//==============================================================================
+// Misc crap. Mainly used for removing credit errors.
+
+server noarchive bool Adjustable = false; //Keep this false.
+server noarchive bool UpgradeUpdating = false;
+server noarchive int CTake = 0;
+
+//==============================================================================
+// Expenses
+// Cost_U# associates itself with <WeaponName>Mod# or <WeaponName>Upgrade# respectively.
+	
+server noarchive int Cost_U1Pistol = 			4000;	//charge speed
+server noarchive int Cost_U2Pistol = 			4000;	//charged damage +
+server noarchive int Cost_U3Pistol = 			2000;	//full auto
+server noarchive int Cost_U4Pistol = 			2500;	//primary damage +
+server noarchive int Cost_U1Shotgun = 			3000;	//trishot
+server noarchive int Cost_U2Shotgun = 			3000;	//grenade
+server noarchive int Cost_U1SuperShotgun =		2000;	//faster reload
+server noarchive int Cost_U2SuperShotgun =		2500;	//piercing shots
+server noarchive int Cost_U3SuperShotgun =		4000;	//accuracy
+server noarchive int Cost_U4SuperShotgun =		10000;	//DDTT
+server noarchive int Cost_U1AssaultRifle =		3000;	//scope
+server noarchive int Cost_U2AssaultRifle =		4000;	//micromissiles
+server noarchive int Cost_U1Chaingun =			6000;	//rotator
+server noarchive int Cost_U2Chaingun =			8000;	//siege
+server noarchive int Cost_U1RocketLauncher = 	5000;	//detonate
+server noarchive int Cost_U2RocketLauncher = 	5000;	//lock on
+server noarchive int Cost_U1PlasmaRifle =		5000;	//heat blas
+server noarchive int Cost_U2PlasmaRifle =		3000;	//stun bomb
+server noarchive int Cost_U1BFG =				10000;	//+1 ammo
+server noarchive int Cost_U2BFG =				20000;	//alt fire orbiter
+server noarchive int Cost_U3BFG =				10000;	//primary projectile speed + laser damage
+server noarchive int Cost_U4BFG =				10000;	//+1 redirector
+server noarchive int Cost_U1GaussCannon =		8000;	//precision
+server noarchive int Cost_U2GaussCannon =		10000;	//siege
+server noarchive int Cost_U3Chaingun =			-1;		//Don't touch this!
+server noarchive int Cost_U1Chainsaw =			1000;
+server noarchive int Cost_U2Chainsaw =			1001;
+server noarchive int Cost_U3Chainsaw =			1002;
+server noarchive int Cost_U4Chainsaw =			1003;
+server noarchive int Cost_U1StaticRifle =		2500;	//
+server noarchive int Cost_U2StaticRifle =		5000;	//
+server noarchive int Cost_U3StaticRifle =		7500;	//
+server noarchive int Cost_U4StaticRifle =		10000;	//
+server noarchive int Cost_U1Repeater =			4000;	//piercing shots
+server noarchive int Cost_U2Repeater =			4000;	//primary damage +; ammo cost +
+server noarchive int Cost_U3Repeater =			3000;	//charged damage +
+server noarchive int Cost_U4Repeater =			3000;	//charged ammo cost -
+server noarchive int Cost_U1VortexRifle =		4000;	//base damage +
+server noarchive int Cost_U2VortexRifle =		6000;	//ammo cost
+server noarchive int Cost_U3VortexRifle =		2500;	//scope movement + enhanced scope
+server noarchive int Cost_U4VortexRifle =		3500;	//zoomed pierce 
+server noarchive int Cost_U1LightningGun =		4000;	//Ammo
+server noarchive int Cost_U2LightningGun =		2000;	//Range
+server noarchive int Cost_U3LightningGun =		9000;	//Damage
+server noarchive int Cost_U4LightningGun =		9000;	//Altfire
+server noarchive int Cost_U1CarrionCannon =		6666;
+server noarchive int Cost_U2CarrionCannon =		6666;
+server noarchive int Cost_U3CarrionCannon =		6666;
+server noarchive int Cost_U4CarrionCannon =		6666;
+
+server noarchive int Cost_U1Health = 5000;
+server noarchive int Cost_U2Health = 10000;
+server noarchive int Cost_U3Health = 20000;
+server noarchive int Cost_U1Armor = 5000;
+server noarchive int Cost_U2Armor = 10000;
+server noarchive int Cost_U3Armor = 15000;
+server noarchive int Cost_HigherJump = 6000;
+server noarchive int Cost_TripleJump = 8000;
+server noarchive int Cost_AirControl = 10000;
+server noarchive int Cost_U1Protection = 5000;
+server noarchive int Cost_U2Protection = 7500;
+server noarchive int Cost_U3Protection = 10000;
+server noarchive int Cost_U1Crate = 999;
+server noarchive int Cost_U2Crate = 9999;
+server noarchive int Cost_U3Crate = 19999;
+server noarchive int Cost_U1Credit = 3000;
+server noarchive int Cost_U2Credit = 7500;
+server noarchive int Cost_U3Credit = 12000;

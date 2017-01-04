@@ -1,0 +1,868 @@
+Class IamADemonToken  : Inventory { Default { Inventory.MaxAmount 1;    Inventory.InterHubAmount 0; }}
+Class DemonTimerToken : Inventory { Default { Inventory.MaxAmount 2100; Inventory.InterHubAmount 0; }}
+Class OverlaysStarted : Inventory { Default { Inventory.MaxAmount 1;    Inventory.InterHubAmount 0; }}
+
+Class IamHellKnight 		: Inventory { Default { Inventory.MaxAmount 1; Inventory.InterHubAmount 0; }}
+Class IamBaronOfHell 		: Inventory { Default { Inventory.MaxAmount 1; Inventory.InterHubAmount 0; }}
+Class IamRevenant 			: Inventory { Default { Inventory.MaxAmount 1; Inventory.InterHubAmount 0; }}
+Class IamCacodemon 			: Inventory { Default { Inventory.MaxAmount 1; Inventory.InterHubAmount 0; }}
+Class IamFatso 				: Inventory { Default { Inventory.MaxAmount 1; Inventory.InterHubAmount 0; }}
+Class IamPainElemental 		: Inventory { Default { Inventory.MaxAmount 1; Inventory.InterHubAmount 0; }}
+Class IamCyberdemon 		: Inventory { Default { Inventory.MaxAmount 1; Inventory.InterHubAmount 0; }}
+Class IamSpiderMastermind 	: Inventory { Default { Inventory.MaxAmount 1; Inventory.InterHubAmount 0; }}
+Class IamArchvile 			: Inventory { Default { Inventory.MaxAmount 1; Inventory.InterHubAmount 0; }}
+Class IamArachnotron 		: Inventory { Default { Inventory.MaxAmount 1; Inventory.InterHubAmount 0; }}
+
+/*==============================================================================
+================================================================================
+	Demon Player Base
+	-----------------
+	Initializes all shared overlays and plays the starting sound of the
+	appropriate type, thanks to virtual override functions like PostBeginPlay.
+	
+	NOTICE:
+	Whenever overriding an internal core function as part of the Actor class
+	itself, remember to call the super function to ensure proper working order!
+	
+	The following are internal overrideable functions:
+	- BeginPlay
+	- PostBeginPlay
+	- Tick
+	- Activate
+	- Deactivate
+	
+	See this for more information:
+	http://zdoom.org/wiki/Converting_DECORATE_code_to_ZScript#Virtuals
+	
+================================================================================
+==============================================================================*/
+
+Class DemonPlayerBase : Doom4Player
+{
+	int TicDelay;
+	// Only ever called once.
+	override void PostBeginPlay()
+	{
+		PlayDemonStartSound();
+		StartDemonOverlays();
+		Super.PostBeginPlay();	//Always call the super version to ensure everything's in working order.
+	}
+	
+	override void Tick()
+	{
+		if (GetPlayerInput(MODINPUT_BUTTONS) & BT_USER4)
+		{
+			ACS_NamedExecuteWithResult('ForceUnmorph',0,0,0,0);
+		}
+	
+		// Count down the timer effect.
+		A_TakeInventory("DemonTimerToken",1,0);
+		
+		TicDelay++;
+		
+		if (TicDelay >= 2)
+		{
+			TicDelay = 0;
+			
+			// Think of this as A_CheckProximity, but with less limitation.
+			// However, we have to invent all the checks in order to use it
+			// properly.
+			
+			// So, create an iterator that searches for D4KeyBase-inheriting
+			// only.
+			ThinkerIterator KeyFinder = ThinkerIterator.Create("D4KeyBase");
+			Actor mo;
+			while (mo = D4KeyBase(KeyFinder.Next()))
+			{
+				// Make sure it can be touched.
+				double blockdist = radius + mo.radius;
+				if (abs(pos.x - mo.pos.x) > blockdist || abs(pos.y - mo.pos.y) > blockdist)
+				{	continue;	}
+								
+				// So we're in range horizontally. What about vertically?
+				if (pos.z + height < mo.pos.z || mo.pos.z + mo.height < pos.z)
+				{	continue;	}
+				
+				// Execute any specials this thing had.				
+				if (mo && mo.special)
+				{
+					A_CallSpecial(mo.special, mo.args[0], mo.args[1], mo.args[2], mo.args[3], mo.args[4]);
+				}
+				
+				// Assemble the arrays only if we succeed. This first array
+				// contains the actor's hard names.
+				static const Class<Actor> KeyName[] =
+				{
+					"D4RedCard",
+					"D4YellowCard",
+					"D4BlueCard",
+					"D4RedSkull",
+					"D4YellowSkull",
+					"D4BlueSkull"
+				};
+				
+				// Contains the nice names for logging.
+				static const String NiceKeyName[] =
+				{
+					"Red Card",
+					"Yellow Card",
+					"Blue Card",
+					"Red Skull",
+					"Yellow Skull",
+					"Blue Skull"
+				};
+				
+				// In the event someone decides to screw with the keys, check the base class.
+				for (int index = 0; index < 6; index++)
+				{
+					if (mo.CheckClass(KeyName[index], DefPtr, true))
+					{
+						//Concatenate a string with .. (two periods)
+						A_Log(NiceKeyName[index].." Found");
+						break;
+					}
+				}
+				
+				// Grabs the actual key and gives it to the player. This would
+				// be the same as if I had done A_GiveInventory(KeyName[Index])
+				// inside the for loop and if block. However, if done above, it
+				// wouldn't be safe as D4D mods could possibly modify them.
+				// This ensures nothing is missed so long as they inherit from
+				// D4KeyBase. The worst that will happen, they simply don't have
+				// a pickup message attached. No big deal.
+				
+				Class<D4KeyBase> keypick = (Class<D4KeyBase>)(mo.GetClass());
+				A_GiveInventory(keypick,1);
+				mo.A_Remove(DefPtr,RMVF_EVERYTHING);
+			}
+			
+		}
+		
+		Super.Tick();
+	}
+	
+	virtual void StartDemonOverlays()
+	{
+		A_ClearOverlays();
+		A_Overlay(6000,"Overlay.IdleSound",true);
+		A_Overlay(6001,"Overlay.Steps",true);
+		
+		//Strangely, the timer visual runs out at least like a few second before.
+		A_SetInventory("DemonTimerToken",62*35, DefPtr, true);
+	}
+	
+	void PlayDemonStartSound()
+	{
+		int entries = 10;
+		static const Class<Actor> Demons[] =
+		{
+			"PlayerArachnotron",
+			"PlayerBaron",
+			"PlayerCacodemon",
+			"PlayerCyberdemon",
+			"PlayerFatso",
+			"PlayerKnight",
+			"PlayerMastermind",
+			"PlayerPainElemental",
+			"PlayerRevenant",
+			"PlayerArchvile"			// The last one is comma conscientious. 
+		};
+		
+		static const Sound SightSound[] =
+		{
+			"Doom4/Monsters/Arachnotron/Sight",
+			"Doom4/Monsters/Baron/Sight",
+			"Doom4/Monsters/Cacodemon/Sight",
+			"Doom4/Monsters/Cyberdemon/Sight",
+			"Doom4/Monsters/Mancubus/Sight",
+			"Doom4/Monsters/HellKnight/Sight",
+			"Doom4/Monsters/Mastermind/Sight",
+			"Doom4/Monsters/PainElemental/Sight",
+			"Doom4/Monsters/Revenant/Sight",
+			"Doom4/Monsters/Archvile/Sight"
+		};
+		
+		for (int index = 0; index < entries; index++)
+		{
+			if (CheckClass(Demons[index]))
+			{
+				A_PlaySound(SightSound[index], 5);
+				return;
+			}
+		}
+	}
+	
+	States
+	{
+	// Dummy states to be overridden later. Except the DemonTimer one.
+	Overlay.IdleSound:
+	Overlay.Steps:
+		TNT1 A 0;
+		Stop;
+	}
+}
+
+
+// upon getting this thing, player will unmorph immediately
+// No longer used.
+// Instead, an ACS script performs unmorphing.
+Class UnMorpher : ArtiTomeOfPower
+{
+	Default 
+	{
+		//Game "Doom";
+		+INVENTORY.AUTOACTIVATE
+		+INVENTORY.QUIET
+		-INVENTORY.INVBAR
+		-INVENTORY.PICKUPFLASH
+		-COUNTITEM
+		-FLOATBOB
+		+NOTIMEFREEZE
+		Inventory.PickupMessage "";
+		Powerup.Duration 1;
+	}
+}
+
+// The fog actor, cosmetic, but also does stuff to player for special behavior
+Class DemonRuneMorphOff : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+NOTIMEFREEZE
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		PLAY A 0 NODELAY 
+		{
+			//Depending on the token, will play the death sound of that demon
+			if (CountInv("IamHellKnight",TargetPtr))
+			{	A_PlaySound("Doom4/Monsters/HellKnight/Death	",7); }
+			else if (CountInv("IamBaronOfHell",TargetPtr))
+			{	A_PlaySound("Doom4/Monsters/Baron/Death",7); }
+			else if (CountInv("IamRevenant",TargetPtr))
+			{	A_PlaySound("Doom4/Monsters/Revenant/Death",7); }
+			else if (CountInv("IamCacodemon",TargetPtr))
+			{	A_PlaySound("Doom4/Monsters/Cacodemon/Death",7); }
+			else if (CountInv("IamFatso",TargetPtr))
+			{	A_PlaySound("Doom4/Monsters/Mancubus/Death",7); }
+			else if (CountInv("IamPainElemental",TargetPtr))
+			{	A_PlaySound("Doom4/Monsters/PainElemental/Death",7); }
+			else if (CountInv("IamCyberdemon",TargetPtr))
+			{	A_PlaySound("Doom4/Monsters/Cyberdemon/Death",7); }
+			else if (CountInv("IamSpiderMastermind",TargetPtr))
+			{	A_PlaySound("Doom4/Monsters/Mastermind/Death",7); }
+			else if (CountInv("IamArchvile",TargetPtr))
+			{	A_PlaySound("Doom4/Monsters/Archvile/Death",7); }
+			else if (CountInv("IamArachnotron",TargetPtr))
+			{	A_PlaySound("Doom4/Monsters/Arachnotron/Death",7); }
+			
+			
+			
+			A_TakeInventory("IamADemonToken",32768,0,TargetPtr); 	//main identifier as "demon"
+			A_TakeInventory("OverlaysStarted",32768,0,TargetPtr);	//the one that stops doing overlays in spawn state
+			A_TakeInventory("PowerFlight",32768,0,TargetPtr);		//to remove the flying of cacos and pelementals
+			A_GiveInventory("DemonOverlayCleaner",1,TargetPtr);		//cleans the demon overlays on unmorphed player
+			A_GiveInventory("DemonWarpersCleaner",1,TargetPtr);		//cleans the demon overlays on unmorphed player
+			A_GiveInventory("MinionsTurner",1,TargetPtr);			//makes all minions enemy to unmorphed player
+			A_GiveInventory("HealthArmorRestorer",1,TargetPtr);			//makes all minions enemy to unmorphed player
+		
+			
+			//Removes any and all demon tokens from player
+			A_TakeInventory("IamHellKnight",32768,0,TargetPtr);
+			A_TakeInventory("IamBaronOfHell",32768,0,TargetPtr);
+			A_TakeInventory("IamRevenant",32768,0,TargetPtr);
+			A_TakeInventory("IamCacodemon",32768,0,TargetPtr);
+			A_TakeInventory("IamFatso",32768,0,TargetPtr);
+			A_TakeInventory("IamPainElemental",32768,0,TargetPtr);
+			A_TakeInventory("IamCyberdemon",32768,0,TargetPtr);
+			A_TakeInventory("IamSpiderMastermind",32768,0,TargetPtr);
+			A_TakeInventory("IamArchvile",32768,0,TargetPtr);
+			A_TakeInventory("IamArachnotron",32768,0,TargetPtr);
+			A_TakeInventory("BusyToken",32767,0,TargetPtr);
+			
+			A_SpawnItemEx("BloodGibDropper",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION/*|SXF_USEBLOODCOLOR*/);
+			A_PlaySound("Doom4/Other/GibExplode",6);
+			
+			while (A_CheckProximity("Null","RuneWearOffWarning",32767,1,CPXF_SETTRACER))
+			{
+				A_RemoveTracer(RMVF_EVERYTHING);
+			}
+		}
+		PLAY AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 1 
+		{
+			A_SpawnItemEx("CarrionFlameFast",0,0,0,frandom(4,-4),frandom(4,-4),frandom(4,-4),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("CarrionFlameFast",0,0,0,frandom(4,-4),frandom(4,-4),frandom(4,-4),random(0,359),SXF_NOCHECKPOSITION);
+		}
+		Stop;
+	}
+}
+
+//-------------------------------------------------------------------
+// Cleans the overlays called by demons
+//-------------------------------------------------------------------
+Class DemonOverlayCleaner : CustomInventory
+{
+	Default 
+	{
+		Inventory.MaxAmount 1;
+		Inventory.Amount 1;
+		+INVENTORY.ALWAYSPICKUP
+		+INVENTORY.AUTOACTIVATE
+		+NOTIMEFREEZE
+	}
+	States
+	{
+	Spawn:
+		BOS2 A 10 Bright;
+		Loop;
+	Pickup:
+		TNT1 A 0 
+		{
+			A_ClearOverlays(6000,6100); //all demon overlays are between these two
+			A_GiveInventory("InvulTimer",106);
+			A_SpawnItemEx("PentagramManager",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+			A_GiveInventory("Invulnerability");
+			ACS_NamedExecute("ResetOverlayState",0,0,0,0);
+		}
+		Stop;
+	}
+}
+
+
+//-------------------------------------------------------------------
+// to save and restore health/armor pre/post morph
+//-------------------------------------------------------------------
+Class HealthArmorSaver : CustomInventory
+{
+	Default 
+	{
+		Inventory.MaxAmount 1;
+		Inventory.Amount 1;
+		+INVENTORY.ALWAYSPICKUP
+		+INVENTORY.AUTOACTIVATE
+		+NOTIMEFREEZE
+	}
+	States
+	{
+	Spawn:
+		BOS2 A 10 Bright;
+		Loop;
+	Pickup:
+		TNT1 A 0 
+		{
+			A_GiveInventory("DHealthCount",health);
+			
+			if(countinv("BasicArmor"))
+			{	A_GiveInventory("DArmorCount",CountInv("BasicArmor",Player1)); }
+		}
+		Stop;
+	}
+}
+
+Class HealthArmorRestorer : CustomInventory
+{
+	Default 
+	{
+		Inventory.MaxAmount 1;
+		Inventory.Amount 1;
+		+INVENTORY.ALWAYSPICKUP
+		+INVENTORY.AUTOACTIVATE
+		+NOTIMEFREEZE
+	}
+	States
+	{
+	Spawn:
+		BOS2 A 10 Bright;
+		Loop;
+	Pickup:
+		TNT1 A 0 
+		{
+			A_SetHealth(CountInv("DHealthCount",Player1)); 
+			while(countinv("DArmorCount"))
+			{
+				A_GiveInventory("ArmorSinglePoint",1);
+				A_TakeInventory("DArmorCount",1);
+			}
+			
+			
+			A_TakeInventory("DHealthCount",32767);
+			A_TakeInventory("DArmorCount",32767);
+		}
+		Stop;
+	}
+}
+
+Class DHealthCount : Inventory { Default { Inventory.MaxAmount 500; +INVENTORY.IGNORESKILL } }
+Class DArmorCount : Inventory { Default { Inventory.MaxAmount 500; 	+INVENTORY.IGNORESKILL } }
+
+
+
+//-------------------------------------------------------------------
+//Cleans all the A_Warp muzzle flashes
+//-------------------------------------------------------------------
+Class DemonWarpersCleaner : CustomInventory
+{
+	Default 
+	{
+		Inventory.MaxAmount 1;
+		Inventory.Amount 1;
+		+INVENTORY.ALWAYSPICKUP
+		+INVENTORY.AUTOACTIVATE
+		+NOTIMEFREEZE
+	}
+	States
+	{
+	Spawn:
+		BOS2 A 10 Bright;
+		Loop;
+	Pickup:
+		TNT1 A 0 
+		{
+			A_RemoveChildren(true,RMVF_EVERYTHING,"BaronPlayerMuzzle");
+			A_RemoveChildren(true,RMVF_EVERYTHING,"MastermindPlayerMuzzleRed");
+			A_RemoveChildren(true,RMVF_EVERYTHING,"CyberdemonPlayerMuzzle");
+			A_RemoveChildren(true,RMVF_EVERYTHING,"SummonerPlayerMuzzle");
+		}
+		Stop;
+	}
+}
+
+//-------------------------------------------------------------------
+// To make all summoned monsters (by pain elem or summoner)
+// enemies to player after player unmorphs 
+//-------------------------------------------------------------------
+// Given to the player by the fog
+Class MinionsTurner : CustomInventory
+{
+	Default 
+	{
+		Inventory.MaxAmount 1;
+		Inventory.Amount 1;
+		+INVENTORY.ALWAYSPICKUP
+		+INVENTORY.AUTOACTIVATE
+		+NOTIMEFREEZE	
+	}
+	States
+	{
+	Spawn:
+		BOS2 A 10 Bright;
+		Loop;
+	Pickup:
+		TNT1 A 0 
+		{
+			A_SpawnItemEx("Enemifier",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_NOPOINTERS|SXF_SETTARGET);
+			A_GiveToChildren("MinionsTurner2",1);
+		}
+		Stop;
+	}
+}
+
+Class Enemifier : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		-COUNTKILL
+		+NODAMAGE
+		+THRUACTORS
+		-FRIENDLY
+		Monster;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 2;
+		TNT1 A 1 Thing_Remove(0);
+		Stop;
+	}
+}
+
+//given to the monsters to make them unfriendly
+Class MinionsTurner2 : CustomInventory
+{
+	Default 
+	{
+		Inventory.MaxAmount 1;
+		Inventory.Amount 1;
+		+INVENTORY.ALWAYSPICKUP
+		+INVENTORY.AUTOACTIVATE
+		+NOTIMEFREEZE
+	}
+	States
+	{
+	Spawn:
+		BOS2 A 10 Bright;
+		Loop;
+	Pickup:
+		TNT1 A 0 
+		{
+			if (CheckClass("D4AbstractMonster",DefPtr,True))
+			{
+				bFriendly = bThruSpecies = bNoBlockMonst = false;
+				A_CheckProximity("Null","Enemifier",32767,1,CPXF_SETTRACER);
+				A_CopyFriendliness(TracerPtr);
+				A_ChangeCountFlags(true);
+				return true;
+			}
+			return false;
+		}
+		Stop;
+	}
+}
+
+
+//-------------------------------------------------------------------
+// Fog for when you become a demon
+//-------------------------------------------------------------------
+
+Class DemonRuneMorphOn : Actor 
+{
+	const RollAmount = 8.0;
+	const ScaleMul = 0.5;
+	double  user_c;
+	double  user_roll;
+	int user_t;
+	int user_rng;
+	double  user_dist;
+	double  user_cos;
+	int user_floor;
+	int user_duration;
+	
+	Default 
+	{
+		+NOINTERACTION
+		+BRIGHT
+		+FLATSPRITE
+		+ROLLSPRITE
+		RenderStyle "Add";
+		Radius 32;
+		Alpha 0;
+		Scale 0;
+		//Translation "0:255=%[0,0,0]:[1.0,0.0,0.2]"
+	}
+	States
+	{
+	Spawn:
+		RUNE C 0 NoDelay
+		{
+			invoker.user_duration = 2;
+			invoker.user_roll = RollAmount * randompick(-1,1);
+			A_PlaySound("Player/Demon/Fire",7,0.7);
+			A_SpawnItemEx("RuneWearOffWarning",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS);
+		}
+	Looping:
+		"####" "#" 1
+		{
+			A_Warp(TargetPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",1.4);
+			A_SpawnItemEx("CarrionFlameFast",
+					frandom(0.0,4.0),frandom(0.0,4.0),frandom(0,-80),
+					frandom(0.0, 2.0),0,frandom(-4.0,4.0),random(0,359),SXF_NOCHECKPOSITION);	
+			
+			if (invoker.user_c >= 90.0)
+			{	return ResolveState(1);	}
+			invoker.user_c += (90.0/12.0);
+			A_SetRoll((roll + RollAmount) % 360,SPF_INTERPOLATE);
+			A_FadeTo(0.99,(1.0/12.0),FTF_CLAMP);
+			A_SetScale(sin(invoker.user_c) * ScaleMul);
+			return ResolveState(null);
+		}
+		Loop;
+	Shrink:
+		"####" "#" 1
+		{	
+			A_Warp(TargetPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",1.4);
+			if (invoker.user_t < (40 + invoker.user_duration) )
+			{	invoker.user_t++;	}
+			else
+			{
+				invoker.user_c += (90.0/12.0);
+				A_SetScale(sin(invoker.user_c) * ScaleMul);
+				if (Scale.X <= 0)	{	return ResolveState("Null");	}
+			}
+			
+			A_SetRoll((roll + RollAmount) % 360,SPF_INTERPOLATE);
+			
+			A_SpawnItemEx("CarrionFlameFast",
+					frandom(0.0,4.0),frandom(0.0,4.0),frandom(0,-80),
+					frandom(0.0, 2.0),0,frandom(-4.0,4.0),random(0,359),SXF_NOCHECKPOSITION);	
+					
+			return ResolveState(null);
+		}
+		Loop;
+	}
+}
+
+Class RuneWearOffWarning : Actor 
+{
+	Default 
+	{
+		Projectile;
+		+NOTONAUTOMAP
+		+NOINTERACTION
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 1995; //57 seconds
+		TNT1 A 0
+		{
+			if (CountInv("IamADemonToken",TargetPtr))
+			{	
+				A_PlaySound("PentagramOfProtection/Warning",5,1,0,ATTN_NONE);
+			}
+		}
+		TNT1 AAA 35
+		{
+			if (CountInv("IamADemonToken",TargetPtr))
+			{	
+				A_GiveInventory("PentagramFade",1,TargetPtr);
+			}
+		}
+		Stop;
+	}
+}
+
+Class SoundStopper : CustomInventory
+{
+	Default 
+	{
+		Inventory.MaxAmount 1;
+		Inventory.Amount 1;
+		+INVENTORY.ALWAYSPICKUP
+		+INVENTORY.AUTOACTIVATE
+		+NOTIMEFREEZE
+	}
+	States
+	{
+	Spawn:
+		BOS2 A 10 Bright;
+		Loop;
+	Pickup:
+		TNT1 A 0 
+		{
+			A_StopSound(1);
+			A_StopSound(2);
+			A_StopSound(3);
+			A_StopSound(4);
+			A_StopSound(5);
+			A_StopSound(6);
+			A_StopSound(7);
+			A_StopSound(0);
+		}
+		Stop;
+	}
+}
+//=================================================================================================
+//=================================================================================================
+
+//		Base sprites for the thing
+
+//=================================================================================================
+//=================================================================================================
+
+Class DemonRuneBase : CustomInventory
+{
+	int user_time;
+	Default 
+	{
+		Inventory.MaxAmount 1;
+		Inventory.Amount 1;
+		Radius 6;
+		Height 12;
+		Scale 0.1;
+		+FORCEXYBILLBOARD
+		+BRIGHT
+	}
+	States
+	{
+	Spawn:
+		RUNE A 0 NoDelay
+		{
+			// ONLY CHECK FOR THE SAME TYPE OF ITSELF. Do not check others, that's ridiculous!
+			if (CheckClass("ArachnotronRune"))
+			{
+				return (A_CheckProximity("Null","ArachnotronRune", 	32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+			}
+			else if (CheckClass("BaronRune"))
+			{
+				return (A_CheckProximity("Null","BaronRune", 	32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+			}
+			else if (CheckClass("CacodemonRune"))
+			{
+				return (A_CheckProximity("Null","CacodemonRune", 	32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+			}
+			else if (CheckClass("CyberdemonRune"))
+			{
+				return (A_CheckProximity("Null","CyberdemonRune", 	32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+			}
+			else if (CheckClass("FatsoRune"))
+			{
+				return (A_CheckProximity("Null","FatsoRune", 	32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+			}
+			else if (CheckClass("KnightRune"))
+			{
+				return (A_CheckProximity("Null","KnightRune", 	32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+			}
+			else if (CheckClass("MastermindRune"))
+			{
+				return (A_CheckProximity("Null","MastermindRune", 	32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+			}
+			else if (CheckClass("PainElementalRune"))
+			{
+				return (A_CheckProximity("Null","PainElementalRune",32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+			}
+			else if (CheckClass("RevenantRune"))
+			{
+				return (A_CheckProximity("Null","RevenantRune", 	32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+			}
+			else if (CheckClass("ArchvileRune"))
+			{
+				return (A_CheckProximity("Null","ArchvileRune", 	32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+			}
+			return ResolveState(null);
+		}
+		RUNE A 0 
+		{ 
+			A_SpawnItemEx("DemonRuneBackground",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_TRANSFERSCALE|SXF_ORIGINATOR);
+			invoker.user_time = 60 * 35;  // tics before timeout
+		}
+		Goto Idle;
+	Idle:
+		RUNE A 1 BRIGHT Light("OrangeSmallPoint1")
+		{
+			if (!CountInv("PowerInvulBase",Player1) && !CountInv("IamADemonToken",Player1))
+			{
+				invoker.user_time--;
+				if (invoker.user_time < 5 * 32) { A_SetTranslucent((invoker.user_time % 32) / 32.0); } // blink before time-out
+			}
+			return A_JumpIf(invoker.user_time <= 0,"Null");
+		}
+		Wait;
+	}
+}
+
+Class DemonRuneBackground : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+ROLLCENTER
+		+ROLLSPRITE
+		Scale 0.1;
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_PlaySound("Player/Demon/RuneFxLoop",CHAN_AUTO,1.0,1);
+		TNT1 A 0 A_Jumpif (IsPointerEqual(AAPTR_MASTER,AAPTR_NULL),"Null");
+		RUNE B 1 BRIGHT 
+		{
+			if (master)
+			{
+				A_SetRoll(roll-0.9,SPF_INTERPOLATE);
+				A_Warp(MasterPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_COPYVELOCITY);
+				return ResolveState(null);
+			}
+			return ResolveState("Null");
+		}
+		Wait;
+	}
+}
+
+
+
+
+
+//------------------------------------------------
+//Secondary stuff
+
+
+Class ArchieMonsterDropper : Actor 
+{
+	Default 
+	{
+		Projectile;
+		+NOTARGET
+		+FRIENDLY
+		+FLOORCLIP
+		+DONTSPLASH
+		-NOGRAVITY
+		+NOBLOCKMONST
+		+SKYEXPLODE
+		+EXPLODEONWATER
+		Gravity 3;
+		Radius 20;
+		Height 8;
+		Speed 16;
+		DeathSound "";
+		RenderStyle "None";
+		Scale 0.4;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 1;
+		Loop;
+	Death:
+		TNT1 A 0 A_SpawnItemEx("SummonTeleportFog",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+		TNT1 A 1 A_SpawnItemEx("TporDropBallSpawnerFriend",0,0,0,0,0,0,0,SXF_TRANSFERPOINTERS|SXF_SETMASTER);
+		Stop;
+	} 
+}
+
+Class TporDropBallSpawnerFriend : RandomSpawner
+{
+	Default 
+	{
+		+FRIENDLY
+		+NOBLOCKMONST
+		DropItem "FD4ShotgunGuy", 255, 2;
+		DropItem "FD4ChaingunGuy", 255, 2;
+		DropItem "FD4DoomImp", 255, 2;
+		DropItem "FD4Demon", 255, 2;
+		DropItem "FD4Revenant", 255, 4;
+		DropItem "FD4HellKnight", 255, 4;
+		DropItem "FD4BaronOfHell", 255, 1;
+	}
+}
+
+// Had to define these guys because "RandomSpawner" doesnt pass along the NOBLOCKMONST flag
+Class FD4ShotgunGuy : D4ShotgunGuy		{	Default { +NOBLOCKMONST	+COUNTKILL	} }
+Class FD4ChaingunGuy : D4ChaingunGuy	{	Default { +NOBLOCKMONST	+COUNTKILL	} }
+Class FD4DoomImp : D4DoomImp			{	Default { +NOBLOCKMONST	+COUNTKILL	} }
+Class FD4Demon : D4Demon				{	Default { +NOBLOCKMONST	+COUNTKILL	} }
+Class FD4Revenant : D4Revenant			{	Default { +NOBLOCKMONST	+COUNTKILL	} }
+Class FD4HellKnight : D4HellKnight		{	Default { +NOBLOCKMONST	+COUNTKILL	} }
+Class FD4BaronOfHell : D4BaronOfHell	{	Default { +NOBLOCKMONST	+COUNTKILL	} }
+
+
+Class DemonPuff : Actor //for xdeathing everything
+{
+	Default 
+	{
+		+NOINTERACTION
+		+EXTREMEDEATH
+		RenderStyle "None";
+	}
+	states
+	{
+	Spawn:
+		PLAY A 3;
+		Stop;
+	}
+}
+
+Class DemonPuffMelee : FistPuff //for xdeathing everything
+{
+	Default 
+	{
+		+NOINTERACTION
+		+EXTREMEDEATH
+		RenderStyle "None";
+	}
+}

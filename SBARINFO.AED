@@ -1,0 +1,2409 @@
+// Quake4 original HUD 
+// Made by AlphaEnt.
+// Modified by DBT for this mod.
+// Vastly modified by Michaelis, following vision of DBT.
+// Remade completely by Michaelis for Doom-4-Doom. 
+// There is no trace of AlphaEnt's work at this point.
+
+height 0;
+CompleteBorder True;
+
+Resolution 1024,768;
+InterpolateHealth false, 20;
+InterpolateArmor false, 20;
+
+//================================================================================================
+//================================================================================================
+//	This version HAS the weapon bar and ammo counter
+//================================================================================================
+//================================================================================================
+statusbar Normal, forcescaled	
+{
+	// Debug
+	inInventory ShowSurroundings
+	{
+		drawNumber 4, Q4HUDFONT, green,  DebugMonstersToken, alignment(right),   0,  0;	drawString bigfont, green,  "Monsters",   5,  0, 0, alignment(left);
+		drawNumber 4, Q4HUDFONT, yellow, DebugBiggiesToken,  alignment(right),   0, 35;	drawString bigfont, yellow, "Biggies",    5, 35, 0, alignment(left);
+		drawNumber 4, Q4HUDFONT, red,    DebugBossesToken,   alignment(right),   0, 70;	drawString bigfont, red,    "Bosses",     5, 70, 0, alignment(left);
+		drawNumber 4, Q4HUDFONT, cyan,   DebugMissilesToken, alignment(right),   0,105;	drawString bigfont, cyan,   "Missiles",   5,105, 0, alignment(left);
+		drawNumber 4, BIGFONT, green, DebugFarMonstersToken, alignment(right), 200,  0;	drawString bigfont, green,  "Monsters", 205,  0, 0, alignment(left);
+		drawNumber 4, BIGFONT, yellow,DebugFarBiggiesToken,  alignment(right), 200, 35;	drawString bigfont, yellow, "Biggies",  205, 35, 0, alignment(left);
+		drawNumber 4, BIGFONT, red,   DebugFarBossesToken,   alignment(right), 200, 70;	drawString bigfont, red,    "Bosses",   205, 70, 0, alignment(left);
+		drawNumber 4, BIGFONT, cyan,  DebugFarMissilesToken, alignment(right), 200,105;	drawString bigfont, cyan,   "Missiles", 205,105, 0, alignment(left);
+	}
+	
+	inInventory not IamADemonToken
+	{
+		// Powerups
+		// Go first because otherwise they obscure HUD elements
+		inInventory PowerD4QuadDamage 			{ drawimage "Shade2Ma", -171, 0; }
+		inInventory PowerD4Regen	 			{ drawimage "Shade2Cy", -171, 0; }
+		inInventory PowerD4Haste				{ drawimage "Shade2Ye", -171, 0; }
+		inInventory PowerD4Money 				{ drawimage "Shade2Gr", -171, 0; }
+		
+		// UAC Doomguy collectible uses
+		InInventory DollUses,1
+		{ drawimage "Ddoll", 1060,727; }
+		InInventory DollUses,2 
+		{ drawimage "Ddoll", 1030,727; }
+		InInventory DollUses,3
+		{ drawimage "Ddoll", 1000,727; } 
+		InInventory DollUses,4
+		{ drawimage "Ddoll", 970,727; } 
+		InInventory DollUses,5
+		{ drawimage "Ddoll", 940,727; } 
+		InInventory DollUses,6
+		{ drawimage "Ddoll", 910,727; } 
+		InInventory DollUses,7
+		{ drawimage "Ddoll", 880,727; } 
+		InInventory DollUses,8
+		{ drawimage "Ddoll", 850,727; } 
+		InInventory DollUses,9
+		{ drawimage "Ddoll", 820,727; } 
+		
+
+		// "Credit" (cash)
+		drawstring CONFONT, white , "Credits:",1024, 8,0, alignment(left);
+
+		// The Usual
+		drawimage "BODYBAR0", -69,669;
+		
+		IfHealth 1 
+		{
+			// Armor
+			InInventory PowerInvulBase
+			{
+				drawbar "BODYARM1", "BODYARM0", armor(100), horizontal, 18,676;
+				drawbar "BODYARM2", "BODYARM0", armor(100), horizontal, 18,676;
+				drawnumber 3, Q4SMALLHUDFONT, red, 666,  alignment(right), -4,679;	
+			}
+			Else
+			{
+				drawbar "BODYARM1", "BODYARM0", armor, horizontal, 18,676;
+				drawbar "BODYARM2", "BODYARM0", SuperArmorToken, horizontal, 18,676;
+				drawnumber 3, Q4SMALLHUDFONT, white, armor,  alignment(right), -4,679;	
+			}
+			// Health
+			drawbar "BODYHEL1", "BODYHEL0",HealthToken, horizontal, 18,694;
+			drawbar "BODYHEL2", "BODYHEL0",SuperHealthToken, horizontal, 18,694;
+			drawnumber 3, Q4SMALLHUDFONT, white, health, alignment(right), -4,697;	
+			drawimage "BODYHELC", 0,697;
+			//drawgem interpolate(19), "KEYCHAIN", "BODYHELG", 0, 0, 115, 18, 694;
+		}
+		
+		inInventory IdfaStamp { drawstring smallfont, green,   "IDFA", -69,655, 0, alignment(left); }
+		
+		// Damage
+		DrawMugShot 1, disableouch, disablerampage, disablegrin, 480, 640;
+		
+		// Keybag
+		gamemode cooperative, singleplayer
+		{
+			
+			ininventory not D4BlueCard 		{	drawimage "KEYSLOT0", 200, 661; } else { drawimage "KEYSLOT1", 200, 661; }
+			ininventory not D4YellowCard 	{	drawimage "KEYSLOT0", 240, 661; } else { drawimage "KEYSLOT1", 240, 661; }
+			ininventory not D4RedCard 		{	drawimage "KEYSLOT0", 280, 661; } else { drawimage "KEYSLOT1", 280, 661; }
+			ininventory not D4BlueSkull 	{	drawimage "KEYSLOT0", 200, 697; } else { drawimage "KEYSLOT1", 200, 697; }
+			ininventory not D4YellowSkull	{	drawimage "KEYSLOT0", 240, 697; } else { drawimage "KEYSLOT1", 240, 697; }
+			ininventory not D4RedSkull 		{	drawimage "KEYSLOT0", 280, 697; } else { drawimage "KEYSLOT1", 280, 697; }		
+			
+			drawswitchableimage D4BlueCard, 	"nullimage", "KEYCB", 	209, 665;
+			drawswitchableimage D4YellowCard, 	"nullimage", "KEYCY", 	249, 665;
+			drawswitchableimage D4RedCard, 		"nullimage", "KEYCR", 	289, 665;
+			drawswitchableimage D4BlueSkull, 	"nullimage", "SKKYB", 	204, 699;
+			drawswitchableimage D4YellowSkull,	"nullimage", "SKKYY",	244, 699;
+			drawswitchableimage D4RedSkull, 	"nullimage", "SKKYR", 	284, 699;
+					
+			// for idkfa
+			drawswitchableimage BlueCard, 	"nullimage", "KEYCB", 	209, 665;
+			drawswitchableimage YellowCard,	"nullimage", "KEYCY", 	249, 665;
+			drawswitchableimage RedCard, 	"nullimage", "KEYCR", 	289, 665;
+			drawswitchableimage BlueSkull, 	"nullimage", "SKKYB", 	204, 699;
+			drawswitchableimage YellowSkull,"nullimage", "SKKYY",	244, 699;
+			drawswitchableimage RedSkull, 	"nullimage", "SKKYR", 	284, 699;
+		}
+		
+		// Medals
+		InInventory D4DCash,1000000000 // billion
+		{
+			InInventory RewardToken,1 { drawimage "medal1GL", 600,0; } else { drawimage "medal0", 620,20; }
+			InInventory RewardToken,2 { drawimage "medal1GL", 650,0; } else { drawimage "medal0", 670,20; }
+			InInventory RewardToken,3 { drawimage "medal1GL", 700,0; } else { drawimage "medal0", 720,20; }
+			InInventory RewardToken,4 { drawimage "medal1GL", 750,0; } else { drawimage "medal0", 770,20; }
+			InInventory RewardToken,5 { drawimage "medal1GL", 800,0; } else { drawimage "medal0", 820,20; }
+		}	else	{	InInventory D4DCash,100000000 // 100 million
+		{
+			InInventory RewardToken,1 { drawimage "medal1GL", 610,0; } else { drawimage "medal0", 630,20; }
+			InInventory RewardToken,2 { drawimage "medal1GL", 660,0; } else { drawimage "medal0", 680,20; }
+			InInventory RewardToken,3 { drawimage "medal1GL", 710,0; } else { drawimage "medal0", 730,20; }
+			InInventory RewardToken,4 { drawimage "medal1GL", 760,0; } else { drawimage "medal0", 780,20; }
+			InInventory RewardToken,5 { drawimage "medal1GL", 810,0; } else { drawimage "medal0", 830,20; }
+		}	else	{	InInventory D4DCash,10000000 // 10 million
+		{
+			InInventory RewardToken,1 { drawimage "medal1GL", 620,0; } else { drawimage "medal0", 640,20; }
+			InInventory RewardToken,2 { drawimage "medal1GL", 670,0; } else { drawimage "medal0", 690,20; }
+			InInventory RewardToken,3 { drawimage "medal1GL", 720,0; } else { drawimage "medal0", 740,20; }
+			InInventory RewardToken,4 { drawimage "medal1GL", 770,0; } else { drawimage "medal0", 790,20; }
+			InInventory RewardToken,5 { drawimage "medal1GL", 820,0; } else { drawimage "medal0", 840,20; }
+		}	else	{	InInventory D4DCash,1000000 // million
+		{
+			InInventory RewardToken,1 { drawimage "medal1GL", 630,0; } else { drawimage "medal0", 650,20; }
+			InInventory RewardToken,2 { drawimage "medal1GL", 680,0; } else { drawimage "medal0", 700,20; }
+			InInventory RewardToken,3 { drawimage "medal1GL", 730,0; } else { drawimage "medal0", 750,20; }
+			InInventory RewardToken,4 { drawimage "medal1GL", 780,0; } else { drawimage "medal0", 800,20; }
+			InInventory RewardToken,5 { drawimage "medal1GL", 830,0; } else { drawimage "medal0", 850,20; }
+		}	else	{	InInventory D4DCash,100000 // 100 thousand
+		{
+			InInventory RewardToken,1 { drawimage "medal1GL", 640,0; } else { drawimage "medal0", 660,20; }
+			InInventory RewardToken,2 { drawimage "medal1GL", 690,0; } else { drawimage "medal0", 710,20; }
+			InInventory RewardToken,3 { drawimage "medal1GL", 740,0; } else { drawimage "medal0", 760,20; }
+			InInventory RewardToken,4 { drawimage "medal1GL", 790,0; } else { drawimage "medal0", 810,20; }
+			InInventory RewardToken,5 { drawimage "medal1GL", 840,0; } else { drawimage "medal0", 860,20; }
+		}	else
+		{
+			InInventory RewardToken,1 { drawimage "medal1GL", 650,0; } else { drawimage "medal0", 670,20; }
+			InInventory RewardToken,2 { drawimage "medal1GL", 700,0; } else { drawimage "medal0", 720,20; }
+			InInventory RewardToken,3 { drawimage "medal1GL", 750,0; } else { drawimage "medal0", 770,20; }
+			InInventory RewardToken,4 { drawimage "medal1GL", 800,0; } else { drawimage "medal0", 820,20; }
+			InInventory RewardToken,5 { drawimage "medal1GL", 850,0; } else { drawimage "medal0", 870,20; }
+		}}}}}
+		
+		// Inventory
+		drawbar "KEYSLOTR", "KEYSLOT0", GrenadeCooldown, vertical, 825,680;
+		inInventory not GrenadeCooldown { drawimage "KEYSLOT1", 825, 680; } else { drawimage "KEYSLOT0", 825, 680; }
+		inInventory FragGrenadeSelected 	{ inInventory not GrenadeCooldown { drawimage "FragGren", 828,682; } else { drawimage "FragGre0", 828,682; } }	
+		inInventory SyphonGrenadeSelected 	{ inInventory not GrenadeCooldown { drawimage "SyphGren", 827,679; } else { drawimage "SyphGre0", 827,679; } }	
+		inInventory MarineHoloSelected 		{ inInventory not GrenadeCooldown { drawimage "HoloGren", 827,681; } else { drawimage "HoloGre0", 827,681; } }	
+		
+		// Ammo
+		drawimage "AMMOPANE", 866,669;
+		drawbar "AMMOBAR1", "AMMOBAR0", AmmoToken, horizontal, reverse, 881,693;
+		drawbar "AMMOBAR2", "AMMOBAR0", SuperAmmoToken, horizontal, reverse, 881,693;
+		drawnumber 6, Q4SMALLHUDFONT, white, ammo1,  alignment(right), 983,676;	
+		inInventory D4BFG 
+		{
+			inInventory BFGUpgrade1
+			{	drawbar "BFGAMM44", "BFGAMM04", D4BFGAmmo, horizontal, reverse, 878,713; }
+			else
+			{	drawbar "BFGAMM33", "BFGAMM03", D4BFGAmmo, horizontal, reverse, 878,713; }
+		}
+		inInventory D4Chainsaw
+		{
+			inInventory D4Backpack 
+			{	drawbar "CSAMMO88", "CSAMMO08", D4Fuel, horizontal, reverse, 982,713; }
+			else
+			{	drawbar "CSAMMO55", "CSAMMO05", D4Fuel, horizontal, reverse, 982,713; }
+		}
+		
+		// Counter
+		// Crosshair is at 510,380
+		InInventory Counter,52 { drawimage "cnt52",  465,337; } else {
+		InInventory Counter,51 { drawimage "cnt51",  465,337; } else {
+		InInventory Counter,50 { drawimage "cnt50",  465,337; } else {
+		InInventory Counter,49 { drawimage "cnt49",  465,337; } else {
+		InInventory Counter,48 { drawimage "cnt48",  465,337; } else {
+		InInventory Counter,47 { drawimage "cnt47",  465,337; } else {
+		InInventory Counter,46 { drawimage "cnt46",  465,337; } else {
+		InInventory Counter,45 { drawimage "cnt45",  465,337; } else {
+		InInventory Counter,44 { drawimage "cnt44",  465,337; } else {
+		InInventory Counter,43 { drawimage "cnt43",  465,337; } else {
+		InInventory Counter,42 { drawimage "cnt42",  465,337; } else {
+		InInventory Counter,41 { drawimage "cnt41",  465,337; } else {
+		InInventory Counter,40 { drawimage "cnt40",  465,337; } else {
+		InInventory Counter,39 { drawimage "cnt39",  465,337; } else {
+		InInventory Counter,38 { drawimage "cnt38",  465,337; } else {
+		InInventory Counter,37 { drawimage "cnt37",  465,337; } else {
+		InInventory Counter,36 { drawimage "cnt36",  465,337; } else {
+		InInventory Counter,35 { drawimage "cnt35",  465,337; } else {
+		InInventory Counter,34 { drawimage "cnt34",  465,337; } else {
+		InInventory Counter,33 { drawimage "cnt33",  465,337; } else {
+		InInventory Counter,32 { drawimage "cnt32",  465,337; } else {
+		InInventory Counter,31 { drawimage "cnt31",  465,337; } else {
+		InInventory Counter,30 { drawimage "cnt30",  465,337; } else {
+		InInventory Counter,29 { drawimage "cnt29",  465,337; } else {
+		InInventory Counter,28 { drawimage "cnt28",  465,337; } else {
+		InInventory Counter,27 { drawimage "cnt27",  465,337; } else {
+		InInventory Counter,26 { drawimage "cnt26",  465,337; } else {
+		InInventory Counter,25 { drawimage "cnt25",  465,337; } else {
+		InInventory Counter,24 { drawimage "cnt24",  465,337; } else {
+		InInventory Counter,23 { drawimage "cnt23",  465,337; } else {
+		InInventory Counter,22 { drawimage "cnt22",  465,337; } else {
+		InInventory Counter,21 { drawimage "cnt21",  465,337; } else {
+		InInventory Counter,20 { drawimage "cnt20",  465,337; } else {
+		InInventory Counter,19 { drawimage "cnt19",  465,337; } else {
+		InInventory Counter,18 { drawimage "cnt18",  465,337; } else {
+		InInventory Counter,17 { drawimage "cnt17",  465,337; } else {
+		InInventory Counter,16 { drawimage "cnt16",  465,337; } else {
+		InInventory Counter,15 { drawimage "cnt15",  465,337; } else {
+		InInventory Counter,14 { drawimage "cnt14",  465,337; } else {
+		InInventory Counter,13 { drawimage "cnt13",  465,337; } else {
+		InInventory Counter,12 { drawimage "cnt12",  465,337; } else {
+		InInventory Counter,11 { drawimage "cnt11",  465,337; } else {
+		InInventory Counter,10 { drawimage "cnt10",  465,337; } else {
+		InInventory Counter, 9 { drawimage "cnt09",  465,337; } else {
+		InInventory Counter, 8 { drawimage "cnt08",  465,337; } else {
+		InInventory Counter, 7 { drawimage "cnt07",  465,337; } else {
+		InInventory Counter, 6 { drawimage "cnt06",  465,337; } else {
+		InInventory Counter, 5 { drawimage "cnt05",  465,337; } else {
+		InInventory Counter, 4 { drawimage "cnt04",  465,337; } else {
+		InInventory Counter, 3 { drawimage "cnt03",  465,337; } else {
+		InInventory Counter, 2 { drawimage "cnt02",  465,337; } else {
+		InInventory Counter, 1 { drawimage "cnt01",  465,337; } else {
+								 drawimage "cnt00",  465,337;
+		}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
+		// Weapon specifics
+				
+		isSelected D4DFist
+		{
+			// Weapon icon
+			DrawImage "fist", 983,676;
+		}
+		isSelected D4Chainsaw
+		{
+			// Weapon icon
+			DrawImage "chainsaw", 983,676;
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rCha_saw",  464,336; }
+		}
+		isSelected D4Pistol
+		{
+			// Weapon icon
+			DrawImage "pistol", 983,676;
+			
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rPistol",  465,337; }
+			
+			// Charging
+			InInventory PistolAltFireCounter,52 { 
+				InInventory PistolUpgradeAltDamage
+				{ drawimage "red52",  465,337; } // upgraded fully charged--red counter
+				else
+				{ drawimage "cya52",  465,337; } // fully charged pistol--cyan counter
+			} else { 
+			InInventory PistolAltFireCounter,51 { drawimage "cnt51",  465,337; } else {
+			InInventory PistolAltFireCounter,50 { drawimage "cnt50",  465,337; } else {
+			InInventory PistolAltFireCounter,49 { drawimage "cnt49",  465,337; } else {
+			InInventory PistolAltFireCounter,48 { drawimage "cnt48",  465,337; } else {
+			InInventory PistolAltFireCounter,47 { drawimage "cnt47",  465,337; } else {
+			InInventory PistolAltFireCounter,46 { drawimage "cnt46",  465,337; } else {
+			InInventory PistolAltFireCounter,45 { drawimage "cnt45",  465,337; } else {
+			InInventory PistolAltFireCounter,44 { drawimage "cnt44",  465,337; } else {
+			InInventory PistolAltFireCounter,43 { drawimage "cnt43",  465,337; } else {
+			InInventory PistolAltFireCounter,42 { drawimage "cnt42",  465,337; } else {
+			InInventory PistolAltFireCounter,41 { drawimage "cnt41",  465,337; } else {
+			InInventory PistolAltFireCounter,40 { drawimage "cnt40",  465,337; } else {
+			InInventory PistolAltFireCounter,39 { drawimage "cnt39",  465,337; } else {
+			InInventory PistolAltFireCounter,38 { drawimage "cnt38",  465,337; } else {
+			InInventory PistolAltFireCounter,37 { drawimage "cnt37",  465,337; } else {
+			InInventory PistolAltFireCounter,36 { drawimage "cnt36",  465,337; } else {
+			InInventory PistolAltFireCounter,35 { drawimage "cnt35",  465,337; } else {
+			InInventory PistolAltFireCounter,34 { drawimage "cnt34",  465,337; } else {
+			InInventory PistolAltFireCounter,33 { drawimage "cnt33",  465,337; } else {
+			InInventory PistolAltFireCounter,32 { drawimage "cnt32",  465,337; } else {
+			InInventory PistolAltFireCounter,31 { drawimage "cnt31",  465,337; } else {
+			InInventory PistolAltFireCounter,30 { drawimage "cnt30",  465,337; } else {
+			InInventory PistolAltFireCounter,29 { drawimage "cnt29",  465,337; } else {
+			InInventory PistolAltFireCounter,28 { drawimage "cnt28",  465,337; } else {
+			InInventory PistolAltFireCounter,27 { drawimage "cnt27",  465,337; } else {
+			InInventory PistolAltFireCounter,26 { drawimage "cnt26",  465,337; } else {
+			InInventory PistolAltFireCounter,25 { drawimage "cnt25",  465,337; } else {
+			InInventory PistolAltFireCounter,24 { drawimage "cnt24",  465,337; } else {
+			InInventory PistolAltFireCounter,23 { drawimage "cnt23",  465,337; } else {
+			InInventory PistolAltFireCounter,22 { drawimage "cnt22",  465,337; } else {
+			InInventory PistolAltFireCounter,21 { drawimage "cnt21",  465,337; } else {
+			InInventory PistolAltFireCounter,20 { drawimage "cnt20",  465,337; } else {
+			InInventory PistolAltFireCounter,19 { drawimage "cnt19",  465,337; } else {
+			InInventory PistolAltFireCounter,18 { drawimage "cnt18",  465,337; } else {
+			InInventory PistolAltFireCounter,17 { drawimage "cnt17",  465,337; } else {
+			InInventory PistolAltFireCounter,16 { drawimage "cnt16",  465,337; } else {
+			InInventory PistolAltFireCounter,15 { drawimage "cnt15",  465,337; } else {
+			InInventory PistolAltFireCounter,14 { drawimage "cnt14",  465,337; } else {
+			InInventory PistolAltFireCounter,13 { drawimage "cnt13",  465,337; } else {
+			InInventory PistolAltFireCounter,12 { drawimage "cnt12",  465,337; } else {
+			InInventory PistolAltFireCounter,11 { drawimage "cnt11",  465,337; } else {
+			InInventory PistolAltFireCounter,10 { drawimage "cnt10",  465,337; } else {
+			InInventory PistolAltFireCounter, 9 { drawimage "cnt09",  465,337; } else {
+			InInventory PistolAltFireCounter, 8 { drawimage "cnt08",  465,337; } else {
+			InInventory PistolAltFireCounter, 7 { drawimage "cnt07",  465,337; } else {
+			InInventory PistolAltFireCounter, 6 { drawimage "cnt06",  465,337; } else {
+			InInventory PistolAltFireCounter, 5 { drawimage "cnt05",  465,337; } else {
+			InInventory PistolAltFireCounter, 4 { drawimage "cnt04",  465,337; } else {
+			InInventory PistolAltFireCounter, 3 { drawimage "cnt03",  465,337; } else {
+			InInventory PistolAltFireCounter, 2 { drawimage "cnt02",  465,337; } else {
+			InInventory PistolAltFireCounter, 1 { drawimage "cnt01",  465,337; } else {
+												  drawimage "cnt00",  465,337;
+			}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
+		}
+		isSelected D4Shotgun
+		{
+			// Weapon icon
+			DrawImage "shotgun", 983,676;
+			
+			// Mods available and equipped
+			inInventory ShotgunMod1 { DrawImage "zhrgbrs0", 882, 673; InInventory TriShotActive { DrawImage "zhrgbrs1", 882, 673; } }
+			inInventory ShotgunMod2 { DrawImage "zplosht0", 910, 673; InInventory GrenadeActive { DrawImage "zplosht1", 910, 673; } }
+			
+			InInventory TriShotActive
+			{
+				InInventory AltFireToken
+				{
+					inInventory Not NoReticle 	{ DrawImage "rSGT_ady",  465,337; }
+				}
+				else
+				{
+					inInventory Not NoReticle 	{ DrawImage "rSGT_dle",  465,337; }
+				}
+				
+				// Active shots
+				InInventory SGTripleShotTimer || AltFireToken
+				{
+					InInventory TrishotClip, 3 { DrawImage "rSGT_ip3",  465,337; } else {
+					InInventory TrishotClip, 2 { DrawImage "rSGT_ip2",  465,337; } else {
+					InInventory TrishotClip, 1 { DrawImage "rSGT_ip1",  465,337; } else {
+												 DrawImage "rSGT_ip0",  465,337; 
+					}}} // 3 braces
+				}
+				
+				// Cooldown
+				InInventory SGTripleShotTimer,52 {  } else { // Hack to avoid having
+				InInventory SGTripleShotTimer,51 {  } else { // ring while firing.
+				InInventory SGTripleShotTimer,50 { drawimage "cnt52",  465,337; } else {
+				InInventory SGTripleShotTimer,49 { drawimage "cnt50",  465,337; } else {
+				InInventory SGTripleShotTimer,48 { drawimage "cnt48",  465,337; } else {
+				InInventory SGTripleShotTimer,47 { drawimage "cnt47",  465,337; } else {
+				InInventory SGTripleShotTimer,46 { drawimage "cnt46",  465,337; } else {
+				InInventory SGTripleShotTimer,45 { drawimage "cnt45",  465,337; } else {
+				InInventory SGTripleShotTimer,44 { drawimage "cnt44",  465,337; } else {
+				InInventory SGTripleShotTimer,43 { drawimage "cnt43",  465,337; } else {
+				InInventory SGTripleShotTimer,42 { drawimage "cnt42",  465,337; } else {
+				InInventory SGTripleShotTimer,41 { drawimage "cnt41",  465,337; } else {
+				InInventory SGTripleShotTimer,40 { drawimage "cnt40",  465,337; } else {
+				InInventory SGTripleShotTimer,39 { drawimage "cnt39",  465,337; } else {
+				InInventory SGTripleShotTimer,38 { drawimage "cnt38",  465,337; } else {
+				InInventory SGTripleShotTimer,37 { drawimage "cnt37",  465,337; } else {
+				InInventory SGTripleShotTimer,36 { drawimage "cnt36",  465,337; } else {
+				InInventory SGTripleShotTimer,35 { drawimage "cnt35",  465,337; } else {
+				InInventory SGTripleShotTimer,34 { drawimage "cnt34",  465,337; } else {
+				InInventory SGTripleShotTimer,33 { drawimage "cnt33",  465,337; } else {
+				InInventory SGTripleShotTimer,32 { drawimage "cnt32",  465,337; } else {
+				InInventory SGTripleShotTimer,31 { drawimage "cnt31",  465,337; } else {
+				InInventory SGTripleShotTimer,30 { drawimage "cnt30",  465,337; } else {
+				InInventory SGTripleShotTimer,29 { drawimage "cnt29",  465,337; } else {
+				InInventory SGTripleShotTimer,28 { drawimage "cnt28",  465,337; } else {
+				InInventory SGTripleShotTimer,27 { drawimage "cnt27",  465,337; } else {
+				InInventory SGTripleShotTimer,26 { drawimage "cnt26",  465,337; } else {
+				InInventory SGTripleShotTimer,25 { drawimage "cnt25",  465,337; } else {
+				InInventory SGTripleShotTimer,24 { drawimage "cnt24",  465,337; } else {
+				InInventory SGTripleShotTimer,23 { drawimage "cnt23",  465,337; } else {
+				InInventory SGTripleShotTimer,22 { drawimage "cnt22",  465,337; } else {
+				InInventory SGTripleShotTimer,21 { drawimage "cnt21",  465,337; } else {
+				InInventory SGTripleShotTimer,20 { drawimage "cnt20",  465,337; } else {
+				InInventory SGTripleShotTimer,19 { drawimage "cnt19",  465,337; } else {
+				InInventory SGTripleShotTimer,18 { drawimage "cnt18",  465,337; } else {
+				InInventory SGTripleShotTimer,17 { drawimage "cnt17",  465,337; } else {
+				InInventory SGTripleShotTimer,16 { drawimage "cnt16",  465,337; } else {
+				InInventory SGTripleShotTimer,15 { drawimage "cnt15",  465,337; } else {
+				InInventory SGTripleShotTimer,14 { drawimage "cnt14",  465,337; } else {
+				InInventory SGTripleShotTimer,13 { drawimage "cnt13",  465,337; } else {
+				InInventory SGTripleShotTimer,12 { drawimage "cnt12",  465,337; } else {
+				InInventory SGTripleShotTimer,11 { drawimage "cnt11",  465,337; } else {
+				InInventory SGTripleShotTimer,10 { drawimage "cnt10",  465,337; } else {
+				InInventory SGTripleShotTimer, 9 { drawimage "cnt09",  465,337; } else {
+				InInventory SGTripleShotTimer, 8 { drawimage "cnt08",  465,337; } else {
+				InInventory SGTripleShotTimer, 7 { drawimage "cnt07",  465,337; } else {
+				InInventory SGTripleShotTimer, 6 { drawimage "cnt06",  465,337; } else {
+				InInventory SGTripleShotTimer, 5 { drawimage "cnt05",  465,337; } else {
+				InInventory SGTripleShotTimer, 4 { drawimage "cnt04",  465,337; } else {
+				InInventory SGTripleShotTimer, 3 { drawimage "cnt03",  465,337; } else {
+				InInventory SGTripleShotTimer, 2 { drawimage "cnt02",  465,337; } else {
+				InInventory SGTripleShotTimer, 1 { drawimage "cnt01",  465,337; } else {
+												   drawimage "cnt00",  465,337;
+				}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
+			}
+			else {
+			InInventory GrenadeActive
+			{
+				InInventory AltFireToken
+				{
+					inInventory Not NoReticle 	{ DrawImage "rSGG_ady",  465,337; }
+				} else {
+					inInventory Not NoReticle 	{ DrawImage "rSGG_dle",  465,337; }
+				}
+				InInventory SGGrenadeTimer,52 { drawimage "cnt52",  465,337; } else {
+				InInventory SGGrenadeTimer,51 { drawimage "cnt51",  465,337; } else {
+				InInventory SGGrenadeTimer,50 { drawimage "cnt50",  465,337; } else {
+				InInventory SGGrenadeTimer,49 { drawimage "cnt49",  465,337; } else {
+				InInventory SGGrenadeTimer,48 { drawimage "cnt48",  465,337; } else {
+				InInventory SGGrenadeTimer,47 { drawimage "cnt47",  465,337; } else {
+				InInventory SGGrenadeTimer,46 { drawimage "cnt46",  465,337; } else {
+				InInventory SGGrenadeTimer,45 { drawimage "cnt45",  465,337; } else {
+				InInventory SGGrenadeTimer,44 { drawimage "cnt44",  465,337; } else {
+				InInventory SGGrenadeTimer,43 { drawimage "cnt43",  465,337; } else {
+				InInventory SGGrenadeTimer,42 { drawimage "cnt42",  465,337; } else {
+				InInventory SGGrenadeTimer,41 { drawimage "cnt41",  465,337; } else {
+				InInventory SGGrenadeTimer,40 { drawimage "cnt40",  465,337; } else {
+				InInventory SGGrenadeTimer,39 { drawimage "cnt39",  465,337; } else {
+				InInventory SGGrenadeTimer,38 { drawimage "cnt38",  465,337; } else {
+				InInventory SGGrenadeTimer,37 { drawimage "cnt37",  465,337; } else {
+				InInventory SGGrenadeTimer,36 { drawimage "cnt36",  465,337; } else {
+				InInventory SGGrenadeTimer,35 { drawimage "cnt35",  465,337; } else {
+				InInventory SGGrenadeTimer,34 { drawimage "cnt34",  465,337; } else {
+				InInventory SGGrenadeTimer,33 { drawimage "cnt33",  465,337; } else {
+				InInventory SGGrenadeTimer,32 { drawimage "cnt32",  465,337; } else {
+				InInventory SGGrenadeTimer,31 { drawimage "cnt31",  465,337; } else {
+				InInventory SGGrenadeTimer,30 { drawimage "cnt30",  465,337; } else {
+				InInventory SGGrenadeTimer,29 { drawimage "cnt29",  465,337; } else {
+				InInventory SGGrenadeTimer,28 { drawimage "cnt28",  465,337; } else {
+				InInventory SGGrenadeTimer,27 { drawimage "cnt27",  465,337; } else {
+				InInventory SGGrenadeTimer,26 { drawimage "cnt26",  465,337; } else {
+				InInventory SGGrenadeTimer,25 { drawimage "cnt25",  465,337; } else {
+				InInventory SGGrenadeTimer,24 { drawimage "cnt24",  465,337; } else {
+				InInventory SGGrenadeTimer,23 { drawimage "cnt23",  465,337; } else {
+				InInventory SGGrenadeTimer,22 { drawimage "cnt22",  465,337; } else {
+				InInventory SGGrenadeTimer,21 { drawimage "cnt21",  465,337; } else {
+				InInventory SGGrenadeTimer,20 { drawimage "cnt20",  465,337; } else {
+				InInventory SGGrenadeTimer,19 { drawimage "cnt19",  465,337; } else {
+				InInventory SGGrenadeTimer,18 { drawimage "cnt18",  465,337; } else {
+				InInventory SGGrenadeTimer,17 { drawimage "cnt17",  465,337; } else {
+				InInventory SGGrenadeTimer,16 { drawimage "cnt16",  465,337; } else {
+				InInventory SGGrenadeTimer,15 { drawimage "cnt15",  465,337; } else {
+				InInventory SGGrenadeTimer,14 { drawimage "cnt14",  465,337; } else {
+				InInventory SGGrenadeTimer,13 { drawimage "cnt13",  465,337; } else {
+				InInventory SGGrenadeTimer,12 { drawimage "cnt12",  465,337; } else {
+				InInventory SGGrenadeTimer,11 { drawimage "cnt11",  465,337; } else {
+				InInventory SGGrenadeTimer,10 { drawimage "cnt10",  465,337; } else {
+				InInventory SGGrenadeTimer, 9 { drawimage "cnt09",  465,337; } else {
+				InInventory SGGrenadeTimer, 8 { drawimage "cnt08",  465,337; } else {
+				InInventory SGGrenadeTimer, 7 { drawimage "cnt07",  465,337; } else {
+				InInventory SGGrenadeTimer, 6 { drawimage "cnt06",  465,337; } else {
+				InInventory SGGrenadeTimer, 5 { drawimage "cnt05",  465,337; } else {
+				InInventory SGGrenadeTimer, 4 { drawimage "cnt04",  465,337; } else {
+				InInventory SGGrenadeTimer, 3 { drawimage "cnt03",  465,337; } else {
+				InInventory SGGrenadeTimer, 2 { drawimage "cnt02",  465,337; } else {
+				InInventory SGGrenadeTimer, 1 { drawimage "cnt01",  465,337; } else {
+												drawimage "cnt00",  465,337;
+				}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
+			} else
+			{
+				// Reticle
+				inInventory Not NoReticle 	{ DrawImage "rSG",  464,336; }
+			}
+			}
+		}
+		isSelected D4SuperShotgun
+		{
+			// Weapon icon
+			DrawImage "sshotgun", 983,676;
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rSSG",  464,336; }
+		}
+		isSelected D4Chaingun
+		{
+			// Weapon icon
+			DrawImage "chaingun", 983,676;
+			
+			// Mods available and equipped
+			inInventory ChaingunMod1 { DrawImage "zotator0", 882, 673; InInventory GatlingRotatorActive { DrawImage "zotator1", 882, 673; } }
+			inInventory ChaingunMod2 { DrawImage "zurrets0", 910, 673; InInventory MobileTurretActive   { DrawImage "zurrets1", 910, 673; } }
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rCha_gun",  464,336; }
+		}
+		isSelected D4Repeater
+		{
+			// Weapon icon
+			DrawImage "repeater", 983,676;
+			
+			// Reticle
+			InInventory RepeaterAimHolding
+			{
+				inInventory Not NoReticle 	{ DrawImage "rRep_ire",  465,337; }
+			}
+			else
+			{
+				inInventory Not NoReticle 	{ DrawImage "rRep_ter",  465,337; }
+			}
+		}
+		isSelected D4VortexRifle
+		{
+			// Weapon icon
+			DrawImage "vortex", 983,676;
+			
+			// Reticle
+			InInventory VortexZoomed
+			{
+				inInventory VortexCharges,52
+				{ DrawImage "vortmas2",  -170,0; }
+				else
+				{ DrawImage "vortmask",  -170,0; }
+			}
+			
+			inInventory Not NoReticle 	{ DrawImage "rVor_fle",  465,337; }
+			
+			InInventory VortexCharges,52 { drawimage "cya52",  465,337; } else { // fully charged vortex rifle--cyan reticle
+			InInventory VortexCharges,51 { drawimage "cnt51",  465,337; } else {
+			InInventory VortexCharges,50 { drawimage "cnt50",  465,337; } else {
+			InInventory VortexCharges,49 { drawimage "cnt49",  465,337; } else {
+			InInventory VortexCharges,48 { drawimage "cnt48",  465,337; } else {
+			InInventory VortexCharges,47 { drawimage "cnt47",  465,337; } else {
+			InInventory VortexCharges,46 { drawimage "cnt46",  465,337; } else {
+			InInventory VortexCharges,45 { drawimage "cnt45",  465,337; } else {
+			InInventory VortexCharges,44 { drawimage "cnt44",  465,337; } else {
+			InInventory VortexCharges,43 { drawimage "cnt43",  465,337; } else {
+			InInventory VortexCharges,42 { drawimage "cnt42",  465,337; } else {
+			InInventory VortexCharges,41 { drawimage "cnt41",  465,337; } else {
+			InInventory VortexCharges,40 { drawimage "cnt40",  465,337; } else {
+			InInventory VortexCharges,39 { drawimage "cnt39",  465,337; } else {
+			InInventory VortexCharges,38 { drawimage "cnt38",  465,337; } else {
+			InInventory VortexCharges,37 { drawimage "cnt37",  465,337; } else {
+			InInventory VortexCharges,36 { drawimage "cnt36",  465,337; } else {
+			InInventory VortexCharges,35 { drawimage "cnt35",  465,337; } else {
+			InInventory VortexCharges,34 { drawimage "cnt34",  465,337; } else {
+			InInventory VortexCharges,33 { drawimage "cnt33",  465,337; } else {
+			InInventory VortexCharges,32 { drawimage "cnt32",  465,337; } else {
+			InInventory VortexCharges,31 { drawimage "cnt31",  465,337; } else {
+			InInventory VortexCharges,30 { drawimage "cnt30",  465,337; } else {
+			InInventory VortexCharges,29 { drawimage "cnt29",  465,337; } else {
+			InInventory VortexCharges,28 { drawimage "cnt28",  465,337; } else {
+			InInventory VortexCharges,27 { drawimage "cnt27",  465,337; } else {
+			InInventory VortexCharges,26 { drawimage "cnt26",  465,337; } else {
+			InInventory VortexCharges,25 { drawimage "cnt25",  465,337; } else {
+			InInventory VortexCharges,24 { drawimage "cnt24",  465,337; } else {
+			InInventory VortexCharges,23 { drawimage "cnt23",  465,337; } else {
+			InInventory VortexCharges,22 { drawimage "cnt22",  465,337; } else {
+			InInventory VortexCharges,21 { drawimage "cnt21",  465,337; } else {
+			InInventory VortexCharges,20 { drawimage "cnt20",  465,337; } else {
+			InInventory VortexCharges,19 { drawimage "cnt19",  465,337; } else {
+			InInventory VortexCharges,18 { drawimage "cnt18",  465,337; } else {
+			InInventory VortexCharges,17 { drawimage "cnt17",  465,337; } else {
+			InInventory VortexCharges,16 { drawimage "cnt16",  465,337; } else {
+			InInventory VortexCharges,15 { drawimage "cnt15",  465,337; } else {
+			InInventory VortexCharges,14 { drawimage "cnt14",  465,337; } else {
+			InInventory VortexCharges,13 { drawimage "cnt13",  465,337; } else {
+			InInventory VortexCharges,12 { drawimage "cnt12",  465,337; } else {
+			InInventory VortexCharges,11 { drawimage "cnt11",  465,337; } else {
+			InInventory VortexCharges,10 { drawimage "cnt10",  465,337; } else {
+			InInventory VortexCharges, 9 { drawimage "cnt09",  465,337; } else {
+			InInventory VortexCharges, 8 { drawimage "cnt08",  465,337; } else {
+			InInventory VortexCharges, 7 { drawimage "cnt07",  465,337; } else {
+			InInventory VortexCharges, 6 { drawimage "cnt06",  465,337; } else {
+			InInventory VortexCharges, 5 { drawimage "cnt05",  465,337; } else {
+			InInventory VortexCharges, 4 { drawimage "cnt04",  465,337; } else {
+			InInventory VortexCharges, 3 { drawimage "cnt03",  465,337; } else {
+			InInventory VortexCharges, 2 { drawimage "cnt02",  465,337; } else {
+			InInventory VortexCharges, 1 { drawimage "cnt01",  465,337; } else {
+										   drawimage "cnt00",  465,337;
+			}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
+		}
+		isSelected D4AssaultRifle
+		{
+			// Weapon icon
+			DrawImage "harharha", 983,676;
+			
+			// Mods available and equipped
+			inInventory AssaultRifleMod1 { DrawImage "zactscp0", 882, 673; InInventory TacticalScopeActive { DrawImage "zactscp1", 882, 673; } }
+			inInventory AssaultRifleMod2 { DrawImage "zissile0", 910, 673; InInventory MicroMissilesActive { DrawImage "zissile1", 910, 673; } }
+			
+			// Reticle
+			InInventory AltFireToken && TacticalScopeActive
+			{
+				inInventory Not NoReticle 	{ DrawImage "rHar_ope",  131,128; }
+			} else { 
+			inInventory AltFireToken && MicroMissilesActive 
+			{
+				InInventory MicroMissilesCounter, 6 { DrawImage "rHAR_ip0",  448,320; } else {
+				InInventory MicroMissilesCounter, 5 { DrawImage "rHAR_ip1",  448,320; } else {
+				InInventory MicroMissilesCounter, 4 { DrawImage "rHAR_ip2",  448,320; } else {
+				InInventory MicroMissilesCounter, 3 { DrawImage "rHAR_ip3",  448,320; } else {
+				InInventory MicroMissilesCounter, 2 { DrawImage "rHAR_ip4",  448,320; } else {
+				InInventory MicroMissilesCounter, 1 { DrawImage "rHAR_ip5",  448,320; } else {
+													  DrawImage "rHAR_ip6",  448,320; 
+				}}}}}} // 6 braces
+			}}
+			inInventory Not NoReticle 	{ DrawImage "rHarIdle",  464,337; }
+		}
+		isSelected D4RocketLauncher
+		{
+			// Weapon icon
+			inInventory Not NoReticle 	{ DrawImage "rocketer", 983,676; }
+			
+			// Mods available and equipped
+			inInventory RocketLauncherMod1 { DrawImage "zetonat0", 882, 673; InInventory DetonateActive { DrawImage "zetonat1", 882, 673; } }
+			inInventory RocketLauncherMod2 { DrawImage "zocking0", 910, 673; InInventory LockOnActive   { DrawImage "zocking1", 910, 673; } }
+			
+			// Reticle
+			inInventory DetonateActive
+			{
+				inInventory Not NoReticle 	{ DrawImage "rRLD_ate",  465,337;}
+			} else { inInventory LockOnActive {
+				inInventory Not NoReticle 	{ DrawImage "rRLL_kOn",  465,337; }
+			
+				// Targeting progress
+				InInventory RLLockToken,200 { drawimage "cnt52",  465,337; } else {
+				InInventory RLLockToken,198 { drawimage "cnt51",  465,337; } else {
+				InInventory RLLockToken,196 { drawimage "cnt50",  465,337; } else {
+				InInventory RLLockToken,194 { drawimage "cnt49",  465,337; } else {
+				InInventory RLLockToken,192 { drawimage "cnt48",  465,337; } else {
+				InInventory RLLockToken,188 { drawimage "cnt47",  465,337; } else {
+				InInventory RLLockToken,184 { drawimage "cnt46",  465,337; } else {
+				InInventory RLLockToken,180 { drawimage "cnt45",  465,337; } else {
+				InInventory RLLockToken,176 { drawimage "cnt44",  465,337; } else {
+				InInventory RLLockToken,172 { drawimage "cnt43",  465,337; } else {
+				InInventory RLLockToken,168 { drawimage "cnt42",  465,337; } else {
+				InInventory RLLockToken,164 { drawimage "cnt41",  465,337; } else {
+				InInventory RLLockToken,160 { drawimage "cnt40",  465,337; } else {
+				InInventory RLLockToken,156 { drawimage "cnt39",  465,337; } else {
+				InInventory RLLockToken,152 { drawimage "cnt38",  465,337; } else {
+				InInventory RLLockToken,148 { drawimage "cnt37",  465,337; } else {
+				InInventory RLLockToken,144 { drawimage "cnt36",  465,337; } else {
+				InInventory RLLockToken,140 { drawimage "cnt35",  465,337; } else {
+				InInventory RLLockToken,136 { drawimage "cnt34",  465,337; } else {
+				InInventory RLLockToken,132 { drawimage "cnt33",  465,337; } else {
+				InInventory RLLockToken,128 { drawimage "cnt32",  465,337; } else {
+				InInventory RLLockToken,124 { drawimage "cnt31",  465,337; } else {
+				InInventory RLLockToken,120 { drawimage "cnt30",  465,337; } else {
+				InInventory RLLockToken,116 { drawimage "cnt29",  465,337; } else {
+				InInventory RLLockToken,112 { drawimage "cnt28",  465,337; } else {
+				InInventory RLLockToken,108 { drawimage "cnt27",  465,337; } else {
+				InInventory RLLockToken,104 { drawimage "cnt26",  465,337; } else {
+				InInventory RLLockToken,100 { drawimage "cnt25",  465,337; } else {
+				InInventory RLLockToken, 96 { drawimage "cnt24",  465,337; } else {
+				InInventory RLLockToken, 92 { drawimage "cnt23",  465,337; } else {
+				InInventory RLLockToken, 88 { drawimage "cnt22",  465,337; } else {
+				InInventory RLLockToken, 84 { drawimage "cnt21",  465,337; } else {
+				InInventory RLLockToken, 80 { drawimage "cnt20",  465,337; } else {
+				InInventory RLLockToken, 76 { drawimage "cnt19",  465,337; } else {
+				InInventory RLLockToken, 72 { drawimage "cnt18",  465,337; } else {
+				InInventory RLLockToken, 68 { drawimage "cnt17",  465,337; } else {
+				InInventory RLLockToken, 64 { drawimage "cnt16",  465,337; } else {
+				InInventory RLLockToken, 60 { drawimage "cnt15",  465,337; } else {
+				InInventory RLLockToken, 56 { drawimage "cnt14",  465,337; } else {
+				InInventory RLLockToken, 52 { drawimage "cnt13",  465,337; } else {
+				InInventory RLLockToken, 48 { drawimage "cnt12",  465,337; } else {
+				InInventory RLLockToken, 44 { drawimage "cnt11",  465,337; } else {
+				InInventory RLLockToken, 40 { drawimage "cnt10",  465,337; } else {
+				InInventory RLLockToken, 36 { drawimage "cnt09",  465,337; } else {
+				InInventory RLLockToken, 32 { drawimage "cnt08",  465,337; } else {
+				InInventory RLLockToken, 28 { drawimage "cnt07",  465,337; } else {
+				InInventory RLLockToken, 24 { drawimage "cnt06",  465,337; } else {
+				InInventory RLLockToken, 20 { drawimage "cnt05",  465,337; } else {
+				InInventory RLLockToken, 16 { drawimage "cnt04",  465,337; } else {
+				InInventory RLLockToken, 12 { drawimage "cnt03",  465,337; } else {
+				InInventory RLLockToken,  8 { drawimage "cnt02",  465,337; } else {
+				InInventory RLLockToken,  4 { drawimage "cnt01",  465,337; } else {
+											  drawimage "cnt00",  465,337;
+				}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
+			} else { 
+				inInventory Not NoReticle 	{ DrawImage "rRL",  465,337; }
+			}}
+			
+		}
+		isSelected D4GaussCannon
+		{
+			// Weapon icon
+			DrawImage "gauss", 983,676;
+			
+			// Mods available and equipped
+			inInventory GaussCannonMod1 { DrawImage "zrecblt0", 882, 673; InInventory PrecisionActive { DrawImage "zrecblt1", 882, 673; } }
+			inInventory GaussCannonMod2 { DrawImage "ziegemd0", 910, 673; InInventory SiegeActive     { DrawImage "ziegemd1", 910, 673; } }
+			
+			// Reticle
+			inInventory SiegeActive 
+			{
+				inInventory Not NoReticle 	{ DrawImage "rGau_ege",  465,337; }
+			}
+			else 
+			{
+				inInventory PrecisionActive
+				{
+					inInventory AltFireToken
+					{
+						DrawBar "rGau_er1", "rGau_er0", PrecisionShotChargesCounter, vertical, 394,334;
+						DrawImage "rGau_er4", 0,128;
+					}
+					else
+					{
+						inInventory Not NoReticle 	{ DrawImage "rGauss",  465,337; }
+					}
+				}
+				else
+				{
+					inInventory Not NoReticle 	{ DrawImage "rGauss",  465,337; }
+				}
+			}
+		}
+		isSelected D4PlasmaRifle
+		{
+			// Weapon icon
+			DrawImage "prifle", 983,676;
+			
+			// Mods available and equipped
+			inInventory PlasmaRifleMod1 { DrawImage "ztblast0", 882, 673; InInventory HeatBlastActive { DrawImage "ztblast1", 882, 673; } }
+			inInventory PlasmaRifleMod2 { DrawImage "ztunbom0", 910, 673; InInventory StunBombActive  { DrawImage "ztunbom1", 910, 673; } }
+			
+			
+			// Charging
+			InInventory HeatBlastActive
+			{
+				InInventory PlasmaHeatBlastCounter,30 { drawimage "cya52",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,29 { drawimage "cnt50",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,28 { drawimage "cnt48",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,27 { drawimage "cnt46",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,26 { drawimage "cnt44",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,25 { drawimage "cnt42",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,24 { drawimage "cnt40",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,23 { drawimage "cnt38",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,22 { drawimage "cnt36",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,21 { drawimage "cnt34",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,20 { drawimage "cnt32",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,19 { drawimage "cnt30",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,18 { drawimage "cnt28",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,17 { drawimage "cnt26",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,16 { drawimage "cnt24",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,15 { drawimage "cnt22",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,14 { drawimage "cnt20",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,13 { drawimage "cnt18",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,12 { drawimage "cnt16",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,11 { drawimage "cnt14",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,10 { drawimage "cnt12",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter, 9 { drawimage "cnt10",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter, 8 { drawimage "cnt08",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter, 7 { drawimage "cnt07",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter, 6 { drawimage "cnt06",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter, 5 { drawimage "cnt05",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter, 4 { drawimage "cnt04",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter, 3 { drawimage "cnt03",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter, 2 { drawimage "cnt02",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter, 1 { drawimage "cnt01",  465,337; } else {
+														drawimage "cnt00",  465,337;
+				}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 30 braces
+			}
+			
+			// Cooldown
+			InInventory PlasmaStunBombCounter,52 { drawimage "cnt52",  465,337; } else {
+			InInventory PlasmaStunBombCounter,51 { drawimage "cnt51",  465,337; } else {
+			InInventory PlasmaStunBombCounter,50 { drawimage "cnt50",  465,337; } else {
+			InInventory PlasmaStunBombCounter,49 { drawimage "cnt49",  465,337; } else {
+			InInventory PlasmaStunBombCounter,48 { drawimage "cnt48",  465,337; } else {
+			InInventory PlasmaStunBombCounter,47 { drawimage "cnt47",  465,337; } else {
+			InInventory PlasmaStunBombCounter,46 { drawimage "cnt46",  465,337; } else {
+			InInventory PlasmaStunBombCounter,45 { drawimage "cnt45",  465,337; } else {
+			InInventory PlasmaStunBombCounter,44 { drawimage "cnt44",  465,337; } else {
+			InInventory PlasmaStunBombCounter,43 { drawimage "cnt43",  465,337; } else {
+			InInventory PlasmaStunBombCounter,42 { drawimage "cnt42",  465,337; } else {
+			InInventory PlasmaStunBombCounter,41 { drawimage "cnt41",  465,337; } else {
+			InInventory PlasmaStunBombCounter,40 { drawimage "cnt40",  465,337; } else {
+			InInventory PlasmaStunBombCounter,39 { drawimage "cnt39",  465,337; } else {
+			InInventory PlasmaStunBombCounter,38 { drawimage "cnt38",  465,337; } else {
+			InInventory PlasmaStunBombCounter,37 { drawimage "cnt37",  465,337; } else {
+			InInventory PlasmaStunBombCounter,36 { drawimage "cnt36",  465,337; } else {
+			InInventory PlasmaStunBombCounter,35 { drawimage "cnt35",  465,337; } else {
+			InInventory PlasmaStunBombCounter,34 { drawimage "cnt34",  465,337; } else {
+			InInventory PlasmaStunBombCounter,33 { drawimage "cnt33",  465,337; } else {
+			InInventory PlasmaStunBombCounter,32 { drawimage "cnt32",  465,337; } else {
+			InInventory PlasmaStunBombCounter,31 { drawimage "cnt31",  465,337; } else {
+			InInventory PlasmaStunBombCounter,30 { drawimage "cnt30",  465,337; } else {
+			InInventory PlasmaStunBombCounter,29 { drawimage "cnt29",  465,337; } else {
+			InInventory PlasmaStunBombCounter,28 { drawimage "cnt28",  465,337; } else {
+			InInventory PlasmaStunBombCounter,27 { drawimage "cnt27",  465,337; } else {
+			InInventory PlasmaStunBombCounter,26 { drawimage "cnt26",  465,337; } else {
+			InInventory PlasmaStunBombCounter,25 { drawimage "cnt25",  465,337; } else {
+			InInventory PlasmaStunBombCounter,24 { drawimage "cnt24",  465,337; } else {
+			InInventory PlasmaStunBombCounter,23 { drawimage "cnt23",  465,337; } else {
+			InInventory PlasmaStunBombCounter,22 { drawimage "cnt22",  465,337; } else {
+			InInventory PlasmaStunBombCounter,21 { drawimage "cnt21",  465,337; } else {
+			InInventory PlasmaStunBombCounter,20 { drawimage "cnt20",  465,337; } else {
+			InInventory PlasmaStunBombCounter,19 { drawimage "cnt19",  465,337; } else {
+			InInventory PlasmaStunBombCounter,18 { drawimage "cnt18",  465,337; } else {
+			InInventory PlasmaStunBombCounter,17 { drawimage "cnt17",  465,337; } else {
+			InInventory PlasmaStunBombCounter,16 { drawimage "cnt16",  465,337; } else {
+			InInventory PlasmaStunBombCounter,15 { drawimage "cnt15",  465,337; } else {
+			InInventory PlasmaStunBombCounter,14 { drawimage "cnt14",  465,337; } else {
+			InInventory PlasmaStunBombCounter,13 { drawimage "cnt13",  465,337; } else {
+			InInventory PlasmaStunBombCounter,12 { drawimage "cnt12",  465,337; } else {
+			InInventory PlasmaStunBombCounter,11 { drawimage "cnt11",  465,337; } else {
+			InInventory PlasmaStunBombCounter,10 { drawimage "cnt10",  465,337; } else {
+			InInventory PlasmaStunBombCounter, 9 { drawimage "cnt09",  465,337; } else {
+			InInventory PlasmaStunBombCounter, 8 { drawimage "cnt08",  465,337; } else {
+			InInventory PlasmaStunBombCounter, 7 { drawimage "cnt07",  465,337; } else {
+			InInventory PlasmaStunBombCounter, 6 { drawimage "cnt06",  465,337; } else {
+			InInventory PlasmaStunBombCounter, 5 { drawimage "cnt05",  465,337; } else {
+			InInventory PlasmaStunBombCounter, 4 { drawimage "cnt04",  465,337; } else {
+			InInventory PlasmaStunBombCounter, 3 { drawimage "cnt03",  465,337; } else {
+			InInventory PlasmaStunBombCounter, 2 { drawimage "cnt02",  465,337; } else {
+			InInventory PlasmaStunBombCounter, 1 { drawimage "cnt01",  465,337; } else {
+												   drawimage "cnt00",  465,337;
+			}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rPlasma",  464,336; }
+		}
+		isSelected D4BFG
+		{
+			// Weapon icon
+			DrawImage "bfg", 983,676;
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rBFG",  464,336; }
+		}
+		
+		isSelected D4CarrionCannon
+		{
+			// Weapon icon
+			DrawImage "flare", 983,676;
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rHel_hot",  464,336; }
+		}
+		
+		isSelected D4LightningGun
+		{
+			// Weapon icon
+			DrawImage "thunderb", 983,676;
+			
+			// Reticle			
+			InInventory AltFireToken
+			{
+				inInventory Not NoReticle 	{ DrawImage "rLig_un2",  464,336; }
+			}
+			else
+			{
+				inInventory Not NoReticle 	{ DrawImage "rLig_un1",  464,336; }
+			}
+		}
+		
+		isSelected D4StaticRifle
+		{
+			// Weapon icon
+			DrawImage "static", 983,676;
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rSta_fle",  464,336; }
+		
+			// Charge
+			InInventory StaticRifleChargingToken,520 { drawimage "rng52",  465,337; } else { // fully charged static rifle--orange counter
+			InInventory StaticRifleChargingToken,510 { drawimage "cnt51",  465,337; } else {
+			InInventory StaticRifleChargingToken,500 { drawimage "cnt50",  465,337; } else {
+			InInventory StaticRifleChargingToken,490 { drawimage "cnt49",  465,337; } else {
+			InInventory StaticRifleChargingToken,480 { drawimage "cnt48",  465,337; } else {
+			InInventory StaticRifleChargingToken,470 { drawimage "cnt47",  465,337; } else {
+			InInventory StaticRifleChargingToken,460 { drawimage "cnt46",  465,337; } else {
+			InInventory StaticRifleChargingToken,450 { drawimage "cnt45",  465,337; } else {
+			InInventory StaticRifleChargingToken,440 { drawimage "cnt44",  465,337; } else {
+			InInventory StaticRifleChargingToken,430 { drawimage "cnt43",  465,337; } else {
+			InInventory StaticRifleChargingToken,420 { drawimage "cnt42",  465,337; } else {
+			InInventory StaticRifleChargingToken,410 { drawimage "cnt41",  465,337; } else {
+			InInventory StaticRifleChargingToken,400 { drawimage "cnt40",  465,337; } else {
+			InInventory StaticRifleChargingToken,390 { drawimage "cnt39",  465,337; } else {
+			InInventory StaticRifleChargingToken,380 { drawimage "cnt38",  465,337; } else {
+			InInventory StaticRifleChargingToken,370 { drawimage "cnt37",  465,337; } else {
+			InInventory StaticRifleChargingToken,360 { drawimage "cnt36",  465,337; } else {
+			InInventory StaticRifleChargingToken,350 { drawimage "cnt35",  465,337; } else {
+			InInventory StaticRifleChargingToken,340 { drawimage "cnt34",  465,337; } else {
+			InInventory StaticRifleChargingToken,330 { drawimage "cnt33",  465,337; } else {
+			InInventory StaticRifleChargingToken,320 { drawimage "cnt32",  465,337; } else {
+			InInventory StaticRifleChargingToken,310 { drawimage "cnt31",  465,337; } else {
+			InInventory StaticRifleChargingToken,300 { drawimage "cnt30",  465,337; } else {
+			InInventory StaticRifleChargingToken,290 { drawimage "cnt29",  465,337; } else {
+			InInventory StaticRifleChargingToken,280 { drawimage "cnt28",  465,337; } else {
+			InInventory StaticRifleChargingToken,270 { drawimage "cnt27",  465,337; } else {
+			InInventory StaticRifleChargingToken,260 { drawimage "cnt26",  465,337; } else {
+			InInventory StaticRifleChargingToken,250 { drawimage "cnt25",  465,337; } else {
+			InInventory StaticRifleChargingToken,240 { drawimage "cnt24",  465,337; } else {
+			InInventory StaticRifleChargingToken,230 { drawimage "cnt23",  465,337; } else {
+			InInventory StaticRifleChargingToken,220 { drawimage "cnt22",  465,337; } else {
+			InInventory StaticRifleChargingToken,210 { drawimage "cnt21",  465,337; } else {
+			InInventory StaticRifleChargingToken,200 { drawimage "cnt20",  465,337; } else {
+			InInventory StaticRifleChargingToken,190 { drawimage "cnt19",  465,337; } else {
+			InInventory StaticRifleChargingToken,180 { drawimage "cnt18",  465,337; } else {
+			InInventory StaticRifleChargingToken,170 { drawimage "cnt17",  465,337; } else {
+			InInventory StaticRifleChargingToken,160 { drawimage "cnt16",  465,337; } else {
+			InInventory StaticRifleChargingToken,150 { drawimage "cnt15",  465,337; } else {
+			InInventory StaticRifleChargingToken,140 { drawimage "cnt14",  465,337; } else {
+			InInventory StaticRifleChargingToken,130 { drawimage "cnt13",  465,337; } else {
+			InInventory StaticRifleChargingToken,120 { drawimage "cnt12",  465,337; } else {
+			InInventory StaticRifleChargingToken,110 { drawimage "cnt11",  465,337; } else {
+			InInventory StaticRifleChargingToken,100 { drawimage "cnt10",  465,337; } else {
+			InInventory StaticRifleChargingToken, 90 { drawimage "cnt09",  465,337; } else {
+			InInventory StaticRifleChargingToken, 80 { drawimage "cnt08",  465,337; } else {
+			InInventory StaticRifleChargingToken, 70 { drawimage "cnt07",  465,337; } else {
+			InInventory StaticRifleChargingToken, 60 { drawimage "cnt06",  465,337; } else {
+			InInventory StaticRifleChargingToken, 50 { drawimage "cnt05",  465,337; } else {
+			InInventory StaticRifleChargingToken, 40 { drawimage "cnt04",  465,337; } else {
+			InInventory StaticRifleChargingToken, 30 { drawimage "cnt03",  465,337; } else {
+			InInventory StaticRifleChargingToken, 20 { drawimage "cnt02",  465,337; } else {
+			InInventory StaticRifleChargingToken, 10 { drawimage "cnt01",  465,337; } else {
+													   drawimage "cnt00",  465,337;
+			}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
+		}
+		
+		
+		
+		//this adds the frags and team
+		gamemode deathmatch
+		{
+			drawstring Q4HUDFONT, white, time, 540,75;	//timer
+			drawstring BIGFONT, white, "Frags:", 20,760;	
+			drawnumber 8, Q4HUDFONT, red, frags, 70, 760;
+			//drawstring BIGFONT, white, time, 500,50;
+		}
+
+		drawselectedinventory INDEXFON, 1040, 780;
+	}
+	else
+	{
+		// Shade
+		drawimage "Shade2Br", -171, 0;
+		
+		// Health
+		//drawnumber 4, Q4HUDFONT, yellow, health, alignment(right), 475,700;	
+		drawimage "DEMNBAR0", 18,694;
+		drawbar "RUNEBAR1", "RUNEBAR0", DemonTimerToken, horizontal, interpolate(1),  3,643;
+		
+		inInventory IamHellKnight       {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(500), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(500), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(500), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rUpg_and",  465,337; }
+		} 
+		else { inInventory IamBaronOfHell      {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(1000), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(1000), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(1000), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rBar_ell",  465,337; }
+		} 
+		else { inInventory IamRevenant         
+		{
+			drawbar "DEMNBAR2", "DEMNBAR0", health(400), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(400), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(400), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle 	
+			{ 
+				inInventory not JetpackCooling
+				{ DrawBar "rRev_rs1", "rRev_rs0", JetpackFuel, vertical,  456,356; }
+				else
+				{ DrawBar "rRev_rs2", "rRev_rs0", JetpackFuel, vertical,  456,356; }
+				DrawImage "rRev_nt0",  448,320;
+			}
+		} 
+		else { inInventory IamCacodemon        {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(400), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(400), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(400), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle 	
+			{ DrawImage "rCac_mon",  448,320; }
+		} 
+		else { inInventory IamFatso            
+		{
+			drawbar "DEMNBAR2", "DEMNBAR0", health(800), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(800), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(800), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle 	
+			{ DrawImage "rFatso0",  448,320; }
+		} 
+		else { inInventory IamPainElemental    {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(400), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(400), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(400), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle 	
+			{ DrawImage "rPai_tal",  448,320; }
+		} 
+		else { inInventory IamCyberdemon       {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(4000), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(4000), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(4000), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle 	
+			{ DrawImage "rCyb_mon",  448,320; }
+		} 
+		else { inInventory IamSpiderMastermind {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(3000), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(3000), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(3000), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle 	
+			{ 
+				DrawImage "rMas_ind",  448,320; 
+				inInventory FullyCharged
+				{
+					DrawImage "rMas_rge",  448,320; 
+				}
+			}
+			
+		} 
+		else { inInventory IamArchvile         
+		{
+			drawbar "DEMNBAR2", "DEMNBAR0", health(1000), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(1000), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(1000), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle 	
+			{ 
+				DrawBar "rSum_ar1", "rSum_ar0", PlayerArchvileCharges, vertical,  435,307; 
+				DrawImage "rSum_ner",  435,307;
+			}
+		} 
+		else { inInventory IamArachnotron      {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(500), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(500), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(500), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle
+			{ DrawImage "rAra_ron",  448,320; }
+		} 
+		else 
+		{
+			// Fallback demon Whatever, ups at 100 health
+			drawbar "DEMNBAR2", "DEMNBAR0", health, horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health, horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health, horizontal, interpolate(9), 18,694;
+		}}}}}}}}}} // 10 braces
+	}
+}
+
+
+
+//================================================================================================
+//================================================================================================
+//	No back version
+//================================================================================================
+//================================================================================================
+
+statusbar Fullscreen, forcescaled	
+{
+	inInventory not IamADemonToken
+	{
+		
+		// Powerups
+		// Go first because otherwise they obscure HUD elements
+		inInventory PowerD4QuadDamage 			{ drawimage "Shade2Ma", -171, 0; }
+		inInventory PowerD4Regen	 			{ drawimage "Shade2Cy", -171, 0; }
+		inInventory PowerD4Haste				{ drawimage "Shade2Ye", -171, 0; }
+		inInventory PowerD4Money 				{ drawimage "Shade2Gr", -171, 0; }
+		
+		InInventory DollUses,1
+		{ drawimage "Ddoll", 1060,727; }
+		InInventory DollUses,2 
+		{ drawimage "Ddoll", 1030,727; }
+		InInventory DollUses,3
+		{ drawimage "Ddoll", 1000,727; } 
+		InInventory DollUses,4
+		{ drawimage "Ddoll", 970,727; } 
+		InInventory DollUses,5
+		{ drawimage "Ddoll", 940,727; } 
+		InInventory DollUses,6
+		{ drawimage "Ddoll", 910,727; } 
+		InInventory DollUses,7
+		{ drawimage "Ddoll", 880,727; } 
+		InInventory DollUses,8
+		{ drawimage "Ddoll", 850,727; } 
+		InInventory DollUses,9
+		{ drawimage "Ddoll", 820,727; } 
+		
+
+		// "Credit" (cash)
+		drawstring CONFONT, white , "Credits:",1024, 8,0, alignment(left);
+
+		// The Usual
+		//drawimage "BODYBAR0", -69,669;
+		
+		// Armor
+		
+		InInventory PowerInvulBase
+		{
+			drawnumber 3, Q4SMALLHUDFONT, red, 666,  alignment(right), -64,679;
+			drawbar "BODYARM1", "BODYARM0", armor(100), horizontal, -42,676;
+			drawbar "BODYARM2", "BODYARM0", armor(100), horizontal, -42,676;
+		}
+		else
+		{
+			
+			drawnumber 3, Q4SMALLHUDFONT, white, armor,  alignment(right), -64,679;	
+			drawbar "BODYARM1", "BODYARM0", armor, horizontal, -42,676;
+			drawbar "BODYARM2", "BODYARM0", SuperArmorToken, horizontal, -42,676;
+		}
+		// Health
+		drawbar "BODYHEL1", "BODYHEL0",health, horizontal, -42,694;
+		drawbar "BODYHEL2", "BODYHEL0",SuperHealthToken, horizontal, -42,694;
+		drawnumber 3, Q4SMALLHUDFONT, white, health, alignment(right), -64,697;	
+		IfHealth 1 
+		{
+			drawimage "BODYHELC", -60,697;
+			drawgem interpolate(19), "KEYCHAIN", "BODYHELG", 0, 0, 115, -42, 694;
+		}
+		
+		// Damage
+		DrawMugShot 1, disableouch, disablerampage, disablegrin, 480, 640;
+		
+		// Keybag
+		gamemode cooperative, singleplayer
+		{
+			drawswitchableimage D4BlueCard, 	"nullimage", "KEYCB", 	209, 665;
+			drawswitchableimage D4YellowCard, 	"nullimage", "KEYCY", 	249, 665;
+			drawswitchableimage D4RedCard, 		"nullimage", "KEYCR", 	289, 665;
+			drawswitchableimage D4BlueSkull, 	"nullimage", "SKKYB", 	204, 699;
+			drawswitchableimage D4YellowSkull,	"nullimage", "SKKYY",	244, 699;
+			drawswitchableimage D4RedSkull, 	"nullimage", "SKKYR", 	284, 699;
+					
+			// for idkfa
+			drawswitchableimage BlueCard, 	"nullimage", "KEYCB", 	209, 665;
+			drawswitchableimage YellowCard,	"nullimage", "KEYCY", 	249, 665;
+			drawswitchableimage RedCard, 	"nullimage", "KEYCR", 	289, 665;
+			drawswitchableimage BlueSkull, 	"nullimage", "SKKYB", 	204, 699;
+			drawswitchableimage YellowSkull,"nullimage", "SKKYY",	244, 699;
+			drawswitchableimage RedSkull, 	"nullimage", "SKKYR", 	284, 699;
+		}
+		
+		// Medals
+		InInventory RewardToken,1 { drawimage "medal1GL", 650,0; } else { drawimage "medal0", 670,20; }
+		InInventory RewardToken,2 { drawimage "medal1GL", 700,0; } else { drawimage "medal0", 720,20; }
+		InInventory RewardToken,3 { drawimage "medal1GL", 750,0; } else { drawimage "medal0", 770,20; }
+		InInventory RewardToken,4 { drawimage "medal1GL", 800,0; } else { drawimage "medal0", 820,20; }
+		InInventory RewardToken,5 { drawimage "medal1GL", 850,0; } else { drawimage "medal0", 870,20; }
+		
+		// Inventory
+		drawbar "KEYSLOTR", "KEYSLOTZ", GrenadeCooldown, vertical, 885,680;
+		inInventory FragGrenadeSelected 	{ inInventory not GrenadeCooldown { drawimage "FragGren", 888,682; } else { drawimage "FragGre0", 888,682; } }	
+		inInventory SyphonGrenadeSelected 	{ inInventory not GrenadeCooldown { drawimage "SyphGren", 887,679; } else { drawimage "SyphGre0", 887,679; } }	
+		inInventory MarineHoloSelected 		{ inInventory not GrenadeCooldown { drawimage "HoloGren", 887,681; } else { drawimage "HoloGre0", 887,681; } }	
+		
+		// Ammo
+		drawbar "AMMOBAR1", "AMMOBAR0", AmmoToken, horizontal, reverse, 941,693;
+		drawbar "AMMOBAR2", "AMMOBAR0", SuperAmmoToken, horizontal, reverse, 941,693;
+		drawnumber 6, Q4SMALLHUDFONT, white, ammo1,  alignment(right), 1043,676;	
+		inInventory D4BFG {	drawbar "BFGAMMO3", "BFGAMMO0", D4BFGAmmo, horizontal, reverse, 938,713; }
+		inInventory D4Chainsaw
+		{
+			inInventory D4Backpack 
+			{	drawbar "CSAMMO88", "CSAMMO08", D4Fuel, horizontal, reverse, 1042,713; }
+			else
+			{	drawbar "CSAMMO55", "CSAMMO05", D4Fuel, horizontal, reverse, 1042,713; }
+		}
+		
+		// Counter
+		// Crosshair is at 510,380
+		InInventory Counter,52 { drawimage "cnt52",  465,337; } else {
+		InInventory Counter,51 { drawimage "cnt51",  465,337; } else {
+		InInventory Counter,50 { drawimage "cnt50",  465,337; } else {
+		InInventory Counter,49 { drawimage "cnt49",  465,337; } else {
+		InInventory Counter,48 { drawimage "cnt48",  465,337; } else {
+		InInventory Counter,47 { drawimage "cnt47",  465,337; } else {
+		InInventory Counter,46 { drawimage "cnt46",  465,337; } else {
+		InInventory Counter,45 { drawimage "cnt45",  465,337; } else {
+		InInventory Counter,44 { drawimage "cnt44",  465,337; } else {
+		InInventory Counter,43 { drawimage "cnt43",  465,337; } else {
+		InInventory Counter,42 { drawimage "cnt42",  465,337; } else {
+		InInventory Counter,41 { drawimage "cnt41",  465,337; } else {
+		InInventory Counter,40 { drawimage "cnt40",  465,337; } else {
+		InInventory Counter,39 { drawimage "cnt39",  465,337; } else {
+		InInventory Counter,38 { drawimage "cnt38",  465,337; } else {
+		InInventory Counter,37 { drawimage "cnt37",  465,337; } else {
+		InInventory Counter,36 { drawimage "cnt36",  465,337; } else {
+		InInventory Counter,35 { drawimage "cnt35",  465,337; } else {
+		InInventory Counter,34 { drawimage "cnt34",  465,337; } else {
+		InInventory Counter,33 { drawimage "cnt33",  465,337; } else {
+		InInventory Counter,32 { drawimage "cnt32",  465,337; } else {
+		InInventory Counter,31 { drawimage "cnt31",  465,337; } else {
+		InInventory Counter,30 { drawimage "cnt30",  465,337; } else {
+		InInventory Counter,29 { drawimage "cnt29",  465,337; } else {
+		InInventory Counter,28 { drawimage "cnt28",  465,337; } else {
+		InInventory Counter,27 { drawimage "cnt27",  465,337; } else {
+		InInventory Counter,26 { drawimage "cnt26",  465,337; } else {
+		InInventory Counter,25 { drawimage "cnt25",  465,337; } else {
+		InInventory Counter,24 { drawimage "cnt24",  465,337; } else {
+		InInventory Counter,23 { drawimage "cnt23",  465,337; } else {
+		InInventory Counter,22 { drawimage "cnt22",  465,337; } else {
+		InInventory Counter,21 { drawimage "cnt21",  465,337; } else {
+		InInventory Counter,20 { drawimage "cnt20",  465,337; } else {
+		InInventory Counter,19 { drawimage "cnt19",  465,337; } else {
+		InInventory Counter,18 { drawimage "cnt18",  465,337; } else {
+		InInventory Counter,17 { drawimage "cnt17",  465,337; } else {
+		InInventory Counter,16 { drawimage "cnt16",  465,337; } else {
+		InInventory Counter,15 { drawimage "cnt15",  465,337; } else {
+		InInventory Counter,14 { drawimage "cnt14",  465,337; } else {
+		InInventory Counter,13 { drawimage "cnt13",  465,337; } else {
+		InInventory Counter,12 { drawimage "cnt12",  465,337; } else {
+		InInventory Counter,11 { drawimage "cnt11",  465,337; } else {
+		InInventory Counter,10 { drawimage "cnt10",  465,337; } else {
+		InInventory Counter, 9 { drawimage "cnt09",  465,337; } else {
+		InInventory Counter, 8 { drawimage "cnt08",  465,337; } else {
+		InInventory Counter, 7 { drawimage "cnt07",  465,337; } else {
+		InInventory Counter, 6 { drawimage "cnt06",  465,337; } else {
+		InInventory Counter, 5 { drawimage "cnt05",  465,337; } else {
+		InInventory Counter, 4 { drawimage "cnt04",  465,337; } else {
+		InInventory Counter, 3 { drawimage "cnt03",  465,337; } else {
+		InInventory Counter, 2 { drawimage "cnt02",  465,337; } else {
+		InInventory Counter, 1 { drawimage "cnt01",  465,337; } else {
+								 drawimage "cnt00",  465,337;
+		}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
+		// Weapon specifics
+				
+		isSelected D4DFist
+		{
+			// Weapon icon
+			DrawImage "fist", 1043,676;
+		}
+		isSelected D4Chainsaw
+		{
+			// Weapon icon
+			DrawImage "chainsaw", 1043,676;
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rCha_saw",  464,336; }
+		}
+		isSelected D4Pistol
+		{
+			// Weapon icon
+			DrawImage "pistol", 1043,676;
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rPistol",  465,337; }
+			
+			// Charging
+			InInventory PistolAltFireCounter,52 { drawimage "cya52",  465,337; } else { // fully charged pistol--cyan counter
+			InInventory PistolAltFireCounter,51 { drawimage "cnt51",  465,337; } else {
+			InInventory PistolAltFireCounter,50 { drawimage "cnt50",  465,337; } else {
+			InInventory PistolAltFireCounter,49 { drawimage "cnt49",  465,337; } else {
+			InInventory PistolAltFireCounter,48 { drawimage "cnt48",  465,337; } else {
+			InInventory PistolAltFireCounter,47 { drawimage "cnt47",  465,337; } else {
+			InInventory PistolAltFireCounter,46 { drawimage "cnt46",  465,337; } else {
+			InInventory PistolAltFireCounter,45 { drawimage "cnt45",  465,337; } else {
+			InInventory PistolAltFireCounter,44 { drawimage "cnt44",  465,337; } else {
+			InInventory PistolAltFireCounter,43 { drawimage "cnt43",  465,337; } else {
+			InInventory PistolAltFireCounter,42 { drawimage "cnt42",  465,337; } else {
+			InInventory PistolAltFireCounter,41 { drawimage "cnt41",  465,337; } else {
+			InInventory PistolAltFireCounter,40 { drawimage "cnt40",  465,337; } else {
+			InInventory PistolAltFireCounter,39 { drawimage "cnt39",  465,337; } else {
+			InInventory PistolAltFireCounter,38 { drawimage "cnt38",  465,337; } else {
+			InInventory PistolAltFireCounter,37 { drawimage "cnt37",  465,337; } else {
+			InInventory PistolAltFireCounter,36 { drawimage "cnt36",  465,337; } else {
+			InInventory PistolAltFireCounter,35 { drawimage "cnt35",  465,337; } else {
+			InInventory PistolAltFireCounter,34 { drawimage "cnt34",  465,337; } else {
+			InInventory PistolAltFireCounter,33 { drawimage "cnt33",  465,337; } else {
+			InInventory PistolAltFireCounter,32 { drawimage "cnt32",  465,337; } else {
+			InInventory PistolAltFireCounter,31 { drawimage "cnt31",  465,337; } else {
+			InInventory PistolAltFireCounter,30 { drawimage "cnt30",  465,337; } else {
+			InInventory PistolAltFireCounter,29 { drawimage "cnt29",  465,337; } else {
+			InInventory PistolAltFireCounter,28 { drawimage "cnt28",  465,337; } else {
+			InInventory PistolAltFireCounter,27 { drawimage "cnt27",  465,337; } else {
+			InInventory PistolAltFireCounter,26 { drawimage "cnt26",  465,337; } else {
+			InInventory PistolAltFireCounter,25 { drawimage "cnt25",  465,337; } else {
+			InInventory PistolAltFireCounter,24 { drawimage "cnt24",  465,337; } else {
+			InInventory PistolAltFireCounter,23 { drawimage "cnt23",  465,337; } else {
+			InInventory PistolAltFireCounter,22 { drawimage "cnt22",  465,337; } else {
+			InInventory PistolAltFireCounter,21 { drawimage "cnt21",  465,337; } else {
+			InInventory PistolAltFireCounter,20 { drawimage "cnt20",  465,337; } else {
+			InInventory PistolAltFireCounter,19 { drawimage "cnt19",  465,337; } else {
+			InInventory PistolAltFireCounter,18 { drawimage "cnt18",  465,337; } else {
+			InInventory PistolAltFireCounter,17 { drawimage "cnt17",  465,337; } else {
+			InInventory PistolAltFireCounter,16 { drawimage "cnt16",  465,337; } else {
+			InInventory PistolAltFireCounter,15 { drawimage "cnt15",  465,337; } else {
+			InInventory PistolAltFireCounter,14 { drawimage "cnt14",  465,337; } else {
+			InInventory PistolAltFireCounter,13 { drawimage "cnt13",  465,337; } else {
+			InInventory PistolAltFireCounter,12 { drawimage "cnt12",  465,337; } else {
+			InInventory PistolAltFireCounter,11 { drawimage "cnt11",  465,337; } else {
+			InInventory PistolAltFireCounter,10 { drawimage "cnt10",  465,337; } else {
+			InInventory PistolAltFireCounter, 9 { drawimage "cnt09",  465,337; } else {
+			InInventory PistolAltFireCounter, 8 { drawimage "cnt08",  465,337; } else {
+			InInventory PistolAltFireCounter, 7 { drawimage "cnt07",  465,337; } else {
+			InInventory PistolAltFireCounter, 6 { drawimage "cnt06",  465,337; } else {
+			InInventory PistolAltFireCounter, 5 { drawimage "cnt05",  465,337; } else {
+			InInventory PistolAltFireCounter, 4 { drawimage "cnt04",  465,337; } else {
+			InInventory PistolAltFireCounter, 3 { drawimage "cnt03",  465,337; } else {
+			InInventory PistolAltFireCounter, 2 { drawimage "cnt02",  465,337; } else {
+			InInventory PistolAltFireCounter, 1 { drawimage "cnt01",  465,337; } else {
+												  drawimage "cnt00",  465,337;
+			}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
+		}
+		isSelected D4Shotgun
+		{
+			// Weapon icon
+			DrawImage "shotgun", 1043,676;
+			
+			// Mods available and equipped
+			inInventory ShotgunMod1 { DrawImage "zhrgbrs0", 942, 673; InInventory TriShotActive { DrawImage "zhrgbrs1", 942, 673; } }
+			inInventory ShotgunMod2 { DrawImage "zplosht0", 970, 673; InInventory GrenadeActive { DrawImage "zplosht1", 970, 673; } }
+			
+			InInventory TriShotActive
+			{
+				InInventory AltFireToken
+				{
+					inInventory Not NoReticle 	{ DrawImage "rSGT_ady",  465,337; }
+				}
+				else
+				{
+					inInventory Not NoReticle 	{ DrawImage "rSGT_dle",  465,337; }
+				}
+				
+				// Active shots
+				InInventory SGTripleShotTimer || AltFireToken
+				{
+					InInventory TrishotClip, 3 { DrawImage "rSGT_ip3",  465,337; } else {
+					InInventory TrishotClip, 2 { DrawImage "rSGT_ip2",  465,337; } else {
+					InInventory TrishotClip, 1 { DrawImage "rSGT_ip1",  465,337; } else {
+												 DrawImage "rSGT_ip0",  465,337; 
+					}}} // 3 braces
+				}
+				
+				// Cooldown
+				InInventory SGTripleShotTimer,52 {  } else { // Hack to avoid having
+				InInventory SGTripleShotTimer,51 {  } else { // ring while firing.
+				InInventory SGTripleShotTimer,50 { drawimage "cnt52",  465,337; } else {
+				InInventory SGTripleShotTimer,49 { drawimage "cnt50",  465,337; } else {
+				InInventory SGTripleShotTimer,48 { drawimage "cnt48",  465,337; } else {
+				InInventory SGTripleShotTimer,47 { drawimage "cnt47",  465,337; } else {
+				InInventory SGTripleShotTimer,46 { drawimage "cnt46",  465,337; } else {
+				InInventory SGTripleShotTimer,45 { drawimage "cnt45",  465,337; } else {
+				InInventory SGTripleShotTimer,44 { drawimage "cnt44",  465,337; } else {
+				InInventory SGTripleShotTimer,43 { drawimage "cnt43",  465,337; } else {
+				InInventory SGTripleShotTimer,42 { drawimage "cnt42",  465,337; } else {
+				InInventory SGTripleShotTimer,41 { drawimage "cnt41",  465,337; } else {
+				InInventory SGTripleShotTimer,40 { drawimage "cnt40",  465,337; } else {
+				InInventory SGTripleShotTimer,39 { drawimage "cnt39",  465,337; } else {
+				InInventory SGTripleShotTimer,38 { drawimage "cnt38",  465,337; } else {
+				InInventory SGTripleShotTimer,37 { drawimage "cnt37",  465,337; } else {
+				InInventory SGTripleShotTimer,36 { drawimage "cnt36",  465,337; } else {
+				InInventory SGTripleShotTimer,35 { drawimage "cnt35",  465,337; } else {
+				InInventory SGTripleShotTimer,34 { drawimage "cnt34",  465,337; } else {
+				InInventory SGTripleShotTimer,33 { drawimage "cnt33",  465,337; } else {
+				InInventory SGTripleShotTimer,32 { drawimage "cnt32",  465,337; } else {
+				InInventory SGTripleShotTimer,31 { drawimage "cnt31",  465,337; } else {
+				InInventory SGTripleShotTimer,30 { drawimage "cnt30",  465,337; } else {
+				InInventory SGTripleShotTimer,29 { drawimage "cnt29",  465,337; } else {
+				InInventory SGTripleShotTimer,28 { drawimage "cnt28",  465,337; } else {
+				InInventory SGTripleShotTimer,27 { drawimage "cnt27",  465,337; } else {
+				InInventory SGTripleShotTimer,26 { drawimage "cnt26",  465,337; } else {
+				InInventory SGTripleShotTimer,25 { drawimage "cnt25",  465,337; } else {
+				InInventory SGTripleShotTimer,24 { drawimage "cnt24",  465,337; } else {
+				InInventory SGTripleShotTimer,23 { drawimage "cnt23",  465,337; } else {
+				InInventory SGTripleShotTimer,22 { drawimage "cnt22",  465,337; } else {
+				InInventory SGTripleShotTimer,21 { drawimage "cnt21",  465,337; } else {
+				InInventory SGTripleShotTimer,20 { drawimage "cnt20",  465,337; } else {
+				InInventory SGTripleShotTimer,19 { drawimage "cnt19",  465,337; } else {
+				InInventory SGTripleShotTimer,18 { drawimage "cnt18",  465,337; } else {
+				InInventory SGTripleShotTimer,17 { drawimage "cnt17",  465,337; } else {
+				InInventory SGTripleShotTimer,16 { drawimage "cnt16",  465,337; } else {
+				InInventory SGTripleShotTimer,15 { drawimage "cnt15",  465,337; } else {
+				InInventory SGTripleShotTimer,14 { drawimage "cnt14",  465,337; } else {
+				InInventory SGTripleShotTimer,13 { drawimage "cnt13",  465,337; } else {
+				InInventory SGTripleShotTimer,12 { drawimage "cnt12",  465,337; } else {
+				InInventory SGTripleShotTimer,11 { drawimage "cnt11",  465,337; } else {
+				InInventory SGTripleShotTimer,10 { drawimage "cnt10",  465,337; } else {
+				InInventory SGTripleShotTimer, 9 { drawimage "cnt09",  465,337; } else {
+				InInventory SGTripleShotTimer, 8 { drawimage "cnt08",  465,337; } else {
+				InInventory SGTripleShotTimer, 7 { drawimage "cnt07",  465,337; } else {
+				InInventory SGTripleShotTimer, 6 { drawimage "cnt06",  465,337; } else {
+				InInventory SGTripleShotTimer, 5 { drawimage "cnt05",  465,337; } else {
+				InInventory SGTripleShotTimer, 4 { drawimage "cnt04",  465,337; } else {
+				InInventory SGTripleShotTimer, 3 { drawimage "cnt03",  465,337; } else {
+				InInventory SGTripleShotTimer, 2 { drawimage "cnt02",  465,337; } else {
+				InInventory SGTripleShotTimer, 1 { drawimage "cnt01",  465,337; } else {
+												   drawimage "cnt00",  465,337;
+				}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
+			}
+			else {
+			InInventory GrenadeActive
+			{
+				InInventory AltFireToken
+				{
+					inInventory Not NoReticle 	{ DrawImage "rSGG_ady",  465,337; }
+				} else {
+					inInventory Not NoReticle 	{ DrawImage "rSGG_dle",  465,337; }
+				}
+				InInventory SGGrenadeTimer,52 { drawimage "cnt52",  465,337; } else {
+				InInventory SGGrenadeTimer,51 { drawimage "cnt51",  465,337; } else {
+				InInventory SGGrenadeTimer,50 { drawimage "cnt50",  465,337; } else {
+				InInventory SGGrenadeTimer,49 { drawimage "cnt49",  465,337; } else {
+				InInventory SGGrenadeTimer,48 { drawimage "cnt48",  465,337; } else {
+				InInventory SGGrenadeTimer,47 { drawimage "cnt47",  465,337; } else {
+				InInventory SGGrenadeTimer,46 { drawimage "cnt46",  465,337; } else {
+				InInventory SGGrenadeTimer,45 { drawimage "cnt45",  465,337; } else {
+				InInventory SGGrenadeTimer,44 { drawimage "cnt44",  465,337; } else {
+				InInventory SGGrenadeTimer,43 { drawimage "cnt43",  465,337; } else {
+				InInventory SGGrenadeTimer,42 { drawimage "cnt42",  465,337; } else {
+				InInventory SGGrenadeTimer,41 { drawimage "cnt41",  465,337; } else {
+				InInventory SGGrenadeTimer,40 { drawimage "cnt40",  465,337; } else {
+				InInventory SGGrenadeTimer,39 { drawimage "cnt39",  465,337; } else {
+				InInventory SGGrenadeTimer,38 { drawimage "cnt38",  465,337; } else {
+				InInventory SGGrenadeTimer,37 { drawimage "cnt37",  465,337; } else {
+				InInventory SGGrenadeTimer,36 { drawimage "cnt36",  465,337; } else {
+				InInventory SGGrenadeTimer,35 { drawimage "cnt35",  465,337; } else {
+				InInventory SGGrenadeTimer,34 { drawimage "cnt34",  465,337; } else {
+				InInventory SGGrenadeTimer,33 { drawimage "cnt33",  465,337; } else {
+				InInventory SGGrenadeTimer,32 { drawimage "cnt32",  465,337; } else {
+				InInventory SGGrenadeTimer,31 { drawimage "cnt31",  465,337; } else {
+				InInventory SGGrenadeTimer,30 { drawimage "cnt30",  465,337; } else {
+				InInventory SGGrenadeTimer,29 { drawimage "cnt29",  465,337; } else {
+				InInventory SGGrenadeTimer,28 { drawimage "cnt28",  465,337; } else {
+				InInventory SGGrenadeTimer,27 { drawimage "cnt27",  465,337; } else {
+				InInventory SGGrenadeTimer,26 { drawimage "cnt26",  465,337; } else {
+				InInventory SGGrenadeTimer,25 { drawimage "cnt25",  465,337; } else {
+				InInventory SGGrenadeTimer,24 { drawimage "cnt24",  465,337; } else {
+				InInventory SGGrenadeTimer,23 { drawimage "cnt23",  465,337; } else {
+				InInventory SGGrenadeTimer,22 { drawimage "cnt22",  465,337; } else {
+				InInventory SGGrenadeTimer,21 { drawimage "cnt21",  465,337; } else {
+				InInventory SGGrenadeTimer,20 { drawimage "cnt20",  465,337; } else {
+				InInventory SGGrenadeTimer,19 { drawimage "cnt19",  465,337; } else {
+				InInventory SGGrenadeTimer,18 { drawimage "cnt18",  465,337; } else {
+				InInventory SGGrenadeTimer,17 { drawimage "cnt17",  465,337; } else {
+				InInventory SGGrenadeTimer,16 { drawimage "cnt16",  465,337; } else {
+				InInventory SGGrenadeTimer,15 { drawimage "cnt15",  465,337; } else {
+				InInventory SGGrenadeTimer,14 { drawimage "cnt14",  465,337; } else {
+				InInventory SGGrenadeTimer,13 { drawimage "cnt13",  465,337; } else {
+				InInventory SGGrenadeTimer,12 { drawimage "cnt12",  465,337; } else {
+				InInventory SGGrenadeTimer,11 { drawimage "cnt11",  465,337; } else {
+				InInventory SGGrenadeTimer,10 { drawimage "cnt10",  465,337; } else {
+				InInventory SGGrenadeTimer, 9 { drawimage "cnt09",  465,337; } else {
+				InInventory SGGrenadeTimer, 8 { drawimage "cnt08",  465,337; } else {
+				InInventory SGGrenadeTimer, 7 { drawimage "cnt07",  465,337; } else {
+				InInventory SGGrenadeTimer, 6 { drawimage "cnt06",  465,337; } else {
+				InInventory SGGrenadeTimer, 5 { drawimage "cnt05",  465,337; } else {
+				InInventory SGGrenadeTimer, 4 { drawimage "cnt04",  465,337; } else {
+				InInventory SGGrenadeTimer, 3 { drawimage "cnt03",  465,337; } else {
+				InInventory SGGrenadeTimer, 2 { drawimage "cnt02",  465,337; } else {
+				InInventory SGGrenadeTimer, 1 { drawimage "cnt01",  465,337; } else {
+												drawimage "cnt00",  465,337;
+				}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
+			} else
+			{
+				// Reticle
+				inInventory Not NoReticle 	{ DrawImage "rSG",  464,336; }
+			}
+			}
+		}
+		isSelected D4SuperShotgun
+		{
+			// Weapon icon
+			DrawImage "sshotgun", 1043,676;
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rSSG",  464,336; }
+		}
+		isSelected D4Chaingun
+		{
+			// Weapon icon
+			DrawImage "chaingun", 1043,676;
+			
+			// Mods available and equipped
+			inInventory ChaingunMod1 { DrawImage "zotator0", 942, 673; InInventory GatlingRotatorActive { DrawImage "zotator1", 942, 673; } }
+			inInventory ChaingunMod2 { DrawImage "zurrets0", 970, 673; InInventory MobileTurretActive   { DrawImage "zurrets1", 970, 673; } }
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rCha_gun",  464,336; }
+		}
+		isSelected D4AssaultRifle
+		{
+			// Weapon icon
+			DrawImage "harharha", 1043,676;
+			
+			// Mods available and equipped
+			inInventory AssaultRifleMod1 { DrawImage "zactscp0", 942, 673; InInventory TacticalScopeActive { DrawImage "zactscp1", 942, 673; } }
+			inInventory AssaultRifleMod2 { DrawImage "zissile0", 970, 673; InInventory MicroMissilesActive { DrawImage "zissile1", 970, 673; } }
+			
+			// Reticle
+			InInventory AltFireToken && TacticalScopeActive
+			{
+				inInventory Not NoReticle 	{ DrawImage "rHar_ope",  131,128; }
+			} else { 
+			inInventory AltFireToken && MicroMissilesActive 
+			{
+				InInventory MicroMissilesCounter, 6 { DrawImage "rHAR_ip0",  448,320; } else {
+				InInventory MicroMissilesCounter, 5 { DrawImage "rHAR_ip1",  448,320; } else {
+				InInventory MicroMissilesCounter, 4 { DrawImage "rHAR_ip2",  448,320; } else {
+				InInventory MicroMissilesCounter, 3 { DrawImage "rHAR_ip3",  448,320; } else {
+				InInventory MicroMissilesCounter, 2 { DrawImage "rHAR_ip4",  448,320; } else {
+				InInventory MicroMissilesCounter, 1 { DrawImage "rHAR_ip5",  448,320; } else {
+													  DrawImage "rHAR_ip6",  448,320; 
+				}}}}}} // 6 braces
+			}}
+			inInventory Not NoReticle 	{ DrawImage "rHarIdle",  464,337; }
+		}
+		isSelected D4Repeater
+		{
+			// Weapon icon
+			DrawImage "repeater", 1043,676;
+			
+			// Reticle
+			InInventory RepeaterAimHolding
+			{
+				inInventory Not NoReticle 	{ DrawImage "rRep_ire",  465,337; }
+			}
+			else
+			{
+				inInventory Not NoReticle 	{ DrawImage "rRep_ter",  465,337; }
+			}
+		}
+		isSelected D4VortexRifle
+		{
+			// Weapon icon
+			DrawImage "vortex", 1043,676;
+			
+			// Reticle
+			InInventory VortexZoomed
+			{
+				inInventory VortexCharges,52
+				{ DrawImage "vortmas2",  -170,0; }
+				else
+				{ DrawImage "vortmask",  -170,0; }
+			}
+			
+			inInventory Not NoReticle 	{ DrawImage "rVor_fle",  465,337; }
+			
+			InInventory VortexCharges,52 { drawimage "cya52",  465,337; } else { // fully charged vortex rifle--cyan reticle
+			InInventory VortexCharges,51 { drawimage "cnt51",  465,337; } else {
+			InInventory VortexCharges,50 { drawimage "cnt50",  465,337; } else {
+			InInventory VortexCharges,49 { drawimage "cnt49",  465,337; } else {
+			InInventory VortexCharges,48 { drawimage "cnt48",  465,337; } else {
+			InInventory VortexCharges,47 { drawimage "cnt47",  465,337; } else {
+			InInventory VortexCharges,46 { drawimage "cnt46",  465,337; } else {
+			InInventory VortexCharges,45 { drawimage "cnt45",  465,337; } else {
+			InInventory VortexCharges,44 { drawimage "cnt44",  465,337; } else {
+			InInventory VortexCharges,43 { drawimage "cnt43",  465,337; } else {
+			InInventory VortexCharges,42 { drawimage "cnt42",  465,337; } else {
+			InInventory VortexCharges,41 { drawimage "cnt41",  465,337; } else {
+			InInventory VortexCharges,40 { drawimage "cnt40",  465,337; } else {
+			InInventory VortexCharges,39 { drawimage "cnt39",  465,337; } else {
+			InInventory VortexCharges,38 { drawimage "cnt38",  465,337; } else {
+			InInventory VortexCharges,37 { drawimage "cnt37",  465,337; } else {
+			InInventory VortexCharges,36 { drawimage "cnt36",  465,337; } else {
+			InInventory VortexCharges,35 { drawimage "cnt35",  465,337; } else {
+			InInventory VortexCharges,34 { drawimage "cnt34",  465,337; } else {
+			InInventory VortexCharges,33 { drawimage "cnt33",  465,337; } else {
+			InInventory VortexCharges,32 { drawimage "cnt32",  465,337; } else {
+			InInventory VortexCharges,31 { drawimage "cnt31",  465,337; } else {
+			InInventory VortexCharges,30 { drawimage "cnt30",  465,337; } else {
+			InInventory VortexCharges,29 { drawimage "cnt29",  465,337; } else {
+			InInventory VortexCharges,28 { drawimage "cnt28",  465,337; } else {
+			InInventory VortexCharges,27 { drawimage "cnt27",  465,337; } else {
+			InInventory VortexCharges,26 { drawimage "cnt26",  465,337; } else {
+			InInventory VortexCharges,25 { drawimage "cnt25",  465,337; } else {
+			InInventory VortexCharges,24 { drawimage "cnt24",  465,337; } else {
+			InInventory VortexCharges,23 { drawimage "cnt23",  465,337; } else {
+			InInventory VortexCharges,22 { drawimage "cnt22",  465,337; } else {
+			InInventory VortexCharges,21 { drawimage "cnt21",  465,337; } else {
+			InInventory VortexCharges,20 { drawimage "cnt20",  465,337; } else {
+			InInventory VortexCharges,19 { drawimage "cnt19",  465,337; } else {
+			InInventory VortexCharges,18 { drawimage "cnt18",  465,337; } else {
+			InInventory VortexCharges,17 { drawimage "cnt17",  465,337; } else {
+			InInventory VortexCharges,16 { drawimage "cnt16",  465,337; } else {
+			InInventory VortexCharges,15 { drawimage "cnt15",  465,337; } else {
+			InInventory VortexCharges,14 { drawimage "cnt14",  465,337; } else {
+			InInventory VortexCharges,13 { drawimage "cnt13",  465,337; } else {
+			InInventory VortexCharges,12 { drawimage "cnt12",  465,337; } else {
+			InInventory VortexCharges,11 { drawimage "cnt11",  465,337; } else {
+			InInventory VortexCharges,10 { drawimage "cnt10",  465,337; } else {
+			InInventory VortexCharges, 9 { drawimage "cnt09",  465,337; } else {
+			InInventory VortexCharges, 8 { drawimage "cnt08",  465,337; } else {
+			InInventory VortexCharges, 7 { drawimage "cnt07",  465,337; } else {
+			InInventory VortexCharges, 6 { drawimage "cnt06",  465,337; } else {
+			InInventory VortexCharges, 5 { drawimage "cnt05",  465,337; } else {
+			InInventory VortexCharges, 4 { drawimage "cnt04",  465,337; } else {
+			InInventory VortexCharges, 3 { drawimage "cnt03",  465,337; } else {
+			InInventory VortexCharges, 2 { drawimage "cnt02",  465,337; } else {
+			InInventory VortexCharges, 1 { drawimage "cnt01",  465,337; } else {
+										   drawimage "cnt00",  465,337;
+			}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
+		}
+		isSelected D4RocketLauncher
+		{
+			// Weapon icon
+			DrawImage "rocketer", 1043,676;
+			
+			// Mods available and equipped
+			inInventory RocketLauncherMod1 { DrawImage "zetonat0", 942, 673; InInventory DetonateActive { DrawImage "zetonat1", 942, 673; } }
+			inInventory RocketLauncherMod2 { DrawImage "zocking0", 970, 673; InInventory LockOnActive   { DrawImage "zocking1", 970, 673; } }
+			
+			// Reticle
+			inInventory DetonateActive
+			{
+				inInventory Not NoReticle 	{ DrawImage "rRLD_ate",  465,337;}
+			} else { inInventory LockOnActive {
+				inInventory Not NoReticle 	{ DrawImage "rRLL_kOn",  465,337; }
+			
+				// Targeting progress
+				InInventory RLLockToken,200 { drawimage "cnt52",  465,337; } else {
+				InInventory RLLockToken,198 { drawimage "cnt51",  465,337; } else {
+				InInventory RLLockToken,196 { drawimage "cnt50",  465,337; } else {
+				InInventory RLLockToken,194 { drawimage "cnt49",  465,337; } else {
+				InInventory RLLockToken,192 { drawimage "cnt48",  465,337; } else {
+				InInventory RLLockToken,188 { drawimage "cnt47",  465,337; } else {
+				InInventory RLLockToken,184 { drawimage "cnt46",  465,337; } else {
+				InInventory RLLockToken,180 { drawimage "cnt45",  465,337; } else {
+				InInventory RLLockToken,176 { drawimage "cnt44",  465,337; } else {
+				InInventory RLLockToken,172 { drawimage "cnt43",  465,337; } else {
+				InInventory RLLockToken,168 { drawimage "cnt42",  465,337; } else {
+				InInventory RLLockToken,164 { drawimage "cnt41",  465,337; } else {
+				InInventory RLLockToken,160 { drawimage "cnt40",  465,337; } else {
+				InInventory RLLockToken,156 { drawimage "cnt39",  465,337; } else {
+				InInventory RLLockToken,152 { drawimage "cnt38",  465,337; } else {
+				InInventory RLLockToken,148 { drawimage "cnt37",  465,337; } else {
+				InInventory RLLockToken,144 { drawimage "cnt36",  465,337; } else {
+				InInventory RLLockToken,140 { drawimage "cnt35",  465,337; } else {
+				InInventory RLLockToken,136 { drawimage "cnt34",  465,337; } else {
+				InInventory RLLockToken,132 { drawimage "cnt33",  465,337; } else {
+				InInventory RLLockToken,128 { drawimage "cnt32",  465,337; } else {
+				InInventory RLLockToken,124 { drawimage "cnt31",  465,337; } else {
+				InInventory RLLockToken,120 { drawimage "cnt30",  465,337; } else {
+				InInventory RLLockToken,116 { drawimage "cnt29",  465,337; } else {
+				InInventory RLLockToken,112 { drawimage "cnt28",  465,337; } else {
+				InInventory RLLockToken,108 { drawimage "cnt27",  465,337; } else {
+				InInventory RLLockToken,104 { drawimage "cnt26",  465,337; } else {
+				InInventory RLLockToken,100 { drawimage "cnt25",  465,337; } else {
+				InInventory RLLockToken, 96 { drawimage "cnt24",  465,337; } else {
+				InInventory RLLockToken, 92 { drawimage "cnt23",  465,337; } else {
+				InInventory RLLockToken, 88 { drawimage "cnt22",  465,337; } else {
+				InInventory RLLockToken, 84 { drawimage "cnt21",  465,337; } else {
+				InInventory RLLockToken, 80 { drawimage "cnt20",  465,337; } else {
+				InInventory RLLockToken, 76 { drawimage "cnt19",  465,337; } else {
+				InInventory RLLockToken, 72 { drawimage "cnt18",  465,337; } else {
+				InInventory RLLockToken, 68 { drawimage "cnt17",  465,337; } else {
+				InInventory RLLockToken, 64 { drawimage "cnt16",  465,337; } else {
+				InInventory RLLockToken, 60 { drawimage "cnt15",  465,337; } else {
+				InInventory RLLockToken, 56 { drawimage "cnt14",  465,337; } else {
+				InInventory RLLockToken, 52 { drawimage "cnt13",  465,337; } else {
+				InInventory RLLockToken, 48 { drawimage "cnt12",  465,337; } else {
+				InInventory RLLockToken, 44 { drawimage "cnt11",  465,337; } else {
+				InInventory RLLockToken, 40 { drawimage "cnt10",  465,337; } else {
+				InInventory RLLockToken, 36 { drawimage "cnt09",  465,337; } else {
+				InInventory RLLockToken, 32 { drawimage "cnt08",  465,337; } else {
+				InInventory RLLockToken, 28 { drawimage "cnt07",  465,337; } else {
+				InInventory RLLockToken, 24 { drawimage "cnt06",  465,337; } else {
+				InInventory RLLockToken, 20 { drawimage "cnt05",  465,337; } else {
+				InInventory RLLockToken, 16 { drawimage "cnt04",  465,337; } else {
+				InInventory RLLockToken, 12 { drawimage "cnt03",  465,337; } else {
+				InInventory RLLockToken,  8 { drawimage "cnt02",  465,337; } else {
+				InInventory RLLockToken,  4 { drawimage "cnt01",  465,337; } else {
+											  drawimage "cnt00",  465,337;
+				}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
+			} else { 
+				inInventory Not NoReticle 	{ DrawImage "rRL",  465,337; }
+			}}
+			
+		}
+		isSelected D4GaussCannon
+		{
+			// Weapon icon
+			DrawImage "gauss", 1043,676;
+			
+			// Mods available and equipped
+			inInventory GaussCannonMod1 { DrawImage "zrecblt0", 942, 673; InInventory PrecisionActive { DrawImage "zrecblt1", 942, 673; } }
+			inInventory GaussCannonMod2 { DrawImage "ziegemd0", 970, 673; InInventory SiegeActive     { DrawImage "ziegemd1", 970, 673; } }
+			
+			// Reticle
+			inInventory SiegeActive 
+			{
+				inInventory Not NoReticle 	{ DrawImage "rGau_ege",  465,337; }
+			}
+			else 
+			{
+				inInventory Not NoReticle 	{ DrawImage "rGauss",  465,337; }
+			}
+		}
+		isSelected D4PlasmaRifle
+		{
+			// Weapon icon
+			DrawImage "prifle", 1043,676;
+			
+			// Mods available and equipped
+			inInventory PlasmaRifleMod1 { DrawImage "ztblast0", 942, 673; InInventory HeatBlastActive { DrawImage "ztblast1", 942, 673; } }
+			inInventory PlasmaRifleMod2 { DrawImage "ztunbom0", 970, 673; InInventory StunBombActive  { DrawImage "ztunbom1", 970, 673; } }
+			
+			
+			// Charging
+			InInventory HeatBlastActive
+			{
+				InInventory PlasmaHeatBlastCounter,30 { drawimage "cya52",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,29 { drawimage "cnt50",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,28 { drawimage "cnt48",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,27 { drawimage "cnt46",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,26 { drawimage "cnt44",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,25 { drawimage "cnt42",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,24 { drawimage "cnt40",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,23 { drawimage "cnt38",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,22 { drawimage "cnt36",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,21 { drawimage "cnt34",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,20 { drawimage "cnt32",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,19 { drawimage "cnt30",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,18 { drawimage "cnt28",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,17 { drawimage "cnt26",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,16 { drawimage "cnt24",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,15 { drawimage "cnt22",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,14 { drawimage "cnt20",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,13 { drawimage "cnt18",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,12 { drawimage "cnt16",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,11 { drawimage "cnt14",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter,10 { drawimage "cnt12",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter, 9 { drawimage "cnt10",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter, 8 { drawimage "cnt08",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter, 7 { drawimage "cnt07",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter, 6 { drawimage "cnt06",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter, 5 { drawimage "cnt05",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter, 4 { drawimage "cnt04",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter, 3 { drawimage "cnt03",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter, 2 { drawimage "cnt02",  465,337; } else {
+				InInventory PlasmaHeatBlastCounter, 1 { drawimage "cnt01",  465,337; } else {
+														drawimage "cnt00",  465,337;
+				}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 30 braces
+			}
+			
+			// Cooldown
+			InInventory PlasmaStunBombCounter,52 { drawimage "cnt52",  465,337; } else {
+			InInventory PlasmaStunBombCounter,51 { drawimage "cnt51",  465,337; } else {
+			InInventory PlasmaStunBombCounter,50 { drawimage "cnt50",  465,337; } else {
+			InInventory PlasmaStunBombCounter,49 { drawimage "cnt49",  465,337; } else {
+			InInventory PlasmaStunBombCounter,48 { drawimage "cnt48",  465,337; } else {
+			InInventory PlasmaStunBombCounter,47 { drawimage "cnt47",  465,337; } else {
+			InInventory PlasmaStunBombCounter,46 { drawimage "cnt46",  465,337; } else {
+			InInventory PlasmaStunBombCounter,45 { drawimage "cnt45",  465,337; } else {
+			InInventory PlasmaStunBombCounter,44 { drawimage "cnt44",  465,337; } else {
+			InInventory PlasmaStunBombCounter,43 { drawimage "cnt43",  465,337; } else {
+			InInventory PlasmaStunBombCounter,42 { drawimage "cnt42",  465,337; } else {
+			InInventory PlasmaStunBombCounter,41 { drawimage "cnt41",  465,337; } else {
+			InInventory PlasmaStunBombCounter,40 { drawimage "cnt40",  465,337; } else {
+			InInventory PlasmaStunBombCounter,39 { drawimage "cnt39",  465,337; } else {
+			InInventory PlasmaStunBombCounter,38 { drawimage "cnt38",  465,337; } else {
+			InInventory PlasmaStunBombCounter,37 { drawimage "cnt37",  465,337; } else {
+			InInventory PlasmaStunBombCounter,36 { drawimage "cnt36",  465,337; } else {
+			InInventory PlasmaStunBombCounter,35 { drawimage "cnt35",  465,337; } else {
+			InInventory PlasmaStunBombCounter,34 { drawimage "cnt34",  465,337; } else {
+			InInventory PlasmaStunBombCounter,33 { drawimage "cnt33",  465,337; } else {
+			InInventory PlasmaStunBombCounter,32 { drawimage "cnt32",  465,337; } else {
+			InInventory PlasmaStunBombCounter,31 { drawimage "cnt31",  465,337; } else {
+			InInventory PlasmaStunBombCounter,30 { drawimage "cnt30",  465,337; } else {
+			InInventory PlasmaStunBombCounter,29 { drawimage "cnt29",  465,337; } else {
+			InInventory PlasmaStunBombCounter,28 { drawimage "cnt28",  465,337; } else {
+			InInventory PlasmaStunBombCounter,27 { drawimage "cnt27",  465,337; } else {
+			InInventory PlasmaStunBombCounter,26 { drawimage "cnt26",  465,337; } else {
+			InInventory PlasmaStunBombCounter,25 { drawimage "cnt25",  465,337; } else {
+			InInventory PlasmaStunBombCounter,24 { drawimage "cnt24",  465,337; } else {
+			InInventory PlasmaStunBombCounter,23 { drawimage "cnt23",  465,337; } else {
+			InInventory PlasmaStunBombCounter,22 { drawimage "cnt22",  465,337; } else {
+			InInventory PlasmaStunBombCounter,21 { drawimage "cnt21",  465,337; } else {
+			InInventory PlasmaStunBombCounter,20 { drawimage "cnt20",  465,337; } else {
+			InInventory PlasmaStunBombCounter,19 { drawimage "cnt19",  465,337; } else {
+			InInventory PlasmaStunBombCounter,18 { drawimage "cnt18",  465,337; } else {
+			InInventory PlasmaStunBombCounter,17 { drawimage "cnt17",  465,337; } else {
+			InInventory PlasmaStunBombCounter,16 { drawimage "cnt16",  465,337; } else {
+			InInventory PlasmaStunBombCounter,15 { drawimage "cnt15",  465,337; } else {
+			InInventory PlasmaStunBombCounter,14 { drawimage "cnt14",  465,337; } else {
+			InInventory PlasmaStunBombCounter,13 { drawimage "cnt13",  465,337; } else {
+			InInventory PlasmaStunBombCounter,12 { drawimage "cnt12",  465,337; } else {
+			InInventory PlasmaStunBombCounter,11 { drawimage "cnt11",  465,337; } else {
+			InInventory PlasmaStunBombCounter,10 { drawimage "cnt10",  465,337; } else {
+			InInventory PlasmaStunBombCounter, 9 { drawimage "cnt09",  465,337; } else {
+			InInventory PlasmaStunBombCounter, 8 { drawimage "cnt08",  465,337; } else {
+			InInventory PlasmaStunBombCounter, 7 { drawimage "cnt07",  465,337; } else {
+			InInventory PlasmaStunBombCounter, 6 { drawimage "cnt06",  465,337; } else {
+			InInventory PlasmaStunBombCounter, 5 { drawimage "cnt05",  465,337; } else {
+			InInventory PlasmaStunBombCounter, 4 { drawimage "cnt04",  465,337; } else {
+			InInventory PlasmaStunBombCounter, 3 { drawimage "cnt03",  465,337; } else {
+			InInventory PlasmaStunBombCounter, 2 { drawimage "cnt02",  465,337; } else {
+			InInventory PlasmaStunBombCounter, 1 { drawimage "cnt01",  465,337; } else {
+												   drawimage "cnt00",  465,337;
+			}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rPlasma",  464,336; }
+		}
+		isSelected D4BFG
+		{
+			// Weapon icon
+			DrawImage "bfg", 1043,676;
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rBFG",  464,336; }
+		}
+		
+		isSelected D4CarrionCannon
+		{
+			// Weapon icon
+			DrawImage "flare", 1043,676;
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rHel_hot",  464,336; }
+		}
+		
+		isSelected D4LightningGun
+		{
+			// Weapon icon
+			DrawImage "thunderb", 1043,676;
+			
+			// Reticle			
+			InInventory AltFireToken
+			{
+				inInventory Not NoReticle 	{ DrawImage "rLig_un2",  464,336; }
+			}
+			else
+			{
+				inInventory Not NoReticle 	{ DrawImage "rLig_un1",  464,336; }
+			}
+		}
+		
+		isSelected D4StaticRifle
+		{
+			// Weapon icon
+			DrawImage "static", 1043,676;
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rSta_fle",  464,336; }
+		
+			// Charge
+			InInventory StaticRifleChargingToken,520 { drawimage "rng52",  465,337; } else { // fully charged static rifle--orange counter
+			InInventory StaticRifleChargingToken,510 { drawimage "cnt51",  465,337; } else {
+			InInventory StaticRifleChargingToken,500 { drawimage "cnt50",  465,337; } else {
+			InInventory StaticRifleChargingToken,490 { drawimage "cnt49",  465,337; } else {
+			InInventory StaticRifleChargingToken,480 { drawimage "cnt48",  465,337; } else {
+			InInventory StaticRifleChargingToken,470 { drawimage "cnt47",  465,337; } else {
+			InInventory StaticRifleChargingToken,460 { drawimage "cnt46",  465,337; } else {
+			InInventory StaticRifleChargingToken,450 { drawimage "cnt45",  465,337; } else {
+			InInventory StaticRifleChargingToken,440 { drawimage "cnt44",  465,337; } else {
+			InInventory StaticRifleChargingToken,430 { drawimage "cnt43",  465,337; } else {
+			InInventory StaticRifleChargingToken,420 { drawimage "cnt42",  465,337; } else {
+			InInventory StaticRifleChargingToken,410 { drawimage "cnt41",  465,337; } else {
+			InInventory StaticRifleChargingToken,400 { drawimage "cnt40",  465,337; } else {
+			InInventory StaticRifleChargingToken,390 { drawimage "cnt39",  465,337; } else {
+			InInventory StaticRifleChargingToken,380 { drawimage "cnt38",  465,337; } else {
+			InInventory StaticRifleChargingToken,370 { drawimage "cnt37",  465,337; } else {
+			InInventory StaticRifleChargingToken,360 { drawimage "cnt36",  465,337; } else {
+			InInventory StaticRifleChargingToken,350 { drawimage "cnt35",  465,337; } else {
+			InInventory StaticRifleChargingToken,340 { drawimage "cnt34",  465,337; } else {
+			InInventory StaticRifleChargingToken,330 { drawimage "cnt33",  465,337; } else {
+			InInventory StaticRifleChargingToken,320 { drawimage "cnt32",  465,337; } else {
+			InInventory StaticRifleChargingToken,310 { drawimage "cnt31",  465,337; } else {
+			InInventory StaticRifleChargingToken,300 { drawimage "cnt30",  465,337; } else {
+			InInventory StaticRifleChargingToken,290 { drawimage "cnt29",  465,337; } else {
+			InInventory StaticRifleChargingToken,280 { drawimage "cnt28",  465,337; } else {
+			InInventory StaticRifleChargingToken,270 { drawimage "cnt27",  465,337; } else {
+			InInventory StaticRifleChargingToken,260 { drawimage "cnt26",  465,337; } else {
+			InInventory StaticRifleChargingToken,250 { drawimage "cnt25",  465,337; } else {
+			InInventory StaticRifleChargingToken,240 { drawimage "cnt24",  465,337; } else {
+			InInventory StaticRifleChargingToken,230 { drawimage "cnt23",  465,337; } else {
+			InInventory StaticRifleChargingToken,220 { drawimage "cnt22",  465,337; } else {
+			InInventory StaticRifleChargingToken,210 { drawimage "cnt21",  465,337; } else {
+			InInventory StaticRifleChargingToken,200 { drawimage "cnt20",  465,337; } else {
+			InInventory StaticRifleChargingToken,190 { drawimage "cnt19",  465,337; } else {
+			InInventory StaticRifleChargingToken,180 { drawimage "cnt18",  465,337; } else {
+			InInventory StaticRifleChargingToken,170 { drawimage "cnt17",  465,337; } else {
+			InInventory StaticRifleChargingToken,160 { drawimage "cnt16",  465,337; } else {
+			InInventory StaticRifleChargingToken,150 { drawimage "cnt15",  465,337; } else {
+			InInventory StaticRifleChargingToken,140 { drawimage "cnt14",  465,337; } else {
+			InInventory StaticRifleChargingToken,130 { drawimage "cnt13",  465,337; } else {
+			InInventory StaticRifleChargingToken,120 { drawimage "cnt12",  465,337; } else {
+			InInventory StaticRifleChargingToken,110 { drawimage "cnt11",  465,337; } else {
+			InInventory StaticRifleChargingToken,100 { drawimage "cnt10",  465,337; } else {
+			InInventory StaticRifleChargingToken, 90 { drawimage "cnt09",  465,337; } else {
+			InInventory StaticRifleChargingToken, 80 { drawimage "cnt08",  465,337; } else {
+			InInventory StaticRifleChargingToken, 70 { drawimage "cnt07",  465,337; } else {
+			InInventory StaticRifleChargingToken, 60 { drawimage "cnt06",  465,337; } else {
+			InInventory StaticRifleChargingToken, 50 { drawimage "cnt05",  465,337; } else {
+			InInventory StaticRifleChargingToken, 40 { drawimage "cnt04",  465,337; } else {
+			InInventory StaticRifleChargingToken, 30 { drawimage "cnt03",  465,337; } else {
+			InInventory StaticRifleChargingToken, 20 { drawimage "cnt02",  465,337; } else {
+			InInventory StaticRifleChargingToken, 10 { drawimage "cnt01",  465,337; } else {
+													   drawimage "cnt00",  465,337;
+			}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
+		}
+		
+		
+		
+		//this adds the frags and team
+		gamemode deathmatch
+		{
+			drawstring Q4HUDFONT, white, time, 540,75;	//timer
+			drawstring BIGFONT, white, "Frags:", 20,760;	
+			drawnumber 8, Q4HUDFONT, red, frags, 70, 760;
+			//drawstring BIGFONT, white, time, 500,50;
+		}
+
+		drawselectedinventory INDEXFON, 1040, 780;
+
+	}
+	else
+	{
+		// Shade
+		drawimage "Shade2Br", -171, 0;
+		
+		// Health
+		//drawnumber 4, Q4HUDFONT, yellow, health, alignment(right), 475,700;	
+		drawimage "DEMNBAR0", 18,694;
+		drawbar "RUNEBAR1", "RUNEBAR0", DemonTimerToken, horizontal, interpolate(1),  3,643;
+		
+		inInventory IamHellKnight       {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(500), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(500), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(500), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rUpg_and",  465,337; }
+		} 
+		else { inInventory IamBaronOfHell      {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(1000), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(1000), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(1000), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle 	{ DrawImage "rBar_ell",  465,337; }
+		} 
+		else { inInventory IamRevenant         
+		{
+			drawbar "DEMNBAR2", "DEMNBAR0", health(400), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(400), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(400), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle 	
+			{ 
+				inInventory not JetpackCooling
+				{ DrawBar "rRev_rs1", "rRev_rs0", JetpackFuel, vertical,  456,356; }
+				else
+				{ DrawBar "rRev_rs2", "rRev_rs0", JetpackFuel, vertical,  456,356; }
+				DrawImage "rRev_nt0",  448,320;
+			}
+		} 
+		else { inInventory IamCacodemon        {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(400), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(400), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(400), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle 	
+			{ DrawImage "rCac_mon",  448,320; }
+		} 
+		else { inInventory IamFatso            
+		{
+			drawbar "DEMNBAR2", "DEMNBAR0", health(800), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(800), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(800), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle 	
+			{ DrawImage "rFatso0",  448,320; }
+		} 
+		else { inInventory IamPainElemental    {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(400), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(400), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(400), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle 	
+			{ DrawImage "rPai_tal",  448,320; }
+		} 
+		else { inInventory IamCyberdemon       {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(4000), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(4000), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(4000), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle 	
+			{ DrawImage "rCyb_mon",  448,320; }
+		} 
+		else { inInventory IamSpiderMastermind {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(3000), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(3000), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(3000), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle 	
+			{ 
+				DrawImage "rMas_ind",  448,320; 
+				inInventory FullyCharged
+				{
+					DrawImage "rMas_rge",  448,320; 
+				}
+			}
+			
+		} 
+		else { inInventory IamArchvile         
+		{
+			drawbar "DEMNBAR2", "DEMNBAR0", health(1000), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(1000), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(1000), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle 	
+			{ 
+				DrawBar "rSum_ar1", "rSum_ar0", PlayerArchvileCharges, vertical,  435,307; 
+				DrawImage "rSum_ner",  435,307;
+			}
+		} 
+		else { inInventory IamArachnotron      {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(500), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(500), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(500), horizontal, interpolate(9), 18,694;
+			
+			// Reticle
+			inInventory Not NoReticle
+			{ DrawImage "rAra_ron",  448,320; }
+		} 
+		else 
+		{
+			// Fallback demon Whatever, ups at 100 health
+			drawbar "DEMNBAR2", "DEMNBAR0", health, horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health, horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health, horizontal, interpolate(9), 18,694;
+		}}}}}}}}}} // 10 braces
+	}
+	inInventory IdfaStamp { drawstring smallfont, green,   "IDFA", -69,655, 0, alignment(left); }
+}
+
+mugshot "Normal"{ tnt1a 35; }
+mugshot "Death"	{ tnt1a 35; }
+mugshot "God" 	{ tnt1a 35; }
+
+mugshot "Pain", directional
+{
+	{wlef, wfor, wrig} 1;
+}
+
+
+//================================================================================================
+//================================================================================================
+//	Map version never shows reticle or powerup border shades.
+//================================================================================================
+//================================================================================================
+statusbar Automap, forcescaled	
+{
+	inInventory not IamADemonToken
+	{
+		InInventory DollUses,1
+		{ drawimage "Ddoll", 1060,727; }
+		InInventory DollUses,2 
+		{ drawimage "Ddoll", 1030,727; }
+		InInventory DollUses,3
+		{ drawimage "Ddoll", 1000,727; } 
+		InInventory DollUses,4
+		{ drawimage "Ddoll", 970,727; } 
+		InInventory DollUses,5
+		{ drawimage "Ddoll", 940,727; } 
+		InInventory DollUses,6
+		{ drawimage "Ddoll", 910,727; } 
+		InInventory DollUses,7
+		{ drawimage "Ddoll", 880,727; } 
+		InInventory DollUses,8
+		{ drawimage "Ddoll", 850,727; } 
+		InInventory DollUses,9
+		{ drawimage "Ddoll", 820,727; } 
+		
+
+		// "Credit" (cash)
+		drawstring CONFONT, white , "Credits:",1024, 8,0, alignment(left);
+
+		// The Usual
+		drawimage "BODYBAR0", -69,669;
+		
+		// Armor
+		InInventory PowerInvulBase
+		{
+			drawbar "BODYARM1", "BODYARM0", armor(100), horizontal, 18,676;
+			drawbar "BODYARM2", "BODYARM0", armor(100), horizontal, 18,676;
+			drawnumber 3, Q4SMALLHUDFONT, red, 666,  alignment(right), -4,679;
+		}
+		else
+		{
+			drawbar "BODYARM1", "BODYARM0", armor, horizontal, 18,676;
+			drawbar "BODYARM2", "BODYARM0", SuperArmorToken, horizontal, 18,676;
+			drawnumber 3, Q4SMALLHUDFONT, white, armor,  alignment(right), -4,679;	
+		}
+		//drawbar "BODYARM1", "BODYARM0", armor, horizontal, 18,676;
+		//drawbar "BODYARM2", "BODYARM0", SuperArmorToken, horizontal, 18,676;
+		//drawnumber 3, Q4SMALLHUDFONT, white, armor,  alignment(right), -4,679;	
+		
+		// Health
+		drawbar "BODYHEL1", "BODYHEL0",health, horizontal, 18,694;
+		drawbar "BODYHEL2", "BODYHEL0",SuperHealthToken, horizontal, 18,694;
+		drawnumber 3, Q4SMALLHUDFONT, white, health, alignment(right), -4,697;	
+		IfHealth 1 
+		{
+			drawimage "BODYHELC", 0,697;
+			drawgem interpolate(19), "KEYCHAIN", "BODYHELG", 0, 0, 115, 18, 694;
+		}
+		
+		// Damage
+		DrawMugShot 1, disableouch, disablerampage, disablegrin, 480, 640;
+		
+		// Keybag
+		gamemode cooperative, singleplayer
+		{
+			
+			ininventory not D4BlueCard 		{	drawimage "KEYSLOT0", 200, 661; } else { drawimage "KEYSLOT1", 200, 661; }
+			ininventory not D4YellowCard 	{	drawimage "KEYSLOT0", 240, 661; } else { drawimage "KEYSLOT1", 240, 661; }
+			ininventory not D4RedCard 		{	drawimage "KEYSLOT0", 280, 661; } else { drawimage "KEYSLOT1", 280, 661; }
+			ininventory not D4BlueSkull 	{	drawimage "KEYSLOT0", 200, 697; } else { drawimage "KEYSLOT1", 200, 697; }
+			ininventory not D4YellowSkull	{	drawimage "KEYSLOT0", 240, 697; } else { drawimage "KEYSLOT1", 240, 697; }
+			ininventory not D4RedSkull 		{	drawimage "KEYSLOT0", 280, 697; } else { drawimage "KEYSLOT1", 280, 697; }		
+			
+			drawswitchableimage D4BlueCard, 	"nullimage", "KEYCB", 	209, 665;
+			drawswitchableimage D4YellowCard, 	"nullimage", "KEYCY", 	249, 665;
+			drawswitchableimage D4RedCard, 		"nullimage", "KEYCR", 	289, 665;
+			drawswitchableimage D4BlueSkull, 	"nullimage", "SKKYB", 	204, 699;
+			drawswitchableimage D4YellowSkull,	"nullimage", "SKKYY",	244, 699;
+			drawswitchableimage D4RedSkull, 	"nullimage", "SKKYR", 	284, 699;
+					
+			// for idkfa
+			drawswitchableimage BlueCard, 	"nullimage", "KEYCB", 	209, 665;
+			drawswitchableimage YellowCard,	"nullimage", "KEYCY", 	249, 665;
+			drawswitchableimage RedCard, 	"nullimage", "KEYCR", 	289, 665;
+			drawswitchableimage BlueSkull, 	"nullimage", "SKKYB", 	204, 699;
+			drawswitchableimage YellowSkull,"nullimage", "SKKYY",	244, 699;
+			drawswitchableimage RedSkull, 	"nullimage", "SKKYR", 	284, 699;
+		}
+		
+		// Medals
+		InInventory RewardToken,1 { drawimage "medal1GL", 650,0; } else { drawimage "medal0", 670,20; }
+		InInventory RewardToken,2 { drawimage "medal1GL", 700,0; } else { drawimage "medal0", 720,20; }
+		InInventory RewardToken,3 { drawimage "medal1GL", 750,0; } else { drawimage "medal0", 770,20; }
+		InInventory RewardToken,4 { drawimage "medal1GL", 800,0; } else { drawimage "medal0", 820,20; }
+		InInventory RewardToken,5 { drawimage "medal1GL", 850,0; } else { drawimage "medal0", 870,20; }
+		
+		// Inventory
+		drawbar "KEYSLOTR", "KEYSLOT0", GrenadeCooldown, vertical, 825,680;
+		inInventory not GrenadeCooldown { drawimage "KEYSLOT1", 825, 680; } else { drawimage "KEYSLOT0", 825, 680; }
+		inInventory FragGrenadeSelected 	{ inInventory not GrenadeCooldown { drawimage "FragGren", 828,682; } else { drawimage "FragGre0", 828,682; } }	
+		inInventory SyphonGrenadeSelected 	{ inInventory not GrenadeCooldown { drawimage "SyphGren", 827,679; } else { drawimage "SyphGre0", 827,679; } }	
+		inInventory MarineHoloSelected 		{ inInventory not GrenadeCooldown { drawimage "HoloGren", 827,681; } else { drawimage "HoloGre0", 827,681; } }	
+		
+		// Ammo
+		drawimage "AMMOPANE", 866,669;
+		drawbar "AMMOBAR1", "AMMOBAR0", AmmoToken, horizontal, reverse, 881,693;
+		drawbar "AMMOBAR2", "AMMOBAR0", SuperAmmoToken, horizontal, reverse, 881,693;
+		drawnumber 6, Q4SMALLHUDFONT, white, ammo1,  alignment(right), 983,676;	
+		inInventory D4BFG {	drawbar "BFGAMMO3", "BFGAMMO0", D4BFGAmmo, horizontal, reverse, 878,713; }
+		inInventory D4Chainsaw
+		{
+			inInventory D4Backpack 
+			{	drawbar "CSAMMO88", "CSAMMO08", D4Fuel, horizontal, reverse, 982,713; }
+			else
+			{	drawbar "CSAMMO55", "CSAMMO05", D4Fuel, horizontal, reverse, 982,713; }
+		}
+		
+		// Counter
+		// Crosshair is at 510,380
+		InInventory Counter,52 { drawimage "cnt52",  465,337; } else {
+		InInventory Counter,51 { drawimage "cnt51",  465,337; } else {
+		InInventory Counter,50 { drawimage "cnt50",  465,337; } else {
+		InInventory Counter,49 { drawimage "cnt49",  465,337; } else {
+		InInventory Counter,48 { drawimage "cnt48",  465,337; } else {
+		InInventory Counter,47 { drawimage "cnt47",  465,337; } else {
+		InInventory Counter,46 { drawimage "cnt46",  465,337; } else {
+		InInventory Counter,45 { drawimage "cnt45",  465,337; } else {
+		InInventory Counter,44 { drawimage "cnt44",  465,337; } else {
+		InInventory Counter,43 { drawimage "cnt43",  465,337; } else {
+		InInventory Counter,42 { drawimage "cnt42",  465,337; } else {
+		InInventory Counter,41 { drawimage "cnt41",  465,337; } else {
+		InInventory Counter,40 { drawimage "cnt40",  465,337; } else {
+		InInventory Counter,39 { drawimage "cnt39",  465,337; } else {
+		InInventory Counter,38 { drawimage "cnt38",  465,337; } else {
+		InInventory Counter,37 { drawimage "cnt37",  465,337; } else {
+		InInventory Counter,36 { drawimage "cnt36",  465,337; } else {
+		InInventory Counter,35 { drawimage "cnt35",  465,337; } else {
+		InInventory Counter,34 { drawimage "cnt34",  465,337; } else {
+		InInventory Counter,33 { drawimage "cnt33",  465,337; } else {
+		InInventory Counter,32 { drawimage "cnt32",  465,337; } else {
+		InInventory Counter,31 { drawimage "cnt31",  465,337; } else {
+		InInventory Counter,30 { drawimage "cnt30",  465,337; } else {
+		InInventory Counter,29 { drawimage "cnt29",  465,337; } else {
+		InInventory Counter,28 { drawimage "cnt28",  465,337; } else {
+		InInventory Counter,27 { drawimage "cnt27",  465,337; } else {
+		InInventory Counter,26 { drawimage "cnt26",  465,337; } else {
+		InInventory Counter,25 { drawimage "cnt25",  465,337; } else {
+		InInventory Counter,24 { drawimage "cnt24",  465,337; } else {
+		InInventory Counter,23 { drawimage "cnt23",  465,337; } else {
+		InInventory Counter,22 { drawimage "cnt22",  465,337; } else {
+		InInventory Counter,21 { drawimage "cnt21",  465,337; } else {
+		InInventory Counter,20 { drawimage "cnt20",  465,337; } else {
+		InInventory Counter,19 { drawimage "cnt19",  465,337; } else {
+		InInventory Counter,18 { drawimage "cnt18",  465,337; } else {
+		InInventory Counter,17 { drawimage "cnt17",  465,337; } else {
+		InInventory Counter,16 { drawimage "cnt16",  465,337; } else {
+		InInventory Counter,15 { drawimage "cnt15",  465,337; } else {
+		InInventory Counter,14 { drawimage "cnt14",  465,337; } else {
+		InInventory Counter,13 { drawimage "cnt13",  465,337; } else {
+		InInventory Counter,12 { drawimage "cnt12",  465,337; } else {
+		InInventory Counter,11 { drawimage "cnt11",  465,337; } else {
+		InInventory Counter,10 { drawimage "cnt10",  465,337; } else {
+		InInventory Counter, 9 { drawimage "cnt09",  465,337; } else {
+		InInventory Counter, 8 { drawimage "cnt08",  465,337; } else {
+		InInventory Counter, 7 { drawimage "cnt07",  465,337; } else {
+		InInventory Counter, 6 { drawimage "cnt06",  465,337; } else {
+		InInventory Counter, 5 { drawimage "cnt05",  465,337; } else {
+		InInventory Counter, 4 { drawimage "cnt04",  465,337; } else {
+		InInventory Counter, 3 { drawimage "cnt03",  465,337; } else {
+		InInventory Counter, 2 { drawimage "cnt02",  465,337; } else {
+		InInventory Counter, 1 { drawimage "cnt01",  465,337; } else {
+								 drawimage "cnt00",  465,337;
+		}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
+		// That's just fucking horrifying.
+		// Weapon specifics
+				
+		isSelected D4Pistol
+		{
+			// Weapon icon
+			DrawImage "pistol", 983,676;
+		}
+		isSelected D4Shotgun
+		{
+			// Weapon icon
+			DrawImage "shotgun", 983,676;
+			
+			// Mods available and equipped
+			inInventory ShotgunMod1 { DrawImage "zhrgbrs0", 882, 673; InInventory TriShotActive { DrawImage "zhrgbrs1", 882, 673; } }
+			inInventory ShotgunMod2 { DrawImage "zplosht0", 910, 673; InInventory GrenadeActive { DrawImage "zplosht1", 910, 673; } }
+		}
+		isSelected D4SuperShotgun
+		{
+			// Weapon icon
+			DrawImage "sshotgun", 983,676;
+		}
+		isSelected D4Chaingun
+		{
+			// Weapon icon
+			DrawImage "chaingun", 983,676;
+			
+			// Mods available and equipped
+			inInventory ChaingunMod1 { DrawImage "zotator0", 882, 673; InInventory GatlingRotatorActive { DrawImage "zotator1", 882, 673; } }
+			inInventory ChaingunMod2 { DrawImage "zurrets0", 910, 673; InInventory MobileTurretActive   { DrawImage "zurrets1", 910, 673; } }
+		}
+		isSelected D4AssaultRifle
+		{
+			// Weapon icon
+			DrawImage "harharha", 983,676;
+			
+			// Mods available and equipped
+			inInventory AssaultRifleMod1 { DrawImage "zactscp0", 882, 673; InInventory TacticalScopeActive { DrawImage "zactscp1", 882, 673; } }
+			inInventory AssaultRifleMod2 { DrawImage "zissile0", 910, 673; InInventory MicroMissilesActive { DrawImage "zissile1", 910, 673; } }
+		}
+		isSelected D4RocketLauncher
+		{
+			// Weapon icon
+			inInventory Not NoReticle 	{ DrawImage "rocketer", 983,676; }
+			
+			// Mods available and equipped
+			inInventory RocketLauncherMod1 { DrawImage "zetonat0", 882, 673; InInventory DetonateActive { DrawImage "zetonat1", 882, 673; } }
+			inInventory RocketLauncherMod2 { DrawImage "zocking0", 910, 673; InInventory LockOnActive   { DrawImage "zocking1", 910, 673; } }
+		}
+		isSelected D4GaussCannon
+		{
+			// Weapon icon
+			DrawImage "gauss", 983,676;
+			
+			// Mods available and equipped
+			inInventory GaussCannonMod1 { DrawImage "zrecblt0", 882, 673; InInventory PrecisionActive { DrawImage "zrecblt1", 882, 673; } }
+			inInventory GaussCannonMod2 { DrawImage "ziegemd0", 910, 673; InInventory SiegeActive     { DrawImage "ziegemd1", 910, 673; } }
+		}
+		isSelected D4PlasmaRifle
+		{
+			// Weapon icon
+			DrawImage "prifle", 983,676;
+			
+			// Mods available and equipped
+			inInventory PlasmaRifleMod1 { DrawImage "ztblast0", 882, 673; InInventory HeatBlastActive { DrawImage "ztblast1", 882, 673; } }
+			inInventory PlasmaRifleMod2 { DrawImage "ztunbom0", 910, 673; InInventory StunBombActive  { DrawImage "ztunbom1", 910, 673; } }
+		}
+		isSelected D4BFG
+		{
+			// Weapon icon
+			DrawImage "bfg", 983,676;
+		}
+		
+		isSelected D4LightningGun
+		{
+			// Weapon icon
+			DrawImage "thunderb", 983,676;
+		}
+		
+		isSelected D4StaticRifle
+		{
+			// Weapon icon
+			DrawImage "static", 983,676;
+		}
+		
+		
+		
+		//this adds the frags and team
+		gamemode deathmatch
+		{
+			drawstring Q4HUDFONT, white, time, 540,75;	//timer
+			drawstring BIGFONT, white, "Frags:", 20,760;	
+			drawnumber 8, Q4HUDFONT, red, frags, 70, 760;
+			//drawstring BIGFONT, white, time, 500,50;
+		}
+
+		drawselectedinventory INDEXFON, 1040, 780;
+	}
+	else
+	{
+		// No shader on automap
+		
+		// Health
+		drawnumber 4, Q4HUDFONT, yellow, health, alignment(right), 475,700;	
+		drawimage "DEMNBAR0", 18,694;
+		drawbar "RUNEBAR1", "RUNEBAR0", DemonTimerToken, horizontal, interpolate(1),  3,643;
+		drawnumber 4, Q4SMALLHUDFONT, orange, DemonTimerToken, alignment(right), 475,670;	
+		
+		inInventory IamHellKnight       {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(500), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(500), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(500), horizontal, interpolate(9), 18,694;
+		} else { inInventory IamBaronOfHell      {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(1000), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(1000), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(1000), horizontal, interpolate(9), 18,694;
+		} else { inInventory IamRevenant         {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(400), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(400), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(400), horizontal, interpolate(9), 18,694;
+		} else { inInventory IamCacodemon        {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(400), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(400), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(400), horizontal, interpolate(9), 18,694;
+		} else { inInventory IamFatso            {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(800), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(800), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(800), horizontal, interpolate(9), 18,694;
+		} else { inInventory IamPainElemental    {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(400), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(400), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(400), horizontal, interpolate(9), 18,694;
+		} else { inInventory IamCyberdemon       {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(4000), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(4000), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(4000), horizontal, interpolate(9), 18,694;
+		} else { inInventory IamSpiderMastermind {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(3000), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(3000), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(3000), horizontal, interpolate(9), 18,694;
+		} else { inInventory IamArchvile         {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(1000), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(1000), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(1000), horizontal, interpolate(9), 18,694;
+		} else { inInventory IamArachnotron      {
+			drawbar "DEMNBAR2", "DEMNBAR0", health(500), horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health(500), horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health(500), horizontal, interpolate(9), 18,694;
+		} else {
+			drawbar "DEMNBAR2", "DEMNBAR0", health, horizontal, interpolate(3), 18,694;
+			drawbar "DEMNBAR3", "DEMNBAR0", health, horizontal, interpolate(4), 18,694;
+			drawbar "DEMNBAR1", "DEMNBAR0", health, horizontal, interpolate(9), 18,694;
+		}}}}}}}}}} // 10 braces
+	}
+	inInventory IdfaStamp { drawstring smallfont, green,   "IDFA", -69,655, 0, alignment(left); }
+}

@@ -1,0 +1,927 @@
+//================================================================================================================
+//================================================================================================================
+//
+//	"D4D mode" version
+//	Doom imp, sprites "Roach" from realm667, sprite recolor by DBT
+//================================================================================================================
+//================================================================================================================
+Class D4DoomImp : D4AbstractMonster 
+{
+	int user_staggertimer;
+	Default 
+	{
+		Health 60;
+		Radius 20;
+		Height 56;
+		Mass 100;
+		Speed 8;
+		PainChance 200;
+		Monster;
+		+FLOORCLIP +DONTCORPSE
+		SeeSound "Doom4/Monsters/Imp/Sight";
+		PainSound "Doom4/Monsters/Imp/Pain";
+		DeathSound "Doom4/Monsters/Imp/DeathNew";
+		ActiveSound "Doom4/Monsters/Imp/Idle";
+		HitObituary "$OB_IMPHIT";
+		Obituary "$OB_IMP";
+		DamageFactor "PlasmaExploder", 0.3;
+		PainChance "StunBomb", 255;
+		PainChance "GloryKill", 255;
+		WoundHealth 20;
+	}
+	States
+	{
+	Spawn:
+		ROAC A 10 A_Look();
+		Loop;
+	See:
+		ROAC BBCCDDEE 2 D4Chase();
+		Loop;
+	Melee:
+	Missile:
+		TNT1 A 0 A_JumpIfCloser(1024,"FireBall");	//if too far away, will always use the big ball
+		
+		FireBall:
+			TNT1 A 0 A_Jump(64,"FireBallhuge");	//yet, if close enough, it will still use sometimes the big ball
+			ROAC FFFFFFFFFFFFFFFF 1 
+			{
+				A_FaceTarget();
+				A_SpawnItemEx("ImpFlameletSmallLight",8,16,22,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("ImpFlameletSmallLight",8,-16,22,0,0,0,0,SXF_NOCHECKPOSITION);
+				if(GetCvar("HQEffects"))
+				{
+					A_SpawnItemEx("DoomImpBallFlamelet",8,16+random(3,-3),28,0,0,frandom(0.4,1.0),0,SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("DoomImpBallFlamelet",8,-16+random(3,-3),22,0,0,frandom(0.4,1.0),0,SXF_NOCHECKPOSITION);	
+				}
+			}
+			ROAC G 6 A_SpawnProjectile("D4DoomImpBall",35,5,0);
+			Goto See;
+		FireBallhuge:
+			ROAC FFFFFFFFFF 4
+			{
+				A_FaceTarget();
+				A_SpawnItemEx("ImpFlameletBigLight",8,16,22,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("ImpFlameletBigLight",8,-16,22,0,0,0,0,SXF_NOCHECKPOSITION);
+				if(GetCvar("HQEffects"))
+				{
+					A_SpawnItemEx("DoomImpBallFlarePrepare",8,16+random(3,-3),28,0,0,frandom(0.4,1.0),0,SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("DoomImpBallFlarePrepare",8,-16+random(3,-3),22,0,0,frandom(0.4,1.0),0,SXF_NOCHECKPOSITION);
+				}
+			}
+			ROAC G 6 
+			{
+				A_SpawnProjectile("D4DoomImpBallHuge",35,5,0);
+				A_PlaySound("Doom4/Monsters/Imp/Attack");
+			}
+			Goto See;
+			
+	Pain:
+		ROAC H 2;
+		ROAC H 2 A_Pain();
+		Goto See;
+	Pain.StunBomb:
+		"####" "#" 0 { bNoPain = true; }
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#" 0 { bNoPain = false; }
+		Goto See;
+	Death:
+		"####" "#" 0  //loot drop
+		{
+			bThruActors = true;
+			D4DropCash(CashMultiplier,"ImpCashGiver");
+			D4SetupLoot();
+			D4DropItems();
+		}
+		ROAC I 4 ;
+		ROAC J 4 A_Scream();
+		ROAC K 4;
+		ROAC L 4 A_NoBlocking();
+		ROAC M -1 {bCorpse = true;}
+		Stop;
+
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:
+	XDeath:
+		"####" "#" 0  //loot drop
+		{
+			D4SetupLoot();
+			
+			if (GetCvar("MPWeapons"))
+			{	Pinatas.Carrion++;	}
+		}
+		Goto XDeathNoDrops;
+		
+	XDeathNoDrops:	
+		TNT1 A 0
+		{
+			bThruActors = true;
+			XDeathGush();
+			D4DropItems();
+			D4DropCash(CashMultiplier,"ImpCashGiver");
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+			A_NoBlocking();	//just in case
+		}
+		Stop;
+	Raise:
+		ROAC MLKJI 8;
+		Goto See;
+	//------------------------------------------------------------------------
+	// Start of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	Wound:
+		"####" "#" 1
+		{
+			if(GetCvar("D4D_ExecutionsON"))
+			{
+				if(countinv("FinisherToken")==0) //if it isnt healing already
+				{								//will heal and give the token that indicates it's executable
+					A_SpawnItemEx("ImpHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
+					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
+				}
+				
+				if(GetCvar("D4D_MonsterStagger")==1) //will the monsters stagger at all?
+				{
+					return ResolveState("Stagger");	//stays there for a few seconds
+				}
+				else
+				{
+					return ResolveState(null);
+				}
+			}
+			return ResolveState(null);
+		}
+		Goto See;
+		
+	Stagger:
+		ROAC H 0 
+		{
+			if(GetCvar("D4D_ExecutionHighlight")==1)
+			{	return ResolveState("PrepareStaggerHighlight");}
+			else
+			{	return ResolveState("StagLooper");	}
+		}
+		Goto StagLooper;
+	PrepareStaggerHighlight:
+		ROAC U 0;
+		Goto StagLooper;
+	
+	StagLooper:
+		"####" "#" 1
+		{
+			if(!countinv("FinisherToken"))
+			{
+				return ResolveState("See");
+			}
+			if(GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
+			{ 
+				A_Pain(); 
+				A_TakeInventory("PainSoundToken");
+			}
+			
+			return ResolveState(null);
+		}
+		Loop;
+		
+	// Finisher attack(s) with animations ON
+	Death.GloryKill:
+		TNT1 A 0 { bSolid = false; }
+		ROAC AA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0
+		{
+			if(countinv("GloryKill1Token"))
+			{	return ResolveState("GloryEnd1"); }
+			
+			if(countinv("GloryKill2Token"))
+			{	return ResolveState("GloryEnd2"); }
+			
+			if(countinv("GloryKill3Token"))
+			{	return ResolveState("GloryEnd3"); }
+			return ResolveState(null);
+		}
+	GloryEnd1:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" HHHHHH 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd2:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" HHHHHH 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd3:
+		"####" AAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" I 0 A_ChangeVelocity(-8,0,10,CVF_RELATIVE);
+		Goto GloryEnd;
+	}
+}
+
+Class ImpFlameletSmallLight : Actor //this one is just to display some lights
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 2 Light("YellowSmallFlicker2");
+		Stop;
+	}
+}
+Class ImpFlameletBigLight : Actor //this one is just to display some lights
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 5 Light("YellowMediumFlicker3");
+		Stop;
+	}
+}
+
+//*********************************************
+Class D4DoomImpBall : D4AbstractMissile
+{
+	Default 
+	{
+		Radius 6;
+		Height 8;
+		Speed 18;
+		FastSpeed 25;
+		Damage 3;
+		Projectile;
+		+RANDOMIZE
+		RenderStyle "Add";
+		Alpha 1;
+		SeeSound "imp/attack";
+		DeathSound "Doom4/Other/FireballHit2";
+		scale 0.65;
+		+FORCEXYBILLBOARD
+		Decal "FireballScorch";
+	}
+	States
+	{
+	Spawn:
+		HIB1 AB 2 BRIGHT Light("YellowMediumFlicker3")
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("DoomImpBallFlamelet",random(-2,-8),random(8,-8),random(8,-8),0,0,frandom(0,0.6),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpBallFlamelet",random(-2,-8),random(8,-8),random(8,-8),0,0,frandom(0,0.6),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpBallFlamelet",random(-2,-8),random(8,-8),random(8,-8),0,0,frandom(0,0.6),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpBallSmokeTrail",-5,random(2,-2),random(2,-2),0,0,0,0,SXF_NOCHECKPOSITION);
+			}
+		}
+		Loop;
+	Death:
+		TNT1 A 0
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpBallSmokeExplo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("FireBallImpactDebris",3,0,0,frandom(-0.1,-1.5),frandom(-1.5,1.5),frandom(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("FireBallImpactDebris",3,0,0,frandom(-0.1,-1.5),frandom(-1.5,1.5),frandom(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnParticle("F28124",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("F28124",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("F28124",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("FF9500",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("FF9500",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("FF9500",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("DE7E00",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("DE7E00",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("DE7E00",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+			}
+		}
+		HIB1 CC 1 BRIGHT Light("YellowMediumFlicker2")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.08);
+		}
+		HIB1 DD 1 BRIGHT Light("YellowMediumFlicker3")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.08);
+		}
+		HIB1 EE 1 BRIGHT Light("YellowSmallFlicker1")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.08);
+		}
+		HIB1 FF 1 BRIGHT Light("YellowSmallFlicker2")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.08);
+		}
+		HIB1 GG 1 BRIGHT Light("YellowSmallFlicker3")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.08);
+		}
+		Stop;
+	}
+}
+//*********************************************
+Class D4DoomImpBallHuge : D4AbstractMissile
+{
+	Default 
+	{
+		Radius 6;
+		Height 8;
+		Speed 28;
+		FastSpeed 35;
+		Damage 5;
+		Projectile;
+		+RANDOMIZE
+		RenderStyle "Add";
+		Alpha 1;
+		SeeSound "imp/attack";
+		DeathSound "Doom4/Other/FireballHit2";
+		scale 1.1;
+		+FORCEXYBILLBOARD
+		Decal "FireballScorchBig";
+	}
+	States
+	{
+	Spawn:
+		HIB1 AB 2 BRIGHT Light("YellowMediumFlicker2")
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("DoomImpBallFlamelet",random(-2,-8),random(8,-8),random(8,-8),0,0,frandom(0,0.6),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpBallFlamelet",random(-2,-8),random(8,-8),random(8,-8),0,0,frandom(0,0.6),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpBallFlamelet",random(-2,-8),random(8,-8),random(8,-8),0,0,frandom(0,0.6),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpBallFlamelet",random(-2,-8),random(8,-8),random(8,-8),0,0,frandom(0,0.6),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpBallFlamelet",random(-2,-8),random(8,-8),random(8,-8),0,0,frandom(0,0.6),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpBallSmokeTrail",-5,random(2,-2),random(2,-2),0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpBallFlareTrail",-3,random(2,-2),random(2,-2),0,0,0,0,SXF_NOCHECKPOSITION);
+			}
+		}
+		Loop;
+	Death:
+		TNT1 A 0
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnParticle("F28124",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("F28124",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("F28124",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("F28124",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("F28124",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("FF9500",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("FF9500",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("FF9500",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("FF9500",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("FF9500",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("DE7E00",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("DE7E00",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("DE7E00",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("DE7E00",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("DE7E00",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpBallSmokeExplo",0,0,0,frandom(-1,1),frandom(-1,1),frandom(-1,1),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpBallSmokeExplo",0,0,0,frandom(-1,1),frandom(-1,1),frandom(-1,1),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("FireBallImpactDebris",3,0,0,frandom(-0.1,-1.5),frandom(-1.5,1.5),frandom(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("FireBallImpactDebris",3,0,0,frandom(-0.1,-1.5),frandom(-1.5,1.5),frandom(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("FireBallImpactDebris",3,0,0,frandom(-0.1,-1.5),frandom(-1.5,1.5),frandom(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("FireBallImpactDebris",3,0,0,frandom(-0.1,-1.5),frandom(-1.5,1.5),frandom(0,3),0,SXF_NOCHECKPOSITION,128);
+			}
+		}
+
+		HIB1 CC 1 BRIGHT Light("YellowMediumFlicker1")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.1);
+		}
+		HIB1 DD 1 BRIGHT Light("YellowMediumFlicker2")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.1);
+		}
+		HIB1 EE 1 BRIGHT Light("YellowMediumFlicker3")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.1);
+		}
+		HIB1 FF 1 BRIGHT Light("YellowSmallFlicker1")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.1);
+		}
+		HIB1 GG 1 BRIGHT Light("YellowSmallFlicker2")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.1);
+		}
+		Stop;
+	}
+}
+
+Class DoomImpBallFlamelet : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.07;
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		PROJ D 0 NODELAY A_Jump(220,5,6,7,8,9,10,11,12,13);
+		X056 ABCDEFGHIJKLMNOPR 1 Bright;
+		Stop;
+	}
+}
+Class DoomImpBallSmokeTrail : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		Alpha 0.4;
+		Scale 0.2;
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 A_Jump(256,"Type1","Type2","Type3");
+	Type1:
+		X037 A 1 
+		{
+			A_FadeOut(0.05);
+			A_SetScale(Scale.X+0.03);
+		}
+		Wait;
+	Type2:
+		X037 B 1
+		{
+			A_FadeOut(0.05);
+			A_SetScale(Scale.X+0.03);
+		}
+		Wait;
+	Type3:
+		X037 C 1
+		{
+			A_FadeOut(0.05);
+			A_SetScale(Scale.X+0.03);
+		}
+		Wait;
+	}
+}
+Class DoomImpBallFlareTrail : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		Alpha 0.6;
+		Scale 0.7;
+		RenderStyle "Add";
+		Alpha 0.99;
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SetScale(frandom(0.5,0.7));
+		PROJ DEFGHI 1 Bright
+		{
+			A_FadeOut(0.07);
+			A_SetScale(Scale.X+0.1);
+		}
+		Wait;
+	}
+}
+
+Class DoomImpBallFlarePrepare : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		Alpha 0.5;
+		Scale 0.7;
+		RenderStyle "Add";
+		Alpha 0.99;
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SetScale(frandom(0.25,0.5));
+		PROJ DEFGHI 1 Bright
+		{
+			A_FadeOut(0.07);
+			A_SetScale(Scale.X+0.1);
+		}
+		Wait;
+	}
+}
+
+//*********************************************
+// doomimp ball explo
+Class DoomImpExploParticle : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		Alpha 0.6;
+		Scale 0.4;
+		RenderStyle "Add";
+		Alpha 0.7;
+		//Translation "0:255=%[0,0,0]:[2.0,1.0,0]";
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		FX58 ABCDEFGHIJKLMNOPQ 1 BRIGHT
+		{
+			A_FadeOut(0.035);
+			A_SetScale(Scale.X+0.075);
+		}
+		Wait;
+	}
+}
+Class DoomImpBallSmokeExplo : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		Alpha 0.01;
+		Scale 0.2;
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		X037 BBBBB 1
+		{
+			A_FadeIn(0.2);
+			A_SetScale(Scale.X+0.12);
+		}
+		X037 B 1
+		{
+			A_FadeOut(0.05);
+			A_SetScale(Scale.X+0.03);
+		}
+		Wait;
+	}
+}
+
+Class FireBallImpactDebris : Actor 
+{
+	Default 
+	{
+		Projectile;
+		Speed 10;
+		-NOGRAVITY
+		+THRUACTORS
+		+DOOMBOUNCE
+		Radius 2;
+		Height 5;
+		Gravity 0.2;
+		BounceFactor 0.5;
+		WallBounceFactor 1.0;
+		RenderStyle "Add";
+		Scale 0.05;
+		Alpha 0.6;
+		Translation "0:255=%[0,0,0]:[2.0,1.0,0]";
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(200,8,16,24,32,40);
+		FX54 BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB 1 Bright A_SpawnItemEx("FireballDebrisTrail",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+		Stop;
+	Death:
+		TNT1 A 1;
+		Stop;
+	}
+}
+Class FireballDebrisTrail : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+		Scale 0.02;
+		RenderStyle "Add";
+		Alpha 0.5;
+		Translation "0:255=%[0,0,0]:[2.0,1.0,0]";
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(256,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
+		X101 ABCDEFGHIJKLMNOPQRSTUV 0 A_JumpIf(1 == 1,"Play");
+	Play:
+		"####" "###" 1 Bright A_FadeOUt(0.03);
+		"####" "#" 0 A_SetScale(Scale.X+0.01);
+		Loop;
+	}
+}
+
+//================================================================================================================
+//================================================================================================================
+//
+//	Regular Doom version 
+//
+//================================================================================================================
+//================================================================================================================
+
+Class D4OldDoomImp : D4AbstractMonster // : DoomImp //replaces DoomImp
+{
+	int user_staggertimer;
+	Default 
+	{
+		Health 60;
+		Radius 20;
+		Height 56;
+		Mass 100;
+		Speed 8;
+		PainChance 200;
+		Monster;
+		+FLOORCLIP
+		SeeSound "imp/sight";
+		PainSound "imp/pain";
+		DeathSound "imp/death";
+		ActiveSound "imp/active";
+		HitObituary "$OB_IMPHIT";
+		Obituary "$OB_IMP";
+		
+		PainChance "StunBomb", 255;
+		PainChance "GloryKill", 255;
+		WoundHealth 20;
+		+DONTCORPSE
+	}
+	States
+	{
+		Spawn:
+		TROO AB 10 A_Look();
+		Loop;
+	See:
+		TROO AABBCCDD 3 D4Chase();
+		Loop;
+	Melee:
+	Missile:
+		TROO EF 8 A_FaceTarget();
+		TROO G 6 A_TroopAttack ;
+		Goto See;
+	Pain:
+		TROO H 2;
+		TROO H 2 A_Pain();
+		Goto See;
+	Raise:
+		TROO MLKJI 8;
+		Goto See;
+		
+	Pain.StunBomb:
+		"####" "#" 0 { bNoPain = true; }
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#" 0 { bNoPain = false; }
+		Goto See;
+	Death:
+		"####" "#" 0  //loot drop
+		{
+			bThruActors = true;
+			D4DropCash(CashMultiplier,"ImpCashGiver");
+			D4SetupLoot();
+			D4DropItems();
+		}
+		TROO I 4 ;
+		TROO J 4 A_Scream();
+		TROO K 4;
+		TROO L 4 A_NoBlocking();
+		TROO M -1 {bCorpse = true;}
+		Stop;
+
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:
+	XDeath:
+		"####" "#" 0  //loot drop
+		{
+			D4SetupLoot();
+			
+			if (GetCvar("MPWeapons"))
+			{	Pinatas.Carrion++;	}
+		}
+		Goto XDeathNoDrops;
+		
+	XDeathNoDrops:	
+		TROO N 4
+		{
+			bThruActors = true;
+			XDeathGush();
+			D4DropItems();
+			D4DropCash(CashMultiplier,"ImpCashGiver");
+		}
+		TROO O 4 A_XScream();
+		TROO P 4;
+		TROO Q 4 A_NoBlocking();
+		TROO RST 4;
+		TROO U -1 {bCorpse = true;}
+		Stop;
+		
+	//------------------------------------------------------------------------
+	// Start of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	Wound:
+		"####" "#" 1
+		{
+			if(GetCvar("D4D_ExecutionsON"))
+			{
+				if(countinv("FinisherToken")==0) //if it isnt healing already
+				{								//will heal and give the token that indicates it's executable
+					A_SpawnItemEx("ImpHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
+					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
+				}
+				
+				if(GetCvar("D4D_MonsterStagger")==1) //will the monsters stagger at all?
+				{
+					return ResolveState("Stagger");	//stays there for a few seconds
+				}
+				else
+				{
+					return ResolveState(null);
+				}
+			}
+			return ResolveState(null);
+		}
+		Goto See;
+	Stagger:
+		TROO H 0 
+		{
+			if(GetCvar("D4D_ExecutionHighlight")==1)
+			{	return ResolveState("PrepareStaggerHighlight");}
+			else
+			{	return ResolveState("StagLooper");	}
+		}
+		Goto StagLooper;
+	PrepareStaggerHighlight:
+		TROO X 0;
+		Goto StagLooper;
+	
+	StagLooper:
+		"####" "#" 1
+		{
+			if(!countinv("FinisherToken"))
+			{
+				return ResolveState("See");
+			}
+			if(GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
+			{ 
+				A_Pain(); 
+				A_TakeInventory("PainSoundToken");
+			}
+			
+			return ResolveState(null);
+		}
+		Loop;
+		
+	// Finisher attack(s) with animations ON
+	Death.GloryKill:
+		TNT1 A 0 { bSolid = false; }
+		TROO AA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0
+		{
+			if(countinv("GloryKill1Token"))
+			{	return ResolveState("GloryEnd1"); }
+			
+			if(countinv("GloryKill2Token"))
+			{	return ResolveState("GloryEnd2"); }
+			
+			if(countinv("GloryKill3Token"))
+			{	return ResolveState("GloryEnd3"); }
+			return ResolveState(null);
+		}
+	GloryEnd1:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" HHHHHH 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd2:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" HHHHHH 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd3:
+		"####" AAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" I 0 A_ChangeVelocity(-8,0,10,CVF_RELATIVE);
+		Goto GloryEnd;
+	}
+}
+
+
+Class OldDoomImpBall : D4AbstractMissile replaces DoomImpBall
+{
+	Default 
+	{
+		Radius 6;
+		Height 8;
+		Speed 10;
+		FastSpeed 20;
+		Damage 3;
+		Projectile;
+		+RANDOMIZE
+		
+		RenderStyle "Add";
+		Alpha 1;
+		SeeSound "imp/attack";
+		DeathSound "Doom4/Other/FireballHit2";
+		scale 0.65;
+		+FORCEXYBILLBOARD
+		Decal "FireballScorch";
+	}
+	States
+	{
+	Spawn:
+		HIB1 AB 4 BRIGHT Light("YellowMediumFlicker3")
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("DoomImpBallFlamelet",random(-2,-8),random(8,-8),random(8,-8),0,0,frandom(0,0.6),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpBallFlamelet",random(-2,-8),random(8,-8),random(8,-8),0,0,frandom(0,0.6),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpBallFlamelet",random(-2,-8),random(8,-8),random(8,-8),0,0,frandom(0,0.6),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpBallSmokeTrail",-5,random(2,-2),random(2,-2),0,0,0,0,SXF_NOCHECKPOSITION);
+			}
+		}
+		Loop;
+	Death:
+		TNT1 A 0
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("DoomImpExploParticle",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("DoomImpBallSmokeExplo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("FireBallImpactDebris",3,0,0,frandom(-0.1,-1.5),frandom(-1.5,1.5),frandom(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("FireBallImpactDebris",3,0,0,frandom(-0.1,-1.5),frandom(-1.5,1.5),frandom(0,3),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnParticle("F28124",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("F28124",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("F28124",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("FF9500",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("FF9500",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("FF9500",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("DE7E00",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("DE7E00",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+				A_SpawnParticle("DE7E00",SPF_FULLBRIGHT,35,5,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
+			}
+		}
+		HIB1 CC 1 BRIGHT Light("YellowMediumFlicker2")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.08);
+		}
+		HIB1 DD 1 BRIGHT Light("YellowMediumFlicker3")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.08);
+		}
+		HIB1 EE 1 BRIGHT Light("YellowSmallFlicker1")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.08);
+		}
+		HIB1 FF 1 BRIGHT Light("YellowSmallFlicker2")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.08);
+		}
+		HIB1 GG 1 BRIGHT Light("YellowSmallFlicker3")
+		{
+			A_FadeOut(0.088);
+			A_SetScale(Scale.X+0.08);
+		}
+		Stop;
+	}
+}

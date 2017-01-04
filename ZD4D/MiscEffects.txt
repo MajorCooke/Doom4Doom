@@ -1,0 +1,569 @@
+Class TracerFXToken : Inventory 
+{
+	Default 
+	{
+		Inventory.MaxAmount 5;
+		Inventory.InterhubAmount 5;
+	}
+}
+
+
+//---------------------------------------------------------------
+//---------------------------------------------------------------
+//		Explosions
+//---------------------------------------------------------------
+//---------------------------------------------------------------
+
+
+Class D4RocketExplosion : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		Scale 0.4;
+		+FORCEXYBILLBOARD
+		+ROLLSPRITE
+	}
+	States
+	{
+	Spawn:
+		X126 A 0 NoDelay 
+		{
+			A_SetRoll(random(0,359));
+			A_SpawnItemEx("D4RocketExplosionBloom",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERROLL|SXF_SETMASTER);
+		}
+		X126 AA 1 Bright Light("YellowBigPoint3") A_SetScale(Scale.X+0.07);
+		X126 BB 1 Bright Light("YellowBigPoint3") A_SetScale(Scale.X+0.07);
+		X126 CC 1 Bright Light("YellowMediumPoint1") A_SetScale(Scale.X+0.07);
+		X126 DD 1 Bright Light("YellowMediumPoint1")A_SetScale(Scale.X+0.07);
+		X126 E 2 Bright Light("YellowMediumPoint2") A_SetScale(Scale.X+0.03);
+		X126 F 2 Bright Light("YellowMediumPoint3") A_SetScale(Scale.X+0.03);
+		X126 G 2 Bright Light("YellowSmallPoint1") A_SetScale(Scale.X+0.03);
+		X126 H 2 Bright Light("YellowSmallPoint2") A_SetScale(Scale.X+0.03);
+		X126 I 2 Bright Light("YellowSmallPoint3") A_SetScale(Scale.X+0.03);
+		X126 JKLMNOPQ 2 Bright A_SetScale(Scale.X+0.03);
+		X126 R 1 Bright 
+		{
+			A_FadeOut(0.07);
+			A_SetScale(Scale.X+0.03);
+		}
+		Wait;
+	}
+}
+
+Class D4RocketExplosionBloom : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		Scale 0.55;
+		+FORCEXYBILLBOARD
+		+ROLLSPRITE
+		RenderStyle "Add";
+		Alpha 1;
+	}
+	States
+	{
+	Spawn:
+		X126 AA 1 NoDelay Bright A_SetScale(Scale.X+0.07);
+		X126 BB 1 Bright A_SetScale(Scale.X+0.07);
+		X126 CC 1 Bright A_SetScale(Scale.X+0.07);
+		X126 DD 1 Bright A_SetScale(Scale.X+0.07);
+		X126 E 2 Bright A_SetScale(Scale.X+0.03);
+		X126 F 2 Bright A_SetScale(Scale.X+0.03);
+		X126 G 2 Bright A_SetScale(Scale.X+0.03);
+		X126 H 2 Bright A_SetScale(Scale.X+0.03);
+		X126 I 2 Bright A_SetScale(Scale.X+0.03);
+		X126 JKLMNOPQ 2 Bright A_SetScale(Scale.X+0.03);
+		X126 R 1 Bright 
+		{
+			A_FadeOut(0.07);
+			A_SetScale(Scale.X+0.03);
+		}
+		Wait;
+	}
+}
+
+Class D4RocketExplosionNoGL : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		Scale 0.4;
+		+FORCEXYBILLBOARD
+		+ROLLSPRITE
+		RenderStyle "Translucent";
+	}
+	States
+	{
+	Spawn:
+		X126 A 0 NoDelay 
+		{
+			A_SetRoll(random(0,359));
+			A_SpawnItemEx("D4RocketExplosionBloom",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERROLL|SXF_SETMASTER);
+		}
+		X126 AA 1 Bright A_SetScale(Scale.X+0.07);
+		X126 BB 1 Bright A_SetScale(Scale.X+0.07);
+		X126 CC 1 Bright A_SetScale(Scale.X+0.07);
+		X126 DD 1 Bright A_SetScale(Scale.X+0.07);
+		X126 E 2 Bright A_SetScale(Scale.X+0.03);
+		X126 F 2 Bright A_SetScale(Scale.X+0.03);
+		X126 G 2 Bright A_SetScale(Scale.X+0.03);
+		X126 H 2 Bright A_SetScale(Scale.X+0.03);
+		X126 I 2 Bright A_SetScale(Scale.X+0.03);
+		X126 JKLMNOPQ 2 Bright A_SetScale(Scale.X+0.03);
+		X126 R 1 Bright 
+		{
+			A_FadeOut(0.07);
+			A_SetScale(Scale.X+0.03);
+		}
+		Wait;
+	}
+}
+
+Class D4RocketExplosionSmoke : Actor 
+{
+	double user_add;
+	Default 
+	{
+		+ROLLSPRITE
+		+CLIENTSIDEONLY
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+		Alpha 0.5;
+		Scale 0.7;
+		RenderStyle "Translucent";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay 
+		{
+			user_add = frandom(-3.0,3.0);
+			A_SetRoll(random(0,359));
+			return A_Jump(256,1,2,3,4);
+		}
+		X037 ABCD 0 { return ResolveState("Act"); }
+	Act:
+		"####" "#" 1
+		{
+			A_SetRoll(roll + user_add, SPF_INTERPOLATE);
+			A_FadeOut((0.023 / 3.0));
+			A_ScaleVelocity(0.986);
+			A_SetScale(Scale.X+0.01);
+		}
+		Loop;
+	}
+}
+
+Class ExplosionWaveMedium : Actor 
+{
+	Default 
+	{
+		RenderStyle "Add";
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+		Scale 0.3;
+		Alpha 0.6;
+	}
+	States
+	{
+	Spawn:
+		DB14 AAAA 1 Bright 
+		{
+			//A_FadeOut(0.06);
+			A_SetScale(Scale.X+0.35,Scale.Y+0.35);
+		}
+		DB14 AAAA 1 Bright 
+		{
+			A_FadeOut(0.03);
+			A_SetScale(Scale.X+0.15,Scale.Y+0.15);
+		}
+		DB14 AAAA 1 Bright 
+		{
+			A_FadeOut(0.06);
+			A_SetScale(Scale.X+0.05,Scale.Y+0.05);
+		}
+		Wait;
+	}
+}
+
+//*********************
+// Small Explo
+Class D4RocketExplosionSmall : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+		Scale 0.5;
+	}
+	States
+	{
+	Spawn:
+		X126 A 2 Bright Light("YellowBigPoint3");
+		X126 B 2 Bright Light("YellowBigPoint3");
+		X126 C 2 Bright Light("YellowMediumPoint1");
+		X126 D 2 Bright Light("YellowMediumPoint1");
+		X126 E 2 Bright Light("YellowMediumPoint2");
+		X126 F 2 Bright Light("YellowMediumPoint3");
+		X126 G 2 Bright Light("YellowSmallPoint1");
+		X126 H 2 Bright Light("YellowSmallPoint2");
+		X126 I 2 Bright Light("YellowSmallPoint3");
+		X126 JKLMNO 2 Bright;
+		X126 PPQQRR 1 Bright A_FadeOut(0.04);
+		Stop;
+	}
+}
+
+Class D4RocketExplosionSmokeSmall : Actor 
+{
+	Default 
+	{
+		+CLIENTSIDEONLY
+		+NOINTERACTION
+		Radius 2;
+		Height 2;
+		RenderStyle "Translucent";
+		Alpha 0.5;
+		Scale 0.4;
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 ;
+		TNT1 A 0;//A_SetScale(Scale.X*randompick(-1,1),Scale.Y*randompick(-1,1))
+		TNT1 A 0 A_Jump(256,"One","Two","Three","Four");
+	One:
+		X037 A 3 
+		{
+			A_FadeOut(0.023);
+			A_ScaleVelocity(0.95);
+			A_SetScale(Scale.X+0.03);
+		}
+		Loop;
+	Two:
+		X037 B 3 
+		{
+			A_FadeOut(0.023);
+			A_ScaleVelocity(0.95);
+			A_SetScale(Scale.X+0.03);
+		}
+		Loop;
+	Three:
+		X037 C 3 
+		{
+			A_FadeOut(0.023);
+			A_ScaleVelocity(0.95);
+			A_SetScale(Scale.X+0.03);
+		}
+		Loop;
+	Four:
+		X037 D 3 
+		{
+			A_FadeOut(0.023);
+			A_ScaleVelocity(0.95);
+			A_SetScale(Scale.X+0.03);
+		}
+		Loop;
+	}
+}
+// It's funny because Michaelis didn't implement this. I, Major Cooke, did.
+Class SovietToken : Inventory	{ Default { Inventory.InterhubAmount 1; } }
+Class SovietActive : Inventory	{ Default { Inventory.InterhubAmount 1; } }
+//---------------------------------------------------------------
+//		Puff
+//---------------------------------------------------------------
+
+Class D4BulletPuff : Actor replaces BulletPuff
+{
+	Default 
+	{
+		+CLIENTSIDEONLY
+		+NOINTERACTION
+		+PUFFGETSOWNER
+		+PUFFONACTORS
+		+FORCEXYBILLBOARD
+		+HITTRACER
+		Scale 0.25;
+		Decal "BulletChip";
+	}
+	States
+	{
+	Spawn:	//non bleeder
+	Crash:
+		TNT1 A 0 NODELAY
+		{
+			if(random(1,2)==3)
+			{
+				A_PlaySound("Doom4/Other/BulletHitConcrete",CHAN_AUTO,0.75,0,4);
+			}
+		}
+		TNT1 A 0 
+		{
+/*			if(GetCvar("HQEffectsWeapons"))
+			{
+				A_SpawnItemEx("BulletPuffParticle",0,0,0,frandom(-2,2),-0.2,frandom(-0.5,0.4),random(1,360),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BulletPuffParticle",0,0,0,frandom(-2,2),-0.2,frandom(-0.5,0.4),random(1,360),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BulletPuffParticle",0,0,0,frandom(-2,2),-0.2,frandom(-0.5,0.4),random(1,360),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BulletPuffParticle",0,0,0,frandom(-2,2),-0.2,frandom(-0.5,0.4),random(1,360),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BulletPuffParticle",0,0,0,frandom(-2,2),-0.2,frandom(-0.5,0.4),random(1,360),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("BulletPuffParticle",0,0,0,frandom(-2,2),-0.2,frandom(-0.5,0.4),random(1,360),SXF_NOCHECKPOSITION);
+			}*/
+			if(GetCvar("HQEffectsWeapons"))
+			{
+				A_SpawnParticle("FF9100",SPF_FULLBRIGHT|SPF_RELATIVE,random(10,22),random(1,2),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,vel.z-0.06);
+				A_SpawnParticle("FF9933",SPF_FULLBRIGHT|SPF_RELATIVE,random(10,22),random(1,2),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,vel.z-0.06);
+				A_SpawnParticle("FFEBDB",SPF_FULLBRIGHT|SPF_RELATIVE,random(10,22),random(1,2),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,vel.z-0.06);
+				A_SpawnParticle("EBA121",SPF_FULLBRIGHT|SPF_RELATIVE,random(10,22),random(1,2),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,vel.z-0.06);
+			}
+		}
+		Goto Choose;
+		
+	Choose:
+		TNT1 A 0 A_Jump(256,"Type1","Type2");
+	Type1:
+		DB12 A 1 Light("YellowSmallPoint4") Bright;
+		DB12 B 1 Light("YellowSmallPoint4") Bright;
+		DB12 C 1 Light("YellowSmallPoint5") Bright;
+		DB12 DEFGHIJKLMNOPQRS 1;
+		DB12 T 1 A_FadeOut();
+		Wait;
+	Type2:
+		DB13 A 1 Light("YellowSmallPoint4") Bright;
+		DB13 B 1 Light("YellowSmallPoint4") Bright;
+		DB13 C 1 Light("YellowSmallPoint5") Bright;
+		DB13 DEFGHIJKLMNOPQRS 1;
+		DB13 T 1 A_FadeOut();
+		Wait;
+		
+		
+	Xdeath:	//hit bleeding actor
+		TNT1 A 0 
+		{
+			if(random(1,2)==2)
+			{
+				A_PlaySound("Doom4/Other/BulletHitFlesh",CHAN_AUTO,1.0,0/*,4*/);
+			}
+		}
+		TNT1 A 10;
+		Stop;
+	}
+}
+Class BulletPuffParticle : Actor 
+{
+	Default 
+	{
+		Height 1;
+		Radius 1;
+		Speed 3;
+		Scale 0.3;
+		+NOCLIP
+		Projectile;
+		-NOGRAVITY
+		+LOWGRAVITY
+		+DONTSPLASH
+		+DONTBLAST
+		RenderStyle "Add";
+		+NOINTERACTION
+		+CLIENTSIDEONLY
+		+FORCEXYBILLBOARD
+		+PUFFONACTORS
+		+ALWAYSPUFF
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0;
+		TNT1 A 0 A_Jump(170,2,3,4,5);
+		FX57 UUUUUVVVWWXXYY 2 Bright A_FadeOut(0.07);
+		Stop;
+	XDeath:
+		TNT1 A 10;
+		Stop;
+	}
+}
+
+//==============================================================================
+
+
+Class PacifistPuff : Actor 
+{
+
+	Default 
+	{
+		+ALLOWTHRUFLAGS
+		+THRUACTORS
+		+NOINTERACTION
+		+NOCLIP
+		+NOBLOCKMAP
+		+BLOODLESSIMPACT
+		+PAINLESS
+		+ALWAYSPUFF
+		+PUFFONACTORS
+		+SKYEXPLODE
+		Radius 1;
+		Height 1;
+		DamageType "AimingLaser";
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 4;
+		Stop;
+	}
+}
+
+//------------------------------------------------------------------
+//------------------------------------------------------------------
+//
+//------------------------------------------------------------------
+//------------------------------------------------------------------
+Class GenericExplosionParticleSpawner : Actor //particles spawned by barrels and rockets
+{
+	
+	Default 
+	{
+		+NOINTERACTION
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 10 NODELAY
+		{
+			A_SpawnParticle("FFA600",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFA600",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFA600",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFA600",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFA600",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFA600",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFA600",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFA600",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFA600",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFA600",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFA600",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			
+			A_SpawnParticle("F27D00",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("F27D00",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("F27D00",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("F27D00",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("F27D00",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("F27D00",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("F27D00",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("F27D00",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("F27D00",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("F27D00",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("F27D00",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			
+			A_SpawnParticle("FFE645",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFE645",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFE645",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFE645",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFE645",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFE645",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFE645",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFE645",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFE645",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFE645",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FFE645",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			
+			A_SpawnParticle("DB641A",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("DB641A",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("DB641A",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("DB641A",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("DB641A",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("DB641A",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("DB641A",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("DB641A",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("DB641A",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("DB641A",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("DB641A",SPF_FULLBRIGHT|SPF_RELATIVE,random(15,60),random(3,8),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+		}
+		Stop;
+	}
+}
+
+//==============================================================================
+//==============================================================================
+
+Class ModuleGiver : CustomInventory
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			A_GiveInventory("ShotgunMod1",1);
+			A_GiveInventory("ShotgunMod2",1);
+			A_GiveInventory("SSGUpgrade1",1);
+			A_GiveInventory("SSGUpgrade2",1);
+			A_GiveInventory("SSGUpgrade3",1);
+			A_GiveInventory("SSGUpgrade4",1);
+			A_GiveInventory("GaussCannonMod1",1);
+			A_GiveInventory("GaussCannonMod2",1);
+			A_GiveInventory("AssaultRifleMod1",1);
+			A_GiveInventory("AssaultRifleMod2",1);
+			A_GiveInventory("RocketLauncherMod1",1);
+			A_GiveInventory("RocketLauncherMod2",1);
+			A_GiveInventory("PlasmaRifleMod1",1);
+			A_GiveInventory("PlasmaRifleMod2",1);
+			A_GiveInventory("ChaingunMod1",1);
+			A_GiveInventory("ChaingunMod2",1);
+			A_GiveInventory("GaussCannonMod1",1);
+			A_GiveInventory("GaussCannonMod2",1);
+			A_GiveInventory("StaticUpgrade1");
+			A_GiveInventory("StaticUpgrade2");
+			A_GiveInventory("StaticUpgrade3");
+			A_GiveInventory("StaticUpgrade4");
+			A_GiveInventory("LGUpgradeRange");
+			A_GiveInventory("LGUpgradeAmmo");
+			A_GiveInventory("LGUpgradeAltFire");
+			A_GiveInventory("LGUpgradeDamage");
+			A_GiveInventory("VortexUpgradeDamage");
+			A_GiveInventory("VortexUpgradeAmmo");
+			A_GiveInventory("VortexUpgradeAltSpeed");
+			A_GiveInventory("VortexUpgradeAltPierce");
+			A_GiveInventory("RepeaterUpgradePiercing");
+			A_GiveInventory("RepeaterUpgradeDamage");
+			A_GiveInventory("RepeaterUpgradeAltDamage");
+			A_GiveInventory("RepeaterUpgradeAltAmmo");
+			A_GiveInventory("PistolUpgradeAutomatic");
+			A_GiveInventory("PistolUpgradeAltDamage");
+			A_GiveInventory("PistolUpgradeAltCharge");
+			A_GiveInventory("PistolUpgradeDamage");
+			A_GiveInventory("BFGUpgrade1");
+			A_GiveInventory("BFGUpgrade2");
+			A_GiveInventory("BFGUpgrade3");
+			A_GiveInventory("BFGUpgrade4");
+			A_GiveInventory("CarrionUpgradePickup");
+			A_GiveInventory("CarrionUpgradeAmmo");
+			A_GiveInventory("CarrionUpgradeStun");
+			A_GiveInventory("CarrionUpgradeTime");
+			return true;
+		}
+		Stop;
+	}
+}
+
+///////////////////////////////// temporary debug shit
+Class D4HologramTooOld : Actor 
+{
+	Default 
+	{
+		Radius 16;
+		Height 32;
+		RenderStyle "Add";
+	}
+    States
+    {
+    Spawn:
+        TDLD A 1;
+        Loop;
+    }
+}

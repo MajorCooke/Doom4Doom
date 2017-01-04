@@ -1,0 +1,253 @@
+
+//=======================================================================
+//=======================================================================
+// Fist / Berserker
+//=======================================================================
+//=======================================================================
+
+Class D4DBerserk : Berserk
+{
+	Default 
+	{
+		Scale 0.7;
+	}
+	states
+	{
+	Spawn:
+		PSTR A -1 NODELAY A_SetAngle(random(0,359));
+		Stop;
+	Pickup:
+		TNT1 A 0 A_GiveInventory("PowerStrength");
+		TNT1 A 0 HealThing(100, 0);
+		TNT1 A 0 A_SelectWeapon("D4DFist");
+		Stop;
+	}
+}
+
+
+Class D4DFist : Doom4Weapon
+{
+	Default 
+	{
+		Weapon.SelectionOrder 3700;
+		Weapon.Kickback 100;
+		Obituary "$OB_MPFIST";
+		Tag "$TAG_FIST";
+		+WEAPON.WIMPY_WEAPON
+		+WEAPON.MELEEWEAPON
+		+WEAPON.NOALERT
+		Weapon.SelectionOrder 120;
+	}
+	States
+	{
+	Ready:
+		MELE "]" 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+		Loop;
+	Deselect:
+		MELE "]" 1 A_Lower;
+		"####" "###" 0 A_Lower;
+		Loop;
+	Select:
+		MELE "]" 0 ACS_NamedExecute("RemoveModText",0,0,0,0);
+		MELE "]" 1 A_Raise;
+		"####" "###" 0 A_Raise;
+		Goto Select+1;
+	/*Fire:
+		PKFS ABC 1 A_TakeInventory("PunchedAlready",1)
+		PKFS A 0 A_PlaySound("Doom4/Other/MeleeSwing1",5);
+		PKFS DEEF 1 
+		{
+			if(countinv("PunchedAlready") == 0) // is given by puff when hit connects
+			{
+				if(countinv("PowerStrength"))
+				{
+					A_CustomPunch(random(300,500),1,0,"BerserkPuff",80,0,0,null,"Doom4/Other/MeleeHit1");
+				}
+				else
+				{
+					A_CustomPunch(random(30,50),1,0,"FistPuff",80,0,0,null,"Doom4/Other/MeleeHit1");
+				}
+			}
+		}
+		PKFS FGG 1
+		PKFS HIJ 3
+		PKFS K 3 A_ReFire
+		Goto Ready;*/
+		
+	User2:
+		MELE "]" 0 A_Jump(256,"Fire"); //with A_Jump to ensure it jumps in this weapon, not the parent's
+		
+	Fire:
+		MELE "]" 0 A_TakeInventory("PunchedAlready",32767);
+		MELE "]" 1 A_WeaponOffset(10,10,WOF_ADD); //lowers the idle fist
+		MELE "]" 1 { A_WeaponOffset(10,10,WOF_ADD); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+		MELE "]" 1 A_WeaponOffset(10,10,WOF_ADD);
+		
+		FireSkipLowerFist:
+			MELE "]" 0 //before it does the regular punch, it checks if the Monster; is ready to be GK'd and if GK is ON
+			{
+				A_GiveInventory("BusyToken");
+				
+				if(countinv("FinisherToken",AAPTR_PLAYER_GETTARGET)>=1 && GetCvar("D4D_ExecutionAnimation")==1 && A_CheckLOF("Null",CLOFF_SETTARGET|CLOFF_NOAIM_VERT|CLOFF_IGNOREGHOST|CLOFF_MUSTBESOLID ,100))
+				{ return ResolveState("ExecuteExecutions");	}
+
+				return ResolveState(null);
+			}
+
+		ChoosePunch:
+			MELE C 0 A_Jump(256,"RegularPunchRight","RegularPunchLeft");
+			
+			RegularPunchRight:
+				MELE C 1 A_WeaponOffset(0,40); 
+				MELE C 0 A_Overlay(PunchSway,"Overlay.PunchSwayEffect2");	//calls the punching swaying
+				MELE C 4 
+				{
+					A_WeaponOffset(-10,32);
+					A_PlaySound("Doom4/Other/MeleeSwing1",5);
+					
+					if(countinv("PunchedAlready") == 0)  // is given by puff when hit connects
+					{
+						if(countinv("FinisherToken",AAPTR_PLAYER_GETTARGET)>=1)
+						{
+							A_CustomPunch(999999,1,0,"MeleePunchPuff",80,0,0,null,"Doom4/Weapon/Melee/Punch");
+							A_GiveInventory("PunchedAlready");
+						}
+						else
+						{
+							A_GiveInventory("PunchFeelerProc");
+						}
+					}
+				}
+				MELE C 1 { A_WeaponOffset(0,36); }
+				MELE C 1 { A_WeaponOffset(2,40); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				
+				MELE B 1 { A_WeaponOffset(3,42); }
+				MELE B 1 { A_WeaponOffset(6,45); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				MELE B 1 { A_WeaponOffset(8,48); }
+				
+				MELE A 1 { A_WeaponOffset(10,44); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				MELE A 1 { A_WeaponOffset(15,50); }
+				MELE A 1 { A_WeaponOffset(20,55); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				MELE A 1 { A_WeaponOffset(30,65); }
+				MELE A 1 { A_WeaponOffset(40,75); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				MELE A 1 { A_WeaponOffset(50,85); }
+				Goto CommonPrimaryFireEnder;
+				
+			RegularPunchLeft:
+				MELE F 1 A_WeaponOffset(0,40) ;
+				MELE F 0 A_Overlay(PunchSway,"Overlay.PunchSwayEffect");	//calls the punching swaying
+				MELE F 4 
+				{
+					A_WeaponOffset(10,32);
+					A_PlaySound("Doom4/Other/MeleeSwing1",5);
+					
+					if(countinv("FinisherToken",AAPTR_PLAYER_GETTARGET)>=1)
+					{
+						A_CustomPunch(999999,1,0,"MeleePunchPuff",80,0,0,null,"Doom4/Weapon/Melee/Punch");
+					}
+					else
+					{
+						A_GiveInventory("PunchFeelerProc");
+					}
+				}
+				MELE F 1 { A_WeaponOffset(0,36); }
+				MELE F 1 { A_WeaponOffset(-2,40); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				
+				MELE E 1 { A_WeaponOffset(-3,42); }
+				MELE E 1 { A_WeaponOffset(-6,45); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				MELE E 1 { A_WeaponOffset(-8,48); }
+				
+				MELE D 1 { A_WeaponOffset(-10,44); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				MELE D 1 { A_WeaponOffset(-15,50); }
+				MELE D 1 { A_WeaponOffset(-20,55); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				MELE D 1 { A_WeaponOffset(-30,65); }
+				MELE D 1 { A_WeaponOffset(-40,75); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				MELE D 1 { A_WeaponOffset(-50,85); }
+				Goto CommonPrimaryFireEnder;
+				
+		CommonPrimaryFireEnder:
+			MELE A 0
+			{
+				A_TakeInventory("BusyToken",					32767);
+				A_TakeInventory("QuickMeleeFromFistWeaponToken",32767);
+				A_TakeInventory("PunchedAlready",				32767);
+				
+				A_WeaponOffset(0,32);
+				if(GetPlayerInput(MODINPUT_BUTTONS) & BT_USER2  )
+				{	return ResolveState("FireSkipLowerFist");	}
+				return ResolveState(null);
+			}
+			MELE A 0 A_Refire("FireSkipLowerFist");
+			Goto Ready;
+		
+		
+	Overlay.PunchSwayEffect2:
+			W666 A 1 {  A_SetAngle(angle+1); A_SetRoll(+1.25,SPF_INTERPOLATE); A_SetPitch(pitch-0.5); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+			W666 A 1 {  A_SetAngle(angle+1); A_SetRoll(+2.5,SPF_INTERPOLATE); A_SetPitch(pitch-0.5); }
+			W666 A 1 A_SetTics((CountInv("PowerD4DFS") ? 0 : 1));
+			W666 A 1 ;
+			W666 A 1 { A_SetAngle(angle-1); A_SetRoll(+1.5,SPF_INTERPOLATE); A_SetPitch(pitch+0.5); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+			W666 A 1 { A_SetAngle(angle-0.5); A_SetRoll(+0.75,SPF_INTERPOLATE); A_SetPitch(pitch+0.5); }
+			W666 A 1 { A_SetAngle(angle-0.5); A_SetRoll(0,SPF_INTERPOLATE); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+			Stop;
+	}
+}
+
+Class FistPuff : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+ALLOWTHRUFLAGS	//to ignore pinky's shield
+		+THRUGHOST
+		+PUFFGETSOWNER
+		+PUFFONACTORS
+		+NOTIMEFREEZE
+	}
+	States
+	{
+	Spawn:
+		TNT1 AA 1 A_GiveToTarget("PunchedAlready",1);
+		Stop;
+	}
+}
+
+Class BerserkPuff : FistPuff 
+{ 
+	Default 
+	{
+		+EXTREMEDEATH 
+		DamageType "BerserkKill";
+	}
+}
+
+// This procedure object does nothing if something was already punched.
+// Otherwise, it tries to punch.
+// Giving it in a Loop; will allow punch to connect anytime in the Loop;, and only once.
+// This gives better control over fist and less missed hits without ridiculous range.
+
+Class PunchFeelerProc : CustomInventory
+{
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			if(countinv("PunchedAlready") == 0)
+			{
+				if(countinv("PowerStrength"))
+				{
+					A_CustomPunch(random(300,500),1,0,"BerserkPuff",70,0,0,null,"Doom4/Other/MeleeHit1");
+				}
+				else
+				{
+					A_CustomPunch(random(30,50),1,0,"FistPuff",70,0,0,null,"Doom4/Other/MeleeHit1");
+				}
+			}
+		}
+		Stop;
+	}
+}
+
+Class PunchedAlready : Inventory { Default { Inventory.InterHubAmount 0; }}
+Class QuickMeleeFromFistWeaponToken : Inventory { Default { Inventory.InterHubAmount 0; }}

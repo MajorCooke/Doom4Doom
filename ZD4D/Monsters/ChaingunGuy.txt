@@ -1,0 +1,730 @@
+//================================================================================================================
+//================================================================================================================
+//
+//	"D4D mode" version
+//	Chaingunner, sprites "Megaherz"
+//================================================================================================================
+//================================================================================================================
+// summon D4ChaingunGuy
+Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
+{
+	const CBAFlags = CBAF_AIMFACING|CBAF_PUFFTRACER|CBAF_NORANDOMPUFFZ|CBAF_NORANDOM;
+	double user_vangle;
+	double user_p;
+	int user_count;
+	int user_staggertimer;
+	
+	Default 
+	{
+		Health 70;
+		Radius 20;
+		Height 56;
+		Mass 100;
+		Speed 8;
+		PainChance 170;
+		Monster;
+		+FLOORCLIP +DONTCORPSE
+		SeeSound "Doom4/Monsters/Razer/Sight";
+		PainSound "Doom4/Monsters/Razer/Pain";
+		DeathSound "Doom4/Monsters/Razer/Death";
+		ActiveSound "Doom4/Monsters/Razer/Idle";
+		Obituary "$OB_CHAINGUY";
+		Dropitem "ChaingunAmmoOrWep";
+		DamageFactor "PlasmaExploder", 0.3;	//because otherwise, zombiemen would be killing everyone else easily
+		PainChance "StunBomb", 255;
+		PainChance "GloryKill", 255;
+		WoundHealth 20;
+		+DOHARMSPECIES
+	}
+	States
+	{
+	Spawn:
+		HRZR AB 10 A_Look();
+		Loop;
+	See:
+		HRZR AABBCCDD 3 D4Chase();
+		Loop;
+	Missile:
+		HRZR E 5 
+		{
+			A_FaceTarget();
+			A_PlaySound("Doom4/Monsters/LaserStart",CHAN_AUTO);
+			A_PlaySound("Doom4/Monsters/Razer/Attack",CHAN_AUTO);
+		}
+		HRZR EEEEEEEEEEEEEEE 2 BRIGHT 	//prepares the beam
+		{
+			A_FaceTarget(0,0,0,0,FAF_MIDDLE);
+			if (GetCvar("vid_renderer") && GetCvar("D4D_MonsterLasers"))
+			{	
+				A_CustomBulletAttack(0,0,1,0,"PacifistPuffCgunner",32767,CBAFlags,TargetPtr,"WhiteLaser",32,4);	
+			}
+			else
+			{	A_CustomRailgun(0,2,"","Red",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"PacifistPuff",0,0,2048,3);	}
+		}
+		HRZR E 0 A_FaceTarget(0,0,0,0,FAF_MIDDLE);
+		HRZR EEEEEEEEEEEEEEEEE 1
+		{
+			A_FaceTarget(1,1,0,0,FAF_MIDDLE);
+			if (!CheckClass("PlayerPawn",TargetPtr,true))
+			{	return ResolveState("Burning");	}
+			
+			if (GetCvar("vid_renderer") && GetCvar("D4D_MonsterLasers"))
+			{	
+				A_CustomBulletAttack(0,0,1,0,"PacifistPuff",32767,CBAFlags,TargetPtr,"WhiteLaser",32,4);
+				A_SpawnItemEx("LaserPowerUpSpark",8,4,32,frandom(-1,1),frandom(-1,1),frandom(-1,1),0,SXF_NOCHECKPOSITION);
+			}
+			else
+			{	A_CustomRailgun(0,2,"","Red",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"PacifistPuff",0,0,2048,3);	}
+			
+			return ResolveState(null);
+		}
+		HRZR E 0 A_PlaySound("Doom4/Monsters/ElectricDischarge",CHAN_AUTO);
+	Burning:
+		HRZR E 0 
+		{
+			
+			if (!CheckClass("PlayerPawn",TargetPtr,true))
+			{	A_FaceTarget(0,0,0,0,FAF_MIDDLE);	}
+			user_count = 0;
+			user_vangle = pitch;
+			
+			if (GetCvar("vid_renderer") && GetCvar("D4D_MonsterLasers"))
+			{ A_CustomBulletAttack(0,0,1,0,"PacifistPuffCgunner",30000,CBAFlags,TargetPtr,"BigRedLaserDrill",32,4);	}
+		}
+		HRZR E 1 Bright		//fires the damaging one
+		{
+			// Performs the attack every 5 tics.
+			if (GetCvar("vid_renderer") && GetCvar("D4D_MonsterLasers"))
+			{
+				if ((user_count % 5) == 0)
+				{	
+					A_SpawnProjectile("CgunnerLaserInvisible",32,4,0,CMF_AIMDIRECTION,user_vangle);
+					A_SpawnItemEx("LaserPowerUpSpark",8,4,32,frandom(-1,1),frandom(-1,1),frandom(-1,1),0,SXF_NOCHECKPOSITION);
+				}
+			}
+			else
+			{	
+				if ((user_count % 5) == 0)
+				{	
+					A_SpawnProjectile("CgunnerLaser",32,4,0,CMF_AIMDIRECTION,user_vangle);
+				}
+			}
+			
+			if (user_count >= 45)
+			{	return ResolveState("See");	}
+			
+			user_count++;
+			return ResolveState(null);
+		}
+		Wait;
+	Pain:
+		HRZR G 3 A_KillChildren("",KILS_KILLMISSILES,null,"LaserKillable");
+		HRZR G 3 A_Pain();
+		Goto See;
+	Pain.StunBomb:
+		"####" "#" 0 { bNoPain = true; }
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#" 0 { bNoPain = false; }
+		Goto See;
+	Death:
+		"####" "#" 0  //loot drop
+		{
+			A_KillChildren("None",KILS_KILLMISSILES,null,"LaserKillable");
+			bThruActors = true;
+			D4DropCash(CashMultiplier,"ChainguyCashGiver");
+			D4SetupLoot();
+			D4DropItems();
+		}
+		HRZR I 5 ;
+		HRZR J 5 A_Scream();
+		HRZR K 5 A_NoBlocking();
+		HRZR L 5;
+		HRZR M -1 {bCorpse = true;}
+		Stop;
+		
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:	
+	XDeath:
+		"####" "#" 0  //loot drop
+		{
+			D4SetupLoot();
+			
+			if (GetCvar("MPWeapons"))
+			{	Pinatas.Carrion++;	}
+		}
+		Goto XDeathNoDrops;
+		
+	XDeathNoDrops:	
+		TNT1 A 0
+		{
+			bThruActors = true;
+			XDeathGush();
+			D4DropItems();
+			D4DropCash(CashMultiplier,"ChainguyCashGiver");
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+			A_NoBlocking();	//just in case
+			A_KillChildren("None",KILS_KILLMISSILES,null,"LaserKillable");
+		}
+		Stop;
+	Raise:
+		HRZR M 3;
+		HRZR LKJI 3;
+		Goto See;
+	//------------------------------------------------------------------------
+	// Start of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	Wound:
+		"####" "#" 1
+		{
+			if(GetCvar("D4D_ExecutionsON"))
+			{
+				if(countinv("FinisherToken")==0) //if it isnt healing already
+				{								//will heal and give the token that indicates it's executable
+					A_SpawnItemEx("ChaingunnerHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
+					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
+				}
+				
+				if(GetCvar("D4D_MonsterStagger")==1) //will the monsters stagger at all?
+				{
+					return ResolveState("Stagger");	//stays there for a few seconds
+				}
+				else
+				{
+					return ResolveState(null);
+				}
+			}
+			return ResolveState(null);
+		}
+		Goto See;
+	Stagger:
+		HRZR G 0 
+		{
+			if(GetCvar("D4D_ExecutionHighlight")==1)
+			{	return ResolveState("PrepareStaggerHighlight");}
+			else
+			{	return ResolveState("StagLooper");	}
+		}
+		Goto StagLooper;
+	PrepareStaggerHighlight:
+		HRZR U 0;
+		Goto StagLooper;
+	
+	StagLooper:
+		"####" "#" 1
+		{
+			A_KillChildren("None",KILS_KILLMISSILES,null,"LaserKillable");
+			if(!countinv("FinisherToken"))
+			{
+				return ResolveState("See");
+			}
+			if(GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
+			{ 
+				A_Pain(); 
+				A_TakeInventory("PainSoundToken");
+			}
+			
+			return ResolveState(null);
+		}
+		Loop;
+		
+	// Finisher attack(s) with animations ON
+	Death.GloryKill:
+		TNT1 A 0 
+		{
+			bSolid = false;
+			A_KillChildren("None",KILS_KILLMISSILES,null,"LaserKillable");
+		}
+		HRZR AA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0
+		{
+			if(countinv("GloryKill1Token"))
+			{	return ResolveState("GloryEnd1"); }
+			
+			if(countinv("GloryKill2Token"))
+			{	return ResolveState("GloryEnd2"); }
+			
+			if(countinv("GloryKill3Token"))
+			{	return ResolveState("GloryEnd3"); }
+			return ResolveState(null);
+		}
+	GloryEnd1:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" GGGGGG 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd2:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" GGGGGG 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd3:
+		"####" AAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" I 0 A_ChangeVelocity(-8,0,10,CVF_RELATIVE);
+		Goto GloryEnd;
+
+	//------------------------------------------------------------------------
+	// End of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	}
+}
+Class NoBloodPuff : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+BLOODLESSIMPACT
+		+PAINLESS
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 3;
+		Stop;
+	}
+}
+
+Class PacifistPuffCgunner : PacifistPuff
+{
+	States
+	{
+	Spawn:
+		TNT1 A 50;
+		Stop;
+	}
+}
+
+Class BigRedLaserDrill : TrailBeamStaticScalingSpawner
+{
+	States
+	{
+	Spawn:
+		X202 J 0 NoDelay
+		{
+			user_DoCheckSight = 0;
+			user_DoCheckRange = 0;
+			user_DoCheckFOV = 0;
+			user_MaxDistance = 30000;
+			user_checkrangea = 2048;
+			user_checkfova = 90.0;
+			
+			A_RearrangePointers(DefPtr,TargetPtr,DefPtr,4);
+			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+			
+			if (GetCvar("HQEffects"))
+			{	A_SpawnItemEx("RedLaserCgunner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS);	}
+			
+			// Grab the velocity IMMEDIATELY.
+			if (target) { vel = target.vel; }
+			
+			// The angle and pitch won't change so go ahead and save it now.
+			user_pitch = pitch;
+			user_angle = angle;
+			user_distb = Min(user_MaxDistance, GetDistance(true,TracerPtr));
+			
+			// user_dista = distance currently travelled.
+			// user_distb = maximum distance.
+			while ((user_dista < user_distb))
+			{
+				if (user_DoCheckRange)		{	user_checkrangeb = (!(A_CheckRange(user_checkrangea,"Null",false)) ? 1 : 0);	}
+				else						{	user_checkrangeb = 1;	}
+				
+				if (user_DoCheckSight)		{	user_checksight = (!(A_CheckSight("Null")) ? 1 : 0);	}
+				else						{	user_checksight = 1;	}
+				
+				if (user_DoCheckFOV)		{	user_checkfovb = ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,Player1)) <= user_checkfova) ? 1 : 0);	}
+				else						{	user_checkfovb = 1;		}
+				
+				// Spawn the beam with the same angle and pitch. Note that the
+				// beam is being centered so we have to take that into account
+				// and spawn it FORWARD based on half the beam's length.
+				// Then move forward by a beam's length and repeat until done.
+				if (user_checkrangeb && user_checksight && user_checkfovb)
+				{	A_SpawnItemEx("BigRedLaserBeamCgunner",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,SpawnFlags);	}
+				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
+				user_dista += StepDistance;
+			}
+		}
+		Stop;
+	}
+}
+
+Class BigRedLaserBeamCgunner : TrailBeamStaticScaling
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay
+		{
+			user_timeup = 10.0;
+			user_wait = 30;
+			user_timedown = 7.0;
+			
+			// Set this to the actor's same name. The TID will prevent it spawning infinitely (tid * 256).
+			A_SpawnItemEx("BigRedLaserBeamCgunner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME,tid * 256,1);
+			return ResolveState("Setup");
+		}
+	}
+}
+
+Class RedLaserCgunner : RedLaser
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay
+		{
+			user_count = 45;
+			user_checkrangea = 768;
+			user_DoCheckRange = user_DoCheckSight = user_DoCheckFOV = 1;
+			
+			return ResolveState("Setup");
+		}
+	}
+}
+
+Class LaserPowerUpSpark : Actor 
+{
+	Default 
+	{
+		//Translation "0:255=%[0,0,0]:[1.0,0.0,0.0]"
+		+NOINTERACTION
+		XScale 0.4;
+		YScale 0.2;
+		scale 0.25;
+		RenderStyle "Add";
+		Alpha 0.5;
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(256,random(1,9));
+		HSPL ABCDEFGHJ 0	{	return ResolveState("Perform");	}
+	Perform:
+		"####" "#" 1 Bright A_FadeOut(0.05);
+		Wait;
+	}
+}
+
+//Invisible to GZDoom renderer
+Class CgunnerLaserInvisible : FastProjectile
+{
+	Default 
+	{
+		Speed 300;
+		Radius 3;
+		Height 6;
+		DamageFunction (random(3,8));
+		Decal "RedElectricDecal";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 4;
+		Loop;
+	Death:
+		TNT1 A 3;
+		Stop;
+	}
+}
+
+//Visible to ZDoom renderer
+Class CgunnerLaser : FastProjectile	
+{
+	Default 
+	{
+		Speed 300;
+		MissileType "ElectricRailTrail";
+		MissileHeight 8;
+		Radius 3;
+		Height 6;
+		DamageFunction (random(3,8));
+		Decal "RedElectricDecal";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 4;
+		Loop;
+	Death:
+		TNT1 A 3;
+		Stop;
+	}
+}
+
+
+
+
+
+Class ElectricRailTrail : Actor 
+{
+	Default 
+	{
+		//Translation "0:255=%[0,0,0]:[1.5,0.0,0.0]"
+		+NOINTERACTION
+		Scale 0.25;
+		RenderStyle "Add";
+		Alpha 1.0;
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(256,random(1,9));
+		HSPL ABCDEFGHJ 0 { return ResolveState("Perform"); }
+	Perform:
+		"####" "#" 3 Bright;
+		"####" "#" 1 Bright A_FadeOut(0.2);
+		Wait;
+	}
+}
+
+
+//================================================================================================================
+//================================================================================================================
+//
+//	Regular Doom version 
+//
+//================================================================================================================
+//================================================================================================================
+
+Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy //replaces ChaingunGuy
+{
+	int user_staggertimer;
+	Default 
+	{
+		Health 70;
+		Radius 20;
+		Height 56;
+		Mass 100;
+		Speed 8;
+		PainChance 170;
+		Monster;
+		+FLOORCLIP
+		SeeSound "chainguy/sight";
+		PainSound "chainguy/pain";
+		DeathSound "chainguy/death";
+		ActiveSound "chainguy/active";
+		AttackSound "chainguy/attack";
+		Obituary "$OB_CHAINGUY";
+		Dropitem "Chaingun";
+		
+		PainChance "StunBomb", 255;
+		PainChance "GloryKill", 255;
+		WoundHealth 20;
+		+DONTCORPSE
+	}
+	States
+	{
+	Spawn:
+		CPOS AB 10 A_Look();
+		Loop;
+	See:
+		CPOS AABBCCDD 3 D4Chase();
+		Loop;
+	Missile:
+		CPOS E 10 A_FaceTarget();
+		CPOS FE 4 BRIGHT A_CPosAttack;
+		CPOS F 1 A_CPosRefire;
+		Goto Missile+1;
+	Pain:
+		CPOS G 3;
+		CPOS G 3 A_Pain();
+		Goto See;
+	Raise:
+		CPOS N 5;
+		CPOS MLKJIH 5;
+		Goto See;
+		
+	Pain.StunBomb:
+		"####" "#" 0 { bNoPain = true; }
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#" 0 { bNoPain = false; }
+		Goto See;
+	Death:
+		"####" "#" 0  //loot drop
+		{
+			bThruActors = true;
+			D4DropCash(CashMultiplier,"ChainguyCashGiver");
+			D4SetupLoot();
+			D4DropItems();
+		}
+		CPOS H 4 ;
+		CPOS I 4 A_Scream();
+		CPOS J 4 A_NoBlocking();
+		CPOS KLM 4;
+		CPOS N -1 {bCorpse = true;}
+		Stop;
+
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:
+	XDeath:
+		"####" "#" 0  //loot drop
+		{
+			D4SetupLoot();
+			
+			if (GetCvar("MPWeapons"))
+			{	Pinatas.Carrion++;	}
+		}
+		Goto XDeathNoDrops;
+		
+	XDeathNoDrops:	
+		TNT1 A 0
+		{
+			bThruActors = true;
+			XDeathGush();
+			D4DropItems();
+			D4DropCash(CashMultiplier,"ChainguyCashGiver");
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+		}
+		CPOS O 4;
+		CPOS P 4 A_XScream();
+		CPOS Q 4 A_NoBlocking();
+		CPOS RS 4;
+		CPOS T -1 {bCorpse = true;}
+		Stop;
+	//------------------------------------------------------------------------
+	// Start of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	Wound:
+		"####" "#" 1
+		{
+			if(GetCvar("D4D_ExecutionsON"))
+			{
+				if(countinv("FinisherToken")==0) //if it isnt healing already
+				{								//will heal and give the token that indicates it's executable
+					A_SpawnItemEx("ChaingunnerHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
+					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
+				}
+				
+				if(GetCvar("D4D_MonsterStagger")==1) //will the monsters stagger at all?
+				{
+					return ResolveState("Stagger");	//stays there for a few seconds
+				}
+				else
+				{
+					return ResolveState(null);
+				}
+			}
+			return ResolveState(null);
+		}
+		Goto See;
+	Stagger:
+		CPOS G 0 
+		{
+			if(GetCvar("D4D_ExecutionHighlight")==1)
+			{	return ResolveState("PrepareStaggerHighlight");}
+			else
+			{	return ResolveState("StagLooper");	}
+		}
+		Goto StagLooper;
+	PrepareStaggerHighlight:
+		CPOS U 0;
+		Goto StagLooper;
+	
+	StagLooper:
+		"####" "#" 1
+		{
+			if(!countinv("FinisherToken"))
+			{
+				return ResolveState("See");
+			}
+			if(GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
+			{ 
+				A_Pain(); 
+				A_TakeInventory("PainSoundToken");
+			}
+			
+			return ResolveState(null);
+		}
+		Loop;
+		
+	// Finisher attack(s) with animations ON
+	Death.GloryKill:
+		TNT1 A 0 { bSolid = false; }
+		CPOS AA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0
+		{
+			if(countinv("GloryKill1Token"))
+			{	return ResolveState("GloryEnd1"); }
+			
+			if(countinv("GloryKill2Token"))
+			{	return ResolveState("GloryEnd2"); }
+			
+			if(countinv("GloryKill3Token"))
+			{	return ResolveState("GloryEnd3"); }
+			return ResolveState(null);
+		}
+	GloryEnd1:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" GGGGGG 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd2:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" GGGGGG 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd3:
+		"####" AAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" I 0 A_ChangeVelocity(-8,0,10,CVF_RELATIVE);
+		Goto GloryEnd;
+		
+	}
+}
+
+Class ChaingunAmmoOrWep : Actor
+{
+	int rng;
+	Default
+	{
+		+NOINTERACTION
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay
+		{
+			if (CountInv("D4AssaultRifle",Player1))
+			{
+				rng = random(1,20);
+				if (rng == 20 && !CountInv("D4Chaingun",Player1) && CountInv("D4Repeater",Player1))
+				{
+					A_DropItem("D4Chaingun",1);	return;
+				}
+				else if (rng <= 3 && !CountInv("D4Repeater",Player1) && GetCvar("MPWeapons"))
+				{
+					A_DropItem("D4Repeater",1);	return;
+				}
+				else
+				{
+					A_SpawnItemEx("D4PinataBulletsChaingunGuy",0,0,32,0,0,0,0,SXF_NOCHECKPOSITION);	return;
+				}
+			}
+			else
+			{
+				A_DropItem("D4AssaultRifle",1);	return;
+			}
+			return;
+		}
+		Stop;
+	}
+}

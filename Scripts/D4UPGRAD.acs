@@ -1,0 +1,887 @@
+#library "D4UPGRAD"
+#include "zcommon.acs"
+
+global bool 1:died;
+
+//	Upgrade System
+//	Developed by Major Cooke
+
+//==============================================================================
+//==============================================================================
+// Upgrade System Keybinds
+//==============================================================================
+//==============================================================================
+
+str weapon;
+
+Script "D4RestoreWeapon" ENTER
+{
+	SetPlayerProperty(0,0,PROP_FROZEN);
+	SetPlayerProperty(0,0,PROP_TOTALLYFROZEN);
+	TakeInventory("D4DoomDollHands",32767);
+	TakeInventory("D4UpgradeHand",32767);
+	SetWeapon(weapon);
+}
+
+Script "D4DoomDoll" (void) net
+{
+	if (!CheckInventory("DollUses") || CheckInventory("D4DoomDollHands") || CheckInventory("DoomDollPlaying") ||
+		GetActorProperty(0,APROP_Health) <= 0)
+		Terminate;
+	if (!CheckInventory("D4DoomDollHands"))
+	{
+		weapon = GetWeapon();
+		GiveInventory("DoomDollPlaying",1);
+		GiveInventory("D4DoomDollHands",1);
+		GiveInventory("DollProtection",1);
+		SetWeapon("D4DoomDollHands");
+	}
+	//PlaySound("Doom4/Other/GlimpseIntoTheFuture",7,1.0);
+	AmbientSound("Doom4/Other/GlimpseIntoTheFuture",127);
+	int t = 1.0;
+	while (t > 0.1)
+	{
+		t -= 0.1;
+		SetMusicVolume(t);
+		Delay(1);
+	}
+	delay(166);	//when the animation ends
+	TakeInventory("D4DoomDollHands",32767);	//take the doll
+	SetWeapon(weapon);
+	delay(96);	//waits until music ends
+	TakeInventory("DoomDollPlaying",32767);
+	while (t < 1.0)
+	{
+		t += 0.1;
+		SetMusicVolume(t);
+		Delay(1);
+	}
+	SetMusicVolume(1.0);
+	//setmusic("*");
+}
+
+Script "D4ToggleSoviet" (void) net
+{
+	if (!stricmp(GetWeapon(),"D4Chaingun"))
+	{
+		if (CheckInventory("SovietToken"))
+		{
+			if (CheckInventory("SovietActive"))
+			{
+				TakeInventory("SovietActive",32767);
+				Log(s:"Disabled");
+			}
+			else
+			{
+				GiveInventory("SovietActive",1);
+				Log(s:"Enabled");
+			}
+		}
+		else
+		{
+			Log(s:"You don't have the upgrade.");
+		}
+	}
+}
+
+//==============================================================================
+//==============================================================================
+// Cash Display Handler
+//==============================================================================
+//==============================================================================
+
+Script "ShowCash" OPEN
+{
+	SetActivator(0,AAPTR_PLAYER1);
+	If (GameType() == GAME_TITLE_MAP) Terminate; //if we're on titlemap, dont display anything
+	TakeInventory("D4DCashFake",5000000);
+	SetFont("Q4SMALLERHUDFONT");
+	HudMessage(s:"Credits";HUDMSG_PLAIN,		999,CR_GRAY,0.98,0.00,0);
+	int counter1 = 0;
+	while (1)
+	{
+		counter1 = CheckInventory("D4DCash");
+		//if (GetCvar("user_BiggerFont"))			SetFont("BIGFONT");
+		//else									
+		SetFont("Q4SMALLERHUDFONT");
+		HudMessage(d:counter1;HUDMSG_PLAIN,		1000,CR_WHITE,0.96,0.03,0);
+		Delay(17);
+	}
+}
+
+
+Script "CashDisplay" (int negative, int notears)
+{
+	bool KeepOn = false;
+	int inittime = 105;
+	int time = inittime;
+	int counter1 = CheckInventory("D4DCash");
+	int counter2 = 0;
+	//SetHudSize(1024,768,0);
+	
+	while (time > 0)
+	{
+		
+		if (CheckInventory("D4DCashFake") > 0 || KeepOn)
+		{
+			int plr = PlayerNumber();
+			if (CheckInventory("SovietToken") && 
+				CheckInventory("SovietActive") &&
+				!stricmp(GetWeapon(),"D4Chaingun") && 
+				!(GetPlayerInput(plr,MODINPUT_BUTTONS) & BT_ALTATTACK) &&
+				(GetPlayerInput(plr,MODINPUT_BUTTONS) & BT_ATTACK))
+			{
+				KeepOn = true;
+			}
+			else
+				KeepOn = false;
+				
+			time = inittime;
+			counter1 = CheckInventory("D4DCash");
+			counter2 = counter2 + CheckInventory("D4DCashFake");
+			
+			SetFont("Q4SMALLERHUDFONT");			
+			HudMessage(d:counter1;HUDMSG_PLAIN,		1000,CR_WHITE,0.96,0.03,0);
+			SetFont("Q4SMALLESTHUDFONT");
+			
+			if (negative)	HudMessage(s:"-", d:counter2;HUDMSG_FADEOUT,	1001,CR_RED,0.96,0.08,2.0,1.0);
+			else			HudMessage(s:"+", d:counter2;HUDMSG_FADEOUT,	1002,CR_orange,0.96,0.08,2.0,1.0);
+			TakeInventory("D4DCashFake",5000000);
+			
+			if (!negative && ((counter2 >= 400 && KeepOn) || ((counter2 >= 3000) && (GetCvar("user_Completionist") == 1))))
+			{
+				SetFont("DemonTears2");
+				HudMessage(s:"A";HUDMSG_FADEOUT,	1001,CR_UNTRANSLATED,0.03,0.85,4.0,1.0);
+			}
+		}
+		
+		if (!KeepOn) time--;
+		Delay(1);
+	}
+}
+
+//==============================================================================
+//==============================================================================
+// Reward System
+//==============================================================================
+//==============================================================================
+
+
+Script "LevelWatcherSetup" ENTER
+{	
+	Delay(2);
+	int totalmonsters = GetLevelInfo(LEVELINFO_TOTAL_MONSTERS);
+	int totalsecrets = GetLevelInfo(LEVELINFO_TOTAL_SECRETS);
+	
+	// No point running this if there's nothing to get.
+	if (totalmonsters < 5 && totalsecrets < 1)
+		Terminate;
+	int forcerefresh = 1;
+	int secretsfound = 0;
+	int killsearned = 0;
+	int RewardedKillPortions[5] = { 15, 30, 45, 60, 75 };
+	int rewardcheckpoint = totalmonsters / 5;
+	int multiplier = 1;
+	
+	int reward = 0;
+	int bonus = 0;
+	int bonusmul = GetCvar("CashPercentBonus");
+	bool RewardTime = false;
+	while (1)
+	{
+		int rewardedpoints = 0;
+		if (GetLevelInfo(LEVELINFO_TOTAL_MONSTERS) > 5)
+		{
+		
+			// For every 50 monsters on the map, increase the rewards.
+			if (forcerefresh || (totalmonsters < GetLevelInfo(LEVELINFO_TOTAL_MONSTERS)))
+			{
+				forcerefresh = 0;
+				totalmonsters = GetLevelInfo(LEVELINFO_TOTAL_MONSTERS);
+				if (totalmonsters >= 50)
+					multiplier = 1 + (totalmonsters / 50);
+				
+				rewardcheckpoint = totalmonsters / 5;
+			}
+			// Grant rewards based on every 1/5th of the level cleared of monsters.
+			if (killsearned < 5)
+			{
+				
+				int msg = 0;
+				int numkills = GetLevelInfo(LEVELINFO_KILLED_MONSTERS);
+				if ((numkills >= rewardcheckpoint * 1) && (killsearned == 0))
+				{	RewardTime = true; reward = (RewardedKillPortions[0] * multiplier) + bonus; msg = 1; killsearned++;	GiveInventory("RewardToken",1); }
+				if ((numkills >= rewardcheckpoint * 2) && (killsearned == 1))
+				{	RewardTime = true; reward = (RewardedKillPortions[1] * multiplier) + bonus; msg = 2; killsearned++;	GiveInventory("RewardToken",1); }
+				if ((numkills >= rewardcheckpoint * 3) && (killsearned == 2))
+				{	RewardTime = true; reward = (RewardedKillPortions[2] * multiplier) + bonus; msg = 3; killsearned++;	GiveInventory("RewardToken",1); }
+				if ((numkills >= rewardcheckpoint * 4) && (killsearned == 3))
+				{	RewardTime = true; reward = (RewardedKillPortions[3] * multiplier) + bonus; msg = 4; killsearned++;	GiveInventory("RewardToken",1); }
+				if ((numkills >= GetLevelInfo(LEVELINFO_TOTAL_MONSTERS)) && (killsearned == 4))
+				{	RewardTime = true; reward = (RewardedKillPortions[4] * multiplier) + bonus; msg = 5; killsearned++;	GiveInventory("RewardToken",1); }
+				
+				if (RewardTime)
+				{
+					bonusmul = GetCvar("CashPercentBonus");
+					bonus = ((reward * bonusmul) / 100);
+					GiveCash(reward + bonus, msg);
+					RewardTime = false;
+					reward = 0; bonus = 0;
+				}
+			}
+		}
+		
+		// Update the number of secrets found and reward appropriately.
+		int rsf = GetLevelInfo(LEVELINFO_FOUND_SECRETS);
+		if (secretsfound < totalsecrets && secretsfound < rsf)
+		{
+			bonusmul = GetCvar("CashPercentBonus");
+			reward = (rsf - secretsfound) * 100;
+			bonus = (reward * bonusmul) / 100;
+			GiveCash(reward + bonus,6);
+			secretsfound = rsf;
+		}
+		
+		//Completionist bonus! Kill everything and find all secrets to earn a big
+		//fat paycheck!
+		if ((secretsfound >= totalsecrets) && (killsearned >= 5))
+		{
+			bonusmul = GetCvar("CashPercentBonus");
+			reward = (((((RewardedKillPortions[4] * multiplier) * 10) + (totalsecrets * 100)) * 5) / 4);
+			bonus = (reward * bonusmul) / 100;
+			GiveCash(reward + bonus,7);
+			Terminate;
+		}
+		Delay(17);
+	}
+}
+
+Function void GiveCash(int amount, int message)
+{
+	int TypeTime = 0.005;
+	int Duration = 3.0;
+	//int HudX = 512.4;
+	//int HudY = 220.0;
+	int HudX = 1.5; //512.4;
+	int HudY = 0.16; //200.0;
+	GiveInventory("D4DCash",amount);
+	GiveInventory("D4DCashFake",amount);
+	
+	int MessageStyle = GetCvar("user_Completionist");
+
+	if (MessageStyle == 1) //cooke
+		SetFont("BIGFONT");	
+	else if (MessageStyle == 2) //dbt
+		SetFont("SMALLFONT");
+		
+	switch(message)
+	{
+	case 1:
+	case 2:
+	case 3:
+	case 4:
+	case 5:
+		if (GetCVar("user_MonsterQuota"))
+		{
+			if (message < 5)
+			{
+				if (MessageStyle == 1) //cooke
+					HudMessage(d: message, s:"\ck/5 Kill Quota\n\ck+", d: amount; HUDMSG_TYPEON|HUDMSG_LOG,999,CR_WHITE,HudX,HudY,Duration,TypeTime,1.0);
+				else if (MessageStyle == 2) //dbt
+					HudMessage(d: message, s:"/5 Demons Killed:\n+", d: amount; HUDMSG_TYPEON|HUDMSG_LOG,999,CR_GRAY,HudX,0.9,Duration,TypeTime,1.0);
+			}
+			else
+			{
+				if (MessageStyle == 1) //cooke
+					HudMessage(d: message, s:"\cd/5 Kill Quota Completed\n\ck+", d: amount; HUDMSG_TYPEON|HUDMSG_LOG,999,CR_WHITE,HudX,HudY,Duration,TypeTime,1.0);
+				else if (MessageStyle == 2) //dbt
+					HudMessage(d: message, s:"/5 Demons Killed:\n+", d: amount; HUDMSG_TYPEON|HUDMSG_LOG,999,CR_GRAY,HudX,0.9,Duration,TypeTime,1.0);
+					
+				AmbientSound("Doom4/Other/VoiceDemonsEliminated",80);
+			}
+		}
+		ACS_NamedExecute("CashDisplay",0,0,0,0);
+		break;
+	case 6:
+		if (GetCVar("user_SecretQuota"))
+		{
+			if (MessageStyle == 1) //cooke
+				HudMessage(s:"Secret found.\n\ck+", d: amount; HUDMSG_TYPEON|HUDMSG_LOG,999,CR_LIGHTBLUE,HudX,HudY,Duration,TypeTime,1.0);
+			else if (MessageStyle == 2) //dbt
+				HudMessage(s:"Secret found\n+", d: amount; HUDMSG_TYPEON|HUDMSG_LOG,999,CR_GRAY,HudX,0.9,Duration,TypeTime,1.0);
+			else if (MessageStyle == 0) //even with messages off, message of secret will show up
+				HudMessage(s:"Secret found"; HUDMSG_TYPEON|HUDMSG_LOG,999,CR_GOLD,HudX,0.3,Duration,TypeTime,1.0);
+		}
+		ACS_NamedExecute("CashDisplay",0,0,0,0);
+		break;
+	case 7:
+		ACS_NamedExecute("CompletionMessage",0,amount,0,0);
+		ACS_NamedTerminate("CashDisplay",0); //No demon tears face.
+		ACS_NamedExecute("CashDisplay",0,0,1,0);
+		break;
+	}
+}
+
+Script "CompletionMessage" (int amount)
+{
+	int compstyle = GetCvar("user_Completionist");
+	int HudX = 1.5; //512.4;
+	int HudY = 0.01; //200.0;
+	
+	if (compstyle == 2)
+	{
+		//DBTHANATOS: Do your magic here!
+		//SetMusicVolume(0.2);
+		int t = 1.0;
+		while (t > 0.1)
+		{
+			t -= 0.1;
+			SetMusicVolume(t);
+			Delay(1);
+		}
+		AmbientSound("Doom4/Other/MusCue5",80);
+		SetFont("SmallFont");
+		HudMessage(s:"Completionist: +",d:amount;HUDMSG_FADEOUT,150,CR_RED,HudX,0.1,3.0,1.0,1.0);
+		delay(115);
+		while (t < 1.0)
+		{
+			t += 0.1;
+			SetMusicVolume(t);
+			Delay(1);
+		}
+		//SetMusic("*");
+		//SetMusicVolume(1.0);
+	}
+	else if (compstyle == 1)
+	{
+		int TypeTime = 0.034;
+		int Duration = 5.0;
+
+		str comp = "COMPLETIONIST!\n+";
+		int i = 1017;
+		int b = 1.0;
+		int oldcolor = 0;
+		int color = 0;
+		AmbientSound("Completionist",127);
+		SetFont("BIGFONT");
+		//SetHudSize(1024,768,0);
+		
+		while (i > 1000)
+		{
+			if (b > 0.1)
+				b -= 0.1;
+				
+			SetMusicVolume(b);
+			oldcolor = color;
+			color = random(1,12);
+			if (color == oldcolor) //Randomize the color if it was already used.
+			{
+				if (color == 12)
+					color = 1;
+				else
+					color++;
+			}
+			switch(color)
+			{
+				case 1:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_BLUE,HudX,HudY,Duration,TypeTime,0);		break;
+				case 2:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_BRICK,HudX,HudY,Duration,TypeTime,0);		break;
+				case 3:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_ORANGE,HudX,HudY,Duration,TypeTime,0);		break;
+				case 4:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_CREAM,HudX,HudY,Duration,TypeTime,0);		break;
+				case 5:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_CYAN,HudX,HudY,Duration,TypeTime,0);		break;
+				case 6:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_OLIVE,HudX,HudY,Duration,TypeTime,0);		break;
+				case 7:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_DARKGRAY,HudX,HudY,Duration,TypeTime,0);	break;
+				case 8:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_DARKGREEN,HudX,HudY,Duration,TypeTime,0);	break;
+				case 9:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_DARKRED,HudX,HudY,Duration,TypeTime,0);		break;
+				case 10:		HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_GOLD,HudX,HudY,Duration,TypeTime,0);		break;
+				case 11:		HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_GREEN,HudX,HudY,Duration,TypeTime,0);		break;
+				case 12:		HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_PURPLE,HudX,HudY,Duration,TypeTime,0);		break;
+			}
+			i--;
+			Delay(1);
+		}
+		HudMessage(s:comp, d:amount; HUDMSG_TYPEON|HUDMSG_LOG,950,CR_WHITE,HudX,HudY,Duration,TypeTime,1.0);
+		Delay(35*3);
+		while (b < 1.0)
+		{
+			b += 0.1;
+			SetMusicVolume(b);
+			Delay(1);
+		}
+		Terminate;
+	}
+}
+
+/*
+	ID_U1Pistol = 			100,
+	ID_U2Pistol = 			101,
+	ID_U3Pistol = 			102,
+	ID_U4Pistol = 			103,
+	ID_U1Shotgun = 			200,
+	ID_U2Shotgun = 			201,
+	ID_U1SuperShotgun =		300,
+	ID_U2SuperShotgun =		301,
+	ID_U3SuperShotgun =		302,
+	ID_U4SuperShotgun =		303,
+	ID_U1AssaultRifle =		400,
+	ID_U2AssaultRifle =		401,
+	ID_U1Chaingun =			500,
+	ID_U2Chaingun =			501,
+	ID_U3Chaingun =			502,
+	ID_U1RocketLauncher = 	600,
+	ID_U2RocketLauncher = 	601,
+	ID_U1PlasmaRifle =		700,
+	ID_U2PlasmaRifle =		701,
+	ID_U1BFG =				800,
+	ID_U2BFG =				801,
+	ID_U1GaussCannon =		900,
+	ID_U2GaussCannon =		901,
+	ID_U1Chainsaw =			1000,
+	ID_U2Chainsaw =			1001,
+	ID_U3Chainsaw =			1002,
+	ID_U4Chainsaw =			1003,
+	ID_U1StaticRifle =		1100,
+	ID_U2StaticRifle =		1101,
+	ID_U3StaticRifle =		1102,
+	ID_U4StaticRifle =		1103,
+	ID_U1Repeater =			1200,
+	ID_U2Repeater =			1201,
+	ID_U3Repeater =			1202,
+	ID_U4Repeater =			1203,
+	ID_U1VortexRifle =		1300,
+	ID_U2VortexRifle =		1301,
+	ID_U3VortexRifle =		1302,
+	ID_U4VortexRifle =		1303,
+	ID_U1LightningGun =		1400,
+	ID_U2LightningGun =		1401,
+	ID_U3LightningGun =		1402,
+	ID_U4LightningGun =		1403,
+	ID_U1Hellshot =			1500,
+	ID_U2Hellshot =			1501,
+	ID_U3Hellshot =			1502,
+	ID_U4Hellshot =			1503,
+*/
+
+// Descriptions for the upgrades
+
+#define WeaponCount 16
+#define UpgradeCount 4
+#define UpgradeProps 5
+str UpgradeDescriptions[WeaponCount][UpgradeCount][UpgradeProps] =
+{
+	{	// 0 - Nothing
+		{ "", "", "", "", "" },
+		{ "", "", "", "", "" },
+		{ "", "", "", "", "" },
+		{ "", "", "", "", "" }
+	},
+	{	// 1 - Pistol
+		{ "100", "Mk. V Charge Battery", "\cd+ Charge Speed", "", "" },
+		{ "101", "Mk. V Energy Converter", "\cd+ Charge Damage", "", "" },
+		{ "102", "Prototype Trigger", "Enables Primary Auto-Fire", "\cg- Primary Speed", "\cdFast Tapping Unchanged" },
+		{ "103", "Mk. VI Proto Generator", "\cd+ Primary Damage", "", "" }
+	},
+	{	// 2 - Shotgun
+		{ "200", "Triple Burst", "Fires three shells in rapid succession", "Secondary: Hold to Arm", "" },
+		{ "201", "Grenade", "Explosive grenade with a semi-long range of fire", "Secondary: Hold to Arm", "" },
+		{ "", "", "", "", "" },
+		{ "", "", "", "", "" }
+	},
+	{	// 3 - Double Barrel Shotgun
+		{ "300", "Shell Feeder", "Reduced reload time", "", "" },
+		{ "301", "Uranium Coating", "Bullets pierce enemies", "", "" },
+		{ "302", "Thickened Cylinders", "\cd- Horizontal Spread", "", "" },
+		{ "303", "Double Double Trouble Trouble", "Double the Gun. Double the Fun.", "Primary fires left | Secondary fires right", "" }
+	},
+	{	// 4 - Heavy Assault Rifle
+		{ "400", "Tactical Scope", "Allows zooming in, dealing extra damage while zoomed", "Secondary: Hold to Zoom", "\cdCan zoom while firing" },
+		{ "401", "Micro Missiles", "Fires micro missiles that stick to enemies and explode", "Secondary: Hold to Arm", "" },
+		
+		{ "", "", "", "", "" },
+		{ "", "", "", "", "" }
+	},
+	{	// 5 - Chaingun
+		{ "500", "Gatling Rotator", "Allows spinning of barrel to shoot explosive bullets", "Secondary: Hold to Spin", "" },
+		{ "501", "Turret Mode", "Deploys into a rapid fire turret", "Secondary: Hold to Deploy", "\cgSlows speed while deployed" },
+		{ "", "", "", "" },
+		{ "", "", "", "" }
+	},
+	{	// 6 - Rocket Launcher
+		{ "600", "Detonator", "Can explode once without destroying rocket", "Secondary: Detonate", "" },
+		{ "601", "Lock On", "Lock onto enemies and fire three homing rockets", "Secondary: Hold to lock on, then primary to activate", "" },
+		{ "", "", "", "", "" },
+		{ "", "", "", "", "" }
+	},
+	{	// 7 - Plasma Rifle
+		{ "700", "Heat Wave", "Discharges a wave of heat based on build-up", "Secondary: Unleash blast wave", "" },
+		{ "701", "Stun Bomb", "Radius projectile stuns enemies on explosion", "Secondary: Fires stun bomb", "\cgNo effect on bosses" },
+		{ "", "", "", "", "" },
+		{ "", "", "", "", "" }
+	},
+	{	// 8 - BFG
+		{ "800", "", "Increases ammo capacity", "", "" },
+		{ "801", "", "", "", "" },
+		{ "", "", "", "", "" },
+		{ "", "", "", "", "" }
+	},
+	{	// 9 - Gauss Cannon
+		{ "900", "Precision Shot", "Allows zooming in", "Secondary: Hold to Zoom \ck", "\cdIncreased damage + fire rate while zoomed" },
+		{ "901", "Siege Mode", "Unleashes massive cone of damage", "Secondary: Hold to Arm", "\cgGreatly slows speed while armed" },
+		{ "", "", "", "", "" },
+		{ "", "", "", "", "" }
+	},
+	{	// 10 - Chainsaw
+	},
+	{	// 11 - Static Rifle
+		{ "1100", "9V Battery", 		"\cdFaster Charge", "", "" },
+		{ "1101", "Capacitors", 		"\cdFaster Charge + Idle Loss Reduction", "", "" },
+		{ "1102", "Sleek Lance", 		"\cdFaster Charge + Idle Loss Reduction", "\cdPenetration", "" },
+		{ "1103", "Synergizer", 		"\cdFaster Charge + Idle Loss Reduction", "\cdPenetration + Multishot", "Refire freely after first shot until charge drains \n(primary or secondary)" }
+	},
+	{	// 12 - Repeater
+		{ "1200", "Uranium Coating", 			"\cd+ 1 Target Pierce", "", "" },
+		{ "1201", "Extended Barrel", 			"\cd+ Primary Damage", "\cg+ Ammo usage", "" },
+		{ "1202", "Brennbaren Zitronensaft",		 	"\cd+ Incendiary Bullet Damage", "", "" },
+		{ "1203", "Pyrolight", 					"\cd- Incendiary Ammo Cost", "", "" }
+	},
+	{	// 13 - Vortex Rifle
+		{ "1300", "Weakness Exposer", 			"\cd+ Unscoped Damage", "", "" },
+		{ "1301", "Hyper Compression Chamber", 	"\cd- Ammo Cost", "", "" },
+		{ "1302", "Craneless Sight", 			"Zoom: Full Movement Speed", "\cd+ Improved scope", "" },
+		{ "1303", "Drilling Head", 				"Secondary Fire Pierces", "", "" }
+	},
+	{	// 14 - Lightning Gun
+		{ "1400", "Inductive Clamp",	"\cd- Ammo Cost", "Chance to not consume ammo while firing", "" },
+		{ "1401", "Electrocoil",		"\cd+ Distance", "Doubled Range", "" },
+		{ "1402", "Amplifier",			"\cd+ Damage", "", "" },
+		{ "1403", "Bolt Buddy",			"Secondary Fire", "Jumps to nearby enemies", "" }
+	},
+	{	// 15 - Carrion Cannon
+		{ "1500", "Disintegrator Clamp",	"\cd- Ammo Cost", "Halved Consumption", "" },
+		{ "1501", "Bone Grinder",			"\cd+ Ammo Pickup", "Doubled Carrion Pickups", "" }
+	},
+};
+
+str WeaponText[16] =
+{
+	"None",
+	"Pistol",
+	"Shotgun",
+	"Double Barrel",
+	"Heavy Assault Rifle",
+	"Chaingun",
+	"Rocket Launcher",
+	"Plasma Rifle",
+	"BFG 9000",
+	"Gauss Cannon",
+	"Chainsaw",
+	"Static Rifle",
+	"Repeater",
+	"Vortex Rifle",
+	"Lightning Gun",
+	"Carrion Cannon",
+};
+
+//==============================================================================
+//==============================================================================
+// Holo System Information
+//==============================================================================
+//==============================================================================
+
+Script "ShowUpgradeName" (int id)
+{
+	SetActivator(0,AAPTR_PLAYER1);
+	int i1 = 0;
+	int i2 = 0;
+	bool found = false;
+	str sid = strparam(d:id);
+	
+	for (i1 = 1; i1 < WeaponCount; i1++)
+	{
+		for (i2 = 0; i2 <= UpgradeCount; i2++)
+		{
+			if (!StrIcmp(UpgradeDescriptions[i1][i2][0], sid))
+			{
+				SetFont("BIGFONT");
+				HudMessage(s:UpgradeDescriptions[i1][i2][1]; HUDMSG_PLAIN, 1105, CR_WHITE, 0.5, 0.1, 0);
+				SetFont("SMALLFONT");
+				HudMessage(s:UpgradeDescriptions[i1][i2][2]; HUDMSG_PLAIN, 1106, CR_GOLD, 0.5, 0.17, 0);
+				HudMessage(s:UpgradeDescriptions[i1][i2][3]; HUDMSG_PLAIN, 1107, CR_YELLOW, 0.5, 0.22, 0);
+				HudMessage(s:UpgradeDescriptions[i1][i2][4]; HUDMSG_PLAIN, 1108, CR_YELLOW, 0.5, 0.275, 0);
+				Terminate;
+			}
+		}
+	}
+	/*
+	if (!found)
+	{
+		Log(s: "Unable to find ID ", d: id, s: "\n");
+		Terminate;
+	} */
+}
+			
+Script "ShowName" (int id)
+{
+	SetActivator(0,AAPTR_PLAYER1);
+	SetFont("BIGFONT");
+	HudMessage(s:WeaponText[id]; HUDMSG_PLAIN, 1104, CR_GOLD, 1.5, 0.3, 0);
+}
+
+Script "ShowCost" (int cost, int ns, int ew)
+{
+	SetActivator(0,AAPTR_PLAYER1);
+	SetFont("BIGFONT");
+	//SetHudSize(1024,768,0);
+	int HudX = (1.5 - (0.25 * ew));
+	int HudY = (0.575 - (0.30 * ns));
+	if (!ns)	HudX = (1.5 - (0.35 * ew));
+	int cash = CheckInventory("D4DCash");
+	
+	if (cost == -2 || cost == 0)
+		HudMessage(s: "FREE"; HUDMSG_PLAIN,1100,CR_GOLD,HudX,HudY,0);
+	else if (cost == -1)
+		HudMessage(s:"In Yu-Double-Ess-ARRRR, \nmy comrade,\nSpinmegun is paid for YOU."; HUDMSG_PLAIN, 1100, CR_GOLD, 1.5, 0.65, 0);
+	else if (cost > cash)
+		HudMessage(d: cost; HUDMSG_PLAIN,1100,CR_RED,HudX,HudY,0);
+	else
+		HudMessage(d: cost; HUDMSG_PLAIN,1100,CR_GREEN,HudX,HudY,0);
+}
+
+Script "ShowRequirements" (int which, int ns, int ew)
+{
+	SetActivator(0,AAPTR_PLAYER1);
+	if (which)
+	{
+		int ID = 1097;
+		int HudX = (1.5 - (0.30 * ew));
+		int HudY1 = (0.5 - (0.20 * ns));
+		int HudY2 = (0.5 - (0.25 * ns));
+		int HudY3 = (0.5 - (0.30 * ns));
+		SetFont("SMALLFONT");
+		switch (which)
+		{
+			case 1:
+				if (CheckInventory("SSGUpgrade1"))	HudMessage(s: "Reload"; HUDMSG_PLAIN,ID,CR_GREEN,	HudX,HudY1,0);
+				else								HudMessage(s: "Reload"; HUDMSG_PLAIN,ID,CR_RED,		HudX,HudY1,0);
+				
+				if (CheckInventory("SSGUpgrade2"))	HudMessage(s: "Pierce"; HUDMSG_PLAIN,ID+1,CR_GREEN,	HudX,HudY2,0);
+				else								HudMessage(s: "Pierce"; HUDMSG_PLAIN,ID+1,CR_RED,	HudX,HudY2,0);
+				break;
+			Case 3:
+				if (CheckInventory("StaticUpgrade1"))	HudMessage(s: "9V"; HUDMSG_PLAIN,ID,CR_GREEN,	HudX,HudY1,0);
+				else									HudMessage(s: "9V"; HUDMSG_PLAIN,ID,CR_RED,		HudX,HudY1,0);
+				break;
+			Case 4:
+				if (CheckInventory("StaticUpgrade2"))	HudMessage(s: "Capacitor"; HUDMSG_PLAIN,ID,CR_GREEN,	HudX,HudY1,0);
+				else									HudMessage(s: "Capacitor"; HUDMSG_PLAIN,ID,CR_RED,		HudX,HudY1,0);
+				break;
+			Case 5:
+				if (CheckInventory("StaticUpgrade3"))	HudMessage(s: "Lance"; HUDMSG_PLAIN,ID,CR_GREEN,	HudX,HudY1,0);
+				else									HudMessage(s: "Lance"; HUDMSG_PLAIN,ID,CR_RED,		HudX,HudY1,0);
+				break;
+		}
+	}
+}
+
+Script "ClearHoloText" (void)
+{
+	SetActivator(0,AAPTR_PLAYER1);
+	int start = 1097;
+	int end = 1108;
+	int ID = start;
+	
+	while (ID <= end)
+	{
+		HudMessage(s:"";HUDMSG_PLAIN,ID,CR_WHITE,0,0,1);
+		ID++;
+	}
+}
+
+//==============================================================================
+//==============================================================================
+// Fuck death exits.
+//==============================================================================
+//==============================================================================
+
+// To expand saved item protection, simply increase the ItemTypeCount by
+// however many is needed, and make sure the cvar exists with the EXACT SAME
+// NAME AS THE ITEM. This will ease everyone's lives since it takes up less
+// memory and only requires a single array.
+
+// The scripts are optimized to process this array list. They expect the cvar
+// name to be the same as the item. Don't touch the functions.
+
+#define ItemTypeCount 69
+#define ItemWatchMin 1
+#define ItemWatchMax 24
+str SavedItems[ItemTypeCount] =
+{	
+	"D4DCash",
+	"AssaultRifleMod1", //1
+	"AssaultRifleMod2",
+	"ChaingunMod1",
+	"ChaingunMod2",
+	"GaussCannonMod1",
+	"GaussCannonMod2",
+	"PlasmaRifleMod1",
+	"PlasmaRifleMod2",
+	"RocketLauncherMod1",
+	"RocketLauncherMod2",
+	"ShotgunMod1",
+	"ShotgunMod2",
+	"SSGUpgrade1",
+	"SSGUpgrade2",
+	"SSGUpgrade3",
+	"SSGUpgrade4",
+	"PistolUpgradeAutomatic",
+	"PistolUpgradeAltDamage",
+	"PistolUpgradeAltCharge",
+	"PistolUpgradeDamage", //20
+	"BFGUpgrade1",
+	"BFGUpgrade2",
+	"BFGUpgrade3",
+	"BFGUpgrade4",
+	"StaticUpgrade1",
+	"StaticUpgrade2",
+	"StaticUpgrade3",
+	"StaticUpgrade4",
+	"SovietActive",
+	"SovietToken",
+	"LGUpgradeAmmo",
+	"LGUpgradeRange",
+	"LGUpgradeDamage",
+	"LGUpgradeAltFire",
+	"VortexUpgradeDamage",
+	"VortexUpgradeAmmo",
+	"VortexUpgradeAltSpeed",
+	"VortexUpgradeAltPierce",
+	"RepeaterUpgradePiercing",
+	"RepeaterUpgradeDamage",
+	"RepeaterUpgradeAltDamage",
+	"RepeaterUpgradeAltAmmo",
+	"D4CarrionCannon",
+	"D4CarrionToken",
+	"CarrionLevel",
+	"CarrionUpgradePickup",
+	"CarrionUpgradeAmmo",
+	"CarrionUpgradeStun",
+	"CarrionUpgradeTime",
+	"DollUses",
+	"FragGrenadePickup",
+	"HoloGrenadePickup",
+	"SyphonGrenadePickup",
+	"FragGrenadeSelected",
+	"MarineHoloSelected",
+	"SyphonGrenadeSelected",
+	"D4Stamina",
+	"ProtectionBonus1",
+	"ProtectionBonus2",
+	"ProtectionBonus3",
+	"D4ArmorCapRaiser",
+	"D4AirControl",
+	"D4HigherJump",
+	"D4MultiJump",
+	"D4CrateUpgrade",
+	"CashPercentBonus",
+};
+
+// Don't touch these.
+Script "SaveTokens" UNLOADING
+{
+	SetActivator(0,AAPTR_PLAYER1);
+	
+	if (GetActorProperty(0,APROP_Health) <= 0)
+		died = true;
+	else	
+		died = false;
+		
+	for (int i = 0; i < ItemTypeCount; i++)
+	{
+		SetCvar(SavedItems[i], CheckInventory(SavedItems[i]));
+	}	
+}
+
+Script "RestoreTokens" ENTER
+{
+	SetActivator(0,AAPTR_PLAYER1);
+	if (died)
+	{	
+		for (int i = 0; i < ItemTypeCount; i++)
+		{
+			int cvar = GetCvar(SavedItems[i]);
+			if (cvar)	GiveInventory(SavedItems[i], cvar);
+		}
+		if (GetCvar("D4MultiJump") != CheckInventory("D4MultiJump"))
+		{
+			TakeInventory("D4MultiJump",32767);
+			GiveInventory("D4MultiJump",GetCvar("D4MultiJump"));
+		}
+		GiveInventory("D4HealthUpgrade",GetCvar("D4Stamina"));
+		died = false;
+	}
+}
+
+Script "UpdateBFGAmmo" ENTER
+{
+	SetActivator(0,AAPTR_PLAYER1);
+	if (GetCvar("BFGUpgrade1"))
+	{
+		SetAmmoCapacity("D4BFGAmmo",4);
+	}
+}
+
+str WeaponList[16] =
+{
+	"D4CarrionCannon",
+	"D4GaussCannon",
+	"D4PlasmaRifle",
+	"D4RocketLauncher",
+	"D4AssaultRifle",
+	"D4Chaingun",
+	"D4Supershotgun",
+	"D4Shotgun",
+	"D4StaticRifle",
+	"D4LightningGun",
+	"D4Pistol",
+	"D4BFG",
+	"D4Repeater",
+	"D4VortexRifle",
+};
+
+Script "UpdateWeaponList" (void)
+{
+	SetActivator(0,AAPTR_PLAYER1);
+	
+	SetCvar("D4DCash",CheckInventory("D4DCash"));
+	int cv = 0, ci = 0;
+	
+	for (int i = 0; i < 14; i++)
+	{
+		SetCvar(WeaponList[i], CheckInventory(WeaponList[i]));
+	}
+	
+	for (i = 0; i < ItemTypeCount; i++)
+	{
+		ci = CheckInventory(SavedItems[i]);
+		SetCvar(SavedItems[i], ci);
+	}
+}
+
+Script "RefreshCredits" (void)
+{
+	int t;
+		
+	for (int i = ItemWatchMin; i <= ItemWatchMax; i++)
+	{
+		if (!GetCvar(SavedItems[i]))
+			break;
+		t++;
+	}
+	if (t >= ItemWatchMax - ItemWatchMin)
+		SetCvar("ChaingunSpec", true);
+	else
+		SetCvar("ChaingunSpec", false);
+	
+	ACS_NamedTerminate("ShowCash",0);
+	Delay(1);
+	ACS_NamedExecute("ShowCash",0,0,0,0);
+}

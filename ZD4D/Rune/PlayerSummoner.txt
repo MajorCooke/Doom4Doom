@@ -1,0 +1,537 @@
+//=================================================================================================
+//=================================================================================================
+
+//		Archvile
+
+//=================================================================================================
+//=================================================================================================
+Class ArchvileRune : DemonRuneBase
+{
+	Default 
+	{
+		Inventory.PickupMessage "Summoner rune";
+		Scale 0.115;
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0 
+		{
+			if (CountInv("IamADemonToken") || CountInv("PowerInvulBase") || countinv("D4DoomDollHands") || countinv("BusyToken")) //if already a demon...
+			{
+				return false;	//...cant pickup
+			}
+			else	//otherwise..
+			{
+				A_GiveInventory("SoundStopper",1); //stops any sound (mostly for the looping ones)
+				A_GiveInventory("HealthArmorSaver",1);
+				A_GiveInventory("IamADemonToken",1); //...gives token and morphs
+				A_GiveInventory("IamArchvile",1); 
+				A_GiveInventory("ArchvileMorpher",1);
+				return true;
+			}
+		}
+		Stop;
+	}
+}
+
+Class ArchvileMorpher: PowerupGiver
+{
+	Default 
+	{
+		Inventory.MaxAmount 1;
+		Inventory.Amount 1;
+		Powerup.Type "PowerArchvileMorph";
+		Powerup.Duration -60;
+		+Inventory.AutoActivate
+	}
+	States
+	{
+		Spawn:
+			PLAY A 3;
+			Loop;
+	}
+}
+
+Class PowerArchvileMorph : PowerMorph
+{
+	Default 
+	{
+		PowerMorph.PlayerClass "PlayerArchvile";
+		PowerMorph.MorphStyle (MRF_FULLHEALTH|MRF_UNDOBYDEATH|MRF_UNDOBYDEATHSAVES|MRF_UNDOBYTOMEOFPOWER|MRF_LOSEACTUALWEAPON|MRF_NEWTIDBEHAVIOUR|MRF_UNDOALWAYS|MRF_FAILNOTELEFRAG);
+		PowerMorph.UnMorphFlash "DemonRuneMorphOff";
+		PowerMorph.MorphFlash "DemonRuneMorphOn";
+	}
+}
+
+
+Class PlayerArchvile : DemonPlayerBase
+{
+	double user_speed;
+	
+	Default 
+	{
+		Speed 1;
+		Health 1000;
+		Radius 16;
+		Height 56;
+		Mass 600;
+		PainChance 20;
+		Gravity 0.7;
+		+SLIDESONWALLS
+		Player.JumpZ 7;
+		Player.MorphWeapon "D4DArchvileWeapon";
+		Player.ViewHeight 56;
+		Player.AttackZOffset 10;
+		Player.CrouchSprite "DIAB";
+		Player.SoundClass "PlayerDemonCommon";
+		PainSound "Doom4/Monsters/Archvile/Pain";
+		DeathSound "Doom4/Monsters/Archvile/Death";
+		Player.ForwardMove 1.2, 1.2;
+		Player.SideMove 1.2, 1.2;
+		DamageFactor "Normal", 0.5;
+		+NOSKIN
+		-PICKUP
+	}
+	States
+	{
+	Spawn:
+		DIAB A -1;
+		Stop;
+	See:
+		DIAB ABCDEF 4;
+		Loop;
+	Pain:
+		DIAB Q 5 A_Pain();
+		Goto Spawn;
+	Missile:
+	Melee:
+		DIAB MLKJI 4;
+		Goto Spawn;
+	Death:
+		TNT1 A 3 A_Scream();
+		TNT1 B 3 A_NoBlocking();
+		TNT1 CDEFGH 3;
+		TNT1 I -1;
+		Stop;
+	Overlay.IdleSound:
+		TNT1 A 35;
+		TNT1 A 0 
+		{
+			if (!GetCvar("D4D_SilentMorphs") && random(1,4)==4)
+			{	A_PlaySound("Doom4/Monsters/Archvile/Idle",5);	}
+		}
+		Loop;
+	Overlay.Steps:
+		TNT1 A 5
+		{
+		
+			user_speed = (vel.x*vel.x + vel.y*vel.y);
+			if(A_CheckFloor("Null"))
+			{
+				if(user_speed > 150)
+				{
+					A_PlaySound("Player/Demon/LightDemonStep",CHAN_AUTO,0.5);
+					A_SetTics(12);
+				}
+				else if(user_speed > 20)
+				{
+					A_PlaySound("Player/Demon/LightDemonStep",CHAN_AUTO,0.5);
+					A_SetTics(15);
+				}
+			}
+		}
+		Loop;
+	}
+}
+
+Class D4DArchvileWeapon : DoomWeapon
+{
+	int count;
+	Default 
+	{
+		Tag "Argent Blast";
+	}
+	States
+	{
+	Ready:
+		TNT1 A 1 A_WeaponReady(WRF_DISABLESWITCH);
+		Loop;
+	Deselect:
+		TNT1 A 1 A_Lower;
+		Loop;
+	Select:
+		TNT1 A 1 A_Raise;
+		Loop;
+	Fire:
+		TNT1 A 0 
+		{
+			A_PlaySound("Doom4/Monsters/ArgentCharge",6);
+			if (GetCvar("HQEffectsWeapons"))
+			{	A_SpawnItemEx("SummonerPlayerMuzzle",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);	}
+		}
+	FireLooper:
+		TNT1 A 1
+		{
+			A_GiveInventory("PlayerArchvileCharges",2);
+			invoker.count = (invoker.count + 1) % 3;
+			if (!invoker.count)
+			{	A_FireBullets(0,0,1,0,"PlayerSummonerSparks",FBF_NORANDOMPUFFZ,1536);	}
+			if (CountInv("PlayerArchvileCharges")>=90)
+			{A_QuakeEx(0,1,0,5,0,48,"",QF_Relative,0,0,0,0,0,1);}
+		}
+		TNT1 A 0 A_Refire("FireLooper");
+		Goto Release;
+	Release:
+		TNT1 A 12 
+		{
+			A_RemoveChildren(true,RMVF_EVERYTHING,"SummonerPlayerMuzzle");
+			A_StopSound(6);
+			
+			if (CountInv("PlayerArchvileCharges")>=90)
+			{	
+				A_FireProjectile("PlayerSummonerProjectile4",0,0,0);	
+				A_PlaySound("Doom4/Monsters/ArgentWaveFire",CHAN_WEAPON);
+				A_SetBlend("DarkRed",0.5,35);
+			}
+			else if (CountInv("PlayerArchvileCharges")>=60)
+			{	
+				A_FireProjectile("PlayerSummonerProjectile3",0,0,0);	
+				A_PlaySound("Doom4/Monsters/ArgentWaveFire",CHAN_WEAPON,0.8);
+				A_SetBlend("DarkRed",0.4,25);
+			}
+			else if (CountInv("PlayerArchvileCharges")>=30)
+			{	
+				A_FireProjectile("PlayerSummonerProjectile2",0,0,0);	
+				A_PlaySound("Doom4/Monsters/ArgentWaveFire",CHAN_WEAPON,0.6);
+				A_SetBlend("DarkRed",0.25,15);
+			}
+			else
+			{	
+				A_FireProjectile("PlayerSummonerProjectile1",0,0,0);	
+				A_PlaySound("Doom4/Monsters/ArgentWaveFire",CHAN_WEAPON,0.4);
+				A_SetBlend("DarkRed",0.1,15);
+			}
+			A_TakeInventory("PlayerArchvileCharges",32768);
+		}
+		Goto Ready;
+		
+		
+		
+		
+	AltFire:
+		TNT1 A 25
+		{
+			A_PlaySound("Doom4/Monsters/ArgentCharge",6);
+			A_QuakeEx(0,1,1,30,0,48,"",QF_Relative,0,0,0,0,0,1);
+			A_SetInventory("PlayerArchvileCharges",90);
+			
+			if (GetCvar("HQEffectsWeapons"))
+			{	A_SpawnItemEx("SummonerPlayerMuzzle",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);	}
+		}
+		TNT1 A 10 
+		{
+			A_FireProjectile("ArchieMonsterDropper",0,1,0,1);
+			A_RemoveChildren(true,RMVF_EVERYTHING,"SummonerPlayerMuzzle");
+			A_SetInventory("PlayerArchvileCharges",0);
+		}
+		Goto Ready;
+
+
+	Spawn:
+		SHOT A -1;
+		Stop;
+	}
+}	
+//-----------------------------------------------
+// Primary
+
+//************
+//to track how much has the shot charged
+Class PlayerArchvileCharges : Inventory { Default { Inventory.MaxAmount 90;} }
+
+//************
+//main Projectile;
+Class PlayerSummonerProjectileBase : FastProjectile
+{
+	Default 
+	{
+		Projectile;
+		Speed 80;
+		Radius 8;
+		Height 16;
+		DamageFunction (random(300,500));
+		RenderStyle "Add";
+		Xscale 0.3;
+		Yscale 0.8;
+		+EXTREMEDEATH
+		+RIPPER
+		Translation "0:255=%[0,0,0]:[1.0,0.0,0.0]";
+		MissileType "SummonerTrailSpawner";
+		MissileHeight 8;
+	}
+	States
+	{
+	Spawn:
+		X016 ABCDEFGHIJKLMNOPQRSTUVWXY 1 Bright A_Explode(20,64,0);
+		Loop;
+	Death:
+		TNT1 A 10;
+		Stop;
+		
+	}
+}
+Class PlayerSummonerProjectile1 : PlayerSummonerProjectileBase
+{
+	Default 
+	{
+		Xscale 0.1;
+		Yscale 0.24;
+		Speed 30;
+		Damage 2;
+		MissileType "PlayerSummonerTrailSpawner1";
+	}
+	States
+	{	Spawn:	X016 ABCDEFGHIJKLMNOPQRSTUVWXY 1 Bright A_Explode(10,64,0);		Loop;}
+}
+Class PlayerSummonerProjectile2 : PlayerSummonerProjectileBase
+{
+	Default 
+	{
+		Xscale 0.2;
+		Yscale 0.48;
+		Speed 45;
+		Damage 5;
+		MissileType "PlayerSummonerTrailSpawner2";
+	}
+	States
+	{	Spawn:	X016 ABCDEFGHIJKLMNOPQRSTUVWXY 1 Bright A_Explode(20,64,0);		Loop;}
+}
+Class PlayerSummonerProjectile3 : PlayerSummonerProjectileBase
+{
+	Default 
+	{
+		Xscale 0.25;
+		Yscale 0.6;
+		Speed 60;
+		Damage 8;
+		MissileType "PlayerSummonerTrailSpawner3";
+	}
+	States
+	{	Spawn:	X016 ABCDEFGHIJKLMNOPQRSTUVWXY 1 Bright A_Explode(30,96,0);		Loop;}
+}
+Class PlayerSummonerProjectile4 : PlayerSummonerProjectileBase
+{
+	Default 
+	{
+		Xscale 0.3;
+		Yscale 0.8;
+		Speed 80;
+		Damage 15;
+		MissileType "PlayerSummonerTrailSpawner4";
+	}
+	States
+	{	Spawn:	X016 ABCDEFGHIJKLMNOPQRSTUVWXY 1 Bright A_Explode(40,128,0);		Loop;}
+}
+
+//************
+// trails for the Projectile;
+Class PlayerSummonerTrailSpawner1 : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 3 NODELAY
+		{
+			A_SpawnItemEx("SummonerTrail",-2,0,random(0,10),0,0,frandom(0.5,1),0,SXF_NOCHECKPOSITION,210);
+			A_SpawnItemEx("SummonerTrail",-2,0,random(0,-10),0,0,frandom(-0.5,-1),0,SXF_NOCHECKPOSITION,210);
+		}
+		Stop;
+	}
+}
+Class PlayerSummonerTrailSpawner2 : PlayerSummonerTrailSpawner1
+{
+	States
+	{
+	Spawn:
+		TNT1 A 3 NODELAY
+		{
+			A_SpawnItemEx("SummonerTrail",-2,0,random(0,10),0,0,frandom(0.5,2),0,SXF_NOCHECKPOSITION,180);
+			A_SpawnItemEx("SummonerTrail",-2,0,random(0,-10),0,0,frandom(-0.5,-2),0,SXF_NOCHECKPOSITION,180);
+		}
+		Stop;
+	}
+}
+Class PlayerSummonerTrailSpawner3 : PlayerSummonerTrailSpawner1
+{
+	States
+	{
+	Spawn:
+		TNT1 A 3 NODELAY
+		{
+			A_SpawnItemEx("SummonerTrail",-2,0,random(0,10),0,0,frandom(0.5,3),0,SXF_NOCHECKPOSITION,128);
+			A_SpawnItemEx("SummonerTrail",-2,0,random(0,-10),0,0,frandom(-0.5,-3),0,SXF_NOCHECKPOSITION,128);
+		}
+		Stop;
+	}
+}
+
+Class PlayerSummonerTrailSpawner4 : PlayerSummonerTrailSpawner1
+{
+	States
+	{
+	Spawn:
+		TNT1 A 3 NODELAY
+		{
+			A_SpawnItemEx("SummonerTrail",-2,0,random(0,10),0,0,frandom(0.5,4),0,SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("SummonerTrail",-2,0,random(0,-10),0,0,frandom(-0.5,-4),0,SXF_NOCHECKPOSITION);
+		}
+		Stop;
+	}
+}
+
+
+//************
+// puff on the wall stuff
+
+Class PlayerSummonerSparks : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+BLOODLESSIMPACT
+		+FORCEXYBILLBOARD
+		+ALWAYSPUFF
+		+PUFFONACTORS
+		Translation "0:255=%[0,0,0]:[1.0,0.0,0.0]";
+		Scale 0.4;
+		RenderStyle "Add";
+		Alpha 0.99;
+		Height 1;
+		Radius 1;
+	}
+	States
+	{
+	Spawn:
+		DB08 A 0 Nodelay A_Jump(256,2,4,6,8,10,12,14,16,18,20,22,24);
+		DB08 ABCDEFGHIJKLMNOPQRSTUVWXYABCDEFGHIJKLMNOPQRSTUVWXY 0 Bright A_Jump(256,"PlayOff");
+	PlayOff:
+		"####" "####" 1 Bright
+		{			
+			A_SetScale(frandom(0.55,0.7));
+			A_SpawnItemEx("PlayerSummonerTargetingSparks",0,0,0,1,frandom(3,-3),frandom(0.5,-0.5), 0,SXF_NOCHECKPOSITION,128);
+		}
+		Stop;
+	}
+}
+
+Class PlayerSummonerTargetingSparks : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		Scale 0.7;
+		RenderStyle "Add";
+		Alpha 0.99;
+		Height 1;
+		Radius 1;
+		+FORCEXYBILLBOARD
+		Translation "0:255=%[0,0,0]:[1.0,0.0,0.0]";
+	}
+	States
+	{
+	Spawn:
+		X079 A 0 NODELAY A_Jump(256,1,2,3,4,5,6,7,8);
+		X079 ABCDEFGH 0 A_Jump(256,"PlayOff");
+	PlayOff:
+		"####" "###" 1;
+		Stop;
+	}
+}
+
+
+
+//************
+// hand sparks effect
+
+Class SummonerPlayerMuzzle : Actor 
+{
+	const Flags = WARPF_NOCHECKPOSITION|WARPF_COPYPITCH;
+	const Distance = 19;
+	const YOff = 16;
+	const ZOff = 45;
+	double user_pos;
+	int user_t;
+	
+	Default 
+	{
+		Projectile;
+		+NOINTERACTION
+		RenderStyle "None";
+		Scale 0.0;
+		Alpha 0.01;
+		+FORCEXYBILLBOARD
+		Translation "0:255=%[0,0,0]:[2.0,1.3,0.3]";
+	}
+	States
+	{
+	Spawn:
+		X060 A 1 BRIGHT NoDelay
+		{
+			if (master) { pitch = master.pitch; } //Grab the pitch...
+			
+			// And set a multiplier for taking from the distance so it actually goes well with the gun.
+			
+			if (pitch > 0) //Looking down
+			{	user_pos = (sin(pitch) * 12);	}
+			else //Looking up
+			{	user_pos = (sin(pitch) * 6);	}
+			
+			
+			A_Warp(MasterPtr,
+				(cos(-pitch)*(Distance)) - user_pos,
+				YOff,
+				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
+			user_t++;
+			A_SpawnItemEx("PlayerSummonerHandSparks",0,0,-3,sin(-pitch)*frandom(0.25,0.25),frandom(-0.7,-0.7),cos(pitch)*frandom(0.8,-2.5),0,SXF_NOCHECKPOSITION,255-(user_t*6));
+			A_SpawnItemEx("PlayerSummonerHandSparks",0,-30,-3,sin(-pitch)*frandom(0.25,0.25),frandom(-0.7,-0.7),cos(pitch)*frandom(0.8,-2.5),0,SXF_NOCHECKPOSITION,255-(user_t*6));
+		}
+		Loop;
+	Nothing:
+		TNT1 A 100;
+		Stop;
+	}
+}
+
+
+Class PlayerSummonerHandSparks : SummonerHandSparks	//spawned in the hands of the archvile
+{
+	Default 
+	{
+		+NOINTERACTION
+		Scale 0.15;
+		RenderStyle "Add";
+		Translation "0:255=%[0,0,0]:[2.0,0.0,0.0]";
+		+FORCEXYBILLBOARD
+		+ROLLSPRITE
+		+ROLLCENTER
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_SetRoll(random(0,359));
+		TNT1 A 0 A_Jump(256,1,2,3,4,5,6,7,8);
+		X079 ABCDEFGH 0	A_Jump(256,"Perform");
+	Perform:
+		"####" "#" 1 Bright 
+		{
+			A_FadeOut(0.05);
+			A_SetScale(Scale.X+0.006);
+		}
+		Loop;
+	}
+}

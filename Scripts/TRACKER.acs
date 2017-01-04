@@ -1,0 +1,126 @@
+#library "TRACKER"
+#include "zcommon.acs"
+
+#define MAX_WEAPONS 32
+
+str ammotype[MAX_WEAPONS][2]=
+{ //{"WeaponName",		"AmmoType",max1,	max2}
+	{"Nothing",			"Nothing"	},
+	{"D4Shotgun",		"D4Shells"	},
+	{"D4SuperShotgun",	"D4Shells"	},
+	{"D4AssaultRifle",	"D4Bullets"	},
+	{"D4Chaingun",		"D4Bullets"	},
+	{"D4RocketLauncher","D4Rockets"	},
+	{"D4PlasmaRifle",	"D4Cells"	},
+	{"D4LightningGun",	"D4Cells"	},
+	{"D4GaussCannon",	"D4Cells"	},
+	{"D4Pistol",		"Nothing"	},
+	{"D4DFist",			"Nothing"	},
+	{"D4Chainsaw",		"D4Fuel"	},
+	{"D4BFG",			"D4BFGAmmo"	},
+	{"D4Repeater",		"D4Bullets"	},
+	{"D4VortexRifle",	"D4Cells"	},
+	{"D4StaticRifle",	"StaticRifleChargingToken"	},
+	{"D4CarrionCannon",	"D4Carrion"	}
+};
+
+// These two arrays whould be in the same order 
+int ammomax[MAX_WEAPONS][2]=
+{
+	{  -1,	  -1},
+	{  45,	  75},
+	{  45,	  75},
+	{ 250,	 350},
+	{ 250,	 350},
+	{  30,	  40},
+	{ 200,	 300},
+	{ 200,	 300},
+	{ 200,	 300},
+	{   0,	   0},
+	{   0,	   0},
+	{ 509,	 809},
+	{ 309,	 409},
+	{ 250,	 350},
+	{ 200,	 300},
+	{ 520,	 520},
+	{5000,	5000}
+};
+
+script "WhichWeapon" (void)
+{
+	SetActivatorToTarget(0);
+	str weapon = GetWeapon();
+	SetResultValue(-1);
+	for(int i=0; i<MAX_WEAPONS; i++)
+		if(!stricmp(weapon,ammotype[i][0]))
+		{
+			SetResultValue(i);
+			break;
+		}
+}
+
+script "Tracker" OPEN
+{
+	int plrptr, plr, buttons;
+	int health, armor, ammo, ammo2, i;
+	while (true)
+	{
+		plr = 0;
+		for( plrptr    = AAPTR_PLAYER1; 
+			 plrptr   <= AAPTR_PLAYER8; 
+			 plrptr  <<= 1 				)
+		{
+			if(SetActivator(0, plrptr))
+			{
+				plr = PlayerNumber();
+				
+				////////////////////////////////////////////////////////////////
+				//
+				//	AMMO BARS
+				//
+				////////////////////////////////////////////////////////////////
+				
+				TakeInventory("SuperAmmoToken",		0x7FFFFFFF);
+				TakeInventory("AmmoToken",			0x7FFFFFFF);
+				
+				str weapon = GetWeapon();
+				for(i=0; i<MAX_WEAPONS; i++)
+					if(!stricmp(weapon,ammotype[i][0]))
+					{
+						int max1 = ammomax[i][0];
+						int max2 = ammomax[i][1];
+						
+						// lol wtf
+						if(max1 % 10 == 9) max1 /= 100;
+						if(max2 % 10 == 9) max2 /= 100;
+						
+						int now = CheckInventory(ammotype[i][1]);
+						
+						if((CheckInventory(ammotype[i][1]) > max1) && (max2 > max1))
+						{
+							ammo2 = (now  - max1) * 100 / 
+									(max2 - max1);
+							ammo = 100;
+						}
+						else if(max1 > 0)
+						{
+							ammo2 = 0;
+							ammo = now * 100 / max1;
+						}
+						else
+						{
+							ammo2 = 0;
+							ammo = 0;
+						}
+					}
+				
+
+				GiveInventory("SuperAmmoToken", ammo2);
+				GiveInventory("AmmoToken", ammo);
+				
+			}
+		}
+		delay(1);
+	}
+	print(s:"\cgfinished\n\nPlayer shouldn't ever see this. \nReport that tracker's loop has finished.");
+}

@@ -1,0 +1,1970 @@
+
+//==============================================================================
+//==============================================================================
+// Main Menu
+//==============================================================================
+//==============================================================================
+
+LISTMENU "MainMenu"
+{
+	StaticPatch 94, 2, "M_DOOM"
+	Position 97, 72
+	IfOption(ReadThis)
+	{
+		Position 97, 64
+	}
+	
+	PatchItem "M_NGAME", "n", "PlayerclassMenu"
+	ifOption(SwapMenu)
+	{
+		PatchItem "M_LOADG", "l", "LoadGameMenu"
+		PatchItem "M_SAVEG", "s", "SaveGameMenu"
+		PatchItem "M_OPTION","o", "OptionsMenu"
+	}
+	else
+	{
+		PatchItem "M_OPTION","o", "OptionsMenu"
+		PatchItem "M_LOADG", "l", "LoadGameMenu"
+		PatchItem "M_SAVEG", "s", "SaveGameMenu"
+	}
+	ifOption(ReadThis)
+	{
+		PatchItem "M_RDTHIS","r", "ReadThisMenu"
+	}
+	PatchItem "M_QUITG", "q", "QuitMenu"
+	
+	StaticPatch 160, 200, "uacbottm"
+}
+
+//==============================================================================
+//==============================================================================
+// Options
+//==============================================================================
+//==============================================================================
+
+OptionMenu "OptionsMenu"
+{
+	Title "$OPTMNU_TITLE"
+	Submenu "D4D Mod Options",			"D4DOptions"
+	StaticText " "
+	Submenu "$OPTMNU_CONTROLS",			"CustomizeControls"
+	Submenu "$OPTMNU_MOUSE",			"MouseOptions"
+	Submenu "$OPTMNU_JOYSTICK",			"JoystickOptions"
+	StaticText " "
+	Submenu "$OPTMNU_PLAYER",			"PlayerMenu"
+	Submenu "$OPTMNU_GAMEPLAY",			"GameplayOptions"
+	Submenu "$OPTMNU_COMPATIBILITY",	"CompatibilityOptions"
+	Submenu "$OPTMNU_AUTOMAP",			"AutomapOptions"
+	Submenu "$OPTMNU_HUD",				"HUDOptions"
+	Submenu "$OPTMNU_MISCELLANEOUS",	"MiscOptions"
+	Submenu "$OPTMNU_NETWORK",			"NetworkOptions"
+	Submenu "$OPTMNU_SOUND",			"SoundOptions"
+	Submenu "$OPTMNU_DISPLAY",			"VideoOptions"
+	Submenu "$OPTMNU_VIDEO",			"VideoModeMenu"
+	StaticText " "
+	SafeCommand "$OPTMNU_DEFAULTS",		"reset2defaults"
+	SafeCommand	"$OPTMNU_RESETTOSAVED",	"reset2saved"
+	Command "$OPTMNU_CONSOLE",			"menuconsole"
+}
+
+OptionMenu "D4DOptions"
+{
+	Title "D4D Mod Options"
+	SubMenu "Customize Keybinds",			"D4DKeybinds"
+	Submenu "Glory Kill Options",			"D4DGloryKillOptions"
+	Submenu "Gore Options",					"D4DGoreOptions"
+	Submenu "Display Options",				"D4DDisplayOptions"
+	StaticText ""
+	StaticText "Gameplay Options", 1
+	Option "Haste Spawn Frequency",			"D4D_HasteSpawn",		"HasteSpawn"
+	Option "Monster type",					"user_MonsterType",		"DemonType"
+	Option "Monsters drop loot",			"user_LootDrop",		"LootType"
+	Option "Double jump",					"user_MultiJump",		"OnOff"
+	Option "Ledge grabbing",				"d4d_allowClimbing",	"OnOff"
+	Option "Syphon strength",				"user_SyphonStrength",	"SyphonStrength"
+	StaticText ""
+	StaticText "Monster Behaviour", 1
+	Option "Enhanced Monster Chasing",		"D4D_EnhancedChase",	"OnOff"
+	Option "Archvile monster infights",		"user_ArchvileInfighting",	"YesNo"
+	Option "D4D HellKnight melee only",		"D4D_HKMeleeOnly",			"OnOff"
+	StaticText ""
+	StaticText "Demon Runes", 1
+	Option "Spawn Demon Runes",					"D4D_DemonRunes",		"DemonRunes"
+	Option "Silent idle demon-player",			"D4D_SilentMorphs",		"YesNo"
+	Option "Show HUD Demon Name",			"D4D_DemonNameDisplay",		"YesNo"
+	Option "Demon Rune Warning",			"D4D_DemonWarning",		"OnOff"
+	StaticText ""
+	StaticText "Multiplayer Weapons", 1
+	Option "Spawn MP weapons",				"MPWeapons",			"OnOff"
+	Option "Spawn style",					"MPSpawnProgressive",	"MPProg"
+	StaticText ""
+	StaticText "Footsteps", 1
+	Slider "Footsteps volume",				"fs_volume_mul",	0.0, 3.0, 0.1, 2
+	Slider "Footsteps frequency",			"fs_delay_mul",		0.8, 1.3, 0.025, 3
+}
+OptionMenu "D4DGloryKillOptions"
+{
+	Title "Glory Kill Options"
+	StaticText ""
+	StaticText "Melee Executions refers to being able to quickly execute a monster that has","Gold"
+	StaticText "been weakened. When executions are ON, this implies custom behaviour for the","Gold"
+	StaticText "monsters, like healing a bit after they were vulnerable but weren't killed.","Gold"
+	StaticText "If you don't want any of the custom behaviour, you can turn off the master switch","Gold"
+	StaticText ""
+	Option "Melee Executions Master Switch",		"D4D_ExecutionsON",			"OnOff"
+	StaticText ""
+	Option "Glory Kill Animations",					"D4D_ExecutionAnimation",	"OnOff", D4D_ExecutionsON
+	Option "Monster Highlight When Weak",			"D4D_ExecutionHighlight",	"OnOff", D4D_ExecutionsON
+	StaticText ""
+	StaticText "Monster Stagger", White
+	Option "Monster Stagger When Weak",				"D4D_MonsterStagger",		"OnOff", D4D_ExecutionsON
+	Option "Noisy Staggered Monsters",				"D4D_NoisyStagger",			"OnOff", D4D_ExecutionsON
+	StaticText ""
+	Slider "Stagger/Highlight (in seconds)",			"D4D_StaggerLenght",		2, 8, 1, 1
+}
+OptionMenu "D4DKeybinds"
+{
+	Title "D4D Keybinds"
+	Control "Upgrade Menu",			"UpgradeMenu"
+	StaticText ""
+	Control "Switch Weapon Mods",			"+user1"
+	Control "Melee Attack",					"+user2"
+	Control "Select next grenade type",		"Give GrenadeSwitchNext"
+	Control "Select previous grenade type",	"Give GrenadeSwitchPrev"
+	Control "Throw Grenade",				"+reload"
+	StaticText ""
+	StaticText "Special Use", 1
+	Control "Buy Crate (500cr)",		"give BuyCrate"
+	Control "Brofist (when available)",		"pukename D4DoomDoll"
+	Control "Chaingun Special Mode", 		"pukename D4ToggleSoviet"
+	Control "Panic Button (Clear Gibs)",	"RemoveAllGibs"
+	StaticText ""
+	SubMenu "Weapon keybinds",			"D4DWeaponsMenu"
+}
+
+OptionMenu "D4DWeaponsMenu"
+{
+	Title "D4D Weapons Keybinds"
+	StaticText ""
+	StaticText "By Slot Number",1
+	Control		"Slot 1 (Fist, Chainsaw)",					"slot 1"
+	Control		"Slot 2 (Pistol)",							"slot 2"
+	Control		"Slot 3 (Shotgun, SS.)",					"slot 3"
+	Control		"Slot 4 (H.A.R., Repeater, Chaingun)",		"slot 4"
+	Control		"Slot 5 (Rocket Launcher)",					"slot 5"
+	Control		"Slot 6 (Plasma, LightningGun)",			"slot 6"
+	Control		"Slot 7 (Static, Vortex, Gauss)",				"slot 7"
+	Control		"Slot 8 (BFG, Carrion)",								"slot 8"
+	StaticText ""
+	StaticText "By Specific Weapon",1
+	Control		"Fist",						"use D4DFist"
+	Control		"Pistol",					"use D4Pistol"
+	Control		"Shotgun",					"use D4Shotgun"
+	Control		"Super Shotgun",			"use D4SuperShotgun"
+	Control		"Heavy Assault Rifle",		"use D4AssaultRifle"
+	Control		"Repeater",					"use D4Repeater"
+	Control		"Chaingun",					"use D4Chaingun"
+	Control		"Rocket Launcher",			"use D4RocketLauncher"
+	Control		"Plasma Rifle",				"use D4PlasmaRifle"
+	Control		"Lightning Gun",			"use D4LightningGun"
+	Control		"Static Rifle",				"use D4StaticRifle"
+	Control		"Vortex Rifle",				"use D4VortexRifle"
+	Control		"Gauss Cannon",				"use D4GaussCannon"
+	Control		"BFG",						"use D4BFG"
+	Control		"Carrion Cannon",			"use D4CarrionCannon"
+	Control		"Chainsaw",					"use D4Chainsaw"
+}
+
+OptionMenu "D4DPerformanceOptions"
+{
+	Title "V-NOISE MASTER SWITCHES"
+	StaticText ""
+	StaticText ""
+	StaticText "The following two options disable a lot of visual effects", "Gold"
+	StaticText "which should improve performance at the cost of visual quality.", "Gold"
+	StaticText "Use these for performance increase and/or decrease visual nosie", "Gold"
+	StaticText ""
+	StaticText "\"Monster HQ effects\" mainly affects projectile trails,", "White"
+	StaticText "particles and smoke effects generated by monsters", "White"
+	StaticText ""
+	Option "Monster HQ Effects",			"HQEffects",		"OnOff"
+	StaticText ""
+	StaticText ""
+	StaticText "\"Weapon HQ effects\" also removes particles and smoke,", "White"
+	StaticText "effects from weapons, but it will not interfere with", "White"
+	StaticText "other weapon options like: casings, tracer or quake effects.", "White"
+	StaticText ""
+	Option "Weapon HQ Effects",			"HQEffectsWeapons",		"OnOff"
+
+}
+OptionMenu "D4DDisplayOptions"
+{
+	Title "D4D Display"
+	StaticText ""
+	Submenu "Performance/V-noise Master Switches",				"D4DPerformanceOptions"
+	StaticText ""
+	StaticText "MESSAGES", 1
+	Option "Message Style",					"user_Completionist",	"CompletionistStyle"
+	Option "Show Monster Quota",			"user_MonsterQuota",	"OnOff"
+	Option "Show Secret Quota",				"user_SecretQuota",		"OnOff"
+	StaticText ""
+	StaticText "EFFECTS OPTIONS", "Gold"
+	StaticText "Weapons", "White"
+	Option "Electrical Texture",			"D4D_BeamTexture",		"BeamTexture"
+	Option "Extra Turret Gun Noise",		"ExtraTurretSound",		"OnOff"
+	Option "Spawn Casings",					"user_Casings",				"OnOff"
+	Option "Short Casing Lives",			"user_ShortCasingLives", 	"YesNo"
+	Option "Silent Casings",				"user_SilentCasings", 		"YesNo"
+	Option "Bullet Tracer Effects",				"user_TracerFX",		"TracerMode"
+	Option "BFG Laser effects",					"D4BFGEffects",			"OnOff"
+	Option "ZDoom Crosshair (OFF recommended)",			"crosshair", "Crosshairs"
+	StaticText ""
+	StaticText "Other effects", "White"
+	Option "Monster Lasers",				"D4D_MonsterLasers",	"MonsterLaserType"
+	Option "Voxels",						"r_drawvoxels",			"OnOff"
+	Option "Blood HUD effect",					"user_BloodScreen",		"OnOff" 
+	Option "Rocket Explosion Quakes",			"user_quakexplosions",		"OnOff"	
+	Option "Pinata Particles",					"D4D_PinataParticles",		"OnOff"
+	Option "Particle Type",					"gl_particles_style",	"ParticleStyle"
+	Slider "Maximum Particle Count",			"r_maxparticles", 1000, 65536, 1000, 0
+	StaticText ""
+	NumberField "Max FX Render Distance", 	"user_MaxDrawDistance", 0, 20480, 8
+	NumberField "Max FX Dist (Faster)",		"user_MaxDrawDistance", 0, 20480, 64
+
+}
+
+OptionMenu "D4DGoreOptions"
+{
+	Title "Gnash Gore"
+	StaticText "Disclaimer: Not Based On Nashgore.",1
+	Command "Panic Command",	"RemoveAllGibs"
+	Option "Spawn Bullet Giblets",			"D4D_BloodGiblets", "YesNo"
+	NumberField "Bullet Giblets",			"user_Giblets",	0, 10, 1, 0
+	NumberField "Splatter Giblets",			"user_SplatterGiblets",	0, 10, 1, 0
+	NumberField "Blood Clouds",				"user_BloodClouds", 0, 10, 1, 0
+	Option "Blood Splatters",				"D4D_BloodSplatters",	"OnOff"
+	NumberField "Blood Splatter Timer",		"D4D_BloodTime", 0, 150, 1, "D4D_BloodSplatters"
+	Option "Blood Trails",					"user_BloodTrails",		"OnOff"
+	Option "Blood FX Type",					"user_BloodSprites", 	"SprPar"
+	Option "Short Gib Life",				"user_ShortGibLives", 	"OnOff"
+	Option "SuperShotgun Gibs Monsters",				"user_SSGGib",	"SSGGibStyle"
+	SafeCommand "Restore Giblet Defaults",	"user_Giblets 1; user_SplatterGiblets 3; user_BloodClouds 3;"
+	StaticText " "
+	StaticText "SPAWN EVEN MORE GORE.", RED
+	StaticText "We hold no liability in the unplayability from", 0000FF
+	StaticText "cranking the giblets spawning to the power of stupid.", 0000FF
+	StaticText "YOU HAVE BEEN WARNED.", RED
+	StaticText " "
+	NumberField "Bullet Giblets Unleashed",		"user_Giblets",	0, 10000, 1
+	NumberField "Splatter Giblets Unleashed",	"user_SplatterGiblets",	0, 10000, 1
+}
+
+OptionValue "HasteSpawn"
+{
+	0, "Never"
+	1, "Sometimes"
+	2, "Always"
+}
+
+OptionValue "MonsterLaserType"
+{
+	0, "ZDoom (Faster)"
+	1, "GZDoom (Fancy)"
+}
+
+OptionValue "BeamTexture"
+{
+	0, "Plain"
+	1, "Lightning"
+}
+
+OptionValue "MPProg"
+{
+	0, "Random"
+	1, "Progressive"
+}
+
+OptionValue "DemonRunes"
+{
+	0, "Off"
+	1, "Rare"
+	2, "Common"
+}
+OptionValue "SyphonStrength"
+{
+	//0, "NOPE"
+	1, "Low"
+	2, "Medium"
+	3, "High"
+}
+
+OptionValue "SSGGibStyle"
+{
+	0, "Never"
+	1, "Sometimes"
+	2, "Always"
+}
+
+OptionValue "ParticleStyle"
+{
+	0, "Square"
+	1, "Round"
+	2, "Smooth"
+}
+
+OptionValue "CompletionistStyle"
+{
+	0.0, "None"
+	1.0, "Arcade"
+	2.0, "Doom-esque"
+}
+
+OptionValue "TracerMode"
+{
+	0.0, "None"
+	1.0, "Model"
+	2.0, "Particle"
+	3.0, "Particle Trail"
+	4.0, "Trail"
+}
+
+OptionValue "SprPar"
+{
+	0, "Particles"
+	1, "Sprites"
+	2, "Sprites & Particles"
+}
+
+OptionValue "DemonType"
+{
+	0, "Original Doom"
+	1, "Doom(4) for Doom"
+}
+OptionValue "LootType"
+{
+	0, "Only Chainsaw"
+	1, "All"
+}
+
+OptionMenu "VideoOptions"
+{
+	Title "$DSPLYMNU_TITLE"
+	
+	Submenu "$DSPLYMNU_GLOPT", 					"OpenGLOptions"
+	Submenu "$DSPLYMNU_SCOREBOARD", 			"ScoreboardOptions"
+	StaticText " "
+	Slider "$DSPLYMNU_SCREENSIZE",				"screenblocks", 				3.0, 12.0, 1.0, 0
+
+	Slider "$DSPLYMNU_GAMMA",					"Gamma",						0.75, 3.0, 0.05, 2
+	Slider "$DSPLYMNU_BRIGHTNESS",				"vid_brightness",				-0.8,0.8, 0.05
+	Slider "$DSPLYMNU_CONTRAST",				"vid_contrast",	   				0.1, 3.0, 0.1
+
+	Option "$DSPLYMNU_VSYNC",					"vid_vsync", "OnOff"
+	Option "$DSPLYMNU_CAPFPS",					"cl_capfps", "OffOn"
+
+	StaticText " "
+	Option "$DSPLYMNU_WIPETYPE",				"wipetype", "Wipes"
+
+	IfOption(Windows)
+	{
+		Option	"$DSPLYMNU_SHOWENDOOM",			"showendoom", "Endoom"
+		//Option "$DSPLYMNU_PALLETEHACK", 		"vid_palettehack", "OnOff"
+		//Option "$DSPLYMNU_ATTACHEDSURFACES", 	"vid_attachedsurfaces", "OnOff"
+	}
+	
+	Option "$DSPLYMNU_STRETCHSKY",				"r_stretchsky", "OnOff"
+	Option "$DSPLYMNU_DRAWFUZZ",				"r_drawfuzz", "Fuzziness"
+	Slider "$DSPLYMNU_TRANSSOUL",				"transsouls", 0.25, 1.0, 0.05, 2
+	Option "$DSPLYMNU_FAKECONTRAST",			"r_fakecontrast", "Contrast"
+	Option "$DSPLYMNU_ROCKETTRAILS",			"cl_rockettrails", "RocketTrailTypes"
+	Option "Set To Sprites-See D4D options",	"cl_bloodtype", "BloodTypesLocked"
+	Option "Set To Sprites-See D4D options",	"cl_pufftype", "PuffTypesLocked"
+	Slider "$DSPLYMNU_MAXPARTICLES",			"r_maxparticles", 100, 20000, 100, 0
+	Slider "$DSPLYMNU_MAXDECALS",				"cl_maxdecals", 0, 10000, 100, 0
+	Option "$DSPLYMNU_PLAYERSPRITES",			"r_drawplayersprites", "OnOff"
+	Option "$DSPLYMNU_DEATHCAM",				"r_deathcamera", "OnOff"
+	Option "$DSPLYMNU_TELEZOOM",				"telezoom", "OnOff"
+	Slider "$DSPLYMNU_QUAKEINTENSITY",			"r_quakeintensity", 0.0, 1.0, 0.05, 2
+	Option "$DSPLYMNU_NOMONSTERINTERPOLATION",	"nomonsterinterpolation", "NoYes"
+	Slider "$DSPLYMNU_MENUDIM",					"dimamount", 0, 1.0, 0.05, 2
+	ColorPicker "$DSPLYMNU_DIMCOLOR",			"dimcolor"
+	Slider "$DSPLYMNU_MOVEBOB",			"movebob", 0, 1.0, 0.05, 2
+	Slider "$DSPLYMNU_STILLBOB",		"stillbob", 0, 1.0, 0.05, 2
+}
+
+OptionValue BloodTypesLocked
+{
+	0.0, "Sprites"
+}
+
+OptionValue PuffTypesLocked
+{
+	0.0, "Sprites"
+}
+
+
+
+
+
+
+
+
+
+//-------------------------------------------------------------------------------------------
+//
+// Controls Menu
+//
+//-------------------------------------------------------------------------------------------
+
+OptionMenu "CustomizeControls"
+{
+	Title "$CNTRLMNU_TITLE"
+	ScrollTop 2
+	StaticTextSwitchable 	"$CNTRLMNU_SWITCHTEXT1", "$CNTRLMNU_SWITCHTEXT2", "ControlMessage"
+	StaticText ""
+	StaticText "D4D Keybinds"
+	Control "Upgrade Menu",			"UpgradeMenu"
+	StaticText ""
+	Control "Switch Weapon Mods",			"+user1"
+	Control "Melee Attack",					"+user2"
+	Control "Select next grenade type",		"Give GrenadeSwitchNext"
+	Control "Select previous grenade type",	"Give GrenadeSwitchPrev"
+	Control "Throw Grenade",				"+reload"
+	StaticText ""
+	StaticText "Special Use", 1
+	Control "Buy Crate (500cr)",		"give BuyCrate"
+	Control "Brofist (when available)",		"pukename D4DoomDoll"
+	Control "Chaingun Special Mode", 		"pukename D4ToggleSoviet"
+	Control "Panic Button (Clear Gibs)",	"RemoveAllGibs"
+	StaticText ""
+	SubMenu "Weapon keybinds",			"D4DWeaponsMenu"
+	StaticText 	""
+	StaticText 	"$CNTRLMNU_CONTROLS", 1
+	Control 	"$CNTRLMNU_ATTACK",					"+attack"
+	Control 	"$CNTRLMNU_ALTATTACK",				"+altattack"
+	Control 	"$CNTRLMNU_RELOAD",					"+reload"
+	Control 	"$CNTRLMNU_ZOOM",					"+zoom"
+	Control		"$CNTRLMNU_USER1",					"+user1"
+	Control		"$CNTRLMNU_USER2",					"+user2"
+	Control		"$CNTRLMNU_USER3",					"+user3"
+	Control		"$CNTRLMNU_USER4",					"+user4"
+	Control 	"$CNTRLMNU_USE",					"+use"
+	Control 	"$CNTRLMNU_FORWARD",				"+forward"
+	Control 	"$CNTRLMNU_BACK",					"+back"
+	Control 	"$CNTRLMNU_MOVELEFT",				"+moveleft"
+	Control 	"$CNTRLMNU_MOVERIGHT",				"+moveright"
+	Control 	"$CNTRLMNU_TURNLEFT",				"+left"
+	Control 	"$CNTRLMNU_TURNRIGHT",				"+right"
+	Control		"$CNTRLMNU_TURN180",				"turn180"
+	Control 	"$CNTRLMNU_JUMP",					"+jump"
+	Control 	"$CNTRLMNU_CROUCH",					"+crouch"
+	Control 	"$CNTRLMNU_TOGGLECROUCH",			"crouch"
+	Control 	"$CNTRLMNU_MOVEUP",					"+moveup"
+	Control 	"$CNTRLMNU_MOVEDOWN",				"+movedown"
+	Control 	"$CNTRLMNU_LAND",					"land"
+	Control 	"$CNTRLMNU_MOUSELOOK",				"+mlook"
+	Control 	"$CNTRLMNU_KEYBOARDLOOK",			"+klook"
+	Control 	"$CNTRLMNU_LOOKUP",					"+lookup"
+	Control 	"$CNTRLMNU_LOOKDOWN",				"+lookdown"
+	Control 	"$CNTRLMNU_CENTERVIEW",				"centerview"
+	Control 	"$CNTRLMNU_RUN",					"+speed"
+	Control 	"$CNTRLMNU_TOGGLERUN",				"toggle cl_run"
+	Control 	"$CNTRLMNU_STRAFE",					"+strafe"
+	Control 	"$CNTRLMNU_SCOREBOARD",				"+showscores"
+	Control 	"$CNTRLMNU_TOGGLESCOREBOARD",		"togglescoreboard"
+	StaticText 	""
+	StaticText 	"$CNTRLMNU_CHAT", 1
+	Control 	"$CNTRLMNU_SAY",					"messagemode"
+	Control 	"$CNTRLMNU_TEAMSAY",				"messagemode2"
+	StaticText 	""
+	StaticText 	"$CNTRLMNU_WEAPONS", 1
+	Control 	"$CNTRLMNU_NEXTWEAPON",				"weapnext"
+	Control 	"$CNTRLMNU_PREVIOUSWEAPON",			"weapprev"
+	Control		"$CNTRLMNU_SLOT1",					"slot 1"
+	Control		"$CNTRLMNU_SLOT2",					"slot 2"
+	Control		"$CNTRLMNU_SLOT3",					"slot 3"
+	Control		"$CNTRLMNU_SLOT4",					"slot 4"
+	Control		"$CNTRLMNU_SLOT5",					"slot 5"
+	Control		"$CNTRLMNU_SLOT6",					"slot 6"
+	Control		"$CNTRLMNU_SLOT7",					"slot 7"
+	Control		"$CNTRLMNU_SLOT8",					"slot 8"
+	Control		"$CNTRLMNU_SLOT9",					"slot 9"
+	Control		"$CNTRLMNU_SLOT0",					"slot 0"
+	StaticText 	""
+	StaticText 	"$CNTRLMNU_INVENTORY", 1
+	Control 	"$CNTRLMNU_USEITEM",				"invuse"
+	Control 	"$CNTRLMNU_USEALLITEMS",			"invuseall"
+	Control 	"$CNTRLMNU_NEXTITEM",				"invnext"
+	Control 	"$CNTRLMNU_PREVIOUSITEM",			"invprev"
+	Control 	"$CNTRLMNU_DROPITEM",				"invdrop"
+	Control		"$CNTRLMNU_QUERYITEM",				"invquery"
+	Control 	"$CNTRLMNU_DROPWEAPON",				"weapdrop"
+	StaticText 	""
+	StaticText 	"$CNTRLMNU_OTHER", 1
+	Control 	"$CNTRLMNU_AUTOMAP",				"togglemap"
+	Control 	"$CNTRLMNU_CHASECAM",				"chase"
+	Control 	"$CNTRLMNU_COOPSPY",				"spynext"
+	Control 	"$CNTRLMNU_SCREENSHOT",				"screenshot"
+	Control  	"$CNTRLMNU_CONSOLE",				"toggleconsole"
+	StaticText 	""
+	StaticText 	"$CNTRLMNU_POPUPS", 1
+	Control 	"$CNTRLMNU_MISSION",				"showpop 1"
+	Control 	"$CNTRLMNU_KEYS",					"showpop 2"
+	Control 	"$CNTRLMNU_STATS",					"showpop 3"
+}
+
+
+
+
+
+
+
+
+
+
+//==============================================================================
+//==============================================================================
+//	Purchase Menu
+//==============================================================================
+//==============================================================================
+
+ListMenu "D4DUpgradeMenu"
+{
+	StaticText 88, 72, "Upgrade System", GOLD
+	Position 92, 87
+	Font "BIGFONT", "Red", "Yellow"
+	TextItem "      Weapons", "w", "D4DUpgrade.Weapons"
+	//TextItem "     Powerups", "p", "D4DUpgrade.Powerups"
+	TextItem "          Suit", "s", "D4DUpgrade.Suit"
+	Position 0, 0
+	
+}
+
+//Position is different for listmenu and optionmenu. ListMenu takes X and Y.
+//Optionmenu only takes one parameter, Y.
+
+OptionMenu "D4DUpgrade.Weapons"
+{
+	Title "Weapons"
+	Command "Pistol", 			"test > $D4Pistol 0 \"openmenu D4DUpgrade.Pistol\" \"WNA\" "
+	StaticText ""
+	Command "Shotgun", 			"test > $D4Shotgun 0 \"openmenu D4DUpgrade.Shotgun\" \"WNA\" "
+	StaticText ""
+	Command "Super Shotgun", 	"test > $D4SuperShotgun 0 \"openmenu D4DUpgrade.SuperShotgun\" \"WNA\" "
+	StaticText ""
+	Command "Repeater", 		"test > $D4Repeater 0 \"openmenu D4DUpgrade.Repeater\" \"WNA\" "
+	StaticText ""
+	Command "H. A. R.", 		"test > $D4AssaultRifle 0 \"openmenu D4DUpgrade.HAR\" \"WNA\" "
+	StaticText ""
+	Command "Chaingun", 		"test > $D4Chaingun 0 \"CheckChgReq\" \"WNA\" "
+	StaticText ""
+	Command "Rocket Launcher", 	"test > $D4RocketLauncher 0 \"openmenu D4DUpgrade.RocketLauncher\" \"WNA\" "
+	StaticText ""
+	Command "Plasma Rifle", 	"test > $D4PlasmaRifle 0 \"openmenu D4DUpgrade.PlasmaRifle\" \"WNA\" "
+	StaticText ""
+	Command "Lightning Gun", 	"test > $D4LightningGun 0 \"openmenu D4DUpgrade.LightningGun\" \"WNA\" "
+	StaticText ""
+	Command "Vortex Rifle", 	"test > $D4VortexRifle 0 \"openmenu D4DUpgrade.VortexRifle\" \"WNA\" "
+	StaticText ""
+	Command "Static Rifle", 	"test > $D4StaticRifle 0 \"openmenu D4DUpgrade.StaticRifle\" \"WNA\" "
+	StaticText ""
+	Command "Gauss Cannon", 	"test > $D4GaussCannon 0 \"openmenu D4DUpgrade.GaussCannon\" \"WNA\" "
+	StaticText ""
+	Command "BFG", 				"test > $D4BFG 0 \"openmenu D4DUpgrade.BFG\" \"WNA\" "
+	StaticText ""
+	Command "Carrion Cannon", 	"test > $D4CarrionCannon 0 \"openmenu D4DUpgrade.CarrionCannon\" \"WNA\" "
+}
+
+//==============================================================================
+// Pistol
+//==============================================================================
+OptionMenu "D4DUpgrade.Pistol"
+{
+	Title "Pistol"
+	StaticText "Choose An Upgrade", GOLD
+	StaticText ""
+	Command "$PistolUpgradeAltCharge",	"test > $PistolUpgradeAltCharge 0 \"AlreadyBought\" \"openmenu PistolUpgradeAltCharge\""
+	StaticText ""
+	Command "$PistolUpgradeAltDamage",	"test > $PistolUpgradeAltDamage 0 \"AlreadyBought\" \"openmenu PistolUpgradeAltDamage\""
+	StaticText ""
+	Command "$PistolUpgradeDamage",		"test > $PistolUpgradeDamage 0 \"AlreadyBought\" \"openmenu PistolUpgradeDamage\""
+	StaticText ""
+	Command "$PistolUpgradeAutomatic",	"test > $PistolUpgradeAutomatic 0 \"AlreadyBought\" \"openmenu PistolUpgradeAutomatic\""
+}
+
+OptionMenu "PistolUpgradeAltCharge"
+{
+	Title "$PistolUpgradeAltCharge"
+	StaticText "$PistolUpgradeAltChargeD1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U1Pistol $D4DCash \"PistolUpgradeAltCharge 1; CTake $Cost_U1Pistol; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1Pistol, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "PistolUpgradeAltDamage"
+{
+	Title "$PistolUpgradeAltDamage"
+	StaticText "$PistolUpgradeAltDamageD1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U2Pistol $D4DCash \"PistolUpgradeAltDamage 1; CTake $Cost_U2Pistol; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2Pistol, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "PistolUpgradeDamage"
+{
+	Title "$PistolUpgradeDamage"
+	StaticText "$PistolUpgradeDamageD1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U3Pistol $D4DCash \"PistolUpgradeDamage 1; CTake $Cost_U3Pistol; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U3Pistol, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "PistolUpgradeAutomatic"
+{
+	Title "$PistolUpgradeAutomatic"
+	StaticText "$PistolUpgradeAutomaticD1"
+	StaticText ""
+	StaticText "$PistolUpgradeAutomaticD2", RED
+	StaticText ""
+	Command "Buy", "test <= $Cost_U4Pistol $D4DCash \"PistolUpgradeAutomatic 1; CTake $Cost_U4Pistol; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U4Pistol, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+//==============================================================================
+// Shotgun
+//==============================================================================
+OptionMenu "D4DUpgrade.Shotgun"
+{
+	Title "Shotgun"
+	StaticText "Choose An Upgrade", GOLD
+	StaticText ""
+	Command "$ShotgunMod1",	"test > $ShotgunMod1 0 \"AlreadyBought\" \"openmenu ShotgunMod1\""
+	StaticText ""
+	Command "$ShotgunMod2",	"test > $ShotgunMod2 0 \"AlreadyBought\" \"openmenu ShotgunMod2\""
+}
+
+OptionMenu "ShotgunMod1"
+{
+	Title "$ShotgunMod1"
+	StaticText "$ShotgunMod1D1", TAN
+	StaticText ""
+	StaticText "$ShotgunMod1D2"
+	StaticText ""
+	StaticText "$ShotgunMod1D3", YELLOW
+	StaticText ""
+	Command "Buy", "test <= $Cost_U1Shotgun $D4DCash \"ShotgunMod1 1; CTake $Cost_U1Shotgun; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1Shotgun, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "ShotgunMod2"
+{
+	Title "$ShotgunMod2"
+	StaticText "$ShotgunMod2D1", TAN
+	StaticText ""
+	StaticText "$ShotgunMod2D2"
+	StaticText ""
+	StaticText "$ShotgunMod2D3", YELLOW
+	StaticText ""
+	Command "Buy", "test <= $Cost_U2Shotgun $D4DCash \"ShotgunMod2 1; CTake $Cost_U2Shotgun; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2Shotgun, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+//==============================================================================
+// Super Shotgun
+//==============================================================================
+OptionMenu "D4DUpgrade.SuperShotgun"
+{
+	Title "Super Shotgun"
+	StaticText "Choose An Upgrade", GOLD
+	StaticText ""
+	Command "$SSGUpgrade1",	"test > $SSGUpgrade1 0 \"AlreadyBought\" \"openmenu SSGUpgrade1\""
+	StaticText " "
+	Command "$SSGUpgrade2",	"test > $SSGUpgrade2 0 \"AlreadyBought\" \"openmenu SSGUpgrade2\""
+	StaticText " "
+	Command "$SSGUpgrade3",	"test > $SSGUpgrade3 0 \"AlreadyBought\" \"openmenu SSGUpgrade3\""
+	StaticText " "
+	Command "$SSGUpgrade4",	"test > $SSGUpgrade4 0 \"AlreadyBought\" \"CheckSSGReq\""
+}
+
+OptionMenu "SSGUpgrade1"
+{
+	Title "$SSGUpgrade1"
+	StaticText "$SSGUpgrade1D1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U1SuperShotgun $D4DCash \"SSGUpgrade1 1; CTake $Cost_U1SuperShotgun; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1SuperShotgun, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "SSGUpgrade2"
+{
+	Title "$SSGUpgrade2"
+	StaticText "$SSGUpgrade2D1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U2SuperShotgun $D4DCash \"SSGUpgrade2 1; CTake $Cost_U2SuperShotgun; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2SuperShotgun, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "SSGUpgrade3"
+{
+	Title "$SSGUpgrade3"
+	StaticText "$SSGUpgrade3D1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U3SuperShotgun $D4DCash \"SSGUpgrade3 1; CTake $Cost_U3SuperShotgun; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U3SuperShotgun, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "SSGUpgrade4"
+{
+	Title "$SSGUpgrade4"
+	StaticText "$SSGUpgrade4D1", YELLOW
+	StaticText ""
+	StaticText "$SSGUpgrade4D2", YELLOW
+	StaticText ""
+	StaticText "$SSGUpgrade4D3", TAN
+	StaticText ""
+	Command "Buy", "test <= $Cost_U4SuperShotgun $D4DCash \"SSGUpgrade4 1; CTake $Cost_U4SuperShotgun; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U4SuperShotgun, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "SSGUpgrade4NA"
+{
+	Title "$SSGUpgrade4"
+	StaticText "$SSGUpgrade4D1", GOLD
+	StaticText ""
+	StaticText "$SSGUpgrade4D2", GOLD
+	StaticText ""
+	StaticText "$SSGUpgrade4D3", TAN
+	StaticText ""
+	StaticText "Pre-requisites not met.", RED
+	StaticText "You must have the following upgrades:", ORANGE
+	StaticText ""
+	Command "$SSGUpgrade1",	"test > $SSGUpgrade1 0 \"AlreadyBought\" \"openmenu SSGUpgrade1\""
+	Command "$SSGUpgrade2",	"test > $SSGUpgrade2 0 \"AlreadyBought\" \"openmenu SSGUpgrade2\""
+}
+//==============================================================================
+// Repeater
+//==============================================================================
+OptionMenu "D4DUpgrade.Repeater"
+{
+	Title "Repeater"
+	StaticText "Choose An Upgrade", GOLD
+	StaticText ""
+	Command "$RepeaterUpgradePiercing",	"test > $RepeaterUpgradePiercing 0 \"AlreadyBought\" \"openmenu RepeaterUpgradePiercing\""
+	StaticText ""
+	Command "$RepeaterUpgradeDamage",	"test > $RepeaterUpgradeDamage 0 \"AlreadyBought\" \"openmenu RepeaterUpgradeDamage\""
+	StaticText ""
+	Command "$RepeaterUpgradeAltDamage",	"test > $RepeaterUpgradeAltDamage 0 \"AlreadyBought\" \"openmenu RepeaterUpgradeAltDamage\""
+	StaticText ""
+	Command "$RepeaterUpgradeAltAmmo",	"test > $RepeaterUpgradeAltAmmo 0 \"AlreadyBought\" \"openmenu RepeaterUpgradeAltAmmo\""
+}
+
+OptionMenu "RepeaterUpgradePiercing"
+{
+	Title "$RepeaterUpgradePiercing"
+	StaticText "$RepeaterUpgradePiercingD1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U1Repeater $D4DCash \"RepeaterUpgradePiercing 1; CTake $Cost_U1Repeater; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1Repeater, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 			0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "RepeaterUpgradeDamage"
+{
+	Title "$RepeaterUpgradeDamage"
+	StaticText "$RepeaterUpgradeDamageD1"
+	StaticText ""
+	StaticText "$RepeaterUpgradeDamageD2", RED
+	StaticText ""
+	Command "Buy", "test <= $Cost_U2Repeater $D4DCash \"RepeaterUpgradeDamage 1; CTake $Cost_U2Repeater; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2Repeater, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000,			0.00000000000000000000000001, Adjustable
+}
+OptionMenu "RepeaterUpgradeAltDamage"
+{
+	Title "$RepeaterUpgradeAltDamage"
+	StaticText "$RepeaterUpgradeAltDamageD1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U3Repeater $D4DCash \"RepeaterUpgradeAltDamage 1; CTake $Cost_U3Repeater; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U3Repeater, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000,			0.00000000000000000000000001, Adjustable
+}
+OptionMenu "RepeaterUpgradeAltAmmo"
+{
+	Title "$RepeaterUpgradeAltAmmo"
+	StaticText "$RepeaterUpgradeAltAmmoD1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U4Repeater $D4DCash \"RepeaterUpgradeAltAmmo 1; CTake $Cost_U4Repeater; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U4Repeater, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000,			0.00000000000000000000000001, Adjustable
+}
+
+
+//==============================================================================
+// Heavy Assault Rifle
+//==============================================================================
+OptionMenu "D4DUpgrade.HAR"
+{
+	Title "Heavy Assault Rifle"
+	StaticText "Choose An Upgrade", GOLD
+	StaticText ""
+	Command "$AssaultRifleMod1",	"test > $AssaultRifleMod1 0 \"AlreadyBought\" \"openmenu AssaultRifleMod1\""
+	StaticText ""
+	Command "$AssaultRifleMod2",	"test > $AssaultRifleMod2 0 \"AlreadyBought\" \"openmenu AssaultRifleMod2\""
+}
+
+OptionMenu "AssaultRifleMod1"
+{
+	Title "$AssaultRifleMod1"
+	StaticText "$AssaultRifleMod1D1", TAN
+	StaticText ""
+	StaticText "$AssaultRifleMod1D2", YELLOW
+	StaticText ""
+	Command "Buy", "test <= $Cost_U1AssaultRifle $D4DCash \"AssaultRifleMod1 1; CTake $Cost_U1AssaultRifle; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1AssaultRifle, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "AssaultRifleMod2"
+{
+	Title "$AssaultRifleMod2"
+	StaticText "$AssaultRifleMod2D1", TAN
+	StaticText ""
+	StaticText "$AssaultRifleMod2D2", YELLOW
+	StaticText ""
+	Command "Buy", "test <= $Cost_U2AssaultRifle $D4DCash \"AssaultRifleMod2 1; CTake $Cost_U2AssaultRifle; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2AssaultRifle, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+//==============================================================================
+// Chaingun
+//==============================================================================
+OptionMenu "D4DUpgrade.Chaingun"
+{
+	Title "Chaingun"
+	StaticText "Choose An Upgrade", GOLD
+	StaticText ""
+	Command "$ChaingunMod1",	"test > $ChaingunMod1 0 \"AlreadyBought\" \"openmenu ChaingunMod1\""
+	StaticText ""
+	Command "$ChaingunMod2",	"test > $ChaingunMod2 0 \"AlreadyBought\" \"openmenu ChaingunMod2\""
+}
+
+OptionMenu "D4DUpgrade.ChaingunSpec"
+{
+	Title "Chaingun"
+	StaticText "Choose An Upgrade", GOLD
+	StaticText ""
+	Command "$ChaingunMod1",	"test > $ChaingunMod1 0 \"AlreadyBought\" \"openmenu ChaingunMod1\""
+	StaticText ""
+	Command "$ChaingunMod2",	"test > $ChaingunMod2 0 \"AlreadyBought\" \"openmenu ChaingunMod2\""
+	StaticText ""
+	Command "Mother Russia's Gift",	"test > $ChaingunMod3 0 \"AlreadyBought\" \"openmenu ChaingunMod3\""
+}
+
+OptionMenu "ChaingunMod1"
+{
+	Title "$ChaingunMod1"
+	StaticText "$ChaingunMod1D1", TAN
+	StaticText ""
+	StaticText "$ChaingunMod1D2", YELLOW
+	StaticText ""
+	Command "Buy", "test <= $Cost_U1Chaingun $D4DCash \"ChaingunMod1 1; CTake $Cost_U1Chaingun; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1Chaingun, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "ChaingunMod2"
+{
+	Title "$ChaingunMod2"
+	StaticText "$ChaingunMod2D1", TAN
+	StaticText ""
+	StaticText "$ChaingunMod2D2", RED
+	StaticText ""
+	StaticText "$ChaingunMod2D3", YELLOW
+	StaticText ""
+	Command "Buy", "test <= $Cost_U2Chaingun $D4DCash \"ChaingunMod2 1; CTake $Cost_U2Chaingun; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2Chaingun, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "ChaingunMod3"
+{
+	Title "Mother Russia's Gift"
+	StaticText "In Yu-Double-Ess-ARRRR, my comrade...", GOLD
+	StaticText "Spinmegun is paid for YOU.", GOLD
+	StaticText " "
+	StaticText "May your weapons sing the march of DooM.", GOLD
+	StaticText "Pack their bags and send them back to Hell!", GOLD
+	StaticText " "
+	StaticText "!!!WARNING!!!", RED
+	StaticText "Motion Sickness Trigger!", ORANGE
+	StaticText " "
+	StaticText "Toggled with Chaingun Special Keybind", WHITE
+	StaticText " "
+	StaticText "+ %2000 Damage"
+	StaticText "+ Rolling Vision", RED
+	StaticText " "
+	Command "To Victory I Go.",	"FORMOTHERRUSSIA"
+}
+
+//==============================================================================
+// Rocket Launcher
+//==============================================================================
+OptionMenu "D4DUpgrade.RocketLauncher"
+{
+	Title "Rocket Launcher"
+	StaticText "Choose An Upgrade"
+	StaticText ""
+	Command "$RocketLauncherMod1",	"test > $RocketLauncherMod1 0 \"AlreadyBought\" \"openmenu RocketLauncherMod1\""
+	StaticText ""
+	Command "$RocketLauncherMod2",	"test > $RocketLauncherMod2 0 \"AlreadyBought\" \"openmenu RocketLauncherMod2\""
+}
+
+OptionMenu "RocketLauncherMod1"
+{
+	Title "$RocketLauncherMod1"
+	StaticText "$RocketLauncherMod1D1", TAN
+	StaticText ""
+	StaticText "$RocketLauncherMod1D2", TAN
+	StaticText ""
+	StaticText "$RocketLauncherMod1D3", YELLOW
+	StaticText ""
+	Command "Buy", "test <= $Cost_U1RocketLauncher $D4DCash \"RocketLauncherMod1 1; CTake $Cost_U1RocketLauncher; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1RocketLauncher, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "RocketLauncherMod2"
+{
+	Title "$RocketLauncherMod2"
+	StaticText "$RocketLauncherMod2D1", TAN
+	StaticText ""
+	StaticText "$RocketLauncherMod2D2", YELLOW
+	StaticText ""
+	Command "Buy", "test <= $Cost_U2RocketLauncher $D4DCash \"RocketLauncherMod2 1; CTake $Cost_U2RocketLauncher; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2RocketLauncher, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+//==============================================================================
+// Plasma Rifle
+//==============================================================================
+OptionMenu "D4DUpgrade.PlasmaRifle"
+{
+	Title "Plasma Rifle"
+	StaticText "Choose An Upgrade"
+	StaticText ""
+	Command "$PlasmaRifleMod1",	"test > $PlasmaRifleMod1 0 \"AlreadyBought\" \"openmenu PlasmaRifleMod1\""
+	StaticText ""
+	Command "$PlasmaRifleMod2",	"test > $PlasmaRifleMod2 0 \"AlreadyBought\" \"openmenu PlasmaRifleMod2\""
+}
+
+OptionMenu "PlasmaRifleMod1"
+{
+	Title "$PlasmaRifleMod1"
+	StaticText "$PlasmaRifleMod1D1", TAN
+	StaticText ""
+	StaticText "$PlasmaRifleMod1D2", TAN
+	StaticText ""
+	StaticText "$PlasmaRifleMod1D3", YELLOW
+	StaticText ""
+	Command "Buy", "test <= $Cost_U1PlasmaRifle $D4DCash \"PlasmaRifleMod1 1; CTake $Cost_U1PlasmaRifle; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1PlasmaRifle, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "PlasmaRifleMod2"
+{
+	Title "$PlasmaRifleMod2"
+	StaticText "$PlasmaRifleMod2D1", TAN
+	StaticText ""
+	StaticText "$PlasmaRifleMod2D2", RED
+	StaticText ""
+	StaticText "$PlasmaRifleMod2D3", YELLOW
+	StaticText ""
+	Command "Buy", "test <= $Cost_U2PlasmaRifle $D4DCash \"PlasmaRifleMod2 1; CTake $Cost_U2PlasmaRifle; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2PlasmaRifle, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+//==============================================================================
+// Lightning Gun
+//==============================================================================
+OptionMenu "D4DUpgrade.LightningGun"
+{
+	Title "Lightning Gun"
+	StaticText "Choose An Upgrade"
+	StaticText ""
+	Command "$LGUpgradeAmmo",	"test > $LGUpgradeAmmo 0 \"AlreadyBought\" \"openmenu LGUpgradeAmmo\""
+	StaticText ""
+	Command "$LGUpgradeRange",	"test > $LGUpgradeRange 0 \"AlreadyBought\" \"openmenu LGUpgradeRange\""
+	StaticText ""
+	Command "$LGUpgradeDamage",	"test > $LGUpgradeDamage 0 \"AlreadyBought\" \"openmenu LGUpgradeDamage\""
+	StaticText ""
+	Command "$LGUpgradeAltFire",	"test > $LGUpgradeAltFire 0 \"AlreadyBought\" \"openmenu LGUpgradeAltFire\""
+}
+
+OptionMenu "LGUpgradeAmmo"
+{
+	Title "$LGUpgradeAmmo"
+	StaticText "$LGUpgradeAmmoD1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U1LightningGun $D4DCash \"LGUpgradeAmmo 1; CTake $Cost_U1LightningGun; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1LightningGun, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "LGUpgradeRange"
+{
+	Title "$LGUpgradeRange"
+	StaticText "$LGUpgradeRangeD1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U2LightningGun $D4DCash \"LGUpgradeRange 1; CTake $Cost_U2LightningGun; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2LightningGun, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "LGUpgradeDamage"
+{
+	Title "$LGUpgradeDamage"
+	StaticText "$LGUpgradeDamageD1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U3LightningGun $D4DCash \"LGUpgradeDamage 1; CTake $Cost_U3LightningGun; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U3LightningGun, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "LGUpgradeAltFire"
+{
+	Title "$LGUpgradeAltFire"
+	StaticText "$LGUpgradeAltFireD1", GOLD
+	StaticText ""
+	StaticText "$LGUpgradeAltFireD2", TAN
+	StaticText ""
+	Command "Buy", "test <= $Cost_U4LightningGun $D4DCash \"LGUpgradeAltFire 1; CTake $Cost_U4LightningGun; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U4LightningGun, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+//==============================================================================
+// Vortex Rifle
+//==============================================================================
+OptionMenu "D4DUpgrade.VortexRifle"
+{
+	Title "Vortex Rifle"
+	StaticText "Choose An Upgrade"
+	StaticText ""
+	Command "$VortexUpgradeDamage",	"test > $VortexUpgradeDamage 0 \"AlreadyBought\" \"openmenu VortexUpgradeDamage\""
+	StaticText ""
+	Command "$VortexUpgradeAmmo",	"test > $VortexUpgradeAmmo 0 \"AlreadyBought\" \"openmenu VortexUpgradeAmmo\""
+	StaticText ""
+	Command "$VortexUpgradeAltSpeed",	"test > $VortexUpgradeAltSpeed 0 \"AlreadyBought\" \"openmenu VortexUpgradeAltSpeed\""
+	StaticText ""
+	Command "$VortexUpgradeAltCharge","test > $VortexUpgradeAltCharge 0 \"AlreadyBought\" \"openmenu VortexUpgradeAltCharge\""
+}
+OptionMenu "VortexUpgradeDamage"
+{
+	Title "$VortexUpgradeDamage"
+	StaticText "$VortexUpgradeDamageD1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U1VortexRifle $D4DCash \"VortexUpgradeDamage 1; CTake $Cost_U1VortexRifle; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1VortexRifle, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "VortexUpgradeAmmo"
+{
+	Title "$VortexUpgradeAmmo"
+	StaticText "$VortexUpgradeAmmoD1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U2VortexRifle $D4DCash \"VortexUpgradeAmmo 1; CTake $Cost_U2VortexRifle; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2VortexRifle, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "VortexUpgradeAltSpeed"
+{
+	Title "$VortexUpgradeAltSpeed"
+	StaticText "$VortexUpgradeAltSpeedD1"
+	StaticText ""
+	StaticText "$VortexUpgradeAltSpeedD2"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U3VortexRifle $D4DCash \"VortexUpgradeAltSpeed 1; CTake $Cost_U3VortexRifle; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U3VortexRifle, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "VortexUpgradeAltCharge"
+{
+	Title "$VortexUpgradeAltCharge"
+	StaticText "$VortexUpgradeAltChargeD1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U4VortexRifle $D4DCash \"VortexUpgradeAltCharge 1; CTake $Cost_U4VortexRifle; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U4VortexRifle, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+//==============================================================================
+// Static Rifle
+//==============================================================================
+OptionMenu "D4DUpgrade.StaticRifle"
+{
+	Title "Static Rifle"
+	StaticText "Choose An Upgrade"
+	StaticText ""
+	Command "$StaticUpgrade1",	"test > $StaticUpgrade1 0 \"AlreadyBought\" \"openmenu StaticUpgrade1\""
+	StaticText ""
+	Command "$StaticUpgrade2",	"test > $StaticUpgrade2 0 \"AlreadyBought\" \"CheckSTRReq2\""
+	StaticText ""
+	Command "$StaticUpgrade3",	"test > $StaticUpgrade3 0 \"AlreadyBought\" \"CheckSTRReq3\""
+	StaticText ""
+	Command "$StaticUpgrade4",	"test > $StaticUpgrade4 0 \"AlreadyBought\" \"CheckSTRReq4\""
+}
+
+OptionMenu "StaticUpgrade1"
+{
+	Title "$StaticUpgrade1"
+	StaticText "$StaticUpgrade1D1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U1StaticRifle $D4DCash \"StaticUpgrade1 1; CTake $Cost_U1StaticRifle; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1StaticRifle, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 				0.00000000000000000000000001, Adjustable
+}
+OptionMenu "StaticUpgrade2"
+{
+	Title "$StaticUpgrade2"
+	StaticText "$StaticUpgrade2D1"
+	StaticText ""
+	StaticText "$StaticUpgrade2D2"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U2StaticRifle $D4DCash \"StaticUpgrade2 1; CTake $Cost_U2StaticRifle; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2StaticRifle, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 				0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "StaticUpgrade2NA"
+{
+	Title "$StaticUpgrade2"
+	StaticText "$StaticUpgrade2D1"
+	StaticText ""
+	StaticText "$StaticUpgrade2D2"
+	StaticText ""
+	StaticText "Pre-requisites not met.", RED
+	StaticText "You must have the following upgrades:", ORANGE
+	StaticText ""
+	Command "$StaticUpgrade1",	"test > $StaticUpgrade1 0 \"AlreadyBought\" \"openmenu StaticUpgrade1\""
+}
+
+OptionMenu "StaticUpgrade3"
+{
+	Title "$StaticUpgrade3"
+	StaticText "$StaticUpgrade3D1"
+	StaticText ""
+	StaticText "$StaticUpgrade3D2"
+	StaticText ""
+	StaticText "$StaticUpgrade3D3"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U3StaticRifle $D4DCash \"StaticUpgrade3 1; CTake $Cost_U3StaticRifle; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U3StaticRifle, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 				0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "StaticUpgrade3NA"
+{
+	Title "$StaticUpgrade3"
+	StaticText "$StaticUpgrade3D1"
+	StaticText ""
+	StaticText "$StaticUpgrade3D2"
+	StaticText ""
+	StaticText "$StaticUpgrade3D3"
+	StaticText ""
+	StaticText "Pre-requisites not met.", RED
+	StaticText "You must have the following upgrades:", ORANGE
+	StaticText ""
+	Command "$StaticUpgrade1",	"test > $StaticUpgrade1 0 \"AlreadyBought\" \"openmenu StaticUpgrade1\""
+	Command "$StaticUpgrade2",	"test > $StaticUpgrade2 0 \"AlreadyBought\" \"openmenu StaticUpgrade2\""
+}
+
+OptionMenu "StaticUpgrade4"
+{
+	Title "$StaticUpgrade4"
+	StaticText "$StaticUpgrade4D1"
+	StaticText ""
+	StaticText "$StaticUpgrade4D2", WHITE
+	StaticText ""
+	StaticText "$StaticUpgrade4D3"
+	StaticText ""
+	StaticText "$StaticUpgrade4D4"
+	StaticText ""
+	StaticText "$StaticUpgrade4D5", YELLOW
+	StaticText ""
+	StaticText "$StaticUpgrade4D6", GOLD
+	StaticText ""
+	Command "Buy", "test <= $Cost_U4StaticRifle $D4DCash \"StaticUpgrade4 1; CTake $Cost_U4StaticRifle; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U4StaticRifle, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 				0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "StaticUpgrade4NA"
+{
+	Title "$StaticUpgrade4"
+	StaticText "$StaticUpgrade4D1"
+	StaticText ""
+	StaticText "$StaticUpgrade4D2", WHITE
+	StaticText ""
+	StaticText "$StaticUpgrade4D3"
+	StaticText ""
+	StaticText "$StaticUpgrade4D4"
+	StaticText ""
+	StaticText "$StaticUpgrade4D5", YELLOW
+	StaticText ""
+	StaticText "$StaticUpgrade4D6", GOLD
+	StaticText ""
+	StaticText "Pre-requisites not met.", RED
+	StaticText "You must have the following upgrades:", ORANGE
+	StaticText ""
+	Command "$StaticUpgrade1",	"test > $StaticUpgrade1 0 \"AlreadyBought\" \"openmenu StaticUpgrade1\""
+	Command "$StaticUpgrade2",	"test > $StaticUpgrade2 0 \"AlreadyBought\" \"openmenu StaticUpgrade2\""
+	Command "$StaticUpgrade3",	"test > $StaticUpgrade3 0 \"AlreadyBought\" \"openmenu StaticUpgrade3\""
+}
+//==============================================================================
+// Gauss Cannon
+//==============================================================================
+OptionMenu "D4DUpgrade.GaussCannon"
+{
+	Title "Gauss Cannon"
+	StaticText "Choose An Upgrade"
+	StaticText ""
+	Command "$GaussCannonMod1",	"test > $GaussCannonMod1 0 \"AlreadyBought\" \"openmenu GaussCannonMod1\""
+	StaticText ""
+	Command "$GaussCannonMod2",	"test > $GaussCannonMod2 0 \"AlreadyBought\" \"openmenu GaussCannonMod2\""
+}
+
+OptionMenu "GaussCannonMod1"
+{
+	Title "$GaussCannonMod1"
+	StaticText "$GaussCannonMod1D1", TAN
+	StaticText ""
+	StaticText "$GaussCannonMod1D2", YELLOW
+	StaticText ""
+	Command "Buy", "test <= $Cost_U1GaussCannon $D4DCash \"GaussCannonMod1 1; CTake $Cost_U1GaussCannon; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1GaussCannon, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "GaussCannonMod2"
+{
+	Title "$GaussCannonMod2"
+	StaticText "$GaussCannonMod2D1", TAN
+	StaticText ""
+	StaticText "$GaussCannonMod2D2", RED
+	StaticText ""
+	StaticText "$GaussCannonMod2D3", YELLOW
+	StaticText ""
+	Command "Buy", "test <= $Cost_U2GaussCannon $D4DCash \"GaussCannonMod2 1; CTake $Cost_U2GaussCannon; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2GaussCannon, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+//==============================================================================
+// BFG
+//==============================================================================
+OptionMenu "D4DUpgrade.BFG"
+{
+	Title "BFG"
+	StaticText "Choose An Upgrade", GOLD
+	StaticText ""
+	Command "$BFGUpgrade1",	"test > $BFGUpgrade1 0 \"AlreadyBought\" \"openmenu BFGUpgrade1\""
+	StaticText " "
+	Command "$BFGUpgrade2",	"test > $BFGUpgrade2 0 \"AlreadyBought\" \"openmenu BFGUpgrade2\""
+	StaticText " "
+	Command "$BFGUpgrade3",	"test > $BFGUpgrade3 0 \"AlreadyBought\" \"openmenu BFGUpgrade3\""
+	StaticText " "
+	Command "$BFGUpgrade4",	"test > $BFGUpgrade4 0 \"AlreadyBought\" \"openmenu BFGUpgrade4\""
+}
+
+OptionMenu "BFGUpgrade1"
+{
+	Title "$BFGUpgrade1"
+	StaticText "$BFGUpgrade1D1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U1BFG $D4DCash \"BFGUpgrade1 1; CTake $Cost_U1BFG; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1BFG, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "BFGUpgrade2"
+{
+	Title "$BFGUpgrade2"
+	StaticText "$BFGUpgrade2D1"
+	StaticText ""
+	StaticText "$BFGUpgrade2D2", TAN
+	StaticText ""
+	StaticText "$BFGUpgrade2D3", GOLD
+	StaticText ""
+	Command "Buy", "test <= $Cost_U2BFG $D4DCash \"BFGUpgrade2 1; CTake $Cost_U2BFG; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2BFG, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "BFGUpgrade3"
+{
+	Title "$BFGUpgrade3"
+	StaticText "$BFGUpgrade3D1"
+	StaticText ""
+	StaticText "$BFGUpgrade3D2"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U3BFG $D4DCash \"BFGUpgrade3 1; CTake $Cost_U3BFG; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U3BFG, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "BFGUpgrade4"
+{
+	Title "$BFGUpgrade4"
+	StaticText "$BFGUpgrade4D1"
+	StaticText ""
+	StaticText "$BFGUpgrade4D2", TAN
+	StaticText ""
+	Command "Buy", "test <= $Cost_U4BFG $D4DCash \"BFGUpgrade4 1; CTake $Cost_U4BFG; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U4BFG, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+//==============================================================================
+// Carrion Cannon
+//==============================================================================
+OptionMenu "D4DUpgrade.CarrionCannon"
+{
+	Title "Carrion Cannon"
+	//$CarrionUpgradeTime
+	StaticText "Choose An Upgrade", GOLD
+	StaticText ""
+	Command "$CarrionUpgradePickup","test > $CarrionUpgradePickup 0 \"AlreadyBought\" \"openmenu CarrionUpgradePickup\""
+	StaticText " "
+	Command "$CarrionUpgradeAmmo",	"test > $CarrionUpgradeAmmo 0 \"AlreadyBought\" \"openmenu CarrionUpgradeAmmo\""
+	StaticText " "
+	Command "$CarrionUpgradeStun",	"test > $CarrionUpgradeStun 0 \"AlreadyBought\" \"openmenu CarrionUpgradeStun\""
+	StaticText " "
+	Command "$CarrionUpgradeTime",	"test > $CarrionUpgradeTime 0 \"AlreadyBought\" \"openmenu CarrionUpgradeTime\""
+}
+
+OptionMenu "CarrionUpgradePickup"
+{
+	Title "$CarrionUpgradePickup"
+	StaticText "$CarrionUpgradePickupD1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U1CarrionCannon $D4DCash \"CarrionUpgradePickup 1; CTake $Cost_U1CarrionCannon; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1CarrionCannon, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "CarrionUpgradeAmmo"
+{
+	Title "$CarrionUpgradeAmmo"
+	StaticText "$CarrionUpgradeAmmoD1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U2CarrionCannon $D4DCash \"CarrionUpgradeAmmo 1; CTake $Cost_U2CarrionCannon; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2CarrionCannon, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "CarrionUpgradeStun"
+{
+	Title "$CarrionUpgradeStun"
+	StaticText "$CarrionUpgradeStunD1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U3CarrionCannon $D4DCash \"CarrionUpgradeStun 1; CTake $Cost_U3CarrionCannon; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U3CarrionCannon, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "CarrionUpgradeTime"
+{
+	Title "$CarrionUpgradeTime"
+	StaticText "$CarrionUpgradeTimeD1"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U4CarrionCannon $D4DCash \"CarrionUpgradeTime 1; CTake $Cost_U4CarrionCannon; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U4CarrionCannon, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+//==============================================================================
+//==============================================================================
+// Suit Upgrades
+//==============================================================================
+//==============================================================================
+OptionMenu "D4DUpgrade.Suit"
+{
+	Title "Suit Upgrades"
+	Command "Health",		"test >= $D4Stamina 100 \"AlreadyBought\" \"CH3\""
+	StaticText " "
+	Command "Armor",		"test >= $D4ArmorCapRaiser 100 \"AlreadyBought\" \"CheckArmor3\""
+	StaticText " "
+	Command "Air Movement",	"test >= $D4AirControl 1 \"AlreadyBought\" \"CheckJump3\""
+	StaticText " "
+	Command "Credits",	"test >= $CashPercentBonus 30 \"AlreadyBought\" \"CheckCredits3\""
+	StaticText " "
+	Command "Protection",	"test >= $ProtectionBonus3 1 \"AlreadyBought\" \"CheckProtect3\""
+	//StaticText " "
+	//Command "Grenades",		"openmenu D4Grenades"
+	StaticText " "
+	Command "Crates",		"test >= $D4CrateUpgrade 3 \"AlreadyBought\" \"CheckCrates3\""
+	//StaticText " "
+	//Command "Pinatas",		""
+	//StaticText " "
+	//Command "",				""
+}
+//==============================================================================
+// Health
+//==============================================================================
+OptionMenu "D4HealthUpgrade1"
+{
+	Title "Health Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "+25 Maximum Health", GOLD
+	StaticText " "
+	StaticText "+25 Maximum Health", TAN
+	StaticText " "
+	StaticText "+50 Maximum Health", TAN
+	StaticText " "
+	Command "Buy", "test <= $Cost_U1Health $D4DCash \"D4Stamina 25; CTake $Cost_U1Health; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1Health, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "D4HealthUpgrade2"
+{
+	Title "Health Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "+25 Maximum Health"
+	StaticText " "
+	StaticText "+25 Maximum Health", GOLD
+	StaticText " "
+	StaticText "+50 Maximum Health", TAN
+	StaticText " "
+	Command "Buy", "test <= $Cost_U2Health $D4DCash \"D4Stamina 50; CTake $Cost_U2Health; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2Health, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "D4HealthUpgrade3"
+{
+	Title "Health Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "+25 Maximum Health"
+	StaticText " "
+	StaticText "+25 Maximum Health"
+	StaticText " "
+	StaticText "+50 Maximum Health", GOLD
+	StaticText " "
+	Command "Buy", "test <= $Cost_U3Health $D4DCash \"D4Stamina 100; CTake $Cost_U3Health; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U3Health, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+//==============================================================================
+// Armor
+//==============================================================================
+OptionMenu "D4ArmorCapRaiser1"
+{
+	Title "Armor Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "+25 Maximum Armor", GOLD
+	StaticText "Chainsaw Secondary: Drops max 2 armor shards (50%)", GOLD
+	StaticText " "
+	StaticText "+25 Maximum Armor", TAN
+	StaticText "Chainsaw Secondary: Drops max 4 armor shards (50%)", TAN
+	StaticText "Enemies rarely drop armor shards on death", TAN
+	StaticText " "
+	StaticText "+50 Maximum Armor", TAN
+	StaticText "Chainsaw Secondary: Adds 2 guaranteed shards", TAN
+	StaticText " "
+	Command "Buy", "test <= $Cost_U1Armor $D4DCash \"D4ArmorCapRaiser 25; CTake $Cost_U1Armor; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1Armor, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "D4ArmorCapRaiser2"
+{
+	Title "Armor Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "+25 Maximum Armor"
+	StaticText "Chainsaw Secondary: Drops max 2 armor shards (50%)"
+	StaticText " "
+	StaticText "+25 Maximum Armor", GOLD
+	StaticText "Chainsaw Secondary: Drops max 4 armor shards (50%)", GOLD
+	StaticText "Enemies rarely drop armor shards on death", GOLD
+	StaticText " "
+	StaticText "+50 Maximum Armor", TAN
+	StaticText "Chainsaw Secondary: Adds 2 guaranteed shards", TAN
+	StaticText " "
+	Command "Buy", "test <= $Cost_U2Armor $D4DCash \"D4ArmorCapRaiser 50; CTake $Cost_U2Armor; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2Armor, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "D4ArmorCapRaiser3"
+{
+	Title "Armor Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "+25 Maximum Armor"
+	StaticText "Chainsaw Secondary: Drops max 2 armor shards (50%)"
+	StaticText " "
+	StaticText "+25 Maximum Armor"
+	StaticText "Chainsaw Secondary: Drops max 4 armor shards (50%)"
+	StaticText "Enemies rarely drop armor shards on death"
+	StaticText " "
+	StaticText "+50 Maximum Armor", GOLD
+	StaticText "Chainsaw Secondary: Adds 2 guaranteed shards", GOLD
+	StaticText " "
+	Command "Buy", "test <= $Cost_U3Armor $D4DCash \"D4ArmorCapRaiser 100; CTake $Cost_U3Armor; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U3Armor, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+//==============================================================================
+// Jump
+//==============================================================================
+OptionMenu "D4Jump1"
+{
+	Title "Jump Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "Higher Jump", GOLD
+	StaticText " "
+	StaticText "Triple Jump", TAN
+	StaticText " "
+	StaticText "Air Control", TAN
+	StaticText " "
+	Command "Buy", "test <= $Cost_HigherJump $D4DCash \"D4HigherJump 1; CTake $Cost_HigherJump; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_HigherJump, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "D4Jump2"
+{
+	Title "Jump Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "Higher Jump"
+	StaticText " "
+	StaticText "Triple Jump", GOLD
+	StaticText " "
+	StaticText "Air Control", TAN
+	StaticText " "
+	Command "Buy", "test <= $Cost_TripleJump $D4DCash \"D4MultiJump 3; CTake $Cost_TripleJump; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_TripleJump, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "D4Jump3"
+{
+	Title "Jump Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "Higher Jump"
+	StaticText " "
+	StaticText "Triple Jump"
+	StaticText " "
+	StaticText "Air Control", GOLD
+	StaticText " "
+	Command "Buy", "test <= $Cost_AirControl $D4DCash \"D4AirControl 1; CTake $Cost_AirControl; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_AirControl, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+//==============================================================================
+// Cash Bonus
+//==============================================================================
+OptionMenu "CashPercentBonus1"
+{
+	Title "Credit Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "+10% Credits", GOLD
+	StaticText " "
+	StaticText "+20% Credits", TAN
+	StaticText " "
+	StaticText "+30% Credits", TAN
+	StaticText " "
+	Command "Buy", "test <= $Cost_U1Credit $D4DCash \"CashPercentBonus 10; CTake $Cost_U1Credit; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1Credit, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "CashPercentBonus2"
+{
+	Title "Credit Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "+10% Credits"
+	StaticText " "
+	StaticText "+20% Credits", GOLD
+	StaticText " "
+	StaticText "+30% Credits", TAN
+	StaticText " "
+	Command "Buy", "test <= $Cost_U2Credit $D4DCash \"CashPercentBonus 20; CTake $Cost_U2Credit; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2Credit, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "CashPercentBonus3"
+{
+	Title "Credit Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "+10% Credits"
+	StaticText " "
+	StaticText "+20% Credits"
+	StaticText " "
+	StaticText "+30% Credits", GOLD
+	StaticText " "
+	Command "Buy", "test <= $Cost_U3Credit $D4DCash \"CashPercentBonus 30; CTake $Cost_U3Credit; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U3Credit, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+//==============================================================================
+// Protection
+//==============================================================================
+OptionMenu "ProtectionBonus1"
+{
+	Title "Protection Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "50% Environmental Protection", GOLD
+	StaticText " "
+	StaticText "50% Self Damage Reduction", TAN
+	StaticText " "
+	StaticText "50% Radius Damage Reduction", TAN
+	StaticText " "
+	Command "Buy", "test <= $Cost_U1Protection $D4DCash \"ProtectionBonus1 1; CTake $Cost_U1Protection; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1Protection, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "ProtectionBonus2"
+{
+	Title "Protection Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "50% Environmental Protection"
+	StaticText " "
+	StaticText "50% Self Damage Reduction", GOLD
+	StaticText " "
+	StaticText "50% Radius Damage Reduction", TAN
+	StaticText " "
+	Command "Buy", "test <= $Cost_U2Protection $D4DCash \"ProtectionBonus2 1; CTake $Cost_U2Protection; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2Protection, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "ProtectionBonus3"
+{
+	Title "Protection Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "50% Environmental Protection"
+	StaticText " "
+	StaticText "50% Self Damage Reduction"
+	StaticText " "
+	StaticText "50% Radius Damage Reduction", GOLD
+	StaticText " "
+	Command "Buy", "test <= $Cost_U3Protection $D4DCash \"ProtectionBonus3 1; CTake $Cost_U3Protection; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U3Protection, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+//==============================================================================
+// Crates
+//==============================================================================
+OptionMenu "D4CrateUpgrade1"
+{
+	Title "Crate Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "- Heavy Crates -", GOLD
+	StaticText "Removes small health/ammo/armor items", GOLD
+	StaticText " "
+	StaticText "- Awareness Crates -", TAN
+	StaticText "Drops items based around player status", TAN
+	StaticText " "
+	StaticText "- Weaponized Crates -", TAN
+	StaticText "Chance to spawn weapons", TAN
+	StaticText " "
+	Command "Buy", "test <= $Cost_U1Crate $D4DCash \"D4CrateUpgrade 1; CTake $Cost_U1Crate; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U1Crate, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "D4CrateUpgrade2"
+{
+	Title "Crate Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "- Heavy Crates -"
+	StaticText "Removes small health/ammo/armor items"
+	StaticText " "
+	StaticText "- Awareness Crates -", GOLD
+	StaticText "Drops items based around player status", GOLD
+	StaticText " "
+	StaticText "- Weaponized Crates -", TAN
+	StaticText "Chance to spawn weapons", TAN
+	StaticText " "
+	Command "Buy", "test <= $Cost_U2Crate $D4DCash \"D4CrateUpgrade 2; CTake $Cost_U2Crate; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2Crate, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "D4CrateUpgrade3"
+{
+	Title "Crate Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "- Heavy Crates -"
+	StaticText "Removes small health/ammo/armor items"
+	StaticText " "
+	StaticText "- Awareness Crates -"
+	StaticText "Drops items based around player status"
+	StaticText " "
+	StaticText "- Weaponized Crates -", GOLD
+	StaticText "Chance to spawn weapons", GOLD
+	StaticText " "
+	Command "Buy", "test <= $Cost_U3Crate $D4DCash \"D4CrateUpgrade 3; CTake $Cost_U3Crate; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U3Crate, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+//==============================================================================
+//==============================================================================
+// Powerup Upgrades
+//==============================================================================
+//==============================================================================
+
+OptionMenu "D4DUpgrade.Powerups"
+{
+	StaticText ""
+	StaticText "Unfinished. Please check back later."
+}

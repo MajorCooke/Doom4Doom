@@ -1,0 +1,154 @@
+//Spawner HUD
+//Made by AlphaEnt.
+/*
+define SPWNHUD 320 200
+
+define AMMOBAR0 61 13
+define AMMOBAR1 61 13
+
+define ARMRBAR0 61 13
+define ARMRBAR1 61 13
+
+define HLTHBAR0 61 13
+define HLTHBAR1 61 13*/
+
+//define DQ4FONT2 1950 28
+Graphic DQ4FONT2, 9, 9 {}
+
+define AMMW2 244 52
+define AMMW2E 244 52
+define AMMW3 244 52
+define AMMW3E 244 52
+define AMMW4 244 52
+define AMMW4E 244 52
+define AMMW5 244 52
+define AMMW5E 244 52
+define AMMW6 244 52
+define AMMW6E 244 52
+define AMMW7 244 52
+define AMMW7E 244 52
+define AMMW8 244 52
+define AMMW8E 244 52
+define AMMW9 244 52
+define AMMW9E 244 52
+define AMMW0 244 52
+define AMMW0E 244 52
+
+
+
+//This defines the size of the font, in this case 32x32
+//Q4HUDFONT
+Graphic Q4NM0M, 32, 32 {}
+Graphic Q4NM1M, 32, 32 {}
+Graphic Q4NM2M, 32, 32 {}
+Graphic Q4NM3M, 32, 32 {}
+Graphic Q4NM4M, 32, 32 {}
+Graphic Q4NM5M, 32, 32 {}
+Graphic Q4NM6M, 32, 32 {}
+Graphic Q4NM7M, 32, 32 {}
+Graphic Q4NM8M, 32, 32 {}
+Graphic Q4NM9M, 32, 32 {}
+Graphic Q4NMPM, 32, 32 {}
+
+//Q4SMALLHUDFONT
+Graphic Q4NM0S, 16, 16 {}
+Graphic Q4NM1S, 16, 16 {}
+Graphic Q4NM2S, 16, 16 {}
+Graphic Q4NM3S, 16, 16 {}
+Graphic Q4NM4S, 16, 16 {}
+Graphic Q4NM5S, 16, 16 {}
+Graphic Q4NM6S, 16, 16 {}
+Graphic Q4NM7S, 16, 16 {}
+Graphic Q4NM8S, 16, 16 {}
+Graphic Q4NM9S, 16, 16 {}
+Graphic Q4NMPS, 16, 16 {}
+
+//Q4SMALLERHUDFONT
+Graphic Q4NM0SS, 8, 8 {}
+Graphic Q4NM1SS, 8, 8 {}
+Graphic Q4NM2SS, 8, 8 {}
+Graphic Q4NM3SS, 8, 8 {}
+Graphic Q4NM4SS, 8, 8 {}
+Graphic Q4NM5SS, 8, 8 {}
+Graphic Q4NM6SS, 8, 8 {}
+Graphic Q4NM7SS, 8, 8 {}
+Graphic Q4NM8SS, 8, 8 {}
+Graphic Q4NM9SS, 8, 8 {}
+Graphic Q4NMPSS, 8, 8 {}
+
+//Q4SMALLESTHUDFONT
+Graphic Q4NM0SSS, 5, 5 {}
+Graphic Q4NM1SSS, 5, 5 {}
+Graphic Q4NM2SSS, 5, 5 {}
+Graphic Q4NM3SSS, 5, 5 {}
+Graphic Q4NM4SSS, 5, 5 {}
+Graphic Q4NM5SSS, 5, 5 {}
+Graphic Q4NM6SSS, 5, 5 {}
+Graphic Q4NM7SSS, 5, 5 {}
+Graphic Q4NM8SSS, 5, 5 {}
+Graphic Q4NM9SSS, 5, 5 {}
+Graphic Q4NMPSSS, 5, 5 {}
+
+Graphic STKEYS0B, 21, 15 {}
+Graphic STKEYS1B, 21, 15 {}
+Graphic STKEYS2B, 21, 15 {}
+Graphic STKEYS3B, 21, 21 {}
+Graphic STKEYS4B, 21, 21 {}
+Graphic STKEYS5B, 21, 21 {}
+
+
+remap Q4NM0S Q4NH0H
+remap Q4NM1S Q4NH1H
+remap Q4NM2S Q4NH2H
+remap Q4NM3S Q4NH3H
+remap Q4NM4S Q4NH4H
+remap Q4NM5S Q4NH5H
+remap Q4NM6S Q4NH6H
+remap Q4NM7S Q4NH7H
+remap Q4NM8S Q4NH8H
+remap Q4NM9S Q4NH9H
+remap Q4NMPS Q4NHPH
+
+remap Q4NM0SS Q4NH0H
+remap Q4NM1SS Q4NH1H
+remap Q4NM2SS Q4NH2H
+remap Q4NM3SS Q4NH3H
+remap Q4NM4SS Q4NH4H
+remap Q4NM5SS Q4NH5H
+remap Q4NM6SS Q4NH6H
+remap Q4NM7SS Q4NH7H
+remap Q4NM8SS Q4NH8H
+remap Q4NM9SS Q4NH9H
+remap Q4NMPSS Q4NHPH
+
+remap Q4NM0SSS Q4NH0H
+remap Q4NM1SSS Q4NH1H
+remap Q4NM2SSS Q4NH2H
+remap Q4NM3SSS Q4NH3H
+remap Q4NM4SSS Q4NH4H
+remap Q4NM5SSS Q4NH5H
+remap Q4NM6SSS Q4NH6H
+remap Q4NM7SSS Q4NH7H
+remap Q4NM8SSS Q4NH8H
+remap Q4NM9SSS Q4NH9H
+remap Q4NMPSSS Q4NHPH
+
+remap Q4NM0M Q4NH0H2
+remap Q4NM1M Q4NH1H2
+remap Q4NM2M Q4NH2H2
+remap Q4NM3M Q4NH3H2
+remap Q4NM4M Q4NH4H2
+remap Q4NM5M Q4NH5H2
+remap Q4NM6M Q4NH6H2
+remap Q4NM7M Q4NH7H2
+remap Q4NM8M Q4NH8H2
+remap Q4NM9M Q4NH9H2
+remap Q4NMPM Q4NHPH2
+
+
+remap STKEYS0B STKEYS0
+remap STKEYS1B STKEYS1
+remap STKEYS2B STKEYS2
+remap STKEYS3B STKEYS3
+remap STKEYS4B STKEYS4
+remap STKEYS5B STKEYS5

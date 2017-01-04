@@ -1,0 +1,2545 @@
+//==============================================================================
+// Beams
+//==============================================================================
+// Static Rifle
+Sprite X202C0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0
+	{
+		Blend 255, 128, 64, 1.0
+	}
+}
+// Bullets
+Sprite X202D0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0
+	{
+		Blend 255, 192, 96, 1.0
+	}
+}
+
+// BFG Beam
+Sprite X202E0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0
+	{
+		Blend 96, 255, 96, 1.0
+	}
+}
+
+// Lightning Beam
+Sprite X202F0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0
+	{
+		Blend 64, 64, 255, 1.0
+	}
+}
+// Lightning Beam Alt
+Sprite X202G0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0
+	{
+		Blend 128, 64, 255, 1.0
+	}
+}
+
+// Vortex Rifle
+Sprite X202H0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0
+	{
+		Blend 249, 17, 255, 1.0
+	}
+}
+
+// Carrion Merge Effect
+Sprite X202I0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0
+	{
+		Blend 255, 140, 80, 1.0
+	}
+}
+
+Sprite X202J0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0
+	{
+		Style Add
+		Blend 255, 0, 0, 1.0
+	}
+}
+
+Sprite X202K0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0
+	{
+		Style Add
+		Blend 255, 128, 0, 1.0
+	}
+}
+
+// Lightning Beam Alternatives
+Sprite X206G0, 64, 256
+{
+	Offset 32, 128
+	Patch X206F0, 0, 64
+	Patch X206F0, 0, -192
+}
+
+Sprite X206H0, 64, 256
+{
+	Offset 32, 128
+	Patch X206F0, 0, 128
+	Patch X206F0, 0, -128
+}
+
+Sprite X206I0, 64, 256
+{
+	Offset 32, 128
+	Patch X206F0, 0, 192
+	Patch X206F0, 0, -64
+}
+
+//==============================================================================
+remap R016N0 R016N0H
+//==============================================================================
+// Electric spark variations
+//==============================================================================
+Sprite X079B0, 128, 128
+{
+	Offset 64, 64
+	Patch X079A0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite X079C0, 128, 128
+{
+	Offset 64, 64
+	Patch X079A0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite X079D0, 128, 128
+{
+	Offset 64, 64
+	Patch X079A0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite X079E0, 128, 128
+{
+	Offset 64, 64
+	Patch X079A0, 0, 0
+	{
+		FlipX
+	}
+}
+
+Sprite X079F0, 128, 128
+{
+	Offset 64, 64
+	Patch X079B0, 0, 0
+	{
+		FlipX
+	}
+}
+
+Sprite X079G0, 128, 128
+{
+	Offset 64, 64
+	Patch X079C0, 0, 0
+	{
+		FlipX
+	}
+}
+
+Sprite X079H0, 128, 128
+{
+	Offset 64, 64
+	Patch X079D0, 0, 0
+	{
+		FlipX
+	}
+}
+
+Sprite X080E0, 64, 64
+{
+	Offset 64, 64
+	Patch X080A0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite X080F0, 64, 64
+{
+	Offset 64, 64
+	Patch X080B0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite X080G0, 64, 64
+{
+	Offset 64, 64
+	Patch X080C0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite X080H0, 64, 64
+{
+	Offset 64, 64
+	Patch X080D0, 0, 0
+	{
+		Rotate 90
+	}
+}
+//=========================================================================
+// BLOOD variations
+//=========================================================================
+Sprite XA57A0, 128, 128
+{
+	Offset 64, 64
+	Patch X057A0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA57B0, 128, 128
+{
+	Offset 64, 64
+	Patch X057B0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA57C0, 128, 128
+{
+	Offset 64, 64
+	Patch X057C0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA57D0, 128, 128
+{
+	Offset 64, 64
+	Patch X057D0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA57E0, 128, 128
+{
+	Offset 64, 64
+	Patch X057E0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA57F0, 128, 128
+{
+	Offset 64, 64
+	Patch X057F0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA57G0, 128, 128
+{
+	Offset 64, 64
+	Patch X057G0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA57H0, 128, 128
+{
+	Offset 64, 64
+	Patch X057H0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA57I0, 128, 128
+{
+	Offset 64, 64
+	Patch X057I0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA57J0, 128, 128
+{
+	Offset 64, 64
+	Patch X057J0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA57K0, 128, 128
+{
+	Offset 64, 64
+	Patch X057K0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA57L0, 128, 128
+{
+	Offset 64, 64
+	Patch X057L0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA57M0, 128, 128
+{
+	Offset 64, 64
+	Patch X057M0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA57N0, 128, 128
+{
+	Offset 64, 64
+	Patch X057N0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA57O0, 128, 128
+{
+	Offset 64, 64
+	Patch X057O0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA57P0, 128, 128
+{
+	Offset 64, 64
+	Patch X057P0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA57Q0, 128, 128
+{
+	Offset 64, 64
+	Patch X057Q0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA57R0, 128, 128
+{
+	Offset 64, 64
+	Patch X057R0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA57S0, 128, 128
+{
+	Offset 64, 64
+	Patch X057S0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA58A0, 128, 128
+{
+	Offset 64, 64
+	Patch X058A0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA58B0, 128, 128
+{
+	Offset 64, 64
+	Patch X058B0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA58C0, 128, 128
+{
+	Offset 64, 64
+	Patch X058C0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA58D0, 128, 128
+{
+	Offset 64, 64
+	Patch X058D0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA58E0, 128, 128
+{
+	Offset 64, 64
+	Patch X058E0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA58F0, 128, 128
+{
+	Offset 64, 64
+	Patch X058F0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA58G0, 128, 128
+{
+	Offset 64, 64
+	Patch X058G0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA58H0, 128, 128
+{
+	Offset 64, 64
+	Patch X058H0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA58I0, 128, 128
+{
+	Offset 64, 64
+	Patch X058I0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA58J0, 128, 128
+{
+	Offset 64, 64
+	Patch X058J0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA58K0, 128, 128
+{
+	Offset 64, 64
+	Patch X058K0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA58L0, 128, 128
+{
+	Offset 64, 64
+	Patch X058L0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA58M0, 128, 128
+{
+	Offset 64, 64
+	Patch X058M0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA58N0, 128, 128
+{
+	Offset 64, 64
+	Patch X058N0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA58O0, 128, 128
+{
+	Offset 64, 64
+	Patch X058O0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA58P0, 128, 128
+{
+	Offset 64, 64
+	Patch X058P0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA58Q0, 128, 128
+{
+	Offset 64, 64
+	Patch X058Q0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA58R0, 128, 128
+{
+	Offset 64, 64
+	Patch X058R0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA59A0, 128, 128
+{
+	Offset 64, 64
+	Patch X059A0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA59B0, 128, 128
+{
+	Offset 64, 64
+	Patch X059B0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA59C0, 128, 128
+{
+	Offset 64, 64
+	Patch X059C0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA59D0, 128, 128
+{
+	Offset 64, 64
+	Patch X059D0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA59E0, 128, 128
+{
+	Offset 64, 64
+	Patch X059E0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA59F0, 128, 128
+{
+	Offset 64, 64
+	Patch X059F0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA59G0, 128, 128
+{
+	Offset 64, 64
+	Patch X059G0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA59H0, 128, 128
+{
+	Offset 64, 64
+	Patch X059H0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA59I0, 128, 128
+{
+	Offset 64, 64
+	Patch X059I0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA59J0, 128, 128
+{
+	Offset 64, 64
+	Patch X059J0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA59K0, 128, 128
+{
+	Offset 64, 64
+	Patch X059K0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA59L0, 128, 128
+{
+	Offset 64, 64
+	Patch X059L0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XA59M0, 128, 128
+{
+	Offset 64, 64
+	Patch X059M0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+Sprite XB57A0, 128, 128
+{
+	Offset 64, 64
+	Patch X057A0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB57B0, 128, 128
+{
+	Offset 64, 64
+	Patch X057B0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB57C0, 128, 128
+{
+	Offset 64, 64
+	Patch X057C0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB57D0, 128, 128
+{
+	Offset 64, 64
+	Patch X057D0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB57E0, 128, 128
+{
+	Offset 64, 64
+	Patch X057E0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB57F0, 128, 128
+{
+	Offset 64, 64
+	Patch X057F0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB57G0, 128, 128
+{
+	Offset 64, 64
+	Patch X057G0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB57H0, 128, 128
+{
+	Offset 64, 64
+	Patch X057H0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB57I0, 128, 128
+{
+	Offset 64, 64
+	Patch X057I0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB57J0, 128, 128
+{
+	Offset 64, 64
+	Patch X057J0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB57K0, 128, 128
+{
+	Offset 64, 64
+	Patch X057K0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB57L0, 128, 128
+{
+	Offset 64, 64
+	Patch X057L0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB57M0, 128, 128
+{
+	Offset 64, 64
+	Patch X057M0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB57N0, 128, 128
+{
+	Offset 64, 64
+	Patch X057N0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB57O0, 128, 128
+{
+	Offset 64, 64
+	Patch X057O0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB57P0, 128, 128
+{
+	Offset 64, 64
+	Patch X057P0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB57Q0, 128, 128
+{
+	Offset 64, 64
+	Patch X057Q0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB57R0, 128, 128
+{
+	Offset 64, 64
+	Patch X057R0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB57S0, 128, 128
+{
+	Offset 64, 64
+	Patch X057S0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB58A0, 128, 128
+{
+	Offset 64, 64
+	Patch X058A0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB58B0, 128, 128
+{
+	Offset 64, 64
+	Patch X058B0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB58C0, 128, 128
+{
+	Offset 64, 64
+	Patch X058C0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB58D0, 128, 128
+{
+	Offset 64, 64
+	Patch X058D0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB58E0, 128, 128
+{
+	Offset 64, 64
+	Patch X058E0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB58F0, 128, 128
+{
+	Offset 64, 64
+	Patch X058F0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB58G0, 128, 128
+{
+	Offset 64, 64
+	Patch X058G0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB58H0, 128, 128
+{
+	Offset 64, 64
+	Patch X058H0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB58I0, 128, 128
+{
+	Offset 64, 64
+	Patch X058I0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB58J0, 128, 128
+{
+	Offset 64, 64
+	Patch X058J0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB58K0, 128, 128
+{
+	Offset 64, 64
+	Patch X058K0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB58L0, 128, 128
+{
+	Offset 64, 64
+	Patch X058L0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB58M0, 128, 128
+{
+	Offset 64, 64
+	Patch X058M0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB58N0, 128, 128
+{
+	Offset 64, 64
+	Patch X058N0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB58O0, 128, 128
+{
+	Offset 64, 64
+	Patch X058O0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB58P0, 128, 128
+{
+	Offset 64, 64
+	Patch X058P0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB58Q0, 128, 128
+{
+	Offset 64, 64
+	Patch X058Q0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB58R0, 128, 128
+{
+	Offset 64, 64
+	Patch X058R0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB59A0, 128, 128
+{
+	Offset 64, 64
+	Patch X059A0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB59B0, 128, 128
+{
+	Offset 64, 64
+	Patch X059B0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB59C0, 128, 128
+{
+	Offset 64, 64
+	Patch X059C0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB59D0, 128, 128
+{
+	Offset 64, 64
+	Patch X059D0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB59E0, 128, 128
+{
+	Offset 64, 64
+	Patch X059E0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB59F0, 128, 128
+{
+	Offset 64, 64
+	Patch X059F0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB59G0, 128, 128
+{
+	Offset 64, 64
+	Patch X059G0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB59H0, 128, 128
+{
+	Offset 64, 64
+	Patch X059H0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB59I0, 128, 128
+{
+	Offset 64, 64
+	Patch X059I0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB59J0, 128, 128
+{
+	Offset 64, 64
+	Patch X059J0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB59K0, 128, 128
+{
+	Offset 64, 64
+	Patch X059K0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB59L0, 128, 128
+{
+	Offset 64, 64
+	Patch X059L0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XB59M0, 128, 128
+{
+	Offset 64, 64
+	Patch X059M0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+Sprite XC57A0, 128, 128
+{
+	Offset 64, 64
+	Patch X057A0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC57B0, 128, 128
+{
+	Offset 64, 64
+	Patch X057B0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC57C0, 128, 128
+{
+	Offset 64, 64
+	Patch X057C0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC57D0, 128, 128
+{
+	Offset 64, 64
+	Patch X057D0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC57E0, 128, 128
+{
+	Offset 64, 64
+	Patch X057E0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC57F0, 128, 128
+{
+	Offset 64, 64
+	Patch X057F0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC57G0, 128, 128
+{
+	Offset 64, 64
+	Patch X057G0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC57H0, 128, 128
+{
+	Offset 64, 64
+	Patch X057H0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC57I0, 128, 128
+{
+	Offset 64, 64
+	Patch X057I0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC57J0, 128, 128
+{
+	Offset 64, 64
+	Patch X057J0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC57K0, 128, 128
+{
+	Offset 64, 64
+	Patch X057K0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC57L0, 128, 128
+{
+	Offset 64, 64
+	Patch X057L0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC57M0, 128, 128
+{
+	Offset 64, 64
+	Patch X057M0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC57N0, 128, 128
+{
+	Offset 64, 64
+	Patch X057N0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC57O0, 128, 128
+{
+	Offset 64, 64
+	Patch X057O0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC57P0, 128, 128
+{
+	Offset 64, 64
+	Patch X057P0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC57Q0, 128, 128
+{
+	Offset 64, 64
+	Patch X057Q0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC57R0, 128, 128
+{
+	Offset 64, 64
+	Patch X057R0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC57S0, 128, 128
+{
+	Offset 64, 64
+	Patch X057S0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC58A0, 128, 128
+{
+	Offset 64, 64
+	Patch X058A0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC58B0, 128, 128
+{
+	Offset 64, 64
+	Patch X058B0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC58C0, 128, 128
+{
+	Offset 64, 64
+	Patch X058C0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC58D0, 128, 128
+{
+	Offset 64, 64
+	Patch X058D0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC58E0, 128, 128
+{
+	Offset 64, 64
+	Patch X058E0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC58F0, 128, 128
+{
+	Offset 64, 64
+	Patch X058F0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC58G0, 128, 128
+{
+	Offset 64, 64
+	Patch X058G0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC58H0, 128, 128
+{
+	Offset 64, 64
+	Patch X058H0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC58I0, 128, 128
+{
+	Offset 64, 64
+	Patch X058I0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC58J0, 128, 128
+{
+	Offset 64, 64
+	Patch X058J0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC58K0, 128, 128
+{
+	Offset 64, 64
+	Patch X058K0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC58L0, 128, 128
+{
+	Offset 64, 64
+	Patch X058L0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC58M0, 128, 128
+{
+	Offset 64, 64
+	Patch X058M0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC58N0, 128, 128
+{
+	Offset 64, 64
+	Patch X058N0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC58O0, 128, 128
+{
+	Offset 64, 64
+	Patch X058O0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC58P0, 128, 128
+{
+	Offset 64, 64
+	Patch X058P0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC58Q0, 128, 128
+{
+	Offset 64, 64
+	Patch X058Q0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC58R0, 128, 128
+{
+	Offset 64, 64
+	Patch X058R0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC59A0, 128, 128
+{
+	Offset 64, 64
+	Patch X059A0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC59B0, 128, 128
+{
+	Offset 64, 64
+	Patch X059B0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC59C0, 128, 128
+{
+	Offset 64, 64
+	Patch X059C0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC59D0, 128, 128
+{
+	Offset 64, 64
+	Patch X059D0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC59E0, 128, 128
+{
+	Offset 64, 64
+	Patch X059E0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC59F0, 128, 128
+{
+	Offset 64, 64
+	Patch X059F0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC59G0, 128, 128
+{
+	Offset 64, 64
+	Patch X059G0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC59H0, 128, 128
+{
+	Offset 64, 64
+	Patch X059H0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC59I0, 128, 128
+{
+	Offset 64, 64
+	Patch X059I0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC59J0, 128, 128
+{
+	Offset 64, 64
+	Patch X059J0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC59K0, 128, 128
+{
+	Offset 64, 64
+	Patch X059K0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC59L0, 128, 128
+{
+	Offset 64, 64
+	Patch X059L0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite XC59M0, 128, 128
+{
+	Offset 64, 64
+	Patch X059M0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+
+
+
+
+
+
+//=========================================================================
+// Pistol Puff variations
+//=========================================================================
+
+// Set 1, rotate 90 degrees
+Sprite DB21J0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21A0, 0, 0
+	{
+		Rotate 90
+	}
+}
+Sprite DB21K0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21B0, 0, 0
+	{
+		Rotate 90
+	}
+}
+Sprite DB21L0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21C0, 0, 0
+	{
+		Rotate 90
+	}
+}
+Sprite DB21M0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21D0, 0, 0
+	{
+		Rotate 90
+	}
+}
+Sprite DB21N0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21E0, 0, 0
+	{
+		Rotate 90
+	}
+}
+Sprite DB21O0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21F0, 0, 0
+	{
+		Rotate 90
+	}
+}
+Sprite DB21P0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21G0, 0, 0
+	{
+		Rotate 90
+	}
+}
+Sprite DB21Q0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21H0, 0, 0
+	{
+		Rotate 90
+	}
+}
+Sprite DB21R0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21I0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+
+// Set 1, rotate 180 degrees
+Sprite DB22A0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21A0, 0, 0
+	{
+		Rotate 180
+	}
+}
+Sprite DB22B0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21B0, 0, 0
+	{
+		Rotate 180
+	}
+}
+Sprite DB22C0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21C0, 0, 0
+	{
+		Rotate 180
+	}
+}
+Sprite DB22D0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21D0, 0, 0
+	{
+		Rotate 180
+	}
+}
+Sprite DB22E0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21E0, 0, 0
+	{
+		Rotate 180
+	}
+}
+Sprite DB22F0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21F0, 0, 0
+	{
+		Rotate 180
+	}
+}
+Sprite DB22G0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21G0, 0, 0
+	{
+		Rotate 180
+	}
+}
+Sprite DB22H0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21H0, 0, 0
+	{
+		Rotate 180
+	}
+}
+Sprite DB22I0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21I0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+// Set 1, rotate 270 degrees
+Sprite DB22J0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21A0, 0, 0
+	{
+		Rotate 270
+	}
+}
+Sprite DB22K0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21B0, 0, 0
+	{
+		Rotate 270
+	}
+}
+Sprite DB22L0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21C0, 0, 0
+	{
+		Rotate 270
+	}
+}
+Sprite DB22M0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21D0, 0, 0
+	{
+		Rotate 270
+	}
+}
+Sprite DB22N0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21E0, 0, 0
+	{
+		Rotate 270
+	}
+}
+Sprite DB22O0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21F0, 0, 0
+	{
+		Rotate 270
+	}
+}
+Sprite DB22P0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21G0, 0, 0
+	{
+		Rotate 270
+	}
+}
+Sprite DB22Q0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21H0, 0, 0
+	{
+		Rotate 270
+	}
+}
+Sprite DB22R0, 128, 128
+{
+	Offset 64, 64
+	Patch DB21I0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+
+
+
+//=========================================================================
+// Pistol Puff variations
+//=========================================================================
+
+// Set 2, rotate 90 degrees
+Sprite DB23J0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23A0, 0, 0
+	{
+		Rotate 90
+	}
+}
+Sprite DB23K0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23B0, 0, 0
+	{
+		Rotate 90
+	}
+}
+Sprite DB23L0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23C0, 0, 0
+	{
+		Rotate 90
+	}
+}
+Sprite DB23M0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23D0, 0, 0
+	{
+		Rotate 90
+	}
+}
+Sprite DB23N0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23E0, 0, 0
+	{
+		Rotate 90
+	}
+}
+Sprite DB23O0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23F0, 0, 0
+	{
+		Rotate 90
+	}
+}
+Sprite DB23P0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23G0, 0, 0
+	{
+		Rotate 90
+	}
+}
+Sprite DB23Q0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23H0, 0, 0
+	{
+		Rotate 90
+	}
+}
+Sprite DB23R0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23I0, 0, 0
+	{
+		Rotate 90
+	}
+}
+
+
+// Set 2, rotate 180 degrees
+Sprite DB24A0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23A0, 0, 0
+	{
+		Rotate 180
+	}
+}
+Sprite DB24B0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23B0, 0, 0
+	{
+		Rotate 180
+	}
+}
+Sprite DB24C0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23C0, 0, 0
+	{
+		Rotate 180
+	}
+}
+Sprite DB24D0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23D0, 0, 0
+	{
+		Rotate 180
+	}
+}
+Sprite DB24E0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23E0, 0, 0
+	{
+		Rotate 180
+	}
+}
+Sprite DB24F0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23F0, 0, 0
+	{
+		Rotate 180
+	}
+}
+Sprite DB24G0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23G0, 0, 0
+	{
+		Rotate 180
+	}
+}
+Sprite DB24H0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23H0, 0, 0
+	{
+		Rotate 180
+	}
+}
+Sprite DB24I0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23I0, 0, 0
+	{
+		Rotate 180
+	}
+}
+
+// Set 2, rotate 270 degrees
+Sprite DB24J0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23A0, 0, 0
+	{
+		Rotate 270
+	}
+}
+Sprite DB24K0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23B0, 0, 0
+	{
+		Rotate 270
+	}
+}
+Sprite DB24L0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23C0, 0, 0
+	{
+		Rotate 270
+	}
+}
+Sprite DB24M0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23D0, 0, 0
+	{
+		Rotate 270
+	}
+}
+Sprite DB24N0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23E0, 0, 0
+	{
+		Rotate 270
+	}
+}
+Sprite DB24O0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23F0, 0, 0
+	{
+		Rotate 270
+	}
+}
+Sprite DB24P0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23G0, 0, 0
+	{
+		Rotate 270
+	}
+}
+Sprite DB24Q0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23H0, 0, 0
+	{
+		Rotate 270
+	}
+}
+Sprite DB24R0, 128, 128
+{
+	Offset 64, 64
+	Patch DB23I0, 0, 0
+	{
+		Rotate 270
+	}
+}
+
+Sprite "M664A0", 320, 200
+{
+	Patch "M665A0", -168, 0
+	{
+		FlipX
+		UseOffsets
+	}
+}
+
+Sprite "M664B0", 320, 200
+{
+	Patch "M665B0", -191, 0
+	{
+		FlipX
+		UseOffsets
+	}
+}
+
+Sprite "M664C0", 320, 200
+{
+	Patch "M665C0", -221, 0
+	{
+		FlipX
+		UseOffsets
+	}
+}
+
+Sprite "M664D0", 320, 200
+{
+	Patch "M665D0", -168, 0
+	{
+		FlipX
+		UseOffsets
+	}
+}
+
+Sprite "M664E0", 320, 200
+{
+	Patch "M665E0", -116, 0
+	{
+		FlipX
+		UseOffsets
+	}
+}
+
+Sprite "M664F0", 320, 200
+{
+	Patch "M665F0", -138, 0
+	{
+		FlipX
+		UseOffsets
+	}
+}
+
+Sprite "M664G0", 320, 200
+{
+	Patch "M665G0", -138, 0
+	{
+		FlipX
+		UseOffsets
+	}
+}
+
+Sprite "M664H0", 320, 200
+{
+	Patch "M665H0", -105, 0
+	{
+		FlipX
+		UseOffsets
+	}
+}
+
+Sprite "M664I0", 320, 200
+{
+	Patch "M665I0", -126, 0
+	{
+		FlipX
+		UseOffsets
+	}
+}
+
+Sprite "M664J0", 320, 200
+{
+	Patch "M665J0", -136, 0
+	{
+		FlipX
+		UseOffsets
+	}
+}
+
+// WPPK	Name			Size	Offsets
+// A	Chainsaw		72 21	36 17
+// B	Pistol			39 20	19 16
+// C	Shotgun			67 19	33 15
+// D	SSG				67 15	33 11
+// E	HAR				59 22	29 18
+// F	Chaingun		67 26	33 22
+// G	RL				78 25	39 21
+// H	Plasma Rifle	50 28	25 24
+// I	BFG 9000		56 24	28 20
+// J	Gauss Cannon	79 19	39 15
+// Tron versions
+Sprite M668A0, 72, 21 { Offset 36, 17	Patch WPPKA0, 0, 0 {} }
+Sprite M668B0, 39, 20 { Offset 19, 16	Patch WPPKB0, 0, 0 {} }
+Sprite M668C0, 67, 19 { Offset 33, 15	Patch WPPKC0, 0, 0 {} }
+Sprite M668D0, 67, 15 { Offset 33, 11	Patch WPPKD0, 0, 0 {} }
+Sprite M668E0, 59, 22 { Offset 29, 18	Patch WPPKE0, 0, 0 {} }
+Sprite M668F0, 67, 26 { Offset 33, 22	Patch WPPKF0, 0, 0 {} }
+Sprite M668G0, 78, 25 { Offset 39, 21	Patch WPPKG0, 0, 0 {} }
+Sprite M668H0, 50, 28 { Offset 25, 24	Patch WPPKH0, 0, 0 {} }
+Sprite M668I0, 56, 24 { Offset 28, 20	Patch WPPKI0, 0, 0 {} }
+Sprite M668J0, 79, 19 { Offset 39, 15	Patch WPPKJ0, 0, 0 {} }
+// Holographic versions
+Sprite M669A0, 72, 21 { Offset 36, 17	Patch WPPKA0, 0, 0 {} }
+Sprite M669B0, 39, 20 { Offset 19, 16	Patch WPPKB0, 0, 0 {} }
+Sprite M669C0, 67, 19 { Offset 33, 15	Patch WPPKC0, 0, 0 {} }
+Sprite M669D0, 67, 15 { Offset 33, 11	Patch WPPKD0, 0, 0 {} }
+Sprite M669E0, 59, 22 { Offset 29, 18	Patch WPPKE0, 0, 0 {} }
+Sprite M669F0, 67, 26 { Offset 33, 22	Patch WPPKF0, 0, 0 {} }
+Sprite M669G0, 78, 25 { Offset 39, 21	Patch WPPKG0, 0, 0 {} }
+Sprite M669H0, 50, 28 { Offset 25, 24	Patch WPPKH0, 0, 0 {} }
+Sprite M669I0, 56, 24 { Offset 28, 20	Patch WPPKI0, 0, 0 {} }
+Sprite M669J0, 79, 19 { Offset 39, 15	Patch WPPKJ0, 0, 0 {} }
+
+// For the sake of preserving the sprite frame in weapons when wanting it to 
+// disappear.
+Sprite Optional M666A0, 1, 1 { }
+Sprite Optional M666B0, 1, 1 { }
+Sprite Optional M666C0, 1, 1 { }
+Sprite Optional M666D0, 1, 1 { }
+Sprite Optional M666E0, 1, 1 { }
+Sprite Optional M666F0, 1, 1 { }
+Sprite Optional M666G0, 1, 1 { }
+Sprite Optional M666H0, 1, 1 { }
+Sprite Optional M666I0, 1, 1 { }
+Sprite Optional M666J0, 1, 1 { }
+Sprite Optional M666K0, 1, 1 { }
+Sprite Optional M666L0, 1, 1 { }
+Sprite Optional M666M0, 1, 1 { }
+Sprite Optional M666N0, 1, 1 { }
+Sprite Optional M666O0, 1, 1 { }
+Sprite Optional M666P0, 1, 1 { }
+Sprite Optional M666Q0, 1, 1 { }
+Sprite Optional M666R0, 1, 1 { }
+Sprite Optional M666S0, 1, 1 { }
+Sprite Optional M666T0, 1, 1 { }
+Sprite Optional M666U0, 1, 1 { }
+Sprite Optional M666V0, 1, 1 { }
+Sprite Optional M666W0, 1, 1 { }
+Sprite Optional M666X0, 1, 1 { }
+Sprite Optional M666Y0, 1, 1 { }
+Sprite Optional M666Z0, 1, 1 { }
+
+//Voxel only placeholders for things like arrows, check marks and X marks.
+Sprite Optional M670A0, 1, 1 { }
+Sprite Optional M670B0, 1, 1 { }
+Sprite Optional M670C0, 1, 1 { }
+Sprite Optional M670D0, 1, 1 { }
+Sprite Optional M670E0, 1, 1 { }
+Sprite Optional M670F0, 1, 1 { }
+Sprite Optional M670G0, 1, 1 { }
+Sprite Optional M670H0, 1, 1 { }
+
+Sprite Optional M671A0, 1, 1 { }
+Sprite Optional M671B0, 1, 1 { }
+Sprite Optional M671C0, 1, 1 { }
+Sprite Optional M671D0, 1, 1 { }
+Sprite Optional M671E0, 1, 1 { }
+Sprite Optional M671F0, 1, 1 { }
+Sprite Optional M671G0, 1, 1 { }
+Sprite Optional M671H0, 1, 1 { }
+
+//Used as blank placeholders for preserving letters.
+Sprite Optional TNT1B0, 1, 1 { }
+Sprite Optional TNT1C0, 1, 1 { }
+Sprite Optional TNT1D0, 1, 1 { }
+Sprite Optional TNT1E0, 1, 1 { }
+Sprite Optional TNT1F0, 1, 1 { }
+Sprite Optional TNT1G0, 1, 1 { }
+Sprite Optional TNT1H0, 1, 1 { }
+Sprite Optional TNT1I0, 1, 1 { }
+Sprite Optional TNT1J0, 1, 1 { }
+
+//And for the highlighted upgrade icons.
+Sprite Optional M673B0, 1, 1 { }
+Sprite Optional M673C0, 1, 1 { }
+Sprite Optional M673D0, 1, 1 { }
+Sprite Optional M673E0, 1, 1 { }
+Sprite Optional M673F0, 1, 1 { }
+Sprite Optional M673G0, 1, 1 { }
+Sprite Optional M673H0, 1, 1 { }
+Sprite Optional M673I0, 1, 1 { }
+Sprite Optional M673J0, 1, 1 { }
+Sprite Optional M673K0, 1, 1 { }
+Sprite Optional M673L0, 1, 1 { }
+
+Graphic DemonTears2, 240, 180 { Offset 20, 0	 XScale 4 YScale 4	Patch "Graphics/DECALS/demontears.png", 0, 0 {} }
+
+//==============================================================================
+define medal0 40 40
+define medal1 40 40
+define medal1GL 80 80
+
+// Weapon icons
+
+define fist 	 60 30
+define shotgun 	100 30
+define chaingun	100 30
+define harharha	100 30
+define gauss 	100 30
+define plasma 	100 30
+define thunderb	100 30
+define static 	100 30
+
+// Reticle sights
+
+// Naming scheme: "r", first 3 letters, "_", last 3 letters.
+// Example: ReticleSGGrenadeReady.png => rSGG_ady
+// Regexp to convert: 
+// replace "Graphics/HUD/Reticle/Reticle([a-zA-Z]{1,7})\.png" 						with "r$1"
+// replace "Graphics/HUD/Reticle/Reticle([a-zA-Z]{3})[a-zA-Z]+([a-zA-Z]{3})\.png" 	with "r$1_$2"
+
+Graphic rAra_ron, 	128,128 { 									Patch "Graphics/HUD/Reticle/ReticleArachnotron.png"		, 0,0 {} }
+Graphic rBar_ell, 	128,128 { 									Patch "Graphics/HUD/Reticle/ReticleBaronOfHell.png"		, 0,0 {} }
+Graphic rBFG, 		128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleBFG.png"				, 0,0 {} }
+Graphic rCac_mon, 	128,128 { 									Patch "Graphics/HUD/Reticle/ReticleCacodemon.png" 		, 0,0 {} }
+Graphic rCha_gun, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleChaingun.png" 		, 0,0 {} }
+Graphic rCyb_mon, 	128,128 { 									Patch "Graphics/HUD/Reticle/ReticleCyberdemon.png" 		, 0,0 {} }
+Graphic rFatso0, 	128,128 { 									Patch "Graphics/HUD/Reticle/ReticleFatso0.png" 			, 0,0 {} }
+Graphic rGauss, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleGauss.png" 			, 0,0 {} }
+Graphic rGau_er0, 	320,128 { 	XScale 1.35 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleGaussSniper0.png" 	, 0,0 {} }
+Graphic rGau_er1, 	320,128 { 	XScale 1.35 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleGaussSniper1.png" 	, 0,0 {} }
+Graphic rGau_er4,  1024,512 { 								 	Patch "Graphics/HUD/Reticle/ReticleGaussSniper4.png" 	, 0,0 {} }
+Graphic rGau_ege, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleGaussSiege.png" 		, 0,0 {} }
+Graphic rHARIdle, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleHARIdle.png" 		, 0,0 {} }
+Graphic rHAR_ope, 	768,512 { 									Patch "Graphics/HUD/Reticle/ReticleHARScope.png" 		, 0,0 {} }
+Graphic rHAR_ip6, 	128,128 { 								 	Patch "Graphics/HUD/Reticle/ReticleHARClip6.png" 		, 0,0 {} }
+Graphic rHAR_ip5, 	128,128 { 								 	Patch "Graphics/HUD/Reticle/ReticleHARClip5.png" 		, 0,0 {} }
+Graphic rHAR_ip4, 	128,128 { 								 	Patch "Graphics/HUD/Reticle/ReticleHARClip4.png" 		, 0,0 {} }
+Graphic rHAR_ip3, 	128,128 { 								 	Patch "Graphics/HUD/Reticle/ReticleHARClip3.png" 		, 0,0 {} }
+Graphic rHAR_ip2, 	128,128 { 								 	Patch "Graphics/HUD/Reticle/ReticleHARClip2.png" 		, 0,0 {} }
+Graphic rHAR_ip1, 	128,128 { 								 	Patch "Graphics/HUD/Reticle/ReticleHARClip1.png" 		, 0,0 {} }
+Graphic rHAR_ip0, 	128,128 { 								 	Patch "Graphics/HUD/Reticle/ReticleHARClip0.png" 		, 0,0 {} }
+Graphic rHel_hot, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleHellshot.png" 		, 0,0 {} }
+Graphic rHel_ar0, 	128, 52 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleHellshotBar0.png"	, 0,0 {} }
+Graphic rHel_ar1, 	128, 52 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleHellshotBar1.png"	, 0,0 {} }
+Graphic rHel_ar2, 	128, 52 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleHellshotBar2.png"	, 0,0 {} }
+Graphic rLig_un1, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleLightningGun1.png"	, 0,0 {} }
+Graphic rLig_un2, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleLightningGun2.png"	, 0,0 {} }
+Graphic rMas_ind, 	128,128 { 									Patch "Graphics/HUD/Reticle/ReticleMastermind.png" 		, 0,0 {} }
+Graphic rMas_rge, 	128,128 { 									Patch "Graphics/HUD/Reticle/ReticleMastermindCharge.png", 0,0 {} }
+Graphic rPai_tal, 	128,128 { 									Patch "Graphics/HUD/Reticle/ReticlePainElemental.png" 	, 0,0 {} }
+Graphic rPistol, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticlePistol.png" 			, 0,0 {} }
+Graphic rPlasma, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticlePlasma.png" 			, 0,0 {} }
+Graphic rRep_ter, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleRepeater.png" 		, 0,0 {} }
+Graphic rRep_ire, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleRepeaterAltfire.png" , 0,0 {} }
+Graphic rRev_nt0, 	128,128 { 									Patch "Graphics/HUD/Reticle/ReticleRevenant0.png"		, 0,0 {} }
+Graphic rRev_rs0, 	128, 58 { 	XScale 0.981					Patch "Graphics/HUD/Reticle/ReticleRevenantBars0.png"	, 0,0 {} }
+Graphic rRev_rs1, 	128, 58 { 	XScale 0.981					Patch "Graphics/HUD/Reticle/ReticleRevenantBars1.png"	, 0,0 {} }
+Graphic rRev_rs2, 	128, 58 { 	XScale 0.981					Patch "Graphics/HUD/Reticle/ReticleRevenantBars2.png"	, 0,0 {} }
+Graphic rRL, 		128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleRL.png" 				, 0,0 {} }
+Graphic rRLD_ate, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleRLDetonate.png" 		, 0,0 {} }
+Graphic rRLL_kon, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleRLLockon.png" 		, 0,0 {} }
+Graphic rSG, 		128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleSG.png" 				, 0,0 {} }
+Graphic rSGG_dle, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleSGGrenadeIdle.png"	, 0,0 {} }
+Graphic rSGG_ady, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleSGGrenadeReady.png"	, 0,0 {} }
+Graphic rSGT_dle, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleSGTrishotIdle.png"	, 0,0 {} }
+Graphic rSGT_ady, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleSGTrishotReady.png"	, 0,0 {} }
+Graphic rSGT_ip3, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleSGTrishotClip3.png"	, 0,0 {} }
+Graphic rSGT_ip2, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleSGTrishotClip2.png"	, 0,0 {} }
+Graphic rSGT_ip1, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleSGTrishotClip1.png"	, 0,0 {} }
+Graphic rSGT_ip0, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleSGTrishotClip0.png"	, 0,0 {} }
+Graphic rSSG, 		128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleSSG.png" 			, 0,0 {} }
+Graphic rSta_fle, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleStaticRifle.png" 	, 0,0 {} }
+Graphic rSum_ner, 	207,207 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleSummoner.png" 		, 0,0 {} }
+Graphic rSum_ar0, 	207,207 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleSummonerBar0.png"	, 0,0 {} }
+Graphic rSum_ar1, 	207,207 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleSummonerBar1.png"	, 0,0 {} }
+Graphic rUpg_and, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleUpgradeHand.png"		, 0,0 {} }
+Graphic rVor_fle, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleVortexRifle.png"		, 0,0 {} }
+
+// Keys
+Graphic KEYCB,	56,56 { XScale 2 		YScale 2.2 		Patch "Sprites/Items/KEYCB0.png", 0,0 {} }
+Graphic KEYCY,	56,56 { XScale 2 		YScale 2.2 		Patch "Sprites/Items/KEYCY0.png", 0,0 {} }
+Graphic KEYCR,	56,56 { XScale 2 		YScale 2.2 		Patch "Sprites/Items/KEYCR0.png", 0,0 {} }
+Graphic SKKYR,	56,56 { XScale 1.5  	YScale 1.5  	Patch "Sprites/Items/SKKYR0.png", 8,0 {} }
+Graphic SKKYY,	56,56 { XScale 1.5  	YScale 1.5  	Patch "Sprites/Items/SKKYY0.png", 8,0 {} }
+Graphic SKKYB,	56,56 { XScale 1.5  	YScale 1.5  	Patch "Sprites/Items/SKKYB0.png", 8,0 {} }
+
+// Grenades
+define fraggren 30 28
+define hologren 32 30
+define syphgren 32 32
+define fraggre0 30 28
+define hologre0 32 30
+define syphgre0 32 32
+
+// Counter
+
+define cya52 96 96
+define grn52 96 96
+define rng52 96 96
+define red52 96 96
+
+define cnt52 96 96
+define cnt51 96 96
+define cnt50 96 96
+define cnt49 96 96
+define cnt48 96 96
+define cnt47 96 96
+define cnt46 96 96
+define cnt45 96 96
+define cnt44 96 96
+define cnt43 96 96
+define cnt42 96 96
+define cnt41 96 96
+define cnt40 96 96
+define cnt39 96 96
+define cnt38 96 96
+define cnt37 96 96
+define cnt36 96 96
+define cnt35 96 96
+define cnt34 96 96
+define cnt33 96 96
+define cnt32 96 96
+define cnt31 96 96
+define cnt30 96 96
+define cnt29 96 96
+define cnt28 96 96
+define cnt27 96 96
+define cnt26 96 96
+define cnt25 96 96
+define cnt24 96 96
+define cnt23 96 96
+define cnt22 96 96
+define cnt21 96 96
+define cnt20 96 96
+define cnt19 96 96
+define cnt18 96 96
+define cnt17 96 96
+define cnt16 96 96
+define cnt15 96 96
+define cnt14 96 96
+define cnt13 96 96
+define cnt12 96 96
+define cnt11 96 96
+define cnt10 96 96
+define cnt09 96 96
+define cnt08 96 96
+define cnt07 96 96
+define cnt06 96 96
+define cnt05 96 96
+define cnt04 96 96
+define cnt03 96 96
+define cnt02 96 96
+define cnt01 96 96
+define cnt00 96 96
+
+define UAC_ROT0 16 16
+define UAC_ROT1 16 16
+define UAC_ROT2 16 16
+define UAC_ROT3 16 16
+define UAC_ROT4 16 16
+define UAC_ROT5 16 16
+define UAC_ROT6 16 16
+define UAC_ROT7 16 16
+
+// Damage on HUD
+
+Sprite cacohit2, 512, 512 { Patch cacohit1, 0,0 { Rotate  90 } }
+Sprite cacohit3, 512, 512 { Patch cacohit1, 0,0 { Rotate 180 } }
+Sprite cacohit4, 512, 512 { Patch cacohit1, 0,0 { Rotate 270 } }
+Sprite bldmist2, 512, 512 { Patch bldmist1, 0,0 { Rotate  90 } }
+Sprite bldmist3, 512, 512 { Patch bldmist1, 0,0 { Rotate 180 } }
+Sprite bldmist4, 512, 512 { Patch bldmist1, 0,0 { Rotate 270 } }
+Sprite blddroq2,  64,  64 { XScale 2.0	YScale 2.0	Patch blddroq1, 0,0 { Rotate  90 } }
+Sprite blddroq3,  64,  64 { XScale 2.0	YScale 2.0	Patch blddroq1, 0,0 { Rotate 180 } }
+Sprite blddroq4,  64,  64 { XScale 2.0	YScale 2.0	Patch blddroq1, 0,0 { Rotate 270 } }
+
+// Weapon module icons
+
+Sprite zhrgbrs0, 128, 128 { XScale 6.4	YScale 6.4	Patch chrgbrs0, 0,0 { Style Translucent Alpha 0.45 } }
+Sprite zhrgbrs1, 128, 128 { XScale 6.4	YScale 6.4	Patch chrgbrs1, 0,0 { Style Translucent Alpha 1.00 } }
+Sprite zhrgnrg0, 128, 128 { XScale 6.4	YScale 6.4	Patch chrgnrg0, 0,0 { Style Translucent Alpha 0.45 } }
+Sprite zhrgnrg1, 128, 128 { XScale 6.4	YScale 6.4	Patch chrgnrg1, 0,0 { Style Translucent Alpha 1.00 } }
+Sprite zetonat0, 128, 128 { XScale 6.4	YScale 6.4	Patch detonat0, 0,0 { Style Translucent Alpha 0.45 } }
+Sprite zetonat1, 128, 128 { XScale 6.4	YScale 6.4	Patch detonat1, 0,0 { Style Translucent Alpha 1.00 } }
+Sprite ztblast0, 128, 128 { XScale 6.4	YScale 6.4	Patch htblast0, 0,0 { Style Translucent Alpha 0.45 } }
+Sprite ztblast1, 128, 128 { XScale 6.4	YScale 6.4	Patch htblast1, 0,0 { Style Translucent Alpha 1.00 } }
+Sprite zmprove0, 128, 128 { XScale 6.4	YScale 6.4	Patch improve0, 0,0 { Style Translucent Alpha 0.45 } }
+Sprite zmprove1, 128, 128 { XScale 6.4	YScale 6.4	Patch improve1, 0,0 { Style Translucent Alpha 1.00 } }
+Sprite zocking0, 128, 128 { XScale 6.4	YScale 6.4	Patch locking0, 0,0 { Style Translucent Alpha 0.45 } }
+Sprite zocking1, 128, 128 { XScale 6.4	YScale 6.4	Patch locking1, 0,0 { Style Translucent Alpha 1.00 } }
+Sprite zissile0, 128, 128 { XScale 6.4	YScale 6.4	Patch missile0, 0,0 { Style Translucent Alpha 0.45 } }
+Sprite zissile1, 128, 128 { XScale 6.4	YScale 6.4	Patch missile1, 0,0 { Style Translucent Alpha 1.00 } }
+Sprite zrecblt0, 128, 128 { XScale 6.4	YScale 6.4	Patch precblt0, 0,0 { Style Translucent Alpha 0.45 } }
+Sprite zrecblt1, 128, 128 { XScale 6.4	YScale 6.4	Patch precblt1, 0,0 { Style Translucent Alpha 1.00 } }
+Sprite zotator0, 128, 128 { XScale 6.4	YScale 6.4	Patch rotator0, 0,0 { Style Translucent Alpha 0.45 } }
+Sprite zotator1, 128, 128 { XScale 6.4	YScale 6.4	Patch rotator1, 0,0 { Style Translucent Alpha 1.00 } }
+Sprite ziegemd0, 128, 128 { XScale 6.4	YScale 6.4	Patch siegemd0, 0,0 { Style Translucent Alpha 0.45 } }
+Sprite ziegemd1, 128, 128 { XScale 6.4	YScale 6.4	Patch siegemd1, 0,0 { Style Translucent Alpha 1.00 } }
+Sprite ztunbom0, 128, 128 { XScale 6.4	YScale 6.4	Patch stunbom0, 0,0 { Style Translucent Alpha 0.45 } }
+Sprite ztunbom1, 128, 128 { XScale 6.4	YScale 6.4	Patch stunbom1, 0,0 { Style Translucent Alpha 1.00 } }
+Sprite zactscp0, 128, 128 { XScale 6.4	YScale 6.4	Patch tactscp0, 0,0 { Style Translucent Alpha 0.45 } }
+Sprite zactscp1, 128, 128 { XScale 6.4	YScale 6.4	Patch tactscp1, 0,0 { Style Translucent Alpha 1.00 } }
+Sprite zurrets0, 128, 128 { XScale 6.4	YScale 6.4	Patch turrets0, 0,0 { Style Translucent Alpha 0.45 } }
+Sprite zurrets1, 128, 128 { XScale 6.4	YScale 6.4	Patch turrets1, 0,0 { Style Translucent Alpha 1.00 } }
+Sprite zplosht0, 128, 128 { XScale 6.4	YScale 6.4	Patch xplosht0, 0,0 { Style Translucent Alpha 0.45 } }
+Sprite zplosht1, 128, 128 { XScale 6.4	YScale 6.4	Patch xplosht1, 0,0 { Style Translucent Alpha 1.00 } }
+
+define UACBOTTM 20 170
+
+
+
+
+
+//=================================================================================
+//=================================================================================
+//
+//		Menu graphics
+//
+//=================================================================================
+//=================================================================================
+
+remap M_DOOM	H_DOOM
+
+remap M_EPISOD	Episode
+
+remap M_EPI1	ep01
+remap M_EPI2 	ep02
+remap M_EPI3	ep03
+remap M_EPI4	ep04
+
+remap M_SKILL	skill
+remap M_JKILL	sk00
+remap M_ROUGH	sk01
+remap M_HURT	sk02
+remap M_ULTRA	sk03
+remap M_NMARE	sk04
+
+remap M_NGAME	01NewG
+remap M_OPTION	02Opt
+remap M_SAVEG	03Save
+remap M_LOADG	04Load
+remap M_RDTHIS	05info
+remap M_QUITG	06quit
+
+remap M_PAUSE	pause
+remap M_OPTTTL	02Opt
+
+
+
+
+
+
+//=================================================================================
+//=================================================================================
+//
+//		Screen border shaders
+//
+//=================================================================================
+//=================================================================================
+
+define SHADE2MA 1366 768
+define SHADE2CY 1366 768
+define SHADE2YE 1366 768
+define SHADE2GR 1366 768
+define SHADE2BR 1366 768
+
+
+
+
+
+//=================================================================================
+//=================================================================================
+//
+//		Demon Morph Graphics
+//
+//=================================================================================
+//=================================================================================
+
+
+// Hell knight hands
+remap HB2MA0 HB2MA0H
+remap HB2MB0 HB2MB0H
+remap HB2MC0 HB2MC0H
+remap HB2MD0 HB2MD0H
+remap HB2ME0 HB2ME0H
+remap HB2MF0 HB2MF0H
+remap HB2MG0 HB2MG0H
+remap HB2MH0 HB2MH0H
+
+remap HB2NA0 HB2NA0H
+remap HB2NB0 HB2NB0H
+remap HB2NC0 HB2NC0H
+remap HB2ND0 HB2ND0H
+remap HB2NE0 HB2NE0H
+remap HB2NF0 HB2NF0H
+remap HB2NG0 HB2NG0H
+remap HB2NH0 HB2NH0H
+
+remap HB2SA0 HB2SA0H
+remap HB2SB0 HB2SB0H
+remap HB2SC0 HB2SC0H
+
+//
+Sprite RUNEC0, 256, 256
+{
+	Offset 128, 128
+	Patch RUNEB0, 0, 0 {}
+}
+
+// Demon timer particle
+define dot5in7 5 5

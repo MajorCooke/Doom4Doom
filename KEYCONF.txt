@@ -1,0 +1,58 @@
+clearplayerclasses
+addplayerclass Doom4Player
+alias RemoveAllGibs "RemoveGibs1; RemoveGibs2; RemoveGibs3; RemoveGibs4"
+alias RemoveGibs1 "remove BloodGibDropper; remove NewMeat; remove D4BloodCloud;"
+alias RemoveGibs2 "remove BloodGib1; remove BloodGib2; remove BloodGib3; remove BloodGib4;"
+alias RemoveGibs3 "remove MCBloodFXMain; remove BloodGiblet; remove MCBloodFXTrail; remove D4BloodSplatCeiling"
+alias RemoveGibs4 "remove MCBloodSprite; remove MCBloodParticle; remove D4BloodSplatFloor;"
+
+
+// Begin upgrade menu stuffs here.
+alias UpgradeMenu "UpdateWeapons; wait 1; OpenMenu D4DUpgradeMenu"
+alias PrepMenu "UpdateWeapons"
+
+alias UpdateWeapons "pukename UpdateWeaponList always 0"
+
+alias newp "playsound Doom4/Player/Nope"
+
+alias WNA "newp; Echo \"Upgrades for selection not available\" "
+alias NEC "newp; Echo \"Not enough credits.\" "
+alias AlreadyBought "newp; Echo \"You already own that.\" "
+
+alias CheckChgReq "test > $ChaingunSpec 0 \"openmenu D4DUpgrade.ChaingunSpec\" \"openmenu D4DUpgrade.Chaingun\""
+alias CheckSSGReq "test >= + $SSGUpgrade1 $SSGUpgrade2 2 \"openmenu SSGUpgrade4\" \"openmenu SSGUpgrade4NA\""
+alias CheckSTRReq2 "test > $StaticUpgrade1 0 \"openmenu StaticUpgrade2\" \"openmenu StaticUpgrade2NA\""
+alias CheckSTRReq3 "test > $StaticUpgrade2 0 \"openmenu StaticUpgrade3\" \"openmenu StaticUpgrade3NA\""
+alias CheckSTRReq4 "test > $StaticUpgrade3 0 \"openmenu StaticUpgrade4\" \"openmenu StaticUpgrade4NA\""
+alias CH3 "test >= $D4Stamina 50 \"openmenu D4HealthUpgrade3\" \"CH2\""
+alias CH2 "test >= $D4Stamina 25 \"openmenu D4HealthUpgrade2\" \"openmenu D4HealthUpgrade1\""
+
+alias CheckArmor3 "test >= $D4ArmorCapRaiser 50 \"openmenu D4ArmorCapRaiser3\" \"CheckArmor2\""
+alias CheckArmor2 "test >= $D4ArmorCapRaiser 25 \"openmenu D4ArmorCapRaiser2\" \"openmenu D4ArmorCapRaiser1\""
+
+alias CheckJump3 "test >= $D4MultiJump 3 \"openmenu D4Jump3\" \"CheckJump2\""
+alias CheckJump2 "test >= $D4HigherJump 1 \"openmenu D4Jump2\" \"openmenu D4Jump1\""
+
+alias CheckCredits3 "test >= $CashPercentBonus 20 \"openmenu CashPercentBonus3\" \"CheckCredits2\""
+alias CheckCredits2 "test >= $CashPercentBonus 10 \"openmenu CashPercentBonus2\" \"openmenu CashPercentBonus1\""
+
+alias CheckProtect3 "test >= $ProtectionBonus2 1 \"openmenu ProtectionBonus3\" \"CheckProtect2\""
+alias CheckProtect2 "test >= $ProtectionBonus1 1 \"openmenu ProtectionBonus2\" \"openmenu ProtectionBonus1\""
+
+alias CheckCrates3 "test >= $D4CrateUpgrade 2 \"openmenu D4CrateUpgrade3\" \"CheckCrates2\""
+alias CheckCrates2 "test >= $D4CrateUpgrade 1 \"openmenu D4CrateUpgrade2\" \"openmenu D4CrateUpgrade1\""
+
+alias UU "give UpgradeUpdater"
+alias BG "echo \"Purchase completed.\""
+alias D4WM "OpenMenu D4DUpgrade.Weapons"
+alias D4PM "OpenMenu D4DUpgrade.Powerups"
+alias D4SM "OpenMenu D4DUpgrade.Suit"
+
+alias TakeCashP1 "test > $CTake 0 \"take D4DCash $CTake; eval - $D4DCash $CTake D4DCash\""
+alias BuyUpgradeWeapon "UU; BG; closemenu; wait 1; TakeCashP1; D4WM"
+alias BuyUpgradePowerup "UU; BG; closemenu; wait 1; TakeCashP1; D4PM"
+alias BuyUpgradeSuit "UU; BG; closemenu; wait 1; TakeCashP1; D4SM"
+
+alias FORMOTHERRUSSIA "ChaingunMod3 1; GiveSovietGift; DeclareVictory; closemenu; D4WM"
+alias GiveSovietGift "give SovietToken; give SovietActive; SovietToken 1; SovietActive 1"
+alias DeclareVictory "Echo We await your victory, comrade! Kill them all. FOR MOTHER RUSSIA."

@@ -1,0 +1,1063 @@
+const LGDmgMin = 3;
+const LGDmgMax = 6;
+const LGDmgMinUpgrade = 6;
+const LGDmgMaxUpgrade = 10;
+
+const LGChainDmgMin = 2;
+const LGChainDmgMax = 5;
+const LGChainDmgMinUpgrade = 4;
+const LGChainDmgMaxUpgrade = 8;
+
+const AltTrailLength = 256; //Indicates how far a beam can zap others with secondary.
+
+Class D4LightningGun : Doom4Weapon
+{
+	enum LightningGun
+	{
+		SHeight = -12,
+		FBFlags = FBF_USEAMMO|FBF_PUFFTRACER|FBF_NORANDOMPUFFZ,
+		FBFlagsNoAmmo = FBF_PUFFTRACER|FBF_NORANDOMPUFFZ,
+	};
+	Default 
+	{
+		+FLOORCLIP
+		+DONTGIB
+		+INVENTORY.UNDROPPABLE
+		+INVENTORY.UNTOSSABLE
+		+INVENTORY.IGNORESKILL
+		Scale 0.6;
+		Tag "Plasma Rifle";
+		Weapon.AmmoType1 "D4Cells";
+		Weapon.AmmoType2 "D4Cells";
+		Weapon.AmmoGive1 40;
+		Weapon.AmmoUse1 1;
+		Weapon.AmmoUse2 1;
+		
+		Obituary "%o was electrocuted by %k's lightning gun.";
+		Inventory.PickupMessage "Lightning gun! The firepower is shocking!";
+		Tag "Lightning Gun";
+		Decal "D4LGDecal";
+		Weapon.SelectionOrder 60;
+		//Decal "Q4LGDecal"	//removed because when you are firing this weapon and turn too fast, it looks innacurate
+	}
+	States
+	{
+	Spawn:
+		WPPK N -1;
+		Wait;
+	//-------------------------------------------------------
+	// Deselect sequence
+	//-------------------------------------------------------
+	Deselect:
+		LGNI A 0 
+		{
+			A_TakeInventory("AltFireToken",32767);
+			ACS_NamedExecute("RemoveModText",0,0,0,0);
+			A_StopSound(5);
+		}
+		LGNI A 1 A_Lower;
+		LGNI AAA 0 A_Lower;
+		Goto Deselect+1;
+	//-------------------------------------------------------
+	// Select sequence
+	//-------------------------------------------------------
+	Select: 
+		LGNI A 0 
+		{
+			ACS_NamedExecute("RemoveModText",0,0,0,0);
+		}
+		LGNI A 1 A_Raise;
+		LGNI AAA 0 A_Raise;
+		Goto Select+1;
+	//-------------------------------------------------------
+	// Ready sequence
+	//-------------------------------------------------------
+	Ready:
+		LGNI A 0 
+		{
+			A_TakeInventory("AltFireToken",32767);
+			if(countinv("LGUpgradeAltFire"))
+			{ return ResolveState("ReadyWithAltFire"); }
+			else
+			{ return ResolveState("ReadyNoAltFire"); }
+		}
+	ReadyWithAltFire:
+		LGNI AABBCC 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+		Goto Ready;
+	ReadyNoAltFire:
+		LGNI AABBCC 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2|WRF_NOSECONDARY);
+		Goto Ready;
+		
+	//===========================================================================	
+	// Primary fire
+	Fire:
+		TNT1 A 0 
+		{
+			A_PlaySound("Doom4/Weapon/LightningGun/LightningGunFire", CHAN_WEAPON, 1, 1);
+			A_PlaySound("Doom4/Weapon/LightningGun/LG2Loop", 5, 0.5, 1);
+		}
+		
+	HoldPt1:
+		LGNF B 1 Bright 
+		{ 
+			A_WeaponOffset(frandom(1.0,2.0),frandom(33.0,34.0));
+			A_GunFlash("Null");
+			//--------
+			//gzdoom
+			if (GetCvar("vid_renderer"))
+			{
+				// Before you start asking about why there's missing checks, it's because
+				// TERNARY OPERATORS ARE FUCKING AWESOME. Don't worry. You're covered. ;)
+				A_FireBullets(0,0,1,countinv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax),"LightningPuffV2",((CountInv("LGUpgradeAmmo") && random(1,3)==1) ? FBFlagsNoAmmo : FBFlags),CountInv("LGUpgradeRange") ? 1024 : 768,"LightningBeamV2",SHeight,2);
+				if (CountInv("PowerD4DFS"))
+				{	A_FireBullets(0,0,1,countinv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax),"LightningPuffV2",((CountInv("LGUpgradeAmmo") && random(1,3)==1) ? FBFlagsNoAmmo : FBFlags),CountInv("LGUpgradeRange") ? 1024 : 768,"LightningBeamV2",SHeight,2);	}
+			}
+			//--------
+			//zdoom
+			else
+			{
+				if (CountInv("PowerD4DFS"))
+				{	A_RailAttack(countinv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax),8,(CountInv("LGUpgradeAmmo") && random(1,3)==1) ? 0 : 1,"","",RGF_SILENT|RGF_NOPIERCING,0,"LGPuff",0,0,CountInv("LGUpgradeRange") ? 1024 : 768,0,10,0,"D4LGTrail"); 	}
+				A_RailAttack(countinv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax),8,(CountInv("LGUpgradeAmmo") && random(1,3)==1) ? 0 : 1,"","",RGF_SILENT|RGF_NOPIERCING,0,"LGPuff",0,0,CountInv("LGUpgradeRange") ? 1024 : 768,0,10,0,"D4LGTrail"); 
+			}
+		}
+		//the second frame never uses ammo anyway, so no need to add those checks
+		LGNF C 1 Bright 
+		{ 
+			A_GunFlash("Null");
+			A_WeaponOffset(frandom(1.2,2.2),frandom(33.2,34.2)); 
+			//--------
+			//gzdoom
+			if (GetCvar("vid_renderer"))
+			{
+				A_FireBullets(0,0,1,countinv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax),"LightningPuffV2",((CountInv("LGUpgradeAmmo") && random(1,3)==1) ? FBFlagsNoAmmo : FBFlags),CountInv("LGUpgradeRange") ? 1024 : 768,"LightningBeamV2",SHeight,2);
+				if (CountInv("PowerD4DFS"))
+				{	A_FireBullets(0,0,1,countinv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax),"LightningPuffV2",((CountInv("LGUpgradeAmmo") && random(1,3)==1) ? FBFlagsNoAmmo : FBFlags),CountInv("LGUpgradeRange") ? 1024 : 768,"LightningBeamV2",SHeight,2);	}
+			}
+			//--------
+			//zdoom
+			else
+			{
+				if (CountInv("PowerD4DFS"))
+				{	A_RailAttack(countinv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax),8,(CountInv("LGUpgradeAmmo") && random(1,3)==1) ? 0 : 1,"","",RGF_SILENT|RGF_NOPIERCING,0,"LGPuff",0,0,CountInv("LGUpgradeRange") ? 1024 : 768,0,10,0,"D4LGTrail"); 	}
+				A_RailAttack(countinv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax),8,(CountInv("LGUpgradeAmmo") && random(1,3)==1) ? 0 : 1,"","",RGF_SILENT|RGF_NOPIERCING,0,"LGPuff",0,0,CountInv("LGUpgradeRange") ? 1024 : 768,0,10,0,"D4LGTrail"); 
+			}
+		}
+
+		LGNF A 2 A_ReFire("HoldPt1");
+		Goto EndHold;
+	EndHold:
+		LGNI A 1 
+		{
+			A_PlaySound("Doom4/Weapon/LightningGun/LightningGunEnd", CHAN_WEAPON);
+			A_StopSound(5);
+		}
+		Goto Ready;		
+	Flash:
+		TNT1 A 0 A_SetBlend("LightBlue1",0.1,3);
+		ZZZZ C 1 A_Light2();
+		ZZZZ C 0 A_Light0();
+		Stop;
+		
+	//===========================================================================	
+	// Alt Fire
+	AltFire:
+		LGNG A 3 A_PlaySound("Doom4/Weapon/LightningGun/LightningGunFire", CHAN_WEAPON, 1, 1);
+		LGNG B 3 A_GiveInventory("AltFireToken",1);
+		Goto AltHold;
+		
+	AltHold:
+		LGNG CD 1 Bright 
+		{
+			A_GunFlash("Null");
+			A_WeaponOffset(frandom(1,3),frandom(33,35)); 
+			
+			//--------
+			//gzdoom
+			if (GetCvar("vid_renderer"))
+			{
+				if (CountInv("PowerD4DFS"))
+				{	A_FireBullets(0,0,1,countinv("LGUpgradeDamage") ? random(LGChainDmgMinUpgrade,LGChainDmgMaxUpgrade) : random(LGChainDmgMin,LGChainDmgMax),"LightningPuffV3",((CountInv("LGUpgradeAmmo") && random(1,3)==1) ? FBFlagsNoAmmo : FBFlags),CountInv("LGUpgradeRange") ? 1024 : 768,"LightningBeamV3",SHeight,2);	}
+				A_FireBullets(0,0,1,countinv("LGUpgradeDamage") ? random(LGChainDmgMinUpgrade,LGChainDmgMaxUpgrade) : random(LGChainDmgMin,LGChainDmgMax),"LightningPuffV3",((CountInv("LGUpgradeAmmo") && random(1,3)==1) ? FBFlagsNoAmmo : FBFlags),CountInv("LGUpgradeRange") ? 1024 : 768,"LightningBeamV3",SHeight,2);
+			}
+			//--------
+			//zdoom
+			else
+			{
+				if (CountInv("PowerD4DFS"))
+				{	A_RailAttack(countinv("LGUpgradeDamage") ? random(LGChainDmgMinUpgrade,LGChainDmgMaxUpgrade) : random(LGChainDmgMin,LGChainDmgMax),8,(CountInv("LGUpgradeAmmo") && random(1,3)==1) ? 0 : 1,"","",RGF_SILENT|RGF_NOPIERCING,0,"LGAltPuff",0,0,CountInv("LGUpgradeRange") ? 1024 : 768,0,10,0,"D4LGTrailAltFire"); 	}
+				A_RailAttack(countinv("LGUpgradeDamage") ? random(LGChainDmgMinUpgrade,LGChainDmgMaxUpgrade) : random(LGChainDmgMin,LGChainDmgMax),8,(CountInv("LGUpgradeAmmo") && random(1,3)==1) ? 0 : 1,"","",RGF_SILENT|RGF_NOPIERCING,0,"LGAltPuff",0,0,CountInv("LGUpgradeRange") ? 1024 : 768,0,10,0,"D4LGTrailAltFire"); 
+			}
+		}
+		LGNG B 1 A_ReFire("AltHold");	
+		Goto AltEndHold;
+	AltEndHold:
+		LGNI A 0 
+		{
+			A_PlaySound("Doom4/Weapon/LightningGun/LightningGunEnd", CHAN_WEAPON);
+			A_StopSound(5);
+		}
+		LGNG B 3;
+		LGNG A 3 A_TakeInventory("AltFireToken",32767);
+		Goto Ready;	
+	}
+}
+
+//---------------------------------------------------------------------------
+// 	upgrades
+//---------------------------------------------------------------------------
+Class LGUpgradeRange : Inventory	{	Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
+Class LGUpgradeAmmo : Inventory		{	Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
+Class LGUpgradeDamage : Inventory	{	Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
+Class LGUpgradeAltFire : Inventory	{	Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
+
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+Class LightningPuffV2 : Actor 
+{
+	Default 
+	{
+		Projectile;
+		+NOINTERACTION
+		+NOTONAUTOMAP
+		+ALWAYSPUFF
+		+PUFFGETSOWNER
+		+PUFFONACTORS
+		+SKYEXPLODE
+		+EXTREMEDEATH
+		+DONTSPLASH
+		Radius 1;
+		Height 1;
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 2;
+		Stop;
+	}
+}
+
+Class LightningPuffV2NoPain : LightningPuffV2	{ Default { +PAINLESS }}
+
+Class LightningPuffV3 : LightningPuffV2
+{
+	Default 
+	{
+		+HITTRACER
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 2 NoDelay
+		{
+			/*if (!IsPointerEqual(TracerPtr,NullPtr))
+			{	A_RadiusGive("LightningGunBolter",AltTrailLength,RGF_MONSTERS|RGF_NOTRACER|RGF_NOTARGET,1,null,"None",0,4);	}*/
+			A_RadiusGive("LightningGunBolter",AltTrailLength,RGF_MONSTERS|RGF_NOTRACER|RGF_NOTARGET,1,null,"None",0,4);
+		}
+		Stop;
+	}
+}
+
+Class LightningGunBolter : CustomInventory
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			if (health < 1 || !bSHOOTABLE || CheckClass("DemonShield") ||  CheckClass("PlayerPawn",DefPtr,true))
+			{	return false;	}
+			A_SpawnItemEx("LightningBeamV3",0,0,height/2,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTRACER,0,1);
+			return true;
+		}
+		Stop;
+	}
+}
+
+// The trails themselves. See MiscEffects.
+Class LightningTrailBeamV2 : MovingTrailBeam
+{
+	States
+	{
+	Spawn:
+		"####" "#" 0 NoDelay 
+		{
+			user_zoffset = 16;
+			user_time = 4.0;
+			user_pflags = WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEOFFSET|WARPF_COPYVELOCITY;
+			A_SpawnItemEx("LightningTrailBeamV2",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME,tid * 256,1);
+			
+			return A_JumpIf(GetCvar("D4D_BeamTexture"),"Process");
+		}
+		X202 F 0 	{	return ResolveState("Process");	}
+	}
+}
+
+Class LightningTrailBeamV3 : MovingTrailBeam
+{
+	Default 
+	{
+		Translation "0:255=%[0,0,0]:[1.25,1.0,1.85]";
+	}
+	States
+	{
+	Spawn:
+		"####" "#" 0 NoDelay 
+		{
+			user_zoffset = 16;
+			user_time = 4.0;
+			user_pflags = WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEOFFSET|WARPF_COPYVELOCITY;
+			A_SpawnItemEx("LightningTrailBeamV3",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME,tid * 256,1);
+			
+			return A_JumpIf(GetCvar("D4D_BeamTexture"),"Process");
+		}
+		X202 G 0 	{	Thing_SetTranslation(0,0);	return ResolveState("Process");	}
+	}
+}
+
+Class LightningTrailBeamV4 : TrailBeam
+{
+	Default 
+	{
+		Translation "0:255=%[0,0,0]:[1.25,1.0,1.85]";
+	}
+	States
+	{
+	Spawn:
+		"####" "#" 0 NoDelay 
+		{
+			user_time = 4.0;
+			A_SpawnItemEx("LightningTrailBeamV4",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME,tid * 256,1);
+			
+			return A_JumpIf(GetCvar("D4D_BeamTexture"),"Process");
+		}
+		X202 G 0 	{	Thing_SetTranslation(0,0);	return ResolveState("Process");	}
+	}
+}
+
+// This spawns the trail.
+Class LightningBeamV2 : Actor 
+{
+	enum LightningBeamV2
+	{
+		MaxDistance = 768,	// Maximum distance of the effect
+		AngleRandom = 7,	// The boundaries of angle changing (random(-AngleRandom,AngleRandom))
+		PitchRandom = 7,	// ^ for pitch
+		ChokeMin = 1,		// How sooner or later the beam needs to correct itself to
+		ChokeMax = 5,		// 	"stay on target".
+	};
+	const StepDistance = 31;
+	double user_pitch;
+	double user_angle;
+	double user_dista;
+	double user_distb;
+	int user_choke;
+	int user_flags;
+	//[0] = Current distance travelled
+	//[1] = How much further to go
+	Default 
+	{
+		+NOCLIP
+		+NOINTERACTION
+		+NOBLOCKMAP
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay
+		{
+			// Grab the velocity IMMEDIATELY.
+			if (target) { vel = target.vel; }
+			
+			// The angle and pitch won't change so go ahead and save it now.
+			user_pitch = pitch;
+			user_angle = angle;
+			user_distb = Min(MaxDistance, GetDistance(true,TracerPtr));
+			user_choke = random(ChokeMin, ChokeMax);
+			
+			Scale.X = 0.03;
+			Scale.Y = 0.25;
+			
+			if (GetCvar("D4D_BeamTexture"))
+			{
+				user_flags = SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME;
+				Scale.X *= 2.5 * randompick(-1,1);
+				Scale.Y *= 0.485 * randompick(-1,1);
+				return A_Jump(256,1,2,3,4);
+			}
+			user_flags = SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS;
+			return ResolveState("Moving");
+		}
+	Sprite:
+		X206 FGHI 0 A_Jump(256,"Moving");
+	Moving:
+		"####" "#" 0
+		{
+			// user_dista = distance currently travelled.
+			// user_distb = maximum distance.
+			// Make sure we always have a valid target.
+			while ((user_dista < user_distb))
+			{
+				// Don't randomize the very first beam.
+				if (user_dista > 0)
+				{	A_FaceTracer(0,0,0,0,FAF_MIDDLE);	}
+				
+				// Randomizes the angle of the beams. 
+				if (user_dista < (user_distb - StepDistance))
+				{
+					// If we're not about to reach the end, or not hitting the 
+					// choker, randomize it. Otherwise, stay on target and go 
+					// for the puff.
+					if (user_choke > 0)
+					{
+						A_SetPitch(pitch + frandom(-PitchRandom, PitchRandom));
+						A_SetAngle(angle + frandom(-AngleRandom, AngleRandom));
+						user_choke--;
+					}
+					else 
+					{	user_choke = random(ChokeMin,ChokeMax);	}
+				}
+				// Spawn the beam with the same angle and pitch. Note that the
+				// beam is being centered so we have to take that into account
+				// and spawn it FORWARD based on half the beam's length.
+				// Then move forward by a beam's length and repeat until done.
+				A_SpawnItemEx("LightningTrailBeamV2",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,user_flags);
+				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
+				user_dista += StepDistance;
+			}
+		}
+		Stop;
+	}
+}
+
+Class LightningBeamV3 : Actor 
+{
+	enum LightningBeamV3
+	{
+		MaxDistance = 768,	// Maximum distance of the effect
+		AngleRandom = 7,	// The boundaries of angle changing (random(-AngleRandom,AngleRandom))
+		PitchRandom = 7,	// ^ for pitch
+		ChokeMin = 1,		// How sooner or later the beam needs to correct itself to
+		ChokeMax = 5,		// 	"stay on target".
+	};
+	const StepDistance = 31;
+	double user_pitch;
+	double user_angle;
+	double user_dista;
+	double user_distb;
+	//[0] = Current distance travelled
+	//[1] = How much further to go
+	int user_choke;
+	int user_t;
+	int user_flags;
+	Default 
+	{
+		+NOCLIP
+		+NOINTERACTION
+		+NOBLOCKMAP
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay
+		{
+			if (tid > 0)
+			{
+				user_t = tid;
+				Thing_ChangeTID(0,0);
+				
+				if (A_CheckProximity("Null","LightningPuffV3",256,1,CPXF_SETTARGET))
+				{
+					A_TransferPointer(TargetPtr,DefPtr,TargetPtr,MasterPtr);
+					
+					A_Warp(TargetPtr,0,0,0,0,WARPF_NOCHECKPOSITION);
+					A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+					A_DamageTracer(countinv("LGUpgradeDamage") ? random(LGChainDmgMinUpgrade,LGChainDmgMaxUpgrade) : random(LGChainDmgMin,LGChainDmgMax),"None",0,null,"None",MasterPtr);
+				}
+				else
+				{
+					// Grab the velocity IMMEDIATELY.
+					if (target) { vel = target.vel; }
+				}
+			}
+			else
+			{
+				if (target) { vel = target.vel; }
+			}
+			
+			Scale.X = 0.03;
+			Scale.Y = 0.25;
+			
+			if (GetCvar("D4D_BeamTexture"))
+			{
+				user_flags = SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME;
+				Scale.X *= 2.5 * randompick(-1,1);
+				Scale.Y *= 0.485 * randompick(-1,1);
+				return A_Jump(256,1,2,3,4);
+			}
+			user_flags = SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS;
+			return ResolveState("Moving");
+		}
+	Sprite:
+		X206 FGHI 0 A_Jump(256,"Moving");
+	Moving:
+		"####" "#" 0
+		{
+			// The angle and pitch won't change so go ahead and save it now.
+			user_pitch = pitch;
+			user_angle = angle;
+			user_distb = Min(MaxDistance, GetDistance(true,TracerPtr));
+			user_choke = random(ChokeMin, ChokeMax);
+			// user_dista = distance currently travelled.
+			// user_distb = maximum distance.
+			// Make sure we always have a valid target.
+			while ((user_dista < user_distb))
+			{
+				// Don't randomize the very first beam.
+				if (user_dista > 0)
+				{	A_FaceTracer(0,0,0,0,FAF_MIDDLE);	}
+				
+				// Randomizes the angle of the beams. 
+				if (user_dista < (user_distb - StepDistance))
+				{
+					// If we're not about to reach the end, or not hitting the 
+					// choker, randomize it. Otherwise, stay on target and go 
+					// for the puff.
+					if (user_choke > 0)
+					{
+						A_SetPitch(pitch + frandom(-PitchRandom, PitchRandom));
+						A_SetAngle(angle + frandom(-AngleRandom, AngleRandom));
+						user_choke--;
+					}
+					else 
+					{	user_choke = random(ChokeMin,ChokeMax);	}
+				}
+				// Spawn the beam with the same angle and pitch. Note that the
+				// beam is being centered so we have to take that into account
+				// and spawn it FORWARD based on half the beam's length.
+				// Then move forward by a beam's length and repeat until done.
+				//A_SpawnItemEx("LightningTrailBeamV3",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS);
+				
+				if (user_t)
+				{	A_SpawnItemEx("LightningTrailBeamV4",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,user_flags);	}
+				else
+				{	A_SpawnItemEx("LightningTrailBeamV3",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,user_flags);	}
+				
+				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
+				user_dista += StepDistance;
+			}
+		}
+		Stop;
+	}
+}
+
+/*
+Class LGEmitter : Actor 
+{
+	const Flags = WARPF_NOCHECKPOSITION|WARPF_COPYPITCH;
+	const Distance = 17;
+	const YOff = 4;
+	const ZOff = 38;
+	double  user_pos;
+	int user_t;
+	Projectile;
+	+NOINTERACTION
+	RenderStyle "Add";
+	Scale 0.10
+	States
+	{
+	Spawn:
+		PLAY A 1 NoDelay
+		{
+			A_Warp(MasterPtr,pos.x,pos.y,pos.z,0,Flags|WARPF_ABSOLUTEPOSITION); //Grab the pitch...
+			user_pos = (-sin(pitch) * 3);
+			A_Warp(MasterPtr,
+				(cos(pitch)*(Distance)) - user_pos,
+				YOff,
+				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);	
+		}
+		Loop;
+	}
+}
+
+Class LGPuff : Actor 
+{
+	const Limit = 12.0;
+	const FMin = 0.5;
+	const FMax = 1.0;
+	double user_xa, user_xb, user_xc;
+	double user_ya, user_yb, user_yc;
+	double user_za, user_zb, user_zc;
+	double  user_dist;
+	double  user_anga, user_angb, user_angc;
+	int user_life;
+	int user_count;
+	int user_minicount;
+	double  user_narrow;
+	Projectile;
+	//+HITTRACER
+	+CLIENTSIDEONLY
+	+NOINTERACTION
+	+ALWAYSPUFF
+	+PUFFONACTORS
+	+PUFFGETSOWNER
+	+FORCEXYBILLBOARD
+	+BRIGHT
+	Radius 10
+	Scale 0.35
+	RenderStyle "Add";
+	Obituary "%o was electrocuted by %k's lightning gun."
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(256,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24)
+		DB08 ABCDEFGHIJLKMNOPQRSTUVWXYZ 0 BRIGHT A_JumpIf(1 == 1,"Play")
+	Play:
+		"####" "#" 1 bright 
+		{
+			if (!A_CheckProximity("Null","LGEmitter",2048,1,CPXF_SETTRACER))
+			{	return ResolveState("PlayNormal"); }
+			user_narrow = 1.0;
+			user_xc = pos.x;
+			user_yc = pos.y;
+			user_zc = pos.z;
+			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+			user_anga = angle;
+			return ResolveState(null);
+		}
+		"####" "#" 1 bright
+		{
+			if (!IsPointerEqual(TracerPtr,NullPtr))
+			{	
+				user_angb = -GetAngle(true, TracerPtr));
+				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+				A_SetAngle(angle + user_angb);
+				return ResolveState("Beam");	
+			}
+			A_Logfalse;
+			return ResolveState(null);
+		}
+		Stop;
+	Beam:
+		"####" "#" 0
+		{
+			if (user_minicount <= 0)
+			{
+				
+				user_xb = frandom(FMin,FMax) * randompick(-1,1);
+				user_yb = frandom(FMin,FMax) * randompick(-1,1);
+				user_zb = frandom(FMin,FMax) * randompick(-1,1);
+				user_minicount = random(2,4);
+			}
+			else
+			{
+				
+				user_xa += user_xb;
+				user_ya += user_yb;
+				user_za += user_zb;
+				user_minicount--;
+			}
+			if (GetAngle(true,TracerPtr) > 0)
+			{
+				A_Warp(DefPtr,cos(pitch)*5,user_ya,-sin(pitch)*5,0,WARPF_NOCHECKPOSITION);
+				A_FaceTracer(1,1,0,0,FAF_MIDDLE);
+				A_SpawnParticle("2222FF",SPF_FULLBRIGHT|SPF_RELATIVE,2,8,0,(cos(pitch)*5),user_ya,(-sin(pitch)*5),0,0,0,0,0,0,1.0,0.5);
+				return ResolveState("Beam");
+			}
+			user_dist = GetDistance(true,TracerPtr);
+			return ResolveState("Beam2");
+		}
+	Beam2:
+		"####" "#" 2 bright
+		{
+			
+			if (user_count >= user_dist)
+			{
+				user_count = 0;
+				A_RearrangePointers(DefPtr,DefPtr,NullPtr);
+				A_Warp(DefPtr,user_xc,user_yc,user_zc,0,WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEPOSITION);
+				return ResolveState(null);
+			}			
+			if (user_minicount <= 0)
+			{
+				
+				user_xb = frandom(FMin,FMax) * randompick(-1,1);
+				user_yb = frandom(FMin,FMax) * randompick(-1,1);
+				user_zb = frandom(FMin,FMax) * randompick(-1,1);
+				user_minicount = random(2,4);
+			}
+			else
+			{
+				user_xa += user_xb;
+				user_ya += user_yb;
+				user_za += user_zb;
+				user_minicount--;
+			}
+			if (user_ya > Limit)		{	user_ya -= ((abs(user_ya) % Limit) * 2);	}
+			if (user_za > Limit)		{	user_za -= ((abs(user_za) % Limit) * 2);	}
+			if (user_ya < -Limit)		{	user_ya += ((abs(user_ya) % Limit) * 2);	}
+			if (user_za < -Limit)		{	user_za += ((abs(user_za) % Limit) * 2);	}
+			
+			if (user_count >= user_dist - 100)
+			{	user_narrow = Max(user_narrow - 0.05, 0);	}
+			A_SpawnParticle("2222FF",SPF_FULLBRIGHT|SPF_RELATIVE,2,8,0,((cos(pitch)*user_count)+(-sin(pitch)*user_xa*user_narrow)),user_ya*user_narrow,((-sin(pitch)*user_count)+(cos(pitch)*user_za*user_narrow)),0,0,0,0,0,0,1.0,0.5);
+			user_count += 5;
+			return ResolveState("Beam");
+		}
+		Stop;
+	PlayNormal:
+		"####" "#" 2 bright A_Logfalse
+		Stop;
+	}
+}*/
+
+Class LGPuff : Actor 
+{
+	Default 
+	{
+		+CLIENTSIDEONLY
+		Radius 10;
+		+NOINTERACTION
+		+ALWAYSPUFF
+		+PUFFGETSOWNER
+		Scale 0.35;
+		RenderStyle "Add";
+		Obituary "%o was electrocuted by %k's lightning gun.";
+		//Alpha 0.6;
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		//TNT1 A 0 NODELAY A_Jump(256,random(1,24));
+		DB08 ABCDEFGHIJLKMNOPQRSTUVWXYZ 0 BRIGHT A_JumpIf(1 == 1,"Play");
+	Play:
+		"####" "##" 1 Bright;
+		Stop;
+	}
+}
+
+Class LGPuffNoPain : LGPuff
+{
+	Default 
+	{
+		+PAINLESS
+		+BLOODLESSIMPACT
+	}
+}
+
+//-----------------------------------------------------------------------
+Class D4LGTrail : Actor 
+{
+	double user_dist;
+	
+	Default 
+	{
+		+NOINTERACTION
+		//+NOTIMEFREEZE
+		Scale 0.16;
+		RenderStyle "Add";
+
+		Translation "0:255=%[0,0,0]:[0.3,0.6,1.4]";
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay 
+		{
+			//Get the pitch. Only need to do this once.
+			if (target)		{	pitch = target.pitch;	}
+			user_dist = GetDistance(true,AAPTR_TARGET);
+			
+			if(GetCvar("HQEffectsWeapons"))
+			{
+				A_SpawnItemEx("ElectDrSpark",0,0,0,frandom(2.0,-2.0),frandom(2.0,-2.0),frandom(2.0,-2.0),0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,224);
+			}
+			
+			return A_Jump(256,1,2,3,4,5,6,7,8);
+		}
+		HSP2 ABCDEFGH 0 A_Jump(256,"Play");
+	Play:
+		"####" "#" 1 BRIGHT
+		{
+			A_FadeOut(0.125);
+			A_Warp(AAPTR_TARGET,cos(pitch)*user_dist,8+frandom(-1,1),frandom(-1,1)+32+sin(-pitch)*user_dist,0,WARPF_NOCHECKPOSITION|WARPF_COPYPITCH|WARPF_COPYVELOCITY|WARPF_INTERPOLATE);
+			
+		}
+		Wait;
+	}
+}
+
+Class ElectDrSpark : Actor 
+{
+	Default 
+	{
+		Translation "0:255=%[0,0,0]:[0.75,0.75,2.0]";
+		+NOINTERACTION
+		Scale 0.08;
+		RenderStyle "Add";
+		+FORCEXYBILLBOARD
+		Alpha 1.0;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(256,1,2,3,4,5,6,7,8);
+		X079 ABCDEFGH 0	{ return ResolveState("Perform"); }
+	Perform:
+		"####" "#" 1 Bright 
+		{
+			A_SetScale(Scale.X+0.0025);
+			A_FadeOut(0.07);
+		}
+		Wait;
+	}
+}
+
+
+//-----------------------------------------------------------------------
+Class D4LGTrailAltFire : Actor 
+{
+	double  user_dist;
+	int user_t;
+	Default 
+	{
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+		//+NOTIMEFREEZE
+		Scale 0.11;
+		RenderStyle "Add";
+		Translation "0:255=%[0,0,0]:[0.7,0.4,1.5]";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay 
+		{
+			if (tid > 0)
+			{	user_t = tid; Thing_ChangeTID(0,0);	}
+			//Get the pitch. Only need to do this once.
+			
+			if (user_t == 0)
+			{
+				if (target) { pitch = target.pitch; }
+				user_dist = GetDistance(true,AAPTR_TARGET);
+			}
+			
+			if(GetCvar("HQEffectsWeapons")) 
+			{
+				A_SpawnItemEx("ElectDrSpark",0,0,0,frandom(2.0,-2.0),frandom(2.0,-2.0),frandom(2.0,-2.0),0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);	
+			}
+			
+			return A_Jump(256,1,2,3,4,5,6,7,8);
+		}
+		HSP2 ABCDEFGH 0 A_Jump(256,"Play");
+	Play:
+		"####" "#" 1 BRIGHT
+		{
+			A_FadeOut(0.125);
+			//This gathers the new pitch every other time.
+			if (user_t == 0)	{ A_Warp(AAPTR_TARGET,cos(pitch)*user_dist,8+frandom(-1,1),frandom(-1,1)+32+sin(-pitch)*user_dist,0,WARPF_NOCHECKPOSITION|WARPF_COPYPITCH|WARPF_COPYVELOCITY|WARPF_INTERPOLATE); }
+		}
+		Wait;
+	}
+}
+
+Class LGAltPuff : Actor 
+{
+	const SpawnDistance = 10;
+	int user_c;
+	int user_count;
+	double  user_distance;
+	Default 
+	{
+		Projectile;
+		+HITTRACER
+		+CLIENTSIDEONLY
+		+NOINTERACTION
+		+ALWAYSPUFF
+		+PUFFGETSOWNER
+		+FORCEXYBILLBOARD
+		+BRIGHT
+		Radius 10;
+		Scale 0.35;
+		RenderStyle "Add";
+		Obituary "%o was electrocuted by %k's lightning gun.";
+		Translation "0:255=%[0,0,0]:[0.7,0.4,1.5]";
+		//Alpha 0.6;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY 
+		{
+			A_RearrangePointers(DefPtr,TargetPtr,DefPtr,4);
+			return A_Jump(256,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24);
+		}
+		DB08 ABCDEFGHIJLKMNOPQRSTUVWXYZ 0 BRIGHT { return ResolveState("Play"); }
+	Play:
+		"####" "#" 1 Bright
+		{
+			if (tracer && tracer.bShootable)
+			{
+				A_GiveInventory("ChainToken",1,TracerPtr);
+				return ResolveState("Looping");
+			}
+			return ResolveState(null);
+		}
+		"####" "#" 1 Bright;
+		Stop;
+	Looping:
+		"####" "#" 1 bright
+		{
+			if (A_RadiusGive("ChainChecker",384,RGF_MONSTERS|RGF_NOTRACER,1,null,"",0,1))
+			{
+				if (A_CheckProximity("Null","LightningChainTargeter",768,1,CPXF_SETTRACER|CPXF_CLOSEST))
+				{
+					//A_RadiusGive("ChainRemover",1024,RGF_MISSILES|RGF_NOTRACER,1,"LightningChainTargeter");
+					A_TransferPointer(DefPtr,TracerPtr,MasterPtr,MasterPtr,4);
+					A_FaceTracer(0,0,0,0,FAF_BOTTOM);
+					user_distance = GetDistance(true,TracerPtr);
+					return ResolveState("MiniLoop");
+				}
+			}
+			if (user_count > 0)
+			{	A_RadiusGive("ChainClearer",4096,RGF_MONSTERS,1);	}
+			return ResolveState(null);
+		}
+		Stop;
+	MiniLoop:
+		"####" "#" 0
+		{
+			A_SpawnItemEx("D4LGTrailAltFire",cos(pitch)*user_c,0,-sin(pitch)*user_c,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH,0,1);
+			user_c = user_c + 10;
+			if (user_c >= user_distance)
+			{
+				A_Warp(TracerPtr,0,0,0,0,WARPF_NOCHECKPOSITION);
+				A_GiveInventory("ChainDamager",1,TracerPtr);
+				user_c = 0;
+				user_count++;
+				if (user_count > 2)	
+				{
+					A_RadiusGive("ChainClearer",4096,RGF_MONSTERS|RGF_OBJECTS,1);
+					return ResolveState("Null"); 
+				}
+				
+			}
+			return ResolveState("Looping");
+		}
+		Goto Looping;
+	}
+}
+
+Class ChainChecker : CustomInventory
+{
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			if (CountInv("ChainToken") || !tracer || tracer.bKilled ||
+				CheckClass("DemonShield"))	
+			{	return false;	}
+			
+			A_SpawnItemEx("LightningChainTargeter",0,0,height/2.0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTRACER);
+			A_GiveInventory("ChainToken",1);
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class LGAltPuffNoPain : LGAltPuff
+{	Default { +PAINLESS	+BLOODLESSIMPACT	}}
+
+Class LightningChainTargeter : Actor 
+{
+	Default 
+	{
+		Projectile;
+		+NOINTERACTION
+		+NOTONAUTOMAP
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 1;
+		Stop;
+	}
+}
+
+Class ChainDamager : CustomInventory
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			if (CheckClass("LightningChainTargeter"))
+			{
+				//Make sure to pass the appropriate damaging Class for the inflictor so PAINLESS can be respected.
+				if (A_CheckProximity("Null","LGAltPuff",512,1,CPXF_ANCESTOR|CPXF_SETTARGET))
+				{	A_DamageTracer(random(LGDmgMin,LGDmgMax)*random(1,3),"Electric",DMSS_AFFECTARMOR,null,"",MasterPtr,TargetPtr);	}
+				else
+				{	A_DamageTracer(random(LGDmgMin,LGDmgMax)*random(1,3),"Electric",DMSS_AFFECTARMOR,null,"",MasterPtr);	}
+				A_Remove(DefPtr,RMVF_EVERYTHING);
+				return true;
+			}
+			return false;
+		}
+		Stop;
+	}
+}
+
+Class ChainRemover : CustomInventory
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			if (CheckClass("LightningChainTargeter"))
+			{	
+				A_Remove(DefPtr,RMVF_EVERYTHING);	
+				return true;
+			}
+			return false;
+		}
+		Stop;
+	}
+}
+
+Class ChainClearer : CustomInventory
+{
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0 A_TakeInventory("ChainToken",32767);
+		Stop;
+	}
+}
+
+Class ChainToken : Inventory {}

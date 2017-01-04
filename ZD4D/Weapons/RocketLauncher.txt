@@ -1,0 +1,991 @@
+
+//===================================================================================================
+//===================================================================================================
+//
+//		Rocket Launcher
+//
+//	Sprites: Neccronixis
+//	MuzzleFlash sprite edit: DBThanatos
+//	Original Code: DBThanatos
+//	Code rewrite + layer support: Major Cooke
+//	Offset tweaks: Xaser
+//
+//===================================================================================================
+//===================================================================================================
+
+Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
+{
+	Default 
+	{
+		+WEAPON.NOALERT
+		+WEAPON.ALT_AMMO_OPTIONAL
+		+INVENTORY.UNDROPPABLE
+		+INVENTORY.UNTOSSABLE
+		Weapon.SlotNumber 1;
+		Inventory.PickupMessage "Rocket Launcher! Make a mess!";
+		Obituary "%o rode %k's rocket.";
+		Tag "Rocket Launcher";
+		Weapon.AmmoType1 "D4Rockets";
+		Weapon.AmmoGive1 4;
+		Weapon.AmmoUse1 1;
+		scale 0.6;
+		Weapon.SelectionOrder 80;
+		+DONTGIB
+	}
+	States
+	{
+	Spawn:
+		WPPK G -1;
+		Stop;
+	//-------------------------------------------------------
+	// Deselect sequence
+	//-------------------------------------------------------
+	Deselect:
+		"####" "#" 0 
+		{
+			A_RemoveChildren(true,RMVF_EVERYTHING,"RLTargetChecker");
+			
+			ACS_NamedExecute("RemoveModText",0,0,0,0);
+			A_TakeInventory("RLLockToken",32767,0);
+			A_TakeInventory("RLTargetToken",32767,0);
+			A_TakeInventory("RocketFired",32767,0);
+			A_TakeInventory("TripleShot",32767,0);
+		}
+	DesLoop:
+		"####" "#" 1 A_Lower;
+		"####" "####" 0 A_Lower;
+		Loop;
+	//-------------------------------------------------------
+	// Select sequence
+	//-------------------------------------------------------
+	Select:
+			RLNI A 0 
+			{
+				A_TakeInventory("RLLockToken",32767,0);
+				A_TakeInventory("RLTargetToken",32767,0);
+				A_TakeInventory("RocketFired",32767,0);
+				A_TakeInventory("TripleShot",32767,0);
+				ACS_NamedExecute("RemoveModText",0,0,0,0); //clears previous wep text
+				if (CountInv("DetonateActive"))			{	return ResolveState("DetonateSpriteSelect");	}
+				if (CountInv("LockOnActive"))			{	return ResolveState("LockOnSpriteSelect");		}
+				return ResolveState("ResumeSelectSequence");
+			}
+			DetonateSpriteSelect:
+				RLDI A 0 ;
+				Goto ResumeSelectSequence;
+			LockOnSpriteSelect:
+				RLLI A 0 ;
+				Goto ResumeSelectSequence;
+	ResumeSelectSequence:
+		"####" "#" 1 A_Raise;
+		"####" "####" 0 A_Raise;
+		Loop;
+	//-------------------------------------------------------
+	// Ready sequence
+	//-------------------------------------------------------
+	Ready:
+		RLNI A 0
+		{
+			if (CountInv("RocketFired"))			{	return ResolveState("ReadyNoSprite");	}
+			return ResolveState(null);
+		}
+		Ready_StartPreparingSprites:	//all "Start preparing" are to assign what sprite to display in the "####" instances
+			"----" A 0 
+			{
+				if (CountInv("DetonateActive"))			{	return ResolveState("DetonateSpriteReady");	}
+				if (CountInv("LockOnActive"))			{	return ResolveState("LockOnSpriteReady");		}
+				return ResolveState("NormalSpriteReady");
+			}			
+			NormalSpriteReady:
+				RLNI A 0 ;
+				Goto ResumeReadySequence;
+			DetonateSpriteReady:
+				RLDI A 0 ACS_NamedExecute("ModSelectedText",0,7,0,0);	//print detonate
+				Goto ResumeReadySequence;
+			LockOnSpriteReady:
+				RLLI A 0 ACS_NamedExecute("ModSelectedText",0,8,0,0);	//print Lockon
+				Goto ResumeReadySequence;
+				
+	ResumeReadySequence:
+		"####" A 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+		Loop;
+	ReadyNoAmmo:
+		"####" A 1
+		{
+			A_TakeInventory("RLLockToken",32767,0);
+			A_TakeInventory("RLTargetToken",32767,0);
+			A_TakeInventory("RocketFired",32767,0);
+			A_TakeInventory("TripleShot",32767,0);
+		}
+		Goto Ready;
+	ReadyNoSprite:
+		M666 A 1 
+		{
+			if (CountInv("TripleShot") > 1)
+			{	A_WeaponReady(WRF_NOFIRE|WRF_NOSWITCH|WRF_NOBOB);	}
+			else if (CountInv("RocketFired"))
+			{	A_WeaponReady(WRF_NOPRIMARY|WRF_NOSWITCH|WRF_NOBOB);	}
+			else
+			{	return ResolveState("Ready_StartPreparingSprites");	}
+			return ResolveState(null);
+		}
+		Loop;
+		
+	//-------------------------------------------------------
+	// Primary fire 
+	//-------------------------------------------------------
+	Fire:
+		"####" "#" 0 
+		{
+			if (CountInv("DetonateActive"))	{	return ResolveState("DetonateSprite");	}
+			if (CountInv("LockOnActive"))	{	return ResolveState("LockOnSprite");	}
+			return ResolveState("NormalSprite");
+		}		
+		NormalSprite:
+			RLNI A 0;
+			Goto ResumeFireSequence;
+		DetonateSprite:
+			RLDI A 0;
+			Goto ResumeFireSequence;
+		LockOnSprite:
+			RLLI A 0;
+			Goto ResumeFireSequence;
+			
+	ResumeFireSequence:
+		"####" A 0 Bright
+		{
+			if (A_JumpIfNoAmmo("Null"))	//if not enough ammo
+			{
+				A_TakeInventory("FireToken",32767);
+				return ResolveState("ReadyNoAmmo");
+			}
+			A_AlertMonsters();	
+			A_GiveInventory("FireToken",1);
+			if (CountInv("TripleShot") && !CountInv("RocketFired"))		//Locked on.
+			{
+				A_TakeInventory("RLLockToken",32767,0);
+				A_TakeInventory("RLTargetToken",32767,0);
+				A_GiveInventory("TripleShot",1);
+				A_GiveInventory("RocketFired",1);
+				A_Overlay(RocketFire,"TripleFire");
+				return ResolveState("Ready");
+			}
+			return ResolveState(null);
+		}
+	//Holding ground for the sake of the weapon's sanity.
+	FHold:
+		"####" A 1
+		{			
+			if (A_Overlay(RocketFire,"FireAnimation",true))
+			{	A_OverlayFlags(RocketFire,PSPF_POWDOUBLE|PSPF_ADDWEAPON,true);	}
+			return ResolveState(null);
+		}
+		"####" "#" 0 A_Refire("FHold");
+		Goto Ready;
+		
+		
+	//-------------------------------------------------------
+	// Flash sequence, used by all three firemodes and alt fires
+	//-------------------------------------------------------
+	
+	FireAnimation:
+			Flash_StartPreparingFireSprites:	//all "Start preparing" are to assign what sprite to display in the "####" instances
+				RLNF A 0
+				{
+					if (CountInv("DetonateActive"))			{	return ResolveState("DetonateSpriteFlash");	}
+					if (CountInv("LockOnActive"))			{	return ResolveState("LockOnSpriteFlash");	}
+					return ResolveState ("ResumeFlashSequence");
+				}
+				DetonateSpriteFlash:
+					RLDF A 0 { return ResolveState("ResumeFlashSequence"); }
+				LockOnSpriteFlash:
+					RLLF A 0 { return ResolveState("ResumeFlashSequence"); }
+			
+	ResumeFlashSequence:
+		"####" B 1 Bright 
+		{
+			A_GunFlash("Null");
+			A_FireProjectile("D4Rocket",0,1,7);
+			A_PlaySound("Doom4/Weapon/RocketLauncher/Fire",5,1);
+			A_Overlay(P1,"NormalPitchHandler");
+			A_ZoomFactor(0.99,ZOOM_NOSCALETURNING);
+			A_GiveInventory("RocketFired",1);
+			A_WeaponOffset(10,7,WOF_ADD);
+		}
+	Res2:
+		"####" C 1 Bright   A_WeaponOffset(10.0, 7.0,WOF_ADD);
+		"####" D 1 Bright { A_WeaponOffset( 5.0, 3.0,WOF_ADD); A_ZoomFactor(1,ZOOM_NOSCALETURNING); }
+		"####" E 1 Bright   A_WeaponOffset( 3.0, 2.0,WOF_ADD);
+		"####" F 2          A_WeaponOffset( 2.0, 1.0,WOF_ADD); //total +30 + 20
+	
+			Flash_StartPreparingIdleSprites:	//all "Start preparing" are to assign what sprite to display in the "####" instances
+				RLNI A 0
+				{
+					if (CountInv("DetonateActive"))			{	return ResolveState("DetonateSpriteFlashIdle");	}
+					if (CountInv("LockOnActive"))			{	return ResolveState("LockOnSpriteFlashIdle");	}
+					return ResolveState ("ResumeFlashSequenceIdle");
+				}
+				
+				DetonateSpriteFlashIdle:
+					RLDI A 0;
+					Goto ResumeFlashSequenceIdle;
+				LockOnSpriteFlashIdle:
+					RLLI A 0;
+					Goto ResumeFlashSequenceIdle;
+			
+	ResumeFlashSequenceIdle:
+		"####" A 2 ;
+		"####" AA 1; //A_SetPitch(pitch+0.8)
+		"####" AA 1 ;//A_SetPitch(pitch+0.8)
+	
+			Flash_StartPreparingReloadSprites:	//all "Start preparing" are to assign what sprite to display in the "####" instances
+				RLNR A 0
+				{
+					if (CountInv("DetonateActive"))			{	return ResolveState("DetonateSpriteFlashReload");	}
+					if (CountInv("LockOnActive"))			{	return ResolveState("LockOnSpriteFlashReload");	}
+					return ResolveState ("ResumeFlashSequenceReload");
+				}
+				
+				DetonateSpriteFlashReload:
+					RLDR A 0;
+					Goto ResumeFlashSequenceReload;
+				LockOnSpriteFlashReload:
+					RLLR A 0;
+					Goto ResumeFlashSequenceReload;
+			//A_SetTics(CountInv("PowerD4DFS") ? 0 : 1);
+	ResumeFlashSequenceReload:
+		"####" "#" 0 A_JumpIf(CountInv("PowerD4DFS"),"RFSFast");
+		"####" AA 1 A_WeaponOffset(-2,-1,WOF_ADD); //-4 -2
+		"####" AA 1 A_WeaponOffset(-2,-1,WOF_ADD);							//-8 -4
+		"####" CC 1 A_WeaponOffset(-2,-1,WOF_ADD);							//-12 -6 
+		"####" DD 1 A_WeaponOffset(-2,-1,WOF_ADD);							//-16 -8 
+		"####" EE 1 A_WeaponOffset(-2,-1,WOF_ADD);							//-20 -10 
+		"####" FF 1 A_WeaponOffset(-2,-1,WOF_ADD);							//-24 -12
+		"####" G 1 A_WeaponOffset(-2,-3,WOF_ADD);							//-26 -15
+		"####" H 1 A_WeaponOffset(-2,-2,WOF_ADD);							//-28 -18
+		"####" I 1 A_WeaponOffset(-2,-2,WOF_ADD);							//-30 -20
+		"####" JKLMNOPQRS 1;
+		"####" T 1 
+		{
+			A_TakeInventory("RocketFired",32767,0);
+			A_TakeInventory("TripleShot",32767,0);
+		}
+		Stop;
+		
+	RFSFast:
+		"####" A 1 A_WeaponOffset(-4,-2,WOF_ADD); //-4 -2
+		"####" A 1 A_WeaponOffset(-4,-2,WOF_ADD);							//-8 -4
+		"####" C 1 A_WeaponOffset(-4,-2,WOF_ADD);							//-12 -6 
+		"####" D 1 A_WeaponOffset(-4,-2,WOF_ADD);							//-16 -8 
+		"####" E 1 A_WeaponOffset(-4,-2,WOF_ADD);							//-20 -10 
+		"####" F 1 A_WeaponOffset(-4,-2,WOF_ADD);							//-24 -12
+		"####" G 1 A_WeaponOffset(-4,-6,WOF_ADD);							//-26 -15
+		"####" I 1 A_WeaponOffset(-4,-4,WOF_ADD);							//-30 -20
+		"####" JLMPR 1;
+		"####" T 1 
+		{
+			A_TakeInventory("RocketFired",32767,0);
+			A_TakeInventory("TripleShot",32767,0);
+		}
+		Stop;
+
+	//-------------------------------------------------------
+	// Alt fires
+	//-------------------------------------------------------
+	
+	AltFire:
+		"####" A 1 
+		{
+			// [MC] Welcome to my Hell.
+			if (CountInv("DetonateActive")) //Detonate token?
+			{
+				//Make sure it can't be triggered again until the next fire. Safety reasons.
+				if (CountInv("RocketFired"))
+				{
+					A_TakeInventory("RocketFired",32767,0); 
+					A_GiveInventory("RocketFired",2);
+				}
+				A_GiveToChildren("RLDetonatorSecondary",1);
+				return ResolveState(null);
+			}
+			else if (CountInv("LockOnActive"))
+			{
+				if (CountInv("D4Rockets") || GetCvar("sv_infiniteammo") > 0)	//if it has enough to at least fire one rocket, then it proceeds
+				{
+					return ResolveState("LockOn");
+				}
+				else
+				{
+					ACS_NamedExecute("NotEnoughAmmo",0,0,0);
+				}
+			}
+			ACS_NamedExecute("NoModsAvailable",0,0,0,0);
+			return ResolveState(null);
+		}
+		Goto Ready;
+	LockOn:
+		RLLI A 0 
+		{
+			if (!CountInv("RLTargetToken"))
+			{
+				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
+				A_GiveInventory("RLTargetToken",1);
+			}
+			return ResolveState("LockOnHold");
+		}
+	LockOnHold:
+		RLLI A 1 
+		{
+			if (CountInv("RLLockToken") == 30)	//only plays once
+			{	A_PlaySound("Doom4/Weapon/RocketLauncher/StartLockOn",6);	}
+			if (CountInv("RLLockToken") >= 200)
+			{
+				if (!CountInv("TripleShot") || CountInv("TripleShot") > 1)
+				{
+					A_TakeInventory("TripleShot",10000);
+					A_GiveInventory("TripleShot",1);
+					A_PlaySound("Doom4/Weapon/RocketLauncher/TargetLocked",7);
+				}
+				A_WeaponReady(WRF_NOSECONDARY);
+			}
+			else
+			{	A_FireBullets(0,0,1,0,"RLTargetChecker",FBF_NOFLASH|FBF_NORANDOMPUFFZ|FBF_NORANDOM);	}
+		}
+		"####" A 0 A_Refire("LockOnHold"); //Leave this out from brackets unless it's last.
+		"####" A 0
+		{
+			A_TakeInventory("RLLockToken",32767,0);
+			A_TakeInventory("RLTargetToken",32767,0);
+			A_TakeInventory("RocketFired",32767,0);
+			A_TakeInventory("TripleShot",32767,0);
+		}
+		Goto Ready; // failsafe
+	//-----------------------------------------------------
+	// 	where it actually fires the 3 rockets. Cooke, you really gotta
+	//  start putting comments
+	//	[MC] NEVAAAAAAAR!!! >:D
+	//	[XA] i'm helping too
+	TripleFire:
+		RLLF B 1 bright
+		{
+			A_GunFlash("Null");
+			A_TakeInventory("RLLockToken",32767,0);
+			A_TakeInventory("RLTargetToken",32767,0);
+			A_FireProjectile("D4RocketSeeker",0,1,7);
+			A_Overlay(P2,"TriplePitchHandler");
+			A_PlaySound("Doom4/Weapon/RocketLauncher/Fire",5,1);
+			A_WeaponOffset(2,0,WOF_ADD); //for recoil effect
+		}
+		"####" CDE 1 bright A_WeaponOffset(1,1,WOF_ADD);
+		RLLI A 2 A_SetTics(CountInv("PowerD4DFS") ? 0 : 1);
+		RLLF B 1 bright  
+		{
+			if (A_JumpIfNoAmmo("Null"))
+			{
+				A_TakeInventory("RLLockToken",32767,0);
+				A_TakeInventory("RLTargetToken",32767,0);
+				return ResolveState("FireContFlash");
+			}
+			A_GunFlash("Null");
+			A_FireProjectile("D4RocketSeeker",0,1,7);
+			A_WeaponOffset(2,0,WOF_ADD);	//for recoil effect
+			A_Overlay(P3,"TriplePitchHandler");
+			A_PlaySound("Doom4/Weapon/RocketLauncher/Fire",6,1);
+			return ResolveState(null);
+		}
+		"####" CDE 1 bright  A_WeaponOffset(1,1,WOF_ADD);
+		RLLI A 2 A_SetTics(CountInv("PowerD4DFS") ? 0 : 1);
+		RLLF B 1 bright 
+		{
+			if (A_JumpIfNoAmmo("Null"))
+			{
+				return ResolveState("FireContFlash");
+			}
+			A_GunFlash("Null");
+			A_FireProjectile("D4RocketSeeker",0,1,7);
+			A_PlaySound("Doom4/Weapon/RocketLauncher/Fire",7,1);
+			A_Overlay(P4,"TriplePitchHandler");
+			A_WeaponOffset(2,0,WOF_ADD);	//for recoil effect
+			return ResolveState(null);
+		}
+	FireContFlash:
+		"####" B 1 bright 
+		{
+			A_GunFlash("Null");
+			A_TakeInventory("RLLockToken",32767,0);
+			A_TakeInventory("RLTargetToken",32767,0);
+		}
+		Goto Res2;
+	//==========================================================================
+	//==========================================================================
+	// Misc Overlay sections
+	NormalPitchHandler:
+		M666 A 2 A_SetPitch(pitch-4.8,SPF_INTERPOLATE);
+		M666 AAAAAA 1 A_SetPitch(pitch+0.8);
+		Stop;
+	TriplePitchHandler:
+		M666 A 2 A_SetPitch(pitch-1.5,SPF_INTERPOLATE);
+		M666 AAA 1 A_SetPitch(pitch+0.5);
+		Stop;
+		
+	
+		
+		
+	//-------------------------------------------------------
+	// Alt fire switcheroo
+	//-------------------------------------------------------
+	
+	User1:
+		"####" "#" 0 
+		{
+			if(CountInv("RocketLauncherMod1")>=1) //if has Detonate
+			{
+				if(CountInv("LockOnActive")>=1) //but LockOn was active
+				{
+					return ResolveState("FromLockOnToDetonate");
+				}
+				else if(CountInv("DetonateActive")==0)
+				{
+					return ResolveState("FromNormalToDetonate"); //but if it didnt have LockOn active, then it was in "normal"
+				}
+			}
+			if(CountInv("RocketLauncherMod2")>=1) //if it has LockOn
+			{
+				if(CountInv("DetonateActive")>=1) //but Detonate was active
+				{
+					return ResolveState("FromDetonateToLockOn");
+				}
+				else if(CountInv("LockOnActive")==0)	//if nothing was active,
+				{
+					return ResolveState("FromNormalToLockOn"); //then it was in "normal" SG
+				}
+			}
+			else
+			{
+				ACS_NamedExecute("NoModsAvailable",0,0,0,0);
+			}
+			return ResolveState(null);
+		}
+		"####" "#" 5;
+		Goto Ready;
+
+
+		FromNormalToLockOn:
+			//RLNI A 0 A_PrintBold("From normal to LockOn")
+			//hide normal fire
+			RLNI AAAA 1 A_WeaponOffset(1,20,WOF_ADD); //+0 +80
+			//pull of and arm LockOn mod
+			RLLS B 0 A_PlaySound("Doom4/Weapon/RocketLauncher/SwitchToLock",5,1);
+			RLLS KKKKK 1 A_WeaponOffset(0,-15,WOF_ADD);
+			RLLS KJIHGFEDCB 1; //A_WeaponOffset(0,-8,WOF_ADD); // 0 -80
+			RLLS B 0 A_GiveInventory("LockOnActive",1);
+			RLLS AAAA 1 A_WeaponOffset(-1,-1,WOF_ADD);
+			RLLS A 1 A_WeaponOffset(0,-1,WOF_ADD);
+			Goto Ready;
+			
+		FromNormalToDetonate:
+			//RLNI A 0 A_PrintBold("From normal to Detonate")
+			//hide normal fire
+			RLNI AAAA 1 A_WeaponOffset(1,20,WOF_ADD); //+0 +80
+			//pull up Detonate	
+			RLDS j 0 A_PlaySound("Doom4/Weapon/RocketLauncher/SwitchToDetonate",5,1);		
+			RLDS PPPPP 1 A_WeaponOffset(0,-15,WOF_ADD);
+			RLDS ONMLKJ 1;
+			RLDS IHGFEE 1;
+			RLDS E 0 A_GiveInventory("DetonateActive",1);
+			RLDS EDCB 1 A_WeaponOffset(-1,-1,WOF_ADD);
+			RLDS A 1 A_WeaponOffset(0,-1,WOF_ADD);
+			Goto Ready;
+			
+		FromDetonateToLockOn:
+			//RLDI A 0 A_PrintBold("From Detonate to LockOn")
+			//hide Detonate
+			RLDI AAAA 1 A_WeaponOffset(0,20,WOF_ADD); //+0 +80
+			//pull of and arm LockOn mod
+			RLLS B 0 A_PlaySound("Doom4/Weapon/RocketLauncher/SwitchToLock",5,1);
+			RLLS KKKKK 1 A_WeaponOffset(0,-15,WOF_ADD);
+			RLLS KJIHGFEDCB 1; //A_WeaponOffset(0,-8,WOF_ADD); // 0 -80
+			RLLS B 0 A_TakeInventory("DetonateActive",1);
+			RLLS B 0 A_GiveInventory("LockOnActive",1);
+			RLLS AAAA 1 A_WeaponOffset(-1,-1,WOF_ADD);
+			RLLS A 1 A_WeaponOffset(0,-1,WOF_ADD);
+			Goto Ready;
+			
+		FromLockOnToDetonate:
+			//RLLI A 0 A_PrintBold("From LockOn to Detonate")
+			//hide LockOn
+			RLLI AAAA 1 A_WeaponOffset(0,20,WOF_ADD); //+0 +80
+			//pull up Detonate			
+			RLDS j 0 A_PlaySound("Doom4/Weapon/RocketLauncher/SwitchToDetonate",5,1);
+			RLDS PPPPP 1 A_WeaponOffset(0,-15,WOF_ADD);
+			RLDS ONMLKJ 1;
+			RLDS IHGFEE 1;
+			RLDS E 0 A_TakeInventory("LockOnActive",1);
+			RLDS E 0 A_GiveInventory("DetonateActive",1);
+			RLDS EDCB 1 A_WeaponOffset(-1,-1,WOF_ADD);
+			RLDS A 1 A_WeaponOffset(0,-1,WOF_ADD);
+			Goto Ready;	
+	}
+}
+
+Class RocketFired : Inventory { Default { Inventory.InterHubAmount 0; } }
+Class TripleShot : Inventory {	Default { Inventory.MaxAmount 2;	Inventory.InterHubAmount 0; } }
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//	Mods tokens
+// (No, DBT, they did not have the right names. :P)
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+Class RocketLauncherMod1 : Inventory // detonate
+{
+	Default 
+	{
+		// Inventory.(Max)Amount 1 is superfluous and is assigned by default. No need
+		// to have it. InterhubAmount however is set to... something fucked up.
+		+INVENTORY.UNDROPPABLE
+		Inventory.InterHubAmount 1;
+		Scale 0.2;
+		Inventory.PickupMessage "Detonate module";
+	}
+	States
+	{
+	Spawn:
+		POSS A 10;
+		Loop;
+	}
+}
+Class RocketLauncherMod2 : Inventory // lock on
+{
+	Default 
+	{
+		+INVENTORY.UNDROPPABLE
+		Inventory.InterHubAmount 1;
+		Scale 0.2;
+		Inventory.PickupMessage "Lock On module";
+	}
+	States
+	{
+	Spawn:
+		SPOS A 10;
+		Loop;
+	}
+}
+
+Class RocketLauncherModSecondary : Inventory	//the token to switch between mods
+{}
+
+Class DetonateActive : Inventory	 //mod1
+{
+	Default 
+	{
+		+INVENTORY.UNDROPPABLE
+	}
+}
+Class LockOnActive : Inventory		//mod2
+{
+	Default 
+	{
+		+INVENTORY.UNDROPPABLE
+	}
+}
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//	Detonate related
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// Only allow one detonation.
+Class DetonateToken : Inventory	{}
+Class RocketLauncherUpgrade4 : Inventory {	Default { Inventory.InterhubAmount 1; } }
+
+//DO NOT TOUCH THIS UNLESS YOU KNOW WHAT YOU ARE DOING.
+Class RLDetonatorSecondary : CustomInventory
+{
+	
+	Default 
+	{
+		+INVENTORY.ALWAYSPICKUP
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			if (!CheckClass("D4Rocket") || CountInv("DetonateToken"))
+			{
+				return false;
+			}
+			
+			if (CountInv("ProtectionBonus2", TargetPtr))
+			{			
+				A_Explode(15,128);	//deals low damage to player
+				A_Explode(145,180,0,0,60);	//then it deals a whole other bunch of damage at greater radius
+			}
+			else
+			{			
+				A_Explode(30,128);	
+				A_Explode(130,180,0,0,60);
+			}
+			A_SpawnItemEx("ExploderDummy",0,0,0,0,0,0,0,32);	//had to, because this actor cannot a_quake since it disappears 
+			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			A_PlaySound("Doom4/Weapon/RocketLauncher/HRExplo");
+			A_GiveInventory("DetonateToken",1);
+			return true;
+		}
+		Stop;
+	}
+}
+Class ExploderDummy : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 60 NODELAY
+		{
+			if(GetCvar("user_quakexplosions")==1)
+			{
+				A_QuakeEx(2,2,2,15,0,768,"",QF_SCALEDOWN,0,0,0,1);
+			}
+		}
+		Stop;
+	}
+}
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//	Lock on related
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+Class RLTargetChecker : Actor 
+{
+	int user_c1, user_c0;
+	
+	Default 
+	{
+		Projectile;
+		+ALWAYSPUFF
+		+SKYEXPLODE
+		+PUFFONACTORS
+		+HITTRACER
+		+NOTONAUTOMAP
+		+NOINTERACTION
+		+PUFFGETSOWNER
+		+NOTIMEFREEZE
+		+BRIGHT
+		+BLOODLESSIMPACT
+		+PAINLESS
+		+NODECAL
+		Scale 1;
+		RenderStyle "Add";
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay
+		{
+			if (!tracer || !tracer.bShootable || tracer.health < 1 ||
+			(CountInv("RLLockToken",TargetPtr) != CountInv("RLLockToken",TracerPtr)))
+			{
+				A_TakeInventory("RLLockToken",32767,0,TargetPtr);
+				A_TakeInventory("RLLockToken",32767,0,TracerPtr);
+				return ResolveState("Null");
+			}
+			A_RearrangePointers(DefPtr,TargetPtr,DefPtr,4);
+			user_c0 = CountInv("RLLockToken",MasterPtr);
+			user_c1 = CountInv("RLLockToken",MasterPtr);
+			if (user_c0 < 200)
+			{
+				A_GiveInventory("RLLockToken",30,MasterPtr);
+				A_GiveInventory("RLLockToken",30,TracerPtr);
+			}
+			user_c0 = CountInv("RLLockToken",MasterPtr);
+			user_c1 = CountInv("RLLockToken",TracerPtr);
+			return ResolveState(null);
+		}
+	Waiting:
+		TRGT A 1 bright;
+		TRGT A 0
+		{
+			if (CountInv("RLLockToken",MasterPtr) >= 200)
+			{
+				A_SetScale(1.5);
+				A_Warp(TracerPtr,0,0,0,-30,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",0.5);
+				A_TransferPointer(DefPtr,MasterPtr,TracerPtr,TracerPtr,4);
+			}
+			else
+			{
+				return ResolveState("Null");
+			}
+			return ResolveState(null);
+		}
+		Loop;
+	}
+}
+
+Class RLTargetToken : Inventory 
+{
+	Default 
+	{
+		Inventory.MaxAmount 2;
+		Inventory.InterhubAmount 0;
+	}
+}
+Class RLLockToken : Inventory 
+{
+	Default 
+	{
+		Inventory.MaxAmount 200	;	
+		Inventory.InterhubAmount 0;
+	}
+}
+
+
+Class D4RocketSeeker : Actor 
+{
+	Default 
+	{
+		Projectile;
+		+SEEKERMISSILE
+		+FORCERADIUSDMG
+		+EXTREMEDEATH
+		Speed 21;
+		Radius 6;
+		Height 12;
+		Scale 0.6;
+		Damage 20;
+		DeathSound "Doom4/Weapon/RocketLauncher/HRExplo";
+		Decal "D4ExploScorch";
+	}
+	States
+	{
+	Spawn:
+		MICR A 3 Light("YellowMediumPoint3") Bright NoDelay
+		{
+			A_TransferPointer(TargetPtr,DefPtr,TracerPtr,TracerPtr,4);
+		}
+	Moving:
+		MICR A 1 Light("YellowMediumPoint3") Bright
+		{
+			A_SeekerMissile(20,20,SMF_PRECISE);
+			if(GetCvar("HQEffectsWeapons"))
+			{
+				A_SpawnItemEx("D4RocketTrailFire1",-5,0,0,0,frandom(0.3,-0.3),frandom(0.3,-0.3),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketTrailSmoke",-5,random(5,-5),random(5,-5),0,0,0,0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("D4RocketTrailFire2",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		Loop;
+	Death:
+		TNT1 A 0 
+		{
+			if (CountInv("ProtectionBonus2", TargetPtr))
+			{			
+				A_Explode(15,128);
+				A_Explode(145,180,0,0,60);
+			}
+			else
+			{			
+				A_Explode(30,128);	
+				A_Explode(130,180,0,0,60);
+			}
+			if(GetCvar("user_quakexplosions")==1)
+			{
+				A_QuakeEx(2,2,2,15,0,768,"",QF_SCALEDOWN,0,0,0,1);
+			}
+			if(GetCvar("HQEffectsWeapons"))
+			{
+				A_SpawnItemEx("GenericExplosionParticleSpawner",0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+			}
+		}
+		TNT1 A 0 A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	//Center
+		TNT1 A 50
+		{
+			bNOINTERACTION = true;
+		}
+		Stop;
+	}
+}
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//	Primary fire related
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+Class D4Rocket : Actor 
+{
+	Default 
+	{
+		Projectile;
+		+FORCERADIUSDMG
+		+EXTREMEDEATH
+		+NODAMAGETHRUST
+		Speed 21;
+		Radius 6;
+		Height 12;
+		Scale 0.6;
+		Damage 30;
+		DeathSound "Doom4/Weapon/RocketLauncher/HRExplo";
+		Decal "D4ExploScorch";
+	}
+	States
+	{
+	Spawn:
+		MICR A 3 Light("YellowMediumPoint3") Bright NoDelay A_RearrangePointers(DefPtr,TargetPtr,DefPtr,4);
+	Moving:
+		MICR A 1 Light("YellowMediumPoint3") Bright 
+		{
+			if(GetCvar("HQEffectsWeapons"))
+			{
+				A_SpawnItemEx("D4RocketTrailFire1",-5,0,0,0,frandom(0.3,-0.3),frandom(0.3,-0.3),0,SXF_NOCHECKPOSITION);			
+				A_SpawnItemEx("D4RocketTrailSmoke",-5,random(5,-5),random(5,-5),0,0,0,0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("D4RocketTrailFire2",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		Loop;
+	Death:
+		TNT1 A 0 
+		{
+			if (CountInv("ProtectionBonus2", TargetPtr))
+			{			
+				A_Explode(15,128);
+				A_Explode(145,180,0,0,60);
+			}
+			else
+			{			
+				A_Explode(30,128);	
+				A_Explode(130,180,0,0,60);
+			}
+			A_RadiusThrust(180,180,RTF_THRUSTZ|RTF_AFFECTSOURCE|RTF_NOIMPACTDAMAGE,60);
+			
+			A_SpawnItemEx("PlayerRocketQuakeDummy",0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			if(GetCvar("HQEffectsWeapons"))
+			{
+				A_SpawnItemEx("GenericExplosionParticleSpawner",0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+			}
+		}
+		TNT1 A 0 A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	//Center
+		Stop;
+	}
+}
+
+Class PlayerRocketQuakeDummy  : Actor //had to create this, because if i keep the Projectile;, i can detonate it after it exploded normally
+{
+	Default 
+	{
+		+NOINTERACTION
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 10 NODELAY
+		{
+			if(GetCvar("user_quakexplosions")==1)
+			{
+				A_QuakeEx(2,2,2,15,0,768,"",QF_SCALEDOWN,0,0,0,1);
+			}
+		}
+		Stop;
+	}
+}
+
+
+
+Class D4RocketTrailSmoke : Actor 	//centered smoke
+{
+	Default 
+	{
+		+CLIENTSIDEONLY
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+		RenderStyle "Translucent";
+		Alpha 0.2;
+		Scale 0.0;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0;
+		X037 AAAAAAAA 1 
+		{
+			A_SetScale(Scale.X+0.05);
+			A_FadeIn(0.02);
+		}
+	Continue:
+		X037 A 1 A_FadeOut(0.018);
+		X037 A 0 A_SetScale(Scale.X+0.02);
+		Loop;
+	}
+}
+
+Class D4RocketTrailFire2 : Actor //centered flare behind the rocket
+{
+	Default 
+	{
+		+CLIENTSIDEONLY
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+		RenderStyle "Add";
+		Alpha 0.7;
+		Scale 0.2;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 ;
+		TNT1 A 0 A_Jump(256,"One","Two");
+	One:
+		X007 ABCDE 1 Bright ;
+		X007 FGHIJ 1 Bright A_FadeOut();
+		Stop;
+	Two:
+		X007 KLMNO 1 Bright ;
+		X007 PQRST 1 Bright A_FadeOut();
+		Stop;		
+	}
+}
+Class D4RocketTrailFire1 : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		+FORCEXYBILLBOARD
+		Alpha 0.3;
+		Scale 0.15;
+	}
+	States
+	{
+	Spawn:
+		PROJ DDDEEEFFFGGGHHHIII 1 Bright 
+		{
+			A_FadeOut(0.03);
+			A_SetScale(Scale.X+0.085);
+		}
+		Stop;
+	}
+}

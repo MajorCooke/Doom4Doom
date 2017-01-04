@@ -1,0 +1,782 @@
+//================================================================================================================
+//================================================================================================================
+//
+//	"D4D mode" version
+//
+//================================================================================================================
+//================================================================================================================
+Class D4Cacodemon : D4AbstractBiggie 
+{
+	int user_staggertimer;
+	
+	Default 
+	{
+		Health 400;
+		Radius 31;
+		Height 56;
+		Mass 8000;
+		Speed 10;
+		PainChance 255;
+		Monster;
+		+FLOAT  +NOGRAVITY +DONTCORPSE
+		SeeSound "Doom4/Monsters/Cacodemon/Sight";
+		PainSound "Doom4/Monsters/Cacodemon/Pain";
+		DeathSound "Doom4/Monsters/Cacodemon/Death";
+		ActiveSound "Doom4/Monsters/Cacodemon/Idle";
+		Obituary "$OB_CACO";
+		HitObituary "$OB_CACOHIT";
+		PainChance "StunBomb", 255;
+		PainChance "GloryKill", 255;
+		WoundHealth 80;
+		BloodColor "Blue";
+		BloodType "D4BloodBlue";
+	}
+	States
+	{
+	Spawn:
+		CAC2 A 10 A_Look();
+		Loop;
+	See:
+		CAC2 A 3 D4Chase();
+		Loop;
+	Melee:
+		CAC2 B 5 A_FaceTarget();
+		CAC2 C 5 A_FaceTarget();
+		CAC2 D 5 BRIGHT A_CustomMeleeAttack(random(20,40));
+		Goto See;
+	Missile:
+		CAC2 B 5 
+		{
+			A_FaceTarget();
+			A_PlaySound("Doom4/Monsters/Cacodemon/Attack1");
+		}
+		CAC2 C 5 A_FaceTarget();
+		CAC2 D 5 BRIGHT A_SpawnProjectile("D4CacodemonBall",32);
+		Goto See;
+	Melee:
+		CAC2 B 5
+		{
+			A_FaceTarget();
+			A_PlaySound("Doom4/Monsters/Cacodemon/Attack2");
+		}
+		CAC2 C 5 A_FaceTarget();
+		CAC2 D 5 BRIGHT A_CustomMeleeAttack(random(30,50));
+		Goto See;
+	Pain.StunBomb:
+		"####" "#" 0 { bNoPain = true; }
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#" 0 { bNoPain = false; }
+		Goto See;
+	Pain:
+		CAC2 E 3;
+		CAC2 E 3 A_Pain();
+		CAC2 F 6;
+		Goto See;
+	Death:
+		"####" "#" 0  //loot drop
+		{
+			bThruActors = true;
+			D4DropCash(CashMultiplier,"CacoCashGiver");
+			D4SetupLoot();
+			D4DropItems();
+			if (RuneChance(RuneChance_Caco))
+			{	A_SpawnItemEx("CacodemonRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+		}
+		CAC2 G 5 ;
+		CAC2 H 5 A_Scream();
+		CAC2 I 5;
+		CAC2 J 5;
+		CAC2 K 5 A_NoBlocking();
+		CAC2 L -1 
+		{
+			bCorpse = true;
+			A_SetFloorClip();
+		}
+		Stop;
+		
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:
+	XDeath:
+		"####" "#" 0  //loot drop
+		{
+			D4SetupLoot();
+			
+			if (GetCvar("MPWeapons"))
+			{	Pinatas.Carrion++;	}
+		}
+		Goto XDeathNoDrops;
+		
+	XDeathNoDrops:	
+		TNT1 A 0
+		{
+			bThruActors = true;
+			XDeathGush(Color_Blue);
+			D4DropItems();
+			D4DropCash(CashMultiplier,"CacoCashGiver");
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+			A_NoBlocking();	//just in case
+			if (RuneChance(RuneChance_Caco))
+			{	A_SpawnItemEx("CacodemonRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+		}
+		Stop;
+		
+	Raise:
+		CAC2 L 8 A_UnSetFloorClip();
+		CAC2 KJIHG 8;
+		Goto See;
+	//------------------------------------------------------------------------
+	// Start of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	Wound:
+		"####" "#" 1
+		{
+			if(GetCvar("D4D_ExecutionsON"))
+			{
+				if(countinv("FinisherToken")==0) //if it isnt healing already
+				{								//will heal and give the token that indicates it's executable
+					A_SpawnItemEx("CacoHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
+					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
+				}
+				
+				if(GetCvar("D4D_MonsterStagger")==1) //will the monsters stagger at all?
+				{
+					return ResolveState("Stagger");	//stays there for a few seconds
+				}
+				else
+				{
+					return ResolveState(null);
+				}
+			}
+			return ResolveState(null);
+		}
+		Goto See;
+	Stagger:
+		CAC2 F 0 
+		{
+			if(GetCvar("D4D_ExecutionHighlight")==1)
+			{	return ResolveState("PrepareStaggerHighlight");}
+			else
+			{	return ResolveState("StagLooper");	}
+		}
+		Goto StagLooper;
+	PrepareStaggerHighlight:
+		CAC2 U 0;
+		Goto StagLooper;
+	
+	StagLooper:
+		"####" "#" 1
+		{
+			if(!countinv("FinisherToken"))
+			{
+				return ResolveState("See");
+			}
+			if(GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
+			{ 
+				A_Pain(); 
+				A_TakeInventory("PainSoundToken");
+			}
+			
+			return ResolveState(null);
+		}
+		Loop;
+		
+	// Finisher attack(s) with animations ON
+	Death.GloryKill:
+		TNT1 A 0 { bSolid = false; }
+		CAC2 AA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0
+		{
+			if(countinv("GloryKill1Token"))
+			{	return ResolveState("GloryEnd1"); }
+			
+			if(countinv("GloryKill2Token"))
+			{	return ResolveState("GloryEnd2"); }
+			
+			if(countinv("GloryKill3Token"))
+			{	return ResolveState("GloryEnd3"); }
+			return ResolveState(null);
+		}
+	GloryEnd1:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" FFFFFF 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd2:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" FFFFFF 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd3:
+		"####" AAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" I 0 A_ChangeVelocity(-8,0,10,CVF_RELATIVE);
+		Goto GloryEnd;
+		
+	//------------------------------------------------------------------------
+	// End of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	}
+}
+
+//===========================================================================
+//
+// Cacodemon energy ball
+//
+//===========================================================================
+Class D4CacodemonBall : D4AbstractMissile 
+{
+	Default 
+	{
+		Radius 6;
+		Height 8;
+		Speed 16;
+		FastSpeed 24;
+		Damage 5;
+		Projectile; 
+		+RANDOMIZE
+		RenderStyle "Add";
+		Alpha 0.99;
+		SeeSound "caco/attack";
+		DeathSound "caco/shotx";
+		+FORCEXYBILLBOARD
+		+HITTARGET
+		Scale 0.26;
+		Translation "0:255=%[0.0,0.0,0.0]:[1.2,0.0,0.5]";
+		Decal "CacoDecal";
+	}
+	States
+	{
+	Spawn:
+		X016 ABCDEFGHIJKLMNOPQRSTUVWXY 1 Light("PurpleMediumPoint2") bright 
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("D4CacoBallTrail",-5,0,0,0,0,0,0,32);
+				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(1.5,-1.5),frandom(1.5,-1.5),frandom(0.5,2.5),0,0,-0.1);
+			}
+		}
+		Loop;
+	XDeath:
+		TNT1 A 0 A_JumpIfCloser(48,"Enblinden");
+		Goto Death;
+	Enblinden:
+		TNT1 A 0 ACS_NamedExecuteAlways("Cacoball", 0);
+		Goto Death;
+	Death:
+		TNT1 A 0 A_PlaySound("Doom4/Other/FireballHit1"); //in addition to the deathsound
+		TNT1 A 0 
+		{
+			A_SpawnItemEx("D4CacoBallExplo",0,0,0,0,0,0,0,32);
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("D4CacoExploFlash",0,0,0,0,0,0,0,32);
+				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(3,5),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(3,5),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(3,5),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(3,5),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(3,5),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(3,5),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);	
+			}
+		}
+		TNT1 A 0 A_SetTranslucent(0.01,1);
+		TNT1 A 2 bright Light("PurpleBigPoint3");
+		TNT1 A 2 bright Light("PurpleMediumPoint1");
+		TNT1 A 2 bright Light("PurpleMediumPoint2");
+		TNT1 A 2 bright Light("PurpleMediumPoint3");
+		TNT1 A 2 bright Light("PurpleSmallPoint1");
+		TNT1 A 2 bright Light("PurpleSmallPoint2");
+		TNT1 A 2 bright Light("PurpleSmallPoint3");
+		Stop;
+	}
+}
+
+Class D4CacoBallExplo : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		Scale 0.2;
+		Translation "0:255=%[0.0,0.0,0.0]:[1.2,0.0,0.0]";
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		X060 BBBBBBBBBB 2 NoDelay Bright
+		{
+			A_SetScale(Scale.X+0.08);
+			A_FadeOut(0.06);
+		}
+		X060 B 2 Bright
+		{
+			A_SetScale(Scale.X+0.08);
+			A_FadeOut(0.1);
+		}
+		Wait;
+	}
+}
+
+Class D4CacoExploFlash : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 1.7;
+		+FORCEXYBILLBOARD
+		Translation "0:255=%[0.0,0.0,0.0]:[1.2,0.0,0.5]";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(256,random(1,8));
+		X153 EFGHIJKL 0 { return ResolveState("Enact"); }
+	Enact:
+		"####" "#" 1 A_FadeOut(0.018);
+		Wait;
+	}
+}
+
+
+Class D4CacoBallTrail : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		Scale 1.0;
+		RenderStyle "Add";
+		+FORCEXYBILLBOARD
+		Translation "0:255=%[0.0,0.0,0.0]:[1.2,0.0,0.5]";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(200,2,4,6);
+		X029 ABCDEFGHIJK 2 Bright 
+		{
+			A_FadeOut(0.1);
+			A_SetScale(Scale.X-0.035);
+		}
+		Goto Spawn+2;
+	}
+}
+
+Class D4CacoBallTrailMini : Actor 
+{
+	Default 
+	{
+		Projectile;
+		Speed 0;
+		+NOCLIP
+		-NOGRAVITY
+		Gravity 0.25;
+		Mass 2;
+		Damage 0;
+		Scale 0.1;
+		RenderStyle "Add";
+		+FORCEXYBILLBOARD
+		Translation "0:255=%[0.0,0.0,0.0]:[1.2,0.0,0.0]";
+	}
+    States
+    {
+    Spawn:
+		X029 BBB 1 Bright;
+		X029 B 0 A_jump(140,2,3,4);
+		X029 BBBBBBBBB 1 Bright;
+		X029 B 1 A_FadeOut(0.2);
+		Wait;
+    }
+}
+
+
+
+
+//================================================================================================================
+//================================================================================================================
+//
+//	Regular Doom version 
+//
+//================================================================================================================
+//================================================================================================================
+
+Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon //replaces Cacodemon
+{
+	int user_staggertimer;
+	Default 
+	{
+		Health 400;
+		Radius 31;
+		Height 56;
+		Mass 400;
+		Speed 8;
+		PainChance 128;
+		Monster;
+		+FLOAT  +NOGRAVITY
+		SeeSound "caco/sight";
+		PainSound "caco/pain";
+		DeathSound "caco/death";
+		ActiveSound "caco/active";
+		Obituary "$OB_CACO";
+		HitObituary "$OB_CACOHIT";
+		
+		PainChance "StunBomb", 255;
+		+DONTCORPSE
+		PainChance "GloryKill", 255;
+		WoundHealth 80;
+	}
+	States
+	{
+	Spawn:
+		HEAD A 10 A_Look();
+		Loop;
+	See:
+		HEAD A 3 D4Chase();
+		Loop;
+	Missile:
+		HEAD B 5 A_FaceTarget();
+		HEAD C 5 A_FaceTarget();
+		HEAD D 5 BRIGHT A_HeadAttack();
+		Goto See;
+	Pain:
+		HEAD E 3;
+		HEAD E 3 A_Pain();
+		HEAD F 6;
+		Goto See;
+	Raise:
+		HEAD L 8 A_UnSetFloorClip();
+		HEAD KJIHG 8;
+		Goto See;
+		
+	Pain.StunBomb:
+		"####" "#" 0 { bNoPain = true; }
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#" 0 { bNoPain = false; }
+		Goto See;
+		
+	Death:
+		"####" "#" 0  //loot drop
+		{
+			bThruActors = true;
+			D4DropCash(CashMultiplier,"CacoCashGiver");
+			D4SetupLoot();
+			D4DropItems();
+			
+			if (RuneChance(RuneChance_Caco))
+			{	A_SpawnItemEx("CacodemonRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+		}
+		HEAD G 5 ;
+		HEAD H 5 A_Scream();
+		HEAD I 5;
+		HEAD J 5;
+		HEAD K 5 A_NoBlocking();
+		HEAD L -1 
+		{
+			{bCorpse = true;}
+			A_SetFloorClip();
+		}
+		Stop;
+
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:
+	XDeath:
+		"####" "#" 0  //loot drop
+		{
+			D4SetupLoot();
+			
+			if (GetCvar("MPWeapons"))
+			{	Pinatas.Carrion++;	}
+		}
+		Goto XDeathNoDrops;
+		
+	XDeathNoDrops:	
+		TNT1 A 0
+		{
+			bThruActors = true;
+			XDeathGush(Color_Blue);
+			D4DropItems();
+			D4DropCash(CashMultiplier,"CacoCashGiver");
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+			if (RuneChance(RuneChance_Caco))
+			{	A_SpawnItemEx("CacodemonRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+		}
+		HEAD H 5 A_Scream();
+		HEAD I 5;
+		HEAD J 5;
+		HEAD K 5 A_NoBlocking();
+		HEAD L -1 
+		{
+			{bCorpse = true;}
+			A_SetFloorClip();
+		}
+		Stop;
+	//------------------------------------------------------------------------
+	// Start of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	Wound:
+		"####" "#" 1
+		{
+			if(GetCvar("D4D_ExecutionsON"))
+			{
+				if(countinv("FinisherToken")==0) //if it isnt healing already
+				{								//will heal and give the token that indicates it's executable
+					A_SpawnItemEx("CacoHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
+					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
+				}
+				
+				if(GetCvar("D4D_MonsterStagger")==1) //will the monsters stagger at all?
+				{
+					return ResolveState("Stagger");	//stays there for a few seconds
+				}
+				else
+				{
+					return ResolveState(null);
+				}
+			}
+			return ResolveState(null);
+		}
+		Goto See;
+	Stagger:
+		HEAD F 0 
+		{
+			if(GetCvar("D4D_ExecutionHighlight")==1)
+			{	return ResolveState("PrepareStaggerHighlight");}
+			else
+			{	return ResolveState("StagLooper");	}
+		}
+		Goto StagLooper;
+	PrepareStaggerHighlight:
+		HEAD U 0;
+		Goto StagLooper;
+	
+	StagLooper:
+		"####" "#" 1
+		{
+			if(!countinv("FinisherToken"))
+			{
+				return ResolveState("See");
+			}
+			if(GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
+			{ 
+				A_Pain(); 
+				A_TakeInventory("PainSoundToken",32768);
+			}
+			
+			return ResolveState(null);
+		}
+		Loop;
+		
+	// Finisher attack(s) with animations ON
+	Death.GloryKill:
+		TNT1 A 0 { bSolid = false; }
+		HEAD AA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0
+		{
+			if(countinv("GloryKill1Token"))
+			{	return ResolveState("GloryEnd1"); }
+			
+			if(countinv("GloryKill2Token"))
+			{	return ResolveState("GloryEnd2"); }
+			
+			if(countinv("GloryKill3Token"))
+			{	return ResolveState("GloryEnd3"); }
+			return ResolveState(null);
+		}
+	GloryEnd1:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" FFFFFF 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd2:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" FFFFFF 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd3:
+		"####" AAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" I 0 A_ChangeVelocity(-8,0,10,CVF_RELATIVE);
+		Goto GloryEnd;
+		
+	}
+}
+
+
+
+Class OldCacodemonBall : D4AbstractMissile replaces CacodemonBall
+{
+	Default 
+	{
+		Radius 6;
+		Height 8;
+		Speed 10;
+		FastSpeed 20;
+		Damage 5;
+		Projectile; 
+		+RANDOMIZE
+		RenderStyle "Add";
+		Alpha 1;
+		SeeSound "caco/attack";
+		DeathSound "caco/shotx";
+	}
+	States
+	{
+	Spawn:
+		BAL2 AAABBB 1 bright light("PurpleSmallPoint1")
+		{	
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("DBTCacoBallTrail",0,0,0,0,0,0,0,32);
+				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(1.5,-1.5),frandom(1.5,-1.5),frandom(0.5,2.5),0,0,-0.1);	
+			}
+		}
+		Loop;
+	Death:
+		TNT1 A 0 
+		{	
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("CacoSmoke",0,0,4,frandom(0.5,2),0,0,random(0,359),32);
+				A_SpawnItemEx("CacoSmoke",0,0,4,frandom(0.5,2),0,0,random(0,359),32);
+				A_SpawnItemEx("CacoSmoke",0,0,4,frandom(0.5,2),0,0,random(0,359),32);
+				A_SpawnItemEx("CacoSmoke",0,0,4,frandom(0.5,2),0,0,random(0,359),32);
+				A_SpawnItemEx("CacoSmoke",0,0,4,frandom(0.5,2),0,0,random(0,359),32);
+				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(3,5),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(3,5),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(3,5),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(3,5),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(3,5),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(3,5),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(3,5),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(3,5),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+				A_SpawnItemEx("DBTCacoBallExplo",0,0,0,0,0,0,0,32);
+			}
+		}
+		BAL2 CDE 6 bright;
+		Stop;
+
+	}
+}
+Class CacoSmoke : Actor 
+{
+	Default 
+	{
+		Scale 1;
+		+NOINTERACTION
+		Alpha 0.5;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(256,random(1,4));
+		X037 ABCD 0 { return ResolveState("Enact"); }
+	Enact:
+		"----" A 3 A_FadeOut(0.04);
+		"----" A 0 A_ScaleVelocity(0.75);
+		Loop;
+	}
+}
+
+Class DBTCacoBallExplo : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		Scale 0.1;
+		Translation "0:255=%[0.0,0.0,0.0]:[1.2,0.0,0.0]";
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		TNT1 AA 0 NoDelay A_SpawnItemEx("DBTCacoExploFlash",0,0,0,0,0,0,0,32);
+		X060 B 2 Light("PurpleSmallFlicker2") Bright A_SetScale(0.15);
+		TNT1 A 0 A_FadeOut(0.06);
+		X060 B 2 Light("PurpleSmallFlicker1") Bright A_SetScale(0.2);
+		TNT1 A 0 A_FadeOut(0.06);
+		X060 B 2 Light("PurpleMediumFlicker3") Bright A_SetScale(0.25);
+		TNT1 A 0 A_FadeOut(0.06);
+		X060 B 2 Light("PurpleMediumFlicker2") Bright A_SetScale(0.3);
+		TNT1 A 0 A_FadeOut(0.06);
+		X060 B 2 Light("PurpleMediumFlicker2") Bright A_SetScale(0.35);
+		TNT1 A 0 A_FadeOut(0.06);
+		X060 B 2 Light("PurpleMediumFlicker2") Bright A_SetScale(0.4);
+		TNT1 A 0 A_FadeOut(0.06);
+		X060 B 2 Light("PurpleMediumFlicker3") Bright A_SetScale(0.45);
+		TNT1 A 0 A_FadeOut(0.06);
+		X060 B 2 Light("PurpleSmallFlicker1") Bright A_SetScale(0.5);
+		TNT1 A 0 A_FadeOut(0.06);
+		X060 B 2 Light("PurpleSmallFlicker2") Bright A_SetScale(0.55);
+		TNT1 A 0 A_FadeOut(0.06);
+		X060 B 2 Light("PurpleSmallFlicker2") Bright A_SetScale(0.6);
+		TNT1 A 0 A_FadeOut(0.06);
+		X060 B 2 Light("PurpleSmallFlicker3") Bright A_SetScale(0.65);
+	Looper:
+		X060 B 2 Bright 
+		{
+			A_FadeOut(0.1);
+			A_SetScale(Scale.X+0.05);
+		}
+		Wait;
+	}
+}
+
+Class DBTCacoExploFlash : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 1.5;
+		+FORCEXYBILLBOARD
+		Translation "0:255=%[0.0,0.0,0.0]:[1.2,0.0,0.5]";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(256,random(1,8));
+		X153 EFGHIJKL 0 { return ResolveState("Enact"); }
+	Enact:
+		"----" A 1 A_FadeOut(0.018);
+		Wait;
+	}
+}
+
+
+Class DBTCacoBallTrail : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		Scale 0.45;
+		RenderStyle "Add";
+		+FORCEXYBILLBOARD
+		Translation "0:255=%[0.0,0.0,0.0]:[1.2,0.0,0.5]";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(200,2,4,6);
+		X029 ABCDEFGHIJK 2 Bright A_FadeOut(0.1);
+		Goto Spawn+1;
+	}
+}

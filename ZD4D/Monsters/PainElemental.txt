@@ -1,0 +1,589 @@
+//================================================================================================================
+//================================================================================================================
+//
+//	"D4D mode" version
+//	Sprites by Eriance, found in Demon Eclipse
+//================================================================================================================
+//================================================================================================================
+
+Class D4PainElemental : D4AbstractBiggie
+{
+	int user_staggertimer;
+	Default 
+	{
+		Health 400;
+		Radius 31;
+		Height 56;
+		Mass 400;
+		Speed 8;
+		PainChance 128;
+		Monster;
+		+FLOAT  
+		+NOGRAVITY +DONTCORPSE
+		SeeSound "Doom4/Monsters/PainElemental/Sight";
+		PainSound "Doom4/Monsters/PainElemental/Pain";
+		DeathSound "Doom4/Monsters/PainElemental/DeathExplo";
+		ActiveSound "Doom4/Monsters/PainElemental/Idle";
+		PainChance "StunBomb", 255;
+		Scale 1.15;
+		PainChance "GloryKill", 255;
+		WoundHealth 100;
+	}
+	States
+	{
+	Spawn:
+		INFR A 0 NODELAY A_SpawnItemEx("D4PainElmBreath",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION);
+	Idle:
+		INFR ABCD 4 A_Look();
+		Loop;
+	See:
+		INFR  AABBCCDD 2 D4Chase();
+		Loop;
+	Missile:
+		INFR A 0 A_Jump(128,"See");
+		INFR H 5 A_FaceTarget();
+		INFR I 5 A_FaceTarget();
+		INFR J 5 BRIGHT 
+		{
+			A_FaceTarget();
+			A_PainAttack("D4LostSoulNoCash",0,0,21);
+		}
+		Goto See;
+	Pain:
+		INFR K 6;
+		INFR K 6 A_Pain();
+		Goto See;
+	Pain.StunBomb:
+		"####" "#" 0 { bNoPain = true; }
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#" 0 { bNoPain = false; }
+		Goto See;
+	Death:
+		"####" "#" 0  //loot drop
+		{
+			bThruActors = true;
+			D4DropCash(CashMultiplier,"PainElemCashGiver");
+			D4SetupLoot();
+			D4DropItems();
+			A_Stop();
+			if (RuneChance(RuneChance_PainEl))
+			{	A_SpawnItemEx("PainElementalRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+		}
+		INFR L 2 BRIGHT A_Scream();
+		INFR M 3 BRIGHT  
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SetTranslucent(0.99,1);
+				A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50),random(1,2)*vel.x+random(-5,5),random(1,2)*vel.y+random(-5,5),random(1,2)*vel.z+random(1,10),random(1,359),GibFlags);
+				A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50),random(1,2)*vel.x+random(-5,5),random(1,2)*vel.y+random(-5,5),random(1,2)*vel.z+random(1,10),random(1,359),GibFlags);
+				A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50),random(1,2)*vel.x+random(-5,5),random(1,2)*vel.y+random(-5,5),random(1,2)*vel.z+random(1,10),random(1,359),GibFlags);
+				A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50),random(1,2)*vel.x+random(-5,5),random(1,2)*vel.y+random(-5,5),random(1,2)*vel.z+random(1,10),random(1,359),GibFlags);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+			}
+			if(!countinv("IWasMeleeKilled"))
+			{	A_PainDie("D4LostSoulNoCash");	}
+		}
+		INFR MMM 1 BRIGHT Light("OrangeMediumFlicker1") A_FadeOut(0.05);
+		INFR NNN 1 BRIGHT Light("OrangeMediumFlicker2") A_FadeOut(0.05);
+		INFR OOO 1 BRIGHT Light("OrangeMediumFlicker3") A_FadeOut(0.05);
+		INFR PPP 1 BRIGHT Light("OrangeSmallFlicker1") A_FadeOut(0.05);
+		INFR QQQ 1 BRIGHT Light("OrangeSmallFlicker2") A_FadeOut(0.05);
+		INFR Q 1 BRIGHT Light("OrangeSmallFlicker2") A_FadeOut(0.1);
+		Wait;
+	
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:
+		"####" "#" 0 A_GiveInventory("IWasMeleeKilled");
+	XDeath:
+		"####" "#" 0  //loot drop
+		{
+			D4SetupLoot();
+			
+			if (GetCvar("MPWeapons"))
+			{	Pinatas.Carrion++;	}
+		}
+		Goto XDeathNoDrops;
+		
+	XDeathNoDrops:
+		INFR L 2 bright 
+		{
+			bThruActors = true;
+			
+			D4DropItems();
+			D4DropCash(CashMultiplier,"PainElemCashGiver");
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");	
+		
+			A_Stop();
+			A_Scream();
+			{ bThruActors = true; }
+			
+			if (RuneChance(RuneChance_PainEl))
+			{	A_SpawnItemEx("PainElementalRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+		}
+		INFR M 3 BRIGHT
+		{
+			if(CountInv("DeathByMassacre") == 0)
+			{
+				if(GetCvar("HQEffects"))
+				{
+					A_SetTranslucent(0.99,1);
+					A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				}
+				XDeathGush();
+			}
+			if(!countinv("IWasMeleeKilled"))
+			{	A_PainDie("D4LostSoulNoCash");	}
+		}
+		INFR MMM 1 BRIGHT Light("OrangeMediumFlicker1") A_FadeOut(0.05);
+		INFR NNN 1 BRIGHT Light("OrangeMediumFlicker2") A_FadeOut(0.05);
+		INFR OOO 1 BRIGHT Light("OrangeMediumFlicker3") A_FadeOut(0.05);
+		INFR PPP 1 BRIGHT Light("OrangeSmallFlicker1") A_FadeOut(0.05);
+		INFR QQQ 1 BRIGHT Light("OrangeSmallFlicker2") A_FadeOut(0.05);
+		INFR Q 1 BRIGHT Light("OrangeSmallFlicker2") A_FadeOut(0.1);
+		Wait;
+	//------------------------------------------------------------------------
+	// Start of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	Wound:
+		"####" "#" 1
+		{
+			if(GetCvar("D4D_ExecutionsON"))
+			{
+				if(countinv("FinisherToken")==0) //if it isnt healing already
+				{								//will heal and give the token that indicates it's executable
+					A_SpawnItemEx("D4DPainElementalHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
+					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
+				}
+				
+				if(GetCvar("D4D_MonsterStagger")==1) //will the monsters stagger at all?
+				{
+					return ResolveState("Stagger");	//stays there for a few seconds
+				}
+				else
+				{
+					return ResolveState(null);
+				}
+			}
+			return ResolveState(null);
+		}
+		Goto See;
+	Stagger:
+		INFR K 0 
+		{
+			if(GetCvar("D4D_ExecutionHighlight")==1)
+			{	return ResolveState("PrepareStaggerHighlight");}
+			else
+			{	return ResolveState("StagLooper");	}
+		}
+		Goto StagLooper;
+	PrepareStaggerHighlight:
+		INFR U 0;
+		Goto StagLooper;
+	
+	StagLooper:
+		"####" "#" 1	
+		{
+			if(!countinv("FinisherToken"))
+			{
+				return ResolveState("See");
+			}
+			if(GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
+			{ 
+				A_Pain(); 
+				A_TakeInventory("PainSoundToken");
+			}
+			
+			return ResolveState(null);
+		}
+		Loop;
+		
+	// Finisher attack(s) with animations ON
+	Death.GloryKill:
+		TNT1 A 0 { bSolid = false; }
+		TNT1 A 0 A_GiveInventory("IWasMeleeKilled",1);
+		INFR AA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0
+		{
+			if(countinv("GloryKill1Token"))
+			{	return ResolveState("GloryEnd1"); }
+			
+			if(countinv("GloryKill2Token"))
+			{	return ResolveState("GloryEnd2"); }
+			
+			if(countinv("GloryKill3Token"))
+			{	return ResolveState("GloryEnd3"); }
+			return ResolveState(null);
+		}
+	GloryEnd1:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" KKKKKK 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd2:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" KKKKKK 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd3:
+		"####" AAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" I 0 A_ChangeVelocity(-8,0,10,CVF_RELATIVE);
+		Goto GloryEnd;
+		
+	}
+}
+
+Class IWasMeleeKilled : Inventory
+{}
+
+Class PainElementalExplosionSprite : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+FORCEXYBILLBOARD
+		Alpha 0.5;
+		Scale 0.7;
+		RenderStyle "Add";
+		Alpha 0.99;
+		//Translation "0:255=%[0,0,0]:[0.6,1.4,0]"
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_SetScale(frandom(0.25,0.5));
+		PROJ DEFGHI 1 Bright
+		{
+			A_FadeOut(0.07);
+			A_SetScale(Scale.X+0.2);
+		}
+		Wait;
+	}
+}
+
+Class D4PainElmBreath : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 2
+		{
+			if(A_JumpIfHealthLower(1,"Null",MasterPtr))
+			{
+				return ResolveState("Null"); //removes it when master died
+			}
+			else
+			{
+				A_Warp(MasterPtr,8,0,0,0,WARPF_NOCHECKPOSITION,"Null");
+				if(!A_CheckSight("Null"))
+				{
+					if(GetCvar("HQEffects"))
+					{
+						A_SpawnItemEx("PainBreath",15,15,20,frandom(1,-1),frandom(0.3,1.2),frandom(0.6,-0.6),0,SXF_NOCHECKPOSITION,96);
+						A_SpawnItemEx("PainBreath",15,-15,20,frandom(1,-1),frandom(-0.3,-1.2),frandom(0.6,-0.6),0,SXF_NOCHECKPOSITION,96);
+					}
+				}
+				return ResolveState(null);
+			}
+		}
+	}
+}
+Class PainBreath : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		Alpha 0.8;
+		Scale 0.01;
+		//YScale 0.1
+		Translation "0:255=%[0,0,0]:[1,0.5,0]";
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_Jump(230,2,4,6,8,10,12,14,16,18);
+		X102 ABCDEFGHIJKLMNOPQRSTUV 2 Bright 
+		{
+			A_FadeOut(0.05);
+			A_SetScale(Scale.X+0.015);
+		}
+		Goto Spawn+1;
+	}
+}
+
+//================================================================================================================
+//================================================================================================================
+//
+//	Original Doom version 
+//
+//================================================================================================================
+//================================================================================================================
+Class D4OldPainElemental : D4AbstractBiggie // : PainElemental
+{
+	int user_staggertimer;
+	Default 
+	{
+		Health 400;
+		Radius 31;
+		Height 56;
+		Mass 400;
+		Speed 8;
+		PainChance 128;
+		Monster;
+		+FLOAT  
+		+NOGRAVITY
+		SeeSound "pain/sight";
+		PainSound "pain/pain";
+		DeathSound "pain/death";
+		ActiveSound "pain/active";
+		
+		PainChance "StunBomb", 255;
+		+DONTCORPSE
+		PainChance "GloryKill", 255;
+		WoundHealth 100;
+	}
+	States
+	{
+	Spawn:
+		PAIN A 10 A_Look();
+		Loop;
+	See:
+		PAIN AABBCC 3 D4Chase();
+		Loop;
+	Missile:
+		PAIN D 5 A_FaceTarget();
+		PAIN E 5 A_FaceTarget();
+		PAIN F 5 BRIGHT A_FaceTarget();
+		PAIN F 0 BRIGHT A_PainAttack;
+		Goto See;
+	Pain:
+		PAIN G 6;
+		PAIN G 6 A_Pain();
+		Goto See;
+	Raise:
+		PAIN MLKJIH 8;
+		Goto See;
+		
+	Missile:
+		PAIN D 5 A_FaceTarget();
+		PAIN E 5 A_FaceTarget();
+		PAIN F 5 BRIGHT A_FaceTarget();
+		PAIN F 0 BRIGHT A_PainAttack("D4OldLostSoulNoCash",0,0,21);
+		Goto See;
+	Pain.StunBomb:
+		"####" "#" 0 { bNoPain = true; }
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
+		"####" "#" 0 { bNoPain = false; }
+		Goto See;
+	Death:
+		"####" "#" 0  //loot drop
+		{
+			bThruActors = true;
+			D4DropCash(CashMultiplier,"PainElemCashGiver");
+			D4SetupLoot();
+			D4DropItems();
+			if (RuneChance(RuneChance_PainEl))
+			{	A_SpawnItemEx("PainElementalRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+		}
+		PAIN H 5 BRIGHT ;
+		PAIN I 5 BRIGHT A_Scream();
+		PAIN J 5 BRIGHT;
+		PAIN K 5 Bright
+		{
+			if(GetCvar("HQEffects"))
+			{
+				A_SetTranslucent(0.99,1);
+				A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50),random(1,2)*vel.x+random(-5,5),random(1,2)*vel.y+random(-5,5),random(1,2)*vel.z+random(1,10),random(1,359),GibFlags);
+				A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50),random(1,2)*vel.x+random(-5,5),random(1,2)*vel.y+random(-5,5),random(1,2)*vel.z+random(1,10),random(1,359),GibFlags);
+				A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50),random(1,2)*vel.x+random(-5,5),random(1,2)*vel.y+random(-5,5),random(1,2)*vel.z+random(1,10),random(1,359),GibFlags);
+				A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50),random(1,2)*vel.x+random(-5,5),random(1,2)*vel.y+random(-5,5),random(1,2)*vel.z+random(1,10),random(1,359),GibFlags);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+			}
+		}
+		PAIN L 5 BRIGHT A_PainDie("D4OldLostSoulNoCash");
+		PAIN M 5 BRIGHT;
+		Stop;
+		
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:
+	XDeath:
+		"####" "#" 0  //loot drop
+		{
+			D4SetupLoot();
+			
+			if (GetCvar("MPWeapons"))
+			{	Pinatas.Carrion++;	}
+		}
+		Goto XDeathNoDrops;
+		
+	XDeathNoDrops:	
+		TNT1 A 0
+		{
+			bThruActors = true;
+			XDeathGush();
+			D4DropItems();
+			D4DropCash(CashMultiplier,"PainElemCashGiver");
+			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+			if (RuneChance(RuneChance_PainEl))
+			{	A_SpawnItemEx("PainElementalRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+		}
+		TNT1 A 0 A_Stop();
+		PAIN H 5 BRIGHT;
+		PAIN I 5 BRIGHT A_Scream();
+		PAIN J 5 BRIGHT;
+		PAIN K 5 Bright
+		{
+			A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50),random(1,2)*vel.x+random(-5,5),random(1,2)*vel.y+random(-5,5),random(1,2)*vel.z+random(1,10),random(1,359),GibFlags);
+			A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50),random(1,2)*vel.x+random(-5,5),random(1,2)*vel.y+random(-5,5),random(1,2)*vel.z+random(1,10),random(1,359),GibFlags);
+			A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50),random(1,2)*vel.x+random(-5,5),random(1,2)*vel.y+random(-5,5),random(1,2)*vel.z+random(1,10),random(1,359),GibFlags);
+			A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50),random(1,2)*vel.x+random(-5,5),random(1,2)*vel.y+random(-5,5),random(1,2)*vel.z+random(1,10),random(1,359),GibFlags);
+			if(GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
+			}
+		}
+		PAIN L 5 BRIGHT A_PainDie("D4OldLostSoulNoCash");
+		PAIN M 5 BRIGHT;
+		Stop;
+	//------------------------------------------------------------------------
+	// Start of Stagger / Glory Kill states
+	//------------------------------------------------------------------------
+	Wound:
+		"####" "#" 1
+		{
+			if(GetCvar("D4D_ExecutionsON"))
+			{
+				if(countinv("FinisherToken")==0) //if it isnt healing already
+				{								//will heal and give the token that indicates it's executable
+					A_SpawnItemEx("OldPainElementalHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
+					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
+				}
+				
+				if(GetCvar("D4D_MonsterStagger")==1) //will the monsters stagger at all?
+				{
+					return ResolveState("Stagger");	//stays there for a few seconds
+				}
+				else
+				{
+					return ResolveState(null);
+				}
+			}
+			return ResolveState(null);
+		}
+		Goto See;
+	Stagger:
+		PAIN G 0 
+		{
+			if(GetCvar("D4D_ExecutionHighlight")==1)
+			{	return ResolveState("PrepareStaggerHighlight");}
+			else
+			{	return ResolveState("StagLooper");	}
+		}
+		Goto StagLooper;
+	PrepareStaggerHighlight:
+		PAIN U 0;
+		Goto StagLooper;
+	
+	StagLooper:
+		"####" "#" 1
+		{
+			if(!countinv("FinisherToken"))
+			{
+				return ResolveState("See");
+			}
+			if(GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
+			{ 
+				A_Pain(); 
+				A_TakeInventory("PainSoundToken");
+			}
+			
+			return ResolveState(null);
+		}
+		Loop;
+		
+	// Finisher attack(s) with animations ON
+	Death.GloryKill:
+		TNT1 A 0 { bSolid = false; }
+		PAIN AA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0
+		{
+			if(countinv("GloryKill1Token"))
+			{	return ResolveState("GloryEnd1"); }
+			
+			if(countinv("GloryKill2Token"))
+			{	return ResolveState("GloryEnd2"); }
+			
+			if(countinv("GloryKill3Token"))
+			{	return ResolveState("GloryEnd3"); }
+			return ResolveState(null);
+		}
+	GloryEnd1:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" GGGGGG 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd2:
+		"####" AAAAAAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" A 0 A_Pain();
+		"####" GGGGGG 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" AAAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		Goto GloryEnd;
+	GloryEnd3:
+		"####" AAAA 1 A_Warp(AAPTR_TARGET,-50,0,0,180,WARPF_NOCHECKPOSITION);
+		"####" I 0 A_ChangeVelocity(-8,0,10,CVF_RELATIVE);
+		Goto GloryEnd;
+	}
+}

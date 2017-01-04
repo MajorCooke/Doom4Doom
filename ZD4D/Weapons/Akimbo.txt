@@ -1,0 +1,321 @@
+/*==============================================================================
+
+	Akimbo System
+	Developed by Major Cooke
+	
+================================================================================
+
+The idea is simple: Hold one weapon in the left, and the other one in the right.
+This is not the same as dual wielding, since the only weapon dual wieldable is
+the Super Shotgun.
+
+Keys to assign:
+
+- user1: Change right mod
+- user2: Change left mod
+- user3: Fire left secondary
+- user4: Fire right secondary
+
+Will be changed to help accommodate if needed.
+
+To keep the code clean, see the bottom for all the functions.
+==============================================================================*/
+
+Class AkimboWeapon : Weapon
+{
+	int LeftStatus, RightStatus;
+	Name LeftName, RightName;
+	int UpdateLeft, UpdateRight;
+	
+	double OLX, OLY, ORX, ORY;		// Stands for Overlay <Left/Right> <X/Y>
+	enum Status
+	{
+		Ready,			// Ready to fire
+		Fire,			// Firing primary
+		AltFire,		// Firing secondary
+		ChangeMod,		// Changing mods
+		ChangeWeapon,	// Changing weapons
+	};
+	enum AKOverlays
+	{
+		AKRLow = 30002,
+		AKRHigh = 39999,
+		OV_LeftWeapon = 30000,
+		OV_RightWeapon = 30001,
+		OV_CheckWeapons = 30002,
+		OV_SwitchLeft,
+		OV_SwitchRight,
+	};
+	Default
+	{
+		+WEAPON.AMMO_OPTIONAL
+		+WEAPON.ALT_AMMO_OPTIONAL
+		+INVENTORY.UNDROPPABLE
+		+INVENTORY.UNTOSSABLE
+		Weapon.UpSound "Doom4/Weapons/WeaponSwitch";
+		Tag "Akimbo Guns";
+	}
+	States
+	{
+	Spawn:
+		M666 A -1;
+		Stop;
+	Select:
+		M666 A 1 A_Overlay(OV_CheckWeapons,"OV.CheckWeapons");
+	SelLoop:
+		M666 A 1 A_Raise();
+		M666 AAAA 0 A_Raise();
+		Loop;
+	Deselect:
+		M666 A 0 
+		{
+			// 
+			A_OverlayFlags(OV_LeftWeapon, PSPF_ADDWEAPON, true);
+			A_OverlayFlags(OV_RightWeapon, PSPF_ADDWEAPON, true);
+			A_ClearOverlays(AKRLow, AKRHigh);
+		}
+	DesLoop:
+		M666 A 1 A_Lower();
+		M666 AAAA 0 A_Lower();
+		Loop;
+	Ready:
+		M666 A 1 
+		{
+			A_Overlay(OV_CheckWeapons,"OV.CheckWeapons",true);
+			A_WeaponReady(WRF_NOFIRE|WRF_ALLOWUSER1|WRF_ALLOWUSER2|WRF_ALLOWUSER3|WRF_ALLOWUSER4);
+		}
+		Loop;
+	Fire:
+		M666 A 1;
+		Goto Ready;
+		
+	//==========================================================================
+	// Technical overlays
+	//==========================================================================
+	OV.CheckWeapons:
+		M666 A 1
+		{
+			// Future note to self:
+			// class myclass = (class)(GetClass());
+			
+			if (invoker.RightName == '')
+			{
+					 if (CountInv("D4Pistol") && 			!(invoker.LeftName == 'D4Pistol'))			{	invoker.RightName = 'D4Pistol'; }
+				else if (CountInv("D4Shotgun") && 			!(invoker.LeftName == 'D4Shotgun'))			{	invoker.RightName = 'D4Shotgun'; }
+				else if (CountInv("D4SuperShotgun") && 		!(invoker.LeftName == 'D4SuperShotgun'))	{	invoker.RightName = 'D4SuperShotgun'; }
+				else if (CountInv("D4Repeater") && 			!(invoker.LeftName == 'D4Repeater'))		{	invoker.RightName = 'D4Repeater'; }
+				else if (CountInv("D4AssaultRifle") && 		!(invoker.LeftName == 'D4AssaultRifle'))	{	invoker.RightName = 'D4AssaultRifle'; }
+				else if (CountInv("D4Chaingun") && 			!(invoker.LeftName == 'D4Chaingun'))		{	invoker.RightName = 'D4Chaingun'; }
+				else if (CountInv("D4RocketLauncher") && 	!(invoker.LeftName == 'D4RocketLauncher'))	{	invoker.RightName = 'D4RocketLauncher'; }
+				else if (CountInv("D4PlasmaRifle") && 		!(invoker.LeftName == 'D4PlasmaRifle'))		{	invoker.RightName = 'D4PlasmaRifle'; }
+				else if (CountInv("D4LightningGun") && 		!(invoker.LeftName == 'D4LightningGun'))	{	invoker.RightName = 'D4LightningGun'; }
+				else if (CountInv("D4GaussCannon") && 		!(invoker.LeftName == 'D4GaussCannon'))		{	invoker.RightName = 'D4GaussCannon'; }
+				else if (CountInv("D4VortexRifle") && 		!(invoker.LeftName == 'D4VortexRifle'))		{	invoker.RightName = 'D4VortexRifle'; }
+				else if (CountInv("D4StaticRifle") && 		!(invoker.LeftName == 'D4StaticRifle'))		{	invoker.RightName = 'D4StaticRifle'; }
+				else if (CountInv("D4BFG") && 				!(invoker.LeftName == 'D4BFG'))				{	invoker.RightName = 'D4BFG'; }
+				else if (CountInv("D4CarrionCannon") && 	!(invoker.LeftName == 'D4CarrionCannon'))	{	invoker.RightName = 'D4CarrionCannon'; }
+				else 
+				{	
+					A_SelectWeapon("D4Pistol");	// Fallback.
+				}
+			}
+			if (invoker.LeftName == '')
+			{
+					 if (CountInv("D4Pistol") && 			!(invoker.RightName == 'D4Pistol'))				{	invoker.LeftName = 'D4Pistol'; }
+				else if (CountInv("D4Shotgun") && 			!(invoker.RightName == 'D4Shotgun'))			{	invoker.LeftName = 'D4Shotgun'; }
+				else if (CountInv("D4SuperShotgun") && 		!(invoker.RightName == 'D4SuperShotgun'))		{	invoker.LeftName = 'D4SuperShotgun'; }
+				else if (CountInv("D4Repeater") && 			!(invoker.RightName == 'D4Repeater'))			{	invoker.LeftName = 'D4Repeater'; }
+				else if (CountInv("D4AssaultRifle") && 		!(invoker.RightName == 'D4AssaultRifle'))		{	invoker.LeftName = 'D4AssaultRifle'; }
+				else if (CountInv("D4Chaingun") && 			!(invoker.RightName == 'D4Chaingun'))			{	invoker.LeftName = 'D4Chaingun'; }
+				else if (CountInv("D4RocketLauncher") && 	!(invoker.RightName == 'D4RocketLauncher'))		{	invoker.LeftName = 'D4RocketLauncher'; }
+				else if (CountInv("D4PlasmaRifle") && 		!(invoker.RightName == 'D4PlasmaRifle'))		{	invoker.LeftName = 'D4PlasmaRifle'; }
+				else if (CountInv("D4LightningGun") && 		!(invoker.RightName == 'D4LightningGun'))		{	invoker.LeftName = 'D4LightningGun'; }
+				else if (CountInv("D4GaussCannon") && 		!(invoker.RightName == 'D4GaussCannon'))		{	invoker.LeftName = 'D4GaussCannon'; }
+				else if (CountInv("D4VortexRifle") && 		!(invoker.RightName == 'D4VortexRifle'))		{	invoker.LeftName = 'D4VortexRifle'; }
+				else if (CountInv("D4StaticRifle") && 		!(invoker.RightName == 'D4StaticRifle'))		{	invoker.LeftName = 'D4StaticRifle'; }
+				else if (CountInv("D4BFG") && 				!(invoker.RightName == 'D4BFG'))				{	invoker.LeftName = 'D4BFG'; }
+				else if (CountInv("D4CarrionCannon") && 	!(invoker.RightName == 'D4CarrionCannon'))		{	invoker.LeftName = 'D4CarrionCannon'; }
+				else 
+				{	
+					A_SelectWeapon("D4Pistol");	// Fallback.
+				}
+			}
+			if (CountInv("UpdateLeftWeapon"))
+			{
+				A_SetInventory("UpdateLeftWeapon",0);
+				A_Overlay(OV_SwitchLeft,"OV.SwitchLeft",true);
+			}
+			if (CountInv("UpdateRightWeapon"))
+			{
+				A_SetInventory("UpdateRightWeapon",0);
+				A_Overlay(OV_SwitchRight,"OV.SwitchRight",true);
+			}
+		}
+		Wait;
+	
+	OV.SwitchLeft:
+		M666 A 1
+		{
+			
+			return ResolveState(null);
+		}
+		Wait;
+	}
+}
+
+Class UpdateLeftWeapon : Inventory { }
+Class UpdateRightWeapon : Inventory { }
+Class LeftWeaponCount : Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.MaxAmount 13; Inventory.InterhubAmount 13; } }
+Class RightWeaponCount : Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.MaxAmount 13; Inventory.InterhubAmount 13; } }
+
+// AkimboWeapon's Functions
+// Separated to keep things clean.
+extend Class AkimboWeapon
+{
+	enum AkimboStuff
+	{
+		TotalWeapons = 14,
+		WEAP_NEXT = 1,
+		WEAP_PREV = -1,
+	};
+	
+	void SetSpecificWeapon(Class<Inventory> id, int right = 0)
+	{
+		static const Class<Inventory> WeaponList[] =
+		{
+			null,
+			"D4Pistol",
+			"D4Shotgun",
+			"D4Supershotgun",
+			"D4Repeater",
+			"D4AssaultRifle",
+			"D4Chaingun",
+			"D4RocketLauncher",
+			"D4PlasmaRifle",
+			"D4LightningGun",
+			"D4GaussCannon",
+			"D4VortexRifle",
+			"D4StaticRifle",
+			"D4BFG",
+			"D4CarrionCannon" 	// 14
+		};
+		
+		static const String WeaponNameList[] =
+		{
+			"",
+			"D4Pistol",
+			"D4Shotgun",
+			"D4Supershotgun",
+			"D4Repeater",
+			"D4AssaultRifle",
+			"D4Chaingun",
+			"D4RocketLauncher",
+			"D4PlasmaRifle",
+			"D4LightningGun",
+			"D4GaussCannon",
+			"D4VortexRifle",
+			"D4StaticRifle",
+			"D4BFG",
+			"D4CarrionCannon" 	// 14
+		};
+		
+		Class<Inventory> side = (right ? "RightWeaponCount" : "LeftWeaponCount");
+		
+		if ((id == (Class<Inventory>)(RightName)) || 
+			(id == (Class<Inventory>)(LeftName)) || 
+			!CountInv(id))	{ return; }
+		
+		for (int index = 1; index <= TotalWeapons; index++)
+		{
+			if (id == WeaponList[index])
+			{
+				A_SetInventory(side, index);
+				if (right)	{	RightName = WeaponNameList[index];	UpdateRight = 1;	}
+				else		{	LeftName = WeaponNameList[index];	UpdateLeft = 1;		}
+				return;
+			}
+		}
+		return;
+	}
+	
+	void SetNextWeapon(int right = 0, int direction = 1)
+	{
+		if (direction != WEAP_NEXT || direction != WEAP_PREV)
+		{
+			A_Log("ERROR: Direction must be WEAP_NEXT or WEAP_PREV");
+			return;
+		}
+	
+		int LeftWeapCount = CountInv("LeftWeaponCount");
+		int RightWeapCount = CountInv("RightWeaponCount");
+		
+		static const Class<Inventory> WeaponList[] =
+		{
+			null,
+			"D4Pistol",
+			"D4Shotgun",
+			"D4Supershotgun",
+			"D4Repeater",
+			"D4AssaultRifle",
+			"D4Chaingun",
+			"D4RocketLauncher",
+			"D4PlasmaRifle",
+			"D4LightningGun",
+			"D4GaussCannon",
+			"D4VortexRifle",
+			"D4StaticRifle",
+			"D4BFG",
+			"D4CarrionCannon" 	// 14
+		};
+		
+		static const Name WeaponNameList[] =
+		{
+			"",
+			"D4Pistol",
+			"D4Shotgun",
+			"D4Supershotgun",
+			"D4Repeater",
+			"D4AssaultRifle",
+			"D4Chaingun",
+			"D4RocketLauncher",
+			"D4PlasmaRifle",
+			"D4LightningGun",
+			"D4GaussCannon",
+			"D4VortexRifle",
+			"D4StaticRifle",
+			"D4BFG",
+			"D4CarrionCannon" 	// 14
+		};
+		
+		Class<Inventory> side = (right ? "RightWeaponToken" : "LeftWeaponToken"),
+						other = (!right ? "RightWeaponToken" : "LeftWeaponToken");
+
+		int CurrentWeaponSlot = CountInv(side),
+			OtherWeaponSlot = CountInv(other),
+			LoopCount = 0;
+		
+		while (LoopCount < TotalWeapons)
+		{
+			LoopCount++;
+			CurrentWeaponSlot += direction;
+			
+			if (CurrentWeaponSlot > TotalWeapons)	{	CurrentWeaponSlot = 1;	}
+			else if (CurrentWeaponSlot < 1)			{	CurrentWeaponSlot = TotalWeapons;	}
+			
+			// Can't hold two of the same weapon at once.
+			if (CurrentWeaponSlot == OtherWeaponSlot)
+			{	continue;	}
+			
+			// Don't have the weapon.
+			if (!CountInv(WeaponList[CurrentWeaponSlot]))
+			{	continue;	}
+			
+			if (right)	{	UpdateRight = 1; 	RightName = WeaponNameList[CurrentWeaponSlot];	}
+			else		{	UpdateLeft = 1;		LeftName = WeaponNameList[CurrentWeaponSlot];	}
+			A_SetInventory(side, CurrentWeaponSlot);
+			A_SetInventory(other, OtherWeaponSlot);
+			return;
+		}
+		return;
+	}
+}
