@@ -154,10 +154,7 @@ Class D4Demon : D4AbstractMonster
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot();
-			
-			if (GetCvar("MPWeapons"))
-			{	Pinatas.Carrion++;	}
+			D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -469,10 +466,7 @@ Class D4OldDemon : D4AbstractMonster // : Demon //replaces Demon
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot();
-			
-			if (GetCvar("MPWeapons"))
-			{	Pinatas.Carrion++;	}
+			D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		

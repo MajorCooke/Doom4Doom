@@ -198,7 +198,7 @@ Class D4Cyberdemon : D4AbstractBoss
 		CYBR H 10 
 		{
 			bThruActors = true;
-			D4SetupLoot();
+			D4SetupLoot(true);
 			D4DropCash(CashMultiplier,"CyberdemonCashGiver");
 			D4DropItems();
 			A_SpawnItemEx("CyberdemonDeathFX",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
@@ -226,13 +226,11 @@ Class D4Cyberdemon : D4AbstractBoss
 	Death.BerserkKill:
 	Death.MeleePunch:
 	Death.ChainsawPinata:
-		"####" "#" 0 { Pinatas.Health += 5; }
+		"####" "#" 0 { Pinatas.AddItem("D4PinataHealth", 5); }
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot();
-			if (GetCvar("MPWeapons"))
-			{	Pinatas.Carrion++;	}
+			D4SetupLoot(true);
 		}		
 	XDeathNoDrops:	
 		"####" "#" 0
@@ -254,8 +252,6 @@ Class D4Cyberdemon : D4AbstractBoss
 				A_SpawnItemEx("CyberdemonDeathFX",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 				A_SpawnItemEx("BossExploderSFX",0,0,0,0,0,0,0,32);
 			}
-			if(GetCvar("MPWeapons"))
-			{ A_DropItem("D4PinataCarrion",1); }
 		}
 		CYBR I 10 A_Scream();
 		CYBR JKL 10 { bThruActors = true; }
@@ -789,7 +785,7 @@ Class D4OldCyberdemon : D4AbstractBoss // : Cyberdemon
 		{
 			bThruActors = true;
 			D4DropCash(CashMultiplier,"CyberdemonCashGiver");
-			D4SetupLoot();
+			D4SetupLoot(true);
 			D4DropItems();
 			
 			if (RuneChance(RuneChance_Cyber))
@@ -812,14 +808,11 @@ Class D4OldCyberdemon : D4AbstractBoss // : Cyberdemon
 	Death.BerserkKill:
 	Death.MeleePunch:
 	Death.ChainsawPinata:
-		"####" "#" 0 { Pinatas.Health += 5; }
+		"####" "#" 0 { Pinatas.AddItem("D4PinataHealth", 5); }
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot();
-			
-			if (GetCvar("MPWeapons"))
-			{	Pinatas.Carrion++;	}
+			D4SetupLoot(true);
 		}		
 	XDeathNoDrops:	
 		TNT1 A 0

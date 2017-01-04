@@ -158,10 +158,7 @@ Class D4ShotgunGuy : D4AbstractMonster
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot();
-			
-			if (GetCvar("MPWeapons"))
-			{	Pinatas.Carrion++;	}
+			D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -394,10 +391,7 @@ Class D4OldShotgunGuy : D4AbstractMonster // : ShotgunGuy //replaces ShotgunGuy
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot();
-			
-			if (GetCvar("MPWeapons"))
-			{	Pinatas.Carrion++;	}
+			D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		

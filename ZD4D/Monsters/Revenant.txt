@@ -166,10 +166,7 @@ Class D4Revenant : D4AbstractBiggie
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot();
-			
-			if (GetCvar("MPWeapons"))
-			{	Pinatas.Carrion++;	}
+			D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -554,10 +551,7 @@ Class D4OldRevenant : D4AbstractBiggie // : Revenant //replaces Revenant
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot();
-			
-			if (GetCvar("MPWeapons"))
-			{	Pinatas.Carrion++;	}
+			D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		

@@ -111,10 +111,7 @@ Class D4DoomImp : D4AbstractMonster
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot();
-			
-			if (GetCvar("MPWeapons"))
-			{	Pinatas.Carrion++;	}
+			D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -729,10 +726,7 @@ Class D4OldDoomImp : D4AbstractMonster // : DoomImp //replaces DoomImp
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot();
-			
-			if (GetCvar("MPWeapons"))
-			{	Pinatas.Carrion++;	}
+			D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		

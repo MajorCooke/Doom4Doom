@@ -414,10 +414,7 @@ Class D4HellKnight : D4AbstractBiggie
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot();
-			
-			if (GetCvar("MPWeapons"))
-			{	Pinatas.Carrion++;	}
+			D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -784,10 +781,7 @@ Class D4OldHellKnight : D4AbstractBiggie // : HellKnight //replaces HellKnight
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot();
-			
-			if (GetCvar("MPWeapons"))
-			{	Pinatas.Carrion++;	}
+			D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		

@@ -196,7 +196,7 @@ Class D4SpiderMastermind : D4AbstractBoss
 			{	A_SpawnItemEx("MastermindRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 			
 			bThruActors = true;
-			D4SetupLoot();
+			D4SetupLoot(true);
 			D4DropCash(CashMultiplier,"MastermindCashGiver");
 			D4DropItems();
 			A_StopSound(6);	A_Scream(); 
@@ -217,14 +217,11 @@ Class D4SpiderMastermind : D4AbstractBoss
 	Death.BerserkKill:
 	Death.MeleePunch:
 	Death.ChainsawPinata:
-		"####" "#" 0 { Pinatas.Health += 5; }
+		"####" "#" 0 { Pinatas.AddItem("D4PinataHealth", 5); }
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot();
-			
-			if (GetCvar("MPWeapons"))
-			{	Pinatas.Carrion++;	}
+			D4SetupLoot(true);
 		}		
 	XDeathNoDrops:	
 		SPID J 20 
@@ -915,7 +912,7 @@ Class D4OldSpiderMastermind : D4AbstractBoss // : SpiderMastermind
 			
 			bThruActors = true;
 			D4DropCash(CashMultiplier,"MastermindCashGiver");
-			D4SetupLoot();
+			D4SetupLoot(true);
 			D4DropItems();
 			A_Scream();
 		}
@@ -934,14 +931,11 @@ Class D4OldSpiderMastermind : D4AbstractBoss // : SpiderMastermind
 	Death.BerserkKill:
 	Death.MeleePunch:
 	Death.ChainsawPinata:
-		"####" "#" 0 { Pinatas.Health += 5; }
+		"####" "#" 0 { Pinatas.AddItem("D4PinataHealth", 5); }
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot();
-			
-			if (GetCvar("MPWeapons"))
-			{	Pinatas.Carrion++;	}
+			D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		

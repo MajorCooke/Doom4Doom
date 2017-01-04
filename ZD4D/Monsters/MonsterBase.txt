@@ -32,18 +32,7 @@ enum RuneChances
 
 Struct D4DropList
 {
-	const MaxSize = 20;
-	
-	int Health;
-	int Armor;
-	
-	int Carrion;
-	int BulletsSmall, BulletsBig;
-	int ShellsSmall, ShellsBig;
-	int RocketsSmall, RocketsBig;
-	int CellsSmall, CellsBig;
-	int BFG;
-	
+	const MaxSize = 20;	
 	int Credits;
 	
 	Class<Actor> ItemName[MaxSize];
@@ -113,10 +102,6 @@ Struct D4DropList
 			}
 		}
 	}
-	
-	//--------------------------------------------------------------------------
-	// SetCredits(
-	//--------------------------------------------------------------------------
 }
 
 Class D4AbstractMonster : Actor 
@@ -192,14 +177,16 @@ Class D4AbstractMonster : Actor
 	
 	//==========================================================================
 	//
-	// D4SetupLoot
+	// D4SetupLoot(carrion)
 	//
 	// Sets up which pinatas to drop based on damage type.
 	//==========================================================================
 	
-	void D4SetupLoot()
+	void D4SetupLoot(bool carrion = false)
 	{
 		MOD = DamagetypeReceived;
+		if (carrion && GetCvar("MPWeapons"))
+		{	Pinatas.AddItem("D4PinataCarrion",1);	}
 		if (MOD == 'ChainsawPinata')
 		{
 			CashMultiplier = 4;
@@ -212,7 +199,7 @@ Class D4AbstractMonster : Actor
 		{
 			CashMultiplier = 2;
 			AddPinataSmashedNormal();
-			if (GetCvar("user_LootDrop")) { Pinatas.Health += 5; }
+			if (GetCvar("user_LootDrop")) { Pinatas.AddItem("D4PinataHealth", 5); }
 		}
 		else
 		{	
@@ -247,77 +234,12 @@ Class D4AbstractMonster : Actor
 	void D4DropItems()
 	{
 		Pinatas.DropItems(self);
-		/*
-		int MaxTicker = 100;
-		int ZHeight = 32;
-		for (; Pinatas.Health > 0; Pinatas.Health--)
-		{
-			A_SpawnItemEx("D4PinataHealth",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			if (--MaxTicker < 1)	{	A_Log("Health"); A_LogInt(Pinatas.Health);	return;	}
-		}
-		for (; Pinatas.Armor > 0; Pinatas.Armor--)
-		{
-			A_SpawnItemEx("D4PinataArmor",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			if (--MaxTicker < 1)	{	A_Log("Armor"); A_LogInt(Pinatas.Armor);	return;	}
-		}
-		for (; Pinatas.Carrion > 0; Pinatas.Carrion--)
-		{
-			A_SpawnItemEx("D4PinataCarrion",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			if (--MaxTicker < 1)	{	A_Log("Pinatas.Carrion"); A_LogInt(Pinatas.Carrion);	return;	}
-		}
-		for (; Pinatas.BulletsSmall > 0; Pinatas.BulletsSmall--)
-		{
-			A_SpawnItemEx("D4PinataBullets",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			if (--MaxTicker < 1)	{	A_Log("Pinatas.BulletsSmall"); A_LogInt(Pinatas.BulletsSmall);	return;	}
-		}
-		for (; Pinatas.BulletsBig > 0; Pinatas.BulletsBig--)
-		{
-			A_SpawnItemEx("D4PinataBulletsBig",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			if (--MaxTicker < 1)	{	A_Log("Pinatas.BulletsBig"); A_LogInt(Pinatas.BulletsBig);	return;	}
-		}
-		for (; Pinatas.ShellsSmall > 0; Pinatas.ShellsSmall--)
-		{
-			A_SpawnItemEx("D4PinataShells",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			if (--MaxTicker < 1)	{	A_Log("Pinatas.ShellsSmall"); A_LogInt(Pinatas.ShellsSmall);	return;	}
-		}
-		for (; Pinatas.ShellsBig > 0; Pinatas.ShellsBig--)
-		{
-			A_SpawnItemEx("D4PinataShellsBig",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			if (--MaxTicker < 1)	{	A_Log("Pinatas.ShellsBig"); A_LogInt(Pinatas.ShellsBig);	return;	}
-		}
-		for (; Pinatas.CellsSmall > 0; Pinatas.CellsSmall--)
-		{
-			A_SpawnItemEx("D4PinataCells",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			if (--MaxTicker < 1)	{	A_Log("Pinatas.CellsSmall"); A_LogInt(Pinatas.CellsSmall);	return;	}
-		}
-		for (; Pinatas.CellsBig > 0; Pinatas.CellsBig--)
-		{
-			A_SpawnItemEx("D4PinataCellsBig",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			if (--MaxTicker < 1)	{	A_Log("Pinatas.CellsBig"); A_LogInt(Pinatas.CellsBig);	return;	}
-		}
-		for (; Pinatas.RocketsSmall > 0; Pinatas.RocketsSmall--)
-		{
-			A_SpawnItemEx("D4PinataRockets",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			if (--MaxTicker < 1)	{	A_Log("Pinatas.RocketsSmall"); A_LogInt(Pinatas.RocketsSmall);	return;	}
-		}
-		for (; Pinatas.RocketsBig > 0; Pinatas.RocketsBig--)
-		{
-			A_SpawnItemEx("D4PinataRocketsBig",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			if (--MaxTicker < 1)	{	A_Log("Pinatas.RocketsBig"); A_LogInt(Pinatas.RocketsBig);	return;	}
-		}
-		for (; Pinatas.BFG > 0; Pinatas.BFG--)
-		{
-			A_SpawnItemEx("D4PinataBFG",0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			if (--MaxTicker < 1)	{	A_Log("Pinatas.BFG"); A_LogInt(Pinatas.BFG);	return;	}
-		}
-		return;
-		*/
 	}
 	
 	// How this works is pretty simple. Behaves just like A_SpawnItemEx's 'chance'
 	// parameter to NOT spawn. So basically returns false more often the higher 
 	// the number is.
-	int RNG256(int num)	{	return (random(1,256) > num) ? 1 : 0;	}
+	int RNG256(int num)		{	return (random(1,256) > num) ? 1 : 0;	}
 	
 	//==========================================================================
 	//
@@ -334,41 +256,31 @@ Class D4AbstractMonster : Actor
 			if (A_JumpIfHealthLower(60,"Null",AAPTR_PLAYER1))
 			{
 				Pinatas.AddItem("D4PinataHealth", 2 + RNG256(128) + RNG256(240));
-				//Pinatas.Health += 2 + RNG256(128) + RNG256(192);
 			}
 			
 			//armor giver
 			if (CountInv("D4ArmorCapRaiser",Player1) >= 25)
 			{
 				Pinatas.AddItem("D4PinataArmor", RNG256(128) + RNG256(128));
-				//Pinatas.Armor += RNG256(128) + RNG256(128);
 			}
 			if (CountInv("D4ArmorCapRaiser",Player1) >= 50)
 			{
 				Pinatas.AddItem("D4PinataArmor", RNG256(128) + RNG256(128));
-				//Pinatas.Armor += RNG256(128) + RNG256(128);
 			}
 			if (CountInv("D4ArmorCapRaiser",Player1) >= 100)
 			{
 				Pinatas.AddItem("D4PinataArmor", 2);
-				//Pinatas.Armor += 2;
 			}
 			
-			Pinatas.AddItem("D4PinataBulletsBig", 4);
-			Pinatas.AddItem("D4PinataShellsBig", 4);
-			Pinatas.AddItem("D4PinataCellsBig", 5);
-			Pinatas.AddItem("D4PinataRocketsBig", 3);
-			
-			//Pinatas.BulletsBig += 4;
-			//Pinatas.ShellsBig += 3;
-			//Pinatas.CellsBig += 5;
-			//Pinatas.RocketsBig += 3;
+			Pinatas.AddItem("D4PinataBulletsBig", 	4);
+			Pinatas.AddItem("D4PinataShellsBig", 	4);
+			Pinatas.AddItem("D4PinataCellsBig", 	5);
+			Pinatas.AddItem("D4PinataRocketsBig", 	3);
 			
 			//BFG ammo giver, this one doesnt check for ammo low, but it does check for the weapon
 			if (CountInv("D4BFG",AAPTR_PLAYER1))
 			{
-				Pinatas.AddItem("D4PinataBFG", RNG256(232));
-				//Pinatas.BFG += RNG256(232); //very rarely
+				Pinatas.AddItem("D4PinataBFG", RNG256(232)); //very rarely
 			}
 		}
 		else
@@ -377,10 +289,6 @@ Class D4AbstractMonster : Actor
 			Pinatas.AddItem("D4PinataShellsBig", 	1);
 			Pinatas.AddItem("D4PinataCellsBig", 	1);
 			Pinatas.AddItem("D4PinataRocketsBig", 	1);
-		//	Pinatas.BulletsBig++;
-		//	Pinatas.ShellsBig++;
-		//	Pinatas.CellsBig++;
-		//	Pinatas.RocketsBig++;
 		}
 	}
 	//==========================================================================
@@ -397,14 +305,12 @@ Class D4AbstractMonster : Actor
 			if (A_JumpIfHealthLower(40,"Null",AAPTR_PLAYER1))
 			{
 				Pinatas.AddItem("D4PinataHealth", 1 + RNG256(192));
-				//Pinatas.Health += 1 + RNG256(192);
 			}
 			
 			//Armor giver
 			if (CountInv("BasicArmor",AAPTR_PLAYER1) < 200 && CountInv("D4ArmorCapRaiser",AAPTR_PLAYER1)>=50)	//only if player isnt at full armor and has upgraded his armor
 			{
-				Pinatas.AddItem("D4PinataArmor", RNG256(192));
-				//Pinatas.Armor += RNG256(230); //very rarely they will drop armor
+				Pinatas.AddItem("D4PinataArmor", RNG256(192)); //very rarely they will drop armor
 			}
 			
 			//bullets giver
@@ -414,7 +320,6 @@ Class D4AbstractMonster : Actor
 				CountInv("D4Bullets",AAPTR_PLAYER1) < 10)
 			{
 				Pinatas.AddItem("D4PinataBullets", RNG256(128) + RNG256(240));
-				//Pinatas.BulletsSmall += RNG256(128) + RNG256(240);
 			}
 			
 			//Shells giver
@@ -423,7 +328,6 @@ Class D4AbstractMonster : Actor
 				CountInv("D4Shells",AAPTR_PLAYER1) < 5)
 			{
 				Pinatas.AddItem("D4PinataShells", RNG256(128) + RNG256(240));
-				//Pinatas.ShellsSmall += RNG256(128) + RNG256(240);
 			}
 			
 			//Cells giver
@@ -433,20 +337,17 @@ Class D4AbstractMonster : Actor
 				CountInv("D4Cells",AAPTR_PLAYER1) < 16)
 			{
 				Pinatas.AddItem("D4PinataCells", RNG256(128) + RNG256(240));
-				//Pinatas.CellsSmall += RNG256(128) + RNG256(240);
 			}
 			//Rockets giver
 			if(CountInv("D4RocketLauncher",AAPTR_PLAYER1) && CountInv("D4Rockets",AAPTR_PLAYER1) < 5)
 			{
 				Pinatas.AddItem("D4PinataRockets", RNG256(196));
-				//Pinatas.RocketsSmall += RNG256(196);
 			}
 			
 			//BFG ammo giver, this one doesnt check for ammo low, but it does check for the weapon
 			if (CountInv("D4BFG",AAPTR_PLAYER1) && CountInv("BFGUpgrade1",AAPTR_PLAYER1))
 			{
 				Pinatas.AddItem("D4PinataBFG", RNG256(253));
-				Pinatas.BFG += RNG256(253);
 			}
 		}
 	}
