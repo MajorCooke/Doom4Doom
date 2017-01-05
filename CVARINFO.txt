@@ -48,6 +48,8 @@ server bool D4D_DemonNameDisplay  = True;
 server int D4D_HasteSpawn = 1; //Sometimes
 server bool D4D_EnhancedChase = true;
 server bool D4D_BerserkAutoSwitch = true;
+server int D4D_NMareGrenades = 2; // [0,1,2] = [none,frag,all]
+
 
 // The Zombie Killer's Footsteps
 server float fs_volume_mul = 1.4;
