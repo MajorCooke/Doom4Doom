@@ -83,6 +83,7 @@ OptionMenu "D4DOptions"
 	Option "Ledge grabbing",				"d4d_allowClimbing",	"OnOff"
 	Option "Syphon strength",				"user_SyphonStrength",	"SyphonStrength"
 	Option "Berserk Switch On Pickup",		"D4D_BerserkAutoSwitch","YesNo"
+	Option "Nightmare Grenade Starts",		"D4D_NMGrenades","NMGrenade"
 	StaticText ""
 	StaticText "Monster Behaviour", 1
 	Option "Enhanced Monster Chasing",		"D4D_EnhancedChase",	"OnOff"
@@ -258,6 +259,13 @@ OptionMenu "D4DGoreOptions"
 	StaticText " "
 	NumberField "Bullet Giblets Unleashed",		"user_Giblets",	0, 10000, 1
 	NumberField "Splatter Giblets Unleashed",	"user_SplatterGiblets",	0, 10000, 1
+}
+
+OptionValue "NMGrenade"
+{
+	0, "Off"
+	1, "Frag Only"
+	2, "All"
 }
 
 OptionValue "HasteSpawn"
