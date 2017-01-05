@@ -89,24 +89,26 @@ Class Doom4Player : PlayerPawn
 				{
 					if (GetCvar("skill") >= 3)
 					{
-					  if (GetCvar("D4D_NMGrenades") >= 1) //Give and select frag if the setting isn't "Off" 
-					  {
-						if (!CountInv("FragGrenadePickup"))
-						{	
-						  A_GiveInventory("FragGrenadePickup",1);
-						  A_GiveInventory("FragGrenadeSelected",1);
+						if (GetCvar("D4D_NMGrenades") >= 1) // Give and select frag if the setting isn't "Off" 
+						{
+							if (!CountInv("FragGrenadePickup"))
+							{	
+								A_GiveInventory("FragGrenadePickup",1);
+								A_GiveInventory("FragGrenadeSelected",1);
+							}
 						}
-					  }
-					  if (GetCvar("D4D_NMGrenades") >= 2) //Give the rest and select syphon if the setting is "All"
-					  {
-					    	if (!CountInv("HoloGrenadePickup"))
-						    {	A_GiveInventory("HoloGrenadePickup",1);	}
-						if (!CountInv("SyphonGrenadePickup"))
-						    {   A_GiveInventory("SyphonGrenadePickup",1);
-		      				        A_TakeInventory("FragGrenadeSelected",1);
-							A_TakeInventory("MarineHoloSelected",1); //Just in case
-						        A_GiveInventory("SyphonGrenadeSelected",1); }
-					  }
+						if (GetCvar("D4D_NMGrenades") >= 2) // Give the rest and select syphon if the setting is "All"
+						{
+							if (!CountInv("HoloGrenadePickup"))
+								A_GiveInventory("HoloGrenadePickup",1);
+							if (!CountInv("SyphonGrenadePickup"))
+							{   
+								A_GiveInventory("SyphonGrenadePickup",1);
+								A_SetInventory("FragGrenadeSelected",0);
+								A_SetInventory("MarineHoloSelected",0); //Just in case
+								A_GiveInventory("SyphonGrenadeSelected",1); 
+							}
+						}
 					}
 					
 					A_SetInventory("D4MultiJump",int(GetCvar("D4MultiJump")));
