@@ -104,7 +104,7 @@ Class Doom4Player : PlayerPawn
 						if (!CountInv("SyphonGrenadePickup"))
 						    {   A_GiveInventory("SyphonGrenadePickup",1);
 		      				        A_TakeInventory("FragGrenadeSelected",1);
-							A_TakeInventory("HoloGrenadeSelected",1); //Just in case
+							A_TakeInventory("MarineHoloSelected",1); //Just in case
 						        A_GiveInventory("SyphonGrenadeSelected",1); }
 					  }
 					}
