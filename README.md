@@ -19,7 +19,14 @@ These rules are for contributing directly towards Doom4Doom via pull requests.
   * If you are asked to change something, chances are the Pull Request may not be closed. It all depends on how big and complex the code is.
   * Pull requests may be contested with the primary developers at any time, which may delay the process.
   * If a PR is ultimately declined for a specific permanent reason, it is considered final and should be dropped.
-5. **Be Patient.**
+5. **Use a program like SourceTree or GitKraken to upload files.**
+  * Avoid using GitHub directly. With the aforementioned programs, you can commit all your files at once versus one at a time.
+  * You only need one of these.
+  * SourceTree: https://www.sourcetreeapp.com/
+  * GitKraken: https://www.gitkraken.com/
+6. **Use proper indentation.**
+  * Tabs, not spaces, should be used when making adjustments. As such, you should use a programming notepad or SLADE to perform the edits.
+7. **Be Patient.**
   * We all have lives to deal with. It may take time to go through and sort out all the issues and pull requests, depending. If you have the mail system set up and watch this project, you'll be notified of any activity pertaining to the issue/pull request. 
 
 # Requirements
