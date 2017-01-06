@@ -29,10 +29,24 @@ Class D4PainElemental : D4AbstractBiggie
 		PainChance "GloryKill", 255;
 		WoundHealth 100;
 	}
+	
+	override void Tick()
+	{
+		if (!(level.time % 2))
+		{
+			if (GetCvar("HQEffects"))
+			{
+				A_SpawnItemEx("PainBreath",15,15,20,frandom(1,-1),frandom(0.3,1.2),frandom(0.6,-0.6),0,SXF_NOCHECKPOSITION,96);
+				A_SpawnItemEx("PainBreath",15,-15,20,frandom(1,-1),frandom(-0.3,-1.2),frandom(0.6,-0.6),0,SXF_NOCHECKPOSITION,96);
+			}
+		}
+		Super.Tick();
+	}
+	
 	States
 	{
 	Spawn:
-		INFR A 0 NODELAY A_SpawnItemEx("D4PainElmBreath",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION);
+		INFR A 0; //NODELAY //A_SpawnItemEx("D4PainElmBreath",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION);
 	Idle:
 		INFR ABCD 4 A_Look();
 		Loop;
@@ -294,6 +308,16 @@ Class D4PainElmBreath : Actor
 	Spawn:
 		TNT1 A 2
 		{
+			if (!master || master.health < 1)
+			{
+				Destroy();
+				return ResolveState(Null);
+			}
+			if (!GetCvar("HQEffects"))
+			{
+				A_SetTics(35);
+				return ResolveState(null);
+			}
 			if(A_JumpIfHealthLower(1,"Null",MasterPtr))
 			{
 				return ResolveState("Null"); //removes it when master died

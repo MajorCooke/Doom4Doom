@@ -48,10 +48,6 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 			{
 				A_SpawnItemEx("LostSoulBlueFlame",random(-5,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,85);
 			}
-			else
-			{
-				A_SpawnItemEx("LostSoulBlueFlame",random(-5,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,160);
-			}
 		}
 		Loop;
 	See:
@@ -64,14 +60,9 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 			
 			if(GetCvar("HQEffects"))
 			{
-			A_SpawnItemEx("LostSoulBlueFlame",random(-5,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,85);
-			A_SpawnItemEx("LostSoulBlueFlare",-8,random(10,-10),25+random(10,-10),0,0,frandom(0.1,0.5),0,SXF_NOCHECKPOSITION);	
-			}
-			else
-			{
-			A_SpawnItemEx("LostSoulBlueFlame",random(-5,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,160);
-			A_SpawnItemEx("LostSoulBlueFlare",-8,random(10,-10),25+random(10,-10),0,0,frandom(0.1,0.5),0,SXF_NOCHECKPOSITION,128);
-			}
+				A_SpawnItemEx("LostSoulBlueFlame",random(-5,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,85);
+				A_SpawnItemEx("LostSoulBlueFlare",-8,random(10,-10),25+random(10,-10),0,0,frandom(0.1,0.5),0,SXF_NOCHECKPOSITION);	
+			}			
 		}
 		Loop;
 		
@@ -124,11 +115,6 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 				A_SpawnItemEx("LostSoulBlueFlame",random(-5,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,85);
 				A_SpawnItemEx("LostSoulBlueFlare",-8,random(10,-10),25+random(10,-10),0,0,frandom(0.1,0.5),0,SXF_NOCHECKPOSITION);
 			}
-			else
-			{
-				A_SpawnItemEx("LostSoulBlueFlame",random(-5,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,160);
-				A_SpawnItemEx("LostSoulBlueFlare",-8,random(10,-10),25+random(10,-10),0,0,frandom(0.1,0.5),0,SXF_NOCHECKPOSITION,128);
-			}
 		}
 		PSUL C 2 BRIGHT Light("BlueSmallFlicker1")
 		{
@@ -137,11 +123,6 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 			{
 				A_SpawnItemEx("LostSoulBlueFlame",random(-5,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,85);
 				A_SpawnItemEx("LostSoulBlueFlare",-8,random(10,-10),25+random(10,-10),0,0,frandom(0.1,0.5),0,SXF_NOCHECKPOSITION);	
-			}
-			else
-			{
-				A_SpawnItemEx("LostSoulBlueFlame",random(-5,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,16);
-				A_SpawnItemEx("LostSoulBlueFlare",-8,random(10,-10),25+random(10,-10),0,0,frandom(0.1,0.5),0,SXF_NOCHECKPOSITION,128);	
 			}
 		}
 		Goto See;
@@ -171,7 +152,12 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 			bThruActors = true;
 			A_Scream();
 			A_NoBlocking();
-			if(CountInv("DeathByMassacre") == 0)
+			if (A_CheckSight("Null"))
+			{
+				Destroy();
+				return;
+			}
+			if (!CountInv("DeathByMassacre"))
 			{
 				if(GetCvar("HQEffects"))
 				{

@@ -31,6 +31,12 @@ Class D4DMonsterSpawner : Actor
 		DamageFactor "Massacre", 666;
 		
 	}
+	States
+	{
+	Spawn:
+		TNT1 A 1;
+		Stop;
+	}
 }
 
 
@@ -49,37 +55,18 @@ Class ZombieReplacer : D4DMonsterSpawner replaces Zombieman
 		Radius 20;
 		Height 56;
 	}
-	States
+	
+	override void PostBeginPlay()
 	{
-	Spawn:
-		//TNT1 A 0 NoDelay A_GiveInventory("NoDormantToken",1)
-		TNT1 A 0 NODELAY
+		if (GetCvar("user_MonsterType") == 0)
 		{
-			if(GetCvar("user_MonsterType") == 0)
-			{
-				A_SpawnItemEx("D4OldZombieman",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
-			if(GetCvar("user_MonsterType") == 1)
-			{
-				A_SpawnItemEx("D4Zombieman",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
+			A_SpawnItemEx("D4OldZombieman",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Goto End;
-
-	//-----------------------------------------
-	//	Special / End of spawner states
-	//-----------------------------------------
-	End:
-		//TNT1 A 1 A_RadiusGive("DormantChecker",4,RGF_MONSTERS,1)
-		TNT1 A 1
+		else
 		{
-			bTHRUACTORS = true;
-			A_ChangeLinkFlags(true);
-			A_Die();
+			A_SpawnItemEx("D4Zombieman",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-	Death:
-		TNT1 A 1;
-		Stop;
+		Destroy();
 	}
 }
 
@@ -96,35 +83,17 @@ Class ShotgunGuyReplacer : D4DMonsterSpawner replaces ShotgunGuy
 		Radius 20;
 		Height 56;
 	}
-	States
+	override void PostBeginPlay()
 	{
-	Spawn:
-		TNT1 A 0 NODELAY
+		if (GetCvar("user_MonsterType") == 0)
 		{
-			if(GetCvar("user_MonsterType") == 0)
-			{
-				A_SpawnItemEx("D4OldShotgunGuy",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
-			if(GetCvar("user_MonsterType") == 1)
-			{
-				A_SpawnItemEx("D4ShotgunGuy",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
+			A_SpawnItemEx("D4OldShotgunGuy",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Goto End;
-
-	//-----------------------------------------
-	//	Special / End of spawner states
-	//-----------------------------------------
-	End:
-		TNT1 A 1
+		else
 		{
-			bTHRUACTORS = true;
-			A_ChangeLinkFlags(true);
-			A_Die();
+			A_SpawnItemEx("D4ShotgunGuy",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-	Death:
-		TNT1 A 1;
-		Stop;
+		Destroy();
 	}
 }
 //===============================================================================
@@ -140,35 +109,17 @@ Class ChaingunGuyReplacer : D4DMonsterSpawner replaces ChaingunGuy
 		Radius 20;
 		Height 56;
 	}
-	States
+	override void PostBeginPlay()
 	{
-	Spawn:
-		TNT1 A 0 NODELAY
+		if (GetCvar("user_MonsterType") == 0)
 		{
-			if(GetCvar("user_MonsterType") == 0)
-			{
-				A_SpawnItemEx("D4OldChaingunGuy",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
-			if(GetCvar("user_MonsterType") == 1)
-			{
-				A_SpawnItemEx("D4ChaingunGuy",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
+			A_SpawnItemEx("D4OldChaingunGuy",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Goto End;
-
-	//-----------------------------------------
-	//	Special / End of spawner states
-	//-----------------------------------------
-	End:
-		TNT1 A 1
+		else
 		{
-			bTHRUACTORS = true;
-			A_ChangeLinkFlags(true);
-			A_Die();
+			A_SpawnItemEx("D4ChaingunGuy",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-	Death:
-		TNT1 A 1;
-		Stop;
+		Destroy();
 	}
 }
 
@@ -184,35 +135,17 @@ Class DemonReplacer : D4DMonsterSpawner replaces Demon
 		Radius 30;
 		Height 56;
 	}
-	States
+	override void PostBeginPlay()
 	{
-	Spawn:
-		TNT1 A 0 NODELAY
+		if (GetCvar("user_MonsterType") == 0)
 		{
-			if(GetCvar("user_MonsterType") == 0)
-			{
-				A_SpawnItemEx("D4OldDemon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
-			if(GetCvar("user_MonsterType") == 1)
-			{
-				A_SpawnItemEx("D4Demon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
+			A_SpawnItemEx("D4OldDemon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Goto End;
-
-	//-----------------------------------------
-	//	Special / End of spawner states
-	//-----------------------------------------
-	End:
-		TNT1 A 1
+		else
 		{
-			bTHRUACTORS = true;
-			A_ChangeLinkFlags(true);
-			A_Die();
+			A_SpawnItemEx("D4Demon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-	Death:
-		TNT1 A 1;
-		Stop;
+		Destroy();
 	}
 }
 
@@ -228,35 +161,17 @@ Class SpectreReplacer : D4DMonsterSpawner replaces Spectre
 		Radius 30;
 		Height 56;
 	}
-	States
+	override void PostBeginPlay()
 	{
-	Spawn:
-		TNT1 A 0 NODELAY
+		if (GetCvar("user_MonsterType") == 0)
 		{
-			if(GetCvar("user_MonsterType") == 0)
-			{
-				A_SpawnItemEx("D4OldSpectre",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
-			if(GetCvar("user_MonsterType") == 1)
-			{
-				A_SpawnItemEx("D4Spectre",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
+			A_SpawnItemEx("D4OldSpectre",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Goto End;
-
-	//-----------------------------------------
-	//	Special / End of spawner states
-	//-----------------------------------------
-	End:
-		TNT1 A 1
+		else
 		{
-			bTHRUACTORS = true;
-			A_ChangeLinkFlags(true);
-			A_Die();
+			A_SpawnItemEx("D4Spectre",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-	Death:
-		TNT1 A 1;
-		Stop;
+		Destroy();
 	}
 }
 //===============================================================================
@@ -271,35 +186,17 @@ Class DoomImpReplacer : D4DMonsterSpawner replaces DoomImp
 		Radius 20;
 		Height 56;
 	}
-	States
+	override void PostBeginPlay()
 	{
-	Spawn:
-		TNT1 A 0 NODELAY
+		if (GetCvar("user_MonsterType") == 0)
 		{
-			if(GetCvar("user_MonsterType") == 0)
-			{
-				A_SpawnItemEx("D4OldDoomImp",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
-			if(GetCvar("user_MonsterType") == 1)
-			{
-				A_SpawnItemEx("D4DoomImp",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
+			A_SpawnItemEx("D4OldDoomImp",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Goto End;
-
-	//-----------------------------------------
-	//	Special / End of spawner states
-	//-----------------------------------------
-	End:
-		TNT1 A 1
+		else
 		{
-			bTHRUACTORS = true;
-			A_ChangeLinkFlags(true);
-			A_Die();
+			A_SpawnItemEx("D4DoomImp",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-	Death:
-		TNT1 A 1;
-		Stop;
+		Destroy();
 	}
 }
 
@@ -315,35 +212,17 @@ Class LostSoulReplacer : D4DMonsterSpawner replaces LostSoul
 		Radius 16;
 		Height 56;
 	}
-	States
+	override void PostBeginPlay()
 	{
-	Spawn:
-		TNT1 A 0 NODELAY
+		if (GetCvar("user_MonsterType") == 0)
 		{
-			if(GetCvar("user_MonsterType") == 0)
-			{
-				A_SpawnItemEx("D4OldLostSoul",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
-			if(GetCvar("user_MonsterType") == 1)
-			{
-				A_SpawnItemEx("D4LostSoul",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
+			A_SpawnItemEx("D4OldLostSoul",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Goto End;
-
-	//-----------------------------------------
-	//	Special / End of spawner states
-	//-----------------------------------------
-	End:
-		TNT1 A 1
+		else
 		{
-			bTHRUACTORS = true;
-			A_ChangeLinkFlags(true);
-			A_Die();
+			A_SpawnItemEx("D4LostSoul",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-	Death:
-		TNT1 A 1;
-		Stop;
+		Destroy();
 	}
 }
 //===============================================================================
@@ -358,35 +237,17 @@ Class CacodemonReplacer : D4DMonsterSpawner replaces Cacodemon
 		Radius 31;
 		Height 56;
 	}
-	States
+	override void PostBeginPlay()
 	{
-	Spawn:
-		TNT1 A 0 NODELAY
+		if (GetCvar("user_MonsterType") == 0)
 		{
-			if(GetCvar("user_MonsterType") == 0)
-			{
-				A_SpawnItemEx("D4OldCacodemon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
-			if(GetCvar("user_MonsterType") == 1)
-			{
-				A_SpawnItemEx("D4Cacodemon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
+			A_SpawnItemEx("D4OldCacodemon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Goto End;
-
-	//-----------------------------------------
-	//	Special / End of spawner states
-	//-----------------------------------------
-	End:
-		TNT1 A 1
+		else
 		{
-			bTHRUACTORS = true;
-			A_ChangeLinkFlags(true);
-			A_Die();
+			A_SpawnItemEx("D4Cacodemon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-	Death:
-		TNT1 A 1;
-		Stop;
+		Destroy();
 	}
 }
 //===============================================================================
@@ -401,35 +262,17 @@ Class PainElementalReplacer : D4DMonsterSpawner replaces PainElemental
 		Radius 31;
 		Height 56;
 	}
-	States
+	override void PostBeginPlay()
 	{
-	Spawn:
-		TNT1 A 0 NODELAY
+		if (GetCvar("user_MonsterType") == 0)
 		{
-			if(GetCvar("user_MonsterType") == 0)
-			{
-				A_SpawnItemEx("D4OldPainElemental",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
-			if(GetCvar("user_MonsterType") == 1)
-			{
-				A_SpawnItemEx("D4PainElemental",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
+			A_SpawnItemEx("D4OldPainElemental",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Goto End;
-
-	//-----------------------------------------
-	//	Special / End of spawner states
-	//-----------------------------------------
-	End:
-		TNT1 A 1
+		else
 		{
-			bTHRUACTORS = true;
-			A_ChangeLinkFlags(true);
-			A_Die();
+			A_SpawnItemEx("D4PainElemental",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-	Death:
-		TNT1 A 1;
-		Stop;
+		Destroy();
 	}
 }
 
@@ -445,35 +288,17 @@ Class RevenantReplacer : D4DMonsterSpawner replaces Revenant
 		Radius 20;
 		Height 56;
 	}
-	States
+	override void PostBeginPlay()
 	{
-	Spawn:
-		TNT1 A 0 NODELAY
+		if (GetCvar("user_MonsterType") == 0)
 		{
-			if(GetCvar("user_MonsterType") == 0)
-			{
-				A_SpawnItemEx("D4OldRevenant",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
-			if(GetCvar("user_MonsterType") == 1)
-			{
-				A_SpawnItemEx("D4Revenant",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
+			A_SpawnItemEx("D4OldRevenant",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Goto End;
-
-	//-----------------------------------------
-	//	Special / End of spawner states
-	//-----------------------------------------
-	End:
-		TNT1 A 1
+		else
 		{
-			bTHRUACTORS = true;
-			A_ChangeLinkFlags(true);
-			A_Die();
+			A_SpawnItemEx("D4Revenant",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-	Death:
-		TNT1 A 1;
-		Stop;
+		Destroy();
 	}
 }
 
@@ -490,35 +315,17 @@ Class HellKnightReplacer : D4DMonsterSpawner replaces HellKnight
 		Radius 24;
 		Height 64;
 	}
-	States
+	override void PostBeginPlay()
 	{
-	Spawn:
-		TNT1 A 0 NODELAY
+		if (GetCvar("user_MonsterType") == 0)
 		{
-			if(GetCvar("user_MonsterType") == 0)
-			{
-				A_SpawnItemEx("D4OldHellKnight",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
-			if(GetCvar("user_MonsterType") == 1)
-			{
-				A_SpawnItemEx("D4HellKnight",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
+			A_SpawnItemEx("D4OldHellKnight",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Goto End;
-
-	//-----------------------------------------
-	//	Special / End of spawner states
-	//-----------------------------------------
-	End:
-		TNT1 A 1
+		else
 		{
-			bTHRUACTORS = true;
-			A_ChangeLinkFlags(true);
-			A_Die();
+			A_SpawnItemEx("D4HellKnight",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-	Death:
-		TNT1 A 1;
-		Stop;
+		Destroy();
 	}
 }
 
@@ -533,43 +340,35 @@ Class BaronOfHellReplacer : D4DMonsterSpawner replaces BaronOfHell
 	{
 		Radius 24;
 		Height 64;
+		+NOINTERACTION
+	}
+	override void PostBeginPlay()
+	{
+		if (GetCvar("user_MonsterType") == 0)
+		{
+			A_SpawnItemEx("D4OldBaronOfHell",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+		}
+		else
+		{
+			A_SpawnItemEx("D4BaronOfHell",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+		}
+		Super.PostBeginPlay();
 	}
 	states
 	{
 	Spawn:
-		TNT1 A 0 NODELAY
+		TNT1 A 70 NODELAY
 		{
-			if(GetCvar("user_MonsterType") == 0)
+			if (!tracer)
 			{
-				A_SpawnItemEx("D4OldBaronOfHell",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
-			if(GetCvar("user_MonsterType") == 1)
-			{
-				A_SpawnItemEx("D4BaronOfHell",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+				A_BossDeath();
+				Destroy();
+				return;
 			}
 		}
-	Goto Teleport;
-	//-----------------------------------------
-	//	Special / End of spawner states
-	//-----------------------------------------
-	Teleport:
-		//// not sure what for -dbt
-		TNT1 A 0 
-		{
-			bTHRUACTORS = true;
-			A_ChangeLinkFlags(true); 
-		}
-		//TNT1 A 0 A_Warp(AAPTR_DEFAULT,32000,0,0,random(0,359),WARPF_NOCHECKPOSITION)
-	Waiting:
-		//TNT1 A 0 A_PrintBold("Im waiting")
-		TNT1 A 70 A_JumpIf(IsPointerEqual(AAPTR_TRACER,AAPTR_NULL),"Death");
 		Loop;
 	Death:
-		//TNT1 A 0 A_PrintBold("I died")
 		TNT1 A 3 A_BossDeath();
-		Stop;
-	End:
-		TNT1 A 1;
 		Stop;
 	}
 }
@@ -587,18 +386,17 @@ Class FatsoReplacer : D4DMonsterSpawner replaces Fatso
 		Radius 24;
 		Height 64;
 	}
-	states
+	override void PostBeginPlay()
 	{
-	Spawn:
-		TNT1 A 0 NODELAY
+		if (GetCvar("user_MonsterType") == 0)
 		{
-			if(GetCvar("user_MonsterType") == 0)
+			A_SpawnItemEx("D4OldFatso",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+		}
+		else
+		{
+			if (GetCvar("user_MonsterType") == 1)
 			{
-				A_SpawnItemEx("D4OldFatso",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
-			if(GetCvar("user_MonsterType") == 1)
-			{
-				if(random(1,2)==1)
+				if (random(1,2)==1)
 				{
 					A_SpawnItemEx("D4FatsoTech",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 				}
@@ -608,25 +406,23 @@ Class FatsoReplacer : D4DMonsterSpawner replaces Fatso
 				}
 			}
 		}
-	Goto Teleport;
-	//-----------------------------------------
-	//	Special / End of spawner states
-	//-----------------------------------------
-	Teleport:
-		TNT1 A 0 
+		Super.PostBeginPlay();
+	}
+	states
+	{
+	Spawn:
+		TNT1 A 70 NODELAY
 		{
-			bTHRUACTORS = true;
-			A_ChangeLinkFlags(true);
+			if (!tracer)
+			{
+				A_BossDeath();
+				Destroy();
+				return;
+			}
 		}
-		
-	Waiting:
-		TNT1 A 70 A_JumpIf(IsPointerEqual(AAPTR_TRACER,AAPTR_NULL),"Death");
 		Loop;
 	Death:
 		TNT1 A 3 A_BossDeath();
-		Stop;
-	End:
-		TNT1 A 1;
 		Stop;
 	}
 }
@@ -643,39 +439,33 @@ Class ArachnotronReplacer : D4DMonsterSpawner replaces Arachnotron
 		Radius 64;
 		Height 64;
 	}
+	override void PostBeginPlay()
+	{
+		if (GetCvar("user_MonsterType") == 0)
+		{
+			A_SpawnItemEx("D4OldArachnotron",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+		}
+		else
+		{
+			A_SpawnItemEx("D4Arachnotron",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+		}
+		Super.PostBeginPlay();
+	}
 	states
 	{
 	Spawn:
-		TNT1 A 0 NODELAY
+		TNT1 A 70 NODELAY
 		{
-			if(GetCvar("user_MonsterType") == 0)
+			if (!tracer)
 			{
-				A_SpawnItemEx("D4OldArachnotron",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
-			if(GetCvar("user_MonsterType") == 1)
-			{
-				A_SpawnItemEx("D4Arachnotron",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+				A_BossDeath();
+				Destroy();
+				return;
 			}
 		}
-	Goto Teleport;
-	//-----------------------------------------
-	//	Special / End of spawner states
-	//-----------------------------------------
-	Teleport:
-		TNT1 A 0 
-		{
-			bTHRUACTORS = true;
-			A_ChangeLinkFlags(true);
-		}
-		
-	Waiting:
-		TNT1 A 70 A_JumpIf(IsPointerEqual(AAPTR_TRACER,AAPTR_NULL),"Death");
 		Loop;
 	Death:
 		TNT1 A 3 A_BossDeath();
-		Stop;
-	End:
-		TNT1 A 1;
 		Stop;
 	}
 }
@@ -693,35 +483,17 @@ Class ArchvileReplacer : D4DMonsterSpawner replaces Archvile
 		Radius 20;
 		Height 56;
 	}
-	States
+	override void PostBeginPlay()
 	{
-	Spawn:
-		TNT1 A 0 NODELAY
+		if (GetCvar("user_MonsterType") == 0)
 		{
-			if(GetCvar("user_MonsterType") == 0)
-			{
-				A_SpawnItemEx("D4OldArchvile",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
-			if(GetCvar("user_MonsterType") == 1)
-			{
-				A_SpawnItemEx("D4Archvile",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
+			A_SpawnItemEx("D4OldArchvile",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Goto End;
-
-	//-----------------------------------------
-	//	Special / End of spawner states
-	//-----------------------------------------
-	End:
-		TNT1 A 1
+		else
 		{
-			bTHRUACTORS = true;
-			A_ChangeLinkFlags(true);
-			A_Die();
+			A_SpawnItemEx("D4Archvile",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-	Death:
-		TNT1 A 1;
-		Stop;
+		Destroy();
 	}
 }
 
@@ -737,40 +509,33 @@ Class CyberdemonReplacer : D4DMonsterSpawner replaces Cyberdemon
 		Radius 40;
 		Height 110;
 	}
+	override void PostBeginPlay()
+	{
+		if (GetCvar("user_MonsterType") == 0)
+		{
+			A_SpawnItemEx("D4OldCyberdemon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+		}
+		else
+		{
+			A_SpawnItemEx("D4Cyberdemon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+		}
+		Super.PostBeginPlay();
+	}
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY
+		TNT1 A 70 NODELAY
 		{
-			if(GetCvar("user_MonsterType") == 0)
+			if (!tracer)
 			{
-				A_SpawnItemEx("D4OldCyberdemon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
-			if(GetCvar("user_MonsterType") == 1)
-			{
-				A_SpawnItemEx("D4Cyberdemon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+				A_BossDeath();
+				Destroy();
+				return;
 			}
 		}
-	Goto Teleport;
-	
-	//-----------------------------------------
-	//	Special / End of spawner states
-	//-----------------------------------------
-	Teleport:
-		TNT1 A 0 
-		{
-			bTHRUACTORS = true;
-			A_ChangeLinkFlags(true);
-		}
-		
-	Waiting:
-		TNT1 A 70 A_JumpIf(IsPointerEqual(AAPTR_TRACER,AAPTR_NULL),"Death");
 		Loop;
 	Death:
 		TNT1 A 3 A_BossDeath();
-		Stop;
-	End:
-		TNT1 A 1;
 		Stop;
 	}
 }
@@ -787,40 +552,33 @@ Class SpiderMastermindReplacer : D4DMonsterSpawner replaces SpiderMastermind
 		Radius 128;
 		Height 100;
 	}
+	override void PostBeginPlay()
+	{
+		if(GetCvar("user_MonsterType") == 0)
+		{
+			A_SpawnItemEx("D4OldSpiderMastermind",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+		}
+		if(GetCvar("user_MonsterType") == 1)
+		{
+			A_SpawnItemEx("D4SpiderMastermind",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+		}
+		Super.PostBeginPlay();
+	}
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY
+		TNT1 A 70
 		{
-			if(GetCvar("user_MonsterType") == 0)
+			if (!tracer)
 			{
-				A_SpawnItemEx("D4OldSpiderMastermind",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-			}
-			if(GetCvar("user_MonsterType") == 1)
-			{
-				A_SpawnItemEx("D4SpiderMastermind",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+				A_BossDeath();
+				Destroy();
+				return;
 			}
 		}
-	Goto Teleport;
-	
-	//-----------------------------------------
-	//	Special / End of spawner states
-	//-----------------------------------------
-	Teleport:
-		TNT1 A 0 
-		{
-			bTHRUACTORS = true;
-			A_ChangeLinkFlags(true);
-		}
-		
-	Waiting:
-		TNT1 A 70 A_JumpIf(IsPointerEqual(AAPTR_TRACER,AAPTR_NULL),"Death");
 		Loop;
 	Death:
 		TNT1 A 3 A_BossDeath();
-		Stop;
-	End:
-		TNT1 A 1;
 		Stop;
 	}
 }

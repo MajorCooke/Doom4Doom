@@ -42,7 +42,6 @@ Class D4ShotgunGuy : D4AbstractMonster
 	See:
 		BBRG AABBCCDD 3 D4Chase();
 		Loop;
-	Missile:
 	//------------------------	
 	Missile:
 		TNT1 A 0 { if(random(1,8)==8) { A_PlaySound("Doom4/Monsters/Grunt/Attack",CHAN_AUTO); } }
