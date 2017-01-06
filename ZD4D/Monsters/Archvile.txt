@@ -168,9 +168,10 @@ Class D4Archvile : D4AbstractBiggie
 		DIAB Q 7 
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"ArchieCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"ArchieCashGiver");
+			
 			A_SetInventory("ArchAttacking",0);
 			
 			if (RuneChance(RuneChance_Archie))
@@ -201,6 +202,7 @@ Class D4Archvile : D4AbstractBiggie
 			XDeathGush(Color_Black);
 			D4DropItems();
 			D4DropCash(CashMultiplier,"ArchieCashGiver");
+			
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_SetInventory("ArchAttacking",0);
 			A_NoBlocking();	//just in case
@@ -645,6 +647,7 @@ Class D4OldArchVile : D4AbstractBiggie // ArchVile replaces ArchVile
 			XDeathGush(Color_Green);
 			D4DropItems();
 			D4DropCash(CashMultiplier,"ArchieCashGiver");
+			
 			if (RuneChance(RuneChance_Archie))
 			{	A_SpawnItemEx("ArchvileRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}

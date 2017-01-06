@@ -134,9 +134,9 @@ Class D4Demon : D4AbstractMonster
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"DemonCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"DemonCashGiver");
 		}
 		D4DG I 8 A_RemoveChildren(True,RMVF_EVERYTHING,"DemonShield");
 		D4DG J 8 A_Scream();
@@ -448,9 +448,9 @@ Class D4OldDemon : D4AbstractMonster // : Demon //replaces Demon
 		SARG I 4 
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"DemonCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"DemonCashGiver");
 		}
 		SARG J 4 A_Scream();
 		SARG K 4;

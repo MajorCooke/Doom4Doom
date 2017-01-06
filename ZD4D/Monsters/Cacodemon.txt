@@ -80,9 +80,10 @@ Class D4Cacodemon : D4AbstractBiggie
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"CacoCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"CacoCashGiver");
+			
 			if (RuneChance(RuneChance_Caco))
 			{	A_SpawnItemEx("CacodemonRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}
@@ -468,9 +469,9 @@ Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon //replaces Cacodemon
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"CacoCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"CacoCashGiver");
 			
 			if (RuneChance(RuneChance_Caco))
 			{	A_SpawnItemEx("CacodemonRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }

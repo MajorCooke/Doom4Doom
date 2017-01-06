@@ -80,9 +80,9 @@ Class D4PainElemental : D4AbstractBiggie
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"PainElemCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"PainElemCashGiver");
 			A_Stop();
 			if (RuneChance(RuneChance_PainEl))
 			{	A_SpawnItemEx("PainElementalRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
@@ -135,7 +135,6 @@ Class D4PainElemental : D4AbstractBiggie
 		INFR L 2 bright 
 		{
 			bThruActors = true;
-			
 			D4DropItems();
 			D4DropCash(CashMultiplier,"PainElemCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");	
@@ -435,9 +434,9 @@ Class D4OldPainElemental : D4AbstractBiggie // : PainElemental
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"PainElemCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"PainElemCashGiver");
 			if (RuneChance(RuneChance_PainEl))
 			{	A_SpawnItemEx("PainElementalRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}

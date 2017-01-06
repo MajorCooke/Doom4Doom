@@ -27,7 +27,7 @@ Class Doom4Player : PlayerPawn
 	int user_wasClimbing;
 	int user_climbBouncePrevention;
 	double user_offsets;
-	
+	bool spawned;
 	Default 
 	{
 		+ALLOWPAIN
@@ -74,58 +74,7 @@ Class Doom4Player : PlayerPawn
 	States
 	{
 	Spawn:
-		PLAY A -1 NoDelay 
-		{
-			if (IsPointerEqual(Player1, DefPtr) ||
-				IsPointerEqual(Player2, DefPtr) ||
-				IsPointerEqual(Player3, DefPtr) ||
-				IsPointerEqual(Player4, DefPtr) ||
-				IsPointerEqual(Player5, DefPtr) ||
-				IsPointerEqual(Player6, DefPtr) ||
-				IsPointerEqual(Player7, DefPtr) ||
-				IsPointerEqual(Player8, DefPtr))
-			{
-				if (!CountInv("NewMapToken"))
-				{
-					if (GetCvar("skill") >= 3)
-					{
-						if (GetCvar("D4D_NMGrenades") >= 1) // Give and select frag if the setting isn't "Off" 
-						{
-							if (!CountInv("FragGrenadePickup"))
-							{	
-								A_SetInventory("FragGrenadePickup",1);
-								A_SetInventory("FragGrenadeSelected",1);
-							}
-						}
-						if (GetCvar("D4D_NMGrenades") >= 2) // Give the rest and select syphon if the setting is "All"
-						{
-							if (!CountInv("HoloGrenadePickup"))
-								A_GiveInventory("HoloGrenadePickup",1);
-							if (!CountInv("SyphonGrenadePickup"))
-							{   
-								A_SetInventory("FragGrenadeSelected",0);
-								A_SetInventory("MarineHoloSelected",0); //Just in case
-								A_SetInventory("SyphonGrenadePickup",1);
-								A_SetInventory("SyphonGrenadeSelected",1); 
-							}
-						}
-					}
-					
-					A_SetInventory("D4MultiJump",int(GetCvar("D4MultiJump")));
-					user_rollmove = user_rollpain = user_rollsave = user_offsets =
-					user_vel = user_zvel = user_hold = user_time = user_vel2 = 
-					user_once =	user_jumpsDone = user_lowhp = 0;
-					A_SetInventory("NewMapToken",1);
-				}
-				A_Overlay(Overlay_Cooldown1,"Overlay.Cooldown1",true);
-				A_Overlay(Overlay_Cooldown2,"Overlay.Cooldown2",true);
-				A_Overlay(Overlay_Cooldown3,"Overlay.Cooldown3",true);
-				A_Overlay(Overlay_MovementHealthArmor,"Overlay.MovementHealthArmor",true);
-				A_Overlay(Overlay_LedgeGrab,"Overlay.LedgeGrab",true);
-				A_Overlay(99,"Overlay.Debug",true);
-				//A_Overlay(Overlay_AnglePitch,"Overlay.AnglePitch",true);
-			}
-		}
+		PLAY A -1;
 		Loop;
 	//==========================================================================
 	// Overlay: 		Gun Shifting (WIP)
@@ -327,16 +276,10 @@ Class Doom4Player : PlayerPawn
 		M666 A 1
 		{
 			//==================================================================
-			// Health
+			// Health & Armor
 			//==================================================================
 			A_SetInventory("SuperHealthToken",Clamp(health-100,0,100));
 			A_SetInventory("HealthToken",Clamp(health,0,100));
-			
-			
-			//==================================================================
-			// Armor
-			//==================================================================
-			
 			A_SetInventory("SuperArmorToken",Clamp(CountInv("BasicArmor")-100,0,100));
 			
 			//==================================================================
@@ -407,10 +350,10 @@ Class Doom4Player : PlayerPawn
 						}
 						else // advance jump
 						{
-							if(GetCvar("D4D_JumpExploit") != false)
-							{ A_ChangeVelocity(vel.x,vel.y,vel.z + 8.2 + CountInv("D4HigherJump"),CVF_REPLACE); }
+							if (GetCvar("D4D_JumpExploit"))
+							{	A_ChangeVelocity(vel.x,vel.y,vel.z + 8.2 + CountInv("D4HigherJump"),CVF_REPLACE);	}
 							else
-							{ A_ChangeVelocity(vel.x,vel.y,sqrt(vel.z) + 8.2 + CountInv("D4HigherJump"),CVF_REPLACE); }
+							{	A_ChangeVelocity(vel.x,vel.y,sqrt(vel.z) + 8.2 + CountInv("D4HigherJump"),CVF_REPLACE);	}
 							
 							A_ChangeVelocity(
 							((GetPlayerInput(MODINPUT_BUTTONS) & BT_FORWARD  ) ? 2 : 0) - 
@@ -577,7 +520,7 @@ Class Doom4Player : PlayerPawn
 			}
 			else
 			{
-				A_SetTics(15);
+				A_SetTics(14);
 			}
 		}
 		Loop;
@@ -850,3 +793,244 @@ Class LowHealthAlarm : Actor
 
 Class Climbing : Inventory {}
 Class RlyClimb : Inventory {}
+
+extend class Doom4Player
+{
+	//--------------------------------------------------------------------------
+	// Start-up
+	//--------------------------------------------------------------------------
+	override void PostBeginPlay()
+	{
+		if (IsPointerEqual(Player1, DefPtr) ||
+			IsPointerEqual(Player2, DefPtr) ||
+			IsPointerEqual(Player3, DefPtr) ||
+			IsPointerEqual(Player4, DefPtr) ||
+			IsPointerEqual(Player5, DefPtr) ||
+			IsPointerEqual(Player6, DefPtr) ||
+			IsPointerEqual(Player7, DefPtr) ||
+			IsPointerEqual(Player8, DefPtr))
+		{
+			if (!spawned)
+			{
+				if (GetCvar("skill") >= 3)
+				{
+					if (GetCvar("D4D_NMGrenades") >= 1) // Give and select frag if the setting isn't "Off" 
+					{
+						if (!CountInv("FragGrenadePickup"))
+						{	
+							A_SetInventory("FragGrenadePickup",1);
+							A_SetInventory("FragGrenadeSelected",1);
+						}
+					}
+					if (GetCvar("D4D_NMGrenades") >= 2) // Give the rest and select syphon if the setting is "All"
+					{
+						if (!CountInv("HoloGrenadePickup"))
+							A_GiveInventory("HoloGrenadePickup",1);
+						if (!CountInv("SyphonGrenadePickup"))
+						{   
+							A_SetInventory("FragGrenadeSelected",0);
+							A_SetInventory("MarineHoloSelected",0); //Just in case
+							A_SetInventory("SyphonGrenadePickup",1);
+							A_SetInventory("SyphonGrenadeSelected",1); 
+						}
+					}
+				}
+				
+				A_SetInventory("D4MultiJump",int(GetCvar("D4MultiJump")));
+				user_rollmove = user_rollpain = user_rollsave = user_offsets =
+				user_vel = user_zvel = user_hold = user_time = user_vel2 = 
+				user_once =	user_jumpsDone = user_lowhp = 0;
+				A_SetInventory("NewMapToken",1);
+			}
+			spawned = true;
+			
+			//A_Overlay(Overlay_Cooldown1,"Overlay.Cooldown1",true);
+			//A_Overlay(Overlay_Cooldown2,"Overlay.Cooldown2",true);
+			//A_Overlay(Overlay_Cooldown3,"Overlay.Cooldown3",true);
+			A_Overlay(Overlay_MovementHealthArmor,"Overlay.MovementHealthArmor",true);
+			
+			// Don't change these.
+			A_Overlay(Overlay_LedgeGrab,"Overlay.LedgeGrab",true);
+			A_Overlay(99,"Overlay.Debug",true);
+			//A_Overlay(Overlay_AnglePitch,"Overlay.AnglePitch",true);
+		}
+		Super.PostBeginPlay();
+	}
+	
+	//--------------------------------------------------------------------------
+	// Active Functions
+	//--------------------------------------------------------------------------
+	
+	int CooldownTimer[3];
+	override void Tick()
+	{
+		
+		static const int CooldownCaps[] = { 3, 2, 10 };
+		for (int i = 0; i < 3; i++)
+		{
+			CooldownTimer[i] = (CooldownTimer[i] + 1) % CooldownCaps[i];
+		}
+		
+		if (!CooldownTimer[0])	ProcessCooldown1();
+		if (!CooldownTimer[1])	ProcessCooldown2();
+		if (!CooldownTimer[2])	ProcessCooldown3();
+		//UpdateHAM();
+		Super.Tick();
+	}
+	
+	void ProcessCooldown1()
+	{
+		// No need to check for StaticChargeDrain since the upgrade alone
+		// shuts this off.
+		if (!CountInv("StaticUpgrade4"))
+		{
+				 if (CountInv("StaticUpgrade3"))
+			{	A_TakeInventory("StaticRifleChargingToken",1);	}
+			else if (CountInv("StaticUpgrade2"))
+			{	A_TakeInventory("StaticRifleChargingToken",2);	}
+			else
+			{	A_TakeInventory("StaticRifleChargingToken",4);	}
+		}
+		A_TakeInventory("PlasmaStunBombCounter",1);
+		user_lasthp = health + CountInv("BasicArmor");
+	}
+	
+	void ProcessCooldown2()
+	{
+		A_TakeInventory("SGTripleShotTimer",1);
+		A_TakeInventory("SGGrenadeTimer",1);
+	}
+	
+	void ProcessCooldown3()
+	{
+		if (CountInv("GrenadeCooldown"))
+		{
+			A_TakeInventory("GrenadeCooldown",1);
+			if (!CountInv("GrenadeCooldown"))
+			{
+				A_PlaySound("Doom4/Weapon/Grenade/GrenadeRegen");
+			}
+		}
+	}
+	
+	void UpdateHAM()
+	{
+		
+		//==================================================================
+		// Health & Armor
+		//==================================================================
+		A_SetInventory("SuperHealthToken",Clamp(health-100,0,100));
+		A_SetInventory("HealthToken",Clamp(health,0,100));
+		A_SetInventory("SuperArmorToken",Clamp(CountInv("BasicArmor")-100,0,100));
+		
+		//==================================================================
+		// Movement
+		//==================================================================
+		// Give static tokens based on movement.
+		
+		if (CountInv("StaticRifleActive"))
+		{
+			if (CountInv("StaticChargeDrain"))
+			{
+				if (CountInv("StaticRifleChargingToken") > 540)
+				{
+					A_SetInventory("StaticRifleChargingToken",508);
+				}
+				else if (CountInv("StaticRifleChargingToken"))
+				{
+					A_TakeInventory("StaticRifleChargingToken",32);
+					if (!CountInv("StaticRifleChargingToken"))
+					{	A_SetInventory("StaticChargeDrain",0);	}
+				}
+				else
+				{	A_SetInventory("StaticChargeDrain",0);	}
+			}
+			else if (CountInv("StaticRifleChargingToken") < 540)
+			{
+				user_vel = sqrt((vel.x*vel.x) + (vel.y*vel.y) + (vel.z*vel.z));
+				if (CountInv("StaticRifleActive") && (user_vel / 4) >= 1.0)
+				{
+						 if (CountInv("StaticUpgrade4"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.9) / 4));		}
+					else if (CountInv("StaticUpgrade3"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.55) / 4));	}
+					else if (CountInv("StaticUpgrade2"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.2) / 4));		}
+					else if (CountInv("StaticUpgrade1"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 1.85) / 4));	}
+					else									{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 1.5) / 4));		}
+				}
+			}
+		}
+		
+		if (CountInv("D4IdfaTrap")) { A_GiveInventory("IdfaStamp"); A_TakeInventory("D4IdfaTrap"); }
+		
+		//==================================================================
+		// Double Jump
+		//==================================================================
+		if (GetCvar("user_MultiJump") > 0)
+		{
+			user_ordersJump = ((GetPlayerInput(MODINPUT_BUTTONS)    & BT_JUMP) &&
+							  !(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_JUMP)) ? 1 : 0;
+			
+			if (user_ordersJump)
+			{
+				user_jumpsDone += 1;
+				
+				if (CountInv("D4HigherJump") && user_jumpsdone == 1)
+				{
+					A_ChangeVelocity(vel.x,vel.y,vel.z + 1,CVF_REPLACE);
+				}
+				
+				else if (user_jumpsDone > 1 &&
+					user_jumpsDone <= countInv("D4MultiJump"))
+				{
+					if (vel.z <= 0) // Stop fall
+					{
+						A_ChangeVelocity(vel.x,vel.y,8.2 + CountInv("D4HigherJump"),CVF_REPLACE);
+						A_ChangeVelocity(
+						((GetPlayerInput(MODINPUT_BUTTONS) & BT_FORWARD  ) ? 2 : 0) - 
+						((GetPlayerInput(MODINPUT_BUTTONS) & BT_BACK     ) ? 2 : 0),
+						((GetPlayerInput(MODINPUT_BUTTONS) & BT_MOVELEFT ) ? 2 : 0) -
+						((GetPlayerInput(MODINPUT_BUTTONS) & BT_MOVERIGHT) ? 2 : 0),
+						0,CVF_RELATIVE);
+					}
+					else // advance jump
+					{
+						if (GetCvar("D4D_JumpExploit"))
+						{	A_ChangeVelocity(vel.x,vel.y,vel.z + 8.2 + CountInv("D4HigherJump"),CVF_REPLACE);	}
+						else
+						{	A_ChangeVelocity(vel.x,vel.y,sqrt(vel.z) + 8.2 + CountInv("D4HigherJump"),CVF_REPLACE);	}
+						
+						A_ChangeVelocity(
+						((GetPlayerInput(MODINPUT_BUTTONS) & BT_FORWARD  ) ? 2 : 0) - 
+						((GetPlayerInput(MODINPUT_BUTTONS) & BT_BACK     ) ? 2 : 0),
+						((GetPlayerInput(MODINPUT_BUTTONS) & BT_MOVELEFT ) ? 2 : 0) -
+						((GetPlayerInput(MODINPUT_BUTTONS) & BT_MOVERIGHT) ? 2 : 0),
+						0,CVF_RELATIVE);
+					}
+					
+					A_PlaySound("Doom4/Player/DoubleJump");
+				}
+			}
+			else if (vel.z != 0)
+			{
+				if(!user_jumpsDone)
+				{
+					user_jumpsDone = 1;
+				}
+				
+				if(countInv("D4AirControl") && user_jumpsDone > 1)
+				{
+					A_ChangeVelocity(
+					((GetPlayerInput(MODINPUT_BUTTONS) & BT_FORWARD  ) ? .8 : 0) - 
+					((GetPlayerInput(MODINPUT_BUTTONS) & BT_BACK     ) ? .8 : 0),
+					((GetPlayerInput(MODINPUT_BUTTONS) & BT_MOVELEFT ) ? .8 : 0) -
+					((GetPlayerInput(MODINPUT_BUTTONS) & BT_MOVERIGHT) ? .8 : 0),
+					0,CVF_RELATIVE);
+					A_ChangeVelocity(vel.x*.95,vel.y*.95,vel.z,CVF_REPLACE);
+				}
+			}
+			else if ((vel.z == 0 && user_zvel == 0) || pos.z <= floorz)
+			{	user_jumpsDone = 0;	}
+			
+			user_zvel = vel.z;
+		}
+	}
+}

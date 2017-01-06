@@ -146,9 +146,9 @@ Class D4Revenant : D4AbstractBiggie
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"RevenantCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"RevenantCashGiver");
 			if (RuneChance(RuneChance_Rev))
 			{	A_SpawnItemEx("RevenantRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}
@@ -529,9 +529,9 @@ Class D4OldRevenant : D4AbstractBiggie // : Revenant //replaces Revenant
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"RevenantCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"RevenantCashGiver");
 			
 			if (RuneChance(RuneChance_Rev))
 			{	A_SpawnItemEx("RevenantRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }

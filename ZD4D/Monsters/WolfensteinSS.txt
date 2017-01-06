@@ -59,9 +59,9 @@ Class D4OldWolfensteinSS : D4AbstractMonster replaces WolfensteinSS // : Wolfens
 		SSWV I 5
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"NaziCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"NaziCashGiver");
 		}
 		
 		SSWV J 5 A_Scream();

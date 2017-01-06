@@ -137,9 +137,9 @@ Class D4Zombieman : D4AbstractMonster // : Zombieman //replaces Zombieman
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"ZombieCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"ZombieCashGiver");
 		}
 		RFTR H 4 ;
 		RFTR I 4 A_Scream();
@@ -711,9 +711,9 @@ Class D4OldZombieman : D4AbstractMonster // : Zombieman //replaces Zombieman
 		POSS H 4
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"ZombieCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"ZombieCashGiver");
 		}
 		POSS I 4 A_Scream();
 		POSS J 4 A_NoBlocking();

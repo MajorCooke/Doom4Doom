@@ -390,9 +390,9 @@ Class D4HellKnight : D4AbstractBiggie
 		E02D A 3  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"HellKnightCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"HellKnightCashGiver");
 			
 			if (RuneChance(RuneChance_Knight))
 			{	A_SpawnItemEx("KnightRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
@@ -753,10 +753,10 @@ Class D4OldHellKnight : D4AbstractBiggie // : HellKnight //replaces HellKnight
 	Death:
 		"####" "#" 0  //loot drop
 		{
-			bThruActors = true;			
-			D4DropCash(CashMultiplier,"HellKnightCashGiver");
+			bThruActors = true;
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"HellKnightCashGiver");
 			
 			if (RuneChance(RuneChance_Knight))
 			{	A_SpawnItemEx("KnightRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }

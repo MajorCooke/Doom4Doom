@@ -135,9 +135,9 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 		{
 			A_KillChildren("None",KILS_KILLMISSILES,null,"LaserKillable");
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"ChainguyCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"ChainguyCashGiver");
 		}
 		HRZR I 5 ;
 		HRZR J 5 A_Scream();
@@ -555,9 +555,9 @@ Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy //replaces ChaingunG
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"ChainguyCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"ChainguyCashGiver");
 		}
 		CPOS H 4 ;
 		CPOS I 4 A_Scream();

@@ -199,8 +199,9 @@ Class D4Cyberdemon : D4AbstractBoss
 		{
 			bThruActors = true;
 			D4SetupLoot(true);
-			D4DropCash(CashMultiplier,"CyberdemonCashGiver");
 			D4DropItems();
+			D4DropCash(CashMultiplier,"CyberdemonCashGiver");
+			
 			A_SpawnItemEx("CyberdemonDeathFX",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_SpawnItemEx("BossExploderSFX",0,0,0,0,0,0,0,32);
 			

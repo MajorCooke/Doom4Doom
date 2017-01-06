@@ -68,9 +68,9 @@ Class D4Arachnotron : D4AbstractBiggie // : Arachnotron	//to be edited
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"ArachnoCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"ArachnoCashGiver");
 			
 			A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50), vel.x+random(4,-4), vel.y+ random(4,-4), random(3,4+4), 0,SXF_NOCHECKPOSITION|SXF_ABSOLUTEVELOCITY);
 			A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50), vel.x+random(4,-4), vel.y+ random(4,-4), random(3,4+4), 0,SXF_NOCHECKPOSITION|SXF_ABSOLUTEVELOCITY);
@@ -345,9 +345,9 @@ Class D4OldArachnotron : D4AbstractBiggie //  : Arachnotron
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"ArachnoCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"ArachnoCashGiver");
 			
 			if (RuneChance(RuneChance_Arach))
 			{	A_SpawnItemEx("ArachnotronRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }

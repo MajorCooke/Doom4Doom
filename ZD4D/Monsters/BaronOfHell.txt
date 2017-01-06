@@ -466,9 +466,10 @@ Class D4BaronOfHell : D4AbstractBiggie
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"BaronCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"BaronCashGiver");
+			
 			if (RuneChance(RuneChance_Baron))
 			{	A_SpawnItemEx("BaronRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");

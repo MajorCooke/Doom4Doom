@@ -138,9 +138,9 @@ Class D4ShotgunGuy : D4AbstractMonster
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"ShotguyCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"ShotguyCashGiver");
 		}
 		BBRG H 3 ;
 		BBRG I 3 A_Scream();
@@ -371,9 +371,9 @@ Class D4OldShotgunGuy : D4AbstractMonster // : ShotgunGuy //replaces ShotgunGuy
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"ShotguyCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"ShotguyCashGiver");
 		}
 		SPOS H 3 ;
 		SPOS I 3 A_Scream();

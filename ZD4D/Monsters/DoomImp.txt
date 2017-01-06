@@ -92,9 +92,9 @@ Class D4DoomImp : D4AbstractMonster
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"ImpCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"ImpCashGiver");
 		}
 		ROAC I 4 ;
 		ROAC J 4 A_Scream();
@@ -707,9 +707,9 @@ Class D4OldDoomImp : D4AbstractMonster // : DoomImp //replaces DoomImp
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"ImpCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"ImpCashGiver");
 		}
 		TROO I 4 ;
 		TROO J 4 A_Scream();

@@ -197,8 +197,8 @@ Class D4SpiderMastermind : D4AbstractBoss
 			
 			bThruActors = true;
 			D4SetupLoot(true);
-			D4DropCash(CashMultiplier,"MastermindCashGiver");
 			D4DropItems();
+			D4DropCash(CashMultiplier,"MastermindCashGiver");
 			A_StopSound(6);	A_Scream(); 
 		}
 		SPID K 10 A_NoBlocking();
@@ -911,9 +911,9 @@ Class D4OldSpiderMastermind : D4AbstractBoss // : SpiderMastermind
 			{	A_SpawnItemEx("MastermindRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 			
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"MastermindCashGiver");
 			D4SetupLoot(true);
 			D4DropItems();
+			D4DropCash(CashMultiplier,"MastermindCashGiver");
 			A_Scream();
 		}
 		SPID K 10 A_NoBlocking();

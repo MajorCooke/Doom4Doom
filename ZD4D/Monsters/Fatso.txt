@@ -145,9 +145,9 @@ Class D4FatsoTech : D4AbstractBiggie
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"FatsoCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"FatsoCashGiver");
 			if (RuneChance(RuneChance_Fatso))
 			{	A_SpawnItemEx("FatsoRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}
@@ -746,9 +746,9 @@ Class D4FatsoHell : D4AbstractBiggie
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"FatsoCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"FatsoCashGiver");
 			
 			if (RuneChance(RuneChance_Fatso))
 			{	A_SpawnItemEx("FatsoRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
@@ -1125,9 +1125,9 @@ Class D4OldFatso : D4AbstractBiggie // : Fatso //replaces Fatso
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"FatsoCashGiver");
 			D4SetupLoot();
 			D4DropItems();
+			D4DropCash(CashMultiplier,"FatsoCashGiver");
 			if (RuneChance(RuneChance_Fatso))
 			{	A_SpawnItemEx("FatsoRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}
