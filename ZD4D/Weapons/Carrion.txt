@@ -187,7 +187,7 @@ Class DummyPickup2 : CustomInventory
 	Pickup:
 		TNT1 A 0
 		{
-			if ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,Player1)) > 90.0))
+			if ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,Player1)) > 90.0) || CountInv("CarrionBombard"))
 			{	return false;	}
 			return true;
 		}
@@ -488,7 +488,11 @@ Class CarrionFirePillar : Actor
 				A_SetTics(55+35);
 			}
 		}
-		TNT1 A 35 A_PlaySound("CarrionCannon/BurnEnd",5,1,0);
+		TNT1 A 35 
+		{
+			A_SetInventory("CarrionBombard",0,TracerPtr);
+			A_PlaySound("CarrionCannon/BurnEnd",5,1,0);
+		}
 		Stop;
 	}
 }
