@@ -93,8 +93,8 @@ Class Doom4Player : PlayerPawn
 						{
 							if (!CountInv("FragGrenadePickup"))
 							{	
-								A_GiveInventory("FragGrenadePickup",1);
-								A_GiveInventory("FragGrenadeSelected",1);
+								A_SetInventory("FragGrenadePickup",1);
+								A_SetInventory("FragGrenadeSelected",1);
 							}
 						}
 						if (GetCvar("D4D_NMGrenades") >= 2) // Give the rest and select syphon if the setting is "All"
@@ -103,10 +103,10 @@ Class Doom4Player : PlayerPawn
 								A_GiveInventory("HoloGrenadePickup",1);
 							if (!CountInv("SyphonGrenadePickup"))
 							{   
-								A_GiveInventory("SyphonGrenadePickup",1);
 								A_SetInventory("FragGrenadeSelected",0);
 								A_SetInventory("MarineHoloSelected",0); //Just in case
-								A_GiveInventory("SyphonGrenadeSelected",1); 
+								A_SetInventory("SyphonGrenadePickup",1);
+								A_SetInventory("SyphonGrenadeSelected",1); 
 							}
 						}
 					}
@@ -174,31 +174,10 @@ Class Doom4Player : PlayerPawn
 		{
 			if(countInv("ShowSurroundings"))
 			{
-				// to be redone with A_SetInventory when I have nothing, nothing, nothing to do
-				A_TakeInventory("DebugMonstersToken", 0x7FFFFFFF);
-				A_TakeInventory("DebugBiggiesToken",  0x7FFFFFFF);
-				A_TakeInventory("DebugBossesToken",   0x7FFFFFFF);
-				A_TakeInventory("DebugMissilesToken", 0x7FFFFFFF);
-				A_GiveInventory("DebugMonstersToken", countProximity("D4AbstractMonster", 1024, CPXF_ANCESTOR)+1);
-				A_GiveInventory("DebugBiggiesToken",  countProximity("D4AbstractBiggie",  1024, CPXF_ANCESTOR)+1);
-				A_GiveInventory("DebugBossesToken",   countProximity("D4AbstractBoss",    1024, CPXF_ANCESTOR)+1);
-				A_GiveInventory("DebugMissilesToken", countProximity("D4AbstractMissile", 1024, CPXF_ANCESTOR)+1);
-				A_TakeInventory("DebugMonstersToken", 1);
-				A_TakeInventory("DebugBiggiesToken",  1);
-				A_TakeInventory("DebugBossesToken",   1);
-				A_TakeInventory("DebugMissilesToken", 1);
-				A_TakeInventory("DebugFarMonstersToken", 0x7FFFFFFF);
-				A_TakeInventory("DebugFarBiggiesToken",  0x7FFFFFFF);
-				A_TakeInventory("DebugFarBossesToken",   0x7FFFFFFF);
-				A_TakeInventory("DebugFarMissilesToken", 0x7FFFFFFF);
-				A_GiveInventory("DebugFarMonstersToken", countProximity("D4AbstractMonster", 2048, CPXF_ANCESTOR)+1);
-				A_GiveInventory("DebugFarBiggiesToken",  countProximity("D4AbstractBiggie",  2048, CPXF_ANCESTOR)+1);
-				A_GiveInventory("DebugFarBossesToken",   countProximity("D4AbstractBoss",    2048, CPXF_ANCESTOR)+1);
-				A_GiveInventory("DebugFarMissilesToken", countProximity("D4AbstractMissile", 2048, CPXF_ANCESTOR)+1);
-				A_TakeInventory("DebugFarMonstersToken", 1);
-				A_TakeInventory("DebugFarBiggiesToken",  1);
-				A_TakeInventory("DebugFarBossesToken",   1);
-				A_TakeInventory("DebugFarMissilesToken", 1);
+				A_SetInventory("DebugMonstersToken", countProximity("D4AbstractMonster", 2048, CPXF_ANCESTOR));
+				A_SetInventory("DebugBiggiesToken",  countProximity("D4AbstractBiggie",  2048, CPXF_ANCESTOR));
+				A_SetInventory("DebugBossesToken",   countProximity("D4AbstractBoss",    2048, CPXF_ANCESTOR));
+				A_SetInventory("DebugMissilesToken", countProximity("D4AbstractMissile", 2048, CPXF_ANCESTOR));
 			}
 		}
 		M666 A 0
@@ -212,7 +191,7 @@ Class Doom4Player : PlayerPawn
 				}
 				else
 				{
-					A_TakeInventory("KonamiToken",10);
+					A_SetInventory("KonamiToken",0);
 				}
 			}
 			
@@ -226,7 +205,7 @@ Class Doom4Player : PlayerPawn
 				}
 				else
 				{
-					A_TakeInventory("KonamiToken",10);
+					A_SetInventory("KonamiToken",0);
 				}
 			}
 			
@@ -240,7 +219,7 @@ Class Doom4Player : PlayerPawn
 				}
 				else
 				{
-					A_TakeInventory("KonamiToken",10);
+					A_SetInventory("KonamiToken",0);
 				}
 			}
 			
@@ -254,7 +233,7 @@ Class Doom4Player : PlayerPawn
 				}
 				else
 				{
-					A_TakeInventory("KonamiToken",10);
+					A_SetInventory("KonamiToken",0);
 				}
 			}
 			
@@ -267,7 +246,7 @@ Class Doom4Player : PlayerPawn
 				}
 				else
 				{
-					A_TakeInventory("KonamiToken",10);
+					A_SetInventory("KonamiToken",0);
 				}
 			}
 			
@@ -280,7 +259,7 @@ Class Doom4Player : PlayerPawn
 				}
 				else
 				{
-					A_TakeInventory("KonamiToken",10);
+					A_SetInventory("KonamiToken",0);
 				}
 			}
 			
@@ -289,7 +268,7 @@ Class Doom4Player : PlayerPawn
 				A_Log("Blissfully Ecstatic Upgrades Added");
 				A_PlaySound("Konami",CHAN_AUTO);
 				A_GiveInventory("ModuleGiver",1);
-				A_TakeInventory("KonamiToken",10);
+				A_SetInventory("KonamiToken",0);
 			}
 		}
 		Loop;
@@ -301,6 +280,8 @@ Class Doom4Player : PlayerPawn
 	Overlay.Cooldown1:
 		M666 A 3
 		{
+			// No need to check for StaticChargeDrain since the upgrade alone
+			// shuts this off.
 			if (!CountInv("StaticUpgrade4"))
 			{
 					 if (CountInv("StaticUpgrade3"))
@@ -311,12 +292,12 @@ Class Doom4Player : PlayerPawn
 				{	A_TakeInventory("StaticRifleChargingToken",4);	}
 			}
 			A_TakeInventory("PlasmaStunBombCounter",1);
+			user_lasthp = health + CountInv("BasicArmor");
 		}
 		Loop;
 	Overlay.Cooldown2:
 		M666 A 2
 		{
-			user_lasthp = health;
 			A_TakeInventory("SGTripleShotTimer",1);
 			A_TakeInventory("SGGrenadeTimer",1);
 		}
@@ -324,10 +305,10 @@ Class Doom4Player : PlayerPawn
 	Overlay.Cooldown3:
 		M666 A 10
 		{
-			if(CountInv("GrenadeCooldown")>=1)
+			if (CountInv("GrenadeCooldown"))
 			{
 				A_TakeInventory("GrenadeCooldown",1);
-				if(CountInv("GrenadeCooldown")==0)
+				if (!CountInv("GrenadeCooldown"))
 				{
 					A_PlaySound("Doom4/Weapon/Grenade/GrenadeRegen");
 				}
@@ -348,67 +329,52 @@ Class Doom4Player : PlayerPawn
 			//==================================================================
 			// Health
 			//==================================================================
-			if (health > 100)
-			{
-				A_TakeInventory("SuperHealthToken",32767);	
-				A_GiveInventory("SuperHealthToken",health-100);
-				A_GiveInventory("HealthToken",100);
-			}
-			else
-			{
-				A_TakeInventory("SuperHealthToken",32767);
-				A_TakeInventory("HealthToken",32767);
-				A_GiveInventory("HealthToken",health);
-			}
+			A_SetInventory("SuperHealthToken",Clamp(health-100,0,100));
+			A_SetInventory("HealthToken",Clamp(health,0,100));
 			
 			
 			//==================================================================
 			// Armor
 			//==================================================================
-			if (CountInv("BasicArmor") > 100)
-			{
-				if (CountInv("BasicArmor") != CountInv("SuperArmorToken"))
-				{		
-					A_SetInventory("SuperArmorToken",CountInv("BasicArmor")-100);
-				}
-			}
-			else
-			{	A_SetInventory("SuperArmorToken",0);	}
+			
+			A_SetInventory("SuperArmorToken",Clamp(CountInv("BasicArmor")-100,0,100));
 			
 			//==================================================================
 			// Movement
 			//==================================================================
 			// Give static tokens based on movement.
 			
-			if (CountInv("StaticChargeDrain"))
+			if (CountInv("StaticRifleActive"))
 			{
-				if (CountInv("StaticRifleChargingToken") > 540)
-				{	
-					A_TakeInventory("StaticRifleChargingToken",1000000);	
-					A_GiveInventory("StaticRifleChargingToken",508);
-				}
-				else if (CountInv("StaticRifleChargingToken"))
+				if (CountInv("StaticChargeDrain"))
 				{
-					A_TakeInventory("StaticRifleChargingToken",32);
-					if (!CountInv("StaticRifleChargingToken"))
-					{	A_TakeInventory("StaticChargeDrain",32767);	}
+					if (CountInv("StaticRifleChargingToken") > 540)
+					{
+						A_SetInventory("StaticRifleChargingToken",508);
+					}
+					else if (CountInv("StaticRifleChargingToken"))
+					{
+						A_TakeInventory("StaticRifleChargingToken",32);
+						if (!CountInv("StaticRifleChargingToken"))
+						{	A_SetInventory("StaticChargeDrain",0);	}
+					}
+					else
+					{	A_SetInventory("StaticChargeDrain",0);	}
 				}
-				else
-				{	A_TakeInventory("StaticChargeDrain",32767);	}
-			}
-			else
-			{
-				user_vel = sqrt((vel.x*vel.x) + (vel.y*vel.y) + (vel.z*vel.z));
-				if (CountInv("StaticRifleActive") && (user_vel / 4) >= 1.0)
+				else if (CountInv("StaticRifleChargingToken") < 540)
 				{
-						 if (CountInv("StaticUpgrade4"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.9) / 4));		}
-					else if (CountInv("StaticUpgrade3"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.55) / 4));	}
-					else if (CountInv("StaticUpgrade2"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.2) / 4));		}
-					else if (CountInv("StaticUpgrade1"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 1.85) / 4));	}
-					else									{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 1.5) / 4));		}
+					user_vel = sqrt((vel.x*vel.x) + (vel.y*vel.y) + (vel.z*vel.z));
+					if (CountInv("StaticRifleActive") && (user_vel / 4) >= 1.0)
+					{
+							 if (CountInv("StaticUpgrade4"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.9) / 4));		}
+						else if (CountInv("StaticUpgrade3"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.55) / 4));	}
+						else if (CountInv("StaticUpgrade2"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.2) / 4));		}
+						else if (CountInv("StaticUpgrade1"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 1.85) / 4));	}
+						else									{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 1.5) / 4));		}
+					}
 				}
 			}
-			if(CountInv("D4IdfaTrap")) { A_GiveInventory("IdfaStamp"); A_TakeInventory("D4IdfaTrap"); }
+			if (CountInv("D4IdfaTrap")) { A_GiveInventory("IdfaStamp"); A_TakeInventory("D4IdfaTrap"); }
 			//==================================================================
 			// Double Jump
 			//==================================================================
@@ -487,25 +453,24 @@ Class Doom4Player : PlayerPawn
 	// Monitors edge closeness and grabbing so the player can attempt mantling
 	// up over them.
 	//==========================================================================
-	Overlay.LedgeGrab:
-		M666 A 1 ;
+	/*
 		M666 A 0
 		{
 			if (GetCvar("D4D_AllowClimbing") == true)
 			{
 				user_wasClimbing = CountInv("RlyClimb"); // to catch transitive states like 0->1 or 1->0
-				A_TakeInventory("RlyClimb",0x7FFFFFFF);
+				A_SetInventory("RlyClimb",0);
 				A_GiveInventory("Climbing",1);
 				
-				if (vel.x*vel.x + vel.y*vel.y > 4)
-				{	A_TakeInventory("Climbing",0x7FFFFFFF);	}
+				if (vel.x * vel.x + vel.y * vel.y > 4)
+				{	A_SetInventory("Climbing",0);	}
 				
 				// Calculate a naive-derivative
 				user_accx = vel.x - user_velx;
 				user_accy = vel.y - user_vely;
 				
 				if (user_accx*user_accx + user_accy*user_accy > 0.02)
-				{	A_TakeInventory("Climbing",0x7FFFFFFF);	}
+				{	A_SetInventory("Climbing",0);	}
 				
 				// Update historical values
 				user_velx = vel.x;
@@ -515,12 +480,12 @@ Class Doom4Player : PlayerPawn
 				if (!A_CheckBlock("Null", CBF_DROPOFF, AAPTR_DEFAULT, 20,0,0))
 				{
 					// "Overlay.LedgeGrab.ForwardFail"
-					////A_Log("fail: forward free");
-					A_TakeInventory("Climbing",0x7FFFFFFF);
+					//A_Log("fail: forward free");
+					A_SetInventory("Climbing",0);
 				}
 				
 				// Also suppress initial instability
-				if(user_climbBouncePrevention > 0) 
+				if (user_climbBouncePrevention > 0) 
 				{
 					//A_LogInt(user_climbBouncePrevention);
 					A_GiveInventory("Climbing", user_climbBouncePrevention--);
@@ -528,15 +493,96 @@ Class Doom4Player : PlayerPawn
 				
 				if (!((GetPlayerInput(MODINPUT_BUTTONS)  == BT_FORWARD) &&	// Abort if doing anything except walking forward
 					(GetPlayerInput(MODINPUT_OLDBUTTONS) == BT_FORWARD)))
-				{	A_TakeInventory("Climbing",0x7FFFFFFF);	}
+				{	A_SetInventory("Climbing",0);	}
 				
 				if ((pitch >= 0) && (pos.z == floorz)) // Abort if not looking upward when grounded
-				{	A_TakeInventory("Climbing",0x7FFFFFFF);	}
+				{	A_SetInventory("Climbing",0);	}
+				
+				return ResolveState(1);
 			}
+			bSlidesOnWalls = true;
+			return ResolveState("Overlay.LedgeGrab");
 		}
 		M666 A 0 A_JumpIfInventory("Climbing", 1, "Overlay.LedgeGrab.TryClimb");
 		M666 A 0 {bSlidesOnWalls = true;}
 		Loop;
+		*/
+	Overlay.LedgeGrab:
+		M666 A 1 ;
+		M666 A 0
+		{
+			if (GetCvar("D4D_AllowClimbing"))
+			{
+				//user_wasClimbing
+				//user_accx
+				//user_accy
+				//user_velx
+				//user_vely
+				/*
+				if (!A_CheckLOF("Null",CLOFF_FROMBASE|CLOFF_SKIPOBSTACLES|CLOFF_ALLOWNULL|CLOFF_JUMP_ON_MISS|CLOFF_NOAIM,
+					24,0,0,-pitch,height,radius/2.0,NullPtr)))
+				{
+					return;
+				} */
+				
+				int DistCheck = 24;
+				
+				if (vel.x * vel.x + vel.y * vel.y > 4)
+				{
+					return;
+				}
+				
+				// Abort if way forward is free
+				if (!A_CheckBlock("Null", CBF_DROPOFF, AAPTR_DEFAULT, DistCheck,0,0))
+				{
+					return;
+				}
+				
+				// Also suppress initial instability
+				if (user_climbBouncePrevention > 0) 
+				{
+					A_GiveInventory("Climbing", user_climbBouncePrevention--);
+				}
+				
+				if (!((GetPlayerInput(MODINPUT_BUTTONS)  == BT_FORWARD) &&	// Abort if doing anything except walking forward
+					(GetPlayerInput(MODINPUT_OLDBUTTONS) == BT_FORWARD)))
+				{	return;		}
+				
+				if ((pitch >= 0) && (pos.z == floorz)) // Abort if not looking upward when grounded
+				{	return;		}
+				
+				
+				double newfloor = GetZAt(DistCheck,0,0);
+				double newceiling = GetZAt(DistCheck,0,0,GZF_CEILING);
+				double ledgedist = abs(newfloor - (pos.z + 36));
+				// if player is below new floor by no more than ledgedist units
+				if ((ledgedist > 0) && (ledgedist <= 24) 
+					&&
+					(newfloor + height < ceilingz) &&
+					(newceiling - newfloor >= height))
+				{
+					bSlidesOnWalls = false;
+					for (int i = 0; i < 21; i += 4)
+					{
+						Vector3 np = Vec3Angle(DistCheck - i,angle,newfloor);
+						if (!A_CheckBlock("Null",CBF_ABSOLUTEPOS,DefPtr,np.x,np.y,np.z,0))
+						{
+							A_Warp(DefPtr,np.x,np.y,np.z,0,WARPF_ABSOLUTEPOSITION|WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_STOP);
+						}
+					}
+						
+					bSlidesOnWalls = true;
+					A_SetTics(14);
+				}
+			}
+			else
+			{
+				A_SetTics(15);
+			}
+		}
+		Loop;
+	/*	
+		
 	Overlay.LedgeGrab.TryClimb:
 		//M666 A 0; //A_Log("tryclimb")
 		// Fail if way forward is free
@@ -629,6 +675,7 @@ Class Doom4Player : PlayerPawn
 			
 		}
 		Goto Overlay.LedgeGrab;
+	*/
 
 	See:
 		PLAY ABCD 4 ;
