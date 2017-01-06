@@ -799,7 +799,7 @@ extend class Doom4Player
 	//--------------------------------------------------------------------------
 	// Start-up
 	//--------------------------------------------------------------------------
-	override void PostBeginPlay()
+	void InitPlayer()
 	{
 		if (IsPointerEqual(Player1, DefPtr) ||
 			IsPointerEqual(Player2, DefPtr) ||
@@ -841,20 +841,16 @@ extend class Doom4Player
 				user_vel = user_zvel = user_hold = user_time = user_vel2 = 
 				user_once =	user_jumpsDone = user_lowhp = 0;
 				A_SetInventory("NewMapToken",1);
+				spawned = true;
 			}
-			spawned = true;
-			
-			//A_Overlay(Overlay_Cooldown1,"Overlay.Cooldown1",true);
-			//A_Overlay(Overlay_Cooldown2,"Overlay.Cooldown2",true);
-			//A_Overlay(Overlay_Cooldown3,"Overlay.Cooldown3",true);
-			A_Overlay(Overlay_MovementHealthArmor,"Overlay.MovementHealthArmor",true);
-			
-			// Don't change these.
-			A_Overlay(Overlay_LedgeGrab,"Overlay.LedgeGrab",true);
-			A_Overlay(99,"Overlay.Debug",true);
-			//A_Overlay(Overlay_AnglePitch,"Overlay.AnglePitch",true);
 		}
-		Super.PostBeginPlay();
+		//A_Overlay(Overlay_Cooldown1,"Overlay.Cooldown1",true);
+		//A_Overlay(Overlay_Cooldown2,"Overlay.Cooldown2",true);
+		//A_Overlay(Overlay_Cooldown3,"Overlay.Cooldown3",true);
+		A_Overlay(Overlay_MovementHealthArmor,"Overlay.MovementHealthArmor",true);
+		A_Overlay(Overlay_LedgeGrab,"Overlay.LedgeGrab",true);
+		A_Overlay(99,"Overlay.Debug",true);
+		//A_Overlay(Overlay_AnglePitch,"Overlay.AnglePitch",true);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -864,6 +860,7 @@ extend class Doom4Player
 	int CooldownTimer[3];
 	override void Tick()
 	{
+		if (level.maptime <= 1)	InitPlayer();
 		
 		static const int CooldownCaps[] = { 3, 2, 10 };
 		for (int i = 0; i < 3; i++)
