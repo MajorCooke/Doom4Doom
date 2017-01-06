@@ -116,182 +116,11 @@ Class Doom4Player : PlayerPawn
 		}
 		Loop;
 	//==========================================================================
-	// Overlay: 		Show surroundings
-	// When given "ShowSurroundings" token, counts objects in two areas.
-	//==========================================================================
-	Overlay.Debug:
-		M666 A 1;
-		M666 A 0
-		{
-			
-		}
-		Loop;
-	
-	Overlay.Cooldown1:
-		M666 A 3;
-		Stop;
-	Overlay.Cooldown2:
-		M666 A 2;
-		Stop;
-	Overlay.Cooldown3:
-		M666 A 10;
-		Stop;
-	
-	Overlay.MovementHealthArmor:
-		M666 A 1
-		{
-			//==================================================================
-			// Health
-			//==================================================================
-			if (health > 100)
-			{
-				if (CountInv("HealthToken") != 100)					A_SetInventory("HealthToken",100);
-				if (CountInv("SuperHealthToken") != (health - 100))	A_SetInventory("SuperHealthToken",health-100);
-			}
-			else
-			{
-				if (CountInv("SuperHealthToken"))		A_SetInventory("SuperHealthToken",0);
-				if (CountInv("HealthToken") != health)	A_SetInventory("HealthToken", health);
-			}
-			
-			
-			//==================================================================
-			// Armor
-			//==================================================================
-			if (CountInv("BasicArmor") > 100)
-			{
-				if (CountInv("BasicArmor") != CountInv("SuperArmorToken"))
-				{		
-					A_SetInventory("SuperArmorToken",CountInv("BasicArmor")-100);
-				}
-			}
-			else if (CountInv("SuperArmorToken"))
-			{	A_SetInventory("SuperArmorToken",0);	}
-			
-			//==================================================================
-			// Movement
-			//==================================================================
-			// Give static tokens based on movement.
-			// Only do so when the rifle is active, mind.
-			
-			if (CountInv("StaticRifleActive"))
-			{
-				if (CountInv("StaticChargeDrain"))
-				{
-					if (CountInv("StaticRifleChargingToken") > 540)
-					{
-						A_SetInventory("StaticRifleChargingToken",508);
-					}
-					else if (CountInv("StaticRifleChargingToken"))
-					{
-						A_TakeInventory("StaticRifleChargingToken",32);
-						if (!CountInv("StaticRifleChargingToken"))
-						{	A_TakeInventory("StaticChargeDrain",32767);	}
-					}
-					else
-					{	A_SetInventory("StaticChargeDrain",0);	}
-				}
-				else if (CountInv("StaticRifleChargingToken") < 540)
-				{
-					user_vel = sqrt((vel.x*vel.x) + (vel.y*vel.y) + (vel.z*vel.z));
-					if (CountInv("StaticRifleActive") && (user_vel / 4) >= 1.0)
-					{
-							 if (CountInv("StaticUpgrade4"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.9) / 4));		}
-						else if (CountInv("StaticUpgrade3"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.55) / 4));	}
-						else if (CountInv("StaticUpgrade2"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.2) / 4));		}
-						else if (CountInv("StaticUpgrade1"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 1.85) / 4));	}
-						else									{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 1.5) / 4));		}
-					}
-				}
-			}
-			else if (CountInv("StaticChargeDrain"))
-			{
-				// The rifle would be drained by the time it comes back up anyway.
-				A_SetInventory("StaticRifleChargingToken",0);
-				A_SetInventory("StaticChargeDrain",0);
-			}
-			
-			if (CountInv("D4IdfaTrap")) { A_GiveInventory("IdfaStamp"); A_TakeInventory("D4IdfaTrap"); }
-			//==================================================================
-			// Double Jump
-			//==================================================================
-			if (GetCvar("user_MultiJump") > 0)
-			{
-				user_ordersJump = ((GetPlayerInput(MODINPUT_BUTTONS)    & BT_JUMP) &&
-								  !(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_JUMP)) ? 1 : 0;
-				
-				if (user_ordersJump)
-				{
-					user_jumpsDone += 1;
-					
-					if (CountInv("D4HigherJump") && user_jumpsdone == 1)
-					{
-						A_ChangeVelocity(vel.x,vel.y,vel.z + 1,CVF_REPLACE);
-					}
-					
-					else if (user_jumpsDone > 1 &&
-						user_jumpsDone <= countInv("D4MultiJump"))
-					{
-						if (vel.z <= 0) // Stop; fall
-						{
-							A_ChangeVelocity(vel.x,vel.y,8.2 + CountInv("D4HigherJump"),CVF_REPLACE);
-							A_ChangeVelocity(
-							((GetPlayerInput(MODINPUT_BUTTONS) & BT_FORWARD  ) ? 2 : 0) - 
-							((GetPlayerInput(MODINPUT_BUTTONS) & BT_BACK     ) ? 2 : 0),
-							((GetPlayerInput(MODINPUT_BUTTONS) & BT_MOVELEFT ) ? 2 : 0) -
-							((GetPlayerInput(MODINPUT_BUTTONS) & BT_MOVERIGHT) ? 2 : 0),
-							0,CVF_RELATIVE);
-						}
-						else // advance jump
-						{
-							if(GetCvar("D4D_JumpExploit") != false)
-							{ A_ChangeVelocity(vel.x,vel.y,vel.z + 8.2 + CountInv("D4HigherJump"),CVF_REPLACE); }
-							else
-							{ A_ChangeVelocity(vel.x,vel.y,sqrt(vel.z) + 8.2 + CountInv("D4HigherJump"),CVF_REPLACE); }
-							
-							A_ChangeVelocity(
-							((GetPlayerInput(MODINPUT_BUTTONS) & BT_FORWARD  ) ? 2 : 0) - 
-							((GetPlayerInput(MODINPUT_BUTTONS) & BT_BACK     ) ? 2 : 0),
-							((GetPlayerInput(MODINPUT_BUTTONS) & BT_MOVELEFT ) ? 2 : 0) -
-							((GetPlayerInput(MODINPUT_BUTTONS) & BT_MOVERIGHT) ? 2 : 0),
-							0,CVF_RELATIVE);
-						}
-						
-						A_PlaySound("Doom4/Player/DoubleJump");
-					}
-				}
-				else if (vel.z != 0)
-				{
-					if(!user_jumpsDone)
-					{
-						user_jumpsDone = 1;
-					}
-					
-					if(countInv("D4AirControl") && user_jumpsDone > 1)
-					{
-						A_ChangeVelocity(
-						((GetPlayerInput(MODINPUT_BUTTONS) & BT_FORWARD  ) ? .8 : 0) - 
-						((GetPlayerInput(MODINPUT_BUTTONS) & BT_BACK     ) ? .8 : 0),
-						((GetPlayerInput(MODINPUT_BUTTONS) & BT_MOVELEFT ) ? .8 : 0) -
-						((GetPlayerInput(MODINPUT_BUTTONS) & BT_MOVERIGHT) ? .8 : 0),
-						0,CVF_RELATIVE);
-						A_ChangeVelocity(vel.x*.95,vel.y*.95,vel.z,CVF_REPLACE);
-					}
-				}
-				else if ((vel.z == 0 && user_zvel == 0) || pos.z <= floorz)
-				{	user_jumpsDone = 0;	}
-				
-				user_zvel = vel.z;
-			}
-		}
-		Loop;
-	//==========================================================================
 	// Overlay: 		Ledge Climbing
 	// Monitors edge closeness and grabbing so the player can attempt mantling
 	// up over them.
 	//==========================================================================
-	Overlay.LedgeGrab:
-		M666 A 1 ;
+	/*
 		M666 A 0
 		{
 			if (GetCvar("D4D_AllowClimbing") == true)
@@ -341,12 +170,80 @@ Class Doom4Player : PlayerPawn
 			bSlidesOnWalls = true;
 			return ResolveState("Overlay.LedgeGrab");
 		}
-		
-		// MICHAELIS: Please clean this up sometime. 
-		
 		M666 A 0 A_JumpIfInventory("Climbing", 1, "Overlay.LedgeGrab.TryClimb");
 		M666 A 0 {bSlidesOnWalls = true;}
 		Loop;
+		*/
+	Overlay.LedgeGrab:
+		M666 A 1 ;
+		M666 A 0
+		{
+			if (GetCvar("D4D_AllowClimbing") == true)
+			{
+				//user_wasClimbing
+				//user_accx
+				//user_accy
+				//user_velx
+				//user_vely
+				int DistCheck = 24;
+				
+				if (vel.x * vel.x + vel.y * vel.y > 4)
+				{
+					return;
+				}
+				
+				// Abort if way forward is free
+				if (!A_CheckBlock("Null", CBF_DROPOFF, AAPTR_DEFAULT, DistCheck,0,0))
+				{
+					return;
+				}
+				
+				// Also suppress initial instability
+				if (user_climbBouncePrevention > 0) 
+				{
+					A_GiveInventory("Climbing", user_climbBouncePrevention--);
+				}
+				
+				if (!((GetPlayerInput(MODINPUT_BUTTONS)  == BT_FORWARD) &&	// Abort if doing anything except walking forward
+					(GetPlayerInput(MODINPUT_OLDBUTTONS) == BT_FORWARD)))
+				{	return;		}
+				
+				if ((pitch >= 0) && (pos.z == floorz)) // Abort if not looking upward when grounded
+				{	return;		}
+				
+				
+				double newfloor = GetZAt(DistCheck,0,0);
+				double newceiling = GetZAt(DistCheck,0,0,GZF_CEILING);
+				double ledgedist = abs(newfloor - (pos.z + 36));
+				// if player is below new floor by no more than 16 units
+				if ((ledgedist > 0) && (ledgedist <= 24) 
+					&&
+					(newfloor + height < ceilingz) &&
+					(newceiling - newfloor >= height))
+				{
+					bSlidesOnWalls = false;
+					for (int i = 0; i < 21; i += 4)
+					{
+						Vector3 np = Vec3Angle(DistCheck - i,angle,newfloor);
+						if (!A_CheckBlock("Null",CBF_ABSOLUTEPOS,DefPtr,np.x,np.y,np.z,0))
+						{
+							A_Warp(DefPtr,np.x,np.y,np.z,0,WARPF_ABSOLUTEPOSITION|WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_STOP);
+						}
+					}
+					/*
+					if ()
+						A_LogInt(1);
+					else
+						A_LogInt(0); */
+						
+					bSlidesOnWalls = true;
+					A_SetTics(14);
+				}
+			}
+		}
+		Loop;
+	/*	
+		
 	Overlay.LedgeGrab.TryClimb:
 		//M666 A 0; //A_Log("tryclimb")
 		// Fail if way forward is free
@@ -439,7 +336,7 @@ Class Doom4Player : PlayerPawn
 			
 		}
 		Goto Overlay.LedgeGrab;
-
+	*/
 	See:
 		PLAY ABCD 4 ;
 		Loop;
