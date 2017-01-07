@@ -74,7 +74,12 @@ Class Doom4Player : PlayerPawn
 	States
 	{
 	Spawn:
-		PLAY A -1;
+		PLAY A -1
+		{
+			A_Overlay(Overlay_MovementHealthArmor,"Overlay.MovementHealthArmor",true);
+			A_Overlay(Overlay_LedgeGrab,"Overlay.LedgeGrab",true);
+			A_Overlay(99,"Overlay.Debug",true);
+		}
 		Loop;
 	//==========================================================================
 	// Overlay: 		Gun Shifting (WIP)
@@ -865,9 +870,6 @@ extend class Doom4Player
 		if (!CooldownTimer[1])	ProcessCooldown2();
 		if (!CooldownTimer[2])	
 		{	
-			A_Overlay(Overlay_MovementHealthArmor,"Overlay.MovementHealthArmor",true);
-			A_Overlay(Overlay_LedgeGrab,"Overlay.LedgeGrab",true);
-			A_Overlay(99,"Overlay.Debug",true);
 			ProcessCooldown3();	
 		}
 		//UpdateHAM();
