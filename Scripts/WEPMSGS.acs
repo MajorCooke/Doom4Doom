@@ -199,6 +199,49 @@ script "DoubleTroubleDisplay" (void)
 	}
 }
 
+//==============================================================================
+//==============================================================================
+//	Repeater Toggle
+//==============================================================================
+//==============================================================================
+Script "ToggleRepeaterMode" (void)
+{
+	SetHUDSize(600,450,1);
+	SetFont("SMALLFONT");
+	if (!GetCvar("D4D_RepeaterMode"))
+	{
+		HudMessage(s:"Select Fire";HUDMSG_FADEOUT,111,CR_ORANGE,300.0,420.0,1.5,1.0);
+		SetCvar("D4D_RepeaterMode",true);
+		
+		SetHUDSize(800,600,1);
+		SetFont("SMALLFONT");
+		HudMessage(s:"Select Fire";HUDMSG_PLAIN,101,CR_WHITE,790.2,573.0,0);
+	}
+	else
+	{
+		HudMessage(s:"Burst Fire";HUDMSG_FADEOUT,111,CR_ORANGE,300.0,420.0,1.5,1.0);
+		SetCvar("D4D_RepeaterMode",false);
+		
+		SetHUDSize(800,600,1);
+		SetFont("SMALLFONT");
+		HudMessage(s:"Burst Fire";HUDMSG_PLAIN,101,CR_WHITE,790.2,573.0,0);
+	}
+}
+
+script "RepeaterBurstDisplay" (void)
+{
+	SetHUDSize(800,600,1);
+	SetFont("SMALLFONT");
+	if (!GetCvar("D4D_RepeaterMode"))
+	{
+		HudMessage(s:"Burst Fire";HUDMSG_PLAIN,101,CR_WHITE,790.2,573.0,0);
+	}
+	else
+	{
+		HudMessage(s:"Select Fire";HUDMSG_PLAIN,101,CR_WHITE,790.2,573.0,0);
+	}
+}
+//==============================================================================
 script "DontSaveAsDemon" (int DemonId)
 {
 	int MSGTimer=0;

@@ -65,9 +65,19 @@ Class D4Repeater : Doom4Weapon
 	// Ready sequence
 	//-------------------------------------------------------
 	Ready:
+	    M666 A 0 A_Overlay(SwitchWatcher,"SwitchWatcher",true);
 		REPG A 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
 		Loop;
-		
+	SwitchWatcher:
+		M666 A 1
+		{
+			if ((GetPlayerInput(MODINPUT_BUTTONS) & BT_USER1) &&
+				!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_USER1))
+			{
+				ACS_NamedExecute("ToggleRepeaterMode",0,0,0,0);
+			}
+		}
+		Loop;	
 	//===========================================================================	
 	// Primary fire
 	Fire:
@@ -106,7 +116,7 @@ Class D4Repeater : Doom4Weapon
 		REPG B 0
 		{
 			//primary fire checks
-			if(GetCvar("sv_infiniteammo") || CountInv("D4Bullets")>=4) //enough for 2 shots
+			if(!GetCvar("D4D_RepeaterMode") && (GetCvar("sv_infiniteammo") || CountInv("D4Bullets")>=4)) //not in single mode and enough for 2 shots
 			{	A_PlaySound("Doom4/Weapon/Repeater/FireTriple",CHAN_WEAPON);		}
 			else if(CountInv("D4Bullets")>=2)  //enough for 1 shot
 			{	A_PlaySound("Doom4/Weapon/Repeater/FireSingle",CHAN_WEAPON);		}
@@ -118,7 +128,7 @@ Class D4Repeater : Doom4Weapon
 		REPG B 0
 		{
 			//primary fire checks
-			if (GetCvar("sv_infiniteammo") || CountInv("D4Bullets")>=6) //enough for 2 shots
+			if (!GetCvar("D4D_RepeaterMode") && (GetCvar("sv_infiniteammo") || CountInv("D4Bullets")>=6)) //not in single mode and enough for 2 shots
 			{	A_PlaySound("Doom4/Weapon/Repeater/FireTriple",CHAN_WEAPON);		}
 			else if (CountInv("D4Bullets")>=3)  //enough for 1 shot
 			{	A_PlaySound("Doom4/Weapon/Repeater/FireSingle",CHAN_WEAPON);		}
@@ -170,6 +180,8 @@ Class D4Repeater : Doom4Weapon
 			{ A_FireProjectile("MGSmokeSpawner",0,0,4,2); }
 			
 			A_GiveInventory("RepeaterCounter",1,Player1);
+			if (GetCvar("D4D_RepeaterMode")) //In Single-Round mode, force the burst to end after 1 round.
+			{ A_GiveInventory("RepeaterCounter",2,Player1); }
 			A_GunFlash("Null");
 			A_SetPitch(pitch-0.8);
 			A_WeaponOffset(8,8,WOF_ADD);
