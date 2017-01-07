@@ -1146,9 +1146,9 @@ Class PentagramManager : Actor
 			
 			if (user_time <= 0)
 			{
-				A_TakeInventory("PowerInvulBase",32767,0,MasterPtr);
-				A_TakeInventory("PentagramOfProtection",32767,0,MasterPtr);
-				A_TakeInventory("InvulTimer",32767,0,MasterPtr);
+				A_SetInventory("PowerInvulBase",0,MasterPtr);
+				A_SetInventory("PentagramOfProtection",0,MasterPtr);
+				A_SetInventory("InvulTimer",0,MasterPtr);
 				return ResolveState("Null");
 			}
 			return ResolveState(null);

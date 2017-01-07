@@ -76,9 +76,11 @@ Class Doom4Player : PlayerPawn
 	Spawn:
 		PLAY A -1
 		{
-			A_Overlay(Overlay_MovementHealthArmor,"Overlay.MovementHealthArmor",true);
-			A_Overlay(Overlay_LedgeGrab,"Overlay.LedgeGrab",true);
-			A_Overlay(99,"Overlay.Debug",true);
+			if (!isVoodoo())
+			{
+				A_Overlay(Overlay_LedgeGrab,"Overlay.LedgeGrab",true);
+				A_Overlay(99,"Overlay.Debug",true);
+			}
 		}
 		Loop;
 	//==========================================================================
@@ -149,10 +151,10 @@ Class Doom4Player : PlayerPawn
 				}
 			}
 			
-			if( !(GetPlayerInput(MODINPUT_BUTTONS)   & BT_BACK) &&
+			if (!(GetPlayerInput(MODINPUT_BUTTONS)   & BT_BACK) &&
 				(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_BACK))
 			{
-				if( countInv("KonamiToken") < 4 &&
+				if (countInv("KonamiToken") < 4 &&
 					countInv("KonamiToken") >=2)
 				{
 					A_GiveInventory("KonamiToken",1);
@@ -163,10 +165,10 @@ Class Doom4Player : PlayerPawn
 				}
 			}
 			
-			if( !(GetPlayerInput(MODINPUT_BUTTONS)   & BT_LEFT) &&
+			if (!(GetPlayerInput(MODINPUT_BUTTONS)   & BT_LEFT) &&
 				(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_LEFT))
 			{
-				if( countInv("KonamiToken") == 4 ||
+				if (countInv("KonamiToken") == 4 ||
 					countInv("KonamiToken") == 6)
 				{
 					A_GiveInventory("KonamiToken",1);
@@ -177,10 +179,10 @@ Class Doom4Player : PlayerPawn
 				}
 			}
 			
-			if( !(GetPlayerInput(MODINPUT_BUTTONS)   & BT_RIGHT) &&
+			if (!(GetPlayerInput(MODINPUT_BUTTONS)   & BT_RIGHT) &&
 				(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_RIGHT))
 			{
-				if( countInv("KonamiToken") == 5 ||
+				if (countInv("KonamiToken") == 5 ||
 					countInv("KonamiToken") == 7)
 				{
 					A_GiveInventory("KonamiToken",1);
@@ -801,50 +803,45 @@ Class RlyClimb : Inventory {}
 
 extend class Doom4Player
 {
+	bool IsVoodoo()
+	{
+		return (!player || !player.mo || player.mo != self);
+	}
+	
 	//--------------------------------------------------------------------------
 	// Start-up
 	//--------------------------------------------------------------------------
 	void InitPlayer()
-	{
-		if (IsPointerEqual(Player1, DefPtr) ||
-			IsPointerEqual(Player2, DefPtr) ||
-			IsPointerEqual(Player3, DefPtr) ||
-			IsPointerEqual(Player4, DefPtr) ||
-			IsPointerEqual(Player5, DefPtr) ||
-			IsPointerEqual(Player6, DefPtr) ||
-			IsPointerEqual(Player7, DefPtr) ||
-			IsPointerEqual(Player8, DefPtr))
+	{			
+		if (GetCvar("skill") >= 3)
 		{
-			
-			if (GetCvar("skill") >= 3)
+			if (GetCvar("D4D_NMGrenades") >= 1) // Give and select frag if the setting isn't "Off" 
 			{
-				if (GetCvar("D4D_NMGrenades") >= 1) // Give and select frag if the setting isn't "Off" 
-				{
-					if (!CountInv("FragGrenadePickup"))
-					{	
-						A_SetInventory("FragGrenadePickup",1);
-						A_SetInventory("FragGrenadeSelected",1);
-					}
-				}
-				if (GetCvar("D4D_NMGrenades") >= 2) // Give the rest and select syphon if the setting is "All"
-				{
-					if (!CountInv("HoloGrenadePickup"))
-						A_GiveInventory("HoloGrenadePickup",1);
-					if (!CountInv("SyphonGrenadePickup"))
-					{   
-						A_SetInventory("FragGrenadeSelected",0);
-						A_SetInventory("MarineHoloSelected",0); //Just in case
-						A_SetInventory("SyphonGrenadePickup",1);
-						A_SetInventory("SyphonGrenadeSelected",1); 
-					}
+				if (!CountInv("FragGrenadePickup"))
+				{	
+					A_SetInventory("FragGrenadePickup",1);
+					A_SetInventory("FragGrenadeSelected",1);
 				}
 			}
-			
-			A_SetInventory("D4MultiJump",int(GetCvar("D4MultiJump")));
-			user_rollmove = user_rollpain = user_rollsave = user_offsets =
-			user_vel = user_zvel = user_hold = user_time = user_vel2 = 
-			user_once =	user_jumpsDone = user_lowhp = 0;
+			if (GetCvar("D4D_NMGrenades") >= 2) // Give the rest and select syphon if the setting is "All"
+			{
+				if (!CountInv("HoloGrenadePickup"))
+					A_GiveInventory("HoloGrenadePickup",1);
+				if (!CountInv("SyphonGrenadePickup"))
+				{   
+					A_SetInventory("FragGrenadeSelected",0);
+					A_SetInventory("MarineHoloSelected",0); //Just in case
+					A_SetInventory("SyphonGrenadePickup",1);
+					A_SetInventory("SyphonGrenadeSelected",1); 
+				}
+			}
 		}
+		
+		A_SetInventory("D4MultiJump",int(GetCvar("D4MultiJump")));
+		user_rollmove = user_rollpain = user_rollsave = user_offsets =
+		user_vel = user_zvel = user_hold = user_time = user_vel2 = 
+		user_once =	user_jumpsDone = user_lowhp = 0;
+		
 		//A_Overlay(Overlay_Cooldown1,"Overlay.Cooldown1",true);
 		//A_Overlay(Overlay_Cooldown2,"Overlay.Cooldown2",true);
 		//A_Overlay(Overlay_Cooldown3,"Overlay.Cooldown3",true);
@@ -858,7 +855,12 @@ extend class Doom4Player
 	int CooldownTimer[3];
 	override void Tick()
 	{
-		if (level.maptime <= 5)	InitPlayer();
+		if (isVoodoo())
+		{
+			Super.Tick();
+			return;
+		}
+		if (level.maptime <= 1)	InitPlayer();
 		
 		static const int CooldownCaps[] = { 3, 2, 10 };
 		for (int i = 0; i < 3; i++)
@@ -868,11 +870,8 @@ extend class Doom4Player
 		
 		if (!CooldownTimer[0])	ProcessCooldown1();
 		if (!CooldownTimer[1])	ProcessCooldown2();
-		if (!CooldownTimer[2])	
-		{	
-			ProcessCooldown3();	
-		}
-		//UpdateHAM();
+		if (!CooldownTimer[2])	ProcessCooldown3();	
+		if (GetClass() == "Doom4Player")		UpdateHAM();
 		Super.Tick();
 	}
 	
