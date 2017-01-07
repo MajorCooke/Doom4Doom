@@ -136,18 +136,22 @@ Class D4AbstractMonster : Actor
 			{
 				double ang = angle;
 				
+				//Vector3 movepos = Vec2OffsetZ((cos(angle) * speed), (sin(angle) * speed), 0);
 				if (maxturn >= 0.0)
-				{	A_FaceTarget(maxturn,0);	}
+					A_FaceTarget(maxturn,0);
+				Vector2 nmpos = Vec2Angle(speed,angle);
 				
-				Vector3 movepos = Vec2OffsetZ((cos(angle) * speed), (sin(angle) * speed), 0);
-				Vector2 nmpos = (movepos.x, movepos.y);
-				
-				if (TryMove(nmpos, bDROPOFF))
+				if (TryMove(nmpos, false))
 				{
 					newflags = CHF_DONTMOVE|CHF_DONTTURN|CHF_NODIRECTIONTURN|CHF_NOPOSTATTACKTURN;
 				}
 				else
-				{	angle = ang;	}
+				{
+					angle = ang;
+					
+					newflags = 0;
+					
+				}
 			}
 		}
 		A_Chase(melee, missile, flags|newflags);

@@ -843,9 +843,6 @@ extend class Doom4Player
 		//A_Overlay(Overlay_Cooldown1,"Overlay.Cooldown1",true);
 		//A_Overlay(Overlay_Cooldown2,"Overlay.Cooldown2",true);
 		//A_Overlay(Overlay_Cooldown3,"Overlay.Cooldown3",true);
-		A_Overlay(Overlay_MovementHealthArmor,"Overlay.MovementHealthArmor",true);
-		A_Overlay(Overlay_LedgeGrab,"Overlay.LedgeGrab",true);
-		A_Overlay(99,"Overlay.Debug",true);
 		//A_Overlay(Overlay_AnglePitch,"Overlay.AnglePitch",true);
 	}
 	
@@ -856,7 +853,7 @@ extend class Doom4Player
 	int CooldownTimer[3];
 	override void Tick()
 	{
-		if (level.maptime <= 1)	InitPlayer();
+		if (level.maptime <= 5)	InitPlayer();
 		
 		static const int CooldownCaps[] = { 3, 2, 10 };
 		for (int i = 0; i < 3; i++)
@@ -866,7 +863,13 @@ extend class Doom4Player
 		
 		if (!CooldownTimer[0])	ProcessCooldown1();
 		if (!CooldownTimer[1])	ProcessCooldown2();
-		if (!CooldownTimer[2])	ProcessCooldown3();
+		if (!CooldownTimer[2])	
+		{	
+			A_Overlay(Overlay_MovementHealthArmor,"Overlay.MovementHealthArmor",true);
+			A_Overlay(Overlay_LedgeGrab,"Overlay.LedgeGrab",true);
+			A_Overlay(99,"Overlay.Debug",true);
+			ProcessCooldown3();	
+		}
 		//UpdateHAM();
 		Super.Tick();
 	}
