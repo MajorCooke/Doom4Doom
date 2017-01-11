@@ -592,13 +592,13 @@ OptionMenu "D4DUpgrade.Pistol"
 	Title "Pistol"
 	StaticText "Choose An Upgrade", GOLD
 	StaticText ""
-	Command "$PistolUpgradeAltCharge",	"test > $PistolUpgradeAltCharge 0 \"AlreadyBought\" \"openmenu PistolUpgradeAltCharge\""
+	Command "$PistolUpgradeAltCharge",	"test > $PistolUpgradeAltCharge 0 \"openmenu PistolUpgradeAltChargeDONE\" \"openmenu PistolUpgradeAltCharge\""
 	StaticText ""
-	Command "$PistolUpgradeAltDamage",	"test > $PistolUpgradeAltDamage 0 \"AlreadyBought\" \"openmenu PistolUpgradeAltDamage\""
+	Command "$PistolUpgradeAltDamage",	"test > $PistolUpgradeAltDamage 0 \"openmenu PistolUpgradeAltDamageDONE\" \"openmenu PistolUpgradeAltDamage\""
 	StaticText ""
-	Command "$PistolUpgradeDamage",		"test > $PistolUpgradeDamage 0 \"AlreadyBought\" \"openmenu PistolUpgradeDamage\""
+	Command "$PistolUpgradeDamage",		"test > $PistolUpgradeDamage 0 \"openmenu PistolUpgradeDamageDONE\" \"openmenu PistolUpgradeDamage\""
 	StaticText ""
-	Command "$PistolUpgradeAutomatic",	"test > $PistolUpgradeAutomatic 0 \"AlreadyBought\" \"openmenu PistolUpgradeAutomatic\""
+	Command "$PistolUpgradeAutomatic",	"test > $PistolUpgradeAutomatic 0 \"openmenu PistolUpgradeAutomaticDONE\" \"openmenu PistolUpgradeAutomatic\""
 }
 
 OptionMenu "PistolUpgradeAltCharge"
@@ -648,6 +648,37 @@ OptionMenu "PistolUpgradeAutomatic"
 	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
 }
 
+OptionMenu "PistolUpgradeAltChargeDONE"
+{
+	Title "$PistolUpgradeAltCharge"
+	StaticText "$PistolUpgradeAltChargeD1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "PistolUpgradeAltDamageDONE"
+{
+	Title "$PistolUpgradeAltDamage"
+	StaticText "$PistolUpgradeAltDamageD1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "PistolUpgradeDamageDONE"
+{
+	Title "$PistolUpgradeDamage"
+	StaticText "$PistolUpgradeDamageD1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "PistolUpgradeAutomaticDONE"
+{
+	Title "$PistolUpgradeAutomatic"
+	StaticText "$PistolUpgradeAutomaticD1"
+	StaticText ""
+	StaticText "$PistolUpgradeAutomaticD2", RED
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+
 //==============================================================================
 // Shotgun
 //==============================================================================
@@ -656,9 +687,9 @@ OptionMenu "D4DUpgrade.Shotgun"
 	Title "Shotgun"
 	StaticText "Choose An Upgrade", GOLD
 	StaticText ""
-	Command "$ShotgunMod1",	"test > $ShotgunMod1 0 \"AlreadyBought\" \"openmenu ShotgunMod1\""
+	Command "$ShotgunMod1",	"test > $ShotgunMod1 0 \"openmenu ShotgunMod1DONE\" \"openmenu ShotgunMod1\""
 	StaticText ""
-	Command "$ShotgunMod2",	"test > $ShotgunMod2 0 \"AlreadyBought\" \"openmenu ShotgunMod2\""
+	Command "$ShotgunMod2",	"test > $ShotgunMod2 0 \"openmenu ShotgunMod2DONE\" \"openmenu ShotgunMod2\""
 }
 
 OptionMenu "ShotgunMod1"
@@ -692,6 +723,28 @@ OptionMenu "ShotgunMod2"
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
 }
+OptionMenu "ShotgunMod1DONE"
+{
+	Title "$ShotgunMod1"
+	StaticText "$ShotgunMod1D1", TAN
+	StaticText ""
+	StaticText "$ShotgunMod1D2"
+	StaticText ""
+	StaticText "$ShotgunMod1D3", YELLOW
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "ShotgunMod2DONE"
+{
+	Title "$ShotgunMod2"
+	StaticText "$ShotgunMod2D1", TAN
+	StaticText ""
+	StaticText "$ShotgunMod2D2"
+	StaticText ""
+	StaticText "$ShotgunMod2D3", YELLOW
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
 
 //==============================================================================
 // Super Shotgun
@@ -701,13 +754,13 @@ OptionMenu "D4DUpgrade.SuperShotgun"
 	Title "Super Shotgun"
 	StaticText "Choose An Upgrade", GOLD
 	StaticText ""
-	Command "$SSGUpgrade1",	"test > $SSGUpgrade1 0 \"AlreadyBought\" \"openmenu SSGUpgrade1\""
+	Command "$SSGUpgrade1",	"test > $SSGUpgrade1 0 \"openmenu SSGUpgrade1DONE\" \"openmenu SSGUpgrade1\""
 	StaticText " "
-	Command "$SSGUpgrade2",	"test > $SSGUpgrade2 0 \"AlreadyBought\" \"openmenu SSGUpgrade2\""
+	Command "$SSGUpgrade2",	"test > $SSGUpgrade2 0 \"openmenu SSGUpgrade2DONE\" \"openmenu SSGUpgrade2\""
 	StaticText " "
-	Command "$SSGUpgrade3",	"test > $SSGUpgrade3 0 \"AlreadyBought\" \"openmenu SSGUpgrade3\""
+	Command "$SSGUpgrade3",	"test > $SSGUpgrade3 0 \"openmenu SSGUpgrade3DONE\" \"openmenu SSGUpgrade3\""
 	StaticText " "
-	Command "$SSGUpgrade4",	"test > $SSGUpgrade4 0 \"AlreadyBought\" \"CheckSSGReq\""
+	Command "$SSGUpgrade4",	"test > $SSGUpgrade4 0 \"openmenu SSGUpgrade4DONE\" \"CheckSSGReq\""
 }
 
 OptionMenu "SSGUpgrade1"
@@ -777,6 +830,39 @@ OptionMenu "SSGUpgrade4NA"
 	Command "$SSGUpgrade1",	"test > $SSGUpgrade1 0 \"AlreadyBought\" \"openmenu SSGUpgrade1\""
 	Command "$SSGUpgrade2",	"test > $SSGUpgrade2 0 \"AlreadyBought\" \"openmenu SSGUpgrade2\""
 }
+
+OptionMenu "SSGUpgrade1DONE"
+{
+	Title "$SSGUpgrade1"
+	StaticText "$SSGUpgrade1D1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "SSGUpgrade2DONE"
+{
+	Title "$SSGUpgrade2"
+	StaticText "$SSGUpgrade2D1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "SSGUpgrade3DONE"
+{
+	Title "$SSGUpgrade3"
+	StaticText "$SSGUpgrade3D1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "SSGUpgrade4DONE"
+{
+	Title "$SSGUpgrade4"
+	StaticText "$SSGUpgrade4D1", YELLOW
+	StaticText ""
+	StaticText "$SSGUpgrade4D2", YELLOW
+	StaticText ""
+	StaticText "$SSGUpgrade4D3", TAN
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
 //==============================================================================
 // Repeater
 //==============================================================================
@@ -785,13 +871,13 @@ OptionMenu "D4DUpgrade.Repeater"
 	Title "Repeater"
 	StaticText "Choose An Upgrade", GOLD
 	StaticText ""
-	Command "$RepeaterUpgradePiercing",	"test > $RepeaterUpgradePiercing 0 \"AlreadyBought\" \"openmenu RepeaterUpgradePiercing\""
+	Command "$RepeaterUpgradePiercing",	"test > $RepeaterUpgradePiercing 0 \"openmenu RepeaterUpgradePiercingDONE\" \"openmenu RepeaterUpgradePiercing\""
 	StaticText ""
-	Command "$RepeaterUpgradeDamage",	"test > $RepeaterUpgradeDamage 0 \"AlreadyBought\" \"openmenu RepeaterUpgradeDamage\""
+	Command "$RepeaterUpgradeDamage",	"test > $RepeaterUpgradeDamage 0 \"openmenu RepeaterUpgradeDamageDONE\" \"openmenu RepeaterUpgradeDamage\""
 	StaticText ""
-	Command "$RepeaterUpgradeAltDamage",	"test > $RepeaterUpgradeAltDamage 0 \"AlreadyBought\" \"openmenu RepeaterUpgradeAltDamage\""
+	Command "$RepeaterUpgradeAltDamage",	"test > $RepeaterUpgradeAltDamage 0 \"openmenu RepeaterUpgradeAltDamageDONE\" \"openmenu RepeaterUpgradeAltDamage\""
 	StaticText ""
-	Command "$RepeaterUpgradeAltAmmo",	"test > $RepeaterUpgradeAltAmmo 0 \"AlreadyBought\" \"openmenu RepeaterUpgradeAltAmmo\""
+	Command "$RepeaterUpgradeAltAmmo",	"test > $RepeaterUpgradeAltAmmo 0 \"openmenu RepeaterUpgradeAltAmmoDONE\" \"openmenu RepeaterUpgradeAltAmmo\""
 }
 
 OptionMenu "RepeaterUpgradePiercing"
@@ -842,6 +928,36 @@ OptionMenu "RepeaterUpgradeAltAmmo"
 	NumberField "Cash", D4DCash, -10, 1000000,			0.00000000000000000000000001, Adjustable
 }
 
+OptionMenu "RepeaterUpgradePiercingDONE"
+{
+	Title "$RepeaterUpgradePiercing"
+	StaticText "$RepeaterUpgradePiercingD1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "RepeaterUpgradeDamageDONE"
+{
+	Title "$RepeaterUpgradeDamage"
+	StaticText "$RepeaterUpgradeDamageD1"
+	StaticText ""
+	StaticText "$RepeaterUpgradeDamageD2", RED
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "RepeaterUpgradeAltDamageDONE"
+{
+	Title "$RepeaterUpgradeAltDamage"
+	StaticText "$RepeaterUpgradeAltDamageD1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "RepeaterUpgradeAltAmmoDONE"
+{
+	Title "$RepeaterUpgradeAltAmmo"
+	StaticText "$RepeaterUpgradeAltAmmoD1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
 
 //==============================================================================
 // Heavy Assault Rifle
@@ -851,9 +967,9 @@ OptionMenu "D4DUpgrade.HAR"
 	Title "Heavy Assault Rifle"
 	StaticText "Choose An Upgrade", GOLD
 	StaticText ""
-	Command "$AssaultRifleMod1",	"test > $AssaultRifleMod1 0 \"AlreadyBought\" \"openmenu AssaultRifleMod1\""
+	Command "$AssaultRifleMod1",	"test > $AssaultRifleMod1 0 \"openmenu AssaultRifleMod1DONE\" \"openmenu AssaultRifleMod1\""
 	StaticText ""
-	Command "$AssaultRifleMod2",	"test > $AssaultRifleMod2 0 \"AlreadyBought\" \"openmenu AssaultRifleMod2\""
+	Command "$AssaultRifleMod2",	"test > $AssaultRifleMod2 0 \"openmenu AssaultRifleMod2DONE\" \"openmenu AssaultRifleMod2\""
 }
 
 OptionMenu "AssaultRifleMod1"
@@ -882,6 +998,24 @@ OptionMenu "AssaultRifleMod2"
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
 }
+OptionMenu "AssaultRifleMod1DONE"
+{
+	Title "$AssaultRifleMod1"
+	StaticText "$AssaultRifleMod1D1", TAN
+	StaticText ""
+	StaticText "$AssaultRifleMod1D2", YELLOW
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "AssaultRifleMod2DONE"
+{
+	Title "$AssaultRifleMod2"
+	StaticText "$AssaultRifleMod2D1", TAN
+	StaticText ""
+	StaticText "$AssaultRifleMod2D2", YELLOW
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
 //==============================================================================
 // Chaingun
 //==============================================================================
@@ -890,9 +1024,9 @@ OptionMenu "D4DUpgrade.Chaingun"
 	Title "Chaingun"
 	StaticText "Choose An Upgrade", GOLD
 	StaticText ""
-	Command "$ChaingunMod1",	"test > $ChaingunMod1 0 \"AlreadyBought\" \"openmenu ChaingunMod1\""
+	Command "$ChaingunMod1",	"test > $ChaingunMod1 0 \"openmenu ChaingunMod1DONE\" \"openmenu ChaingunMod1\""
 	StaticText ""
-	Command "$ChaingunMod2",	"test > $ChaingunMod2 0 \"AlreadyBought\" \"openmenu ChaingunMod2\""
+	Command "$ChaingunMod2",	"test > $ChaingunMod2 0 \"openmenu ChaingunMod2DONE\" \"openmenu ChaingunMod2\""
 }
 
 OptionMenu "D4DUpgrade.ChaingunSpec"
@@ -900,11 +1034,11 @@ OptionMenu "D4DUpgrade.ChaingunSpec"
 	Title "Chaingun"
 	StaticText "Choose An Upgrade", GOLD
 	StaticText ""
-	Command "$ChaingunMod1",	"test > $ChaingunMod1 0 \"AlreadyBought\" \"openmenu ChaingunMod1\""
+	Command "$ChaingunMod1",	"test > $ChaingunMod1 0 \"openmenu ChaingunMod1DONE\" \"openmenu ChaingunMod1\""
 	StaticText ""
-	Command "$ChaingunMod2",	"test > $ChaingunMod2 0 \"AlreadyBought\" \"openmenu ChaingunMod2\""
+	Command "$ChaingunMod2",	"test > $ChaingunMod2 0 \"openmenu ChaingunMod2DONE\" \"openmenu ChaingunMod2\""
 	StaticText ""
-	Command "Mother Russia's Gift",	"test > $ChaingunMod3 0 \"AlreadyBought\" \"openmenu ChaingunMod3\""
+	Command "Mother Russia's Gift",	"test > $ChaingunMod3 0 \"openmenu ChaingunMod3DONE\" \"openmenu ChaingunMod3\""
 }
 
 OptionMenu "ChaingunMod1"
@@ -954,6 +1088,45 @@ OptionMenu "ChaingunMod3"
 	StaticText " "
 	Command "To Victory I Go.",	"FORMOTHERRUSSIA"
 }
+OptionMenu "ChaingunMod1DONE"
+{
+	Title "$ChaingunMod1"
+	StaticText "$ChaingunMod1D1", TAN
+	StaticText ""
+	StaticText "$ChaingunMod1D2", YELLOW
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "ChaingunMod2DONE"
+{
+	Title "$ChaingunMod2"
+	StaticText "$ChaingunMod2D1", TAN
+	StaticText ""
+	StaticText "$ChaingunMod2D2", RED
+	StaticText ""
+	StaticText "$ChaingunMod2D3", YELLOW
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "ChaingunMod3DONE"
+{
+	Title "Mother Russia's Gift"
+	StaticText "In Yu-Double-Ess-ARRRR, my comrade...", GOLD
+	StaticText "Spinmegun is paid for YOU.", GOLD
+	StaticText " "
+	StaticText "May your weapons sing the march of DooM.", GOLD
+	StaticText "Pack their bags and send them back to Hell!", GOLD
+	StaticText " "
+	StaticText "!!!WARNING!!!", RED
+	StaticText "Motion Sickness Trigger!", ORANGE
+	StaticText " "
+	StaticText "Toggled with Chaingun Special Keybind", WHITE
+	StaticText " "
+	StaticText "+ %2000 Damage"
+	StaticText "+ Rolling Vision", RED
+	StaticText ""
+	StaticText "You have already declared victory!", GOLD
+}
 
 //==============================================================================
 // Rocket Launcher
@@ -963,9 +1136,9 @@ OptionMenu "D4DUpgrade.RocketLauncher"
 	Title "Rocket Launcher"
 	StaticText "Choose An Upgrade"
 	StaticText ""
-	Command "$RocketLauncherMod1",	"test > $RocketLauncherMod1 0 \"AlreadyBought\" \"openmenu RocketLauncherMod1\""
+	Command "$RocketLauncherMod1",	"test > $RocketLauncherMod1 0 \"openmenu RocketLauncherMod1DONE\" \"openmenu RocketLauncherMod1\""
 	StaticText ""
-	Command "$RocketLauncherMod2",	"test > $RocketLauncherMod2 0 \"AlreadyBought\" \"openmenu RocketLauncherMod2\""
+	Command "$RocketLauncherMod2",	"test > $RocketLauncherMod2 0 \"openmenu RocketLauncherMod2DONE\" \"openmenu RocketLauncherMod2\""
 }
 
 OptionMenu "RocketLauncherMod1"
@@ -997,6 +1170,27 @@ OptionMenu "RocketLauncherMod2"
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
 }
+OptionMenu "RocketLauncherMod1DONE"
+{
+	Title "$RocketLauncherMod1"
+	StaticText "$RocketLauncherMod1D1", TAN
+	StaticText ""
+	StaticText "$RocketLauncherMod1D2", TAN
+	StaticText ""
+	StaticText "$RocketLauncherMod1D3", YELLOW
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+
+OptionMenu "RocketLauncherMod2DONE"
+{
+	Title "$RocketLauncherMod2"
+	StaticText "$RocketLauncherMod2D1", TAN
+	StaticText ""
+	StaticText "$RocketLauncherMod2D2", YELLOW
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
 //==============================================================================
 // Plasma Rifle
 //==============================================================================
@@ -1005,9 +1199,9 @@ OptionMenu "D4DUpgrade.PlasmaRifle"
 	Title "Plasma Rifle"
 	StaticText "Choose An Upgrade"
 	StaticText ""
-	Command "$PlasmaRifleMod1",	"test > $PlasmaRifleMod1 0 \"AlreadyBought\" \"openmenu PlasmaRifleMod1\""
+	Command "$PlasmaRifleMod1",	"test > $PlasmaRifleMod1 0 \"openmenu PlasmaRifleMod1DONE\" \"openmenu PlasmaRifleMod1\""
 	StaticText ""
-	Command "$PlasmaRifleMod2",	"test > $PlasmaRifleMod2 0 \"AlreadyBought\" \"openmenu PlasmaRifleMod2\""
+	Command "$PlasmaRifleMod2",	"test > $PlasmaRifleMod2 0 \"openmenu PlasmaRifleMod2DONE\" \"openmenu PlasmaRifleMod2\""
 }
 
 OptionMenu "PlasmaRifleMod1"
@@ -1041,6 +1235,29 @@ OptionMenu "PlasmaRifleMod2"
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
 }
+OptionMenu "PlasmaRifleMod1DONE"
+{
+	Title "$PlasmaRifleMod1"
+	StaticText "$PlasmaRifleMod1D1", TAN
+	StaticText ""
+	StaticText "$PlasmaRifleMod1D2", TAN
+	StaticText ""
+	StaticText "$PlasmaRifleMod1D3", YELLOW
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+
+OptionMenu "PlasmaRifleMod2DONE"
+{
+	Title "$PlasmaRifleMod2"
+	StaticText "$PlasmaRifleMod2D1", TAN
+	StaticText ""
+	StaticText "$PlasmaRifleMod2D2", RED
+	StaticText ""
+	StaticText "$PlasmaRifleMod2D3", YELLOW
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
 //==============================================================================
 // Lightning Gun
 //==============================================================================
@@ -1049,13 +1266,13 @@ OptionMenu "D4DUpgrade.LightningGun"
 	Title "Lightning Gun"
 	StaticText "Choose An Upgrade"
 	StaticText ""
-	Command "$LGUpgradeAmmo",	"test > $LGUpgradeAmmo 0 \"AlreadyBought\" \"openmenu LGUpgradeAmmo\""
+	Command "$LGUpgradeAmmo",	"test > $LGUpgradeAmmo 0 \"openmenu LGUpgradeAmmoDONE\" \"openmenu LGUpgradeAmmo\""
 	StaticText ""
-	Command "$LGUpgradeRange",	"test > $LGUpgradeRange 0 \"AlreadyBought\" \"openmenu LGUpgradeRange\""
+	Command "$LGUpgradeRange",	"test > $LGUpgradeRange 0 \"openmenu LGUpgradeRangeDONE\" \"openmenu LGUpgradeRange\""
 	StaticText ""
-	Command "$LGUpgradeDamage",	"test > $LGUpgradeDamage 0 \"AlreadyBought\" \"openmenu LGUpgradeDamage\""
+	Command "$LGUpgradeDamage",	"test > $LGUpgradeDamage 0 \"openmenu LGUpgradeDamageDONE\" \"openmenu LGUpgradeDamage\""
 	StaticText ""
-	Command "$LGUpgradeAltFire",	"test > $LGUpgradeAltFire 0 \"AlreadyBought\" \"openmenu LGUpgradeAltFire\""
+	Command "$LGUpgradeAltFire",	"test > $LGUpgradeAltFire 0 \"openmenu LGUpgradeAltFireDONE\" \"openmenu LGUpgradeAltFire\""
 }
 
 OptionMenu "LGUpgradeAmmo"
@@ -1104,6 +1321,34 @@ OptionMenu "LGUpgradeAltFire"
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
 }
+OptionMenu "LGUpgradeAmmoDONE"
+{
+	Title "$LGUpgradeAmmo"
+	StaticText "$LGUpgradeAmmoD1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "LGUpgradeRangeDONE"
+{
+	Title "$LGUpgradeRange"
+	StaticText "$LGUpgradeRangeD1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "LGUpgradeDamageDONE"
+{
+	Title "$LGUpgradeDamage"
+	StaticText "$LGUpgradeDamageD1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "LGUpgradeAltFireDONE"
+{
+	Title "$LGUpgradeAltFire"
+	StaticText "$LGUpgradeAltFireD1", GOLD
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
 //==============================================================================
 // Vortex Rifle
 //==============================================================================
@@ -1112,13 +1357,13 @@ OptionMenu "D4DUpgrade.VortexRifle"
 	Title "Vortex Rifle"
 	StaticText "Choose An Upgrade"
 	StaticText ""
-	Command "$VortexUpgradeDamage",	"test > $VortexUpgradeDamage 0 \"AlreadyBought\" \"openmenu VortexUpgradeDamage\""
+	Command "$VortexUpgradeDamage",	"test > $VortexUpgradeDamage 0 \"openmenu VortexUpgradeDamageDONE\" \"openmenu VortexUpgradeDamage\""
 	StaticText ""
-	Command "$VortexUpgradeAmmo",	"test > $VortexUpgradeAmmo 0 \"AlreadyBought\" \"openmenu VortexUpgradeAmmo\""
+	Command "$VortexUpgradeAmmo",	"test > $VortexUpgradeAmmo 0 \"openmenu VortexUpgradeAmmoDONE\" \"openmenu VortexUpgradeAmmo\""
 	StaticText ""
-	Command "$VortexUpgradeAltSpeed",	"test > $VortexUpgradeAltSpeed 0 \"AlreadyBought\" \"openmenu VortexUpgradeAltSpeed\""
+	Command "$VortexUpgradeAltSpeed",	"test > $VortexUpgradeAltSpeed 0 \"openmenu VortexUpgradeAltSpeedDONE\" \"openmenu VortexUpgradeAltSpeed\""
 	StaticText ""
-	Command "$VortexUpgradeAltCharge","test > $VortexUpgradeAltCharge 0 \"AlreadyBought\" \"openmenu VortexUpgradeAltCharge\""
+	Command "$VortexUpgradeAltCharge","test > $VortexUpgradeAltCharge 0 \"openmenu VortexUpgradeAltChargeDONE\" \"openmenu VortexUpgradeAltCharge\""
 }
 OptionMenu "VortexUpgradeDamage"
 {
@@ -1166,6 +1411,34 @@ OptionMenu "VortexUpgradeAltCharge"
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
 }
+OptionMenu "VortexUpgradeDamageDONE"
+{
+	Title "$VortexUpgradeDamage"
+	StaticText "$VortexUpgradeDamageD1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "VortexUpgradeAmmoDONE"
+{
+	Title "$VortexUpgradeAmmo"
+	StaticText "$VortexUpgradeAmmoD1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "VortexUpgradeAltSpeedDONE"
+{
+	Title "$VortexUpgradeAltSpeed"
+	StaticText "$VortexUpgradeAltSpeedD1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "VortexUpgradeAltChargeDONE"
+{
+	Title "$VortexUpgradeAltCharge"
+	StaticText "$VortexUpgradeAltChargeD1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
 //==============================================================================
 // Static Rifle
 //==============================================================================
@@ -1174,13 +1447,13 @@ OptionMenu "D4DUpgrade.StaticRifle"
 	Title "Static Rifle"
 	StaticText "Choose An Upgrade"
 	StaticText ""
-	Command "$StaticUpgrade1",	"test > $StaticUpgrade1 0 \"AlreadyBought\" \"openmenu StaticUpgrade1\""
+	Command "$StaticUpgrade1",	"test > $StaticUpgrade1 0 \"openmenu StaticUpgrade1DONE\" \"openmenu StaticUpgrade1\""
 	StaticText ""
-	Command "$StaticUpgrade2",	"test > $StaticUpgrade2 0 \"AlreadyBought\" \"CheckSTRReq2\""
+	Command "$StaticUpgrade2",	"test > $StaticUpgrade2 0 \"openmenu StaticUpgrade2DONE\" \"CheckSTRReq2\""
 	StaticText ""
-	Command "$StaticUpgrade3",	"test > $StaticUpgrade3 0 \"AlreadyBought\" \"CheckSTRReq3\""
+	Command "$StaticUpgrade3",	"test > $StaticUpgrade3 0 \"openmenu StaticUpgrade3DONE\" \"CheckSTRReq3\""
 	StaticText ""
-	Command "$StaticUpgrade4",	"test > $StaticUpgrade4 0 \"AlreadyBought\" \"CheckSTRReq4\""
+	Command "$StaticUpgrade4",	"test > $StaticUpgrade4 0 \"openmenu StaticUpgrade4DONE\" \"CheckSTRReq4\""
 }
 
 OptionMenu "StaticUpgrade1"
@@ -1297,6 +1570,51 @@ OptionMenu "StaticUpgrade4NA"
 	Command "$StaticUpgrade2",	"test > $StaticUpgrade2 0 \"AlreadyBought\" \"openmenu StaticUpgrade2\""
 	Command "$StaticUpgrade3",	"test > $StaticUpgrade3 0 \"AlreadyBought\" \"openmenu StaticUpgrade3\""
 }
+OptionMenu "StaticUpgrade1DONE"
+{
+	Title "$StaticUpgrade1"
+	StaticText "$StaticUpgrade1D1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "StaticUpgrade2DONE"
+{
+	Title "$StaticUpgrade2"
+	StaticText "$StaticUpgrade2D1"
+	StaticText ""
+	StaticText "$StaticUpgrade2D2"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "StaticUpgrade3DONE"
+{
+	Title "$StaticUpgrade3"
+	StaticText "$StaticUpgrade3D1"
+	StaticText ""
+	StaticText "$StaticUpgrade3D2"
+	StaticText ""
+	StaticText "$StaticUpgrade3D3"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "StaticUpgrade4DONE"
+{
+	Title "$StaticUpgrade4"
+	StaticText "$StaticUpgrade4D1"
+	StaticText ""
+	StaticText "$StaticUpgrade4D2", WHITE
+	StaticText ""
+	StaticText "$StaticUpgrade4D3"
+	StaticText ""
+	StaticText "$StaticUpgrade4D4"
+	StaticText ""
+	StaticText "$StaticUpgrade4D5", YELLOW
+	StaticText ""
+	StaticText "$StaticUpgrade4D6", GOLD
+	StaticText ""
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
 //==============================================================================
 // Gauss Cannon
 //==============================================================================
@@ -1305,11 +1623,10 @@ OptionMenu "D4DUpgrade.GaussCannon"
 	Title "Gauss Cannon"
 	StaticText "Choose An Upgrade"
 	StaticText ""
-	Command "$GaussCannonMod1",	"test > $GaussCannonMod1 0 \"AlreadyBought\" \"openmenu GaussCannonMod1\""
+	Command "$GaussCannonMod1",	"test > $GaussCannonMod1 0 \"openmenu GaussCannonMod1DONE\" \"openmenu GaussCannonMod1\""
 	StaticText ""
-	Command "$GaussCannonMod2",	"test > $GaussCannonMod2 0 \"AlreadyBought\" \"openmenu GaussCannonMod2\""
+	Command "$GaussCannonMod2",	"test > $GaussCannonMod2 0 \"openmenu GaussCannonMod1DONE\" \"openmenu GaussCannonMod2\""
 }
-
 OptionMenu "GaussCannonMod1"
 {
 	Title "$GaussCannonMod1"
@@ -1338,6 +1655,26 @@ OptionMenu "GaussCannonMod2"
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
 }
+OptionMenu "GaussCannonMod1DONE"
+{
+	Title "$GaussCannonMod1"
+	StaticText "$GaussCannonMod1D1", TAN
+	StaticText ""
+	StaticText "$GaussCannonMod1D2", YELLOW
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "GaussCannonMod2DONE"
+{
+	Title "$GaussCannonMod2"
+	StaticText "$GaussCannonMod2D1", TAN
+	StaticText ""
+	StaticText "$GaussCannonMod2D2", RED
+	StaticText ""
+	StaticText "$GaussCannonMod2D3", YELLOW
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
 //==============================================================================
 // BFG
 //==============================================================================
@@ -1346,13 +1683,13 @@ OptionMenu "D4DUpgrade.BFG"
 	Title "BFG"
 	StaticText "Choose An Upgrade", GOLD
 	StaticText ""
-	Command "$BFGUpgrade1",	"test > $BFGUpgrade1 0 \"AlreadyBought\" \"openmenu BFGUpgrade1\""
+	Command "$BFGUpgrade1",	"test > $BFGUpgrade1 0 \"openmenu BFGUpgrade1DONE\" \"openmenu BFGUpgrade1\""
 	StaticText " "
-	Command "$BFGUpgrade2",	"test > $BFGUpgrade2 0 \"AlreadyBought\" \"openmenu BFGUpgrade2\""
+	Command "$BFGUpgrade2",	"test > $BFGUpgrade2 0 \"openmenu BFGUpgrade2DONE\" \"openmenu BFGUpgrade2\""
 	StaticText " "
-	Command "$BFGUpgrade3",	"test > $BFGUpgrade3 0 \"AlreadyBought\" \"openmenu BFGUpgrade3\""
+	Command "$BFGUpgrade3",	"test > $BFGUpgrade3 0 \"openmenu BFGUpgrade3DONE\" \"openmenu BFGUpgrade3\""
 	StaticText " "
-	Command "$BFGUpgrade4",	"test > $BFGUpgrade4 0 \"AlreadyBought\" \"openmenu BFGUpgrade4\""
+	Command "$BFGUpgrade4",	"test > $BFGUpgrade4 0 \"openmenu BFGUpgrade4DONE\" \"openmenu BFGUpgrade4\""
 }
 
 OptionMenu "BFGUpgrade1"
@@ -1410,6 +1747,42 @@ OptionMenu "BFGUpgrade4"
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
 }
+OptionMenu "BFGUpgrade1DONE"
+{
+	Title "$BFGUpgrade1"
+	StaticText "$BFGUpgrade1D1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "BFGUpgrade2DONE"
+{
+	Title "$BFGUpgrade2"
+	StaticText "$BFGUpgrade2D1"
+	StaticText ""
+	StaticText "$BFGUpgrade2D2", TAN
+	StaticText ""
+	StaticText "$BFGUpgrade2D3", GOLD
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "BFGUpgrade3DONE"
+{
+	Title "$BFGUpgrade3"
+	StaticText "$BFGUpgrade3D1"
+	StaticText ""
+	StaticText "$BFGUpgrade3D2"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "BFGUpgrade4DONE"
+{
+	Title "$BFGUpgrade4"
+	StaticText "$BFGUpgrade4D1"
+	StaticText ""
+	StaticText "$BFGUpgrade4D2", TAN
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
 //==============================================================================
 // Carrion Cannon
 //==============================================================================
@@ -1419,13 +1792,13 @@ OptionMenu "D4DUpgrade.CarrionCannon"
 	//$CarrionUpgradeTime
 	StaticText "Choose An Upgrade", GOLD
 	StaticText ""
-	Command "$CarrionUpgradePickup","test > $CarrionUpgradePickup 0 \"AlreadyBought\" \"openmenu CarrionUpgradePickup\""
+	Command "$CarrionUpgradePickup","test > $CarrionUpgradePickup 0 \"openmenu CarrionUpgradePickupDONE\" \"openmenu CarrionUpgradePickup\""
 	StaticText " "
-	Command "$CarrionUpgradeAmmo",	"test > $CarrionUpgradeAmmo 0 \"AlreadyBought\" \"openmenu CarrionUpgradeAmmo\""
+	Command "$CarrionUpgradeAmmo",	"test > $CarrionUpgradeAmmo 0 \"openmenu CarrionUpgradeAmmoDONE\" \"openmenu CarrionUpgradeAmmo\""
 	StaticText " "
-	Command "$CarrionUpgradeStun",	"test > $CarrionUpgradeStun 0 \"AlreadyBought\" \"openmenu CarrionUpgradeStun\""
+	Command "$CarrionUpgradeStun",	"test > $CarrionUpgradeStun 0 \"openmenu CarrionUpgradeStunDONE\" \"openmenu CarrionUpgradeStun\""
 	StaticText " "
-	Command "$CarrionUpgradeTime",	"test > $CarrionUpgradeTime 0 \"AlreadyBought\" \"openmenu CarrionUpgradeTime\""
+	Command "$CarrionUpgradeTime",	"test > $CarrionUpgradeTime 0 \"openmenu CarrionUpgradeTimeDONE\" \"openmenu CarrionUpgradeTime\""
 }
 
 OptionMenu "CarrionUpgradePickup"
@@ -1463,7 +1836,6 @@ OptionMenu "CarrionUpgradeStun"
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
 }
-
 OptionMenu "CarrionUpgradeTime"
 {
 	Title "$CarrionUpgradeTime"
@@ -1475,6 +1847,34 @@ OptionMenu "CarrionUpgradeTime"
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
 }
+OptionMenu "CarrionUpgradePickupDONE"
+{
+	Title "$CarrionUpgradePickup"
+	StaticText "$CarrionUpgradePickupD1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "CarrionUpgradeAmmoDONE"
+{
+	Title "$CarrionUpgradeAmmo"
+	StaticText "$CarrionUpgradeAmmoD1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "CarrionUpgradeStunDONE"
+{
+	Title "$CarrionUpgradeStun"
+	StaticText "$CarrionUpgradeStunD1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
+OptionMenu "CarrionUpgradeTimeDONE"
+{
+	Title "$CarrionUpgradeTime"
+	StaticText "$CarrionUpgradeTimeD1"
+	StaticText ""
+	StaticText "You have already purchased this upgrade.", GOLD
+}
 //==============================================================================
 //==============================================================================
 // Suit Upgrades
@@ -1483,19 +1883,19 @@ OptionMenu "CarrionUpgradeTime"
 OptionMenu "D4DUpgrade.Suit"
 {
 	Title "Suit Upgrades"
-	Command "Health",		"test >= $D4Stamina 100 \"AlreadyBought\" \"CH3\""
+	Command "Health",		"test >= $D4Stamina 100 \"openmenu D4HealthUpgradeDONE\" \"CH3\""
 	StaticText " "
-	Command "Armor",		"test >= $D4ArmorCapRaiser 100 \"AlreadyBought\" \"CheckArmor3\""
+	Command "Armor",		"test >= $D4ArmorCapRaiser 100 \"openmenu D4ArmorCapRaiserDONE\" \"CheckArmor3\""
 	StaticText " "
-	Command "Air Movement",	"test >= $D4AirControl 1 \"AlreadyBought\" \"CheckJump3\""
+	Command "Air Movement",	"test >= $D4AirControl 1 \"openmenu D4JumpDONE\" \"CheckJump3\""
 	StaticText " "
-	Command "Credits",	"test >= $CashPercentBonus 30 \"AlreadyBought\" \"CheckCredits3\""
+	Command "Credits",	"test >= $CashPercentBonus 30 \"openmenu CashPercentBonusDONE\" \"CheckCredits3\""
 	StaticText " "
-	Command "Protection",	"test >= $ProtectionBonus3 1 \"AlreadyBought\" \"CheckProtect3\""
+	Command "Protection",	"test >= $ProtectionBonus3 1 \"openmenu ProtectionBonusDONE\" \"CheckProtect3\""
 	//StaticText " "
 	//Command "Grenades",		"openmenu D4Grenades"
 	StaticText " "
-	Command "Crates",		"test >= $D4CrateUpgrade 3 \"AlreadyBought\" \"CheckCrates3\""
+	Command "Crates",		"test >= $D4CrateUpgrade 3 \"openmenu D4CrateUpgradeDONE\" \"CheckCrates3\""
 	//StaticText " "
 	//Command "Pinatas",		""
 	//StaticText " "
@@ -1574,6 +1974,25 @@ OptionMenu "D4HealthUpgrade3"
 	NumberField "Cost", Cost_U3Health, 0, 1000000, 	0.00000000000000000000000001, Adjustable
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "D4HealthUpgradeDONE"
+{
+	Title "Health Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "+25 Maximum Health"
+	StaticText " "
+	StaticText "+25 Maximum Health"
+	StaticText " "
+	StaticText "+50 Maximum Health"
+	StaticText " "
+    StaticText "You have already upgraded this ability to its fullest.", GOLD
 }
 
 //==============================================================================
@@ -1662,7 +2081,29 @@ OptionMenu "D4ArmorCapRaiser3"
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
 }
-
+OptionMenu "D4ArmorCapRaiserDONE"
+{
+	Title "Armor Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "+25 Maximum Armor"
+	StaticText "Chainsaw Secondary: Drops max 2 armor shards (50%)"
+	StaticText " "
+	StaticText "+25 Maximum Armor"
+	StaticText "Chainsaw Secondary: Drops max 4 armor shards (50%)"
+	StaticText "Enemies rarely drop armor shards on death"
+	StaticText " "
+	StaticText "+50 Maximum Armor"
+	StaticText "Chainsaw Secondary: Adds 2 guaranteed shards"
+	StaticText " "
+    StaticText "You have already upgraded this ability to its fullest.", GOLD
+}
 //==============================================================================
 // Jump
 //==============================================================================
@@ -1736,6 +2177,25 @@ OptionMenu "D4Jump3"
 	NumberField "Cost", Cost_AirControl, 0, 1000000, 	0.00000000000000000000000001, Adjustable
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "D4JumpDONE"
+{
+	Title "Jump Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "Higher Jump"
+	StaticText " "
+	StaticText "Triple Jump"
+	StaticText " "
+	StaticText "Air Control"
+	StaticText " "
+    StaticText "You have already upgraded this ability to its fullest.", GOLD
 }
 //==============================================================================
 // Cash Bonus
@@ -1811,6 +2271,25 @@ OptionMenu "CashPercentBonus3"
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
 }
+OptionMenu "CashPercentBonusDONE"
+{
+	Title "Credit Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "+10% Credits"
+	StaticText " "
+	StaticText "+20% Credits"
+	StaticText " "
+	StaticText "+30% Credits"
+	StaticText " "
+    StaticText "You have already upgraded this ability to its fullest.", GOLD
+}
 //==============================================================================
 // Protection
 //==============================================================================
@@ -1884,6 +2363,25 @@ OptionMenu "ProtectionBonus3"
 	NumberField "Cost", Cost_U3Protection, 0, 1000000, 	0.00000000000000000000000001, Adjustable
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "ProtectionBonusDONE"
+{
+	Title "Protection Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "50% Environmental Protection"
+	StaticText " "
+	StaticText "50% Self Damage Reduction"
+	StaticText " "
+	StaticText "50% Radius Damage Reduction"
+	StaticText " "
+    StaticText "You have already upgraded this ability to its fullest.", GOLD
 }
 //==============================================================================
 // Crates
@@ -1965,6 +2463,28 @@ OptionMenu "D4CrateUpgrade3"
 	NumberField "Cost", Cost_U3Crate, 0, 1000000, 	0.00000000000000000000000001, Adjustable
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+OptionMenu "D4CrateUpgradeDONE"
+{
+	Title "Crate Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "- Heavy Crates -"
+	StaticText "Removes small health/ammo/armor items"
+	StaticText " "
+	StaticText "- Awareness Crates -"
+	StaticText "Drops items based around player status"
+	StaticText " "
+	StaticText "- Weaponized Crates -"
+	StaticText "Chance to spawn weapons"
+	StaticText " "
+    StaticText "You have already upgraded this ability to its fullest.", GOLD
 }
 //==============================================================================
 //==============================================================================
