@@ -729,13 +729,13 @@ extend class Doom4Player
 	int CooldownTimer[3];
 	override void Tick()
 	{
-		if (PentaNoiseWait > 0)	PentaNoiseWait--;
-		
-		if (isVoodoo())
+		if (isVoodoo() || health <= 0)
 		{
 			Super.Tick();
 			return;
 		}
+		
+		if (PentaNoiseWait > 0)	PentaNoiseWait--;
 		if (level.maptime <= 1)	InitPlayer();
 		
 		static const int CooldownCaps[] = { 3, 2, 10 };

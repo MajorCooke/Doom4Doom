@@ -8,6 +8,12 @@
 // summon D4ChaingunGuy
 Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 {
+	override void BeginPlay()
+	{
+		CashDropper = "ChaingunGuyCashGiver";
+		Super.BeginPlay();
+	}
+	
 	const CBAFlags = CBAF_AIMFACING|CBAF_PUFFTRACER|CBAF_NORANDOMPUFFZ|CBAF_NORANDOM;
 	double user_vangle;
 	double user_p;
@@ -137,7 +143,7 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 			bThruActors = true;
 			D4SetupLoot();
 			D4DropItems();
-			D4DropCash(CashMultiplier,"ChainguyCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"ChainguyCashGiver");
 		}
 		HRZR I 5 ;
 		HRZR J 5 A_Scream();
@@ -164,7 +170,7 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 			bThruActors = true;
 			XDeathGush();
 			D4DropItems();
-			D4DropCash(CashMultiplier,"ChainguyCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"ChainguyCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_NoBlocking();	//just in case
 			A_KillChildren("None",KILS_KILLMISSILES,null,"LaserKillable");
@@ -496,6 +502,12 @@ Class ElectricRailTrail : Actor
 
 Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy //replaces ChaingunGuy
 {
+	override void BeginPlay()
+	{
+		CashDropper = "ChaingunGuyCashGiver";
+		Super.BeginPlay();
+	}
+	
 	int user_staggertimer;
 	Default 
 	{
@@ -557,7 +569,7 @@ Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy //replaces ChaingunG
 			bThruActors = true;
 			D4SetupLoot();
 			D4DropItems();
-			D4DropCash(CashMultiplier,"ChainguyCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"ChainguyCashGiver");
 		}
 		CPOS H 4 ;
 		CPOS I 4 A_Scream();
@@ -584,7 +596,7 @@ Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy //replaces ChaingunG
 			bThruActors = true;
 			XDeathGush();
 			D4DropItems();
-			D4DropCash(CashMultiplier,"ChainguyCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"ChainguyCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 		}
 		CPOS O 4;

@@ -106,6 +106,7 @@ Struct D4DropList
 
 Class D4AbstractMonster : Actor 
 {
+	Class<Actor> CashDropper;
 	int CashMultiplier;
 	Name MOD;
 	D4DropList Pinatas;
@@ -222,10 +223,10 @@ Class D4AbstractMonster : Actor
 	{
 		if (CashGiver == null)
 		{	return;		}
-		for (; CashMul > 0; CashMul--)
-		{
-			A_SpawnItemEx(CashGiver,0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-		}
+		
+		let cashboy = CashGiverBase(Spawn(CashGiver,pos));
+		if (cashboy)	cashboy.Multiplier = CashMul;
+		
 		return;
 	}
 	

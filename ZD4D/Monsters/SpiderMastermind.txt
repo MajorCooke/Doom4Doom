@@ -7,6 +7,12 @@
 //================================================================================================================
 Class D4SpiderMastermind : D4AbstractBoss
 {
+	override void BeginPlay()
+	{
+		CashDropper = "SpiderMastermindCashGiver";
+		Super.BeginPlay();
+	}
+	
 	const CBAFlags = CBAF_AIMFACING|CBAF_PUFFTRACER|CBAF_NORANDOMPUFFZ|CBAF_NORANDOM|CBAF_EXPLICITANGLE;
 	int user_angle;
 	int user_counter;
@@ -198,7 +204,7 @@ Class D4SpiderMastermind : D4AbstractBoss
 			bThruActors = true;
 			D4SetupLoot(true);
 			D4DropItems();
-			D4DropCash(CashMultiplier,"MastermindCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"MastermindCashGiver");
 			A_StopSound(6);	A_Scream(); 
 		}
 		SPID K 10 A_NoBlocking();
@@ -229,7 +235,7 @@ Class D4SpiderMastermind : D4AbstractBoss
 			bThruActors = true;
 			XDeathGush();
 			D4DropItems();
-			D4DropCash(CashMultiplier,"MastermindCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"MastermindCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			
 			A_StopSound(6);	
@@ -852,6 +858,12 @@ Class SMMPlasmaBallPuff : Actor
 //================================================================================================================
 Class D4OldSpiderMastermind : D4AbstractBoss // : SpiderMastermind
 {
+	override void BeginPlay()
+	{
+		CashDropper = "SpiderMastermindCashGiver";
+		Super.BeginPlay();
+	}
+	
 	int user_staggertimer;
 	
 	Default 
@@ -913,7 +925,7 @@ Class D4OldSpiderMastermind : D4AbstractBoss // : SpiderMastermind
 			bThruActors = true;
 			D4SetupLoot(true);
 			D4DropItems();
-			D4DropCash(CashMultiplier,"MastermindCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"MastermindCashGiver");
 			A_Scream();
 		}
 		SPID K 10 A_NoBlocking();
@@ -945,7 +957,7 @@ Class D4OldSpiderMastermind : D4AbstractBoss // : SpiderMastermind
 			bThruActors = true;
 			XDeathGush();
 			D4DropItems();
-			D4DropCash(CashMultiplier,"MastermindCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"MastermindCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 		
 			if (RuneChance(RuneChance_Master))

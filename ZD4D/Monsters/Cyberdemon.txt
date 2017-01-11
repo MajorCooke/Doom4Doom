@@ -7,6 +7,12 @@
 //================================================================================================================
 Class D4Cyberdemon : D4AbstractBoss
 {
+	override void BeginPlay()
+	{
+		CashDropper = "CyberdemonCashGiver";
+		Super.BeginPlay();
+	}
+	
 	int user_staggertimer;
 	int user_rocketcount;
 	
@@ -200,7 +206,7 @@ Class D4Cyberdemon : D4AbstractBoss
 			bThruActors = true;
 			D4SetupLoot(true);
 			D4DropItems();
-			D4DropCash(CashMultiplier,"CyberdemonCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"CyberdemonCashGiver");
 			
 			A_SpawnItemEx("CyberdemonDeathFX",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_SpawnItemEx("BossExploderSFX",0,0,0,0,0,0,0,32);
@@ -239,7 +245,7 @@ Class D4Cyberdemon : D4AbstractBoss
 			bThruActors = true;
 			XDeathGush();
 			D4DropItems();
-			D4DropCash(CashMultiplier,"CyberdemonCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"CyberdemonCashGiver");
 		}
 		Goto XDeathNoDrops;
 	XdeathNoDrops:
@@ -731,6 +737,12 @@ Class CyberdemonRocketExplosion : Actor
 //================================================================================================================
 Class D4OldCyberdemon : D4AbstractBoss // : Cyberdemon
 {
+	override void BeginPlay()
+	{
+		CashDropper = "CyberdemonCashGiver";
+		Super.BeginPlay();
+	}
+	
 	int user_staggertimer;
 	
 	Default 
@@ -785,7 +797,7 @@ Class D4OldCyberdemon : D4AbstractBoss // : Cyberdemon
 		CYBR H 10 
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"CyberdemonCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"CyberdemonCashGiver");
 			D4SetupLoot(true);
 			D4DropItems();
 			
@@ -821,7 +833,7 @@ Class D4OldCyberdemon : D4AbstractBoss // : Cyberdemon
 			bThruActors = true;
 			XDeathGush();
 			D4DropItems();
-			D4DropCash(CashMultiplier,"CyberdemonCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"CyberdemonCashGiver");
 			if (RuneChance(RuneChance_Cyber))
 			{	A_SpawnItemEx("CyberdemonRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}

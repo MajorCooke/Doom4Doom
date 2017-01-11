@@ -7,6 +7,12 @@
 //================================================================================================================
 Class D4ShotgunGuy : D4AbstractMonster
 {
+	override void BeginPlay()
+	{
+		CashDropper = "ShotgunGuyCashGiver";
+		Super.BeginPlay();
+	}
+	
 	int user_staggertimer;
 	
 	Default 
@@ -140,7 +146,7 @@ Class D4ShotgunGuy : D4AbstractMonster
 			bThruActors = true;
 			D4SetupLoot();
 			D4DropItems();
-			D4DropCash(CashMultiplier,"ShotguyCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"ShotguyCashGiver");
 		}
 		BBRG H 3 ;
 		BBRG I 3 A_Scream();
@@ -167,7 +173,7 @@ Class D4ShotgunGuy : D4AbstractMonster
 			bThruActors = true;
 			XDeathGush();
 			D4DropItems();
-			D4DropCash(CashMultiplier,"ShotguyCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"ShotguyCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_NoBlocking();	//just in case
 		}
@@ -311,6 +317,12 @@ Class ShotgunnerPlasmaBall : ZombiemanPlasmaBall // the only difference is the f
 
 Class D4OldShotgunGuy : D4AbstractMonster // : ShotgunGuy //replaces ShotgunGuy
 {
+	override void BeginPlay()
+	{
+		CashDropper = "ShotgunGuyCashGiver";
+		Super.BeginPlay();
+	}
+	
 	int user_staggertimer;
 	
 	Default 
@@ -373,7 +385,7 @@ Class D4OldShotgunGuy : D4AbstractMonster // : ShotgunGuy //replaces ShotgunGuy
 			bThruActors = true;
 			D4SetupLoot();
 			D4DropItems();
-			D4DropCash(CashMultiplier,"ShotguyCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"ShotguyCashGiver");
 		}
 		SPOS H 3 ;
 		SPOS I 3 A_Scream();
@@ -400,7 +412,7 @@ Class D4OldShotgunGuy : D4AbstractMonster // : ShotgunGuy //replaces ShotgunGuy
 			bThruActors = true;
 			XDeathGush();
 			D4DropItems();
-			D4DropCash(CashMultiplier,"ShotguyCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"ShotguyCashGiver");
 		}
 		SPOS N 5 A_XScream();
 		SPOS O 5 A_NoBlocking();

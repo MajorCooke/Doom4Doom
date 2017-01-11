@@ -57,8 +57,19 @@ Class CashPercentBonus : Inventory
 		+INVENTORY.UNDROPPABLE
 		+INVENTORY.UNTOSSABLE
 		+INVENTORY.IGNORESKILL
-		Inventory.MaxAmount 0x7FFFFFFF;
-		Inventory.InterhubAmount 0x7FFFFFFF;
+		Inventory.MaxAmount 1000000;
+		Inventory.InterhubAmount 1000000;
+	}
+}
+
+Class CashPercentBonusTemp : Inventory
+{
+	Default
+	{
+		+INVENTORY.UNTOSSABLE
+		+INVENTORY.IGNORESKILL
+		Inventory.MaxAmount 1000000;
+		Inventory.InterhubAmount 0;
 	}
 }
 

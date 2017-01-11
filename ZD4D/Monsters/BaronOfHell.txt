@@ -7,6 +7,12 @@
 //================================================================================================================
 Class D4BaronOfHell : D4AbstractBiggie
 {
+	override void BeginPlay()
+	{
+		CashDropper = "BaronofHellCashGiver";
+		Super.BeginPlay();
+	}
+
 	int user_timer;
 	int user_count;
 	int user_chasecount;
@@ -468,7 +474,7 @@ Class D4BaronOfHell : D4AbstractBiggie
 			bThruActors = true;
 			D4SetupLoot();
 			D4DropItems();
-			D4DropCash(CashMultiplier,"BaronCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"BaronCashGiver");
 			
 			if (RuneChance(RuneChance_Baron))
 			{	A_SpawnItemEx("BaronRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
@@ -500,7 +506,7 @@ Class D4BaronOfHell : D4AbstractBiggie
 			bThruActors = true;
 			XDeathGush(Color_Green);
 			D4DropItems();
-			D4DropCash(CashMultiplier,"BaronCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"BaronCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_NoBlocking();	//just in case
 			if (RuneChance(RuneChance_Baron))
@@ -1033,6 +1039,12 @@ Class BaronOfHellBallBigFlamelet : Actor
 
 Class D4OldBaronOfHell : D4AbstractBiggie // : BaronOfHell
 {
+	override void BeginPlay()
+	{
+		CashDropper = "BaronofHellCashGiver";
+		Super.BeginPlay();
+	}
+	
 	int user_staggertimer;
 	Default 
 	{
@@ -1091,7 +1103,7 @@ Class D4OldBaronOfHell : D4AbstractBiggie // : BaronOfHell
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4DropCash(CashMultiplier,"BaronCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"BaronCashGiver");
 			D4SetupLoot();
 			D4DropItems();
 			
@@ -1130,7 +1142,7 @@ Class D4OldBaronOfHell : D4AbstractBiggie // : BaronOfHell
 			bThruActors = true;
 			XDeathGush(Color_Green);
 			D4DropItems();
-			D4DropCash(CashMultiplier,"BaronCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"BaronCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 		}
 		BOSS I  5 ;

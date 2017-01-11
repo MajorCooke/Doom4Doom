@@ -865,7 +865,7 @@ Class D4QuadMoney : CustomInventory
 			{
 				A_SpawnItemEx("QuadMoneyManager",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
 				A_SpawnItemEx("QuadMoneyLight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
-				A_GiveInventory("CashPercentBonus", 300);
+				A_GiveInventory("CashPercentBonusTemp", 300);
 			}
 			A_GiveInventory("QuadMoneyGiver", 1);
 		}
@@ -921,7 +921,7 @@ Class QuadMoneyManager : Actor
 			{
 				A_TakeInventory("PowerD4Money",32767,0,MasterPtr);
 				A_TakeInventory("QuadMoneyTimer",32767,0,MasterPtr);
-				A_TakeInventory("CashPercentBonus",300,0,MasterPtr);
+				A_TakeInventory("CashPercentBonusTemp",300,0,MasterPtr);
 				return ResolveState("Null");
 			}
 			return ResolveState(null);

@@ -1,5 +1,11 @@
 Class D4OldWolfensteinSS : D4AbstractMonster replaces WolfensteinSS // : WolfensteinSS replaces WolfensteinSS
 {
+	override void BeginPlay()
+	{
+		CashDropper = "NaziCashGiver";
+		Super.BeginPlay();
+	}
+	
 	Default 
 	{
 		Health 50;
@@ -61,7 +67,7 @@ Class D4OldWolfensteinSS : D4AbstractMonster replaces WolfensteinSS // : Wolfens
 			bThruActors = true;
 			D4SetupLoot();
 			D4DropItems();
-			D4DropCash(CashMultiplier,"NaziCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"NaziCashGiver");
 		}
 		
 		SSWV J 5 A_Scream();
@@ -87,7 +93,7 @@ Class D4OldWolfensteinSS : D4AbstractMonster replaces WolfensteinSS // : Wolfens
 			bThruActors = true;
 			XDeathGush();
 			D4DropItems();
-			D4DropCash(CashMultiplier,"NaziCashGiver");
+			D4DropCash(CashMultiplier,CashDropper); //"NaziCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 		}
 		SSWV J 5 A_Scream();

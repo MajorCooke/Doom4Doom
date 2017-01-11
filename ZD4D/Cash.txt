@@ -67,176 +67,6 @@ Class CashUpdaterNegative : CustomInventory
 	}
 }
 
-Class C1 : Actor
-{
-	int user_wholeUnits;
-	
-	Default
-	{
-		+NOINTERACTION
-		+NOTONAUTOMAP
-		+NOTELESTOMP
-		RenderStyle "None";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay 
-		{
-			A_GiveInventory("D4DCash",		1, Player1);
-			A_GiveInventory("D4DCashFake",	1, Player1);
-			A_GiveInventory("D4DCashCent",	1 * countInv("CashPercentBonus", Player1), Player1);
-		}
-		Goto S2;
-	S2:
-		TNT1 A 0
-		{
-			if(countInv("D4DCashCent", Player1) >= 100)
-			{
-				user_wholeUnits = countInv("D4DCashCent", Player1) / 100;
-				A_TakeInventory("D4DCashCent", user_wholeUnits * 100, 0, Player1);
-				A_GiveInventory("D4DCash", user_wholeUnits, Player1);
-				A_GiveInventory("D4DCashFake", user_wholeUnits, Player1);
-			}
-		}
-		TNT1 A 0 A_GiveInventory("CashUpdater",1,Player1);
-		Stop;
-	}
-}
-Class C5 : C1
-{
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay 
-		{
-			A_GiveInventory("D4DCash",		5, Player1);
-			A_GiveInventory("D4DCashFake",	5, Player1);
-			A_GiveInventory("D4DCashCent",	5 * countInv("CashPercentBonus", Player1), Player1);
-		}
-		Goto Super::S2;
-	}
-}
-
-Class C10 : C1
-{
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay 
-		{
-			A_GiveInventory("D4DCash",		10, Player1);
-			A_GiveInventory("D4DCashFake",	10, Player1);
-			A_GiveInventory("D4DCashCent",	10 * countInv("CashPercentBonus", Player1), Player1);
-		}
-		Goto Super::S2;
-	}
-}
-Class C20 : C1
-{
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay 
-		{
-			A_GiveInventory("D4DCash",		20, Player1);
-			A_GiveInventory("D4DCashFake",	20, Player1);
-			A_GiveInventory("D4DCashCent",	20 * countInv("CashPercentBonus", Player1), Player1);
-		}
-		Goto Super::S2;
-	}
-}
-
-Class C50 : C1
-{
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay 
-		{
-			A_GiveInventory("D4DCash",		50, Player1);
-			A_GiveInventory("D4DCashFake",	50, Player1);
-			A_GiveInventory("D4DCashCent",	50 * countInv("CashPercentBonus", Player1), Player1);
-		}
-		Goto Super::S2;
-	}
-}
-
-Class C100 : C1
-{
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay 
-		{
-			A_GiveInventory("D4DCash",		100, Player1);
-			A_GiveInventory("D4DCashFake",	100, Player1);
-			A_GiveInventory("D4DCashCent",	100 * countInv("CashPercentBonus", Player1), Player1);
-		}
-		Goto Super::S2;
-	}
-}
-
-Class C1000 : C1
-{
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay 
-		{
-			A_GiveInventory("D4DCash",		1000, Player1);
-			A_GiveInventory("D4DCashFake",	1000, Player1);
-			A_GiveInventory("D4DCashCent",	1000 * countInv("CashPercentBonus", Player1), Player1);
-		}
-		Goto Super::S2;
-	}
-}
-
-Class C10000 : C1
-{
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay 
-		{
-			A_GiveInventory("D4DCash",		10000, Player1);
-			A_GiveInventory("D4DCashFake",	10000, Player1);
-			A_GiveInventory("D4DCashCent",	10000 * countInv("CashPercentBonus", Player1), Player1);
-		}
-		Goto Super::S2;
-	}
-}
-
-Class C100000 : C1
-{
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay 
-		{
-			A_GiveInventory("D4DCash",		100000, Player1);
-			A_GiveInventory("D4DCashFake",	100000, Player1);
-			A_GiveInventory("D4DCashCent",	100000 * countInv("CashPercentBonus", Player1), Player1);
-		}
-		Goto Super::S2;
-	}
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
 /*
@@ -268,235 +98,111 @@ Nazi 				40, not that they are hard, but they are easter eggs after all
 // Save us some copy/paste floatsam crap.
 Class CashGiverBase : Actor
 {
+	int Multiplier; // Set by the dropper, not here.
+	int CashAmt;
+	double CashAmtPercent;
+	int user_wholeUnits;
+	
+	void SetCash(int amt)
+	{
+		if (Multiplier < 1)	Multiplier = 1;
+		if (CountInv("CashPercentBonus", Player1) > 0 || CountInv("CashPercentBonusTemp", Player1) > 0)
+		{
+			int CPB1 = CountInv("CashPercentBonus", Player1);
+			int CPB2 = CountInv("CashPercentBonusTemp", Player1);
+			
+			CashAmtPercent = amt * (CPB1 + CPB2);
+			CashAmt = amt + (CashAmtPercent / 100);
+		}
+		else
+		{
+			CashAmt = amt;
+		}
+		CashAmt *= Multiplier;
+		if (CashAmt < 1)	return;
+		A_GiveInventory("D4DCash",		CashAmt, Player1);
+		A_GiveInventory("D4DCashFake",	CashAmt, Player1);
+		A_GiveInventory("CashUpdater",1,Player1);
+	}
+	
+	override void PostBeginPlay()
+	{
+		Destroy();
+	}
+	
 	Default
 	{
+		+NOSECTOR
+		+THRUACTORS
+		+NOBLOCKMAP
 		+NOINTERACTION
 		+NOTELESTOMP
 		+NOTONAUTOMAP
 		RenderStyle "None";
 	}
-}
-
-
-Class ZombieCashGiver : CashGiverBase		//5
-{
 	States
 	{
 	Spawn:
-		TNT1 A 1 NODELAY
-		{
-			A_SpawnItemEx("C5",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-		}
+		TNT1 A 1;
 		Stop;
 	}
 }
 
-Class ShotguyCashGiver : CashGiverBase		//10
-{
-	States
-	{
-	Spawn:
-		TNT1 A 1 NODELAY
-		{
-			A_SpawnItemEx("C10",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-		}
-		Stop;
-	}
-}
+Class C1 : CashGiverBase		{	override void PostBeginPlay()	{ SetCash(1);		Destroy();	}	}
+Class C5 : CashGiverBase		{	override void PostBeginPlay()	{ SetCash(5);		Destroy();	}	}
+Class C10 : CashGiverBase		{	override void PostBeginPlay()	{ SetCash(10);		Destroy();	}	}
+Class C20 : CashGiverBase		{	override void PostBeginPlay()	{ SetCash(20);		Destroy();	}	}
+Class C50 : CashGiverBase		{	override void PostBeginPlay()	{ SetCash(50);		Destroy();	}	}
+Class C100 : CashGiverBase		{	override void PostBeginPlay()	{ SetCash(100);		Destroy();	}	}
+Class C1000 : CashGiverBase		{	override void PostBeginPlay()	{ SetCash(1000);	Destroy();	}	}
+Class C10000 : CashGiverBase	{	override void PostBeginPlay()	{ SetCash(10000);	Destroy();	}	}
+Class C100000 : CashGiverBase	{	override void PostBeginPlay()	{ SetCash(100000);	Destroy();	}	}
 
-Class ChainguyCashGiver : CashGiverBase		//20
-{
-	States
-	{
-	Spawn:
-		TNT1 A 1 NODELAY
-		{
-			A_SpawnItemEx("C20",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-		}
-		Stop;
-	}
-}	
 
-Class ArachnoCashGiver : CashGiverBase		//80
-{
-	States
-	{
-	Spawn:
-		TNT1 A 1 NODELAY
-		{
-			A_SpawnItemEx("C50",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-			A_SpawnItemEx("C20",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-			A_SpawnItemEx("C10",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-		}
-		Stop;
-	}
-}
+Class ZombiemanCashGiver : CashGiverBase		//5
+{	override void PostBeginPlay()	{	SetCash(5);			Destroy();	}	}
 
-Class ArchieCashGiver : CashGiverBase		//150
-{
-	States
-	{
-	Spawn:
-		TNT1 A 1 NODELAY
-		{
-			A_SpawnItemEx("C100",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-			A_SpawnItemEx("C50",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-		}
-		Stop;
-	}
-}
+Class ShotgunguyCashGiver : CashGiverBase		//10
+{	override void PostBeginPlay()	{	SetCash(10);		Destroy();	}	}
 
-Class BaronCashGiver : CashGiverBase		//100
-{
-	States
-	{
-	Spawn:
-		TNT1 A 1 NODELAY
-		{
-			A_SpawnItemEx("C100",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-		}
-		Stop;
-	}
-}
+Class ChaingunguyCashGiver : CashGiverBase		//20
+{	override void PostBeginPlay()	{	SetCash(20);		Destroy();	}	}
 
-Class CacoCashGiver : CashGiverBase		//40
-{
-	States
-	{
-	Spawn:
-		TNT1 A 1 NODELAY
-		{
-			A_SpawnItemEx("C20",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-			A_SpawnItemEx("C20",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-		}
-		Stop;
-	}
-}
+Class ArachnotronCashGiver : CashGiverBase		//80
+{	override void PostBeginPlay()	{	SetCash(80);		Destroy();	}	}
 
-Class DemonCashGiver : CashGiverBase		//30
-{
-	States
-	{
-	Spawn:
-		TNT1 A 1 NODELAY
-		{
-			A_SpawnItemEx("C20",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-			A_SpawnItemEx("C10",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-		}
-		Stop;
-	}
-}
-Class ImpCashGiver : CashGiverBase		//10
-{
-	States
-	{
-	Spawn:
-		TNT1 A 1 NODELAY
-		{
-			A_SpawnItemEx("C10",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-		}
-		Stop;
-	}
-}
+Class ArchvileCashGiver : CashGiverBase			//150
+{	override void PostBeginPlay()	{	SetCash(150);		Destroy();	}	}
 
-Class FatsoCashGiver : CashGiverBase		//90
-{
-	States
-	{
-	Spawn:
-		TNT1 A 1 NODELAY
-		{
-			A_SpawnItemEx("C50",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-			A_SpawnItemEx("C20",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-			A_SpawnItemEx("C20",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-		}
-		Stop;
-	}
-}
+Class BaronofHellCashGiver : CashGiverBase		//100
+{	override void PostBeginPlay()	{	SetCash(100);		Destroy();	}	}
+
+Class CacodemonCashGiver : CashGiverBase		//40
+{	override void PostBeginPlay()	{	SetCash(40);		Destroy();	}	}
+
+Class DemonCashGiver : CashGiverBase			//30
+{	override void PostBeginPlay()	{	SetCash(30);		Destroy();	}	}
+
+Class DoomImpCashGiver : CashGiverBase			//10
+{	override void PostBeginPlay()	{	SetCash(10);		Destroy();	}	}
+
+Class FatsoCashGiver : CashGiverBase			//90
+{	override void PostBeginPlay()	{	SetCash(90);		Destroy();	}	}
 
 Class HellKnightCashGiver : CashGiverBase		//60
-{
-	States
-	{
-	Spawn:
-		TNT1 A 1 NODELAY
-		{
-			A_SpawnItemEx("C50",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-			A_SpawnItemEx("C10",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-		}
-		Stop;
-	}
-}
+{	override void PostBeginPlay()	{	SetCash(60);		Destroy();	}	}
 
-Class PainElemCashGiver : CashGiverBase		//80
-{
-	States
-	{
-	Spawn:
-		TNT1 A 1 NODELAY
-		{
-			A_SpawnItemEx("C50",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-			A_SpawnItemEx("C20",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-			A_SpawnItemEx("C10",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-		}
-		Stop;
-	}
-}
-Class RevenantCashGiver : CashGiverBase		//60
-{
-	States
-	{
-	Spawn:
-		TNT1 A 1 NODELAY
-		{
-			A_SpawnItemEx("C50",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-			A_SpawnItemEx("C10",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-		}
-		Stop;
-	}
-}
+Class PainElementalCashGiver : CashGiverBase	//80
+{	override void PostBeginPlay()	{	SetCash(80);		Destroy();	}	}
 
-Class NaziCashGiver : CashGiverBase		//40
-{
-	States
-	{
-	Spawn:
-		TNT1 A 1 NODELAY
-		{
-			A_SpawnItemEx("C20",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-			A_SpawnItemEx("C20",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-		}
-		Stop;
-	}
-}
+Class RevenantCashGiver : CashGiverBase			//60
+{	override void PostBeginPlay()	{	SetCash(60);		Destroy();	}	}
 
-Class CyberdemonCashGiver : CashGiverBase		//200
-{
-	States
-	{
-	Spawn:
-		TNT1 A 1 NODELAY
-		{
-			A_SpawnItemEx("C100",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-			A_SpawnItemEx("C100",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-			A_SpawnItemEx("C100",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-			A_SpawnItemEx("C100",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-		}
-		Stop;
-	}
-}
-Class MastermindCashGiver : CashGiverBase		//200
-{
-	States
-	{
-	Spawn:
-		TNT1 A 1 NODELAY
-		{
-			A_SpawnItemEx("C100",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-			A_SpawnItemEx("C100",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-			A_SpawnItemEx("C100",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-			A_SpawnItemEx("C100",0,0,0,0,0,0,0,SXF_NOCHECKPOSITIoN|SXF_TRANSFERPoINTERS);
-		}
-		Stop;
-	}
-}
+Class NaziCashGiver : CashGiverBase				//40
+{	override void PostBeginPlay()	{	SetCash(40);		Destroy();	}	}
+
+Class CyberdemonCashGiver : CashGiverBase		//400
+{	override void PostBeginPlay()	{	SetCash(400);		Destroy();	}	}
+
+Class SpiderMastermindCashGiver : CashGiverBase	//400
+{	override void PostBeginPlay()	{	SetCash(400);		Destroy();	}	}
