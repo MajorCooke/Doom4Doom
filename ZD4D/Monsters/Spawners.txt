@@ -385,6 +385,7 @@ Class FatsoReplacer : D4DMonsterSpawner replaces Fatso
 	{
 		Radius 24;
 		Height 64;
+		+NOINTERACTION
 	}
 	override void PostBeginPlay()
 	{
@@ -438,6 +439,7 @@ Class ArachnotronReplacer : D4DMonsterSpawner replaces Arachnotron
 	{
 		Radius 64;
 		Height 64;
+		+NOINTERACTION
 	}
 	override void PostBeginPlay()
 	{
@@ -508,6 +510,7 @@ Class CyberdemonReplacer : D4DMonsterSpawner replaces Cyberdemon
 	{
 		Radius 40;
 		Height 110;
+		+NOINTERACTION
 	}
 	override void PostBeginPlay()
 	{
@@ -551,6 +554,7 @@ Class SpiderMastermindReplacer : D4DMonsterSpawner replaces SpiderMastermind
 	{
 		Radius 128;
 		Height 100;
+		+NOINTERACTION
 	}
 	override void PostBeginPlay()
 	{

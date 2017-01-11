@@ -832,13 +832,13 @@ Class TporDropBallSpawnerFriend : RandomSpawner
 }
 
 // Had to define these guys because "RandomSpawner" doesnt pass along the NOBLOCKMONST flag
-Class FD4ShotgunGuy : D4ShotgunGuy		{	Default { +NOBLOCKMONST	+COUNTKILL	} }
-Class FD4ChaingunGuy : D4ChaingunGuy	{	Default { +NOBLOCKMONST	+COUNTKILL	} }
-Class FD4DoomImp : D4DoomImp			{	Default { +NOBLOCKMONST	+COUNTKILL	} }
-Class FD4Demon : D4Demon				{	Default { +NOBLOCKMONST	+COUNTKILL	} }
-Class FD4Revenant : D4Revenant			{	Default { +NOBLOCKMONST	+COUNTKILL	} }
-Class FD4HellKnight : D4HellKnight		{	Default { +NOBLOCKMONST	+COUNTKILL	} }
-Class FD4BaronOfHell : D4BaronOfHell	{	Default { +NOBLOCKMONST	+COUNTKILL	} }
+Class FD4ShotgunGuy : D4ShotgunGuy		{	Default { +NOBLOCKMONST	-COUNTKILL	} }
+Class FD4ChaingunGuy : D4ChaingunGuy	{	Default { +NOBLOCKMONST	-COUNTKILL	} }
+Class FD4DoomImp : D4DoomImp			{	Default { +NOBLOCKMONST	-COUNTKILL	} }
+Class FD4Demon : D4Demon				{	Default { +NOBLOCKMONST	-COUNTKILL	} }
+Class FD4Revenant : D4Revenant			{	Default { +NOBLOCKMONST	-COUNTKILL	} }
+Class FD4HellKnight : D4HellKnight		{	Default { +NOBLOCKMONST	-COUNTKILL	} }
+Class FD4BaronOfHell : D4BaronOfHell	{	Default { +NOBLOCKMONST	-COUNTKILL	} }
 
 
 Class DemonPuff : Actor //for xdeathing everything
