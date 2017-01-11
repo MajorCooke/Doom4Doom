@@ -641,7 +641,7 @@ extend class Doom4Player
 	int PentaNoiseWait;
 	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags = 0, double angle = 0)
 	{
-		if (IsVoodoo())	return 0;
+		if (mod == 'HoloAttract')	return 0;
 	
 		// Prevents Terry abuse.
 		flags &= ~DMG_FORCED;
@@ -660,7 +660,7 @@ extend class Doom4Player
 			
 			Actor origin = (source && (flags & DMG_INFLICTOR_IS_PUFF))? source : inflictor;
 			
-			if (origin)
+			if (origin && !origin.bNODAMAGETHRUST && !bDONTTHRUST)
 			{
 				double ang = (flags & DMG_USEANGLE) ? angle : origin.AngleTo(self);
 				double thrust = 32.0;
