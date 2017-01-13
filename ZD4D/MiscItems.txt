@@ -142,6 +142,7 @@ Class UpgradeUpdater : CustomInventory
 			A_SetInventory("PistolUpgradeAltDamage",int(GetCvar("PistolUpgradeAltDamage"))); 
 			A_SetInventory("PistolUpgradeDamage",int(GetCvar("PistolUpgradeDamage"))); 
 			A_SetInventory("PistolUpgradeAutomatic",int(GetCvar("PistolUpgradeAutomatic"))); 
+			A_SetInventory("PistolUpgradeLance",int(GetCvar("PistolUpgradeLance"))); 
 			A_SetInventory("ShotgunMod1",int(GetCvar("ShotgunMod1"))); 
 			A_SetInventory("ShotgunMod2",int(GetCvar("ShotgunMod2"))); 
 			A_SetInventory("AssaultRifleMod1",int(GetCvar("AssaultRifleMod1")));	

@@ -271,6 +271,9 @@ statusbar Normal, forcescaled
 			// Weapon icon
 			DrawImage "pistol", 983,676;
 			
+			// Lance Mod
+			inInventory PistolUpgradeLance { DrawImage "zancmod0", 882, 673; InInventory PistolLanceActive { DrawImage "zancmod1", 882, 673; }}
+			InInventory PistolLanceReadyToken { drawimage "rPLance",  465,337; }
 			
 			// Reticle
 			inInventory Not NoReticle 	{ DrawImage "rPistol",  465,337; }
@@ -335,7 +338,7 @@ statusbar Normal, forcescaled
 			InInventory PistolAltFireCounter, 1 { drawimage "cnt01",  465,337; } else {
 												  drawimage "cnt00",  465,337;
 			}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
-		}
+		}		
 		isSelected D4Shotgun
 		{
 			// Weapon icon
@@ -1278,8 +1281,17 @@ statusbar Fullscreen, forcescaled
 			// Reticle
 			inInventory Not NoReticle 	{ DrawImage "rPistol",  465,337; }
 			
+			// Lance
+			inInventory PistolUpgradeLance { DrawImage "zancmod0", 942, 673; InInventory PistolLanceActive { DrawImage "zancmod1", 942, 673; }}
+			InInventory PistolLanceReadyToken { drawimage "rPLance",  465,337; }
+			
 			// Charging
-			InInventory PistolAltFireCounter,52 { drawimage "cya52",  465,337; } else { // fully charged pistol--cyan counter
+			InInventory PistolAltFireCounter,52 { 
+				InInventory PistolUpgradeAltDamage
+				{ drawimage "red52",  465,337; } // upgraded fully charged--red counter
+				else
+				{ drawimage "cya52",  465,337; } // fully charged pistol--cyan counter
+			} else { 
 			InInventory PistolAltFireCounter,51 { drawimage "cnt51",  465,337; } else {
 			InInventory PistolAltFireCounter,50 { drawimage "cnt50",  465,337; } else {
 			InInventory PistolAltFireCounter,49 { drawimage "cnt49",  465,337; } else {
@@ -2258,6 +2270,9 @@ statusbar Automap, forcescaled
 		{
 			// Weapon icon
 			DrawImage "pistol", 983,676;
+			
+			// Lance
+			inInventory PistolUpgradeLance { DrawImage "zancmod0", 882, 673; InInventory PistolLanceActive { DrawImage "zancmod1", 882, 673; }}
 		}
 		isSelected D4Shotgun
 		{

@@ -599,6 +599,8 @@ OptionMenu "D4DUpgrade.Pistol"
 	Command "$PistolUpgradeDamage",		"test > $PistolUpgradeDamage 0 \"AlreadyBought\" \"openmenu PistolUpgradeDamage\""
 	StaticText ""
 	Command "$PistolUpgradeAutomatic",	"test > $PistolUpgradeAutomatic 0 \"AlreadyBought\" \"openmenu PistolUpgradeAutomatic\""
+    StaticText ""
+	Command "$PistolUpgradeLance",	"test > $PistolUpgradeLance 0 \"AlreadyBought\" \"CheckLanceReq\""
 }
 
 OptionMenu "PistolUpgradeAltCharge"
@@ -646,6 +648,34 @@ OptionMenu "PistolUpgradeAutomatic"
 	NumberField "Cost", Cost_U4Pistol, 0, 1000000, 	0.00000000000000000000000001, Adjustable
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "PistolUpgradeLance"
+{
+	Title "$PistolUpgradeLance"
+	StaticText "$PistolUpgradeLanceD1"
+	StaticText ""
+	StaticText "$PistolUpgradeLanceD2", RED
+	StaticText ""
+	Command "Buy", "test <= $Cost_U5Pistol $D4DCash \"PistolUpgradeLance 1; CTake $Cost_U5Pistol; BuyUpgradeWeapon;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U5Pistol, 0, 1000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 1000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "PistolUpgradeLanceNA"
+{
+	Title "$PistolUpgradeLance"
+	StaticText "$PistolUpgradeLanceD1"
+	StaticText ""
+	StaticText "$PistolUpgradeLanceD2", RED
+	StaticText ""
+	StaticText "Pre-requisites not met.", RED
+	StaticText "You must have the following upgrades:", ORANGE
+	StaticText ""
+	Command "$PistolUpgradeDamage",	"test > $PistolUpgradeDamage 0 \"AlreadyBought\" \"openmenu PistolUpgradeDamage\""
+	Command "$PistolUpgradeAltDamage",	"test > $PistolUpgradeAltDamage 0 \"AlreadyBought\" \"openmenu PistolUpgradeAltDamage\""
 }
 
 //==============================================================================
