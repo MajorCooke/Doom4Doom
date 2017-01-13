@@ -710,7 +710,7 @@ Script "ClearHoloText" (void)
 // The scripts are optimized to process this array list. They expect the cvar
 // name to be the same as the item. Don't touch the functions.
 
-#define ItemTypeCount 69
+#define ItemTypeCount 70
 #define ItemWatchMin 1
 #define ItemWatchMax 24
 str SavedItems[ItemTypeCount] =
@@ -736,6 +736,7 @@ str SavedItems[ItemTypeCount] =
 	"PistolUpgradeAltDamage",
 	"PistolUpgradeAltCharge",
 	"PistolUpgradeDamage", //20
+	"PistolUpgradeLance",
 	"BFGUpgrade1",
 	"BFGUpgrade2",
 	"BFGUpgrade3",

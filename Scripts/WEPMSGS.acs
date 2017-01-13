@@ -1,6 +1,6 @@
 #library "WEPMSGS"
 #include "zcommon.acs"
-str ModTextArray[15]={
+str ModTextArray[16]={
 		" ",	//0
 		//machinegun
 		"Tactical Scope",		// 1	
@@ -22,7 +22,9 @@ str ModTextArray[15]={
 		"Siege Mode",		//12
 		//Super shotgun
 		"Single Barrel",			//13
-		"Double Barrel"		//14
+		"Double Barrel",		//14
+		//Pistol
+		"Lance Mode"		//15
 		};
 str DemonTextArray[11]={
 		" ",	//0

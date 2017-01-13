@@ -2283,6 +2283,7 @@ Graphic rMas_ind, 	128,128 { 									Patch "Graphics/HUD/Reticle/ReticleMasterm
 Graphic rMas_rge, 	128,128 { 									Patch "Graphics/HUD/Reticle/ReticleMastermindCharge.png", 0,0 {} }
 Graphic rPai_tal, 	128,128 { 									Patch "Graphics/HUD/Reticle/ReticlePainElemental.png" 	, 0,0 {} }
 Graphic rPistol, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticlePistol.png" 			, 0,0 {} }
+Graphic rPLance, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticlePistolLance.png" 	, 0,0 {} }
 Graphic rPlasma, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticlePlasma.png" 			, 0,0 {} }
 Graphic rRep_ter, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleRepeater.png" 		, 0,0 {} }
 Graphic rRep_ire, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleRepeaterAltfire.png" , 0,0 {} }
@@ -2409,7 +2410,8 @@ Sprite blddroq3,  64,  64 { XScale 2.0	YScale 2.0	Patch blddroq1, 0,0 { Rotate 1
 Sprite blddroq4,  64,  64 { XScale 2.0	YScale 2.0	Patch blddroq1, 0,0 { Rotate 270 } }
 
 // Weapon module icons
-
+Sprite zancmod0, 128, 128 { XScale 6.4	YScale 6.4	Patch lancmod0, 0,0 { Style Translucent Alpha 0.45 } } //Lance
+Sprite zancmod1, 128, 128 { XScale 6.4	YScale 6.4	Patch lancmod1, 0,0 { Style Translucent Alpha 1.00 } } //Lance
 Sprite zhrgbrs0, 128, 128 { XScale 6.4	YScale 6.4	Patch chrgbrs0, 0,0 { Style Translucent Alpha 0.45 } }
 Sprite zhrgbrs1, 128, 128 { XScale 6.4	YScale 6.4	Patch chrgbrs1, 0,0 { Style Translucent Alpha 1.00 } }
 Sprite zhrgnrg0, 128, 128 { XScale 6.4	YScale 6.4	Patch chrgnrg0, 0,0 { Style Translucent Alpha 0.45 } }

@@ -19,6 +19,7 @@ alias WNA "newp; Echo \"Upgrades for selection not available\" "
 alias NEC "newp; Echo \"Not enough credits.\" "
 alias AlreadyBought "newp; Echo \"You already own that.\" "
 
+alias CheckLanceReq "test >= + $PistolUpgradeDamage $PistolUpgradeAltDamage 2 \"openmenu PistolUpgradeLance\" \"openmenu PistolUpgradeLanceNA\""
 alias CheckChgReq "test > $ChaingunSpec 0 \"openmenu D4DUpgrade.ChaingunSpec\" \"openmenu D4DUpgrade.Chaingun\""
 alias CheckSSGReq "test >= + $SSGUpgrade1 $SSGUpgrade2 2 \"openmenu SSGUpgrade4\" \"openmenu SSGUpgrade4NA\""
 alias CheckSTRReq2 "test > $StaticUpgrade1 0 \"openmenu StaticUpgrade2\" \"openmenu StaticUpgrade2NA\""
