@@ -26,6 +26,10 @@ Class D4DMonsterSpawner : Actor
 		+NOPAIN
 		+NOTRIGGER
 		+NOTONAUTOMAP
+		+NOTELEPORT
+		+ALWAYSTELEFRAG
+		+LAXTELEFRAGDMG
+		+THRUACTORS
 		Species "D4DSpawner";
 		DamageFactor "Normal", 0.0;
 		DamageFactor "Massacre", 666;
@@ -511,6 +515,7 @@ Class CyberdemonReplacer : D4DMonsterSpawner replaces Cyberdemon
 		Radius 40;
 		Height 110;
 		+NOINTERACTION
+		+THRUACTORS
 	}
 	override void PostBeginPlay()
 	{
@@ -555,6 +560,7 @@ Class SpiderMastermindReplacer : D4DMonsterSpawner replaces SpiderMastermind
 		Radius 128;
 		Height 100;
 		+NOINTERACTION
+		+THRUACTORS
 	}
 	override void PostBeginPlay()
 	{
