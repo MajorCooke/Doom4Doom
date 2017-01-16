@@ -1,13 +1,13 @@
 Class D4DMonsterSpawner : Actor 
 {
 	int user_Type;
-	
+	bool goDormant;
 	Default 
 	{
 		//Health 1;
 		
 		Monster;
-		Health 2000000;
+		Health 1000;
 		//+NOINTERACTION
 		+DONTCORPSE
 		+NORADIUSDMG
@@ -34,6 +34,30 @@ Class D4DMonsterSpawner : Actor
 		DamageFactor "Normal", 0.0;
 		DamageFactor "Massacre", 666;
 		
+	}
+	
+	override void Deactivate(Actor activator)
+	{
+		goDormant = true;
+	}
+	
+	override void Activate(Actor activator)
+	{
+		goDormant = false;
+	}
+	
+	void SetupMonster()
+	{
+		if (tracer)
+		{
+			if (goDormant) 
+			{	
+				tracer.Deactivate(self);	
+				tracer.A_ChangeCountFlags(false,0,bCOUNTSECRET);
+			}
+			tracer.A_ChangeCountFlags(-1,0,bCOUNTSECRET);
+			if (health != GetSpawnHealth())	tracer.A_SetHealth(health);
+		}
 	}
 	States
 	{
@@ -70,7 +94,8 @@ Class ZombieReplacer : D4DMonsterSpawner replaces Zombieman
 		{
 			A_SpawnItemEx("D4Zombieman",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Destroy();
+		SetupMonster();
+		OnDestroy();
 	}
 }
 
@@ -97,7 +122,8 @@ Class ShotgunGuyReplacer : D4DMonsterSpawner replaces ShotgunGuy
 		{
 			A_SpawnItemEx("D4ShotgunGuy",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Destroy();
+		SetupMonster();
+		OnDestroy();
 	}
 }
 //===============================================================================
@@ -123,7 +149,8 @@ Class ChaingunGuyReplacer : D4DMonsterSpawner replaces ChaingunGuy
 		{
 			A_SpawnItemEx("D4ChaingunGuy",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Destroy();
+		SetupMonster();
+		OnDestroy();
 	}
 }
 
@@ -149,7 +176,8 @@ Class DemonReplacer : D4DMonsterSpawner replaces Demon
 		{
 			A_SpawnItemEx("D4Demon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Destroy();
+		SetupMonster();
+		OnDestroy();
 	}
 }
 
@@ -175,7 +203,8 @@ Class SpectreReplacer : D4DMonsterSpawner replaces Spectre
 		{
 			A_SpawnItemEx("D4Spectre",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Destroy();
+		SetupMonster();
+		OnDestroy();
 	}
 }
 //===============================================================================
@@ -200,7 +229,8 @@ Class DoomImpReplacer : D4DMonsterSpawner replaces DoomImp
 		{
 			A_SpawnItemEx("D4DoomImp",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Destroy();
+		SetupMonster();
+		OnDestroy();
 	}
 }
 
@@ -226,7 +256,8 @@ Class LostSoulReplacer : D4DMonsterSpawner replaces LostSoul
 		{
 			A_SpawnItemEx("D4LostSoul",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Destroy();
+		SetupMonster();
+		OnDestroy();
 	}
 }
 //===============================================================================
@@ -251,7 +282,8 @@ Class CacodemonReplacer : D4DMonsterSpawner replaces Cacodemon
 		{
 			A_SpawnItemEx("D4Cacodemon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Destroy();
+		SetupMonster();
+		OnDestroy();
 	}
 }
 //===============================================================================
@@ -276,7 +308,8 @@ Class PainElementalReplacer : D4DMonsterSpawner replaces PainElemental
 		{
 			A_SpawnItemEx("D4PainElemental",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Destroy();
+		SetupMonster();
+		OnDestroy();
 	}
 }
 
@@ -302,7 +335,8 @@ Class RevenantReplacer : D4DMonsterSpawner replaces Revenant
 		{
 			A_SpawnItemEx("D4Revenant",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Destroy();
+		SetupMonster();
+		OnDestroy();
 	}
 }
 
@@ -329,7 +363,8 @@ Class HellKnightReplacer : D4DMonsterSpawner replaces HellKnight
 		{
 			A_SpawnItemEx("D4HellKnight",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Destroy();
+		SetupMonster();
+		OnDestroy();
 	}
 }
 
@@ -356,6 +391,7 @@ Class BaronOfHellReplacer : D4DMonsterSpawner replaces BaronOfHell
 		{
 			A_SpawnItemEx("D4BaronOfHell",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
+		SetupMonster();
 		Super.PostBeginPlay();
 	}
 	states
@@ -366,7 +402,7 @@ Class BaronOfHellReplacer : D4DMonsterSpawner replaces BaronOfHell
 			if (!tracer)
 			{
 				A_BossDeath();
-				Destroy();
+				OnDestroy();
 				return;
 			}
 		}
@@ -411,6 +447,7 @@ Class FatsoReplacer : D4DMonsterSpawner replaces Fatso
 				}
 			}
 		}
+		SetupMonster();
 		Super.PostBeginPlay();
 	}
 	states
@@ -421,7 +458,7 @@ Class FatsoReplacer : D4DMonsterSpawner replaces Fatso
 			if (!tracer)
 			{
 				A_BossDeath();
-				Destroy();
+				OnDestroy();
 				return;
 			}
 		}
@@ -455,6 +492,7 @@ Class ArachnotronReplacer : D4DMonsterSpawner replaces Arachnotron
 		{
 			A_SpawnItemEx("D4Arachnotron",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
+		SetupMonster();
 		Super.PostBeginPlay();
 	}
 	states
@@ -465,7 +503,7 @@ Class ArachnotronReplacer : D4DMonsterSpawner replaces Arachnotron
 			if (!tracer)
 			{
 				A_BossDeath();
-				Destroy();
+				OnDestroy();
 				return;
 			}
 		}
@@ -499,7 +537,8 @@ Class ArchvileReplacer : D4DMonsterSpawner replaces Archvile
 		{
 			A_SpawnItemEx("D4Archvile",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
-		Destroy();
+		SetupMonster();
+		OnDestroy();
 	}
 }
 
@@ -527,6 +566,7 @@ Class CyberdemonReplacer : D4DMonsterSpawner replaces Cyberdemon
 		{
 			A_SpawnItemEx("D4Cyberdemon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
+		SetupMonster();
 		Super.PostBeginPlay();
 	}
 	States
@@ -537,7 +577,7 @@ Class CyberdemonReplacer : D4DMonsterSpawner replaces Cyberdemon
 			if (!tracer)
 			{
 				A_BossDeath();
-				Destroy();
+				OnDestroy();
 				return;
 			}
 		}
@@ -572,6 +612,7 @@ Class SpiderMastermindReplacer : D4DMonsterSpawner replaces SpiderMastermind
 		{
 			A_SpawnItemEx("D4SpiderMastermind",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		}
+		SetupMonster();
 		Super.PostBeginPlay();
 	}
 	States
@@ -582,7 +623,7 @@ Class SpiderMastermindReplacer : D4DMonsterSpawner replaces SpiderMastermind
 			if (!tracer)
 			{
 				A_BossDeath();
-				Destroy();
+				OnDestroy();
 				return;
 			}
 		}

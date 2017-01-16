@@ -119,7 +119,7 @@ Class CrateItemSpawner : RandomSpawner
 		DropItem "SoulSphere",			 255, 5;
 		DropItem "D4QuadMoney",			 255, 3;
 		DropItem "D4Megasphere",		 255, 3;
-		DropItem "DoomDoll",			 255, 1;
+		DropItem "D4DoomDoll",			 255, 1;
 	}
 }
 
@@ -154,7 +154,7 @@ Class CrateItemSpawnerBFG : RandomSpawner
 		DropItem "SoulSphere",			 255, 5;
 		DropItem "D4QuadMoney",			 255, 3;
 		DropItem "D4Megasphere",		 255, 3;
-		DropItem "DoomDoll",			 255, 1;
+		DropItem "D4DoomDoll",			 255, 1;
 	}
 }
 
@@ -175,7 +175,7 @@ Class CrateItemSpawner1 : RandomSpawner
 		DropItem "D4Haste", 		255,  8;
 		DropItem "SoulSphere", 		255,  6;
 		DropItem "D4Megasphere",	255,  4;
-		DropItem "DoomDoll", 		255,  1;
+		DropItem "D4DoomDoll", 		255,  1;
 
 		DropItem "BlurSphere", 	255, 10;
 		DropItem "D4QuadDamage",255,  6;
@@ -206,7 +206,7 @@ Class CrateItemSpawner1BFG : RandomSpawner
 		DropItem "D4Haste", 		255,  8;
 		DropItem "SoulSphere", 		255,  6;
 		DropItem "D4Megasphere",	255,  4;
-		DropItem "DoomDoll", 		255,  1;
+		DropItem "D4DoomDoll", 		255,  1;
 
 		DropItem "BlurSphere", 	255, 10;
 		DropItem "D4QuadDamage",255,  6;
@@ -637,7 +637,7 @@ Class CrateItemSpawner3 : Actor
 				else if(random(0,100) < 30)
 				{ A_SpawnItemEx("BlurSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 				else if(random(0,100) < 70)
-				{ A_SpawnItemEx("DoomDoll",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				{ A_SpawnItemEx("D4DoomDoll",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 				else if(!CountInv("PowerScanner", TargetPtr))
 				{ A_SpawnItemEx("AllMap",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 				else 
@@ -756,7 +756,7 @@ Class CrateItemSpawner3 : Actor
 				else if(random(0,100) < 20)
 				{ A_SpawnItemEx("BlurSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 				else if(random(0,100) < 10)
-				{ A_SpawnItemEx("DoomDoll",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				{ A_SpawnItemEx("D4DoomDoll",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 				else if(random(0,100) < 20)
 				{ A_SpawnItemEx("D4QuadDamage",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 				else if(random(0,100) < 20)

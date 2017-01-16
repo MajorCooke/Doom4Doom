@@ -372,6 +372,11 @@ Class MeleePunchPuff : Actor
 		+PUFFONACTORS
 		+NOTIMEFREEZE
 	}
+	
+	override void PostBeginPlay()
+	{
+		Destroy();
+	}
 }
 
 //=======================================================================
@@ -512,7 +517,7 @@ Class FallingSpeed : Inventory { Default { Inventory.MaxAmount 0x7FFFFFFF; } }
 // Doom doll
 //=======================================================================
 //=======================================================================
-Class DoomDoll : CustomInventory
+Class D4DoomDoll : CustomInventory
 {
 	Default 
 	{
@@ -553,7 +558,7 @@ Class DollUses : Inventory
 	}
 }
 
-Class DoomDollPlaying : Inventory
+Class D4DoomDollPlaying : Inventory
 {	Default { Inventory.InterHubAmount 0;	}}
 
 Class D4DoomDollHands : Weapon
@@ -582,16 +587,31 @@ Class D4DoomDollHands : Weapon
 		M666 A 0 A_Lower;
 		Loop;
 	Ready:
-		TNT1 A 0 A_GiveInventory("DollBuddha");
+		TNT1 A 0 
+		{
+			A_GiveInventory("DollBuddha");
+			if (CountInv("D4DoomDollUpgrade1"))
+			{
+				A_GiveInventory("DollSpeed");
+				A_GiveInventory("DollJump");
+			}
+		}
 		TNT1 AAAA 1 A_WeaponOffset(-8,20,WOF_ADD);
 		DDLL AAAAAAAA 1 A_WeaponOffset(4,-10,WOF_ADD);
 		DDLL A 70;
 		DDLL BCDEE 1 ;
 		"####" F 1
 		{
+			if (CountInv("D4DoomDollUpgrade2"))
+			{
+				A_PlaySound("Doom4/Other/DollExplode",CHAN_WEAPON,1,0,ATTN_NONE);
+				bFORCERADIUSDMG = bFOILINVUL = true;
+				A_Explode(1024, 512, XF_NOTMISSILE, false, 394);
+				bFORCERADIUSDMG = bFOILINVUL = false;
+			}
 			A_GiveInventory("DollProtection");
 			A_GiveInventory("DollPush");
-			A_GiveInventory("D4MegaSphere");
+			A_GiveInventory("D4MegaSphereNoBonus");
 			A_TakeInventory("DollUses",1,0);
 			A_SpawnItemEx("BroFistPuff",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 		}
@@ -700,7 +720,33 @@ Class DollBuddha : PowerupGiver
 	}
 }
 
+Class DollSpeed : PowerupGiver
+{
+	Default 
+	{
+		+INVENTORY.QUIET
+		+INVENTORY.AUTOACTIVATE
+		+INVENTORY.ALWAYSPICKUP
+		+INVENTORY.NOSCREENFLASH
+		+INVENTORY.UNDROPPABLE
+		Powerup.Type "PowerSpeed";
+		Powerup.Duration 170;
+	}
+}
 
+Class DollJump : PowerupGiver
+{
+	Default 
+	{
+		+INVENTORY.QUIET
+		+INVENTORY.AUTOACTIVATE
+		+INVENTORY.ALWAYSPICKUP
+		+INVENTORY.NOSCREENFLASH
+		+INVENTORY.UNDROPPABLE
+		Powerup.Type "PowerHighJump";
+		Powerup.Duration 170;
+	}
+}
 
 
 //=======================================================================

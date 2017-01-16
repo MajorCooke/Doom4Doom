@@ -153,6 +153,12 @@ server noarchive bool D4BFG = 				false;
 server noarchive bool D4Repeater = 			false;
 server noarchive bool D4VortexRifle = 		false;
 
+server noarchive int  D4MegasphereDamageReducer = 0;
+server noarchive bool D4MegachargeUpgrade1 = false;
+server noarchive bool D4MegachargeUpgrade2 = false;
+server noarchive bool D4DoomDollUpgrade1 = 	false;
+server noarchive bool D4DoomDollUpgrade2 = 	false;
+
 //==============================================================================
 // For the akimbo system.
 
@@ -258,3 +264,8 @@ server noarchive int Cost_U3Crate = 19999;
 server noarchive int Cost_U1Credit = 3000;
 server noarchive int Cost_U2Credit = 7500;
 server noarchive int Cost_U3Credit = 12000;
+
+server noarchive int Cost_U1Megacharge = 	50000;
+server noarchive int Cost_U2Megacharge = 	20000;
+server noarchive int Cost_U1DoomDoll = 		15000;
+server noarchive int Cost_U2DoomDoll = 		40000;

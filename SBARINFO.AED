@@ -64,6 +64,10 @@ statusbar Normal, forcescaled
 
 		// "Credit" (cash)
 		drawstring CONFONT, white , "Credits:",1024, 8,0, alignment(left);
+		inInventory D4MegasphereDamageReducer
+		{
+			drawstring CONFONT, white , "Resistance:",1000, 60,0, alignment(left);
+		}
 
 		// The Usual
 		drawimage "BODYBAR0", -69,669;
@@ -1125,6 +1129,10 @@ statusbar Fullscreen, forcescaled
 
 		// "Credit" (cash)
 		drawstring CONFONT, white , "Credits:",1024, 8,0, alignment(left);
+		inInventory D4MegasphereDamageReducer
+		{
+			drawstring CONFONT, white , "Resistance:",1000, 60,0, alignment(left);
+		}
 
 		// The Usual
 		//drawimage "BODYBAR0", -69,669;
@@ -2118,6 +2126,10 @@ statusbar Automap, forcescaled
 
 		// "Credit" (cash)
 		drawstring CONFONT, white , "Credits:",1024, 8,0, alignment(left);
+		inInventory D4MegasphereDamageReducer
+		{
+			drawstring CONFONT, white , "Resistance:",1000, 60,0, alignment(left);
+		}
 
 		// The Usual
 		drawimage "BODYBAR0", -69,669;

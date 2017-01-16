@@ -117,6 +117,18 @@ Class D4AbstractMonster : Actor
 		Super.BeginPlay();
 	}
 	
+	override void Deactivate(Actor activator)
+	{
+		A_ChangeCountFlags(false);
+		Super.Deactivate(activator);
+	}
+	
+	override void Activate(Actor activator)
+	{
+		A_ChangeCountFlags(true);
+		Super.Activate(activator);
+	}
+	
 	//--------------------------------------------------------------------------
 	//
 	// D4Chase(melee, missile, flags, max turn)

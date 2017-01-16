@@ -16,6 +16,7 @@ str weapon;
 
 Script "D4RestoreWeapon" ENTER
 {
+	SetMusicVolume(1.0);
 	SetPlayerProperty(0,0,PROP_FROZEN);
 	SetPlayerProperty(0,0,PROP_TOTALLYFROZEN);
 	TakeInventory("D4DoomDollHands",32767);
@@ -25,13 +26,13 @@ Script "D4RestoreWeapon" ENTER
 
 Script "D4DoomDoll" (void) net
 {
-	if (!CheckInventory("DollUses") || CheckInventory("D4DoomDollHands") || CheckInventory("DoomDollPlaying") ||
+	if (!CheckInventory("DollUses") || CheckInventory("D4DoomDollHands") || CheckInventory("D4DoomDollPlaying") ||
 		GetActorProperty(0,APROP_Health) <= 0)
 		Terminate;
 	if (!CheckInventory("D4DoomDollHands"))
 	{
 		weapon = GetWeapon();
-		GiveInventory("DoomDollPlaying",1);
+		GiveInventory("D4DoomDollPlaying",1);
 		GiveInventory("D4DoomDollHands",1);
 		GiveInventory("DollProtection",1);
 		SetWeapon("D4DoomDollHands");
@@ -49,7 +50,7 @@ Script "D4DoomDoll" (void) net
 	TakeInventory("D4DoomDollHands",32767);	//take the doll
 	SetWeapon(weapon);
 	delay(96);	//waits until music ends
-	TakeInventory("DoomDollPlaying",32767);
+	TakeInventory("D4DoomDollPlaying",32767);
 	while (t < 1.0)
 	{
 		t += 0.1;
@@ -95,6 +96,8 @@ Script "ShowCash" OPEN
 	SetActivator(0,AAPTR_PLAYER1);
 	If (GameType() == GAME_TITLE_MAP) Terminate; //if we're on titlemap, dont display anything
 	TakeInventory("D4DCashFake",5000000);
+	TakeInventory("D4DCash",50000000);
+	GiveInventory("D4DCash",GetCvar("D4DCash"));
 	SetFont("Q4SMALLERHUDFONT");
 	HudMessage(s:"Credits";HUDMSG_PLAIN,		999,CR_GRAY,0.98,0.00,0);
 	int counter1 = 0;
@@ -107,6 +110,20 @@ Script "ShowCash" OPEN
 		HudMessage(d:counter1;HUDMSG_PLAIN,		1000,CR_WHITE,0.96,0.03,0);
 		Delay(17);
 	}
+}
+
+Script "ShowResistance" ENTER
+{
+	SetActivator(0,AAPTR_PLAYER1);
+	if (GameType() == GAME_TITLE_MAP || 
+		!CheckInventory("D4MegachargeUpgrade1") ||
+		!CheckInventory("D4MegasphereDamageReducer")) Terminate;
+	
+	//SetFont("CONFONT");
+	//HudMessage(s:"Resistance";HUDMSG_PLAIN,		1102,CR_GRAY,0.98,0.07,0);
+	int a = CheckInventory("D4MegasphereDamageReducer");
+	SetFont("Q4SMALLERHUDFONT");
+	HudMessage(d:a;HUDMSG_PLAIN,			1101,CR_WHITE,0.96,0.100,0);
 }
 
 
@@ -174,8 +191,8 @@ Script "LevelWatcherSetup" ENTER
 	int totalsecrets = GetLevelInfo(LEVELINFO_TOTAL_SECRETS);
 	
 	// No point running this if there's nothing to get.
-	if (totalmonsters < 5 && totalsecrets < 1)
-		Terminate;
+	//if (totalmonsters < 5 && totalsecrets < 1)
+	//	Terminate;
 	int forcerefresh = 1;
 	int secretsfound = 0;
 	int killsearned = 0;
@@ -189,12 +206,11 @@ Script "LevelWatcherSetup" ENTER
 	bool RewardTime = false;
 	while (1)
 	{
-		int rewardedpoints = 0;
 		if (GetLevelInfo(LEVELINFO_TOTAL_MONSTERS) > 5)
 		{
 		
 			// For every 50 monsters on the map, increase the rewards.
-			if (forcerefresh || (totalmonsters < GetLevelInfo(LEVELINFO_TOTAL_MONSTERS)))
+			if (forcerefresh || (totalmonsters != GetLevelInfo(LEVELINFO_TOTAL_MONSTERS)))
 			{
 				forcerefresh = 0;
 				totalmonsters = GetLevelInfo(LEVELINFO_TOTAL_MONSTERS);
@@ -710,9 +726,12 @@ Script "ClearHoloText" (void)
 // The scripts are optimized to process this array list. They expect the cvar
 // name to be the same as the item. Don't touch the functions.
 
-#define ItemTypeCount 70
+// ItemWatchMin and Max are used for the soviet chaingun. It basically requires
+// those items to be purchased first before it's made available.
+
+#define ItemTypeCount 75
 #define ItemWatchMin 1
-#define ItemWatchMax 24
+#define ItemWatchMax 25
 str SavedItems[ItemTypeCount] =
 {	
 	"D4DCash",
@@ -735,12 +754,12 @@ str SavedItems[ItemTypeCount] =
 	"PistolUpgradeAutomatic",
 	"PistolUpgradeAltDamage",
 	"PistolUpgradeAltCharge",
-	"PistolUpgradeDamage", //20
+	"PistolUpgradeDamage",
 	"PistolUpgradeLance",
 	"BFGUpgrade1",
 	"BFGUpgrade2",
 	"BFGUpgrade3",
-	"BFGUpgrade4",
+	"BFGUpgrade4", // 25
 	"StaticUpgrade1",
 	"StaticUpgrade2",
 	"StaticUpgrade3",
@@ -783,6 +802,11 @@ str SavedItems[ItemTypeCount] =
 	"D4MultiJump",
 	"D4CrateUpgrade",
 	"CashPercentBonus",
+	"D4MegasphereDamageReducer",
+	"D4MegachargeUpgrade1",
+	"D4MegachargeUpgrade2",
+	"D4DoomDollUpgrade1",
+	"D4DoomDollUpgrade2"
 };
 
 // Don't touch these.
@@ -848,11 +872,11 @@ str WeaponList[16] =
 	"D4VortexRifle",
 };
 
-Script "UpdateWeaponList" (void)
+Script "UpdateWeaponList" (int skipcash)
 {
 	SetActivator(0,AAPTR_PLAYER1);
 	
-	SetCvar("D4DCash",CheckInventory("D4DCash"));
+	if (!skipcash)	SetCvar("D4DCash",CheckInventory("D4DCash"));
 	int cv = 0, ci = 0;
 	
 	for (int i = 0; i < 14; i++)
@@ -862,6 +886,7 @@ Script "UpdateWeaponList" (void)
 	
 	for (i = 0; i < ItemTypeCount; i++)
 	{
+		if (i == 0 && skipcash)	continue;
 		ci = CheckInventory(SavedItems[i]);
 		SetCvar(SavedItems[i], ci);
 	}
