@@ -1203,17 +1203,24 @@ Class PowerInvulBase : PowerInvulnerable
 	{
 		if (Owner)
 		{
-			Switch (EffectTics)
+			if (Owner.CountInv("D4TimeFreeze"))
 			{
-				Case 105:
+				EffectTics++; //'Freeze' the timer.
+			}
+			else
+			{
+				Switch (EffectTics)
 				{
-					if (NoiseMaker)	NoiseMaker.A_PlaySound("PentagramOfProtection/Warning",5,1,0,ATTN_NONE);
+					Case 105:
+					{
+						if (NoiseMaker)	NoiseMaker.A_PlaySound("PentagramOfProtection/Warning",5,1,0,ATTN_NONE);
+					}
+					Case 70:
+					Case 35:
+						Owner.A_SetBlend("Yellow",0.4,12);
+					Default:
+						break;
 				}
-				Case 70:
-				Case 35:
-					Owner.A_SetBlend("Yellow",0.4,12);
-				Default:
-					break;
 			}
 		}
 		Super.DoEffect();
