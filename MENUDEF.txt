@@ -227,7 +227,7 @@ OptionMenu "D4DDisplayOptions"
 	Option "Voxels",						"r_drawvoxels",			"OnOff"
 	Option "Blood HUD effect",					"user_BloodScreen",		"OnOff" 
 	Option "Rocket Explosion Quakes",			"user_quakexplosions",		"OnOff"	
-	Option "Pinata Particles",					"D4D_PinataParticles",		"OnOff"
+	Option "Pinata Effects",					"D4D_PinataParticles",		"PinataFX"
 	Option "Particle Type",					"gl_particles_style",	"ParticleStyle"
 	Slider "Maximum Particle Count",			"r_maxparticles", 1000, 65536, 1000, 0
 	StaticText ""
@@ -260,6 +260,14 @@ OptionMenu "D4DGoreOptions"
 	StaticText " "
 	NumberField "Bullet Giblets Unleashed",		"user_Giblets",	0, 10000, 1
 	NumberField "Splatter Giblets Unleashed",	"user_SplatterGiblets",	0, 10000, 1
+}
+
+OptionValue "PinataFX"
+{
+	0, "Borders"
+	1, "Borders & Particles"
+	2, "Particles"
+	3, "None"
 }
 
 OptionValue "NMGrenade"

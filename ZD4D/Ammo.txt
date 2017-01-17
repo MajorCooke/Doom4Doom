@@ -652,27 +652,11 @@ Class D4PinataCarrion : CustomInventory
 
 
 
-Class D4CarrionBorder : Actor
+Class D4CarrionBorder : D4PinataParticles
 {
 	Default
 	{
-		+BRIGHT
-		+NOINTERACTION
-		+FORCEXYBILLBOARD
-		Scale 0.3;
-		DistanceCheck "user_MaxDrawDistance";
 		Translation "0:255=%[0,0,0]:[1.0,0.1,0.1]";
-	}
-	States
-	{
-	Spawn:
-		PIN3 D 1 NoDelay
-		{
-			if (!A_Warp(MasterPtr,0,0,5,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_COPYVELOCITY,"Null"))		
-			{	return ResolveState("Null");	}
-			return ResolveState(null);			
-		}
-		Loop;
 	}
 }
 

@@ -1,3 +1,12 @@
+Struct MathFunc
+{
+	Vector3 Vec3Sub(Vector3 v1, Vector3 v2)
+	{
+		return v1 - v2;
+	}
+	
+}
+
 //============================================================================================================
 //============================================================================================================
 //
@@ -6,7 +15,7 @@
 //============================================================================================================
 //============================================================================================================
 
-Class D4PinataParticles : Actor 
+Class D4PinataBorder : Actor 
 {
 	int user_t;
 	int user_count;
@@ -14,6 +23,59 @@ Class D4PinataParticles : Actor
 	double  user_dist;
 	const Increment = 4;
 	const Distance = 200;
+	Actor ms;
+	Default 
+	{
+		+NOINTERACTION
+		+BRIGHT
+		+FORCEXYBILLBOARD
+		Scale 0.3;
+		DistanceCheck "user_MaxDrawDistance";
+	}
+	
+	override void PostBeginPlay() { Destroy();	}
+	
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay
+		{
+			if (!master)	{	Destroy();	return ResolveState(null);	}
+			ms = master;
+			if (master.GetClass() == "D4PinataArmor")		{ return ResolveState(1); }
+			if (master.GetClass() == "D4PinataHealth")		{ return ResolveState(2); }
+			if (master is "D4Carrion")						{ return ResolveState(3); }
+			if (master is "D4BFGAmmo")						{ return ResolveState(4); }
+			if (master is "Ammo")							{ return ResolveState(3); }
+			return ResolveState("Null");
+		}
+		PIN3 ABDH 0 A_Jump(256,"Enact");
+	Enact:
+		"####" "#" 1
+		{
+			if (!master || master != ms)	{ Destroy(); return; }
+			A_Warp(MasterPtr,0,0,5,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_COPYVELOCITY,"Null");
+		}
+		Loop;
+	}
+}
+
+Class D4PinataParticles : Actor 
+{
+	Color PT;
+	Vector3 oldpos;
+	int frm;
+	enum PinataParticleBorder
+	{
+		CV_Border = 			0,
+		CV_BorderParticle = 	1,
+		CV_Particle = 			2,
+		CV_None = 				3,
+		
+		CV_ParticleBorder = CV_BorderParticle,
+		Distance = 				200,
+		Increment = 			4
+	};
 	
 	Default 
 	{
@@ -21,255 +83,83 @@ Class D4PinataParticles : Actor
 		Height 1;
 		+NOINTERACTION
 		+NOTONAUTOMAP
-		RenderStyle "None";
+		+BRIGHT
+		+FORCEXYBILLBOARD
+		Scale 0.3;
+		DistanceCheck "user_MaxDrawDistance";
 	}
 	
-	//override void PostBeginPlay() { Destroy();	}
+	override void PostBeginPlay() 
+	{	
+		if (!master)	{	Destroy();	return;	}
+		oldpos = master.pos;
+		Super.PostBeginPlay();
+		
+		ChangeTID(0);
+		
+		Class<Actor> cls = master.GetClass();
+		
+		if (cls == "D4PinataArmor")
+		{	PT = "00FF00";	frm = 0;	}
+		else if (master is "D4BFGAmmo")
+		{	PT = "00FF00";	frm = 7;	}
+		else if (cls == "D4PinataCarrion")
+		{	PT = "FF2846";	frm = 3;	A_SetTranslation("CarrionBorder");	}
+		else if (cls == "D4PinataHealth")
+		{	PT = "29C9FF";	frm = 1;	}
+		else
+		{	PT = "FFED29";	frm = 3;	}
+	}
 	
+	// Credit to TheZombieKiller for this. <3
+	void SpawnPinataParticleLine(Color c, double units, Vector3 pointA, Vector3 pointB)
+	{
+		//if (pointA == pointB)	return;
+		// get a vector pointing from A to B
+		let pointAB = pointB - pointA;
+		
+		// get distance
+		let dist = pointAB.Length();
+		
+		// normalize it
+		pointAB /= dist;
+		
+		// iterate in units of 4
+		for (double i = 1; i <= dist; i += units)
+		{
+			// we can now use 'pointA + i * pointAB' to
+			// get a position that is 'i' units away from
+			// pointA, heading in the direction towards pointB
+			let position = i * pointAB;
+			A_SpawnParticle(c,SPF_FULLBRIGHT,25,8,0,position.x,position.y,position.z);
+		}
+	}
+		
 	States
 	{
 	Spawn:
-		TNT1 A 0 NoDelay
-		{
-			Thing_ChangeTID(0,0);
-				 if (CheckClass("D4PinataArmor",MasterPtr))		{ user_t = Color_Green; }
-			else if (CheckClass("D4PinataCarrion",MasterPtr))	{ user_t = Color_Red; }
-			else if (CheckClass("D4PinataHealth",MasterPtr))	{ user_t = Color_Blue; }
-			else if (CheckClass("D4BFGAmmo",MasterPtr,true))	{ user_t = Color_Green; }
-		}
+		PIN3 A 0 NoDelay { Frame = frm; }
 	Looping:
-		TNT1 A 1
+		"####" "#" 1
 		{
-			if (IsPointerEqual(MasterPtr,NullPtr))	{ return ResolveState("Null");	}
-			if (GetCvar("D4D_PinataParticles"))
+			
+			if (!master)	{ Destroy();	return;	}
+			int cv = GetCvar("D4D_PinataParticles");
+			if (cv == CV_Border || cv == CV_BorderParticle)
 			{
-				if (GetDistance(true,MasterPtr) >= Increment && !A_CheckSight("Null"))
+				bINVISIBLE = (cv == CV_Particle) ? true : false;
+				A_Warp(MasterPtr,0,0,5,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_COPYVELOCITY,"Null"/*,0.5*/);
+				
+				if ((cv == CV_BorderParticle || cv == CV_Particle))
 				{	
-					A_FaceMaster(0,0,0,0,FAF_MIDDLE);
-					user_dist = GetDistance(true,MasterPtr);
-					return ResolveState("Making");
+					SpawnPinataParticleLine(PT, 4.0, master.pos - master.vel, master.pos);
+					oldpos = master.pos;
 				}
-				A_Warp(MasterPtr,0,0,0,0,WARPF_NOCHECKPOSITION,"Null",0.5);
 			}
 			else
-			{	A_SetTics(35);	}
-			return ResolveState(null);
+			{	bINVISIBLE = true; A_SetTics(35);	}
 		}
 		Loop;
-	Making:
-		TNT1 A 1 
-		{
-			user_count = 0;
-			while ((user_count < Min(user_dist,Distance)) && !A_CheckSight("Null"))
-			{
-					 if (user_t == Color_Green) 	{ A_SpawnParticle("00FF00",SPF_FULLBRIGHT|SPF_RELATIVE,25,8,0,cos(pitch)*user_count,0,-sin(pitch)*user_count); }
-				else if (user_t == Color_Red)		{ A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,25,8,0,cos(pitch)*user_count,0,-sin(pitch)*user_count); }
-				else if (user_t == Color_Blue)		{ A_SpawnParticle("29C9FF",SPF_FULLBRIGHT|SPF_RELATIVE,25,8,0,cos(pitch)*user_count,0,-sin(pitch)*user_count); }
-				else 								{ A_SpawnParticle("FFED29",SPF_FULLBRIGHT|SPF_RELATIVE,25,8,0,cos(pitch)*user_count,0,-sin(pitch)*user_count); }
-				user_count += Increment;
-			}
-			A_Warp(MasterPtr,0,0,0,0,WARPF_NOCHECKPOSITION,"Null",0.5);
-		}
-		Goto Looping;
-	}
-}
-
-//---------------------------------------------------------------
-//---------------------------------------------------------------
-//	Normal version (dropped by all monsters on regular death)
-//---------------------------------------------------------------
-//---------------------------------------------------------------
-Class MonsterPinataSmashedNormal : Actor 
-{
-	Default 
-	{
-		+NOINTERACTION
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay
-		{
-			//health giver
-			if(A_JumpIfHealthLower(40,"Null",AAPTR_PLAYER1))
-			{
-				A_SpawnItemEx("D4PinataHealth",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4PinataHealth",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,192);
-			}
-			
-			//Armor giver
-			if(CountInv("BasicArmor",AAPTR_PLAYER1) < 200 && CountInv("D4ArmorCapRaiser",AAPTR_PLAYER1)>=50)	//only if player isnt at full armor and has upgraded his armor
-			{
-				A_SpawnItemEx("D4PinataArmor",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,230); //very rarely they will drop armor
-			}
-			
-			//bullets giver
-			if(CountInv("D4AssaultRifle",AAPTR_PLAYER1) && CountInv("D4Bullets",AAPTR_PLAYER1)<10)
-			{
-				A_SpawnItemEx("D4PinataBullets",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,128);
-				A_SpawnItemEx("D4PinataBullets",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,240);
-			}
-			else if(CountInv("D4Chaingun",AAPTR_PLAYER1) && CountInv("D4Bullets",AAPTR_PLAYER1)<10)
-			{
-				A_SpawnItemEx("D4PinataBullets",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,128);
-				A_SpawnItemEx("D4PinataBullets",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,240);
-			}
-			
-			//Shells giver
-			if(CountInv("D4Shotgun",AAPTR_PLAYER1) && CountInv("D4Shells",AAPTR_PLAYER1)<5)
-			{
-				A_SpawnItemEx("D4PinataShells",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,128);
-				A_SpawnItemEx("D4PinataShells",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,240);
-			}
-			else if(CountInv("D4SuperShotgun",AAPTR_PLAYER1) && CountInv("D4Shells",AAPTR_PLAYER1)<5)
-			{
-				A_SpawnItemEx("D4PinataShells",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,128);
-				A_SpawnItemEx("D4PinataShells",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,240);
-			}
-			
-			//Cells giver
-			if(CountInv("D4PlasmaRifle",AAPTR_PLAYER1) && CountInv("D4Cells",AAPTR_PLAYER1)<16)
-			{
-				A_SpawnItemEx("D4PinataCells",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,128);	
-				A_SpawnItemEx("D4PinataCells",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,240);
-			}
-			else if(CountInv("D4GaussCannon",AAPTR_PLAYER1) && CountInv("D4Cells",AAPTR_PLAYER1)<16)
-			{
-				A_SpawnItemEx("D4PinataCells",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,128);
-				A_SpawnItemEx("D4PinataCells",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,240);
-			}
-			else if(CountInv("D4VortexRifle",AAPTR_PLAYER1) && CountInv("D4Cells",AAPTR_PLAYER1)<16)
-			{
-				A_SpawnItemEx("D4PinataCells",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,128);
-				A_SpawnItemEx("D4PinataCells",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,240);
-			}
-			else if(CountInv("D4LightningGun",AAPTR_PLAYER1) && CountInv("D4Cells",AAPTR_PLAYER1)<16)
-			{
-				A_SpawnItemEx("D4PinataCells",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,128);
-				A_SpawnItemEx("D4PinataCells",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,240);
-			}
-			
-			//Rockets giver
-			if(CountInv("D4RocketLauncher",AAPTR_PLAYER1) && CountInv("D4Rockets",AAPTR_PLAYER1)<1)
-			{
-				A_SpawnItemEx("D4PinataRockets",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,196);	
-			}
-			
-			//BFG ammo giver, this one doesnt check for ammo low, but it does check for the weapon
-			if(CountInv("D4BFG",AAPTR_PLAYER1) && CountInv("BFGUpgrade1",AAPTR_PLAYER1))
-			{
-				A_SpawnItemEx("D4PinataBFG",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,253);	 //almost never
-			}
-		}
-		TNT1 A 0;
-		Stop;
-	}
-}
-
-//---------------------------------------------------------------
-//---------------------------------------------------------------
-//	Chainsaw version (dropped by all monsters when csaw executed)
-//---------------------------------------------------------------
-//---------------------------------------------------------------
-Class MonsterPinataSmashedChainsaw : Actor 
-{
-	
-	Default 
-	{
-		+NOINTERACTION
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 0;
-		TNT1 A 0
-		{
-			//health giver
-			if (A_JumpIfHealthLower(60,"Null",AAPTR_PLAYER1))
-			{
-				A_SpawnItemEx("D4PinataHealth",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4PinataHealth",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4PinataHealth",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,128);
-				A_SpawnItemEx("D4PinataHealth",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,192);
-			}
-			
-			//armor giver
-			if (CountInv("D4ArmorCapRaiser",Player1) >= 25)
-			{
-				A_SpawnItemEx("D4PinataArmor",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,128);
-				A_SpawnItemEx("D4PinataArmor",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,128);
-			}
-			if (CountInv("D4ArmorCapRaiser",Player1) >= 50)
-			{
-				A_SpawnItemEx("D4PinataArmor",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,128);
-				A_SpawnItemEx("D4PinataArmor",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,128);
-			}
-			if (CountInv("D4ArmorCapRaiser",Player1) >= 100)
-			{
-				A_SpawnItemEx("D4PinataArmor",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4PinataArmor",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			}
-			
-			
-			A_SpawnItemEx("D4PinataBulletsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("D4PinataBulletsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("D4PinataBulletsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("D4PinataBulletsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);	//200 bullets
-			
-			
-			A_SpawnItemEx("D4PinataShellsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("D4PinataShellsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("D4PinataShellsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION); //24 shells, come on, you dont need more of this, you get a TON everywehre else
-			
-			
-			
-			A_SpawnItemEx("D4PinataCellsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("D4PinataCellsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("D4PinataCellsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("D4PinataCellsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("D4PinataCellsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION); //200 cells
-			
-			
-			A_SpawnItemEx("D4PinataRocketsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("D4PinataRocketsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("D4PinataRocketsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION); //18 rockets*/
-			
-			
-			//BFG ammo giver, this one doesnt check for ammo low, but it does check for the weapon
-			if (CountInv("D4BFG",AAPTR_PLAYER1))
-			{
-				A_SpawnItemEx("D4PinataBFG",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION,232);	 //very rarely
-			}
-		}
-		TNT1 A 0;
-		Stop;
-	}
-}
-
-
-//-------------------------------------------------------
-// This one is for when the "loot" is off, you still get
-// stuff, but MUCH less
-//-------------------------------------------------------
-Class MonsterPinataSmashedChainsawSmall : Actor 
-{
-	
-	Default 
-	{
-		+NOINTERACTION
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 0 NODELAY
-		{
-			A_SpawnItemEx("D4PinataBulletsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);	//50 bullets
-			A_SpawnItemEx("D4PinataShellsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION); //8 shells
-			A_SpawnItemEx("D4PinataCellsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION); //40 cells
-			A_SpawnItemEx("D4PinataRocketsBig",0,0,0,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION); //6 rockets
-		}
-		TNT1 A 0;
-		Stop;
 	}
 }
 
@@ -297,6 +187,7 @@ Class D4PinataArmor : D4ArmorBonus
 		+NOBLOCKMONST
 		DistanceCheck "user_MaxDrawDistance";
 	}
+	
 	States
 	{
 	Spawn:
@@ -381,45 +272,6 @@ Class D4PinataArmor : D4ArmorBonus
 				A_ChangeLinkFlags(false);
 			}
 			return ResolveState(null);
-		}
-		Loop;
-	}
-}
-
-Class D4PinataBorder : Actor 
-{
-	Actor ms;
-	Default 
-	{
-		+NOINTERACTION
-		+BRIGHT
-		+FORCEXYBILLBOARD
-		Scale 0.3;
-		DistanceCheck "user_MaxDrawDistance";
-	}
-	
-	//override void PostBeginPlay() { Destroy();	}
-	
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay
-		{
-			if (!master)	{	Destroy();	return ResolveState(null);	}
-			ms = master;
-			if (master.GetClass() == "D4PinataArmor")		{ return ResolveState(1); }
-			if (master.GetClass() == "D4PinataHealth")		{ return ResolveState(2); }
-			if (master is "D4Carrion")						{ return ResolveState(3); }
-			if (master is "D4BFGAmmo")						{ return ResolveState(4); }
-			if (master is "Ammo")							{ return ResolveState(3); }
-			return ResolveState("Null");
-		}
-		PIN3 ABDH 0 A_Jump(256,"Enact");
-	Enact:
-		"####" "#" 1
-		{
-			if (!master || master != ms)	{ Destroy(); return; }
-			A_Warp(MasterPtr,0,0,5,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_COPYVELOCITY,"Null");
 		}
 		Loop;
 	}
