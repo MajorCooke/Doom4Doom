@@ -23,6 +23,7 @@ Class BuyCrate : CustomInventory
 				A_TakeInventory("D4DCash",500);	
 				//A_GiveInventory("CashUpdaterNegative",1);
 				ACS_NamedExecute("BuyingCrate",0,1);
+				ACS_NamedExecute("UpdateWeaponList",0,0,0,0);
 				ACS_NamedExecute("RefreshCredits",0,0,0,0);
 			}
 			else
