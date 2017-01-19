@@ -1,0 +1,189 @@
+// Contains the iterator flags and instructions.
+Struct TIteratorProperties
+{
+	enum EItFlags
+	{
+		ITF_EXACT = 		1,		// Disregard inheritance.
+		ITF_NOTID =			1 << 1,	// Ignore actors with a TID.
+		ITF_NOSPECIAL =		1 << 2, // Ignore actors with a special.
+		
+		ITF_SAFE =			ITF_NOTID|ITF_NOSPECIAL,
+	};
+	
+	enum EItInstructions
+	{
+		ITN_DESTROY =		1,		// Destroy all actors found.
+		ITN_LOGCOUNT =		2,		// Displays how many of the actors were found.
+	};
+}
+
+//------------------------------------------------------------------------------
+// TIterator
+//
+// -- Properties --
+// * p 			- Contains a copy of accessible flags.
+// * caller		- The actor doing the distance check.
+//
+// -- Functions --
+// * (!)ErrorMessage (count)
+//		Logs a problem message to console.
+//		
+// * (!)FindActors (ActorType, instructions, flags, maxcount, dist);
+//		Looks for ActorType based on flags and distance, then executes the given
+//		instruction.
+//
+// * Setup (mo)
+//		Inserts the caller into the struct so it may run properly.
+// 
+// * DoFindActors
+//		A wrapper function which sets up the iterator itself, and calls 
+//		FindActors inside the TIterator struct.
+//
+// (!) - Private function. Must be called on by another.
+//------------------------------------------------------------------------------
+
+Struct TIterator
+{
+	TIteratorProperties p;
+	private Actor caller;
+//------------------------------------------------------------------------------
+	private void ErrorMessage (int count)
+	{
+		if (!caller)	return;
+		String msg = "";
+		Switch (count)
+		{
+			Case -1:
+			{
+				msg = "Iterator error: No ActorType specified";
+				break;
+			}
+			Case -3:
+			{
+				msg = "Iterator error: No instructions passed";
+				break;
+			}
+			Default:	break;
+		}
+		caller.A_Log(msg);
+	}
+	
+//------------------------------------------------------------------------------
+	void Setup(Actor mo)
+	{
+		if (mo)	caller = mo;
+	}
+//------------------------------------------------------------------------------
+	void DoFindActors (Class<Actor> ActorType, int instructions, int flags = 0, int maxcount = 0, double dist = 0.0)
+	{
+		if (caller)
+		{
+			int count = FindActors(ActorType, instructions, flags, maxcount, dist);
+			
+			if (count < 0)
+			{
+				ErrorMessage (count);
+				return;
+			}
+			
+			if (flags & p.ITN_LOGCOUNT)
+				caller.A_LogInt(count);
+		}
+	}
+//------------------------------------------------------------------------------
+	private int FindActors (Class<Actor> ActorType, int instructions, int flags = 0, int maxcount = 0, double dist = 0.0)
+	{
+		// Indicate something went wrong or its not set up properly.			
+		if (!ActorType)		return -1;	// Actor type doesn't exist
+		if (!caller)		return -2;	// No caller was passed
+		if (!instructions)	return -3;	// No instructions were passed
+		
+		ThinkerIterator it = ThinkerIterator.Create(ActorType);
+		Actor mo;
+		int count = 0;
+		while (mo = Actor(it.Next(flags & p.ITF_EXACT)))
+		{
+			if (((flags & p.ITF_EXACT) && mo.GetClass() != ActorType) || !(mo is ActorType))
+				continue;
+				
+			// Ignore actors with special and/or tids unless specified.
+			if ((flags & p.ITF_NOTID) && mo.tid)
+				continue;
+			if ((flags & p.ITF_NOSPECIAL) && mo.special)
+				continue;
+			
+			// Don't take owned items.
+			if (mo is "Inventory")
+			{
+				let inv = Inventory(mo);
+				if (inv.Owner != null)
+					continue;
+			}
+			
+			// Make sure it's in range.
+			if (dist <= 0.0 || caller.Distance3D(mo) <= dist)
+			{
+				count++;
+				
+				// Now perform the instructions.
+				if (instructions & p.ITN_DESTROY)
+				{
+					mo.Destroy();
+					continue;
+				}
+			}
+		}
+		return count;
+	}
+}
+
+//------------------------------------------------------------------------------
+// IteratorBase
+//
+// Houses all the setup materials for inheriting from. 
+//------------------------------------------------------------------------------
+
+Class IteratorBase : Actor
+{
+	TIteratorProperties p;
+	
+	override void PostBeginPlay()
+	{
+		Destroy();
+		return;
+	}
+	
+	Default
+	{
+		+NOSECTOR
+		+NOINTERACTION
+		+THRUACTORS
+		+NOBLOCKMAP
+	}
+}
+
+//==============================================================================
+//==============================================================================
+//	Examples
+//==============================================================================
+//==============================================================================
+
+// Removes ammo on the map and prints the number of actors removed, but only if
+// they have no tid or special.
+Class AmmoRemover : IteratorBase
+{
+	override void PostBeginPlay()
+	{
+		TIterator finder;
+		
+		int instructions = p.ITN_DESTROY|p.ITN_LOGCOUNT;
+		int flags = p.ITF_SAFE;
+		int maxcount = 0;
+		double dist = 0.0;
+		
+		finder.Setup(self);
+		finder.DoFindActors("Ammo",instructions, flags, maxcount, dist);
+		Destroy();
+		return;
+	}
+}
