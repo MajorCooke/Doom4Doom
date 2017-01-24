@@ -298,37 +298,23 @@ Class Doom4Player : PlayerPawn
 				//user_accy
 				//user_velx
 				//user_vely
-				/*
-				if (!A_CheckLOF("Null",CLOFF_FROMBASE|CLOFF_SKIPOBSTACLES|CLOFF_ALLOWNULL|CLOFF_JUMP_ON_MISS|CLOFF_NOAIM,
-					24,0,0,-pitch,height,radius/2.0,NullPtr)))
-				{
-					return;
-				} */
-				
+
 				int DistCheck = 24;
 				
 				if (vel.x * vel.x + vel.y * vel.y > 4)
-				{
-					return;
-				}
+				{	return;		}
 				
 				// Abort if way forward is free
 				if (!A_CheckBlock("Null", CBF_DROPOFF, AAPTR_DEFAULT, DistCheck,0,0))
-				{
-					return;
-				}
+				{	return;		}
 				
-				// Also suppress initial instability
-				if (user_climbBouncePrevention > 0) 
-				{
-					A_GiveInventory("Climbing", user_climbBouncePrevention--);
-				}
-				
-				if (!((GetPlayerInput(MODINPUT_BUTTONS)  == BT_FORWARD) &&	// Abort if doing anything except walking forward
+				// Abort if doing anything except walking forward
+				if (!((GetPlayerInput(MODINPUT_BUTTONS)  == BT_FORWARD) &&	
 					(GetPlayerInput(MODINPUT_OLDBUTTONS) == BT_FORWARD)))
 				{	return;		}
 				
-				if ((pitch >= 0) && (pos.z == floorz)) // Abort if not looking upward when grounded
+				// Abort if not looking upward when grounded
+				if ((pitch >= 0) /*&& (pos.z == floorz)*/ ) 
 				{	return;		}
 				
 				
@@ -336,18 +322,21 @@ Class Doom4Player : PlayerPawn
 				double newceiling = GetZAt(DistCheck,0,0,GZF_CEILING);
 				double ledgedist = abs(newfloor - (pos.z + 36));
 				// if player is below new floor by no more than ledgedist units
+				// and can actually fit inside of it, mantle over.
 				if ((ledgedist > 0) && (ledgedist <= 24) 
 					&&
 					(newfloor + height < ceilingz) &&
 					(newceiling - newfloor >= height))
 				{
 					bSlidesOnWalls = false;
-					for (int i = 0; i < 21; i += 4)
+					for (int i = 0; i < 21; i += 2)
 					{
 						Vector3 np = Vec3Angle(DistCheck - i,angle,newfloor);
 						if (!A_CheckBlock("Null",CBF_ABSOLUTEPOS,DefPtr,np.x,np.y,np.z,0))
 						{
 							A_Warp(DefPtr,np.x,np.y,np.z,0,WARPF_ABSOLUTEPOSITION|WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_STOP);
+							A_Warp(DefPtr,flags: WARPF_TOFLOOR|WARPF_NOCHECKPOSITION);
+							break;
 						}
 					}
 						
