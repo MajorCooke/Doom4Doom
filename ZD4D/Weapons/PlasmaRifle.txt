@@ -749,7 +749,12 @@ Class PlasmaHeatMuzzle : Actor
 	Spawn:
 		TNT1 A 1 NoDelay
 		{
-			if (master) { pitch = master.pitch; } //Grab the pitch...
+			if (master) 
+			{
+				if (master.GetClass() != "Doom4Player")	return;
+				
+				pitch = master.pitch; 
+			} //Grab the pitch...
 			
 			// And set a multiplier for taking from the distance so it actually goes well with the gun.
 			

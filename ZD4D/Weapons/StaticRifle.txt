@@ -297,11 +297,13 @@ Class ChargeSoundPlayer : Actor
 	Looping:
 		TNT1 A 1
 		{
-			if (!CountInv("StaticRifleActive",MasterPtr))
+			if (!master || master.FindInventory("PowerMorph",true) != null || !CountInv("StaticRifleActive",MasterPtr))
 			{
 				A_StopSound(7);
-				return ResolveState("Null");
+				Destroy();
+				return;
 			}
+			
 			if (CountInv("StaticRifleChargingToken",MasterPtr) >= 520)
 			{	A_Warp(MasterPtr,0,0,32,0,WARPF_NOCHECKPOSITION);	}
 			else
@@ -309,7 +311,6 @@ Class ChargeSoundPlayer : Actor
 				user_dist = 1040 - (CountInv("StaticRifleChargingToken",MasterPtr) * 2);
 				A_Warp(MasterPtr,-user_dist,0,32,0,WARPF_NOCHECKPOSITION);
 			}
-			return ResolveState(null);
 		}
 		Loop;
 	Nothing:

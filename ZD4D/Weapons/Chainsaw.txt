@@ -39,11 +39,15 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 		WPPK A -1;
 		Wait;
 	Select:
-		CSWN A 0 ACS_NamedExecute("RemoveModText",0,0,0,0);
-		CSWN A 0 A_PlaySound("Doom4/Weapon/Chainsaw/Idle",CHAN_WEAPON,0.25,1);
-		CSWN A 0 A_JumpIfInventory("BloodyChainsawToken",1,"PrepareSpriteBloodySelect");
-		Goto PrepareSpriteNormalSelect;
-
+		CSWN A 0 
+		{
+			if (player && player.mo)
+			{
+				ACS_NamedExecuteAlways("RemoveModText",0,0,0,0);
+				A_PlaySound("Doom4/Weapon/Chainsaw/Idle",CHAN_WEAPON,0.25,1);
+			}
+			return A_JumpIfInventory("BloodyChainsawToken",1,"PrepareSpriteBloodySelect");
+		}
 		PrepareSpriteNormalSelect:
 			CSWN A 0;
 			Goto ContinueSelect;
