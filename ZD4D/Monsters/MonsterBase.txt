@@ -113,6 +113,7 @@ Class D4AbstractMonster : Actor
 	
 	override void BeginPlay()
 	{
+		
 		Pinatas.ResetList();
 		Super.BeginPlay();
 	}
@@ -181,7 +182,23 @@ Class D4AbstractMonster : Actor
 	{
 		int rarity = int(GetCvar("D4D_DemonRunes"));
 		
-		if (rarity == 2)		// Common
+		if (!rarity)	return 0;
+		
+		// Spider masterminds are the rarest of enemies. Give them special treatment so
+		// players can enjoy playing the hell out of them.
+		if (CheckClass("D4SpiderMastermind") || CheckClass("D4OldSpidermastermind"))
+		{
+			int howmany = Max(1,CountProximity("D4SpiderMastermind",32767) + CountProximity("D4OldSpiderMastermind",32767) + 1);
+			if (rarity == 2)
+			{
+				return (random(1,howmany) == 1) ? true : false;
+			}
+			else if (rarity == 1)
+			{
+				return (random(1,howmany * 2) == 1) ? true : false;
+			}
+		}
+		else if (rarity == 2)		// Common
 		{
 			return (random(1, (id / 2)) == 1) ? 1 : 0;
 		}
@@ -194,13 +211,21 @@ Class D4AbstractMonster : Actor
 	
 	//==========================================================================
 	//
-	// D4SetupLoot(carrion)
+	// D4SetupLoot(carrion, upgradeChance)
 	//
-	// Sets up which pinatas to drop based on damage type.
+	// Sets up which pinatas to drop based on damage type. Carrion set to true
+	// drops carrion. UpgradeChance is 1/upgradeChance to spawn a given upgrade.
 	//==========================================================================
 	
 	void D4SetupLoot(bool carrion = false)
 	{
+		//bool dropUpgrades = GetCvar("D4D_CurrentUpgradeMode");
+		/*
+		if (GetCvar("D4D_CurrentUpgradeMode"))
+		{
+			if (random(1,512) == 
+		}*/
+		
 		MOD = DamagetypeReceived;
 		if (carrion && GetCvar("MPWeapons"))
 		{	Pinatas.AddItem("D4PinataCarrion",1);	}
