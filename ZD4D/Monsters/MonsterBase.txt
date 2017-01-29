@@ -271,7 +271,7 @@ Class D4AbstractMonster : Actor
 		Pinatas.DropItems(self);
 		if (GetCvar("D4D_CurrentUpgradeMode"))
 		{
-			if (random(1,512) == 1)
+			if (random(1,300) == 1)
 				A_DropItem("D4UpgradePickup");
 			
 			if (CountInv("AssaultRifleMod1",Player1) &&
