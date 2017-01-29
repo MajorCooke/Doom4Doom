@@ -102,27 +102,53 @@ Class CashGiverBase : Actor
 	int CashAmt;
 	double CashAmtPercent;
 	int user_wholeUnits;
-	
+	const BaseRNG = 200;
 	void SetCash(int amt)
 	{
-		if (Multiplier < 1)	Multiplier = 1;
-		if (CountInv("CashPercentBonus", Player1) > 0 || CountInv("CashPercentBonusTemp", Player1) > 0)
+		bool dropUpgrades = GetCvar("D4D_CurrentUpgradeMode");
+		if (dropUpgrades)
 		{
 			int CPB1 = CountInv("CashPercentBonus", Player1);
 			int CPB2 = CountInv("CashPercentBonusTemp", Player1);
+			int premix = 1 + amt + CPB1 + CPB2;
+			int chance = random(premix,BaseRNG);
 			
-			CashAmtPercent = amt * (CPB1 + CPB2);
-			CashAmt = amt + (CashAmtPercent / 100);
+			
+			
+			if (chance >= BaseRNG)
+			{
+				int count = 0;
+				while (premix > BaseRNG)
+				{
+					count++;
+					premix -= BaseRNG;
+				}
+				A_GiveInventory("D4DCash",		premix + count, Player1);
+				A_GiveInventory("D4DCashFake",	premix + count, Player1);
+				A_GiveInventory("CashUpdater",1,Player1);
+			}
 		}
 		else
 		{
-			CashAmt = amt;
+			if (Multiplier < 1)	Multiplier = 1;
+			if (CountInv("CashPercentBonus", Player1) > 0 || CountInv("CashPercentBonusTemp", Player1) > 0)
+			{
+				int CPB1 = CountInv("CashPercentBonus", Player1);
+				int CPB2 = CountInv("CashPercentBonusTemp", Player1);
+				
+				CashAmtPercent = amt * (CPB1 + CPB2);
+				CashAmt = amt + (CashAmtPercent / 100);
+			}
+			else
+			{
+				CashAmt = amt;
+			}
+			CashAmt *= Multiplier;
+			if (CashAmt < 1)	return;
+			A_GiveInventory("D4DCash",		CashAmt, Player1);
+			A_GiveInventory("D4DCashFake",	CashAmt, Player1);
+			A_GiveInventory("CashUpdater",1,Player1);
 		}
-		CashAmt *= Multiplier;
-		if (CashAmt < 1)	return;
-		A_GiveInventory("D4DCash",		CashAmt, Player1);
-		A_GiveInventory("D4DCashFake",	CashAmt, Player1);
-		A_GiveInventory("CashUpdater",1,Player1);
 	}
 	
 	override void PostBeginPlay()

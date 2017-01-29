@@ -70,6 +70,7 @@ OptionMenu "OptionsMenu"
 OptionMenu "D4DOptions"
 {
 	Title "D4D Mod Options"
+	SubMenu "Upgrade Mode",					"D4DUpgradeMode"
 	SubMenu "Customize Keybinds",			"D4DKeybinds"
 	Submenu "Glory Kill Options",			"D4DGloryKillOptions"
 	Submenu "Gore Options",					"D4DGoreOptions"
@@ -103,6 +104,24 @@ OptionMenu "D4DOptions"
 	StaticText "Footsteps", 1
 	Slider "Footsteps volume",				"fs_volume_mul",	0.0, 3.0, 0.1, 2
 	Slider "Footsteps frequency",			"fs_delay_mul",		0.8, 1.3, 0.025, 3
+}
+OptionMenu "D4DUpgradeMode"
+{
+	Title "Choose Upgrade Mode"
+	StaticText "Credits", GOLD
+	StaticText "Upgrades are purchased via the menu, and all monsters give credits when", YELLOW
+	StaticText "killed. Any upgrade can be purchased at any time if you have enough.", YELLOW
+	StaticText "Crates are purchased for 500c each.", YELLOW
+	StaticText ""
+	StaticText "Pickups", GOLD
+	StaticText "Upgrade menu disabled. Monsters rarely drop upgrades for", YELLOW
+	StaticText "weapons/suit/powerups. Weapon upgrades drop only for owned weapons.", YELLOW
+	StaticText "May replace already owned items. Monsters give crates instead of credits.", YELLOW
+	StaticText ""
+	Option "Upgrade Mode",					"D4D_UpgradeMode", "UpgradeMode"
+	Command "End Game",						"menu_endgame"
+	StaticText ""
+	StaticText "Modes won't take effect until a new game is started.", RED
 }
 OptionMenu "D4DGloryKillOptions"
 {
@@ -260,6 +279,12 @@ OptionMenu "D4DGoreOptions"
 	StaticText " "
 	NumberField "Bullet Giblets Unleashed",		"user_Giblets",	0, 10000, 1
 	NumberField "Splatter Giblets Unleashed",	"user_SplatterGiblets",	0, 10000, 1
+}
+
+OptionValue "UpgradeMode"
+{
+	0, "Credits"
+	1, "Pickups"
 }
 
 OptionValue "PinataFX"
@@ -1157,7 +1182,7 @@ OptionMenu "D4DUpgrade.VortexRifle"
 	StaticText ""
 	Command "$VortexUpgradeAltSpeed",	"test > $VortexUpgradeAltSpeed 0 \"AlreadyBought\" \"openmenu VortexUpgradeAltSpeed\""
 	StaticText ""
-	Command "$VortexUpgradeAltCharge","test > $VortexUpgradeAltCharge 0 \"AlreadyBought\" \"openmenu VortexUpgradeAltCharge\""
+	Command "$VortexUpgradeAltPierce","test > $VortexUpgradeAltPierce 0 \"AlreadyBought\" \"openmenu VortexUpgradeAltPierce\""
 }
 OptionMenu "VortexUpgradeDamage"
 {
@@ -1194,12 +1219,12 @@ OptionMenu "VortexUpgradeAltSpeed"
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
 }
-OptionMenu "VortexUpgradeAltCharge"
+OptionMenu "VortexUpgradeAltPierce"
 {
-	Title "$VortexUpgradeAltCharge"
-	StaticText "$VortexUpgradeAltChargeD1"
+	Title "$VortexUpgradeAltPierce"
+	StaticText "$VortexUpgradeAltPierceD1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U4VortexRifle $D4DCash \"VortexUpgradeAltCharge 1; CTake $Cost_U4VortexRifle; BuyUpgradeWeapon;\" \"NEC\""
+	Command "Buy", "test <= $Cost_U4VortexRifle $D4DCash \"VortexUpgradeAltPierce 1; CTake $Cost_U4VortexRifle; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
 	NumberField "Cost", Cost_U4VortexRifle, 0, 500000000, 	0.00000000000000000000000001, Adjustable
 	StaticText ""

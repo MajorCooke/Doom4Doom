@@ -50,6 +50,7 @@ server int D4D_HasteSpawn = 1; //Sometimes
 server bool D4D_EnhancedChase = true;
 server bool D4D_BerserkAutoSwitch = true;
 server int D4D_NMGrenades = 2; // [0,1,2] = [none,frag,all]
+server int D4D_UpgradeMode = 0; // [0,1] = [Credits, Drops]
 
 
 // The Zombie Killer's Footsteps
@@ -66,7 +67,7 @@ server bool D4D_PitchCompat = true;
 server bool D4D_MonsterLasers = true;
 
 
-
+server noarchive int D4D_CurrentUpgradeMode = 0;
 server noarchive int D4DCash = 0;
 server noarchive bool AssaultRifleMod1 = false;
 server noarchive bool AssaultRifleMod2 = false;

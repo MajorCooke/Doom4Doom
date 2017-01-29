@@ -20,6 +20,7 @@ Script "D4Resetter" ENTER
 	if (!notanewgame)
 	{
 		SetCvar("D4DCash",0);
+		SetCvar("D4D_CurrentUpgradeMode",GetCvar("D4D_UpgradeMode"));
 		notanewgame = true;
 	}
 }
@@ -226,33 +227,59 @@ Script "LevelWatcherSetup" ENTER
 				totalmonsters = GetLevelInfo(LEVELINFO_TOTAL_MONSTERS);
 				if (totalmonsters >= 50)
 					multiplier = 1 + (totalmonsters / 50);
-				
+				else
+					multiplier = 1;
 				rewardcheckpoint = totalmonsters / 5;
 			}
 			// Grant rewards based on every 1/5th of the level cleared of monsters.
 			if (killsearned < 5)
 			{
-				
 				int msg = 0;
 				int numkills = GetLevelInfo(LEVELINFO_KILLED_MONSTERS);
-				if ((numkills >= rewardcheckpoint * 1) && (killsearned == 0))
-				{	RewardTime = true; reward = (RewardedKillPortions[0] * multiplier) + bonus; msg = 1; killsearned++;	GiveInventory("RewardToken",1); }
-				if ((numkills >= rewardcheckpoint * 2) && (killsearned == 1))
-				{	RewardTime = true; reward = (RewardedKillPortions[1] * multiplier) + bonus; msg = 2; killsearned++;	GiveInventory("RewardToken",1); }
-				if ((numkills >= rewardcheckpoint * 3) && (killsearned == 2))
-				{	RewardTime = true; reward = (RewardedKillPortions[2] * multiplier) + bonus; msg = 3; killsearned++;	GiveInventory("RewardToken",1); }
-				if ((numkills >= rewardcheckpoint * 4) && (killsearned == 3))
-				{	RewardTime = true; reward = (RewardedKillPortions[3] * multiplier) + bonus; msg = 4; killsearned++;	GiveInventory("RewardToken",1); }
-				if ((numkills >= GetLevelInfo(LEVELINFO_TOTAL_MONSTERS)) && (killsearned == 4))
-				{	RewardTime = true; reward = (RewardedKillPortions[4] * multiplier) + bonus; msg = 5; killsearned++;	GiveInventory("RewardToken",1); }
 				
-				if (RewardTime)
+				if (GetCvar("D4D_CurrentUpgradeMode"))
 				{
-					bonusmul = GetCvar("CashPercentBonus");
-					bonus = ((reward * bonusmul) / 100);
-					GiveCash(reward + bonus, msg);
-					RewardTime = false;
-					reward = 0; bonus = 0;
+					if ((numkills >= rewardcheckpoint * 1) && (killsearned == 0))
+					{	RewardTime = true; reward = multiplier; msg = 1; killsearned++;	GiveInventory("RewardToken",1); }
+					if ((numkills >= rewardcheckpoint * 2) && (killsearned == 1))
+					{	RewardTime = true; reward = multiplier; msg = 2; killsearned++;	GiveInventory("RewardToken",1); }
+					if ((numkills >= rewardcheckpoint * 3) && (killsearned == 2))
+					{	RewardTime = true; reward = multiplier; msg = 3; killsearned++;	GiveInventory("RewardToken",1); }
+					if ((numkills >= rewardcheckpoint * 4) && (killsearned == 3))
+					{	RewardTime = true; reward = multiplier; msg = 4; killsearned++;	GiveInventory("RewardToken",1); }
+					if ((numkills >= GetLevelInfo(LEVELINFO_TOTAL_MONSTERS)) && (killsearned == 4))
+					{	RewardTime = true; reward = multiplier; msg = 5; killsearned++;	GiveInventory("RewardToken",1); }
+					
+					if (RewardTime)
+					{
+						bonus = GetCvar("CashPercentBonus") / 10;
+						GiveCash(reward + bonus, msg);
+						RewardTime = false;
+						reward = 0; bonus = 0;
+					}
+				
+				}
+				else
+				{
+					if ((numkills >= rewardcheckpoint * 1) && (killsearned == 0))
+					{	RewardTime = true; reward = (RewardedKillPortions[0] * multiplier) + bonus; msg = 1; killsearned++;	GiveInventory("RewardToken",1); }
+					if ((numkills >= rewardcheckpoint * 2) && (killsearned == 1))
+					{	RewardTime = true; reward = (RewardedKillPortions[1] * multiplier) + bonus; msg = 2; killsearned++;	GiveInventory("RewardToken",1); }
+					if ((numkills >= rewardcheckpoint * 3) && (killsearned == 2))
+					{	RewardTime = true; reward = (RewardedKillPortions[2] * multiplier) + bonus; msg = 3; killsearned++;	GiveInventory("RewardToken",1); }
+					if ((numkills >= rewardcheckpoint * 4) && (killsearned == 3))
+					{	RewardTime = true; reward = (RewardedKillPortions[3] * multiplier) + bonus; msg = 4; killsearned++;	GiveInventory("RewardToken",1); }
+					if ((numkills >= GetLevelInfo(LEVELINFO_TOTAL_MONSTERS)) && (killsearned == 4))
+					{	RewardTime = true; reward = (RewardedKillPortions[4] * multiplier) + bonus; msg = 5; killsearned++;	GiveInventory("RewardToken",1); }
+					
+					if (RewardTime)
+					{
+						bonusmul = GetCvar("CashPercentBonus");
+						bonus = ((reward * bonusmul) / 100);
+						GiveCash(reward + bonus, msg);
+						RewardTime = false;
+						reward = 0; bonus = 0;
+					}
 				}
 			}
 		}
@@ -261,10 +288,17 @@ Script "LevelWatcherSetup" ENTER
 		int rsf = GetLevelInfo(LEVELINFO_FOUND_SECRETS);
 		if (secretsfound < totalsecrets && secretsfound < rsf)
 		{
-			bonusmul = GetCvar("CashPercentBonus");
-			reward = (rsf - secretsfound) * 100;
-			bonus = (reward * bonusmul) / 100;
-			GiveCash(reward + bonus,6);
+			if (GetCvar("D4D_CurrentUpgradeMode"))
+			{
+				GiveCash(2,6);
+			}
+			else
+			{
+				bonusmul = GetCvar("CashPercentBonus");
+				reward = (rsf - secretsfound) * 100;
+				bonus = (reward * bonusmul) / 100;
+				GiveCash(reward + bonus,6);
+			}
 			secretsfound = rsf;
 		}
 		
@@ -272,10 +306,18 @@ Script "LevelWatcherSetup" ENTER
 		//fat paycheck!
 		if ((secretsfound >= totalsecrets) && (killsearned >= 5))
 		{
-			bonusmul = GetCvar("CashPercentBonus");
-			reward = (((((RewardedKillPortions[4] * multiplier) * 10) + (totalsecrets * 100)) * 5) / 4);
-			bonus = (reward * bonusmul) / 100;
-			GiveCash(reward + bonus,7);
+			if (GetCvar("D4D_CurrentUpgradeMode"))
+			{
+				reward = multiplier * 5 + totalsecrets;
+				GiveCash(reward,7);
+			}
+			else
+			{
+				bonusmul = GetCvar("CashPercentBonus");
+				reward = (((((RewardedKillPortions[4] * multiplier) * 10) + (totalsecrets * 100)) * 5) / 4);
+				bonus = (reward * bonusmul) / 100;
+				GiveCash(reward + bonus,7);
+			}
 			Terminate;
 		}
 		Delay(17);

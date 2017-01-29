@@ -15,12 +15,13 @@ Class BuyCrate : CustomInventory
 	Pickup:
 		TNT1 A 0
 		{
-			if (CountInv("D4DCash")>=500)
+			bool upgradeMode = GetCvar("D4D_CurrentUpgradeMode");
+			if (CountInv("D4DCash")>=500 || (upgradeMode && CountInv("D4DCash")))
 			{
 				A_FireProjectile("CrateSpawner",0,0,0);
 				
 				//A_GiveInventory("D4DCashFake",500);
-				A_TakeInventory("D4DCash",500);	
+				A_TakeInventory("D4DCash",GetCvar("D4D_CurrentUpgradeMode") ? 1 : 500);	
 				//A_GiveInventory("CashUpdaterNegative",1);
 				ACS_NamedExecute("BuyingCrate",0,1);
 				ACS_NamedExecute("UpdateWeaponList",0,0,0,0);

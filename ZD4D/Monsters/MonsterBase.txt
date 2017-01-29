@@ -218,14 +218,7 @@ Class D4AbstractMonster : Actor
 	//==========================================================================
 	
 	void D4SetupLoot(bool carrion = false)
-	{
-		//bool dropUpgrades = GetCvar("D4D_CurrentUpgradeMode");
-		/*
-		if (GetCvar("D4D_CurrentUpgradeMode"))
-		{
-			if (random(1,512) == 
-		}*/
-		
+	{	
 		MOD = DamagetypeReceived;
 		if (carrion && GetCvar("MPWeapons"))
 		{	Pinatas.AddItem("D4PinataCarrion",1);	}
@@ -276,6 +269,41 @@ Class D4AbstractMonster : Actor
 	void D4DropItems()
 	{
 		Pinatas.DropItems(self);
+		if (GetCvar("D4D_CurrentUpgradeMode"))
+		{
+			if (random(1,512) == 1)
+				A_DropItem("D4UpgradePickup");
+			
+			if (CountInv("AssaultRifleMod1",Player1) &&
+				CountInv("AssaultRifleMod2",Player1) &&
+				CountInv("ChaingunMod1",Player1) &&
+				CountInv("ChaingunMod2",Player1) &&
+				CountInv("GaussCannonMod1",Player1) &&
+				CountInv("GaussCannonMod2",Player1) &&
+				CountInv("PlasmaRifleMod1",Player1) &&
+				CountInv("PlasmaRifleMod2",Player1) &&
+				CountInv("RocketLauncherMod1",Player1) &&
+				CountInv("RocketLauncherMod2",Player1) &&
+				CountInv("ShotgunMod1",Player1) &&
+				CountInv("ShotgunMod2",Player1) &&
+				CountInv("SSGUpgrade1",Player1) &&
+				CountInv("SSGUpgrade2",Player1) &&
+				CountInv("SSGUpgrade3",Player1) &&
+				CountInv("SSGUpgrade4",Player1) &&
+				CountInv("PistolUpgradeAutomatic",Player1) &&
+				CountInv("PistolUpgradeAltDamage",Player1) &&
+				CountInv("PistolUpgradeAltCharge",Player1) &&
+				CountInv("PistolUpgradeDamage",Player1) &&
+				CountInv("PistolUpgradeLance",Player1) &&
+				CountInv("BFGUpgrade1",Player1) &&
+				CountInv("BFGUpgrade2",Player1) &&
+				CountInv("BFGUpgrade3",Player1) &&
+				CountInv("BFGUpgrade4",Player1) &&
+				!CountInv("SovietToken",Player1))
+			{
+				A_DropItem("SovietChaingunUpgradePickup");
+			}
+		}
 	}
 	
 	// How this works is pretty simple. Behaves just like A_SpawnItemEx's 'chance'

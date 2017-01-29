@@ -343,6 +343,1023 @@ Class D4Backpack : BackpackItem replaces Backpack
 	}
 }
 
+//==============================================================================
+//==============================================================================
+// Weapon Upgrades
+//==============================================================================
+//==============================================================================
 
+Class D4UpgradePickup : CustomInventory
+{
+	Class<Inventory> items[10];
+	int index;
+	int utype;
+	
+	String desc[5];
+	
+	override void PostBeginPlay()
+	{
+		if (GetClass() == "D4UpgradePickup")
+		{
+			A_TransferPointer(Player1,DefPtr,DefPtr,TracerPtr,4);
+			
+			let plr = PlayerPawn(tracer);
+			
+			if (!plr || !plr.player)
+			{
+				A_Log("ERROR: Couldn't find player!");
+				Destroy();
+				return;
+			}
+			
+			// Sadly there is no support for constant multi-arrays, yet.
+			static const Class<Inventory> weap[] =
+			{
+				"D4Pistol",			
+				"D4Shotgun", 		
+				"D4SuperShotgun", 	
+				"D4Repeater", 		
+				"D4AssaultRifle", 	
+				"D4Chaingun", 		
+				"D4RocketLauncher", 
+				//"D4GrenadeLauncher", },
+				"D4PlasmaRifle", 	
+				"D4LightningGun", 	
+				"D4StaticRifle", 	
+				"D4VortexRifle", 	
+				"D4GaussCannon", 	
+				"D4BFG",			
+				"D4CarrionCannon"
+			};
+			
+			Class<Inventory> OwnedWeaps[20];
+			
+			int index = 0;
+			uint owned = 0;
+			int filled = 0;
+			
+			
+			for (int i = 0; i < weap.Size(); i++)
+			{
+				if (weap[i] && plr.CountInv(weap[i]))
+				{
+					Inventory OwnedUp[6];
+					bool chaincount = false;	// UAC Russia represents.
+					plr.A_SetInventory("EmptyToken",1); //Use in place of null.
+					OwnedWeaps[owned] = weap[i];
+					if (weap[i] == "D4Pistol")
+					{	chaincount = true;
+						OwnedUp[1] = plr.FindInventory("PistolUpgradeAutomatic",false);
+						OwnedUp[2] = plr.FindInventory("PistolUpgradeAltDamage",false);
+						OwnedUp[3] = plr.FindInventory("PistolUpgradeAltCharge",false);
+						OwnedUp[4] = plr.FindInventory("PistolUpgradeDamage",false);
+						OwnedUp[5] = plr.FindInventory("PistolUpgradeLance",false);
+					}
+					else if (weap[i] == "D4Shotgun")
+					{	chaincount = true;
+						OwnedUp[1] = plr.FindInventory("ShotgunMod1",false);
+						OwnedUp[2] = plr.FindInventory("ShotgunMod2",false);
+						OwnedUp[3] = plr.FindInventory("EmptyToken",false);
+						OwnedUp[4] = OwnedUp[3];
+						OwnedUp[5] = OwnedUp[3];
+					}
+					else if (weap[i] == "D4SuperShotgun")
+					{	chaincount = true;
+						OwnedUp[1] = plr.FindInventory("SSGUpgrade1",false);
+						OwnedUp[2] = plr.FindInventory("SSGUpgrade2",false);
+						OwnedUp[3] = plr.FindInventory("SSGUpgrade3",false);
+						OwnedUp[4] = plr.FindInventory("SSGUpgrade4",false);
+						OwnedUp[5] = plr.FindInventory("EmptyToken",false);
+					}
+					else if (weap[i] == "D4Repeater")
+					{
+						OwnedUp[1] = plr.FindInventory("RepeaterUpgradePiercing",false);
+						OwnedUp[2] = plr.FindInventory("RepeaterUpgradeDamage",false);
+						OwnedUp[3] = plr.FindInventory("RepeaterUpgradeAltDamage",false);
+						OwnedUp[4] = plr.FindInventory("RepeaterUpgradeAltAmmo",false);
+						OwnedUp[5] = plr.FindInventory("EmptyToken",false);
+					}
+					else if (weap[i] == "D4AssaultRifle")
+					{	chaincount = true;
+						OwnedUp[1] = plr.FindInventory("AssaultRifleMod1",false);
+						OwnedUp[2] = plr.FindInventory("AssaultRifleMod2",false);
+						OwnedUp[3] = plr.FindInventory("EmptyToken",false);
+						OwnedUp[4] = OwnedUp[3];
+						OwnedUp[5] = OwnedUp[3];
+					}
+					else if (weap[i] == "D4Chaingun")
+					{	chaincount = true;
+						OwnedUp[1] = plr.FindInventory("ChaingunMod1",false);
+						OwnedUp[2] = plr.FindInventory("ChaingunMod2",false);
+						OwnedUp[3] = plr.FindInventory("EmptyToken",false);
+						OwnedUp[4] = OwnedUp[3];
+						OwnedUp[5] = OwnedUp[3];
+					}
+					else if (weap[i] == "D4RocketLauncher")
+					{	chaincount = true;
+						OwnedUp[1] = plr.FindInventory("RocketLauncherMod1",false);
+						OwnedUp[2] = plr.FindInventory("RocketLauncherMod2",false);
+						OwnedUp[3] = plr.FindInventory("EmptyToken",false);
+						OwnedUp[4] = OwnedUp[3];
+						OwnedUp[5] = OwnedUp[3];
+					}
+					/* Why yes I am quite a coy jackass!
+					else if (weap[i] == "D4GrenadeLauncher")
+					{
+						OwnedUp[1] = plr.FindInventory("",false);
+						OwnedUp[2] = plr.FindInventory("",false);
+						OwnedUp[3] = plr.FindInventory("",false);
+						OwnedUp[4] = plr.FindInventory("",false);
+						OwnedUp[5] = plr.FindInventory("EmptyToken",false);
+					}
+					*/
+					else if (weap[i] == "D4LightningGun")
+					{
+						OwnedUp[1] = plr.FindInventory("LGUpgradeAmmo",false);
+						OwnedUp[2] = plr.FindInventory("LGUpgradeRange",false);
+						OwnedUp[3] = plr.FindInventory("LGUpgradeDamage",false);
+						OwnedUp[4] = plr.FindInventory("LGUpgradeAltFire",false);
+						OwnedUp[5] = plr.FindInventory("EmptyToken",false);
+					}
+					else if (weap[i] == "D4PlasmaRifle")
+					{	chaincount = true;
+						OwnedUp[1] = plr.FindInventory("PlasmaRifleMod1",false);
+						OwnedUp[2] = plr.FindInventory("PlasmaRifleMod2",false);
+						OwnedUp[3] = plr.FindInventory("EmptyToken",false);
+						OwnedUp[4] = OwnedUp[3];
+						OwnedUp[5] = OwnedUp[3];
+					}
+					else if (weap[i] == "D4StaticRifle")
+					{
+						OwnedUp[1] = plr.FindInventory("StaticUpgrade1",false);
+						OwnedUp[2] = plr.FindInventory("StaticUpgrade2",false);
+						OwnedUp[3] = plr.FindInventory("StaticUpgrade3",false);
+						OwnedUp[4] = plr.FindInventory("StaticUpgrade4",false);
+						OwnedUp[5] = plr.FindInventory("EmptyToken",false);
+					}
+					else if (weap[i] == "D4VortexRifle")
+					{
+						OwnedUp[1] = plr.FindInventory("VortexUpgradeDamage",false);
+						OwnedUp[2] = plr.FindInventory("VortexUpgradeAmmo",false);
+						OwnedUp[3] = plr.FindInventory("VortexUpgradeAltSpeed",false);
+						OwnedUp[4] = plr.FindInventory("VortexUpgradeAltPierce",false);
+						OwnedUp[5] = plr.FindInventory("EmptyToken",false);
+					}
+					else if (weap[i] == "D4GaussCannon")
+					{	chaincount = true;
+						OwnedUp[1] = plr.FindInventory("GaussCannonMod1",false);
+						OwnedUp[2] = plr.FindInventory("GaussCannonMod2",false);
+						OwnedUp[3] = plr.FindInventory("EmptyToken",false);
+						OwnedUp[4] = OwnedUp[3];
+						OwnedUp[5] = OwnedUp[3];
+					}
+					else if (weap[i] == "D4BFG")
+					{	chaincount = true;
+						OwnedUp[1] = plr.FindInventory("BFGUpgrade1",false);
+						OwnedUp[2] = plr.FindInventory("BFGUpgrade2",false);
+						OwnedUp[3] = plr.FindInventory("BFGUpgrade3",false);
+						OwnedUp[4] = plr.FindInventory("BFGUpgrade4",false);
+						OwnedUp[5] = plr.FindInventory("EmptyToken",false);
+					}
+					else if (weap[i] == "D4CarrionCannon")
+					{
+						OwnedUp[1] = plr.FindInventory("CarrionUpgradePickup",false);
+						OwnedUp[2] = plr.FindInventory("CarrionUpgradeAmmo",false);
+						OwnedUp[3] = plr.FindInventory("CarrionUpgradeStun",false);
+						OwnedUp[4] = plr.FindInventory("CarrionUpgradeTime",false);
+						OwnedUp[5] = plr.FindInventory("EmptyToken",false);
+					}
+					int cnt = 0, asize = 6;
+					//A_LogInt(5);
+					for (int j = 1; j < asize; j++)
+					{
+						if (OwnedUp[j] != null)
+							cnt++;
+					}
+					//A_LogInt(6);
+					// Have all of 'em? Remove them all. There is nothing to gain
+					// from spawning this item so find another one.
+					if (cnt >= asize - 1)
+					{
+						OwnedWeaps[owned] = null;
+						OwnedUp[1] =
+						OwnedUp[2] =
+						OwnedUp[3] =
+						OwnedUp[4] =
+						OwnedUp[5] = null;
+						if (chaincount)	filled++;
+						//A_LogInt(7);
+					}
+					else
+					{
+						//Increment only whenever there is more to be gained.
+						owned++;
+					}
+				}
+			}
+			
+			if (filled >= 9)
+			{
+				let soviet = Actor(Spawn("SovietChaingunUpgradePickup",pos));
+				if (soviet)	
+				{
+					//A_LogInt(9);
+					soviet.vel = vel;
+					soviet.target = target;
+					soviet.master = master;
+					soviet.tracer = tracer;
+				}
+			}
+			
+			if (owned < 1)
+			{
+				// Nothing to do here. 
+				Destroy();
+				return;
+			}
+			
+			// Now backtrack since n-1 is needed.
+			owned--;
+			int rng = random(0,owned);
+			
+			// Spawn it and GTFO.
+			if (OwnedWeaps[rng])
+			{
+				static const Class<Inventory> weapup[] =
+				{
+					"D4Pistol",			"PistolUpgradePickup",
+					"D4Shotgun", 		"ShotgunUpgradePickup",
+					"D4SuperShotgun", 	"SuperShotgunUpgradePickup",
+					"D4Repeater", 		"RepeaterUpgradePickup",
+					"D4AssaultRifle", 	"AssaultRifleUpgradePickup",
+					"D4Chaingun", 		"ChaingunUpgradePickup",
+					"D4RocketLauncher", "RocketLauncherUpgradePickup",
+					//"D4GrenadeLauncher", },
+					"D4PlasmaRifle", 	"PlasmaRifleUpgradePickup",
+					"D4LightningGun", 	"LightningGunUpgradePickup",
+					"D4StaticRifle", 	"StaticRifleUpgradePickup",
+					"D4VortexRifle", 	"VortexRifleUpgradePickup",
+					"D4GaussCannon", 	"GaussCannonUpgradePickup",
+					"D4BFG",			"BFGUpgradePickup",
+					"D4CarrionCannon",	"CarrionCannonUpgradePickup"
+				};
+				Class<Inventory> ItemToSpawn = null;
+				for (uint k = 0; k < weapup.Size(); k += 2)
+				{
+					if (k % 1 != 0)	k--;	// Never be odd. Even only.
+					if (OwnedWeaps[rng] == weapup[k])
+					{
+						if ((k + 1 <= weapup.Size()) && (k + 1 > 0))
+						{
+							ItemToSpawn = weapup[k+1];
+							if (!ItemToSpawn)
+							{
+								// Die.
+								Destroy();
+								return;
+							}
+							break;
+						}
+					}
+				}
+				
+				let upitem = Actor(Spawn(ItemToSpawn,pos));
+				if (upitem) 
+				{
+					upitem.vel = vel;
+					upitem.target = target;
+					upitem.master = master;
+					upitem.tracer = tracer;
+				}
+			}
+			Destroy();
+			return;
+		}
+		angle = random(0,359);
+		bTHRUACTORS = false;
+		Super.PostBeginPlay();
+	}
+	
+	Default
+	{
+		+INVENTORY.ALWAYSPICKUP
+		+BRIGHT
+		+THRUACTORS //Never let anything pick this thing up physically.
+	}
+	
+	States
+	{
+	Spawn:
+		TNT1 A 1;
+		Stop;
+	}
+}
 
+Class EmptyToken : Inventory {}
 
+Class PistolUpgradePickup : D4UpgradePickup
+{
+	States
+	{
+	Spawn:
+		M668 B 17;
+		M669 B 17;
+		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			static const Class<Inventory> itemnames[] =
+			{	"PistolUpgradeAutomatic",	
+				"PistolUpgradeAltDamage",	
+				"PistolUpgradeAltCharge",	
+				"PistolUpgradeDamage",
+				"PistolUpgradeLance"	};
+			
+			static const String itemstr[] =
+			{	"$PistolUpgradeAutomatic",	
+				"$PistolUpgradeAltDamage",	
+				"$PistolUpgradeAltCharge",	
+				"$PistolUpgradeDamage",
+				"$PistolUpgradeLance"	};
+			
+			for (int i = 0; i < itemnames.Size(); i++)
+			{
+				if (itemnames[i] && !CountInv(itemnames[i]))
+				{
+					if (itemnames[i] == "PistolUpgradeLance" && 
+						(!CountInv("PistolUpgradeAltDamage") || !CountInv("PistolUpgradeAltCharge")))
+						continue;
+						
+					invoker.desc[invoker.index] = itemstr[i];
+					invoker.items[invoker.index] = itemnames[i];
+					invoker.index++;
+				}
+			}
+			
+			invoker.index--;
+			int rng = random(0,invoker.index);
+			
+			if (invoker.items[rng])
+			{
+				A_PrintBold(invoker.desc[rng]);
+				A_GiveInventory(invoker.items[rng]);
+			}
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class ShotgunUpgradePickup : D4UpgradePickup
+{
+	States
+	{
+	Spawn:
+		M668 C 17;
+		M669 C 17;
+		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			static const Class<Inventory> itemnames[] =
+			{	"ShotgunMod1",	"ShotgunMod2"	};
+			
+			static const String itemstr[] =
+			{	"$ShotgunMod1",	"$ShotgunMod2"	};
+			
+			for (int i = 0; i < itemnames.Size(); i++)
+			{
+				if (itemnames[i] && !CountInv(itemnames[i]))
+				{
+					invoker.desc[invoker.index] = itemstr[i];
+					invoker.items[invoker.index] = itemnames[i];
+					invoker.index++;
+				}
+			}
+			
+			invoker.index--;
+			int rng = random(0,invoker.index);
+			
+			if (invoker.items[rng])
+			{
+				A_PrintBold(invoker.desc[rng]);
+				A_GiveInventory(invoker.items[rng]);
+			}
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class SuperShotgunUpgradePickup : D4UpgradePickup
+{
+	States
+	{
+	Spawn:
+		M668 D 17;
+		M669 D 17;
+		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			static const Class<Inventory> itemnames[] =
+			{	"SSGUpgrade1",	"SSGUpgrade2",	"SSGUpgrade3",	"SSGUpgrade4"	};
+			
+			static const String itemstr[] =
+			{	"$SSGUpgrade1",	"$SSGUpgrade2",	"$SSGUpgrade3",	"$SSGUpgrade4"	};
+			
+			for (int i = 0; i < itemnames.Size(); i++)
+			{
+				if (itemnames[i] && !CountInv(itemnames[i]))
+				{
+					if (itemnames[i] == "SSGUpgrade4" &&
+						(!CountInv("SSGUpgrade1") || !CountInv("SSGUpgrade2")))
+						continue;
+					
+					invoker.desc[invoker.index] = itemstr[i];
+					invoker.items[invoker.index] = itemnames[i];
+					invoker.index++;
+				}
+			}
+			
+			invoker.index--;
+			int rng = random(0,invoker.index);
+			
+			if (invoker.items[rng])
+			{
+				A_PrintBold(invoker.desc[rng]);
+				A_GiveInventory(invoker.items[rng]);
+			}
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class StaticRifleUpgradePickup : D4UpgradePickup
+{
+	States
+	{
+	Spawn:
+		M668 K 17;
+		M669 K 17;
+		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			// This one's entirely linear enough, so don't bother with randomizing.
+			if (!CountInv("StaticUpgrade1"))
+			{
+				A_GiveInventory("StaticUpgrade1");
+				A_PrintBold("$StaticUpgrade1");
+			}
+			else if (!CountInv("StaticUpgrade2"))
+			{
+				A_GiveInventory("StaticUpgrade2");
+				A_PrintBold("$StaticUpgrade2");
+			}
+			else if (!CountInv("StaticUpgrade3"))
+			{
+				A_GiveInventory("StaticUpgrade3");
+				A_PrintBold("$StaticUpgrade3");
+			}
+			else if (!CountInv("StaticUpgrade4"))
+			{
+				A_GiveInventory("StaticUpgrade4");
+				A_PrintBold("$StaticUpgrade4");
+			}
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class RepeaterUpgradePickup : D4UpgradePickup
+{
+	States
+	{
+	Spawn:
+		M668 E 17;
+		M669 E 17;
+		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			static const Class<Inventory> itemnames[] =
+			{ "RepeaterUpgradePiercing", "RepeaterUpgradeDamage", "RepeaterUpgradeAltDamage", "RepeaterUpgradeAltAmmo" };
+			
+			static const String itemstr[] =
+			{ "$RepeaterUpgradePiercing", "$RepeaterUpgradeDamage", "$RepeaterUpgradeAltDamage", "$RepeaterUpgradeAltAmmo" };
+			
+			for (int i = 0; i < itemnames.Size(); i++)
+			{
+				if (itemnames[i] && !CountInv(itemnames[i]))
+				{
+					invoker.desc[invoker.index] = itemstr[i];
+					invoker.items[invoker.index] = itemnames[i];
+					invoker.index++;
+				}
+			}
+			
+			invoker.index--;
+			int rng = random(0,invoker.index);
+			
+			if (invoker.items[rng])
+			{
+				A_PrintBold(invoker.desc[rng]);
+				A_GiveInventory(invoker.items[rng]);
+			}
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class AssaultRifleUpgradePickup : D4UpgradePickup
+{
+	States
+	{
+	Spawn:
+		M668 E 17;
+		M669 E 17;
+		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			static const Class<Inventory> itemnames[] =
+			{	"AssaultRifleMod1",		"AssaultRifleMod2"	};
+			
+			static const String itemstr[] =
+			{	"$AssaultRifleMod1",	"$AssaultRifleMod2"	};
+			
+			for (int i = 0; i < itemnames.Size(); i++)
+			{
+				if (itemnames[i] && !CountInv(itemnames[i]))
+				{
+					invoker.desc[invoker.index] = itemstr[i];
+					invoker.items[invoker.index] = itemnames[i];
+					invoker.index++;
+				}
+			}
+			
+			invoker.index--;
+			int rng = random(0,invoker.index);
+			
+			if (invoker.items[rng])
+			{
+				A_PrintBold(invoker.desc[rng]);
+				A_GiveInventory(invoker.items[rng]);
+			}
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class ChaingunUpgradePickup : D4UpgradePickup
+{
+	States
+	{
+	Spawn:
+		M668 F 17;
+		M669 F 17;
+		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			static const Class<Inventory> itemnames[] =
+			{	"ChaingunMod1",		"ChaingunMod2"	};
+			
+			static const String itemstr[] =
+			{	"$ChaingunMod1",	"$ChaingunMod2"	};
+			
+			for (int i = 0; i < itemnames.Size(); i++)
+			{
+				if (itemnames[i] && !CountInv(itemnames[i]))
+				{
+					invoker.desc[invoker.index] = itemstr[i];
+					invoker.items[invoker.index] = itemnames[i];
+					invoker.index++;
+				}
+			}
+			
+			invoker.index--;
+			int rng = random(0,invoker.index);
+			
+			if (invoker.items[rng])
+			{
+				A_PrintBold(invoker.desc[rng]);
+				A_GiveInventory(invoker.items[rng]);
+			}
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class RocketLauncherUpgradePickup : D4UpgradePickup
+{
+	States
+	{
+	Spawn:
+		M668 G 17;
+		M669 G 17;
+		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			static const Class<Inventory> itemnames[] =
+			{	"RocketLauncherMod1",	"RocketLauncherMod2"	};
+			
+			static const String itemstr[] =
+			{	"$RocketLauncherMod1",	"$RocketLauncherMod2"	};
+			
+			for (int i = 0; i < itemnames.Size(); i++)
+			{
+				if (itemnames[i] && !CountInv(itemnames[i]))
+				{
+					invoker.desc[invoker.index] = itemstr[i];
+					invoker.items[invoker.index] = itemnames[i];
+					invoker.index++;
+				}
+			}
+			
+			invoker.index--;
+			int rng = random(0,invoker.index);
+			
+			if (invoker.items[rng])
+			{
+				A_PrintBold(invoker.desc[rng]);
+				A_GiveInventory(invoker.items[rng]);
+			}
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class PlasmaRifleUpgradePickup : D4UpgradePickup
+{
+	States
+	{
+	Spawn:
+		M668 H 17;
+		M669 H 17;
+		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			static const Class<Inventory> itemnames[] =
+			{	"PlasmaRifleMod1",	"PlasmaRifleMod2"	};
+			
+			static const String itemstr[] =
+			{	"$PlasmaRifleMod1",	"$PlasmaRifleMod2"	};
+			
+			for (int i = 0; i < itemnames.Size(); i++)
+			{
+				if (itemnames[i] && !CountInv(itemnames[i]))
+				{
+					invoker.desc[invoker.index] = itemstr[i];
+					invoker.items[invoker.index] = itemnames[i];
+					invoker.index++;
+				}
+			}
+			
+			invoker.index--;
+			int rng = random(0,invoker.index);
+			
+			if (invoker.items[rng])
+			{
+				A_PrintBold(invoker.desc[rng]);
+				A_GiveInventory(invoker.items[rng]);
+			}
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class LightningGunUpgradePickup : D4UpgradePickup
+{
+	States
+	{
+	Spawn:
+		M668 N 17;
+		M669 N 17;
+		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			static const Class<Inventory> itemnames[] =
+			{ "LGUpgradeAmmo", "LGUpgradeRange", "LGUpgradeDamage", "LGUpgradeAltFire" };
+			
+			static const String itemstr[] =
+			{ "$LGUpgradeAmmo", "$LGUpgradeRange", "$LGUpgradeDamage", "$LGUpgradeAltFire" };
+			
+			for (int i = 0; i < itemnames.Size(); i++)
+			{
+				if (itemnames[i] && !CountInv(itemnames[i]))
+				{
+					invoker.desc[invoker.index] = itemstr[i];
+					invoker.items[invoker.index] = itemnames[i];
+					invoker.index++;
+				}
+			}
+			
+			invoker.index--;
+			int rng = random(0,invoker.index);
+			
+			if (invoker.items[rng])
+			{
+				A_PrintBold(invoker.desc[rng]);
+				A_GiveInventory(invoker.items[rng]);
+			}
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class VortexRifleUpgradePickup : D4UpgradePickup
+{
+	States
+	{
+	Spawn:
+		M668 M 17;
+		M669 M 17;
+		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			static const Class<Inventory> itemnames[] =
+			{ "VortexUpgradeDamage", "VortexUpgradeAmmo", "VortexUpgradeAltSpeed", "VortexUpgradeAltPierce" };
+			
+			static const String itemstr[] =
+			{ "$VortexUpgradeDamage", "$VortexUpgradeAmmo", "$VortexUpgradeAltSpeed", "$VortexUpgradeAltPierce" };
+			
+			for (int i = 0; i < itemnames.Size(); i++)
+			{
+				if (itemnames[i] && !CountInv(itemnames[i]))
+				{
+					invoker.desc[invoker.index] = itemstr[i];
+					invoker.items[invoker.index] = itemnames[i];
+					invoker.index++;
+				}
+			}
+			
+			invoker.index--;
+			int rng = random(0,invoker.index);
+			
+			if (invoker.items[rng])
+			{
+				A_PrintBold(invoker.desc[rng]);
+				A_GiveInventory(invoker.items[rng]);
+			}
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class GaussCannonUpgradePickup : D4UpgradePickup
+{
+	States
+	{
+	Spawn:
+		M668 J 17;
+		M669 J 17;
+		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			static const Class<Inventory> itemnames[] =
+			{	"GaussCannonMod1",	"GaussCannonMod2"	};
+			
+			static const String itemstr[] =
+			{	"$GaussCannonMod1",	"$GaussCannonMod2"	};
+			
+			for (int i = 0; i < itemnames.Size(); i++)
+			{
+				if (itemnames[i] && !CountInv(itemnames[i]))
+				{
+					invoker.desc[invoker.index] = itemstr[i];
+					invoker.items[invoker.index] = itemnames[i];
+					invoker.index++;
+				}
+			}
+			
+			invoker.index--;
+			int rng = random(0,invoker.index);
+			
+			if (invoker.items[rng])
+			{
+				A_PrintBold(invoker.desc[rng]);
+				A_GiveInventory(invoker.items[rng]);
+			}
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class BFGUpgradePickup : D4UpgradePickup
+{
+	States
+	{
+	Spawn:
+		M668 I 17;
+		M669 I 17;
+		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			static const Class<Inventory> itemnames[] =
+			{ "BFGUpgrade1", "BFGUpgrade2", "BFGUpgrade3", "BFGUpgrade4" };
+			
+			static const String itemstr[] =
+			{ "$BFGUpgrade1", "$BFGUpgrade2", "$BFGUpgrade3", "$BFGUpgrade4" };
+			
+			for (int i = 0; i < itemnames.Size(); i++)
+			{
+				if (itemnames[i] && !CountInv(itemnames[i]))
+				{
+					invoker.desc[invoker.index] = itemstr[i];
+					invoker.items[invoker.index] = itemnames[i];
+					invoker.index++;
+				}
+			}
+			
+			invoker.index--;
+			int rng = random(0,invoker.index);
+			
+			if (invoker.items[rng])
+			{
+				A_PrintBold(invoker.desc[rng]);
+				A_GiveInventory(invoker.items[rng]);
+			}
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class CarrionCannonUpgradePickup : D4UpgradePickup
+{
+	States
+	{
+	Spawn:
+		M668 I 17;
+		M669 I 17;
+		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			static const Class<Inventory> itemnames[] =
+			{ "CarrionUpgradePickup", "CarrionUpgradeAmmo", "CarrionUpgradeStun", "CarrionUpgradeTime" };
+			
+			static const String itemstr[] =
+			{ "$CarrionUpgradePickup", "$CarrionUpgradeAmmo", "$CarrionUpgradeStun", "$CarrionUpgradeTime" };
+			
+			for (int i = 0; i < itemnames.Size(); i++)
+			{
+				if (itemnames[i] && !CountInv(itemnames[i]))
+				{
+					invoker.desc[invoker.index] = itemstr[i];
+					invoker.items[invoker.index] = itemnames[i];
+					invoker.index++;
+				}
+			}
+			
+			invoker.index--;
+			int rng = random(0,invoker.index);
+			
+			if (invoker.items[rng])
+			{
+				A_PrintBold(invoker.desc[rng]);
+				A_GiveInventory(invoker.items[rng]);
+			}
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class SovietChaingunUpgradePickup : CustomInventory
+{
+	Default
+	{
+		+INVENTORY.ALWAYSPICKUP
+		+BRIGHT
+		Inventory.PickupSound "HOLYSHIT";
+		Inventory.PickupMessage "For Mother Russia!";
+		Translation "0:255=%[0.0,0.0,0.0]:[1.0,0.75,0.0]";
+	}
+	States
+	{
+	Spawn:
+		M673 Z 17;
+		M674 Z 17;
+		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			A_SpawnItemEx("HolyShitScreamer",flags:SXF_NOCHECKPOSITION);
+			A_SetInventory("SovietToken",1);
+			// BUGS THIS BIG BECOME FEATURES!
+			A_SetInventory("D4Bullets",CountInv("D4Bullets") + 666,DefPtr,true);
+		}
+		Stop;
+	}
+}
+
+Class HolyShitScreamer : Actor
+{
+	Default
+	{
+		+NOINTERACTION +NOBLOCKMAP +THRUACTORS +NOTONAUTOMAP
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 35 NoDelay A_PlaySound("HOLYSHIT",CHAN_VOICE,1,0,ATTN_NONE);
+		Stop;
+	}
+}
+
+/*
+//Chainsaw
+M668A = "M668A" {Spin=50}
+M669A = "M669A" {Spin=50}
+WPPKA = "WPPKA" {Spin=50}
+
+//Pistol
+M668B = "M668B" {Spin=50}
+M669B = "M669B" {Spin=50}
+WPPKB = "WPPKB" {Spin=50}
+
+//Shotgun
+M668C = "M668C" {Spin=50}
+M669C = "M669C" {Spin=50}
+WPPKC = "WPPKC" {Spin=50}
+
+//Super Shotgun
+M668D = "M668D" {Spin=50}
+M669D = "M669D" {Spin=50}
+WPPKD = "WPPKD" {Spin=50}
+
+//Heavy Assault Rifle
+M668E = "M668E" {Spin=50}
+M669E = "M669E" {Spin=50}
+WPPKE = "WPPKE" {Spin=50}
+
+//Chaingun
+M668F = "M668F" {Spin=50}
+M669F = "M669F" {Spin=50}
+WPPKF = "WPPKF" {Spin=50}
+
+//Rocket Launcher
+M668G = "M668G" {Spin=50}
+M669G = "M669G" {Spin=50}
+WPPKG = "WPPKG" {Spin=50}
+
+//Plasma Rifle
+M668H = "M668H" {Spin=50}
+M669H = "M669H" {Spin=50}
+WPPKH = "WPPKH" {Spin=50}
+
+//BFG 9000
+M668I = "M668I" {Spin=50}
+M669I = "M669I" {Spin=50}
+WPPKI = "WPPKI" {Spin=50}
+
+//Gauss Cannon
+M668J = "M668J" {Spin=50}
+M669J = "M669J" {Spin=50}
+WPPKJ = "WPPKJ" {Spin=50}
+
+//Static rifle
+M668K = "Voxels/staticNOTSELECTED.kvx" {scale=0.7 Spin=50}
+M669K = "Voxels/staticSELECTED.kvx" {scale=0.7 Spin=50}
+WPPKK = "WPPKK" {Spin=50}
+
+//Repeater
+M668L = "Voxels/repeaterNOTSELECTED.kvx" {scale=0.85 Spin=50}
+M669L = "Voxels/repeaterSELECTED.kvx" {scale=0.85 Spin=50}
+WPPKL = "Voxels/PickupRepeater.kvx" {Spin=50}
+
+//Vortex Rifle
+M668M = "Voxels/vortexNOTSELECTED.kvx" {scale=0.7 Spin=50}
+M669M = "Voxels/vortexSELECTED.kvx" {scale=0.7 Spin=50}
+WPPKM = "Voxels/PickupVortex.kvx" {Spin=50}
+
+//Lightning Gun 
+M668N = "Voxels/lgunNOTSELECTED.kvx" {scale=0.7 Spin=50}
+M669N = "Voxels/lgunSELECTED.kvx" {scale=0.7 Spin=50}
+WPPKN = "WPPKN" {Spin=50}
+
+//Carrion Cannon
+M668O = "Voxels/hellNOTSELECTED.kvx" {scale=0.7 Spin=50}
+M669O = "Voxels/hellSELECTED.kvx" {scale=0.7 Spin=50}
+WPPKO = "Voxels/PickupHellshot.kvx" {scale=0.7 Spin=50}
+*/

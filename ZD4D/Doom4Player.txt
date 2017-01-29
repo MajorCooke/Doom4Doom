@@ -335,7 +335,7 @@ Class Doom4Player : PlayerPawn
 						if (!A_CheckBlock("Null",CBF_ABSOLUTEPOS,DefPtr,np.x,np.y,np.z,0))
 						{
 							A_Warp(DefPtr,np.x,np.y,np.z,0,WARPF_ABSOLUTEPOSITION|WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_STOP);
-							A_Warp(DefPtr,flags: WARPF_TOFLOOR|WARPF_NOCHECKPOSITION);
+							//A_Warp(DefPtr,flags: WARPF_TOFLOOR|WARPF_NOCHECKPOSITION);
 							break;
 						}
 					}
@@ -693,9 +693,11 @@ extend class Doom4Player
 	//--------------------------------------------------------------------------
 	// Start-up
 	//--------------------------------------------------------------------------
+	
+	bool started;
 	void InitPlayer()
 	{			
-		if (GetCvar("skill") >= 3)
+		if (!started && GetCvar("skill") >= 3)
 		{
 			if (GetCvar("D4D_NMGrenades") >= 1) // Give and select frag if the setting isn't "Off" 
 			{
@@ -718,7 +720,7 @@ extend class Doom4Player
 				}
 			}
 		}
-		
+		started = true;
 		A_SetInventory("D4MultiJump",int(GetCvar("D4MultiJump")));
 		user_rollmove = user_rollpain = user_rollsave = user_offsets =
 		user_vel = user_zvel = user_hold = user_time = user_vel2 = 
@@ -734,7 +736,6 @@ extend class Doom4Player
 	// Active Functions
 	//--------------------------------------------------------------------------
 	
-	int CooldownTimer[3];
 	override void Tick()
 	{
 		if (isVoodoo() || health <= 0)
@@ -746,67 +747,68 @@ extend class Doom4Player
 		if (PentaNoiseWait > 0)	PentaNoiseWait--;
 		if (level.maptime <= 1)	InitPlayer();
 		
-		static const int CooldownCaps[] = { 3, 2, 10 };
-		for (int i = 0; i < 3; i++)
+		//======================================================================
+		//	Cooldowns
+		//======================================================================
+		
+		int timer = level.maptime % 30;
+		// No need to check for StaticChargeDrain since the upgrade alone
+		// shuts this off.
+		if (!(timer % 3))
 		{
-			CooldownTimer[i] = (CooldownTimer[i] + 1) % CooldownCaps[i];
+			if (!CountInv("StaticUpgrade4"))
+			{
+					 if (CountInv("StaticUpgrade3"))
+				{	A_TakeInventory("StaticRifleChargingToken",1);	}
+				else if (CountInv("StaticUpgrade2"))
+				{	A_TakeInventory("StaticRifleChargingToken",2);	}
+				else
+				{	A_TakeInventory("StaticRifleChargingToken",4);	}
+			}
+			A_TakeInventory("PlasmaStunBombCounter",1);
+			user_lasthp = health + CountInv("BasicArmor");
 		}
 		
-		if (!CooldownTimer[0])	ProcessCooldown1();
-		if (!CooldownTimer[1])	ProcessCooldown2();
-		if (!CooldownTimer[2])	ProcessCooldown3();	
+		if (!(timer % 2))
+		{
+			A_TakeInventory("SGTripleShotTimer",1);
+			A_TakeInventory("SGGrenadeTimer",1);
+		}
+		if (!(timer % 10))
+		{
+			if (CountInv("GrenadeCooldown"))
+			{
+				A_TakeInventory("GrenadeCooldown",1);
+				if (!CountInv("GrenadeCooldown"))
+				{
+					A_PlaySound("Doom4/Weapon/Grenade/GrenadeRegen");
+				}
+			}
+		}
+		
+		//----------------------------------------------------------------------
+		
 		if (GetClass() == "Doom4Player")		UpdateHAM();
 		Super.Tick();
 	}
 	
-	void ProcessCooldown1()
-	{
-		// No need to check for StaticChargeDrain since the upgrade alone
-		// shuts this off.
-		if (!CountInv("StaticUpgrade4"))
-		{
-				 if (CountInv("StaticUpgrade3"))
-			{	A_TakeInventory("StaticRifleChargingToken",1);	}
-			else if (CountInv("StaticUpgrade2"))
-			{	A_TakeInventory("StaticRifleChargingToken",2);	}
-			else
-			{	A_TakeInventory("StaticRifleChargingToken",4);	}
-		}
-		A_TakeInventory("PlasmaStunBombCounter",1);
-		user_lasthp = health + CountInv("BasicArmor");
-	}
-	
-	void ProcessCooldown2()
-	{
-		A_TakeInventory("SGTripleShotTimer",1);
-		A_TakeInventory("SGGrenadeTimer",1);
-	}
-	
-	void ProcessCooldown3()
-	{
-		if (CountInv("GrenadeCooldown"))
-		{
-			A_TakeInventory("GrenadeCooldown",1);
-			if (!CountInv("GrenadeCooldown"))
-			{
-				A_PlaySound("Doom4/Weapon/Grenade/GrenadeRegen");
-			}
-		}
-	}
+	//==========================================================================
+	//	Health, Armor and Movement
+	//==========================================================================
 	
 	void UpdateHAM()
 	{
 		
-		//==================================================================
+		//======================================================================
 		// Health & Armor
-		//==================================================================
+		//======================================================================
 		A_SetInventory("SuperHealthToken",Clamp(health-100,0,100));
 		A_SetInventory("HealthToken",Clamp(health,0,100));
 		A_SetInventory("SuperArmorToken",Clamp(CountInv("BasicArmor")-100,0,100));
 		
-		//==================================================================
+		//======================================================================
 		// Movement
-		//==================================================================
+		//======================================================================
 		// Give static tokens based on movement.
 		
 		if (CountInv("StaticRifleActive"))
@@ -842,9 +844,9 @@ extend class Doom4Player
 		
 		if (CountInv("D4IdfaTrap")) { A_GiveInventory("IdfaStamp"); A_TakeInventory("D4IdfaTrap"); }
 		
-		//==================================================================
+		//======================================================================
 		// Double Jump
-		//==================================================================
+		//======================================================================
 		if (GetCvar("user_MultiJump") > 0)
 		{
 			user_ordersJump = ((GetPlayerInput(MODINPUT_BUTTONS)    & BT_JUMP) &&
