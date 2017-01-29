@@ -272,7 +272,7 @@ Class D4AbstractMonster : Actor
 		if (GetCvar("D4D_CurrentUpgradeMode"))
 		{
 			if (random(1,300) == 1)
-				A_DropItem("D4UpgradePickup");
+				A_DropItem("D4UpgradePickupSpawner");
 			
 			if (CountInv("AssaultRifleMod1",Player1) &&
 				CountInv("AssaultRifleMod2",Player1) &&

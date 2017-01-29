@@ -345,209 +345,195 @@ Class D4Backpack : BackpackItem replaces Backpack
 
 //==============================================================================
 //==============================================================================
-// Weapon Upgrades
+// Upgrades Made Manifest
 //==============================================================================
 //==============================================================================
 
-Class D4UpgradePickup : CustomInventory
+Class D4UpgradePickupSpawner : Actor
 {
-	Class<Inventory> items[10];
-	int index;
-	int utype;
-	
-	String desc[5];
-	
 	override void PostBeginPlay()
 	{
-		if (GetClass() == "D4UpgradePickup")
+		Actor tt = tracer;
+		A_TransferPointer(Player1,DefPtr,DefPtr,TracerPtr,4);
+		let plr = PlayerPawn(tracer);
+		
+		if (!plr || !plr.player)
 		{
-			Actor tt = tracer;
-			A_TransferPointer(Player1,DefPtr,DefPtr,TracerPtr,4);
-			let plr = PlayerPawn(tracer);
-			
-			if (!plr || !plr.player)
-			{
-				A_Log("ERROR: Couldn't find player!");
-				Destroy();
-				return;
-			}
-			tracer = tt;
-			
-			Class<Inventory> ItemToSpawn = null;
-			int BigRNG = 1; //random(1,3);
-			
-			//==================================================================
-			// Weapons
-			//==================================================================
-			if (BigRNG == 1)
-			{
-				// Weapons must be on the leftmost side. All upgrades must follow.
-				int ToAdd = 6;
-				static const Class<Inventory> weap[] =
-				{
-					"D4Pistol",			"PistolUpgradeAutomatic",	"PistolUpgradeAltDamage",	"PistolUpgradeAltCharge",	"PistolUpgradeDamage",		"PistolUpgradeLance",
-					"D4Shotgun", 		"ShotgunMod1",				"ShotgunMod2",				null,						null,						null,
-					"D4SuperShotgun", 	"SSGUpgrade1",				"SSGUpgrade2",				"SSGUpgrade3",				"SSGUpgrade4",				null,
-					"D4Repeater", 		"RepeaterUpgradePiercing",	"RepeaterUpgradeDamage",	"RepeaterUpgradeAltDamage",	"RepeaterUpgradeAltAmmo",	null,
-					"D4AssaultRifle", 	"AssaultRifleMod1",			"AssaultRifleMod2",			null,						null,						null,
-					"D4Chaingun", 		"ChaingunMod1",				"ChaingunMod2",				null,						null,						null,
-					"D4RocketLauncher",	"RocketLauncherMod1",		"RocketLauncherMod2",		null,						null,						null,
-					//"D4GrenadeLauncher",null,						null,						null,						null,						null, 
-					"D4PlasmaRifle", 	"PlasmaRifleMod1",			"PlasmaRifleMod2",			null,						null,						null,
-					"D4LightningGun", 	"LGUpgradeAmmo",			"LGUpgradeRange",			"LGUpgradeDamage",			"LGUpgradeAltFire",			null,
-					"D4StaticRifle", 	"StaticUpgrade1",			"StaticUpgrade2",			"StaticUpgrade3",			"StaticUpgrade4",			null,
-					"D4VortexRifle", 	"VortexUpgradeDamage",		"VortexUpgradeAmmo",		"VortexUpgradeAltSpeed",	"VortexUpgradeAltPierce",	null,
-					"D4GaussCannon", 	"GaussCannonMod1",			"GaussCannonMod2",			null,						null,						null,
-					"D4BFG",			"BFGUpgrade1",				"BFGUpgrade2",				"BFGUpgrade3",				"BFGUpgrade4",				null,
-					"D4CarrionCannon",	"CarrionUpgradePickup",		"CarrionUpgradeAmmo",		"CarrionUpgradeStun",		"CarrionUpgradeTime",		null
-				};
-				
-				static const bool chainset[] =
-				{
-					true,	//pistol
-					true,	//shotgun
-					true,	//ssg
-					false,	//repeater
-					true,	//har
-					true,	//chaingun
-					true,	//rl
-					true,	//plasma
-					false,	//lightning
-					false,	//static
-					false,	//vortex
-					true,	//gauss
-					true,	//bfg
-					false	//carrion
-				};
-				
-				Class<Inventory> OwnedWeaps[20];
-				uint owned = 0, l = 0;
-				int filled = 0;
-				for (uint i = 0; i < weap.Size(); i += ToAdd)
-				{
-					int maxfill = 0, cnt = 0;
-					
-					// If they have the weapon, check to see if they have all the
-					// upgrades. Increment maxfill by all applicable upgrades that
-					// exist, and increment cnt only by what the player has.
-					
-					// If the player still has more to go, add that weapon to the
-					// pool chance of random droppers.
-					if (weap[i] && plr.CountInv(weap[i]))
-					{
-						bool chaincount = chainset[l];	l++;	// UAC Russia represents.
-						
-						for (int j = 1; j < ToAdd; j++)
-						{
-							if (weap[i + j] != null)
-							{
-								maxfill++;
-								cnt += CountInv(weap[i + j],Player1) ? 1 : 0;
-							}
-						}
-						
-						//Increment only whenever there is more to be gained.
-						if (cnt < maxfill)
-						{
-							OwnedWeaps[owned] = weap[i];
-							owned++;
-						}
-						else if (chaincount)
-						{
-							filled++;
-						}
-					}
-				}
-				
-				// The weapons needed for the soviet chaingun have all been filled.
-				// Spawn it in addition to whatever else will spawn as a bonus reward.
-				if (filled >= 9)
-				{
-					let soviet = Actor(Spawn("SovietChaingunUpgradePickup",pos));
-					if (soviet)	
-					{
-						soviet.vel = vel;
-						soviet.target = target;
-						soviet.master = master;
-						soviet.tracer = tracer;
-					}
-				}
-				
-				if (owned < 1)
-				{
-					// Nothing to do here. 
-					Destroy();
-					return;
-				}
-				
-				// Now backtrack since n-1 is needed.
-				owned--;
-				int rng = random(0,owned);
-				
-				// Spawn it and GTFO.
-				if (OwnedWeaps[rng])
-				{
-					static const Class<Inventory> weapup[] =
-					{
-						"D4Pistol",			"PistolUpgradePickup",
-						"D4Shotgun", 		"ShotgunUpgradePickup",
-						"D4SuperShotgun", 	"SuperShotgunUpgradePickup",
-						"D4Repeater", 		"RepeaterUpgradePickup",
-						"D4AssaultRifle", 	"AssaultRifleUpgradePickup",
-						"D4Chaingun", 		"ChaingunUpgradePickup",
-						"D4RocketLauncher", "RocketLauncherUpgradePickup",
-						//"D4GrenadeLauncher", },
-						"D4PlasmaRifle", 	"PlasmaRifleUpgradePickup",
-						"D4LightningGun", 	"LightningGunUpgradePickup",
-						"D4StaticRifle", 	"StaticRifleUpgradePickup",
-						"D4VortexRifle", 	"VortexRifleUpgradePickup",
-						"D4GaussCannon", 	"GaussCannonUpgradePickup",
-						"D4BFG",			"BFGUpgradePickup",
-						"D4CarrionCannon",	"CarrionCannonUpgradePickup"
-					};
-					
-					for (uint k = 0; k < weapup.Size(); k += 2)
-					{
-						if (k % 1 != 0)	k--;	// Never be odd. Even only.
-						if (OwnedWeaps[rng] == weapup[k])
-						{
-							if ((k + 1 <= weapup.Size()) && (k + 1 > 0))
-							{
-								ItemToSpawn = weapup[k+1];
-								if (!ItemToSpawn)
-								{
-									// Die.
-									Destroy();
-									return;
-								}
-								break;
-							}
-						}
-					}
-				}
-				
-				let upitem = Actor(Spawn(ItemToSpawn,pos));
-				if (upitem) 
-				{
-					upitem.vel = vel;
-					upitem.target = target;
-					upitem.master = master;
-					upitem.tracer = tracer;
-				}
-			}
+			A_Log("ERROR: Couldn't find player!");
 			Destroy();
 			return;
 		}
-		angle = random(0,359);
-		bTHRUACTORS = false;
-		Super.PostBeginPlay();
+		tracer = tt;
+		
+		Class<Inventory> ItemToSpawn = null;
+		int BigRNG = 1; //random(1,3);
+		
+		//==================================================================
+		// Weapons
+		//==================================================================
+		if (BigRNG == 1)
+		{
+			// Weapons must be on the leftmost side. All upgrades must follow.
+			int ToAdd = 6;
+			static const Class<Inventory> weap[] =
+			{
+				"D4Pistol",			"PistolUpgradeAutomatic",	"PistolUpgradeAltDamage",	"PistolUpgradeAltCharge",	"PistolUpgradeDamage",		"PistolUpgradeLance",
+				"D4Shotgun", 		"ShotgunMod1",				"ShotgunMod2",				null,						null,						null,
+				"D4SuperShotgun", 	"SSGUpgrade1",				"SSGUpgrade2",				"SSGUpgrade3",				"SSGUpgrade4",				null,
+				"D4Repeater", 		"RepeaterUpgradePiercing",	"RepeaterUpgradeDamage",	"RepeaterUpgradeAltDamage",	"RepeaterUpgradeAltAmmo",	null,
+				"D4AssaultRifle", 	"AssaultRifleMod1",			"AssaultRifleMod2",			null,						null,						null,
+				"D4Chaingun", 		"ChaingunMod1",				"ChaingunMod2",				null,						null,						null,
+				"D4RocketLauncher",	"RocketLauncherMod1",		"RocketLauncherMod2",		null,						null,						null,
+				//"D4GrenadeLauncher",null,						null,						null,						null,						null, 
+				"D4PlasmaRifle", 	"PlasmaRifleMod1",			"PlasmaRifleMod2",			null,						null,						null,
+				"D4LightningGun", 	"LGUpgradeAmmo",			"LGUpgradeRange",			"LGUpgradeDamage",			"LGUpgradeAltFire",			null,
+				"D4StaticRifle", 	"StaticUpgrade1",			"StaticUpgrade2",			"StaticUpgrade3",			"StaticUpgrade4",			null,
+				"D4VortexRifle", 	"VortexUpgradeDamage",		"VortexUpgradeAmmo",		"VortexUpgradeAltSpeed",	"VortexUpgradeAltPierce",	null,
+				"D4GaussCannon", 	"GaussCannonMod1",			"GaussCannonMod2",			null,						null,						null,
+				"D4BFG",			"BFGUpgrade1",				"BFGUpgrade2",				"BFGUpgrade3",				"BFGUpgrade4",				null,
+				"D4CarrionCannon",	"CarrionUpgradePickup",		"CarrionUpgradeAmmo",		"CarrionUpgradeStun",		"CarrionUpgradeTime",		null
+			};
+			
+			static const bool chainset[] =
+			{
+				true,	//pistol
+				true,	//shotgun
+				true,	//ssg
+				false,	//repeater
+				true,	//har
+				true,	//chaingun
+				true,	//rl
+				true,	//plasma
+				false,	//lightning
+				false,	//static
+				false,	//vortex
+				true,	//gauss
+				true,	//bfg
+				false	//carrion
+			};
+			
+			Class<Inventory> OwnedWeaps[20];
+			uint owned = 0, l = 0;
+			int filled = 0;
+			for (uint i = 0; i < weap.Size(); i += ToAdd)
+			{
+				int maxfill = 0, cnt = 0;
+				
+				// If they have the weapon, check to see if they have all the
+				// upgrades. Increment maxfill by all applicable upgrades that
+				// exist, and increment cnt only by what the player has.
+				
+				// If the player still has more to go, add that weapon to the
+				// pool chance of random droppers.
+				if (weap[i] && plr.CountInv(weap[i]))
+				{
+					bool chaincount = chainset[l];	l++;	// UAC Russia represents.
+					
+					for (int j = 1; j < ToAdd; j++)
+					{
+						if (weap[i + j] != null)
+						{
+							maxfill++;
+							cnt += CountInv(weap[i + j],Player1) ? 1 : 0;
+						}
+					}
+					
+					//Increment only whenever there is more to be gained.
+					if (cnt < maxfill)
+					{
+						OwnedWeaps[owned] = weap[i];
+						owned++;
+					}
+					else if (chaincount)
+					{
+						filled++;
+					}
+				}
+			}
+			
+			// The weapons needed for the soviet chaingun have all been filled.
+			// Spawn it in addition to whatever else will spawn as a bonus reward.
+			if (filled >= 9)
+			{
+				let soviet = Actor(Spawn("SovietChaingunUpgradePickup",pos));
+				if (soviet)	
+				{
+					soviet.vel = vel;
+					soviet.target = target;
+					soviet.master = master;
+					soviet.tracer = tracer;
+				}
+			}
+			
+			if (owned < 1)
+			{
+				// Nothing to do here. 
+				Destroy();
+				return;
+			}
+			
+			// Now backtrack since n-1 is needed.
+			owned--;
+			int rng = random(0,owned);
+			
+			// Spawn it and GTFO.
+			if (OwnedWeaps[rng])
+			{
+				static const Class<Inventory> weapup[] =
+				{
+					"D4Pistol",			"PistolUpgradePickup",
+					"D4Shotgun", 		"ShotgunUpgradePickup",
+					"D4SuperShotgun", 	"SuperShotgunUpgradePickup",
+					"D4Repeater", 		"RepeaterUpgradePickup",
+					"D4AssaultRifle", 	"AssaultRifleUpgradePickup",
+					"D4Chaingun", 		"ChaingunUpgradePickup",
+					"D4RocketLauncher", "RocketLauncherUpgradePickup",
+					//"D4GrenadeLauncher", },
+					"D4PlasmaRifle", 	"PlasmaRifleUpgradePickup",
+					"D4LightningGun", 	"LightningGunUpgradePickup",
+					"D4StaticRifle", 	"StaticRifleUpgradePickup",
+					"D4VortexRifle", 	"VortexRifleUpgradePickup",
+					"D4GaussCannon", 	"GaussCannonUpgradePickup",
+					"D4BFG",			"BFGUpgradePickup",
+					"D4CarrionCannon",	"CarrionCannonUpgradePickup"
+				};
+				
+				for (uint k = 0; k < weapup.Size(); k += 2)
+				{
+					if (k % 1 != 0)	k--;	// Never be odd. Even only.
+					if (OwnedWeaps[rng] == weapup[k])
+					{
+						if ((k + 1 <= weapup.Size()) && (k + 1 > 0))
+						{
+							ItemToSpawn = weapup[k+1];
+							if (!ItemToSpawn)
+							{
+								// Die.
+								Destroy();
+								return;
+							}
+							break;
+						}
+					}
+				}
+			}
+			
+			let upitem = Actor(Spawn(ItemToSpawn,pos));
+			if (upitem) 
+			{
+				upitem.vel = vel;
+				upitem.target = target;
+				upitem.master = master;
+				upitem.tracer = tracer;
+			}
+		}
+		Destroy();
+		return;		
 	}
 	
 	Default
 	{
-		+INVENTORY.ALWAYSPICKUP
-		+BRIGHT
-		+THRUACTORS //Never let anything pick this thing up physically.
+		+NOINTERACTION
 	}
 	
 	States
@@ -555,6 +541,30 @@ Class D4UpgradePickup : CustomInventory
 	Spawn:
 		TNT1 A 1;
 		Stop;
+	}
+}
+
+Class D4UpgradePickup : CustomInventory
+{
+	Class<Inventory> items[10];	
+	String desc[5];
+	uint index;
+	override void PostBeginPlay()
+	{
+		if (GetClass() == "D4UpgradePickup")
+		{
+			Destroy();
+			return;
+		}
+		angle = random(0,359);
+		bTHRUACTORS = false;
+		Super.PostBeginPlay();
+	}
+	Default
+	{
+		+INVENTORY.ALWAYSPICKUP
+		+BRIGHT
+		+THRUACTORS //Never let anything pick this thing up physically.
 	}
 }
 
@@ -1164,8 +1174,12 @@ Class SovietChaingunUpgradePickup : CustomInventory
 	Pickup:
 		TNT1 A 0
 		{
-			A_SpawnItemEx("HolyShitScreamer",flags:SXF_NOCHECKPOSITION);
-			A_SetInventory("SovietToken",1);
+			if (!CountInv("SovietToken"))
+			{	
+				A_SpawnItemEx("HolyShitScreamer",flags:SXF_NOCHECKPOSITION);
+				A_SetInventory("SovietToken",1);
+				A_SetInventory("SovietActive",1);
+			}
 			// BUGS THIS BIG BECOME FEATURES!
 			A_SetInventory("D4Bullets",CountInv("D4Bullets") + 666,DefPtr,true);
 		}
