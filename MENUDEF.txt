@@ -1890,7 +1890,7 @@ OptionMenu "CashPercentBonus3"
 	StaticText " "
 	StaticText "+40% Credits", TAN
 	StaticText " "
-	Command "Buy", "test <= $Cost_U3Credit $D4DCash \"CashPercentBonus 30; CTake $Cost_U3Credit; BuyUpgradeSuit;\" \"NEC\""
+	Command "Buy", "test <= $Cost_U3Credit $D4DCash \"CashPercentBonus 40; CTake $Cost_U3Credit; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
 	NumberField "Cost", Cost_U3Credit, 0, 500000000, 	0.00000000000000000000000001, Adjustable
 	StaticText ""
