@@ -214,10 +214,7 @@ Class UpgradeUpdater : CustomInventory
 
 			A_SetInventory("D4ArmorCapRaiser", int(GetCvar("D4ArmorCapRaiser")));
 			
-			if (GetCvar("CashPercentBonus") <= 30)
-			{
-				A_SetInventory("CashPercentBonus",int(GetCvar("CashPercentBonus")));
-			}
+			A_SetInventory("CashPercentBonus",int(GetCvar("CashPercentBonus")));
 			
 			A_SetInventory("D4MultiJump",int(GetCvar("D4MultiJump")));
 			A_SetInventory("D4CrateUpgrade",int(GetCvar("D4CrateUpgrade")));
