@@ -1568,7 +1568,7 @@ OptionMenu "D4DUpgrade.Suit"
 	StaticText " "
 	Command "Air Movement",	"test >= $D4AirControl 1 \"AlreadyBought\" \"CheckJump3\""
 	StaticText " "
-	Command "Credits",	"test >= $CashPercentBonus 30 \"AlreadyBought\" \"CheckCredits3\""
+	Command "Credits",	"test >= $CashPercentBonus 40 \"AlreadyBought\" \"CheckCredits4\""
 	StaticText " "
 	Command "Protection",	"test >= $ProtectionBonus3 1 \"AlreadyBought\" \"CheckProtect3\""
 	//StaticText " "
@@ -1836,6 +1836,8 @@ OptionMenu "CashPercentBonus1"
 	StaticText " "
 	StaticText "+30% Credits", TAN
 	StaticText " "
+	StaticText "+40% Credits", TAN
+	StaticText " "
 	Command "Buy", "test <= $Cost_U1Credit $D4DCash \"CashPercentBonus 10; CTake $Cost_U1Credit; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
 	NumberField "Cost", Cost_U1Credit, 0, 500000000, 	0.00000000000000000000000001, Adjustable
@@ -1859,6 +1861,8 @@ OptionMenu "CashPercentBonus2"
 	StaticText "+20% Credits", GOLD
 	StaticText " "
 	StaticText "+30% Credits", TAN
+	StaticText " "
+	StaticText "+40% Credits", TAN
 	StaticText " "
 	Command "Buy", "test <= $Cost_U2Credit $D4DCash \"CashPercentBonus 20; CTake $Cost_U2Credit; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
@@ -1884,9 +1888,37 @@ OptionMenu "CashPercentBonus3"
 	StaticText " "
 	StaticText "+30% Credits", GOLD
 	StaticText " "
+	StaticText "+40% Credits", TAN
+	StaticText " "
 	Command "Buy", "test <= $Cost_U3Credit $D4DCash \"CashPercentBonus 30; CTake $Cost_U3Credit; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
 	NumberField "Cost", Cost_U3Credit, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+}
+
+OptionMenu "CashPercentBonus4"
+{
+	Title "Credit Upgrades"
+	StaticText "*** COLOR LEGEND ***", WHITE
+	StaticText " "
+	StaticText "OWNED"
+	StaticText "BUYING", GOLD
+	StaticText "GATED", TAN
+	StaticText " "
+	StaticText "------- STATUS -------", WHITE
+	StaticText " "
+	StaticText "+10% Credits"
+	StaticText " "
+	StaticText "+20% Credits"
+	StaticText " "
+	StaticText "+30% Credits"
+	StaticText " "
+	StaticText "+40% Credits", GOLD
+	StaticText " "
+	Command "Buy", "test <= $Cost_U4Credit $D4DCash \"CashPercentBonus 40; CTake $Cost_U4Credit; BuyUpgradeSuit;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U4Credit, 0, 500000000, 	0.00000000000000000000000001, Adjustable
 	StaticText ""
 	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
 }
@@ -2078,9 +2110,9 @@ OptionMenu "D4DUpgrade.Powerups"
 	Command "Megacharge", 					"openmenu D4DUpgrade.Megacharge"
 	StaticText ""
 	Command "Doom Doll",					"openmenu D4DUpgrade.DoomDoll"
-	/*
 	StaticText ""
 	Command "Supercharge", 					"openmenu D4DUpgrade.Supercharge"
+	/*
 	StaticText ""
 	Command "Berserk", 						"openmenu D4DUpgrade.Berserk"
 	StaticText ""
@@ -2117,6 +2149,20 @@ OptionMenu "D4DUpgrade.DoomDoll"
 	Command "$D4DoomDollUpgrade1",	"test > $D4DoomDollUpgrade1 0 \"AlreadyBought\" \"openmenu D4DoomDollUpgrade1\""
 	StaticText ""
 	Command "$D4DoomDollUpgrade2",	"test > $D4DoomDollUpgrade2 0 \"AlreadyBought\" \"openmenu D4DoomDollUpgrade2\""
+}
+
+OptionMenu "D4DUpgrade.SuperCharge"
+{
+	Title "Super Charge"
+	StaticText "Choose An Upgrade"
+	StaticText ""
+	Command "$D4RegenUpgrade1",	"test > $D4RegenUpgrade1 0 \"AlreadyBought\" \"openmenu D4RegenUpgrade1\""
+	StaticText ""
+	Command "$D4RegenUpgrade2",	"test > $D4RegenUpgrade2 0 \"AlreadyBought\" \"CheckRegenReq1\""
+	StaticText ""
+	Command "$D4RegenUpgrade3",	"test > $D4RegenUpgrade3 0 \"AlreadyBought\" \"openmenu D4RegenUpgrade3\""
+	StaticText ""
+	Command "$D4RegenUpgrade4",	"test > $D4RegenUpgrade4 0 \"AlreadyBought\" \"openmenu D4RegenUpgrade4\""
 }
 
 OptionMenu "D4MegachargeUpgrade1"
@@ -2179,16 +2225,78 @@ OptionMenu "D4DoomDollUpgrade2"
 	StaticText ""
 	StaticText "PEANUT AKBAR", WHITE
 }
-/*
-OptionMenu "D4DUpgrade.Supercharge"
+
+OptionMenu "D4RegenUpgrade1"
 {
-	Title "Supercharge"
-	StaticText "Choose An Upgrade"
+	Title "$D4RegenUpgrade1"
+	StaticText "Armor regenerates when health is full"
 	StaticText ""
-	Command "",			"test > $SuperchargeUpgrade1 0 \"AlreadyBought\" \"openmenu D4SuperchargeUpgrade1\""
+	Command "Buy", "test <= $Cost_U1Regen $D4DCash \"D4RegenUpgrade1 1; CTake $Cost_U1Regen; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	Command "",			"test > $SuperchargeUpgrade2 0 \"AlreadyBought\" \"openmenu D4SuperchargeUpgrade2\""
+	NumberField "Cost", Cost_U1Regen, 0, 500000000, 			0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 500000000, 				0.00000000000000000000000001, Adjustable
+	StaticText ""
+	StaticText "Thy flesh be venomous sugar, most withering,", WHITE
+	StaticText "Thy skin burns their mithes by flaming salt.", WHITE
+	StaticText "Getting a hard-on has never been so satisfying.", WHITE
 }
+
+OptionMenu "D4RegenUpgrade2"
+{
+	Title "$D4RegenUpgrade2"
+	StaticText "Armor regenerates with health"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U2Regen $D4DCash \"D4RegenUpgrade2 1; CTake $Cost_U2Regen; BuyUpgradePowerup;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U2Regen, 0, 500000000, 			0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 500000000, 				0.00000000000000000000000001, Adjustable
+	StaticText ""
+	StaticText "Aspect of the Namekian:", WHITE
+	StaticText "Lose no hope when you lose an arm.", WHITE
+}
+
+OptionMenu "D4RegenUpgrade2NA"
+{
+	Title "$D4RegenUpgrade2"
+	StaticText "Armor regenerates with health"
+	StaticText ""
+	StaticText "Pre-requisites not met.", RED
+	StaticText "You must have the following upgrades:", ORANGE
+	StaticText ""
+	Command "$D4RegenUpgrade1",	"test > $D4RegenUpgrade1 0 \"AlreadyBought\" \"openmenu D4RegenUpgrade1\""
+}
+
+OptionMenu "D4RegenUpgrade3"
+{
+	Title "$D4RegenUpgrade3"
+	StaticText "-50% Regen Time Delay"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U3Regen $D4DCash \"D4RegenUpgrade3 1; CTake $Cost_U3Regen; BuyUpgradePowerup;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U3Regen, 0, 500000000, 			0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 500000000, 				0.00000000000000000000000001, Adjustable
+	StaticText ""
+	StaticText "When you wake up in a tub full of ice, you're laughing.", WHITE
+}
+
+OptionMenu "D4RegenUpgrade4"
+{
+	Title "$D4RegenUpgrade4"
+	StaticText "+100 Health Overheal + Regeneration Capacity"
+	StaticText ""
+	Command "Buy", "test <= $Cost_U4Regen $D4DCash \"D4RegenUpgrade4 1; CTake $Cost_U4Regen; BuyUpgradePowerup;\" \"NEC\""
+	StaticText ""
+	NumberField "Cost", Cost_U4Regen, 0, 500000000, 			0.00000000000000000000000001, Adjustable
+	StaticText ""
+	NumberField "Cash", D4DCash, -10, 500000000, 				0.00000000000000000000000001, Adjustable
+	StaticText ""
+	StaticText "Steroids Without Consequences", WHITE
+}
+
+/*
 OptionMenu "D4DUpgrade.Berserk"
 {
 }

@@ -1,3 +1,26 @@
+Class D4NoiseMaker : Actor
+{
+	void Silence()
+	{
+		A_StopSound(CHAN_BODY);
+		A_StopSound(CHAN_ITEM);
+		A_StopSound(CHAN_WEAPON);
+		A_StopSound(CHAN_VOICE);
+		A_StopSound(5);
+		A_StopSound(6);
+		A_StopSound(7);
+	}
+	
+	// Never spawn this thing directly.
+	override void PostBeginPlay()
+	{
+		if (GetClass() == "D4NoiseMaker")
+			return Destroy();
+		
+		Super.PostBeginPlay();
+	}
+}
+
 //=======================================================================
 //=======================================================================
 // MegaHealth
@@ -450,9 +473,114 @@ Class QuadNoise : Actor
 //=======================================================================
 //=======================================================================
 
-Class SoulSphereHP : SoulSphere { Default { +INVENTORY.IGNORESKILL }}
+Class SoulSphereHP : SoulSphere 
+{ 
+	Default 
+	{ 
+		+INVENTORY.IGNORESKILL 
+		Inventory.Amount 100;
+	}
+}
 
-Class PowerD4Regen : PowerRegeneration { }
+Class SoulSphereHPUpgraded : SoulSphere 
+{ 
+	Default 
+	{ 
+		+INVENTORY.IGNORESKILL 
+		Inventory.Amount 150;
+		Inventory.MaxAmount 300;
+	}
+}
+
+Class PowerD4Regen : PowerRegeneration 
+{
+	int GiverTic;
+	Actor NoiseMaker;
+	bool switcharoo;
+	Default 
+	{
+		+INVENTORY.NOSCREENBLINK;
+		Inventory.InterhubAmount 0; 
+	}
+	
+	void GiveHealth()
+	{
+		if (Owner)
+		{
+			if (Owner.FindInventory("PowerMorph",true) || !Owner.CountInv("D4RegenUpgrade4"))	
+				Owner.GiveBody(int(Strength));
+			else
+				Owner.A_GiveInventory("D4HealthBonusUpgraded");
+		}
+	}
+	
+	override void InitEffect()
+	{
+		Super.InitEffect();
+		if (!Owner)	return;
+		
+		NoiseMaker = Spawn("RegenPickupNoise",Owner.pos);
+	}
+	
+	override void DoEffect()
+	{
+		if (!Owner || Owner.Health < 1)
+			return Destroy();
+		
+		if (Owner.CountInv("D4RegenUpgrade3"))
+			GiverTic = 15;
+		else
+			GiverTic = 31;
+		
+		if (Owner.CountInv("D4TimeFreeze"))
+		{
+			EffectTics++; //'Freeze' the timer.
+		}
+		else
+		{
+			Switch (EffectTics)
+			{
+				Case 105:
+				{
+					if (NoiseMaker)	NoiseMaker.A_PlaySound("Regen/Warning",5,1,0,ATTN_NONE);
+				}
+				Case 70:
+				Case 35:
+					Owner.A_SetBlend("Cyan",0.4,12);
+				Default:
+					break;
+			}
+		}
+		if (!(level.time & GiverTic))
+		{
+			if (CountInv("D4RegenUpgrade2"))
+			{
+				Owner.A_GiveInventory("D4ArmorBonus");
+				GiveHealth();
+			}
+			else if (CountInv("D4RegenUpgrade1") && health >= (100 + stamina))
+				Owner.A_GiveInventory("D4ArmorBonus");
+			else
+				GiveHealth();
+		}
+		//Super.DoEffect();
+	}
+	
+	override void EndEffect()
+	{
+		if (NoiseMaker)
+			NoiseMaker.Destroy();
+			
+		Super.EndEffect();
+	}
+}
+
+
+
+Class D4RegenUpgrade1 : Inventory { Default { +INVENTORY.UNTOSSABLE +INVENTORY.UNDROPPABLE } }	// Armor Regen
+Class D4RegenUpgrade2 : Inventory { Default { +INVENTORY.UNTOSSABLE +INVENTORY.UNDROPPABLE } }	// Dual Regen
+Class D4RegenUpgrade3 : Inventory { Default { +INVENTORY.UNTOSSABLE +INVENTORY.UNDROPPABLE } }	// Double Regen Rate
+Class D4RegenUpgrade4 : Inventory { Default { +INVENTORY.UNTOSSABLE +INVENTORY.UNDROPPABLE } }	// Max health +100 (Soulsphere Only)
 
 Class RegenerationGiver : PowerupGiver
 {
@@ -460,7 +588,7 @@ Class RegenerationGiver : PowerupGiver
 	{
 		inventory.maxamount 0;
 		Powerup.Type "PowerD4Regen";
-		powerup.duration 900000;
+		powerup.duration 1050;
 		+INVENTORY.AUTOACTIVATE
 		+INVENTORY.ALWAYSPICKUP
 	}
@@ -494,36 +622,32 @@ Class D4Regeneration : CustomInventory replaces SoulSphere
 			A_SetRoll(roll + 1,SPF_INTERPOLATE);
 		}
 		Wait;
-		Loop;
 	Pickup:
 		TNT1 A 0
 		{
-			A_GiveInventory("SoulSphereHP",1);
-			A_GiveInventory("RegenTimer",1050);
-			if (!CountInv("PowerD4Regen"))
+			if (CountInv("D4RegenUpgrade4"))	A_GiveInventory("SoulSphereHPUpgraded",1);
+			else 							A_GiveInventory("SoulSphereHP",1);
+			
+			let inv = PowerD4Regen(FindInventory("PowerD4Regen"));
+			if (inv)
 			{
-				A_SpawnItemEx("RegenerationManager",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
-				A_SpawnItemEx("RegenerationLight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
+				if (inv.NoiseMaker)
+				{
+					let nm = D4NoiseMaker(inv.NoiseMaker);
+					if (nm)	nm.Silence();
+				}
+				inv.EffectTics += 1050;
+				return;
 			}
+			A_SpawnItemEx("RegenerationLight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
 			A_GiveInventory("RegenerationGiver", 1);
 		}
 		Stop;
 	}
 }
 
-Class RegenTimer : Inventory
+Class RegenPickupNoise : D4NoiseMaker
 {
-	Default 
-	{
-		Inventory.MaxAmount 1000000;
-		Inventory.InterhubAmount 0;
-	}
-}
-
-Class RegenerationManager : Actor 
-{
-	int user_time;
-	
 	Default 
 	{
 		+NOINTERACTION
@@ -533,51 +657,7 @@ Class RegenerationManager : Actor
 	States
 	{
 	Spawn:
-		TNT1 A 1 
-		{
-			if (CountInv("RegenTimer",MasterPtr))
-			{
-				user_time += CountInv("RegenTimer",MasterPtr);
-				A_TakeInventory("RegenTimer",32767,0,MasterPtr);
-				A_StopSound(5);
-			}
-			else
-			{
-				user_time--;
-			}
-			
-			if (user_time == 105 || user_time == 70 || user_time == 35)
-			{
-				if (user_time == 105)
-				{
-					A_PlaySound("Regen/Warning",5,1,0,ATTN_NONE);
-				}
-				A_GiveInventory("RegenFade",1,MasterPtr);
-			}
-			
-			if (user_time <= 0)
-			{
-				A_TakeInventory("PowerD4Regen",32767,0,MasterPtr);
-				A_TakeInventory("RegenTimer",32767,0,MasterPtr);
-				return ResolveState("Null");
-			}
-			return ResolveState(null);
-		}
-		Wait;
-	}
-}
-
-Class RegenFade : CustomInventory
-{
-	Default 
-	{
-		+INVENTORY.ALWAYSPICKUP
-		Inventory.InterhubAmount 0;
-	}
-	States
-	{
-	Pickup:
-		TNT1 A 0 A_SetBlend("Cyan",0.4,12);
+		TNT1 A -1;
 		Stop;
 	}
 }
@@ -604,28 +684,6 @@ Class RegenerationLight : Actor
 		Wait;
 	}
 }
-/*
-Class RegenerationController : Actor 
-{
-	int user_alt;
-	+NOINTERACTION
-	RenderStyle "None";
-	States
-	{
-	Spawn:
-		TNT1 A 60 NoDelay
-		{
-			if (CountInv("PowerRegeneration",MasterPtr))
-			{
-				//ACS_NamedExecuteAlways("D4RegenFlash", 0, user_alt);
-				user_alt = (user_alt + 1) % 2;
-				return ResolveState(null);
-			}
-			return ResolveState("Null");
-		}
-		Wait;
-	}
-} */
 
 
 //=======================================================================
@@ -1072,7 +1130,7 @@ QuadDamage/Warning					"Sounds/Pickups/quad2.wav"
 QuadDamage/Firing					"Sounds/Pickups/quad3.wav"
 */
 
-Class InvulPickupNoise : Actor 
+Class InvulPickupNoise : D4NoiseMaker 
 {
 	Default 
 	{
@@ -1095,6 +1153,7 @@ Class PentaShadow : Actor
 		+NOINTERACTION
 		+ROLLSPRITE
 		+ROLLCENTER
+		+NOTIMEFREEZE
 		RenderStyle "Add";
 	}
 	States

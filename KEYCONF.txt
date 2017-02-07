@@ -30,12 +30,15 @@ alias CheckSTRReq4 "test > $StaticUpgrade3 0 \"openmenu StaticUpgrade4\" \"openm
 alias CH3 "test >= $D4Stamina 50 \"openmenu D4HealthUpgrade3\" \"CH2\""
 alias CH2 "test >= $D4Stamina 25 \"openmenu D4HealthUpgrade2\" \"openmenu D4HealthUpgrade1\""
 
+alias CheckRegenReq1 "test > $D4RegenUpgrade1 0 \"openmenu D4RegenUpgrade2\" \"openmenu D4RegenUpgrade2NA\""
+
 alias CheckArmor3 "test >= $D4ArmorCapRaiser 50 \"openmenu D4ArmorCapRaiser3\" \"CheckArmor2\""
 alias CheckArmor2 "test >= $D4ArmorCapRaiser 25 \"openmenu D4ArmorCapRaiser2\" \"openmenu D4ArmorCapRaiser1\""
 
 alias CheckJump3 "test >= $D4MultiJump 3 \"openmenu D4Jump3\" \"CheckJump2\""
 alias CheckJump2 "test >= $D4HigherJump 1 \"openmenu D4Jump2\" \"openmenu D4Jump1\""
 
+alias CheckCredits4 "test >= $CashPercentBonus 30 \"openmenu CashPercentBonus4\" \"CheckCredits3\""
 alias CheckCredits3 "test >= $CashPercentBonus 20 \"openmenu CashPercentBonus3\" \"CheckCredits2\""
 alias CheckCredits2 "test >= $CashPercentBonus 10 \"openmenu CashPercentBonus2\" \"openmenu CashPercentBonus1\""
 

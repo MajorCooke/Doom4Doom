@@ -86,6 +86,22 @@ Class D4HealthBonus : HealthBonus replaces HealthBonus
 	}
 }
 
+// This should never be spawned.
+Class D4HealthBonusUpgraded : D4HealthBonus
+{
+	Default
+	{
+		+INVENTORY.IGNORESKILL
+		Inventory.MaxAmount 300;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0;
+		Stop;
+	}
+}
+
 //=======================================================================
 //=======================================================================
 // Armor

@@ -781,7 +781,7 @@ Script "ClearHoloText" (void)
 // ItemWatchMin and Max are used for the soviet chaingun. It basically requires
 // those items to be purchased first before it's made available.
 
-#define ItemTypeCount 75
+#define ItemTypeCount 79
 #define ItemWatchMin 1
 #define ItemWatchMax 25
 str SavedItems[ItemTypeCount] =
@@ -858,7 +858,11 @@ str SavedItems[ItemTypeCount] =
 	"D4MegachargeUpgrade1",
 	"D4MegachargeUpgrade2",
 	"D4DoomDollUpgrade1",
-	"D4DoomDollUpgrade2"
+	"D4DoomDollUpgrade2",
+	"D4RegenUpgrade1",
+	"D4RegenUpgrade2",
+	"D4RegenUpgrade3",
+	"D4RegenUpgrade4"
 };
 
 // Don't touch these.

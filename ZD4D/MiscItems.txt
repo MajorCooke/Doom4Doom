@@ -225,6 +225,10 @@ Class UpgradeUpdater : CustomInventory
 			A_SetInventory("D4MegachargeUpgrade2",GetCvar("D4MegachargeUpgrade2"));
 			A_SetInventory("D4DoomDollUpgrade1",GetCvar("D4DoomDollUpgrade1"));
 			A_SetInventory("D4DoomDollUpgrade2",GetCvar("D4DoomDollUpgrade2"));
+			A_SetInventory("D4RegenUpgrade1",GetCvar("D4RegenUpgrade1"));
+			A_SetInventory("D4RegenUpgrade2",GetCvar("D4RegenUpgrade2"));
+			A_SetInventory("D4RegenUpgrade3",GetCvar("D4RegenUpgrade3"));
+			A_SetInventory("D4RegenUpgrade4",GetCvar("D4RegenUpgrade4"));
 			/* Template:
 			A_SetInventory("",GetCvar(""));
 			*/
