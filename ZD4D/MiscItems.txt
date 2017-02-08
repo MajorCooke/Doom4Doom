@@ -203,19 +203,14 @@ Class UpgradeUpdater : CustomInventory
 			A_SetInventory("ProtectionBonus1",int(GetCvar("ProtectionBonus1")));
 			A_SetInventory("ProtectionBonus2",int(GetCvar("ProtectionBonus2")));
 			A_SetInventory("ProtectionBonus3",int(GetCvar("ProtectionBonus3")));
-			
 			A_SetInventory("D4CrateUpgrade",int(GetCvar("D4CrateUpgrade")));
-			
 			if (GetCvar("D4Stamina") > Stamina)		
 			{
 				A_GiveInventory("D4Stamina",int(GetCvar("D4Stamina") - Stamina));			// Tokens
 				A_GiveInventory("D4HealthUpgrade",int(GetCvar("D4Stamina") - Stamina)); 	// Real Stamina
 			}
-
 			A_SetInventory("D4ArmorCapRaiser", int(GetCvar("D4ArmorCapRaiser")));
-			
 			A_SetInventory("CashPercentBonus",int(GetCvar("CashPercentBonus")));
-			
 			A_SetInventory("D4MultiJump",int(GetCvar("D4MultiJump")));
 			A_SetInventory("D4CrateUpgrade",int(GetCvar("D4CrateUpgrade")));
 			A_SetInventory("D4MegachargeUpgrade1",GetCvar("D4MegachargeUpgrade1"));

@@ -189,6 +189,7 @@ Class D4AbstractMonster : Actor
 		if (CheckClass("D4SpiderMastermind") || CheckClass("D4OldSpidermastermind"))
 		{
 			int howmany = Max(1,CountProximity("D4SpiderMastermind",32767) + CountProximity("D4OldSpiderMastermind",32767) + 1);
+			howmany = Clamp(howmany,1,6);
 			if (rarity == 2)
 			{
 				return (random(1,howmany) == 1) ? true : false;
