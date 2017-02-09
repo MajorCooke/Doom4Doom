@@ -139,8 +139,9 @@ Class UpgradeUpdater : CustomInventory
 	Pickup:
 		TNT1 A 0
 		{	
-			//if (GetCvar("CTake") != 0)	
-			A_SetInventory("D4DCash",GetCvar("D4DCash"));
+			//if (GetCvar("CTake") != 0)
+			ACS_NamedExecuteWithResult("UpdateCashScript",0,1,0,0);
+			//A_SetInventory("D4DCash",GetCvar("D4DCash"));
 			A_SetInventory("PistolUpgradeAltCharge",int(GetCvar("PistolUpgradeAltCharge"))); 
 			A_SetInventory("PistolUpgradeAltDamage",int(GetCvar("PistolUpgradeAltDamage"))); 
 			A_SetInventory("PistolUpgradeDamage",int(GetCvar("PistolUpgradeDamage"))); 
@@ -224,7 +225,7 @@ Class UpgradeUpdater : CustomInventory
 			/* Template:
 			A_SetInventory("",GetCvar(""));
 			*/
-			ACS_NamedExecute("RefreshCredits",0,0,0,0);
+			ACS_NamedExecuteWithResult("RefreshCredits",0,0,0,0);
 		}
 		Stop;
 	}

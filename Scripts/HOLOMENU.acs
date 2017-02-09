@@ -1,0 +1,292 @@
+/*
+	THIS FILE IS UNUSED.
+	But it may return again in the future.
+*/
+
+#library "HOLOMENU"
+#include "zcommon.acs"
+
+/*
+	ID_U1Pistol = 			100,
+	ID_U2Pistol = 			101,
+	ID_U3Pistol = 			102,
+	ID_U4Pistol = 			103,
+	ID_U1Shotgun = 			200,
+	ID_U2Shotgun = 			201,
+	ID_U1SuperShotgun =		300,
+	ID_U2SuperShotgun =		301,
+	ID_U3SuperShotgun =		302,
+	ID_U4SuperShotgun =		303,
+	ID_U1AssaultRifle =		400,
+	ID_U2AssaultRifle =		401,
+	ID_U1Chaingun =			500,
+	ID_U2Chaingun =			501,
+	ID_U3Chaingun =			502,
+	ID_U1RocketLauncher = 	600,
+	ID_U2RocketLauncher = 	601,
+	ID_U1PlasmaRifle =		700,
+	ID_U2PlasmaRifle =		701,
+	ID_U1BFG =				800,
+	ID_U2BFG =				801,
+	ID_U1GaussCannon =		900,
+	ID_U2GaussCannon =		901,
+	ID_U1Chainsaw =			1000,
+	ID_U2Chainsaw =			1001,
+	ID_U3Chainsaw =			1002,
+	ID_U4Chainsaw =			1003,
+	ID_U1StaticRifle =		1100,
+	ID_U2StaticRifle =		1101,
+	ID_U3StaticRifle =		1102,
+	ID_U4StaticRifle =		1103,
+	ID_U1Repeater =			1200,
+	ID_U2Repeater =			1201,
+	ID_U3Repeater =			1202,
+	ID_U4Repeater =			1203,
+	ID_U1VortexRifle =		1300,
+	ID_U2VortexRifle =		1301,
+	ID_U3VortexRifle =		1302,
+	ID_U4VortexRifle =		1303,
+	ID_U1LightningGun =		1400,
+	ID_U2LightningGun =		1401,
+	ID_U3LightningGun =		1402,
+	ID_U4LightningGun =		1403,
+	ID_U1Hellshot =			1500,
+	ID_U2Hellshot =			1501,
+	ID_U3Hellshot =			1502,
+	ID_U4Hellshot =			1503,
+*/
+
+// Descriptions for the upgrades
+
+#define WeaponCount 16
+#define UpgradeCount 4
+#define UpgradeProps 5
+str UpgradeDescriptions[WeaponCount][UpgradeCount][UpgradeProps] =
+{
+	{	// 0 - Nothing
+		{ "", "", "", "", "" },
+		{ "", "", "", "", "" },
+		{ "", "", "", "", "" },
+		{ "", "", "", "", "" }
+	},
+	{	// 1 - Pistol
+		{ "100", "Mk. V Charge Battery", "\cd+ Charge Speed", "", "" },
+		{ "101", "Mk. V Energy Converter", "\cd+ Charge Damage", "", "" },
+		{ "102", "Prototype Trigger", "Enables Primary Auto-Fire", "\cg- Primary Speed", "\cdFast Tapping Unchanged" },
+		{ "103", "Mk. VI Proto Generator", "\cd+ Primary Damage", "", "" }
+	},
+	{	// 2 - Shotgun
+		{ "200", "Triple Burst", "Fires three shells in rapid succession", "Secondary: Hold to Arm", "" },
+		{ "201", "Grenade", "Explosive grenade with a semi-long range of fire", "Secondary: Hold to Arm", "" },
+		{ "", "", "", "", "" },
+		{ "", "", "", "", "" }
+	},
+	{	// 3 - Double Barrel Shotgun
+		{ "300", "Shell Feeder", "Reduced reload time", "", "" },
+		{ "301", "Uranium Coating", "Bullets pierce enemies", "", "" },
+		{ "302", "Thickened Cylinders", "\cd- Horizontal Spread", "", "" },
+		{ "303", "Double Double Trouble Trouble", "Double the Gun. Double the Fun.", "Primary fires left | Secondary fires right", "" }
+	},
+	{	// 4 - Heavy Assault Rifle
+		{ "400", "Tactical Scope", "Allows zooming in, dealing extra damage while zoomed", "Secondary: Hold to Zoom", "\cdCan zoom while firing" },
+		{ "401", "Micro Missiles", "Fires micro missiles that stick to enemies and explode", "Secondary: Hold to Arm", "" },
+		
+		{ "", "", "", "", "" },
+		{ "", "", "", "", "" }
+	},
+	{	// 5 - Chaingun
+		{ "500", "Gatling Rotator", "Allows spinning of barrel to shoot explosive bullets", "Secondary: Hold to Spin", "" },
+		{ "501", "Turret Mode", "Deploys into a rapid fire turret", "Secondary: Hold to Deploy", "\cgSlows speed while deployed" },
+		{ "", "", "", "" },
+		{ "", "", "", "" }
+	},
+	{	// 6 - Rocket Launcher
+		{ "600", "Detonator", "Can explode once without destroying rocket", "Secondary: Detonate", "" },
+		{ "601", "Lock On", "Lock onto enemies and fire three homing rockets", "Secondary: Hold to lock on, then primary to activate", "" },
+		{ "", "", "", "", "" },
+		{ "", "", "", "", "" }
+	},
+	{	// 7 - Plasma Rifle
+		{ "700", "Heat Wave", "Discharges a wave of heat based on build-up", "Secondary: Unleash blast wave", "" },
+		{ "701", "Stun Bomb", "Radius projectile stuns enemies on explosion", "Secondary: Fires stun bomb", "\cgNo effect on bosses" },
+		{ "", "", "", "", "" },
+		{ "", "", "", "", "" }
+	},
+	{	// 8 - BFG
+		{ "800", "", "Increases ammo capacity", "", "" },
+		{ "801", "", "", "", "" },
+		{ "", "", "", "", "" },
+		{ "", "", "", "", "" }
+	},
+	{	// 9 - Gauss Cannon
+		{ "900", "Precision Shot", "Allows zooming in", "Secondary: Hold to Zoom \ck", "\cdIncreased damage + fire rate while zoomed" },
+		{ "901", "Siege Mode", "Unleashes massive cone of damage", "Secondary: Hold to Arm", "\cgGreatly slows speed while armed" },
+		{ "", "", "", "", "" },
+		{ "", "", "", "", "" }
+	},
+	{	// 10 - Chainsaw
+	},
+	{	// 11 - Static Rifle
+		{ "1100", "9V Battery", 		"\cdFaster Charge", "", "" },
+		{ "1101", "Capacitors", 		"\cdFaster Charge + Idle Loss Reduction", "", "" },
+		{ "1102", "Sleek Lance", 		"\cdFaster Charge + Idle Loss Reduction", "\cdPenetration", "" },
+		{ "1103", "Synergizer", 		"\cdFaster Charge + Idle Loss Reduction", "\cdPenetration + Multishot", "Refire freely after first shot until charge drains \n(primary or secondary)" }
+	},
+	{	// 12 - Repeater
+		{ "1200", "Uranium Coating", 			"\cd+ 1 Target Pierce", "", "" },
+		{ "1201", "Extended Barrel", 			"\cd+ Primary Damage", "\cg+ Ammo usage", "" },
+		{ "1202", "Brennbaren Zitronensaft",		 	"\cd+ Incendiary Bullet Damage", "", "" },
+		{ "1203", "Pyrolight", 					"\cd- Incendiary Ammo Cost", "", "" }
+	},
+	{	// 13 - Vortex Rifle
+		{ "1300", "Weakness Exposer", 			"\cd+ Unscoped Damage", "", "" },
+		{ "1301", "Hyper Compression Chamber", 	"\cd- Ammo Cost", "", "" },
+		{ "1302", "Craneless Sight", 			"Zoom: Full Movement Speed", "\cd+ Improved scope", "" },
+		{ "1303", "Drilling Head", 				"Secondary Fire Pierces", "", "" }
+	},
+	{	// 14 - Lightning Gun
+		{ "1400", "Inductive Clamp",	"\cd- Ammo Cost", "Chance to not consume ammo while firing", "" },
+		{ "1401", "Electrocoil",		"\cd+ Distance", "Doubled Range", "" },
+		{ "1402", "Amplifier",			"\cd+ Damage", "", "" },
+		{ "1403", "Bolt Buddy",			"Secondary Fire", "Jumps to nearby enemies", "" }
+	},
+	{	// 15 - Carrion Cannon
+		{ "1500", "Disintegrator Clamp",	"\cd- Ammo Cost", "Halved Consumption", "" },
+		{ "1501", "Bone Grinder",			"\cd+ Ammo Pickup", "Doubled Carrion Pickups", "" }
+	},
+};
+
+str WeaponText[16] =
+{
+	"None",
+	"Pistol",
+	"Shotgun",
+	"Double Barrel",
+	"Heavy Assault Rifle",
+	"Chaingun",
+	"Rocket Launcher",
+	"Plasma Rifle",
+	"BFG 9000",
+	"Gauss Cannon",
+	"Chainsaw",
+	"Static Rifle",
+	"Repeater",
+	"Vortex Rifle",
+	"Lightning Gun",
+	"Carrion Cannon",
+};
+
+//==============================================================================
+//==============================================================================
+// Holo System Information
+//==============================================================================
+//==============================================================================
+
+Script "ShowUpgradeName" (int id)
+{
+	SetActivator(0,AAPTR_PLAYER1);
+	int i1 = 0;
+	int i2 = 0;
+	bool found = false;
+	str sid = strparam(d:id);
+	
+	for (i1 = 1; i1 < WeaponCount; i1++)
+	{
+		for (i2 = 0; i2 <= UpgradeCount; i2++)
+		{
+			if (!StrIcmp(UpgradeDescriptions[i1][i2][0], sid))
+			{
+				SetFont("BIGFONT");
+				HudMessage(s:UpgradeDescriptions[i1][i2][1]; HUDMSG_PLAIN, 1105, CR_WHITE, 0.5, 0.1, 0);
+				SetFont("SMALLFONT");
+				HudMessage(s:UpgradeDescriptions[i1][i2][2]; HUDMSG_PLAIN, 1106, CR_GOLD, 0.5, 0.17, 0);
+				HudMessage(s:UpgradeDescriptions[i1][i2][3]; HUDMSG_PLAIN, 1107, CR_YELLOW, 0.5, 0.22, 0);
+				HudMessage(s:UpgradeDescriptions[i1][i2][4]; HUDMSG_PLAIN, 1108, CR_YELLOW, 0.5, 0.275, 0);
+				Terminate;
+			}
+		}
+	}
+	/*
+	if (!found)
+	{
+		Log(s: "Unable to find ID ", d: id, s: "\n");
+		Terminate;
+	} */
+}
+			
+Script "ShowName" (int id)
+{
+	SetActivator(0,AAPTR_PLAYER1);
+	SetFont("BIGFONT");
+	HudMessage(s:WeaponText[id]; HUDMSG_PLAIN, 1104, CR_GOLD, 1.5, 0.3, 0);
+}
+
+Script "ShowCost" (int cost, int ns, int ew)
+{
+	SetActivator(0,AAPTR_PLAYER1);
+	SetFont("BIGFONT");
+	//SetHudSize(1024,768,0);
+	int HudX = (1.5 - (0.25 * ew));
+	int HudY = (0.575 - (0.30 * ns));
+	if (!ns)	HudX = (1.5 - (0.35 * ew));
+	int cash = CheckInventory("D4DCash");
+	
+	if (cost == -2 || cost == 0)
+		HudMessage(s: "FREE"; HUDMSG_PLAIN,1100,CR_GOLD,HudX,HudY,0);
+	else if (cost == -1)
+		HudMessage(s:"In Yu-Double-Ess-ARRRR, \nmy comrade,\nSpinmegun is paid for YOU."; HUDMSG_PLAIN, 1100, CR_GOLD, 1.5, 0.65, 0);
+	else if (cost > cash)
+		HudMessage(d: cost; HUDMSG_PLAIN,1100,CR_RED,HudX,HudY,0);
+	else
+		HudMessage(d: cost; HUDMSG_PLAIN,1100,CR_GREEN,HudX,HudY,0);
+}
+
+Script "ShowRequirements" (int which, int ns, int ew)
+{
+	SetActivator(0,AAPTR_PLAYER1);
+	if (which)
+	{
+		int ID = 1097;
+		int HudX = (1.5 - (0.30 * ew));
+		int HudY1 = (0.5 - (0.20 * ns));
+		int HudY2 = (0.5 - (0.25 * ns));
+		int HudY3 = (0.5 - (0.30 * ns));
+		SetFont("SMALLFONT");
+		switch (which)
+		{
+			case 1:
+				if (CheckInventory("SSGUpgrade1"))	HudMessage(s: "Reload"; HUDMSG_PLAIN,ID,CR_GREEN,	HudX,HudY1,0);
+				else								HudMessage(s: "Reload"; HUDMSG_PLAIN,ID,CR_RED,		HudX,HudY1,0);
+				
+				if (CheckInventory("SSGUpgrade2"))	HudMessage(s: "Pierce"; HUDMSG_PLAIN,ID+1,CR_GREEN,	HudX,HudY2,0);
+				else								HudMessage(s: "Pierce"; HUDMSG_PLAIN,ID+1,CR_RED,	HudX,HudY2,0);
+				break;
+			Case 3:
+				if (CheckInventory("StaticUpgrade1"))	HudMessage(s: "9V"; HUDMSG_PLAIN,ID,CR_GREEN,	HudX,HudY1,0);
+				else									HudMessage(s: "9V"; HUDMSG_PLAIN,ID,CR_RED,		HudX,HudY1,0);
+				break;
+			Case 4:
+				if (CheckInventory("StaticUpgrade2"))	HudMessage(s: "Capacitor"; HUDMSG_PLAIN,ID,CR_GREEN,	HudX,HudY1,0);
+				else									HudMessage(s: "Capacitor"; HUDMSG_PLAIN,ID,CR_RED,		HudX,HudY1,0);
+				break;
+			Case 5:
+				if (CheckInventory("StaticUpgrade3"))	HudMessage(s: "Lance"; HUDMSG_PLAIN,ID,CR_GREEN,	HudX,HudY1,0);
+				else									HudMessage(s: "Lance"; HUDMSG_PLAIN,ID,CR_RED,		HudX,HudY1,0);
+				break;
+		}
+	}
+}
+
+Script "ClearHoloText" (void)
+{
+	SetActivator(0,AAPTR_PLAYER1);
+	int start = 1097;
+	int end = 1108;
+	int ID = start;
+	
+	while (ID <= end)
+	{
+		HudMessage(s:"";HUDMSG_PLAIN,ID,CR_WHITE,0,0,1);
+		ID++;
+	}
+}

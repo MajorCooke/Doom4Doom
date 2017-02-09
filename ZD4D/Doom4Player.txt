@@ -635,6 +635,11 @@ extend class Doom4Player
 	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags = 0, double angle = 0)
 	{
 		if (mod == 'HoloAttract')	return 0;
+		
+		if (source && source == self && CountInv("PowerD4QuadDamage"))
+		{
+			damage /= 4;
+		}
 
 		// Prevents Terry abuse.
 		flags &= ~DMG_FORCED;

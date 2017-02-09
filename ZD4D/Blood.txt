@@ -126,6 +126,8 @@ Class MCBloodFXMain : Actor replaces Blood
 
 Class BloodGiblet : Actor
 {
+	bool other;				// External reasons, nothing to see here! >.>;
+	
 	int user_t;
 	int user_inv;
 	
@@ -297,7 +299,8 @@ Class MCBloodParticle : Actor
 	double  user_vel;
 	double  user_angle;
 	double  user_pitch;
-	
+	bool other;
+	color P1, P2;
 	Default
 	{
 		Projectile;
