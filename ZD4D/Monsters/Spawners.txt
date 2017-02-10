@@ -1,21 +1,27 @@
-Class D4DMonsterSpawner : Actor 
+// For an example on replacing spawners, see the Fatso one.
+
+Class D4DMonsterSpawner : Actor
 {
-	int user_Type;
 	bool goDormant;
+	bool isBoss;
+	Array<String> OldMonList;		// Classic
+	Array<String> NewMonList;		// D4D
+	Class<Actor> OldMonster;		// You get the drift...
+	Class<Actor> NewMonster;
+	property isBoss: isBoss;		// For monsters that trigger E*M8/MAP07 specials.
+	property OldMonster: OldMonster;
+	property NewMonster: NewMonster;
 	Default 
 	{
-		//Health 1;
-		
+		D4DMonsterSpawner.isBoss false;
 		Monster;
 		Health 1000;
-		//+NOINTERACTION
 		+DONTCORPSE
 		+NORADIUSDMG
 		+NONSHOOTABLE
 		-SHOOTABLE
 		-COUNTKILL
 		+BOSSDEATH
-		+VULNERABLE
 		+NOTIMEFREEZE
 		+CANTSEEK
 		+BOSSDEATH
@@ -30,10 +36,12 @@ Class D4DMonsterSpawner : Actor
 		+ALWAYSTELEFRAG
 		+LAXTELEFRAGDMG
 		+THRUACTORS
+		+NOINTERACTION
+		+NOBLOCKMAP
+		+NOCLIP
 		Species "D4DSpawner";
 		DamageFactor "Normal", 0.0;
 		DamageFactor "Massacre", 666;
-		
 	}
 	
 	override void Deactivate(Actor activator)
@@ -46,23 +54,116 @@ Class D4DMonsterSpawner : Actor
 		goDormant = false;
 	}
 	
-	void SetupMonster()
+	override void PostBeginPlay()
 	{
+		// Don't ever do anything with its base self for safety reasons.
+		
+		if (GetClass() == "D4DMonsterSpawner")
+			return Destroy();
+		
+		//======================================================================
+		// Check to see if modders have injected monster classes to spawn.
+		// Currently does not have an offset randomizer yet.
+		//======================================================================
+		
+		// D4D Themed Section
+		
+		if (NewMonList.Size() > 0)
+		{
+			for (int i = NewMonList.Size() - 1; i >= 0; i--)
+			{
+				Class<Actor> tester = NewMonList[i];
+				if (!tester)
+				{
+					A_Log(NewMonList[i].." doesn't exist! Check your spelling/definitions!" );
+					NewMonList.Pop();
+				}
+			}
+			
+			if (NewMonList.Size() > 0)
+			{
+				uint mMax = NewMonList.Size() - 1;
+				NewMonster = NewMonList[random(0,mMax)];
+			}
+		}
+		
+		// Classic Section
+		
+		if (OldMonList.Size() > 0)
+		{
+			for (int i = OldMonList.Size() - 1; i >= 0; i--)
+			{
+				Class<Actor> tester = OldMonList[i];
+				if (!tester)
+				{
+					A_Log(OldMonList[i].." doesn't exist! Check your spelling/definitions!" );
+					OldMonList.Pop();
+				}
+			}
+			
+			if (OldMonList.Size() > 0)
+			{
+				uint mMax = OldMonList.Size() - 1;
+				OldMonster = OldMonList[random(0,mMax)];
+			}
+		}
+		
+		// Clear both lists of all memory.
+		NewMonList.Clear();
+		OldMonList.Clear();
+		
+		// And get back to our daily spawning.
+		int montype = GetCvar("user_MonsterType");
+		
+		if (montype == 0 && OldMonster)
+			A_SpawnItemEx(OldMonster,0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+		else if (montype != 0 && NewMonster)
+			A_SpawnItemEx(NewMonster,0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+		else return Destroy();
+		
 		if (tracer)
 		{
+			if (isBoss)
+			{
+				let d4mon = D4AbstractMonster(tracer);
+				if (d4mon)
+					d4mon.Spawner = self;
+			}
+			
+			if (master)	
+				tracer.master = master;
+			
 			if (goDormant) 
 			{	
 				tracer.Deactivate(self);	
 				tracer.A_ChangeCountFlags(false,0,bCOUNTSECRET);
 			}
 			tracer.A_ChangeCountFlags(-1,0,bCOUNTSECRET);
-			if (health != GetSpawnHealth())	tracer.A_SetHealth(health);
+			if (health != GetSpawnHealth())	
+				tracer.A_SetHealth(health);
 		}
+		
+		if (!isBoss)	
+			return Destroy();
+			
+		Super.PostBeginPlay();
 	}
+	
 	States
 	{
 	Spawn:
-		TNT1 A 1;
+		TNT1 A 70 NODELAY
+		{
+			if (!tracer)
+			{
+				A_BossDeath();
+				Destroy();
+				return;
+			}
+		}
+		Loop;
+	Death:
+		TNT1 A 3 A_BossDeath();
 		Stop;
 	}
 }
@@ -80,22 +181,11 @@ Class ZombieReplacer : D4DMonsterSpawner replaces Zombieman
 {
 	Default 
 	{
+		// Use these for just single spawning types. Keeps code compact.
+		D4DMonsterSpawner.OldMonster "D4OldZombieman";
+		D4DMonsterSpawner.NewMonster "D4Zombieman";
 		Radius 20;
 		Height 56;
-	}
-	
-	override void PostBeginPlay()
-	{
-		if (GetCvar("user_MonsterType") == 0)
-		{
-			A_SpawnItemEx("D4OldZombieman",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		else
-		{
-			A_SpawnItemEx("D4Zombieman",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		SetupMonster();
-		OnDestroy();
 	}
 }
 
@@ -109,21 +199,10 @@ Class ShotgunGuyReplacer : D4DMonsterSpawner replaces ShotgunGuy
 {
 	Default 
 	{
+		D4DMonsterSpawner.OldMonster "D4OldShotgunGuy";
+		D4DMonsterSpawner.NewMonster "D4ShotgunGuy";
 		Radius 20;
 		Height 56;
-	}
-	override void PostBeginPlay()
-	{
-		if (GetCvar("user_MonsterType") == 0)
-		{
-			A_SpawnItemEx("D4OldShotgunGuy",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		else
-		{
-			A_SpawnItemEx("D4ShotgunGuy",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		SetupMonster();
-		OnDestroy();
 	}
 }
 //===============================================================================
@@ -136,21 +215,10 @@ Class ChaingunGuyReplacer : D4DMonsterSpawner replaces ChaingunGuy
 {
 	Default 
 	{
+		D4DMonsterSpawner.OldMonster "D4OldChaingunGuy";
+		D4DMonsterSpawner.NewMonster "D4ChaingunGuy";
 		Radius 20;
 		Height 56;
-	}
-	override void PostBeginPlay()
-	{
-		if (GetCvar("user_MonsterType") == 0)
-		{
-			A_SpawnItemEx("D4OldChaingunGuy",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		else
-		{
-			A_SpawnItemEx("D4ChaingunGuy",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		SetupMonster();
-		OnDestroy();
 	}
 }
 
@@ -163,21 +231,10 @@ Class DemonReplacer : D4DMonsterSpawner replaces Demon
 {
 	Default 
 	{
+		D4DMonsterSpawner.OldMonster "D4OldDemon";
+		D4DMonsterSpawner.NewMonster "D4Demon";
 		Radius 30;
 		Height 56;
-	}
-	override void PostBeginPlay()
-	{
-		if (GetCvar("user_MonsterType") == 0)
-		{
-			A_SpawnItemEx("D4OldDemon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		else
-		{
-			A_SpawnItemEx("D4Demon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		SetupMonster();
-		OnDestroy();
 	}
 }
 
@@ -190,21 +247,10 @@ Class SpectreReplacer : D4DMonsterSpawner replaces Spectre
 {
 	Default 
 	{
+		D4DMonsterSpawner.OldMonster "D4OldSpectre";
+		D4DMonsterSpawner.NewMonster "D4Spectre";
 		Radius 30;
 		Height 56;
-	}
-	override void PostBeginPlay()
-	{
-		if (GetCvar("user_MonsterType") == 0)
-		{
-			A_SpawnItemEx("D4OldSpectre",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		else
-		{
-			A_SpawnItemEx("D4Spectre",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		SetupMonster();
-		OnDestroy();
 	}
 }
 //===============================================================================
@@ -216,21 +262,10 @@ Class DoomImpReplacer : D4DMonsterSpawner replaces DoomImp
 {
 	Default 
 	{
+		D4DMonsterSpawner.OldMonster "D4OldDoomImp";
+		D4DMonsterSpawner.NewMonster "D4DoomImp";
 		Radius 20;
 		Height 56;
-	}
-	override void PostBeginPlay()
-	{
-		if (GetCvar("user_MonsterType") == 0)
-		{
-			A_SpawnItemEx("D4OldDoomImp",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		else
-		{
-			A_SpawnItemEx("D4DoomImp",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		SetupMonster();
-		OnDestroy();
 	}
 }
 
@@ -243,21 +278,10 @@ Class LostSoulReplacer : D4DMonsterSpawner replaces LostSoul
 {
 	Default 
 	{
+		D4DMonsterSpawner.OldMonster "D4OldLostSoul";
+		D4DMonsterSpawner.NewMonster "D4LostSoul";
 		Radius 16;
 		Height 56;
-	}
-	override void PostBeginPlay()
-	{
-		if (GetCvar("user_MonsterType") == 0)
-		{
-			A_SpawnItemEx("D4OldLostSoul",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		else
-		{
-			A_SpawnItemEx("D4LostSoul",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		SetupMonster();
-		OnDestroy();
 	}
 }
 //===============================================================================
@@ -269,21 +293,10 @@ Class CacodemonReplacer : D4DMonsterSpawner replaces Cacodemon
 {
 	Default 
 	{
+		D4DMonsterSpawner.OldMonster "D4OldCacodemon";
+		D4DMonsterSpawner.NewMonster "D4Cacodemon";
 		Radius 31;
 		Height 56;
-	}
-	override void PostBeginPlay()
-	{
-		if (GetCvar("user_MonsterType") == 0)
-		{
-			A_SpawnItemEx("D4OldCacodemon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		else
-		{
-			A_SpawnItemEx("D4Cacodemon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		SetupMonster();
-		OnDestroy();
 	}
 }
 //===============================================================================
@@ -295,21 +308,10 @@ Class PainElementalReplacer : D4DMonsterSpawner replaces PainElemental
 {
 	Default 
 	{
+		D4DMonsterSpawner.OldMonster "D4OldPainElemental";
+		D4DMonsterSpawner.NewMonster "D4PainElemental";
 		Radius 31;
 		Height 56;
-	}
-	override void PostBeginPlay()
-	{
-		if (GetCvar("user_MonsterType") == 0)
-		{
-			A_SpawnItemEx("D4OldPainElemental",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		else
-		{
-			A_SpawnItemEx("D4PainElemental",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		SetupMonster();
-		OnDestroy();
 	}
 }
 
@@ -322,21 +324,10 @@ Class RevenantReplacer : D4DMonsterSpawner replaces Revenant
 {
 	Default 
 	{
+		D4DMonsterSpawner.OldMonster "D4OldRevenant";
+		D4DMonsterSpawner.NewMonster "D4Revenant";
 		Radius 20;
 		Height 56;
-	}
-	override void PostBeginPlay()
-	{
-		if (GetCvar("user_MonsterType") == 0)
-		{
-			A_SpawnItemEx("D4OldRevenant",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		else
-		{
-			A_SpawnItemEx("D4Revenant",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		SetupMonster();
-		OnDestroy();
 	}
 }
 
@@ -350,21 +341,10 @@ Class HellKnightReplacer : D4DMonsterSpawner replaces HellKnight
 {
 	Default 
 	{
+		D4DMonsterSpawner.OldMonster "D4OldHellKnight";
+		D4DMonsterSpawner.NewMonster "D4HellKnight";
 		Radius 24;
 		Height 64;
-	}
-	override void PostBeginPlay()
-	{
-		if (GetCvar("user_MonsterType") == 0)
-		{
-			A_SpawnItemEx("D4OldHellKnight",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		else
-		{
-			A_SpawnItemEx("D4HellKnight",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		SetupMonster();
-		OnDestroy();
 	}
 }
 
@@ -377,39 +357,13 @@ Class BaronOfHellReplacer : D4DMonsterSpawner replaces BaronOfHell
 {
 	Default 
 	{
+		// Boss monster. Needs the isBoss boolean so it knows to stick around
+		// until the monster's death.
+		D4DMonsterSpawner.isBoss true;
+		D4DMonsterSpawner.OldMonster "D4OldBaronOfHell";
+		D4DMonsterSpawner.NewMonster "D4BaronOfHell";
 		Radius 24;
 		Height 64;
-		+NOINTERACTION
-	}
-	override void PostBeginPlay()
-	{
-		if (GetCvar("user_MonsterType") == 0)
-		{
-			A_SpawnItemEx("D4OldBaronOfHell",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		else
-		{
-			A_SpawnItemEx("D4BaronOfHell",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		SetupMonster();
-		Super.PostBeginPlay();
-	}
-	states
-	{
-	Spawn:
-		TNT1 A 70 NODELAY
-		{
-			if (!tracer)
-			{
-				A_BossDeath();
-				OnDestroy();
-				return;
-			}
-		}
-		Loop;
-	Death:
-		TNT1 A 3 A_BossDeath();
-		Stop;
 	}
 }
 
@@ -423,49 +377,24 @@ Class FatsoReplacer : D4DMonsterSpawner replaces Fatso
 {
 	Default 
 	{
+		D4DMonsterSpawner.isBoss true;
+		D4DMonsterSpawner.OldMonster "D4OldFatso";
+		// Intentionally didn't have a NewMonster here.
 		Radius 24;
 		Height 64;
-		+NOINTERACTION
 	}
+	
+	// All modders need to do is override the PostBeginPlay. Depending on the setting,
+	// simply add to NewMonList if the mode is D4D style or not (can also throw 
+	// in your own cvar checks, that's totally fine).
+	
+	// Use the NewMonList.Push for D4D regular, and OldMonList.Push for classic.
+	// Make sure to call the Super.POstBeginPlay() at the end of it.
 	override void PostBeginPlay()
 	{
-		if (GetCvar("user_MonsterType") == 0)
-		{
-			A_SpawnItemEx("D4OldFatso",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		else
-		{
-			if (GetCvar("user_MonsterType") == 1)
-			{
-				if (random(1,2)==1)
-				{
-					A_SpawnItemEx("D4FatsoTech",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-				}
-				else
-				{
-					A_SpawnItemEx("D4FatsoHell",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-				}
-			}
-		}
-		SetupMonster();
+		NewMonList.Push("D4FatsoHell");
+		NewMonList.Push("D4FatsoTech");
 		Super.PostBeginPlay();
-	}
-	states
-	{
-	Spawn:
-		TNT1 A 70 NODELAY
-		{
-			if (!tracer)
-			{
-				A_BossDeath();
-				OnDestroy();
-				return;
-			}
-		}
-		Loop;
-	Death:
-		TNT1 A 3 A_BossDeath();
-		Stop;
 	}
 }
 
@@ -478,39 +407,11 @@ Class ArachnotronReplacer : D4DMonsterSpawner replaces Arachnotron
 {
 	Default 
 	{
+		D4DMonsterSpawner.isBoss true;
+		D4DMonsterSpawner.OldMonster "D4OldArachnotron";
+		D4DMonsterSpawner.NewMonster "D4Arachnotron";
 		Radius 64;
 		Height 64;
-		+NOINTERACTION
-	}
-	override void PostBeginPlay()
-	{
-		if (GetCvar("user_MonsterType") == 0)
-		{
-			A_SpawnItemEx("D4OldArachnotron",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		else
-		{
-			A_SpawnItemEx("D4Arachnotron",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		SetupMonster();
-		Super.PostBeginPlay();
-	}
-	states
-	{
-	Spawn:
-		TNT1 A 70 NODELAY
-		{
-			if (!tracer)
-			{
-				A_BossDeath();
-				OnDestroy();
-				return;
-			}
-		}
-		Loop;
-	Death:
-		TNT1 A 3 A_BossDeath();
-		Stop;
 	}
 }
 
@@ -524,21 +425,10 @@ Class ArchvileReplacer : D4DMonsterSpawner replaces Archvile
 {
 	Default 
 	{
+		D4DMonsterSpawner.OldMonster "D4OldArchvile";
+		D4DMonsterSpawner.NewMonster "D4Archvile";
 		Radius 20;
 		Height 56;
-	}
-	override void PostBeginPlay()
-	{
-		if (GetCvar("user_MonsterType") == 0)
-		{
-			A_SpawnItemEx("D4OldArchvile",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		else
-		{
-			A_SpawnItemEx("D4Archvile",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		SetupMonster();
-		OnDestroy();
 	}
 }
 
@@ -551,40 +441,11 @@ Class CyberdemonReplacer : D4DMonsterSpawner replaces Cyberdemon
 {
 	Default 
 	{
+		D4DMonsterSpawner.isBoss true;
+		D4DMonsterSpawner.OldMonster "D4OldCyberdemon";
+		D4DMonsterSpawner.NewMonster "D4Cyberdemon";
 		Radius 40;
 		Height 110;
-		+NOINTERACTION
-		+THRUACTORS
-	}
-	override void PostBeginPlay()
-	{
-		if (GetCvar("user_MonsterType") == 0)
-		{
-			A_SpawnItemEx("D4OldCyberdemon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		else
-		{
-			A_SpawnItemEx("D4Cyberdemon",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		SetupMonster();
-		Super.PostBeginPlay();
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 70 NODELAY
-		{
-			if (!tracer)
-			{
-				A_BossDeath();
-				OnDestroy();
-				return;
-			}
-		}
-		Loop;
-	Death:
-		TNT1 A 3 A_BossDeath();
-		Stop;
 	}
 }
 
@@ -597,39 +458,10 @@ Class SpiderMastermindReplacer : D4DMonsterSpawner replaces SpiderMastermind
 {
 	Default 
 	{
+		D4DMonsterSpawner.isBoss true;
+		D4DMonsterSpawner.OldMonster "D4OldSpiderMastermind";
+		D4DMonsterSpawner.NewMonster "D4SpiderMastermind";
 		Radius 128;
 		Height 100;
-		+NOINTERACTION
-		+THRUACTORS
-	}
-	override void PostBeginPlay()
-	{
-		if(GetCvar("user_MonsterType") == 0)
-		{
-			A_SpawnItemEx("D4OldSpiderMastermind",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		if(GetCvar("user_MonsterType") == 1)
-		{
-			A_SpawnItemEx("D4SpiderMastermind",0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
-		}
-		SetupMonster();
-		Super.PostBeginPlay();
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 70
-		{
-			if (!tracer)
-			{
-				A_BossDeath();
-				OnDestroy();
-				return;
-			}
-		}
-		Loop;
-	Death:
-		TNT1 A 3 A_BossDeath();
-		Stop;
 	}
 }

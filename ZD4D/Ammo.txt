@@ -567,7 +567,7 @@ Class D4PinataCarrion : CustomInventory
 			if (invoker.user_count >= DelayVacuum)
 			{
 				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",SuckDistance,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR) && countinv("IamADemonToken",TracerPtr)==0)
+				if (A_CheckProximity("Null","PlayerPawn",SuckDistance,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR) && tracer && !tracer.FindInventory("PowerMorph",true))
 				{
 					if (GetCvar("sv_unlimited_pickup") > 0 || 
 						CountInv("D4Carrion",TracerPtr) < PickupMax ||
@@ -626,7 +626,7 @@ Class D4PinataCarrion : CustomInventory
 		{
 			if ((CountInv("D4Carrion",TracerPtr) >= PickupMax &&
 				CountInv("D4CarrionToken",TracerPtr) >= BuildRequirement && 
-				GetCvar("sv_unlimited_pickup") == 0) || A_JumpIfHealthLower(1,"Null",TracerPtr) || countinv("IamADemonToken",TracerPtr))
+				GetCvar("sv_unlimited_pickup") == 0) || !tracer || tracer.health < 1 || tracer.FindInventory("PowerMorph",true))
 			{	
 				bNoClip = false;
 				bNoInteraction = false;

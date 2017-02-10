@@ -110,10 +110,14 @@ Class D4AbstractMonster : Actor
 	int CashMultiplier;
 	Name MOD;
 	D4DropList Pinatas;
+	Actor Spawner;
+	Default
+	{
+		BloodColor "Red";
+	}
 	
 	override void BeginPlay()
 	{
-		
 		Pinatas.ResetList();
 		Super.BeginPlay();
 	}
@@ -128,6 +132,25 @@ Class D4AbstractMonster : Actor
 	{
 		A_ChangeCountFlags(true);
 		Super.Activate(activator);
+	}
+	
+	// Don't let removing scripts leave gaps.
+	override void OnDestroy()
+	{
+		if (health > 1)
+		{
+			if (Spawner && Spawner.health > 0)
+			{
+				Spawner.bVULNERABLE = true;
+				Spawner.A_Die();
+			}
+			else if (master && (master is "D4DMonsterSpawner" || master is master.GetReplacee("D4DMonsterSpawner")))
+			{
+				master.bVULNERABLE = true;
+				master.A_Die();
+			}
+		}
+		return;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -189,14 +212,14 @@ Class D4AbstractMonster : Actor
 		if (CheckClass("D4SpiderMastermind") || CheckClass("D4OldSpidermastermind"))
 		{
 			int howmany = Max(1,CountProximity("D4SpiderMastermind",32767) + CountProximity("D4OldSpiderMastermind",32767) + 1);
-			howmany = Clamp(howmany,1,6);
+			howmany = Clamp(howmany,1,RuneChance_Master);
 			if (rarity == 2)
 			{
-				return (random(1,howmany) == 1) ? true : false;
+				return (random(1,(howmany / 2)) == 1) ? true : false;
 			}
 			else if (rarity == 1)
 			{
-				return (random(1,howmany * 2) == 1) ? true : false;
+				return (random(1,howmany) == 1) ? true : false;
 			}
 		}
 		else if (rarity == 2)		// Common
@@ -269,6 +292,16 @@ Class D4AbstractMonster : Actor
 	//==========================================================================
 	void D4DropItems()
 	{
+		if (Spawner && Spawner.health > 0)
+		{
+			Spawner.bVULNERABLE = true;
+			Spawner.A_Die();
+		}
+		else if (master && (master is "D4DMonsterSpawner" || master is master.GetReplacee("D4DMonsterSpawner")))
+		{
+			master.bVULNERABLE = true;
+			master.A_Die();
+		}
 		Pinatas.DropItems(self);
 		if (GetCvar("D4D_CurrentUpgradeMode"))
 		{
@@ -440,7 +473,6 @@ Class D4AbstractMonster : Actor
 			A_XScream();
 			A_PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
 		}
-		A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 	}
 }
 

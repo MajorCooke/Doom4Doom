@@ -38,7 +38,7 @@ Class SuperArmorToken  : Inventory { Default { Inventory.MaxAmount 100; }}
 Class SuperAmmoToken   : Inventory { Default { Inventory.MaxAmount 100; }}
 Class      AmmoToken   : Inventory { Default { Inventory.MaxAmount 100; }}
  
-Class Nothing : Inventory { Default { Inventory.MaxAmount 0; }}
+Class Nothing : Actor { override void PostBeginPlay() { return Destroy(); } }
 Class KonamiToken : Inventory { Default { Inventory.MaxAmount 10; }}
 
 Class DeathByMassacre : Inventory {}
