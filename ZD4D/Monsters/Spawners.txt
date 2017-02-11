@@ -139,6 +139,7 @@ Class D4DMonsterSpawner : Actor
 				tracer.A_ChangeCountFlags(false,0,bCOUNTSECRET);
 			}
 			tracer.A_ChangeCountFlags(-1,0,bCOUNTSECRET);
+			
 			if (health != GetSpawnHealth())	
 				tracer.A_SetHealth(health);
 		}

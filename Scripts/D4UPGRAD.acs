@@ -13,6 +13,15 @@ global bool 2:notanewgame;
 //==============================================================================
 //==============================================================================
 
+Script "ModeSwitch" OPEN
+{
+	if (!notanewgame)
+	{
+		SetCvar("D4D_CurrentUpgradeMode",GetCvar("D4D_UpgradeMode"));
+		notanewgame = true;
+	}
+}
+
 str weapon;
 
 Script "D4RestoreWeapon" ENTER
