@@ -132,8 +132,11 @@ Class DemonPlayerBase : Doom4Player
 				// a pickup message attached. No big deal.
 				
 				Class<D4KeyBase> keypick = (Class<D4KeyBase>)(mo.GetClass());
-				A_GiveInventory(keypick,1);
-				mo.A_Remove(DefPtr,RMVF_EVERYTHING);
+				if (keypick != null)
+				{
+					A_GiveInventory(keypick,1);
+					mo.A_Remove(DefPtr,RMVF_EVERYTHING);
+				}
 			}
 			
 		}
