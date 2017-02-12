@@ -489,14 +489,14 @@ Class D4PinataCarrion : CustomInventory
 		MaxMergeTimer = 160,				//Maximum time in tics until merge.
 	};
 	
-	int user_mul;		// Multiplier based on upgrades
-	int user_count;
-	int user_landed;
-	int user_spawned;
-	int user_safety;
-	int user_absorb;
-	int user_timer;
-	int user_mergetime;
+	int mul;		// Multiplier based on upgrades
+	int count;
+	int landed;
+	int spawned;
+	int safety;
+	int absorb;
+	int timer;
+	int mergetime;
 	
 	
 	Default
@@ -518,6 +518,22 @@ Class D4PinataCarrion : CustomInventory
 		DistanceCheck "user_MaxDrawDistance";
 		Translation "0:255=%[0,0,0]:[1.0,0.1,0.1]";
 	}
+	
+	//...I'm playing with fire by introducing TIDs but, in an effort to make it
+	// run better, I kinda have to.
+	override void PostBeginPlay()
+	{
+		ChangeTID(TID_Carrion);
+		Super.PostBeginPlay();
+	}
+	
+	override bool TryPickup (in out Actor toucher)
+	{
+		bool good = Super.TryPickup (toucher);
+		if (good)	ChangeTID(0);
+		return good;
+	}
+	
 	States
 	{
 	Pickup:
@@ -553,21 +569,33 @@ Class D4PinataCarrion : CustomInventory
 		PIN2 D 1 NoDelay 
 		{
 			A_SetTics(random(1,6));
-			if (!invoker.user_spawned)
+			if (!invoker.spawned)
 			{
 				A_SpawnItemEx("D4CarrionBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 				A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
-				invoker.user_spawned = 1;
+				invoker.spawned = 1;
 			}
-			invoker.user_mergetime = random(5,MaxMergeTimer);
+			invoker.mergetime = random(5,MaxMergeTimer);
 		}
 	Looping:
 		"----" A 1
 		{
-			if (invoker.user_count >= DelayVacuum)
+			if (invoker.count >= DelayVacuum)
 			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",SuckDistance,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR) && tracer && !tracer.FindInventory("PowerMorph",true))
+				tracer = null;
+				for (int i = 0; i < MAXPLAYERS; i++)
+				{
+					if (playeringame[i])
+					{
+						Actor plr = players[i].mo;
+						if (plr && Distance3D(plr) <= SuckDistance && plr.health > 0 && !plr.FindInventory("PowerMorph",true))
+						{	
+							tracer = plr;
+							break;
+						}
+					}
+				}
+				if (tracer)
 				{
 					if (GetCvar("sv_unlimited_pickup") > 0 || 
 						CountInv("D4Carrion",TracerPtr) < PickupMax ||
@@ -578,20 +606,44 @@ Class D4PinataCarrion : CustomInventory
 					}
 				}
 			}
-			else if (invoker.user_landed || invoker.user_count < DelayVacuum)
-			{	invoker.user_count++;	}
+			else if (invoker.landed || invoker.count < DelayVacuum)
+			{	invoker.count++;	}
 			
 			// There's some nearby carrion. Lets merge it together. Thanks to the
 			// power that be TRANSFER flag, it's fully possible to now combine
 			// the efforts and have inventory actors deliver others.
 			// So lets stack them up.
 			
-			invoker.user_timer++;
+			invoker.timer++;
 			
-			if (invoker.user_timer % invoker.user_mergetime == 0)
+			if (invoker.timer % invoker.mergetime == 0)
 			{
-				invoker.user_safety = 0;
-				if (A_CheckProximity("Null", "D4PinataCarrion", MergeDistance * invoker.user_mergetime/MaxMergeTimer, 1, CPXF_SETTRACER|CPXF_CHECKSIGHT))
+				invoker.safety = 0;
+				
+				let it = ActorIterator.Create(tid,"D4PinataCarrion");
+				Actor mo;
+				while (mo = it.Next())
+				{
+					if (mo == self)
+						continue;
+					
+					let inv = Inventory(mo);
+					if (inv && inv.Owner)
+					{
+						inv.ChangeTID(0);
+						continue;
+					}	
+					if (Distance3D(mo) > MergeDistance * invoker.mergetime/MaxMergeTimer)
+						continue;
+				
+					if (!CheckSight(mo, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
+						continue;
+					
+					tracer = mo;
+					break;
+				}
+				
+				if (tracer) //(A_CheckProximity("Null", "D4PinataCarrion", MergeDistance * invoker.mergetime/MaxMergeTimer, 1, CPXF_SETTRACER|CPXF_CHECKSIGHT))
 				{
 					if (CountInv("D4CarrionToken",Player1) < BuildRequirement)
 					{	
@@ -601,20 +653,15 @@ Class D4PinataCarrion : CustomInventory
 					{	
 						A_GiveInventory("D4Carrion",CountInv("D4Carrion")+1,TracerPtr);
 					}
-					if (!IsPointerEqual(TracerPtr,NullPtr))
-					{
-						A_RemoveChildren(true,RMVF_EVERYTHING);
-						A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-						A_SpawnItemEx("CarrionMergeBeam",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS);
-						
-						//Jumping to state null requires a little more calculation.
-						//This must destroy itself super fast to prevent gaining unwanted tokens.
-						A_Remove(DefPtr,RMVF_EVERYTHING);
-					}
+					A_RemoveChildren(true,RMVF_EVERYTHING);
+					A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+					A_SpawnItemEx("CarrionMergeBeam",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS);
+					Destroy();
+					return ResolveState(null);
 				}
 			}
 			
-			if (!invoker.user_landed && A_CheckFloor("Null"))	{	invoker.user_landed = 1;	}
+			if (!invoker.landed && A_CheckFloor("Null"))	{	invoker.landed = 1;	}
 			return ResolveState(null);
 		}
 		Loop;
@@ -672,19 +719,17 @@ Class CarrionMergeBeam : Actor
 	};
 	const StepDistance = 31;
 	const StepDistHalf = StepDistance / 2.0;
-	double user_pitch;
-	double user_angle;
-	double user_dista;
-	double user_distb;
-	double user_x;
-	double user_y;
-	double user_z;
+	double pitch;
+	double angle;
+	double dista;
+	double distb;
+	Vector3 op;
 	//[0] = Current distance travelled
 	//[1] = How much further to go
-	int user_choke;
-	int user_t;
-	int user_count;
-	int user_render;
+	int choke;
+	int t;
+	int count;
+	int render;
 	
 	Default
 	{
@@ -699,48 +744,47 @@ Class CarrionMergeBeam : Actor
 		TNT1 A 0 NoDelay
 		{
 			// The angle and pitch won't change so go ahead and save it now.
-			invoker.user_pitch = pitch;
-			invoker.user_angle = angle;
-			invoker.user_distb = Min(MaxDistance, GetDistance(true,TracerPtr));
-			invoker.user_choke = random(ChokeMin, ChokeMax);
-			invoker.user_x = pos.x;
-			invoker.user_y = pos.y;
-			invoker.user_z = pos.z;
-			invoker.user_render = int(GetCvar("vid_renderer"));
+			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+			invoker.pitch = pitch;
+			invoker.angle = angle;
+			invoker.distb = Min(MaxDistance, GetDistance(true,TracerPtr));
+			invoker.choke = random(ChokeMin, ChokeMax);
+			op = pos;
+			invoker.render = int(GetCvar("vid_renderer"));
 		}
 		TNT1 A 1
 		{
-			// invoker.user_dista = distance currently travelled.
-			// invoker.user_distb = maximum distance.			
-			while ((invoker.user_dista < invoker.user_distb))
+			// invoker.dista = distance currently travelled.
+			// invoker.distb = maximum distance.			
+			while ((invoker.dista < invoker.distb))
 			{
 				if (IsPointerEqual(TracerPtr,NullPtr))
 				{	A_Remove(DefPtr,RMVF_EVERYTHING);	}
 				// Don't randomize the very first beam.
-				if (invoker.user_dista > 0)
+				if (invoker.dista > 0)
 				{	A_FaceTracer(0,0,0,0,FAF_MIDDLE);	}
 				
 				// Randomizes the angle of the beams. 
-				if (invoker.user_dista < (invoker.user_distb - StepDistance))
+				if (invoker.dista < (invoker.distb - StepDistance))
 				{
 					// If we're not about to reach the end, or not hitting the 
 					// choker, randomize it. Otherwise, stay on target and go 
 					// for the puff.
-					if (invoker.user_choke > 0)
+					if (invoker.choke > 0)
 					{
 						A_SetPitch(pitch + frandom(-PitchRandom, PitchRandom));
 						A_SetAngle(angle + frandom(-AngleRandom, AngleRandom));
-						invoker.user_choke--;
+						invoker.choke--;
 					}
 					else 
-					{	invoker.user_choke = random(ChokeMin,ChokeMax);	}
+					{	invoker.choke = random(ChokeMin,ChokeMax);	}
 				}
 				// Spawn the beam with the same angle and pitch. Note that the
 				// beam is being centered so we have to take that into account
 				// and spawn it FORWARD based on half the beam's length.
 				// Then move forward by a beam's length and repeat until done.
 				
-				if (invoker.user_render)
+				if (invoker.render)
 				{	A_SpawnItemEx("CarrionTrailBeam",cos(pitch) * StepDistHalf,0,-sin(pitch) * StepDistHalf,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS);	}
 				else
 				{
@@ -759,16 +803,16 @@ Class CarrionMergeBeam : Actor
 				}
 				
 				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
-				invoker.user_dista += StepDistance;
+				invoker.dista += StepDistance;
 			}
 			
-			if (invoker.user_count < 3 && !IsPointerEqual(TracerPtr,NullPtr))
+			if (invoker.count < 3 && !tracer)
 			{
-				invoker.user_count++;
-				invoker.user_dista = 0;
-				pitch = invoker.user_pitch;
+				invoker.count++;
+				invoker.dista = 0;
+				pitch = invoker.pitch;
 				
-				A_Warp(DefPtr,invoker.user_x,invoker.user_y,invoker.user_z,invoker.user_angle,WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEPOSITION|WARPF_ABSOLUTEANGLE);
+				SetOrigin(op, false);
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				return ResolveState(null);
 			}
@@ -790,11 +834,10 @@ Class CarrionTrailBeam : TrailBeam
 	Spawn:
 		X202 I 0 NoDelay
 		{
-			// invoker.user_time = time to shrink to nothing
+			// invoker.time = time to shrink to nothing
 			invoker.user_time = 5.0;
 			A_SpawnItemEx("CarrionTrailBeam",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
-			
+			return ResolveState("Process");
 		}
-		Goto Process;
 	}
 }

@@ -18,9 +18,9 @@ enum PickupConstants
 	ArmorBlueUltra =		100,
 	
 
-	PinataLifetime = 			175, 
-	PinataLifetimeLong = 		700, 
-	PinataLifetimeSuperLong = 	4200, //2min
+	PinataLifetime = 			175 + DelayVacuum, 
+	PinataLifetimeLong = 		700 + DelayVacuum, 
+	PinataLifetimeSuperLong = 	4200 + DelayVacuum, //2min
 	RadiusPull = 				192,
 	DelayVacuum =				20,
 	PSpeed = 					24,

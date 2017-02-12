@@ -21,10 +21,9 @@ Class BuyCrate : CustomInventory
 				A_FireProjectile("CrateSpawner",0,0,0);
 				
 				//A_GiveInventory("D4DCashFake",500);
-				A_TakeInventory("D4DCash",GetCvar("D4D_CurrentUpgradeMode") ? 1 : 500);	
-				//A_GiveInventory("CashUpdaterNegative",1);
+				A_TakeInventory("D4DCash",(upgradeMode) ? 1 : 500);	
+				ACS_NamedExecuteWithResult("UpdateCashScript",0,1,0,0);
 				ACS_NamedExecute("BuyingCrate",0,1);
-				ACS_NamedExecute("UpdateWeaponList",0,0,0,0);
 				ACS_NamedExecute("RefreshCredits",0,0,0,0);
 			}
 			else

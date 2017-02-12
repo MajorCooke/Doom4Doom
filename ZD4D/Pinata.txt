@@ -1,11 +1,3 @@
-Struct MathFunc
-{
-	Vector3 Vec3Sub(Vector3 v1, Vector3 v2)
-	{
-		return v1 - v2;
-	}
-	
-}
 
 //============================================================================================================
 //============================================================================================================
@@ -14,6 +6,7 @@ Struct MathFunc
 //
 //============================================================================================================
 //============================================================================================================
+
 
 Class D4PinataBorder : Actor 
 {
@@ -24,6 +17,7 @@ Class D4PinataBorder : Actor
 	const Increment = 4;
 	const Distance = 200;
 	Actor ms;
+	int Border;
 	Default 
 	{
 		+NOINTERACTION
@@ -163,17 +157,57 @@ Class D4PinataParticles : Actor
 	}
 }
 
+Struct PlrCheck
+{
+	static void CheckForPlayers(Actor checkee)
+	{
+		if (!checkee)	return;
+		Actor trc = checkee.tracer;
+		
+		if (trc && trc.player && checkee.Distance3D(trc) <= RadiusPull)
+		{
+			if (trc.health > 0 && !trc.FindInventory("PowerMorph",true))
+				return;
+		}
+		
+		checkee.tracer = null;
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (playeringame[i])
+			{
+				Actor plr = players[i].mo;
+				if (plr && checkee.Distance3D(plr) <= RadiusPull)
+				{
+					if (plr.health > 0 && !plr.FindInventory("PowerMorph",true))
+					{
+						checkee.tracer = plr;
+						return;
+					}
+				}
+				else checkee.tracer = null;
+			}
+			else checkee.tracer = null;
+		}
+		checkee.tracer = null;
+	}
+}
+
 //---------------------------------
 // Piñata Armor
 Class D4PinataArmor : D4ArmorBonus
 {
+	PlrCheck s;
 	int user_count;
 	double user_ang;
 	const Distance = 5;
 	const MaxSteps = 30;
 	
+	bool Landed, Flying;
+	int Lifetime;
+	property Lifetime: Lifetime;
 	Default 
 	{
+		D4PinataArmor.Lifetime PinataLifetime;
 		Scale 0.3;
 		Radius 8;
 		Height 16;
@@ -199,79 +233,43 @@ Class D4PinataArmor : D4ArmorBonus
 	Looping:
 		"----" A 1
 		{
+			if (A_CheckFloor("Null"))	Landed = true;
+			
 			if (user_count >= DelayVacuum)
 			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_SETTRACER))
+				PlrCheck.CheckForPlayers(self);
+				if (tracer && (Flying || Distance3D(tracer) <= RadiusPull))
 				{
-					if (((GetCvar("sv_unlimited_pickup") > 0) || CountInv("Armor",TracerPtr) < 200) && tracer && !tracer.FindInventory("PowerMorph",true) )
-					{	return ResolveState("Suckage");	}
+					if (((GetCvar("sv_unlimited_pickup") > 0) || tracer.CountInv("Armor") < 200))
+					{
+						Flying = true;
+						user_count = DelayVacuum;
+						bNOCLIP = bNOINTERACTION = true;
+						A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+						A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
+						if (GetDistance(true,TracerPtr) <= 32)
+						{
+							A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
+							bNoclip = false;
+							bNoInteraction = false;
+							A_ChangeLinkFlags(false);
+						}
+					}
+					else
+					{
+						Flying = false;
+						user_count++;
+						bNOCLIP = bNOINTERACTION = false;
+						A_ChangeLinkFlags(true);
+					}
 				}
 			}
-			else
-			{	user_count++;	}
+			if (!Flying)
+				user_count++;
 			
-			if(A_CheckFloor("Null"))	{	return ResolveState("Landed");	}
-			return ResolveState(null);
-		}
-		Loop;
-	Landed:
-		"####" "#" 1
-		{
-			user_count++;
-			if (user_count > PinataLifetime)
-			{	return ResolveState("Fading");		}
-			if (user_count >= DelayVacuum)
-			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
-				{
-					if (((GetCvar("sv_unlimited_pickup") > 0) || CountInv("Armor",TracerPtr) < 200) && tracer && !tracer.FindInventory("PowerMorph",true) )
-					{	return ResolveState("Suckage");	}
-				}
-			}
-			return ResolveState(null);
-		}
-		Loop;
-	Fading:
-		"####" "#" 1 
-		{
+			if (user_count > Lifetime && !Flying)
+				A_FadeOut();
 			
-			if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
-			{
-				if (((GetCvar("sv_unlimited_pickup") > 0) || CountInv("Armor",TracerPtr) < 200) && tracer && !tracer.FindInventory("PowerMorph",true) )
-				{	
-					user_count = DelayVacuum;
-					A_FadeIn(1,FTF_CLAMP);
-					return ResolveState("Suckage");	
-				}
-			}
-			A_FadeOut();
-			return ResolveState(null);
-		}
-		Wait;
-	Suckage:
-		"####" "#" 1
-		{
-			if (CountInv("Armor",TracerPtr) >= 200 || A_JumpIfHealthLower(1,"Null",TracerPtr) || !tracer || tracer.FindInventory("PowerMorph",true))
-			{	
-				bNoclip = false;
-				bNoInteraction = false;
-				A_ChangeLinkFlags(false); //NOINTERACTION sets NOBLOCKMAP.
-				return ResolveState("Looping");	
-			}
-			bNoclip = true;
-			bNOINTERACTION = true;
-			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-			A_SetTics(2); A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-			if (GetDistance(true,TracerPtr) <= 32)
-			{
-				A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
-				bNoclip = false;
-				bNoInteraction = false;
-				A_ChangeLinkFlags(false);
-			}
-			return ResolveState(null);
 		}
 		Loop;
 	}
@@ -283,10 +281,14 @@ Class D4PinataArmor : D4ArmorBonus
 // Pinata health
 Class D4PinataHealth : D4Stimpack
 {
+	PlrCheck s;
 	int user_count;
-	
+	bool Landed, Flying;
+	int Lifetime;
+	property Lifetime: Lifetime;
 	Default 
 	{
+		D4PinataHealth.Lifetime PinataLifetime;
 		Inventory.PickUpSound "Doom4/Pickups/Health";
 		Scale 0.3;
 		Radius 8;
@@ -301,6 +303,7 @@ Class D4PinataHealth : D4Stimpack
 		Inventory.Amount 8;
 		DistanceCheck "user_MaxDrawDistance";
 	}
+		
 	States
 	{
 	Spawn:
@@ -310,83 +313,43 @@ Class D4PinataHealth : D4Stimpack
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER,0,Color_Blue);
 		}
 	Looping:
-		"----" A 1
+		"----" A 2
 		{
+			if (A_CheckFloor("Null"))	Landed = true;
 			if (user_count >= DelayVacuum)
 			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_SETTRACER))
+				PlrCheck.CheckForPlayers(self);
+				if (tracer && (Flying || Distance3D(tracer) <= RadiusPull))
 				{
-					if (tracer && !tracer.FindInventory("PowerMorph",true) && tracer.health < (100 + int(GetCvar("D4Stamina"))))
-					{	return ResolveState("Suckage");	}
+					if (tracer.health < (100 + int(GetCvar("D4Stamina"))))
+					{	Flying = true;
+						user_count = DelayVacuum;
+						bNOCLIP = bNOINTERACTION = true;
+						A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+						A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
+						if (GetDistance(true,TracerPtr) <= 32)
+						{
+							A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
+							bNoclip = false;
+							bNoInteraction = false;
+							A_ChangeLinkFlags(false);
+						}
+					}
+					else
+					{
+						Flying = false;
+						user_count++;
+						bNOCLIP = bNOINTERACTION = false;
+						A_ChangeLinkFlags(true);
+					}
 				}
 			}
-			else
-			{	user_count++;	}
+			if (!Flying)
+				user_count++;
 			
-			if(A_CheckFloor("Null"))	{	return ResolveState("Landed");	}
-			return ResolveState(null);
-		}
-		Loop;
-	Landed:
-		"####" "#" 1
-		{
-			user_count++;
-			if (user_count > PinataLifetime)
-			{	return ResolveState("Fading");		}
-			if (user_count >= DelayVacuum)
-			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
-				{
-					if (tracer && !tracer.FindInventory("PowerMorph",true) && tracer.health < (100 + int(GetCvar("D4Stamina"))))
-					{	return ResolveState("Suckage");	}
-				}
-			}
-			return ResolveState(null);
-		}
-		Loop;
-	Fading:
-		"####" "#" 1  
-		{
+			if (user_count > Lifetime && !Flying)
+				A_FadeOut();
 			
-			if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
-			{
-				if (tracer && !tracer.FindInventory("PowerMorph",true) && tracer.health < (100 + int(GetCvar("D4Stamina"))))
-				{	
-					user_count = DelayVacuum;
-					A_FadeIn(1,FTF_CLAMP);
-					return ResolveState("Suckage");	
-				}
-			}
-			A_FadeOut();
-			return ResolveState(null);
-		}
-		Wait;
-	Suckage:
-		"####" "#" 1
-		{
-			//
-			if (!tracer || tracer.bKILLED || !tracer.FindInventory("PowerMorph",true) && tracer.health >= (100 + int(GetCvar("D4Stamina"))))
-			//if (!A_JumpIfHealthLower(100 + GetCvar("D4Stamina"),"Null",TracerPtr) || A_JumpIfHealthLower(1,"Null",TracerPtr) || tracer && tracer.FindInventory("PowerMorph",true))
-			{	
-				bNoclip = false;
-				bNoInteraction = false;
-				A_ChangeLinkFlags(false);
-				return ResolveState("Looping");	
-			}
-			bNoclip = true;
-			bNOINTERACTION = true;
-			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-			A_SetTics(2); A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-			if (GetDistance(true,TracerPtr) <= 32)
-			{
-				A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
-				bNoclip = false;
-				bNoInteraction = false;
-				A_ChangeLinkFlags(false);
-			}
-			return ResolveState(null);
 		}
 		Loop;
 	}
@@ -397,10 +360,14 @@ Class D4PinataHealth : D4Stimpack
 // Pinata ammo bullets
 Class D4PinataBullets : D4Bullets
 {
+	PlrCheck s;
 	int user_count;
-	
+	bool Landed, Flying;
+	int Lifetime;
+	property Lifetime: Lifetime;
 	Default 
 	{
+		D4PinataBullets.Lifetime PinataLifetime;
 		Scale 0.3;
 		Radius 8;
 		Height 16;
@@ -416,6 +383,7 @@ Class D4PinataBullets : D4Bullets
 		BounceFactor 0.5;
 		DistanceCheck "user_MaxDrawDistance";
 	}
+	
 	States
 	{
 	Spawn:
@@ -425,88 +393,49 @@ Class D4PinataBullets : D4Bullets
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 		}
 	Looping:
-		"----" A 1
+		"----" A 2
 		{
+			if (A_CheckFloor("Null"))	Landed = true;
 			if (user_count >= DelayVacuum)
 			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
+				PlrCheck.CheckForPlayers(self);
+				if (tracer && (Flying || Distance3D(tracer) <= RadiusPull))
 				{
 					if ((GetCvar("sv_unlimited_pickup") > 0 || CountInv("D4Bullets",TracerPtr) < 250) && tracer && !tracer.FindInventory("PowerMorph",true) )
-					{	return ResolveState("Suckage");	}
+					{	Flying = true;
+						user_count = DelayVacuum;
+						bNOCLIP = bNOINTERACTION = true;
+						A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+						A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
+						if (GetDistance(true,TracerPtr) <= 32)
+						{
+							A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
+							bNoclip = false;
+							bNoInteraction = false;
+							A_ChangeLinkFlags(false);
+						}
+					}
+					else
+					{
+						Flying = false;
+						user_count++;
+						bNOCLIP = bNOINTERACTION = false;
+						A_ChangeLinkFlags(true);
+					}
 				}
 			}
-			else
-			{	user_count++;	}
+			if (!Flying)
+				user_count++;
 			
-			if (A_CheckFloor("Null"))	{	return ResolveState("Landed");	}
-			return ResolveState(null);
-		}
-		Loop;
-	Landed:
-		"####" "#" 1
-		{
-			user_count++;
-			if (user_count > PinataLifetimeLong)
-			{	return ResolveState("Fading");		}
-			if (user_count >= DelayVacuum)
-			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
-				{
-					if ((GetCvar("sv_unlimited_pickup") > 0 || CountInv("D4Bullets",TracerPtr) < 250) && tracer && !tracer.FindInventory("PowerMorph",true) )
-					{	return ResolveState("Suckage");	}
-				}
-			}
-			return ResolveState(null);
-		}
-		Loop;
-	Fading:
-		"####" "#" 1  
-		{
+			if (user_count > Lifetime && !Flying)
+				A_FadeOut();
 			
-			if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
-			{
-				if (((GetCvar("sv_unlimited_pickup") > 0) || CountInv("D4Bullets",TracerPtr) < 250) && tracer && tracer.FindInventory("PowerMorph",true) )
-				{	
-					user_count = DelayVacuum;
-					A_FadeIn(1,FTF_CLAMP);
-					return ResolveState("Suckage");	
-				}
-			}
-			A_FadeOut();
-			return ResolveState(null);
-		}
-		Wait;
-	Suckage:
-		"####" "#" 1
-		{
-			if ((CountInv("D4Bullets",TracerPtr) >= 250 && GetCvar("sv_unlimited_pickup") == 0) || tracer.health < 1 || !tracer || tracer.FindInventory("PowerMorph",true))
-			{	
-				bNoclip = false;
-				bNoInteraction = false;
-				A_ChangeLinkFlags(false);
-				return ResolveState("Looping");	
-			}
-			bNoclip = true;
-			bNOINTERACTION = true;
-			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-			A_SetTics(2); A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-			if (GetDistance(true,TracerPtr) <= 32)
-			{
-				A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
-				bNoclip = false;
-				bNoInteraction = false;
-				A_ChangeLinkFlags(false);
-			}
-			return ResolveState(null);
 		}
 		Loop;
 	}
 }
 Class D4PinataBulletsBig : D4PinataBullets
 {
-	
 	Default 
 	{
 		Scale 0.4;
@@ -514,37 +443,20 @@ Class D4PinataBulletsBig : D4PinataBullets
 		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
 		DistanceCheck "user_MaxDrawDistance";
 	}
-	States
-	{
-	Landed:
-		"####" "#" 1
-		{
-			user_count++;
-			if (user_count > PinataLifetime)
-			{	return ResolveState("Fading");		}
-			if (user_count >= DelayVacuum)
-			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
-				{
-					if (tracer && !tracer.FindInventory("PowerMorph",true) && (GetCvar("sv_unlimited_pickup") > 0 || CountInv("D4Bullets",TracerPtr) < 250))
-					{	return ResolveState("Super::Suckage");	}
-				}
-			}
-			return ResolveState(null);
-		}
-		Loop;
-	}
 }
 
 //---------------------------------
 // Pinata ammo shells
 Class D4PinataShells : D4Shells
 {
+	PlrCheck s;
 	int user_count;
-	
+	bool Landed, Flying;
+	int Lifetime;
+	property Lifetime: Lifetime;
 	Default 
 	{
+		D4PinataShells.Lifetime PinataLifetime;
 		Scale 0.3;
 		Radius 8;
 		Height 16;
@@ -559,6 +471,7 @@ Class D4PinataShells : D4Shells
 		+NOBLOCKMONST
 		DistanceCheck "user_MaxDrawDistance";
 	}
+		
 	States
 	{
 	Spawn:
@@ -568,81 +481,43 @@ Class D4PinataShells : D4Shells
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 		}
 	Looping:
-		"----" A 1
+		"----" A 2
 		{
+			if (A_CheckFloor("Null"))	Landed = true;
 			if (user_count >= DelayVacuum)
 			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
+				PlrCheck.CheckForPlayers(self);
+				if (tracer && (Flying || Distance3D(tracer) <= RadiusPull))
 				{
-					if ((GetCvar("sv_unlimited_pickup") > 0 || CountInv("D4Shells",TracerPtr) < 45) && tracer && !tracer.FindInventory("PowerMorph",true))
-					{	return ResolveState("Suckage");	}
+					if ((GetCvar("sv_unlimited_pickup") > 0 || CountInv("D4Shells",TracerPtr) < 45))
+					{	Flying = true;
+						user_count = DelayVacuum;
+						bNOCLIP = bNOINTERACTION = true;
+						A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+						A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
+						if (GetDistance(true,TracerPtr) <= 32)
+						{
+							A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
+							bNoclip = false;
+							bNoInteraction = false;
+							A_ChangeLinkFlags(false);
+						}
+					}
+					else
+					{
+						Flying = false;
+						user_count++;
+						bNOCLIP = bNOINTERACTION = false;
+						A_ChangeLinkFlags(true);
+					}
 				}
 			}
-			else
-			{	user_count++;	}
+			if (!Flying)
+				user_count++;
 			
-			if(A_CheckFloor("Null"))	{	return ResolveState("Landed");	}
-			return ResolveState(null);
-		}
-		Loop;
-	Landed:
-		"####" "#" 1
-		{
-			user_count++;
-			if (user_count > PinataLifetimeLong)
-			{	return ResolveState("Fading");		}
-			if (user_count >= DelayVacuum)
-			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
-				{
-					if ((GetCvar("sv_unlimited_pickup") > 0 || CountInv("D4Shells",TracerPtr) < 45) && tracer && !tracer.FindInventory("PowerMorph",true))
-					{	return ResolveState("Suckage");	}
-				}
-			}
-			return ResolveState(null);
-		}
-		Loop;
-	Fading:
-		"####" "#" 1  
-		{
+			if (user_count > Lifetime && !Flying)
+				A_FadeOut();
 			
-			if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
-			{
-				if (((GetCvar("sv_unlimited_pickup") > 0) || CountInv("D4Shells",TracerPtr) < 45) && tracer && !tracer.FindInventory("PowerMorph",true) )
-				{	
-					user_count = DelayVacuum;
-					A_FadeIn(1,FTF_CLAMP);
-					return ResolveState("Suckage");	
-				}
-			}
-			A_FadeOut();
-			return ResolveState(null);
-		}
-		Wait;
-	Suckage:
-		"####" "#" 1
-		{
-			if ((CountInv("D4Shells",TracerPtr) >= 45 && GetCvar("sv_unlimited_pickup") == 0) || A_JumpIfHealthLower(1,"Null",TracerPtr) || !tracer || tracer.FindInventory("PowerMorph",true))
-			{	
-				bNoclip = false;
-				bNoInteraction = false;
-				A_ChangeLinkFlags(false); //NOINTERACTION sets NOBLOCKMAP.
-				return ResolveState("Looping");	
-			}
-			bNoclip = true;
-			bNOINTERACTION = true;
-			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-			A_SetTics(2); A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-			if (GetDistance(true,TracerPtr) <= 32)
-			{
-				A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
-				bNoclip = false;
-				bNoInteraction = false;
-				A_ChangeLinkFlags(false);
-			}
-			return ResolveState(null);
 		}
 		Loop;
 	}
@@ -657,27 +532,6 @@ Class D4PinataShellsBig : D4PinataShells
 		Inventory.Amount 8;
 		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
 	}
-	States
-	{
-	Landed:
-		"####" "#" 1
-		{
-			user_count++;
-			if (user_count > PinataLifetime)
-			{	return ResolveState("Fading");		}
-			if (user_count >= DelayVacuum)
-			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
-				{
-					if (GetCvar("sv_unlimited_pickup") > 0 && tracer && !tracer.FindInventory("PowerMorph",true) || (CountInv("D4Shells",TracerPtr) >= 45 && tracer && !tracer.FindInventory("PowerMorph",true)))
-					{	return ResolveState("Suckage");	}
-				}
-			}
-			return ResolveState(null);
-		}
-		Loop;
-	}
 }
 
 
@@ -687,9 +541,12 @@ Class D4PinataShellsBig : D4PinataShells
 Class D4PinataCells : D4Cells
 {
 	int user_count;
-	
+	bool Landed, Flying;
+	int Lifetime;
+	property Lifetime: Lifetime;
 	Default 
 	{
+		D4PinataCells.Lifetime PinataLifetime;
 		Scale 0.3;
 		Radius 8;
 		Height 16;
@@ -712,81 +569,43 @@ Class D4PinataCells : D4Cells
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 		}
 	Looping:
-		"----" A 1
+		"----" A 2
 		{
+			if (A_CheckFloor("Null"))	Landed = true;
 			if (user_count >= DelayVacuum)
 			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
+				PlrCheck.CheckForPlayers(self);
+				if (tracer && (Flying || Distance3D(tracer) <= RadiusPull))
 				{
-					if (GetCvar("sv_unlimited_pickup") > 0 && tracer && !tracer.FindInventory("PowerMorph",true) || CountInv("D4Cells",TracerPtr) < 200 && tracer && !tracer.FindInventory("PowerMorph",true))
-					{	return ResolveState("Suckage");	}
+					if (GetCvar("sv_unlimited_pickup") > 0 || CountInv("D4Cells",TracerPtr) < 200)
+					{	Flying = true;
+						user_count = DelayVacuum;
+						bNOCLIP = bNOINTERACTION = true;
+						A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+						A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
+						if (GetDistance(true,TracerPtr) <= 32)
+						{
+							A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
+							bNoclip = false;
+							bNoInteraction = false;
+							A_ChangeLinkFlags(false);
+						}
+					}
+					else
+					{
+						Flying = false;
+						user_count++;
+						bNOCLIP = bNOINTERACTION = false;
+						A_ChangeLinkFlags(true);
+					}
 				}
 			}
-			else
-			{	user_count++;	}
+			if (!Flying)
+				user_count++;
 			
-			if(A_CheckFloor("Null"))	{	return ResolveState("Landed");	}
-			return ResolveState(null);
-		}
-		Loop;
-	Landed:
-		"####" "#" 1
-		{
-			user_count++;
-			if (user_count > PinataLifetimeLong)
-			{	return ResolveState("Fading");		}
-			if (user_count >= DelayVacuum)
-			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
-				{
-					if (GetCvar("sv_unlimited_pickup") > 0 && tracer && !tracer.FindInventory("PowerMorph",true) || CountInv("D4Cells",TracerPtr) < 200 && tracer && !tracer.FindInventory("PowerMorph",true))
-					{	return ResolveState("Suckage");	}
-				}
-			}
-			return ResolveState(null);
-		}
-		Loop;
-	Fading:
-		"####" "#" 1  
-		{
+			if (user_count > Lifetime && !Flying)
+				A_FadeOut();
 			
-			if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
-			{
-				if (((GetCvar("sv_unlimited_pickup") > 0) || CountInv("D4Cells",TracerPtr) < 200) && tracer && !tracer.FindInventory("PowerMorph",true) )
-				{	
-					user_count = DelayVacuum;
-					A_FadeIn(1,FTF_CLAMP);
-					return ResolveState("Suckage");	
-				}
-			}
-			A_FadeOut();
-			return ResolveState(null);
-		}
-		Wait;
-	Suckage:
-		"####" "#" 1
-		{
-			if ((CountInv("D4Cells",TracerPtr) >= 200 && GetCvar("sv_unlimited_pickup") == 0) || A_JumpIfHealthLower(1,"Null",TracerPtr) || tracer && tracer.FindInventory("PowerMorph",true))
-			{	
-				bNoclip = false;
-				bNoInteraction = false;
-				A_ChangeLinkFlags(false); //NOINTERACTION sets NOBLOCKMAP.
-				return ResolveState("Looping");	
-			}
-			bNoclip = true;
-			bNOINTERACTION = true;
-			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-			A_SetTics(2); A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-			if (GetDistance(true,TracerPtr) <= 32)
-			{
-				A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
-				bNoclip = false;
-				bNoInteraction = false;
-				A_ChangeLinkFlags(false);
-			}
-			return ResolveState(null);
 		}
 		Loop;
 	}
@@ -799,37 +618,20 @@ Class D4PinataCellsBig : D4PinataCells
 		Inventory.Amount 40;
 		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
 	}
-	States
-	{
-	Landed:
-		"####" "#" 1
-		{
-			user_count++;
-			if (user_count > PinataLifetime)
-			{	return ResolveState("Fading");		}
-			if (user_count >= DelayVacuum)
-			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
-				{
-					if (GetCvar("sv_unlimited_pickup") > 0 && tracer && !tracer.FindInventory("PowerMorph",true) || CountInv("D4Cells",TracerPtr) < 200 && tracer && !tracer.FindInventory("PowerMorph",true))
-					{	return ResolveState("Suckage");	}
-				}
-			}
-			return ResolveState(null);
-		}
-		Loop;
-	}
 }
 
 //---------------------------------
 // Pinata ammo rockets
 Class D4PinataRockets : D4Rockets
 {
+	PlrCheck s;
 	int user_count;
-	
+	bool Landed, Flying;
+	int Lifetime;
+	property Lifetime: Lifetime;
 	Default 
 	{
+		D4PinataRockets.Lifetime PinataLifetime;
 		Scale 0.3;
 		Radius 8;
 		Height 16;
@@ -843,6 +645,7 @@ Class D4PinataRockets : D4Rockets
 		BounceFactor 0.5;
 		+NOBLOCKMONST
 	}
+	
 	States
 	{
 	Spawn:
@@ -852,81 +655,43 @@ Class D4PinataRockets : D4Rockets
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 		}
 	Looping:
-		"----" A 1
+		"----" A 2
 		{
+			if (A_CheckFloor("Null"))	Landed = true;
 			if (user_count >= DelayVacuum)
 			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_SETTRACER))
+				PlrCheck.CheckForPlayers(self);
+				if (tracer && (Flying || Distance3D(tracer) <= RadiusPull))
 				{
-					if (GetCvar("sv_unlimited_pickup") > 0 && tracer && !tracer.FindInventory("PowerMorph",true) || CountInv("D4Rockets",TracerPtr) < 30 && tracer && !tracer.FindInventory("PowerMorph",true))
-					{	return ResolveState("Suckage");	}
+					if (GetCvar("sv_unlimited_pickup") > 0 || CountInv("D4Rockets",TracerPtr) < 30)
+					{	Flying = true;
+						user_count = DelayVacuum;
+						bNOCLIP = bNOINTERACTION = true;
+						A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+						A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
+						if (GetDistance(true,TracerPtr) <= 32)
+						{
+							A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
+							bNoclip = false;
+							bNoInteraction = false;
+							A_ChangeLinkFlags(false);
+						}
+					}
+					else
+					{
+						Flying = false;
+						user_count++;
+						bNOCLIP = bNOINTERACTION = false;
+						A_ChangeLinkFlags(true);
+					}
 				}
 			}
-			else
-			{	user_count++;	}
+			if (!Flying)
+				user_count++;
 			
-			if(A_CheckFloor("Null"))	{	return ResolveState("Landed");	}
-			return ResolveState(null);
-		}
-		Loop;
-	Landed:
-		"####" "#" 1
-		{
-			user_count++;
-			if (user_count > PinataLifetimeLong)
-			{	return ResolveState("Fading");		}
-			if (user_count >= DelayVacuum)
-			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
-				{
-					if ((GetCvar("sv_unlimited_pickup") > 0) && tracer && !tracer.FindInventory("PowerMorph",true) || CountInv("D4Rockets",TracerPtr) < 30 && tracer && !tracer.FindInventory("PowerMorph",true))
-					{	return ResolveState("Suckage");	}
-				}
-			}
-			return ResolveState(null);
-		}
-		Loop;
-	Fading:
-		"####" "#" 1  
-		{
+			if (user_count > Lifetime && !Flying)
+				A_FadeOut();
 			
-			if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
-			{
-				if (((GetCvar("sv_unlimited_pickup") > 0) || CountInv("D4Rockets",TracerPtr) < 30) && tracer && !tracer.FindInventory("PowerMorph",true) )
-				{	
-					user_count = DelayVacuum;
-					A_FadeIn(1,FTF_CLAMP);
-					return ResolveState("Suckage");	
-				}
-			}
-			A_FadeOut();
-			return ResolveState(null);
-		}
-		Wait;
-	Suckage:
-		"####" "#" 1
-		{
-			if ((CountInv("D4Rockets",TracerPtr) >= 30 && GetCvar("sv_unlimited_pickup") == 0) || A_JumpIfHealthLower(1,"Null",TracerPtr) || tracer && tracer.FindInventory("PowerMorph",true))
-			{	
-				bNoclip = false;
-				bNoInteraction = false;
-				A_ChangeLinkFlags(false); //NOINTERACTION sets NOBLOCKMAP.
-				return ResolveState("Looping");	
-			}
-			bNoclip = true;
-			bNOINTERACTION = true;
-			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-			A_SetTics(2); A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-			if (GetDistance(true,TracerPtr) <= 32)
-			{
-				A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
-				bNoclip = false;
-				bNoInteraction = false;
-				A_ChangeLinkFlags(false);
-			}
-			return ResolveState(null);
 		}
 		Loop;
 	}
@@ -939,27 +704,6 @@ Class D4PinataRocketsBig : D4PinataRockets
 		Inventory.Amount 6;
 		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
 	}
-	states
-	{
-	Landed:
-		"####" "#" 1
-		{
-			user_count++;
-			if (user_count > PinataLifetime)
-			{	return ResolveState("Fading");		}
-			if (user_count >= DelayVacuum)
-			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
-				{
-					if (GetCvar("sv_unlimited_pickup") > 0 && tracer && !tracer.FindInventory("PowerMorph",true) || CountInv("D4Rockets",TracerPtr) < 30 && tracer && !tracer.FindInventory("PowerMorph",true))
-					{	return ResolveState("Suckage");	}
-				}
-			}
-			return ResolveState(null);
-		}
-		Loop;
-	}
 }
 
 
@@ -968,10 +712,14 @@ Class D4PinataRocketsBig : D4PinataRockets
 
 Class D4PinataBFG : D4BFGAmmo
 {
+	PlrCheck s;
 	int user_count;
-	
+	bool Landed, Flying;
+	int Lifetime;
+	property Lifetime: Lifetime;
 	Default 
 	{
+		D4PinataBFG.Lifetime PinataLifetimeLong;
 		Scale 0.3;
 		Radius 8;
 		Height 16;
@@ -983,6 +731,7 @@ Class D4PinataBFG : D4BFGAmmo
 		BounceFactor 0.5;
 		+NOBLOCKMONST
 	}
+	
 	States
 	{
 	Spawn:
@@ -992,81 +741,43 @@ Class D4PinataBFG : D4BFGAmmo
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER,0,Color_Green);
 		}
 	Looping:
-		"----" A 1
+		"----" A 2
 		{
+			if (A_CheckFloor("Null"))	Landed = true;
 			if (user_count >= DelayVacuum)
 			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
+				PlrCheck.CheckForPlayers(self);
+				if (tracer && (Flying || Distance3D(tracer) <= RadiusPull))
 				{
 					if (GetCvar("sv_unlimited_pickup") > 0 && tracer && !tracer.FindInventory("PowerMorph",true) || CountInv("D4BFGAmmo",TracerPtr) < 3 && tracer && !tracer.FindInventory("PowerMorph",true))
-					{	return ResolveState("Suckage");	}
+					{	Flying = true;
+						user_count = DelayVacuum;
+						bNOCLIP = bNOINTERACTION = true;
+						A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+						A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
+						if (GetDistance(true,TracerPtr) <= 32)
+						{
+							A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
+							bNoclip = false;
+							bNoInteraction = false;
+							A_ChangeLinkFlags(false);
+						}
+					}
+					else
+					{
+						Flying = false;
+						user_count++;
+						bNOCLIP = bNOINTERACTION = false;
+						A_ChangeLinkFlags(true);
+					}
 				}
 			}
-			else
-			{	user_count++;	}
+			if (!Flying)
+				user_count++;
 			
-			if(A_CheckFloor("Null"))	{	return ResolveState("Landed");	}
-			return ResolveState(null);
-		}
-		Loop;
-	Landed:
-		"####" "#" 1
-		{
-			user_count++;
-			if (user_count > PinataLifetime*4)
-			{	return ResolveState("Fading");		}
-			if (user_count >= DelayVacuum)
-			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
-				if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
-				{
-					if (GetCvar("sv_unlimited_pickup") > 0 && tracer && !tracer.FindInventory("PowerMorph",true) || CountInv("D4BFGAmmo",TracerPtr) < 3 && tracer && !tracer.FindInventory("PowerMorph",true))
-					{	return ResolveState("Suckage");	}
-				}
-			}
-			return ResolveState(null);
-		}
-		Loop;
-	Fading:
-		"####" "#" 1  
-		{
+			if (user_count > Lifetime && !Flying)
+				A_FadeOut();
 			
-			if (A_CheckProximity("Null","PlayerPawn",RadiusPull,1,CPXF_CHECKSIGHT|CPXF_SETTRACER|CPXF_ANCESTOR))
-			{
-				if (((GetCvar("sv_unlimited_pickup") > 0) || CountInv("D4BFGAmmo",TracerPtr) < 3) && tracer && !tracer.FindInventory("PowerMorph",true) )
-				{	
-					user_count = DelayVacuum;
-					A_FadeIn(1,FTF_CLAMP);
-					return ResolveState("Suckage");	
-				}
-			}
-			A_FadeOut();
-			return ResolveState(null);
-		}
-		Wait;
-	Suckage:
-		"####" "#" 1
-		{
-			if ((CountInv("D4BFGAmmo",TracerPtr) >= 3 && GetCvar("sv_unlimited_pickup") == 0) || A_JumpIfHealthLower(1,"Null",TracerPtr) || tracer && tracer.FindInventory("PowerMorph",true))
-			{	
-				bNoclip = false;
-				bNoInteraction = false;
-				A_ChangeLinkFlags(false); //NOINTERACTION sets NOBLOCKMAP.
-				return ResolveState("Looping");	
-			}
-			bNoclip = true;
-			bNOINTERACTION = true;
-			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-			A_SetTics(2); A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-			if (GetDistance(true,TracerPtr) <= 32)
-			{
-				A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
-				bNoclip = false;
-				bNoInteraction = false;
-				A_ChangeLinkFlags(false);
-			}
-			return ResolveState(null);
 		}
 		Loop;
 	}
@@ -1108,7 +819,7 @@ Class D4PinataBulletsZombieman : D4Bullets	//only dropped by these guys, and the
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 		}
 	Looping:
-		"----" A 1
+		"----" A 2
 		{
 			if (A_CheckFloor("Null"))	{	return ResolveState("Landed");	}
 			return ResolveState(null);
@@ -1158,7 +869,7 @@ Class D4PinataShellsShotgunGuy : D4Shells	//only dropped by these guys, and they
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 		}
 	Looping:
-		"----" A 1
+		"----" A 2
 		{
 			if (A_CheckFloor("Null"))	{	return ResolveState("Landed");	}
 			return ResolveState(null);
