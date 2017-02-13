@@ -195,6 +195,14 @@ Class DemonPlayerBase : Doom4Player
 		}
 	}
 	
+	Default
+	{
+		DamageFactor "Slime", 0.0;
+		DamageFactor "HellSlime", 0.0;
+		DamageFactor "Fall", 0.0;
+		DamageFactor "Falling", 0.0;
+	}
+	
 	States
 	{
 	// Dummy states to be overridden later. Except the DemonTimer one.
@@ -389,8 +397,8 @@ Class HealthArmorRestorer : CustomInventory
 			}
 			
 			
-			A_TakeInventory("DHealthCount",32767);
-			A_TakeInventory("DArmorCount",32767);
+			A_SetInventory("DHealthCount",0);
+			A_SetInventory("DArmorCount",0);
 		}
 		Stop;
 	}
@@ -552,7 +560,7 @@ Class DemonRuneMorphOn : Actor
 			invoker.user_duration = 2;
 			invoker.user_roll = RollAmount * randompick(-1,1);
 			A_PlaySound("Player/Demon/Fire",7,0.7);
-			A_SpawnItemEx("RuneWearOffWarning",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS);
+			//A_SpawnItemEx("RuneWearOffWarning",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS);
 		}
 	Looping:
 		"####" "#" 1
@@ -598,6 +606,7 @@ Class DemonRuneMorphOn : Actor
 
 Class RuneWearOffWarning : Actor 
 {
+	bool warning;
 	Default 
 	{
 		Projectile;
@@ -608,18 +617,21 @@ Class RuneWearOffWarning : Actor
 	States
 	{
 	Spawn:
+		TNT1 A 0;
+		Stop;
 		TNT1 A 1995; //57 seconds
-		TNT1 A 0
-		{
-			if (CountInv("IamADemonToken",TargetPtr))
-			{	
-				A_PlaySound("PentagramOfProtection/Warning",5,1,0,ATTN_NONE);
-			}
-		}
 		TNT1 AAA 35
 		{
+			let plr = PlayerPawn(target);
+			
 			if (CountInv("IamADemonToken",TargetPtr))
-			{	
+			{
+				if (!warning)
+				{
+					warning = true;
+					A_PlaySound("PentagramOfProtection/Warning",5,1,0,ATTN_NONE);
+				}
+			
 				A_GiveInventory("PentagramFade",1,TargetPtr);
 			}
 		}
@@ -822,25 +834,25 @@ Class TporDropBallSpawnerFriend : RandomSpawner
 	{
 		+FRIENDLY
 		+NOBLOCKMONST
-		DropItem "FD4ShotgunGuy", 255, 2;
-		DropItem "FD4ChaingunGuy", 255, 2;
-		DropItem "FD4DoomImp", 255, 2;
-		DropItem "FD4Demon", 255, 2;
-		DropItem "FD4Revenant", 255, 4;
-		DropItem "FD4HellKnight", 255, 4;
-		DropItem "FD4BaronOfHell", 255, 1;
+		DropItem "D4ShotgunGuy", 255, 2;
+		DropItem "D4ChaingunGuy", 255, 2;
+		DropItem "D4DoomImp", 255, 2;
+		DropItem "D4Demon", 255, 2;
+		DropItem "D4Revenant", 255, 4;
+		DropItem "D4HellKnight", 255, 4;
+		DropItem "D4BaronOfHell", 255, 1;
+	}
+	
+	override void PostSpawn(Actor spawned)
+	{
+		if (spawned)
+		{
+			spawned.bFRIENDLY = true;
+			spawned.bCOUNTKILL = false;
+			spawned.bNOBLOCKMONST = true;
+		}
 	}
 }
-
-// Had to define these guys because "RandomSpawner" doesnt pass along the NOBLOCKMONST flag
-Class FD4ShotgunGuy : D4ShotgunGuy		{	Default { +NOBLOCKMONST	-COUNTKILL	} }
-Class FD4ChaingunGuy : D4ChaingunGuy	{	Default { +NOBLOCKMONST	-COUNTKILL	} }
-Class FD4DoomImp : D4DoomImp			{	Default { +NOBLOCKMONST	-COUNTKILL	} }
-Class FD4Demon : D4Demon				{	Default { +NOBLOCKMONST	-COUNTKILL	} }
-Class FD4Revenant : D4Revenant			{	Default { +NOBLOCKMONST	-COUNTKILL	} }
-Class FD4HellKnight : D4HellKnight		{	Default { +NOBLOCKMONST	-COUNTKILL	} }
-Class FD4BaronOfHell : D4BaronOfHell	{	Default { +NOBLOCKMONST	-COUNTKILL	} }
-
 
 Class DemonPuff : Actor //for xdeathing everything
 {
@@ -849,6 +861,7 @@ Class DemonPuff : Actor //for xdeathing everything
 		+NOINTERACTION
 		+EXTREMEDEATH
 		RenderStyle "None";
+		DamageType "Melee";
 	}
 	states
 	{
@@ -865,5 +878,63 @@ Class DemonPuffMelee : FistPuff //for xdeathing everything
 		+NOINTERACTION
 		+EXTREMEDEATH
 		RenderStyle "None";
+		DamageType "Melee";
+	}
+}
+
+Class PowerRuneBase : PowerMorph
+{
+	D4NoiseMaker noise;
+	override void InitEffect()
+	{
+		if (GetClass() == "PowerRuneBase")
+		{
+			bInitEffectFailed = true;
+			return Destroy();
+		}
+			
+		Super.InitEffect();
+	}
+	
+	override void DoEffect()
+	{	
+		if (Owner)
+		{
+			if (Owner.CountInv("D4TimeFreeze"))
+			{
+				EffectTics++; //'Freeze' the timer.
+			}
+			else
+			{
+				if (EffectTics <= 105)
+				{
+					Switch (EffectTics)
+					{
+						if (!noise)	noise = D4NoiseMaker(Spawn("D4NoiseMaker",pos));
+						Case 105:
+						{
+							if (noise)	noise.A_PlaySound("PentagramOfProtection/Warning",5,1,0,ATTN_NONE);
+						}
+						Case 70:
+						Case 35:
+							Owner.A_SetBlend("Yellow",0.4,12);
+						Default:
+							break;
+					}
+				}
+				else if (noise)
+				{
+					noise.Silence();
+					noise.Destroy();
+				}
+			}
+		}
+		Super.DoEffect();
+	}
+	
+	override void EndEffect()
+	{
+		if (noise)	noise.Destroy();
+		Super.EndEffect();
 	}
 }
