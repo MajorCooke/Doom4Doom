@@ -698,43 +698,43 @@ Class DemonRuneBase : CustomInventory
 			// ONLY CHECK FOR THE SAME TYPE OF ITSELF. Do not check others, that's ridiculous!
 			if (CheckClass("ArachnotronRune"))
 			{
-				return (A_CheckProximity("Null","ArachnotronRune", 	32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+				return (A_CheckProximity("Null","ArachnotronRune", 	32767, 1, CPXF_NOZ));
 			}
 			else if (CheckClass("BaronRune"))
 			{
-				return (A_CheckProximity("Null","BaronRune", 	32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+				return (A_CheckProximity("Null","BaronRune", 	32767, 1, CPXF_NOZ));
 			}
 			else if (CheckClass("CacodemonRune"))
 			{
-				return (A_CheckProximity("Null","CacodemonRune", 	32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+				return (A_CheckProximity("Null","CacodemonRune", 	32767, 1, CPXF_NOZ));
 			}
 			else if (CheckClass("CyberdemonRune"))
 			{
-				return (A_CheckProximity("Null","CyberdemonRune", 	32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+				return (A_CheckProximity("Null","CyberdemonRune", 	32767, 1, CPXF_NOZ));
 			}
 			else if (CheckClass("FatsoRune"))
 			{
-				return (A_CheckProximity("Null","FatsoRune", 	32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+				return (A_CheckProximity("Null","FatsoRune", 	32767, 1, CPXF_NOZ));
 			}
 			else if (CheckClass("KnightRune"))
 			{
-				return (A_CheckProximity("Null","KnightRune", 	32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+				return (A_CheckProximity("Null","KnightRune", 	32767, 1, CPXF_NOZ));
 			}
 			else if (CheckClass("MastermindRune"))
 			{
-				return (A_CheckProximity("Null","MastermindRune", 	32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+				return (A_CheckProximity("Null","MastermindRune", 	32767, 1, CPXF_NOZ));
 			}
 			else if (CheckClass("PainElementalRune"))
 			{
-				return (A_CheckProximity("Null","PainElementalRune",32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+				return (A_CheckProximity("Null","PainElementalRune",32767, 1, CPXF_NOZ));
 			}
 			else if (CheckClass("RevenantRune"))
 			{
-				return (A_CheckProximity("Null","RevenantRune", 	32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+				return (A_CheckProximity("Null","RevenantRune", 	32767, 1, CPXF_NOZ));
 			}
 			else if (CheckClass("ArchvileRune"))
 			{
-				return (A_CheckProximity("Null","ArchvileRune", 	32767, 1, CPXF_NOZ|CPXF_ANCESTOR));
+				return (A_CheckProximity("Null","ArchvileRune", 	32767, 1, CPXF_NOZ));
 			}
 			return ResolveState(null);
 		}
@@ -892,8 +892,9 @@ Class PowerRuneBase : PowerMorph
 			bInitEffectFailed = true;
 			return Destroy();
 		}
-			
+		
 		Super.InitEffect();
+		noise = D4NoiseMaker(Spawn("D4NoiseMaker",pos));
 	}
 	
 	override void DoEffect()

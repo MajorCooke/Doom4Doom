@@ -3,6 +3,7 @@
 
 global bool 1:died;
 global bool 2:notanewgame;
+global int 3:upgradeMode;
 
 //	Upgrade System
 //	Developed by Major Cooke
@@ -13,13 +14,17 @@ global bool 2:notanewgame;
 //==============================================================================
 //==============================================================================
 
-Script "ModeSwitch" OPEN
+Script "GameModeSwitch" ENTER
 {
+	
 	if (!notanewgame)
 	{
 		SetCvar("D4D_CurrentUpgradeMode",GetCvar("D4D_UpgradeMode"));
-		notanewgame = true;
+		upgradeMode = GetCvar("D4D_UpgradeMode");
 	}
+	notanewgame = true;
+	
+	SetCvar("D4D_CurrentUpgradeMode",upgradeMode);
 }
 
 str weapon;

@@ -250,7 +250,7 @@ Class D4CacodemonBall : D4AbstractMissile
 		SeeSound "caco/attack";
 		DeathSound "caco/shotx";
 		+FORCEXYBILLBOARD
-		+HITTARGET
+		+HITTRACER
 		Scale 0.26;
 		Translation "0:255=%[0.0,0.0,0.0]:[1.2,0.0,0.5]";
 		Decal "CacoDecal";
@@ -268,10 +268,12 @@ Class D4CacodemonBall : D4AbstractMissile
 		}
 		Loop;
 	XDeath:
-		TNT1 A 0 A_JumpIfCloser(48,"Enblinden");
-		Goto Death;
-	Enblinden:
-		TNT1 A 0 ACS_NamedExecuteAlways("Cacoball", 0);
+		TNT1 A 0 
+		{
+			if (!tracer || !(tracer is "PlayerPawn") || tracer.bINVULNERABLE || tracer.FindInventory("PowerInvulnerable",true))
+				return;
+			ACS_NamedExecuteAlways("Cacoball", 0);
+		}
 		Goto Death;
 	Death:
 		TNT1 A 0 A_PlaySound("Doom4/Other/FireballHit1"); //in addition to the deathsound

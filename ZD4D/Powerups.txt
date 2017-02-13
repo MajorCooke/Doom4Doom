@@ -13,10 +13,7 @@ Class D4NoiseMaker : Actor
 	
 	// Never spawn this thing directly.
 	override void PostBeginPlay()
-	{
-		if (GetClass() == "D4NoiseMaker")
-			return Destroy();
-		
+	{		
 		Super.PostBeginPlay();
 	}
 }
