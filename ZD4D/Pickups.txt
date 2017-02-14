@@ -383,29 +383,42 @@ Class D4UpgradePickupSpawner : Actor
 		tracer = tt;
 		
 		Class<Inventory> ItemToSpawn = null;
-		int BigRNG = random(1,2);
+		int BigRNG = random(1,3);
 		
 		//======================================================================
-		// Suit
+		// Suit + Powerups
 		//======================================================================
-		if (BigRNG == 2)
+		if (BigRNG > 1)
 		{
-			
 			Actor temp = tracer;
 			A_TransferPointer(Player1,DefPtr,DefPtr,TracerPtr,4);
-			
 			let plr = PlayerPawn(tracer);
 			tracer = temp;
 			
 			if (plr)
 			{
 				items.Clear();
-				if (!plr.CountInv("D4AirControl"))					items.Push("D4AirControlUpgradePickup");
-				if (plr.Stamina < 100)								items.Push("D4HealthUpgradePickup");
-				if (plr.CountInv("D4ArmorCapRaiser") < 100)			items.Push("D4ArmorUpgradePickup");
-				if (plr.CountInv("CashPercentBonus") < 40)			items.Push("D4CashUpgradePickup");
-				if (plr.CountInv("D4CrateUpgrade") < 3)				items.Push("D4CrateUpgradePickup");
-				if (!plr.CountInv("ProtectionBonus3"))				items.Push("D4ProtectionUpgradePickup");
+				if (BigRNG > 2)
+				{
+					if (!plr.CountInv("D4MegachargeUpgrade1") || !plr.CountInv("D4MegachargeUpgrade2"))
+						items.Push("D4MegachargeUpgradePickup");
+					if (!plr.CountInv("D4DoomDollUpgrade1") || !plr.CountInv("D4DoomDollUpgrade2"))
+						items.Push("D4DoomDollUpgradePickup");
+					if (!plr.CountInv("D4RegenUpgrade1") ||
+						!plr.CountInv("D4RegenUpgrade2") ||
+						!plr.CountInv("D4RegenUpgrade3") ||
+						!plr.CountInv("D4RegenUpgrade4"))
+						items.Push("D4RegenUpgradePickup");
+				}
+				else
+				{
+					if (!plr.CountInv("D4AirControl"))					items.Push("D4AirControlUpgradePickup");
+					if (plr.Stamina < 100)								items.Push("D4HealthUpgradePickup");
+					if (plr.CountInv("D4ArmorCapRaiser") < 100)			items.Push("D4ArmorUpgradePickup");
+					if (plr.CountInv("CashPercentBonus") < 40)			items.Push("D4CashUpgradePickup");
+					if (plr.CountInv("D4CrateUpgrade") < 3)				items.Push("D4CrateUpgradePickup");
+					if (!plr.CountInv("ProtectionBonus3"))				items.Push("D4ProtectionUpgradePickup");
+				}
 			}
 			if (items.Size() < 1)	BigRNG = 1;
 			else
@@ -424,12 +437,10 @@ Class D4UpgradePickupSpawner : Actor
 						ItemToSpawn.target = target;
 						ItemToSpawn.master = master;
 						ItemToSpawn.tracer = tracer;
-						
 						return Destroy();
 					}
 				}
 			}
-			
 		}
 		//======================================================================
 		// Weapons
@@ -598,14 +609,144 @@ Class D4UpgradePickupSpawner : Actor
 	{
 		+NOINTERACTION
 	}
+}
+
+//==============================================================================
+// Powerups
+//==============================================================================
+
+Class D4PowerUpgradePickup : CustomInventory
+{
+	Array<String> items;
+	Default
+	{
+		+INVENTORY.ALWAYSPICKUP
+		+BRIGHT
+	}
 	
 	States
 	{
 	Spawn:
-		TNT1 A 1;
+		M670 F 17;
+		M671 F 17;
+		Loop;
+	}
+}
+
+Class D4MegachargeUpgradePickup : D4PowerUpgradePickup
+{
+	Default
+	{
+		Inventory.PickupMessage "Megacharge Upgrade";
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			invoker.items.Clear();
+			if (!CountInv("D4MegachargeUpgrade1"))	invoker.items.Push("D4MegachargeUpgrade1");
+			if (!CountInv("D4MegachargeUpgrade2"))	invoker.items.Push("D4MegachargeUpgrade2");
+			
+			if (invoker.items.Size() > 0)
+			{
+				int rng = random(0, invoker.items.Size() - 1);
+				Class<Inventory> som = invoker.items[rng];
+				if (som)	A_GiveInventory(som);
+				A_Print("$"..invoker.items[rng]);
+			}
+			
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			return true;
+		}
 		Stop;
 	}
 }
+Class D4DoomDollUpgradePickup : D4PowerUpgradePickup
+{
+	Default
+	{
+		Inventory.PickupMessage "Doom Doll Upgrade";
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			invoker.items.Clear();
+			if (!CountInv("D4DoomDollUpgrade1"))	invoker.items.Push("D4DoomDollUpgrade1");
+			if (!CountInv("D4DoomDollUpgrade2"))	invoker.items.Push("D4DoomDollUpgrade2");
+			
+			if (invoker.items.Size() > 0)
+			{
+				int rng = random(0, invoker.items.Size() - 1);
+				Class<Inventory> som = invoker.items[rng];
+				if (som)	A_GiveInventory(som);
+				A_Print("$"..invoker.items[rng]);
+			}
+			
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			return true;
+		}
+		Stop;
+	}
+}
+Class D4RegenUpgradePickup : D4PowerUpgradePickup
+{
+	Default
+	{
+		Inventory.PickupMessage "Regeneration Upgrade";
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			invoker.items.Clear();
+			if (!CountInv("D4RegenUpgrade1"))	invoker.items.Push("D4RegenUpgrade1");
+			if (!CountInv("D4RegenUpgrade2"))	
+			{
+				if (CountInv("D4RegenUpgrade1"))
+					invoker.items.Push("D4RegenUpgrade2");
+			}
+			if (!CountInv("D4RegenUpgrade3"))	invoker.items.Push("D4RegenUpgrade3");
+			if (!CountInv("D4RegenUpgrade4"))	invoker.items.Push("D4RegenUpgrade4");
+			
+			if (invoker.items.Size() > 0)
+			{
+				int rng = random(0, invoker.items.Size() - 1);
+				Class<Inventory> som = invoker.items[rng];
+				if (som)	A_GiveInventory(som);
+				A_Print("$"..invoker.items[rng]);
+			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			return true;
+		}
+		Stop;
+	}
+}
+
+/*
+// Template
+Class D4UpgradePickup : D4PowerUpgradePickup
+{
+	Default
+	{
+		Inventory.PickupMessage " Upgrade";
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			if (!CountInv(""))
+			
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			return true;
+		}
+		Stop;
+	}
+}*/
 
 //==============================================================================
 // Suit
@@ -626,6 +767,7 @@ Class D4SuitUpgradePickup : CustomInventory
 		Loop;
 	}
 }
+
 Class D4AirControlUpgradePickup : D4SuitUpgradePickup
 {
 	Default

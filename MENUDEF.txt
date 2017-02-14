@@ -2136,9 +2136,9 @@ OptionMenu "D4DUpgrade.Megacharge"
 	Title "Megacharge"
 	StaticText "Choose An Upgrade"
 	StaticText ""
-	Command "$MegachargeUpgrade1",	"test > $D4MegachargeUpgrade1 0 \"AlreadyBought\" \"openmenu D4MegachargeUpgrade1\""
+	Command "$D4MegachargeUpgrade1",	"test > $D4MegachargeUpgrade1 0 \"AlreadyBought\" \"openmenu D4MegachargeUpgrade1\""
 	StaticText ""
-	Command "$MegachargeUpgrade2",	"test > $D4MegachargeUpgrade2 0 \"AlreadyBought\" \"openmenu D4MegachargeUpgrade2\""
+	Command "$D4MegachargeUpgrade2",	"test > $D4MegachargeUpgrade2 0 \"AlreadyBought\" \"openmenu D4MegachargeUpgrade2\""
 }
 
 OptionMenu "D4DUpgrade.DoomDoll"
@@ -2167,7 +2167,7 @@ OptionMenu "D4DUpgrade.SuperCharge"
 
 OptionMenu "D4MegachargeUpgrade1"
 {
-	Title "$MegachargeUpgrade1"
+	Title "$D4MegachargeUpgrade1"
 	StaticText "On Pickup: Grants +1% Damage Reduction", GREEN
 	StaticText ""
 	StaticText "Stacks to maximum 25%", GREEN
@@ -2184,7 +2184,7 @@ OptionMenu "D4MegachargeUpgrade1"
 
 OptionMenu "D4MegachargeUpgrade2"
 {
-	Title "$MegachargeUpgrade2"
+	Title "$D4MegachargeUpgrade2"
 	StaticText "On Pickup: Freezes time for 5 seconds", GREEN
 	StaticText ""
 	Command "Buy", "test <= $Cost_U2Megacharge $D4DCash \"D4MegachargeUpgrade2 1; CTake $Cost_U2Megacharge; BuyUpgradePowerup;\" \"NEC\""
