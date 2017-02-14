@@ -261,9 +261,9 @@ OptionMenu "D4DGoreOptions"
 	StaticText "Disclaimer: Not Based On Nashgore.",1
 	Command "Panic Command",	"RemoveAllGibs"
 	Option "Spawn Bullet Giblets",			"D4D_BloodGiblets", "YesNo"
-	NumberField "Bullet Giblets",			"user_Giblets",	0, 10, 1, 0
-	NumberField "Splatter Giblets",			"user_SplatterGiblets",	0, 10, 1, 0
-	NumberField "Blood Clouds",				"user_BloodClouds", 0, 10, 1, 0
+	NumberField "Bullet Giblets",			"user_Giblets",	0, 10, 1
+	NumberField "Splatter Giblets",			"user_SplatterGiblets",	0, 10, 1
+	NumberField "Blood Clouds",				"user_BloodClouds", 0, 10, 1
 	Option "Blood Splatters",				"D4D_BloodSplatters",	"OnOff"
 	NumberField "Blood Splatter Timer",		"D4D_BloodTime", 0, 150, 1, "D4D_BloodSplatters"
 	Option "Blood Trails",					"user_BloodTrails",		"OnOff"
@@ -273,8 +273,8 @@ OptionMenu "D4DGoreOptions"
 	SafeCommand "Restore Giblet Defaults",	"user_Giblets 1; user_SplatterGiblets 3; user_BloodClouds 3;"
 	StaticText " "
 	StaticText "SPAWN EVEN MORE GORE.", RED
-	StaticText "We hold no liability in the unplayability from", 0000FF
-	StaticText "cranking the giblets spawning to the power of stupid.", 0000FF
+	StaticText "We hold no liability in the unplayability from", BLUE
+	StaticText "cranking the giblets spawning to the power of stupid.", BLUE
 	StaticText "YOU HAVE BEEN WARNED.", RED
 	StaticText " "
 	NumberField "Bullet Giblets Unleashed",		"user_Giblets",	0, 10000, 1
