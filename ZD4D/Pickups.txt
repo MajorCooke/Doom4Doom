@@ -367,6 +367,7 @@ Class D4Backpack : BackpackItem replaces Backpack
 
 Class D4UpgradePickupSpawner : Actor
 {
+	Array<String> items;
 	override void PostBeginPlay()
 	{
 		Actor tt = tracer;
@@ -382,12 +383,58 @@ Class D4UpgradePickupSpawner : Actor
 		tracer = tt;
 		
 		Class<Inventory> ItemToSpawn = null;
-		int BigRNG = 1; //random(1,3);
+		int BigRNG = random(1,2);
 		
-		//==================================================================
+		//======================================================================
+		// Suit
+		//======================================================================
+		if (BigRNG == 2)
+		{
+			
+			Actor temp = tracer;
+			A_TransferPointer(Player1,DefPtr,DefPtr,TracerPtr,4);
+			
+			let plr = PlayerPawn(tracer);
+			tracer = temp;
+			
+			if (plr)
+			{
+				items.Clear();
+				if (!plr.CountInv("D4AirControl"))					items.Push("D4AirControlUpgradePickup");
+				if (plr.Stamina < 100)								items.Push("D4HealthUpgradePickup");
+				if (plr.CountInv("D4ArmorCapRaiser") < 100)			items.Push("D4ArmorUpgradePickup");
+				if (plr.CountInv("CashPercentBonus") < 40)			items.Push("D4CashUpgradePickup");
+				if (plr.CountInv("D4CrateUpgrade") < 3)				items.Push("D4CrateUpgradePickup");
+				if (!plr.CountInv("ProtectionBonus3"))				items.Push("D4ProtectionUpgradePickup");
+			}
+			if (items.Size() < 1)	BigRNG = 1;
+			else
+			{
+				int size = items.Max();
+				Class<Inventory> check = items[random(0,size)];
+				
+				if (!check)	
+					BigRNG = 1;
+				else
+				{
+					let ItemToSpawn = Actor(Spawn(check,pos));
+					if (ItemToSpawn)
+					{
+						ItemToSpawn.vel = vel;
+						ItemToSpawn.target = target;
+						ItemToSpawn.master = master;
+						ItemToSpawn.tracer = tracer;
+						
+						return Destroy();
+					}
+				}
+			}
+			
+		}
+		//======================================================================
 		// Weapons
-		//==================================================================
-		if (BigRNG == 1)
+		//======================================================================
+		if (BigRNG == 1) 
 		{
 			// Weapons must be on the leftmost side. All upgrades must follow.
 			int ToAdd = 6;
@@ -560,6 +607,216 @@ Class D4UpgradePickupSpawner : Actor
 	}
 }
 
+//==============================================================================
+// Suit
+//==============================================================================
+
+Class D4SuitUpgradePickup : CustomInventory
+{
+	Default
+	{
+		+INVENTORY.ALWAYSPICKUP
+		+BRIGHT
+	}
+	States
+	{
+	Spawn:
+		M670 G 17;
+		M671 G 17;
+		Loop;
+	}
+}
+Class D4AirControlUpgradePickup : D4SuitUpgradePickup
+{
+	Default
+	{
+		Inventory.PickupMessage "Air Control Upgrade";
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			if (!CountInv("D4HigherJump"))		
+			{	A_SetInventory("D4HigherJump",1);	A_Print("Higher Jump");	}
+			else if (CountInv("D4MultiJump") < 3)	
+			{	A_SetInventory("D4MultiJump",3);	A_Print("Triple Jump");	}
+			else if (!CountInv("D4AirControl"))		
+			{	A_SetInventory("D4AirControl",1);	A_Print("Air Control");	}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class D4HealthUpgradePickup : D4SuitUpgradePickup
+{
+	Default
+	{
+		Inventory.PickupMessage "Health Upgrade";
+	}
+	action void SetStamina(int amt)
+	{
+		bool given = (stamina < 100);
+		A_SetInventory("D4Stamina",amt);
+		stamina = amt;
+		A_SetHealth(Max(health, 100 + amt));
+		
+		if (given) A_Print("Max Health +"..amt);
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+				 if (Stamina < 25)		SetStamina(25);
+			else if (Stamina < 50)		SetStamina(50);
+			else 						SetStamina(100);
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class D4ArmorUpgradePickup : D4SuitUpgradePickup
+{
+	Default
+	{
+		Inventory.PickupMessage "Armor Upgrade";
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			bool given = true;
+			int amt = CountInv("D4ArmorCapRaiser");
+				 if (amt < 25)		A_SetInventory("D4ArmorCapRaiser",25);
+			else if (amt < 50)		A_SetInventory("D4ArmorCapRaiser",50);
+			else if (amt < 100)		A_SetInventory("D4ArmorCapRaiser",100);
+			else
+			{
+				given = false;
+				if (A_GiveInventory("ArmorStripper",1))
+					A_GiveInventory("D4BlueArmorMegasphere",1);
+			}
+			
+			if (given)
+			{
+				amt = CountInv("D4ArmorCapRaiser");
+				String line1 = "Armor Capacity +"..amt.."\n";
+				
+					 if (amt >= 100)	line1 = line1.."Chainsaw Alt guarantees minimum 2 armor shards";
+				else if (amt >= 50)		line1 = line1.."Chainsaw Alt: + 0 to 4 Armor Shards";
+				else					line1 = line1.."Chainsaw Alt: + 0 to 2 Armor Shards";
+				
+				A_Print(line1);
+			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class D4CashUpgradePickup : D4SuitUpgradePickup
+{
+	Default
+	{
+		Inventory.PickupMessage "Credit Upgrade";
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			if (CountInv("CashPercentBonus") < 40)		
+			{
+				A_GiveInventory("CashPercentBonus",10);
+				int amt = CountInv("CashPercentBonus");
+				
+				A_Print("Credit Upgrade +"..amt.."%");
+			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class D4CrateUpgradePickup : D4SuitUpgradePickup
+{
+	Default
+	{
+		Inventory.PickupMessage "Crate Upgrade";
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			int amt = CountInv("D4CrateUpgrade");
+			if (amt < 3)		
+			{
+				A_GiveInventory("D4CrateUpgrade",1);
+				
+				amt += 1;
+					 if (amt == 1)	A_Print("Heavy Crates\nGuarantees larger quality items");
+				else if (amt == 2)	A_Print("Sensor Crates\nCrates are more situationally aware");
+				else				A_Print("Weapon Crates\nCrates may contain weapons");
+				
+			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class D4ProtectionUpgradePickup : D4SuitUpgradePickup
+{
+	Default
+	{
+		Inventory.PickupMessage "Protection Upgrade";
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			if (!CountInv("ProtectionBonus1"))
+			{
+				A_SetInventory("ProtectionBonus1",1);
+				A_Print("50% Environment Damage Reduction");
+			}
+			else if (!CountInv("ProtectionBonus2"))
+			{
+				A_SetInventory("ProtectionBonus2",1);
+				A_Print("50% Self Damage Reduction");
+			}
+			else if (!CountInv("ProtectionBonus3"))
+			{
+				A_SetInventory("ProtectionBonus3",1);
+				A_Print("50% Radius Damage Reduction");
+			}
+			else
+			{
+				A_PlaySound("PentagramOfProtection/Pickup",CHAN_ITEM,1);
+				A_GiveInventory("PentagramOfProtection",1); //Fuck it, why not. :P
+			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			return true;
+		}
+		Stop;
+	}
+}
+
+//==============================================================================
+// Weapon Upgrades
+//==============================================================================
+
 Class D4UpgradePickup : CustomInventory
 {
 	Class<Inventory> items[10];	
@@ -631,6 +888,7 @@ Class PistolUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
 		Stop;
@@ -672,6 +930,7 @@ Class ShotgunUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
 		Stop;
@@ -717,6 +976,7 @@ Class SuperShotgunUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
 		Stop;
@@ -755,6 +1015,7 @@ Class StaticRifleUpgradePickup : D4UpgradePickup
 				A_GiveInventory("StaticUpgrade4");
 				A_PrintBold("$StaticUpgrade4");
 			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
 		Stop;
@@ -796,6 +1057,7 @@ Class RepeaterUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
 		Stop;
@@ -837,6 +1099,7 @@ Class AssaultRifleUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
 		Stop;
@@ -878,6 +1141,7 @@ Class ChaingunUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
 		Stop;
@@ -919,6 +1183,7 @@ Class RocketLauncherUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
 		Stop;
@@ -960,6 +1225,7 @@ Class PlasmaRifleUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
 		Stop;
@@ -1001,6 +1267,7 @@ Class LightningGunUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
 		Stop;
@@ -1042,6 +1309,7 @@ Class VortexRifleUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
 		Stop;
@@ -1083,6 +1351,7 @@ Class GaussCannonUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
 		Stop;
@@ -1124,6 +1393,7 @@ Class BFGUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
 		Stop;
@@ -1165,6 +1435,7 @@ Class CarrionCannonUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
 		Stop;
