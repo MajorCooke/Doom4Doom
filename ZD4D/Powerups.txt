@@ -14,7 +14,10 @@ Class D4NoiseMaker : Actor
 	// Never spawn this thing directly.
 	override void PostBeginPlay()
 	{		
-		return Destroy();
+		if (GetClass() == "D4NoiseMaker")
+			return Destroy();
+		
+		Super.PostBeginPlay();
 	}
 }
 
@@ -1232,7 +1235,7 @@ Class Invul3s : Invulnerability
 {
 	Default
 	{
-		Powerup.Duration 106;
+		Powerup.Duration 107;
 	}
 }
 
@@ -1249,10 +1252,10 @@ Class PowerInvulBase : PowerInvulnerable
 	override void InitEffect()
 	{
 		Super.InitEffect();
-		//if (!Owner)	return;
+		if (!Owner)	return;
 		
-		NoiseMaker = Spawn("InvulPickupNoise",Owner.pos);
-		if (!NoiseMaker) A_Log("Ruh Roh!");
+		NoiseMaker = Owner.Spawn("InvulPickupNoise",Owner.pos);
+		if (!NoiseMaker) A_Log("This isn't good.");
 		//PrevTic = EffectTics;
 	}
 	
