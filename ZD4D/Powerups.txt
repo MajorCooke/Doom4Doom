@@ -14,7 +14,7 @@ Class D4NoiseMaker : Actor
 	// Never spawn this thing directly.
 	override void PostBeginPlay()
 	{		
-		Super.PostBeginPlay();
+		return Destroy();
 	}
 }
 
@@ -1249,10 +1249,11 @@ Class PowerInvulBase : PowerInvulnerable
 	override void InitEffect()
 	{
 		Super.InitEffect();
-		if (!Owner)	return;
+		//if (!Owner)	return;
 		
 		NoiseMaker = Spawn("InvulPickupNoise",Owner.pos);
-		PrevTic = EffectTics;
+		if (!NoiseMaker) A_Log("Ruh Roh!");
+		//PrevTic = EffectTics;
 	}
 	
 	override void DoEffect()
@@ -1270,6 +1271,7 @@ Class PowerInvulBase : PowerInvulnerable
 					Case 105:
 					{
 						if (NoiseMaker)	NoiseMaker.A_PlaySound("PentagramOfProtection/Warning",5,1,0,ATTN_NONE);
+						else A_Log("Ruh roh!");
 					}
 					Case 70:
 					Case 35:

@@ -22,6 +22,8 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 	
 	Default 
 	{
+		D4AbstractMonster.CrateDropAmount 1;
+		D4AbstractMonster.CrateDropChance 16;
 		Health 70;
 		Radius 20;
 		Height 56;

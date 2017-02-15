@@ -17,6 +17,8 @@ Class D4ShotgunGuy : D4AbstractMonster
 	
 	Default 
 	{
+		D4AbstractMonster.CrateDropAmount 1;
+		D4AbstractMonster.CrateDropChance 8;
 		Health 30;
 		Radius 20;
 		Height 56;

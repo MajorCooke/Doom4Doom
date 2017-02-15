@@ -285,6 +285,8 @@ Script "LevelWatcherSetup" ENTER
 				
 				if (GetCvar("D4D_CurrentUpgradeMode"))
 				{
+					// It gives way too much rewarding for the pickup version, so halve it.
+					multiplier = 1 + (totalmonsters / 100);
 					if ((numkills >= rewardcheckpoint * 1) && (killsearned == 0))
 					{	RewardTime = true; reward = multiplier; msg = 1; killsearned++;	GiveInventory("RewardToken",1); }
 					if ((numkills >= rewardcheckpoint * 2) && (killsearned == 1))

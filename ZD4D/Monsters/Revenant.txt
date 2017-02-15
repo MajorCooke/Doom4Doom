@@ -18,6 +18,8 @@ Class D4Revenant : D4AbstractBiggie
 	int user_staggertimer;
 	Default 
 	{
+		D4AbstractMonster.CrateDropAmount 1;
+		D4AbstractMonster.CrateDropChance 82;
 		Health 400;
 		Radius 20;
 		Height 56;

@@ -18,6 +18,8 @@ Class D4Archvile : D4AbstractBiggie
 	int user_staggertimer;
 	Default 
 	{
+		D4AbstractMonster.CrateDropAmount 2;
+		D4AbstractMonster.CrateDropChance 128;
 		Health 1000;
 		Radius 20;
 		Height 56;

@@ -17,6 +17,8 @@ Class D4PainElemental : D4AbstractBiggie
 	int user_staggertimer;
 	Default 
 	{
+		D4AbstractMonster.CrateDropAmount 1;
+		D4AbstractMonster.CrateDropChance 96;
 		Health 400;
 		Radius 31;
 		Height 56;
@@ -386,6 +388,8 @@ Class D4OldPainElemental : D4AbstractBiggie // : PainElemental
 	int user_staggertimer;
 	Default 
 	{
+		D4AbstractMonster.CrateDropAmount 3;
+		D4AbstractMonster.CrateDropChance 48;
 		Health 400;
 		Radius 31;
 		Height 56;

@@ -19,6 +19,9 @@ Class D4Demon : D4AbstractMonster
 	int user_chargecooldown;
 	Default 
 	{
+		D4AbstractMonster.CrateDropAmount 1;
+		D4AbstractMonster.CrateDropChance 24;
+		D4AbstractMonster.CrateDropAlways 0;
 		Health 150;
 		PainChance 180;
 		Speed 10;

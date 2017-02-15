@@ -106,13 +106,23 @@ Struct D4DropList
 
 Class D4AbstractMonster : Actor 
 {
+	uint CrateDropChance;
+	uint CrateDropAmount;
+	uint CrateDropAlways;
 	Class<Actor> CashDropper;
 	int CashMultiplier;
 	Name MOD;
 	D4DropList Pinatas;
 	Actor Spawner;
+	
+	property CrateDropChance: CrateDropChance;
+	property CrateDropAmount: CrateDropAmount;
+	property CrateDropAlways: CrateDropAlways;
 	Default
 	{
+		D4AbstractMonster.CrateDropAmount 0;
+		D4AbstractMonster.CrateDropChance 0;
+		D4AbstractMonster.CrateDropAlways 0;
 		BloodColor "Red";
 	}
 	
@@ -273,15 +283,35 @@ Class D4AbstractMonster : Actor
 	//
 	// Spawns the monster related credit giver with a multiplier.
 	//==========================================================================
-	void D4DropCash(int CashMul, Class<Actor> CashGiver)
+	void D4DropCash(uint CashMul, Class<Actor> CashGiver)
 	{
-		if (CashGiver == null)
-		{	return;		}
-		
-		let cashboy = CashGiverBase(Spawn(CashGiver,pos));
-		if (cashboy)	cashboy.Multiplier = CashMul;
-		
-		return;
+		if (GetCvar("D4D_CurrentUpgradeMode"))
+		{
+			if (CrateDropChance && CrateDropAmount)
+			{
+				int crateamt = CrateDropAlways;
+				for (int i = 0; i < (CrateDropAmount * CashMul); i++)
+				{
+					if (random(1,256) <= CrateDropChance)
+						crateamt++;
+					
+				}
+				if (crateamt > 0)
+				{
+					A_GiveInventory("D4DCash",crateamt,Player1);
+					A_GiveInventory("D4DCashFake",crateamt,Player1);
+					A_GiveInventory("CashUpdater",1,Player1);
+				}
+			}
+		}
+		else
+		{
+			if (CashGiver == null)
+			{	return;		}
+			
+			let cashboy = CashGiverBase(Spawn(CashGiver,pos));
+			if (cashboy)	cashboy.Multiplier = CashMul;
+		}
 	}
 	
 	//==========================================================================
@@ -305,7 +335,7 @@ Class D4AbstractMonster : Actor
 		Pinatas.DropItems(self);
 		if (GetCvar("D4D_CurrentUpgradeMode"))
 		{
-			if (random(1,300) == 1)
+			if (random(1,350) == 1)
 				A_DropItem("D4UpgradePickupSpawner");
 			
 			if (CountInv("AssaultRifleMod1",Player1) &&

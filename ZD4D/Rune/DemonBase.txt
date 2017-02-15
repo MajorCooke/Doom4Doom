@@ -884,7 +884,6 @@ Class DemonPuffMelee : FistPuff //for xdeathing everything
 
 Class PowerRuneBase : PowerMorph
 {
-	D4NoiseMaker noise;
 	override void InitEffect()
 	{
 		if (GetClass() == "PowerRuneBase")
@@ -894,7 +893,6 @@ Class PowerRuneBase : PowerMorph
 		}
 		
 		Super.InitEffect();
-		noise = D4NoiseMaker(Spawn("D4NoiseMaker",pos));
 	}
 	
 	override void DoEffect()
@@ -911,10 +909,9 @@ Class PowerRuneBase : PowerMorph
 				{
 					Switch (EffectTics)
 					{
-						if (!noise)	noise = D4NoiseMaker(Spawn("D4NoiseMaker",pos));
 						Case 105:
 						{
-							if (noise)	noise.A_PlaySound("PentagramOfProtection/Warning",5,1,0,ATTN_NONE);
+							Owner.A_PlaySound("PentagramOfProtection/Warning",7,1,0,ATTN_NONE);
 						}
 						Case 70:
 						Case 35:
@@ -923,11 +920,6 @@ Class PowerRuneBase : PowerMorph
 							break;
 					}
 				}
-				else if (noise)
-				{
-					noise.Silence();
-					noise.Destroy();
-				}
 			}
 		}
 		Super.DoEffect();
@@ -935,7 +927,6 @@ Class PowerRuneBase : PowerMorph
 	
 	override void EndEffect()
 	{
-		if (noise)	noise.Destroy();
 		Super.EndEffect();
 	}
 }

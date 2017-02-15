@@ -16,6 +16,8 @@ Class D4Zombieman : D4AbstractMonster // : Zombieman //replaces Zombieman
 	int user_staggertimer;
 	Default 
 	{
+		D4AbstractMonster.CrateDropAmount 1;
+		D4AbstractMonster.CrateDropChance 4;
 		DropItem "D4PinataBulletsZombieman";
 		Health 30;
 		Radius 20;

@@ -415,7 +415,7 @@ Class D4UpgradePickupSpawner : Actor
 					if (!plr.CountInv("D4AirControl"))					items.Push("D4AirControlUpgradePickup");
 					if (plr.Stamina < 100)								items.Push("D4HealthUpgradePickup");
 					if (plr.CountInv("D4ArmorCapRaiser") < 100)			items.Push("D4ArmorUpgradePickup");
-					if (plr.CountInv("CashPercentBonus") < 40)			items.Push("D4CashUpgradePickup");
+					//if (plr.CountInv("CashPercentBonus") < 40)			items.Push("D4CashUpgradePickup");
 					if (plr.CountInv("D4CrateUpgrade") < 3)				items.Push("D4CrateUpgradePickup");
 					if (!plr.CountInv("ProtectionBonus3"))				items.Push("D4ProtectionUpgradePickup");
 				}
@@ -423,7 +423,7 @@ Class D4UpgradePickupSpawner : Actor
 			if (items.Size() < 1)	BigRNG = 1;
 			else
 			{
-				int size = items.Max();
+				int size = items.Size();
 				Class<Inventory> check = items[random(0,size)];
 				
 				if (!check)	

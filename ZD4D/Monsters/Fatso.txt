@@ -19,6 +19,8 @@ Class D4FatsoTech : D4AbstractBiggie
 	
 	Default 
 	{
+		D4AbstractMonster.CrateDropAmount 1;
+		D4AbstractMonster.CrateDropChance 96;
 		Health 800;
 		Radius 48;
 		Height 64;
@@ -594,6 +596,8 @@ Class D4FatsoHell : D4AbstractBiggie
 	int user_staggertimer;
 	Default 
 	{
+		D4AbstractMonster.CrateDropAmount 1;
+		D4AbstractMonster.CrateDropChance 64;
 		Health 800;
 		Radius 48;
 		Height 64;

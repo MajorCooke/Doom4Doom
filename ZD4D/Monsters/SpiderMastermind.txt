@@ -23,6 +23,9 @@ Class D4SpiderMastermind : D4AbstractBoss
 	
 	Default 
 	{
+		D4AbstractMonster.CrateDropAmount 3;
+		D4AbstractMonster.CrateDropChance 192;
+		D4AbstractMonster.CrateDropAlways 2;
 		Health 3000;
 		Radius 96;
 		Height 100;
