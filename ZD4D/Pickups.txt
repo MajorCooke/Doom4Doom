@@ -423,7 +423,7 @@ Class D4UpgradePickupSpawner : Actor
 			if (items.Size() < 1)	BigRNG = 1;
 			else
 			{
-				int size = items.Size();
+				int size = items.Size() - 1;
 				Class<Inventory> check = items[random(0,size)];
 				
 				if (!check)	
@@ -617,19 +617,52 @@ Class D4UpgradePickupSpawner : Actor
 
 Class D4PowerUpgradePickup : CustomInventory
 {
+	int count;
+	int ticker;
+	bool Flying;
 	Array<String> items;
 	Default
 	{
 		+INVENTORY.ALWAYSPICKUP
 		+BRIGHT
 	}
-	
 	States
 	{
 	Spawn:
 		M670 F 17;
 		M671 F 17;
-		Loop;
+		"----" A 1
+		{
+			invoker.ticker = (invoker.ticker + 1) % 34;
+			
+			if (invoker.ticker < 17)
+				sprite = GetSpriteIndex("M670");
+			else
+				sprite = GetSpriteIndex("M671");
+				
+			if (invoker.count >= DelayVacuum)
+			{
+				PlrCheck.CheckForPlayers(self);
+				if (tracer && (invoker.Flying || Distance3D(tracer) <= RadiusPull))
+				{
+					bNOCLIP = bNOINTERACTION = true;
+					A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+					A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
+					if (GetDistance(true,TracerPtr) <= 32)
+					{
+						A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
+						bNoclip = false;
+						bNoInteraction = false;
+						A_ChangeLinkFlags(false);
+					}
+				}
+			}
+			else invoker.count++;
+		}
+		Wait;
+	Pickup:
+		TNT1 A 0;
+		Stop;
 	}
 }
 
@@ -754,6 +787,9 @@ Class D4UpgradePickup : D4PowerUpgradePickup
 
 Class D4SuitUpgradePickup : CustomInventory
 {
+	int ticker;
+	int count;
+	bool Flying;
 	Default
 	{
 		+INVENTORY.ALWAYSPICKUP
@@ -764,7 +800,35 @@ Class D4SuitUpgradePickup : CustomInventory
 	Spawn:
 		M670 G 17;
 		M671 G 17;
-		Loop;
+		"----" A 1
+		{
+			invoker.ticker = (invoker.ticker + 1) % 34;
+			
+			if (invoker.ticker < 17)
+				sprite = GetSpriteIndex("M670");
+			else
+				sprite = GetSpriteIndex("M671");
+				
+			if (invoker.count >= DelayVacuum)
+			{
+				PlrCheck.CheckForPlayers(self);
+				if (tracer && (invoker.Flying || Distance3D(tracer) <= RadiusPull))
+				{
+					bNOCLIP = bNOINTERACTION = true;
+					A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+					A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
+					if (GetDistance(true,TracerPtr) <= 32)
+					{
+						A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
+						bNoclip = false;
+						bNoInteraction = false;
+						A_ChangeLinkFlags(false);
+					}
+				}
+			}
+			else invoker.count++;			
+		}
+		Wait;
 	}
 }
 
@@ -964,8 +1028,15 @@ Class D4UpgradePickup : CustomInventory
 	Class<Inventory> items[10];	
 	String desc[5];
 	uint index;
+	int ticker;
+	int count;
+	bool Flying;
+	int frm;
+	name s1, s2;
+	property Frame: frm;
 	override void PostBeginPlay()
 	{
+		
 		if (GetClass() == "D4UpgradePickup")
 		{
 			Destroy();
@@ -979,18 +1050,54 @@ Class D4UpgradePickup : CustomInventory
 	{
 		+INVENTORY.ALWAYSPICKUP
 		+BRIGHT
-		+THRUACTORS //Never let anything pick this thing up physically.
 	}
-}
-
-Class PistolUpgradePickup : D4UpgradePickup
-{
+	
 	States
 	{
 	Spawn:
-		M668 B 17;
-		M669 B 17;
-		Loop;
+		"----" A 1
+		{
+			invoker.ticker = (invoker.ticker + 1) % 34;
+			
+			if (invoker.ticker < 17)
+				sprite = GetSpriteIndex("M668");
+			else
+				sprite = GetSpriteIndex("M669");
+				
+			frame = invoker.frm;
+				
+			if (invoker.count >= DelayVacuum)
+			{
+				PlrCheck.CheckForPlayers(self);
+				if (tracer && (invoker.Flying || Distance3D(tracer) <= RadiusPull))
+				{
+					bNOCLIP = bNOINTERACTION = true;
+					A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+					A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
+					if (GetDistance(true,TracerPtr) <= 32)
+					{
+						A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
+						bNoclip = false;
+						bNoInteraction = false;
+						A_ChangeLinkFlags(false);
+					}
+				}
+			}
+			else invoker.count++;
+		}
+		Wait;
+	}
+}
+
+
+Class PistolUpgradePickup : D4UpgradePickup
+{
+	Default
+	{
+		D4UpgradePickup.Frame 1;
+	}
+	States
+	{
 	Pickup:
 		TNT1 A 0
 		{
@@ -1039,12 +1146,12 @@ Class PistolUpgradePickup : D4UpgradePickup
 
 Class ShotgunUpgradePickup : D4UpgradePickup
 {
+	Default
+	{
+		D4UpgradePickup.Frame 2;
+	}
 	States
 	{
-	Spawn:
-		M668 C 17;
-		M669 C 17;
-		Loop;
 	Pickup:
 		TNT1 A 0
 		{
@@ -1081,12 +1188,12 @@ Class ShotgunUpgradePickup : D4UpgradePickup
 
 Class SuperShotgunUpgradePickup : D4UpgradePickup
 {
+	Default
+	{
+		D4UpgradePickup.Frame 3;
+	}
 	States
 	{
-	Spawn:
-		M668 D 17;
-		M669 D 17;
-		Loop;
 	Pickup:
 		TNT1 A 0
 		{
@@ -1127,12 +1234,12 @@ Class SuperShotgunUpgradePickup : D4UpgradePickup
 
 Class StaticRifleUpgradePickup : D4UpgradePickup
 {
+	Default
+	{
+		D4UpgradePickup.Frame 10;
+	}
 	States
 	{
-	Spawn:
-		M668 K 17;
-		M669 K 17;
-		Loop;
 	Pickup:
 		TNT1 A 0
 		{
@@ -1166,12 +1273,12 @@ Class StaticRifleUpgradePickup : D4UpgradePickup
 
 Class RepeaterUpgradePickup : D4UpgradePickup
 {
+	Default
+	{
+		D4UpgradePickup.Frame 11;
+	}
 	States
 	{
-	Spawn:
-		M668 L 17;
-		M669 L 17;
-		Loop;
 	Pickup:
 		TNT1 A 0
 		{
@@ -1208,12 +1315,12 @@ Class RepeaterUpgradePickup : D4UpgradePickup
 
 Class AssaultRifleUpgradePickup : D4UpgradePickup
 {
+	Default
+	{
+		D4UpgradePickup.Frame 4;
+	}
 	States
 	{
-	Spawn:
-		M668 E 17;
-		M669 E 17;
-		Loop;
 	Pickup:
 		TNT1 A 0
 		{
@@ -1250,12 +1357,12 @@ Class AssaultRifleUpgradePickup : D4UpgradePickup
 
 Class ChaingunUpgradePickup : D4UpgradePickup
 {
+	Default
+	{
+		D4UpgradePickup.Frame 5;
+	}
 	States
 	{
-	Spawn:
-		M668 F 17;
-		M669 F 17;
-		Loop;
 	Pickup:
 		TNT1 A 0
 		{
@@ -1292,12 +1399,12 @@ Class ChaingunUpgradePickup : D4UpgradePickup
 
 Class RocketLauncherUpgradePickup : D4UpgradePickup
 {
+	Default
+	{
+		D4UpgradePickup.Frame 6;
+	}
 	States
 	{
-	Spawn:
-		M668 G 17;
-		M669 G 17;
-		Loop;
 	Pickup:
 		TNT1 A 0
 		{
@@ -1334,12 +1441,12 @@ Class RocketLauncherUpgradePickup : D4UpgradePickup
 
 Class PlasmaRifleUpgradePickup : D4UpgradePickup
 {
+	Default
+	{
+		D4UpgradePickup.Frame 7;
+	}
 	States
 	{
-	Spawn:
-		M668 H 17;
-		M669 H 17;
-		Loop;
 	Pickup:
 		TNT1 A 0
 		{
@@ -1375,13 +1482,13 @@ Class PlasmaRifleUpgradePickup : D4UpgradePickup
 }
 
 Class LightningGunUpgradePickup : D4UpgradePickup
-{
+{	
+	Default
+	{
+		D4UpgradePickup.Frame 13;
+	}
 	States
 	{
-	Spawn:
-		M668 N 17;
-		M669 N 17;
-		Loop;
 	Pickup:
 		TNT1 A 0
 		{
@@ -1417,13 +1524,13 @@ Class LightningGunUpgradePickup : D4UpgradePickup
 }
 
 Class VortexRifleUpgradePickup : D4UpgradePickup
-{
+{	
+	Default
+	{
+		D4UpgradePickup.Frame 12;
+	}
 	States
 	{
-	Spawn:
-		M668 M 17;
-		M669 M 17;
-		Loop;
 	Pickup:
 		TNT1 A 0
 		{
@@ -1460,12 +1567,12 @@ Class VortexRifleUpgradePickup : D4UpgradePickup
 
 Class GaussCannonUpgradePickup : D4UpgradePickup
 {
+	Default
+	{
+		D4UpgradePickup.Frame 9;
+	}
 	States
 	{
-	Spawn:
-		M668 J 17;
-		M669 J 17;
-		Loop;
 	Pickup:
 		TNT1 A 0
 		{
@@ -1502,12 +1609,12 @@ Class GaussCannonUpgradePickup : D4UpgradePickup
 
 Class BFGUpgradePickup : D4UpgradePickup
 {
+	Default
+	{
+		D4UpgradePickup.Frame 8;
+	}
 	States
 	{
-	Spawn:
-		M668 I 17;
-		M669 I 17;
-		Loop;
 	Pickup:
 		TNT1 A 0
 		{
@@ -1544,6 +1651,10 @@ Class BFGUpgradePickup : D4UpgradePickup
 
 Class CarrionCannonUpgradePickup : D4UpgradePickup
 {
+	Default
+	{
+		D4UpgradePickup.Frame 14;
+	}
 	States
 	{
 	Spawn:
@@ -1584,10 +1695,11 @@ Class CarrionCannonUpgradePickup : D4UpgradePickup
 	}
 }
 
-Class SovietChaingunUpgradePickup : CustomInventory
+Class SovietChaingunUpgradePickup : D4UpgradePickup
 {
 	Default
 	{
+		D4UpgradePickup.Frame 25;
 		+INVENTORY.ALWAYSPICKUP
 		+BRIGHT
 		Inventory.PickupSound "HOLYSHIT";
@@ -1596,10 +1708,6 @@ Class SovietChaingunUpgradePickup : CustomInventory
 	}
 	States
 	{
-	Spawn:
-		M673 Z 17;
-		M674 Z 17;
-		Loop;
 	Pickup:
 		TNT1 A 0
 		{

@@ -719,8 +719,8 @@ Class CarrionMergeBeam : Actor
 	};
 	const StepDistance = 31;
 	const StepDistHalf = StepDistance / 2.0;
-	double pitch;
-	double angle;
+	double ipitch;
+	double iangle;
 	double dista;
 	double distb;
 	Vector3 op;
@@ -744,47 +744,46 @@ Class CarrionMergeBeam : Actor
 		TNT1 A 0 NoDelay
 		{
 			// The angle and pitch won't change so go ahead and save it now.
-			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-			invoker.pitch = pitch;
-			invoker.angle = angle;
-			invoker.distb = Min(MaxDistance, GetDistance(true,TracerPtr));
-			invoker.choke = random(ChokeMin, ChokeMax);
+			ipitch = pitch;
+			iangle = angle;
+			distb = Min(MaxDistance, GetDistance(true,TracerPtr));
+			choke = random(ChokeMin, ChokeMax);
 			op = pos;
-			invoker.render = int(GetCvar("vid_renderer"));
+			render = int(GetCvar("vid_renderer"));
 		}
 		TNT1 A 1
 		{
-			// invoker.dista = distance currently travelled.
-			// invoker.distb = maximum distance.			
-			while ((invoker.dista < invoker.distb))
+			// dista = distance currently travelled.
+			// distb = maximum distance.			
+			while ((dista < distb))
 			{
 				if (IsPointerEqual(TracerPtr,NullPtr))
 				{	A_Remove(DefPtr,RMVF_EVERYTHING);	}
 				// Don't randomize the very first beam.
-				if (invoker.dista > 0)
+				if (dista > 0)
 				{	A_FaceTracer(0,0,0,0,FAF_MIDDLE);	}
 				
 				// Randomizes the angle of the beams. 
-				if (invoker.dista < (invoker.distb - StepDistance))
+				if (dista < (distb - StepDistance))
 				{
 					// If we're not about to reach the end, or not hitting the 
 					// choker, randomize it. Otherwise, stay on target and go 
 					// for the puff.
-					if (invoker.choke > 0)
+					if (choke > 0)
 					{
 						A_SetPitch(pitch + frandom(-PitchRandom, PitchRandom));
 						A_SetAngle(angle + frandom(-AngleRandom, AngleRandom));
-						invoker.choke--;
+						choke--;
 					}
 					else 
-					{	invoker.choke = random(ChokeMin,ChokeMax);	}
+					{	choke = random(ChokeMin,ChokeMax);	}
 				}
 				// Spawn the beam with the same angle and pitch. Note that the
 				// beam is being centered so we have to take that into account
 				// and spawn it FORWARD based on half the beam's length.
 				// Then move forward by a beam's length and repeat until done.
 				
-				if (invoker.render)
+				if (render)
 				{	A_SpawnItemEx("CarrionTrailBeam",cos(pitch) * StepDistHalf,0,-sin(pitch) * StepDistHalf,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS);	}
 				else
 				{
@@ -803,14 +802,14 @@ Class CarrionMergeBeam : Actor
 				}
 				
 				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
-				invoker.dista += StepDistance;
+				dista += StepDistance;
 			}
 			
-			if (invoker.count < 3 && !tracer)
+			if (count < 3 && !tracer)
 			{
-				invoker.count++;
-				invoker.dista = 0;
-				pitch = invoker.pitch;
+				count++;
+				dista = 0;
+				pitch = ipitch;
 				
 				SetOrigin(op, false);
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
@@ -834,8 +833,8 @@ Class CarrionTrailBeam : TrailBeam
 	Spawn:
 		X202 I 0 NoDelay
 		{
-			// invoker.time = time to shrink to nothing
-			invoker.user_time = 5.0;
+			// time = time to shrink to nothing
+			user_time = 5.0;
 			A_SpawnItemEx("CarrionTrailBeam",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
 			return ResolveState("Process");
 		}

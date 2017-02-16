@@ -225,11 +225,11 @@ Class D4AbstractMonster : Actor
 			howmany = Clamp(howmany,1,RuneChance_Master);
 			if (rarity == 2)
 			{
-				return (random(1,(howmany / 2)) == 1) ? true : false;
+				return (random(1,howmany) == 1) ? true : false;
 			}
 			else if (rarity == 1)
 			{
-				return (random(1,howmany) == 1) ? true : false;
+				return (random(1,howmany * 2) == 1) ? true : false;
 			}
 		}
 		else if (rarity == 2)		// Common
@@ -335,7 +335,7 @@ Class D4AbstractMonster : Actor
 		Pinatas.DropItems(self);
 		if (GetCvar("D4D_CurrentUpgradeMode"))
 		{
-			if (random(1,350) == 1)
+			if (random(1,GetCvar("D4D_PickupDropChance")) == 1)
 				A_DropItem("D4UpgradePickupSpawner");
 			
 			if (CountInv("AssaultRifleMod1",Player1) &&

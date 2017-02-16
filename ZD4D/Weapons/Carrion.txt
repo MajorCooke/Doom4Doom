@@ -921,9 +921,9 @@ Class CarrionPrimary : FastProjectile
 	Moving:
 		X016 ABCDEFGHIJKLMNOPQRSTUVWXY 1 Bright
 		{
-			// If not activel.y holding primary fire
+			// If not actively holding primary fire
 			// or player died / goes out of sight,
-			// kill the Projectile;.
+			// kill the Projectile.
 			if (
 			!CountInv("CarrionShotOut",TargetPtr) ||
 			(!GetPlayerInput(MODINPUT_BUTTONS,MasterPtr) & BT_ATTACK) ||
@@ -934,12 +934,7 @@ Class CarrionPrimary : FastProjectile
 				return ResolveState("Death");	
 			}
 			
-			A_SeekerMissile(90,90,SMF_LOOK|SMF_PRECISE,256);
-			
-			// Seeker missiles set those they're after as tracer.
-			// If the enemy dies before it can make contact, unsolidify itself
-			// so it passes through non-shootable materials.
-			if (IsPointerEqual(TracerPtr,NullPtr) || A_JumpIfHealthLower(1,"Null",TracerPtr))
+			if (!tracer || tracer.health < 0)
 			{	
 				bBOUNCEONFLOORS = false;
 				bBOUNCEONCEILINGS = false;
@@ -951,6 +946,13 @@ Class CarrionPrimary : FastProjectile
 				bBOUNCEONCEILINGS = true;
 				bTHRUACTORS = false;
 			}
+			
+			A_SeekerMissile(90,90,SMF_LOOK|SMF_PRECISE,256);
+			A_FaceTracer();
+			// Seeker missiles set those they're after as tracer.
+			// If the enemy dies before it can make contact, unsolidify itself
+			// so it passes through non-shootable materials.
+			
 			
 			return ResolveState(null);
 		}
