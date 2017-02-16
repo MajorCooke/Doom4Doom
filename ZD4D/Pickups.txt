@@ -370,9 +370,10 @@ Class D4UpgradePickupSpawner : Actor
 	Array<String> items;
 	override void PostBeginPlay()
 	{
-		Actor tt = tracer;
+		Actor temp = tracer;
 		A_TransferPointer(Player1,DefPtr,DefPtr,TracerPtr,4);
 		let plr = PlayerPawn(tracer);
+		tracer = temp;
 		
 		if (!plr || !plr.player)
 		{
@@ -380,227 +381,157 @@ Class D4UpgradePickupSpawner : Actor
 			Destroy();
 			return;
 		}
-		tracer = tt;
 		
-		Class<Inventory> ItemToSpawn = null;
-		int BigRNG = random(1,3);
+		int filled = 0;
+		items.Clear();
 		
-		//======================================================================
-		// Suit + Powerups
-		//======================================================================
-		if (BigRNG > 1)
+		
+		if (plr)
 		{
-			Actor temp = tracer;
-			A_TransferPointer(Player1,DefPtr,DefPtr,TracerPtr,4);
-			let plr = PlayerPawn(tracer);
-			tracer = temp;
-			
-			if (plr)
+			// filled is used only for the soviet upgrade.
+			if (plr.CountInv("D4Pistol"))
 			{
-				items.Clear();
-				if (BigRNG > 2)
-				{
-					if (!plr.CountInv("D4MegachargeUpgrade1") || !plr.CountInv("D4MegachargeUpgrade2"))
-						items.Push("D4MegachargeUpgradePickup");
-					if (!plr.CountInv("D4DoomDollUpgrade1") || !plr.CountInv("D4DoomDollUpgrade2"))
-						items.Push("D4DoomDollUpgradePickup");
-					if (!plr.CountInv("D4RegenUpgrade1") ||
-						!plr.CountInv("D4RegenUpgrade2") ||
-						!plr.CountInv("D4RegenUpgrade3") ||
-						!plr.CountInv("D4RegenUpgrade4"))
-						items.Push("D4RegenUpgradePickup");
-				}
-				else
-				{
-					if (!plr.CountInv("D4AirControl"))					items.Push("D4AirControlUpgradePickup");
-					if (plr.Stamina < 100)								items.Push("D4HealthUpgradePickup");
-					if (plr.CountInv("D4ArmorCapRaiser") < 100)			items.Push("D4ArmorUpgradePickup");
-					//if (plr.CountInv("CashPercentBonus") < 40)			items.Push("D4CashUpgradePickup");
-					if (plr.CountInv("D4CrateUpgrade") < 3)				items.Push("D4CrateUpgradePickup");
-					if (!plr.CountInv("ProtectionBonus3"))				items.Push("D4ProtectionUpgradePickup");
-				}
+				if (!plr.CountInv("PistolUpgradeAutomatic") ||
+					!plr.CountInv("PistolUpgradeAltDamage") ||
+					!plr.CountInv("PistolUpgradeAltCharge") ||
+					!plr.CountInv("PistolUpgradeDamage") ||
+					!plr.CountInv("PistolUpgradeLance"))
+					items.Push("PistolUpgradePickup");				else	filled++;
 			}
-			if (items.Size() < 1)	BigRNG = 1;
-			else
+			if (plr.CountInv("D4Shotgun"))
 			{
-				int size = items.Size() - 1;
-				Class<Inventory> check = items[random(0,size)];
-				
-				if (!check)	
-					BigRNG = 1;
-				else
-				{
-					let ItemToSpawn = Actor(Spawn(check,pos));
-					if (ItemToSpawn)
-					{
-						ItemToSpawn.vel = vel;
-						ItemToSpawn.target = target;
-						ItemToSpawn.master = master;
-						ItemToSpawn.tracer = tracer;
-						return Destroy();
-					}
-				}
+				if (!plr.CountInv("ShotgunMod1") ||	!plr.CountInv("ShotgunMod2"))
+					items.Push("ShotgunUpgradePickup");				else	filled++;
+			}
+			if (plr.CountInv("D4SuperShotgun"))
+			{
+				if (!plr.CountInv("SSGUpgrade1") ||	!plr.CountInv("SSGUpgrade2") ||
+					!plr.CountInv("SSGUpgrade3") ||	!plr.CountInv("SSGUpgrade4"))
+					items.Push("SuperShotgunUpgradePickup");		else	filled++;
+			}
+			if (plr.CountInv("D4AssaultRifle"))
+			{
+				if (!plr.CountInv("AssaultRifleMod1") || !plr.CountInv("AssaultRifleMod2"))
+					items.Push("AssaultRifleUpgradePickup");		else	filled++;
+			}
+			if (plr.CountInv("D4Chaingun"))
+			{
+				if (!plr.CountInv("ChaingunMod1") || !plr.CountInv("ChaingunMod2"))
+					items.Push("ChaingunUpgradePickup");			else	filled++;
+			}
+			if (plr.CountInv("D4RocketLauncher"))
+			{
+				if (!plr.CountInv("RocketLauncherMod1") ||!plr.CountInv("RocketLauncherMod2"))
+					items.Push("RocketLauncherUpgradePickup");		else	filled++;
+			}
+			if (plr.CountInv("D4PlasmaRifle"))
+			{
+				if (!plr.CountInv("PlasmaRifleMod1") ||	!plr.CountInv("PlasmaRifleMod2"))
+					items.Push("PlasmaRifleUpgradePickup");			else	filled++;
+			}
+			if (plr.CountInv("D4GaussCannon"))
+			{
+				if (!plr.CountInv("GaussCannonMod1") ||	!plr.CountInv("GaussCannonMod2"))
+					items.Push("GaussCannonUpgradePickup");			else	filled++;
+			}
+			if (plr.CountInv("D4BFG"))
+			{
+				if (!plr.CountInv("BFGUpgrade1") ||	!plr.CountInv("BFGUpgrade2") ||
+					!plr.CountInv("BFGUpgrade3") ||	!plr.CountInv("BFGUpgrade4"))
+					items.Push("BFGUpgradePickup");					else	filled++;
+			}
+			if (plr.CountInv("D4Repeater"))
+			{
+				if (!plr.CountInv("RepeaterUpgradePiercing") ||
+					!plr.CountInv("RepeaterUpgradeDamage") ||
+					!plr.CountInv("RepeaterUpgradeAltDamage") ||
+					!plr.CountInv("RepeaterUpgradeAltAmmo"))
+					items.Push("RepeaterUpgradePickup");
+			}
+			if (plr.CountInv("D4LightningGun"))
+			{
+				if (!plr.CountInv("LGUpgradeAmmo") || !plr.CountInv("LGUpgradeRange") ||
+					!plr.CountInv("LGUpgradeDamage") ||	!plr.CountInv("LGUpgradeAltFire"))
+					items.Push("LightningGunUpgradePickup");
+			}
+			
+			if (plr.CountInv("D4StaticRifle"))
+			{
+				if (!plr.CountInv("StaticUpgrade1") ||
+					!plr.CountInv("StaticUpgrade2") ||
+					!plr.CountInv("StaticUpgrade3") ||
+					!plr.CountInv("StaticUpgrade4"))
+					items.Push("StaticRifleUpgradePickup");
+			}
+			
+			if (plr.CountInv("D4VortexRifle"))
+			{
+				if (!plr.CountInv("VortexUpgradeDamage") ||
+					!plr.CountInv("VortexUpgradeAmmo") ||
+					!plr.CountInv("VortexUpgradeAltSpeed") ||
+					!plr.CountInv("VortexUpgradeAltPierce"))
+					items.Push("VortexRifleUpgradePickup");
+			}
+			
+			if (plr.CountInv("D4CarrionCannon"))
+			{
+				if (!plr.CountInv("CarrionUpgradeAmmo") ||
+					!plr.CountInv("CarrionUpgradeStun") ||
+					!plr.CountInv("CarrionUpgradeTime") ||
+					!plr.CountInv("CarrionUpgradePickup"))
+					items.Push("CarrionCannonUpgradePickup");
+			}
+			
+			if (!plr.CountInv("D4MegachargeUpgrade1") || !plr.CountInv("D4MegachargeUpgrade2"))
+				items.Push("D4MegachargeUpgradePickup");
+			if (!plr.CountInv("D4DoomDollUpgrade1") || !plr.CountInv("D4DoomDollUpgrade2"))
+				items.Push("D4DoomDollUpgradePickup");
+			if (!plr.CountInv("D4RegenUpgrade1") ||	!plr.CountInv("D4RegenUpgrade2") ||
+				!plr.CountInv("D4RegenUpgrade3") ||	!plr.CountInv("D4RegenUpgrade4"))
+				items.Push("D4RegenUpgradePickup");
+			
+		
+			if (!plr.CountInv("D4AirControl"))					items.Push("D4AirControlUpgradePickup");
+			if (plr.Stamina < 100)								items.Push("D4HealthUpgradePickup");
+			if (plr.CountInv("D4ArmorCapRaiser") < 100)			items.Push("D4ArmorUpgradePickup");
+			//if (plr.CountInv("CashPercentBonus") < 40)			items.Push("D4CashUpgradePickup");
+			if (plr.CountInv("D4CrateUpgrade") < 3)				items.Push("D4CrateUpgradePickup");
+			if (!plr.CountInv("ProtectionBonus3"))				items.Push("D4ProtectionUpgradePickup");
+		}
+		
+		// The weapons needed for the soviet chaingun have all been filled.
+		// Spawn it in addition to whatever else will spawn as a bonus reward.
+		if (filled >= 9)
+		{
+			let soviet = Actor(Spawn("SovietChaingunUpgradePickup",pos));
+			if (soviet)	
+			{
+				soviet.vel = vel;
+				soviet.target = target;
+				soviet.master = master;
+				soviet.tracer = tracer;
 			}
 		}
+		
+		if (items.Size() < 1)	return Destroy();
+		
+		int size = items.Size() - 1;
+		
+		Class<Inventory> check = items[random(0,size)];
+		
+		Actor ItemToSpawn = Actor(Spawn(check,pos));
+		if (ItemToSpawn)
+		{
+			ItemToSpawn.vel = vel;
+			ItemToSpawn.target = target;
+			ItemToSpawn.master = master;
+			ItemToSpawn.tracer = tracer;
+			return Destroy();
+		}
+		
 		//======================================================================
 		// Weapons
 		//======================================================================
-		if (BigRNG == 1) 
-		{
-			// Weapons must be on the leftmost side. All upgrades must follow.
-			int ToAdd = 6;
-			static const Class<Inventory> weap[] =
-			{
-				"D4Pistol",			"PistolUpgradeAutomatic",	"PistolUpgradeAltDamage",	"PistolUpgradeAltCharge",	"PistolUpgradeDamage",		"PistolUpgradeLance",
-				"D4Shotgun", 		"ShotgunMod1",				"ShotgunMod2",				null,						null,						null,
-				"D4SuperShotgun", 	"SSGUpgrade1",				"SSGUpgrade2",				"SSGUpgrade3",				"SSGUpgrade4",				null,
-				"D4Repeater", 		"RepeaterUpgradePiercing",	"RepeaterUpgradeDamage",	"RepeaterUpgradeAltDamage",	"RepeaterUpgradeAltAmmo",	null,
-				"D4AssaultRifle", 	"AssaultRifleMod1",			"AssaultRifleMod2",			null,						null,						null,
-				"D4Chaingun", 		"ChaingunMod1",				"ChaingunMod2",				null,						null,						null,
-				"D4RocketLauncher",	"RocketLauncherMod1",		"RocketLauncherMod2",		null,						null,						null,
-				//"D4GrenadeLauncher",null,						null,						null,						null,						null, 
-				"D4PlasmaRifle", 	"PlasmaRifleMod1",			"PlasmaRifleMod2",			null,						null,						null,
-				"D4LightningGun", 	"LGUpgradeAmmo",			"LGUpgradeRange",			"LGUpgradeDamage",			"LGUpgradeAltFire",			null,
-				"D4StaticRifle", 	"StaticUpgrade1",			"StaticUpgrade2",			"StaticUpgrade3",			"StaticUpgrade4",			null,
-				"D4VortexRifle", 	"VortexUpgradeDamage",		"VortexUpgradeAmmo",		"VortexUpgradeAltSpeed",	"VortexUpgradeAltPierce",	null,
-				"D4GaussCannon", 	"GaussCannonMod1",			"GaussCannonMod2",			null,						null,						null,
-				"D4BFG",			"BFGUpgrade1",				"BFGUpgrade2",				"BFGUpgrade3",				"BFGUpgrade4",				null,
-				"D4CarrionCannon",	"CarrionUpgradePickup",		"CarrionUpgradeAmmo",		"CarrionUpgradeStun",		"CarrionUpgradeTime",		null
-			};
-			
-			static const bool chainset[] =
-			{
-				true,	//pistol
-				true,	//shotgun
-				true,	//ssg
-				false,	//repeater
-				true,	//har
-				true,	//chaingun
-				true,	//rl
-				true,	//plasma
-				false,	//lightning
-				false,	//static
-				false,	//vortex
-				true,	//gauss
-				true,	//bfg
-				false	//carrion
-			};
-			
-			Class<Inventory> OwnedWeaps[20];
-			uint owned = 0, l = 0;
-			int filled = 0;
-			for (uint i = 0; i < weap.Size(); i += ToAdd)
-			{
-				int maxfill = 0, cnt = 0;
-				
-				// If they have the weapon, check to see if they have all the
-				// upgrades. Increment maxfill by all applicable upgrades that
-				// exist, and increment cnt only by what the player has.
-				
-				// If the player still has more to go, add that weapon to the
-				// pool chance of random droppers.
-				if (weap[i] && plr.CountInv(weap[i]))
-				{
-					bool chaincount = chainset[l];	l++;	// UAC Russia represents.
-					
-					for (int j = 1; j < ToAdd; j++)
-					{
-						if (weap[i + j] != null)
-						{
-							maxfill++;
-							cnt += CountInv(weap[i + j],Player1) ? 1 : 0;
-						}
-					}
-					
-					//Increment only whenever there is more to be gained.
-					if (cnt < maxfill)
-					{
-						OwnedWeaps[owned] = weap[i];
-						owned++;
-					}
-					else if (chaincount)
-					{
-						filled++;
-					}
-				}
-			}
-			
-			// The weapons needed for the soviet chaingun have all been filled.
-			// Spawn it in addition to whatever else will spawn as a bonus reward.
-			if (filled >= 9)
-			{
-				let soviet = Actor(Spawn("SovietChaingunUpgradePickup",pos));
-				if (soviet)	
-				{
-					soviet.vel = vel;
-					soviet.target = target;
-					soviet.master = master;
-					soviet.tracer = tracer;
-				}
-			}
-			
-			if (owned < 1)
-			{
-				// Nothing to do here. 
-				Destroy();
-				return;
-			}
-			
-			// Now backtrack since n-1 is needed.
-			owned--;
-			int rng = random(0,owned);
-			
-			// Spawn it and GTFO.
-			if (OwnedWeaps[rng])
-			{
-				static const Class<Inventory> weapup[] =
-				{
-					"D4Pistol",			"PistolUpgradePickup",
-					"D4Shotgun", 		"ShotgunUpgradePickup",
-					"D4SuperShotgun", 	"SuperShotgunUpgradePickup",
-					"D4Repeater", 		"RepeaterUpgradePickup",
-					"D4AssaultRifle", 	"AssaultRifleUpgradePickup",
-					"D4Chaingun", 		"ChaingunUpgradePickup",
-					"D4RocketLauncher", "RocketLauncherUpgradePickup",
-					//"D4GrenadeLauncher", },
-					"D4PlasmaRifle", 	"PlasmaRifleUpgradePickup",
-					"D4LightningGun", 	"LightningGunUpgradePickup",
-					"D4StaticRifle", 	"StaticRifleUpgradePickup",
-					"D4VortexRifle", 	"VortexRifleUpgradePickup",
-					"D4GaussCannon", 	"GaussCannonUpgradePickup",
-					"D4BFG",			"BFGUpgradePickup",
-					"D4CarrionCannon",	"CarrionCannonUpgradePickup"
-				};
-				
-				for (uint k = 0; k < weapup.Size(); k += 2)
-				{
-					if (k % 1 != 0)	k--;	// Never be odd. Even only.
-					if (OwnedWeaps[rng] == weapup[k])
-					{
-						if ((k + 1 <= weapup.Size()) && (k + 1 > 0))
-						{
-							ItemToSpawn = weapup[k+1];
-							if (!ItemToSpawn)
-							{
-								// Die.
-								Destroy();
-								return;
-							}
-							break;
-						}
-					}
-				}
-			}
-			
-			let upitem = Actor(Spawn(ItemToSpawn,pos));
-			if (upitem) 
-			{
-				upitem.vel = vel;
-				upitem.target = target;
-				upitem.master = master;
-				upitem.tracer = tracer;
-			}
-		}
 		Destroy();
 		return;		
 	}
@@ -1115,6 +1046,7 @@ Class PistolUpgradePickup : D4UpgradePickup
 				"$PistolUpgradeDamage",
 				"$PistolUpgradeLance"	};
 			
+			int count = 0;
 			for (int i = 0; i < itemnames.Size(); i++)
 			{
 				if (itemnames[i] && !CountInv(itemnames[i]))
@@ -1126,11 +1058,15 @@ Class PistolUpgradePickup : D4UpgradePickup
 					invoker.desc[invoker.index] = itemstr[i];
 					invoker.items[invoker.index] = itemnames[i];
 					invoker.index++;
+					count++;
 				}
 			}
 			
+			if (count < 1)
+				return true;
+			
 			invoker.index--;
-			int rng = random(0,invoker.index);
+			uint rng = random(0,invoker.index);
 			
 			if (invoker.items[rng])
 			{
@@ -1160,7 +1096,7 @@ Class ShotgunUpgradePickup : D4UpgradePickup
 			
 			static const String itemstr[] =
 			{	"$ShotgunMod1",	"$ShotgunMod2"	};
-			
+			int count = 0;
 			for (int i = 0; i < itemnames.Size(); i++)
 			{
 				if (itemnames[i] && !CountInv(itemnames[i]))
@@ -1168,9 +1104,12 @@ Class ShotgunUpgradePickup : D4UpgradePickup
 					invoker.desc[invoker.index] = itemstr[i];
 					invoker.items[invoker.index] = itemnames[i];
 					invoker.index++;
+				count++;
 				}
 			}
 			
+			if (count < 1)
+				return true;
 			invoker.index--;
 			int rng = random(0,invoker.index);
 			
@@ -1202,7 +1141,7 @@ Class SuperShotgunUpgradePickup : D4UpgradePickup
 			
 			static const String itemstr[] =
 			{	"$SSGUpgrade1",	"$SSGUpgrade2",	"$SSGUpgrade3",	"$SSGUpgrade4"	};
-			
+			int count = 0;
 			for (int i = 0; i < itemnames.Size(); i++)
 			{
 				if (itemnames[i] && !CountInv(itemnames[i]))
@@ -1214,9 +1153,12 @@ Class SuperShotgunUpgradePickup : D4UpgradePickup
 					invoker.desc[invoker.index] = itemstr[i];
 					invoker.items[invoker.index] = itemnames[i];
 					invoker.index++;
+					count++;
 				}
-			}
+			}	
 			
+			if (count < 1)
+				return true;
 			invoker.index--;
 			int rng = random(0,invoker.index);
 			
@@ -1287,7 +1229,7 @@ Class RepeaterUpgradePickup : D4UpgradePickup
 			
 			static const String itemstr[] =
 			{ "$RepeaterUpgradePiercing", "$RepeaterUpgradeDamage", "$RepeaterUpgradeAltDamage", "$RepeaterUpgradeAltAmmo" };
-			
+			int count = 0;
 			for (int i = 0; i < itemnames.Size(); i++)
 			{
 				if (itemnames[i] && !CountInv(itemnames[i]))
@@ -1295,9 +1237,12 @@ Class RepeaterUpgradePickup : D4UpgradePickup
 					invoker.desc[invoker.index] = itemstr[i];
 					invoker.items[invoker.index] = itemnames[i];
 					invoker.index++;
+					count++;
 				}
 			}
 			
+			if (count < 1)
+				return true;
 			invoker.index--;
 			int rng = random(0,invoker.index);
 			
@@ -1329,7 +1274,7 @@ Class AssaultRifleUpgradePickup : D4UpgradePickup
 			
 			static const String itemstr[] =
 			{	"$AssaultRifleMod1",	"$AssaultRifleMod2"	};
-			
+			int count = 0;
 			for (int i = 0; i < itemnames.Size(); i++)
 			{
 				if (itemnames[i] && !CountInv(itemnames[i]))
@@ -1337,8 +1282,12 @@ Class AssaultRifleUpgradePickup : D4UpgradePickup
 					invoker.desc[invoker.index] = itemstr[i];
 					invoker.items[invoker.index] = itemnames[i];
 					invoker.index++;
+					count++;
 				}
 			}
+			
+			if (count < 1)
+				return true;
 			
 			invoker.index--;
 			int rng = random(0,invoker.index);
@@ -1371,7 +1320,7 @@ Class ChaingunUpgradePickup : D4UpgradePickup
 			
 			static const String itemstr[] =
 			{	"$ChaingunMod1",	"$ChaingunMod2"	};
-			
+			int count = 0;
 			for (int i = 0; i < itemnames.Size(); i++)
 			{
 				if (itemnames[i] && !CountInv(itemnames[i]))
@@ -1379,8 +1328,12 @@ Class ChaingunUpgradePickup : D4UpgradePickup
 					invoker.desc[invoker.index] = itemstr[i];
 					invoker.items[invoker.index] = itemnames[i];
 					invoker.index++;
+					count++;
 				}
 			}
+			
+			if (count < 1)
+				return true;
 			
 			invoker.index--;
 			int rng = random(0,invoker.index);
@@ -1413,7 +1366,7 @@ Class RocketLauncherUpgradePickup : D4UpgradePickup
 			
 			static const String itemstr[] =
 			{	"$RocketLauncherMod1",	"$RocketLauncherMod2"	};
-			
+			int count = 0;
 			for (int i = 0; i < itemnames.Size(); i++)
 			{
 				if (itemnames[i] && !CountInv(itemnames[i]))
@@ -1421,9 +1374,12 @@ Class RocketLauncherUpgradePickup : D4UpgradePickup
 					invoker.desc[invoker.index] = itemstr[i];
 					invoker.items[invoker.index] = itemnames[i];
 					invoker.index++;
+					count++;
 				}
 			}
 			
+			if (count < 1)
+				return true;
 			invoker.index--;
 			int rng = random(0,invoker.index);
 			
@@ -1455,7 +1411,7 @@ Class PlasmaRifleUpgradePickup : D4UpgradePickup
 			
 			static const String itemstr[] =
 			{	"$PlasmaRifleMod1",	"$PlasmaRifleMod2"	};
-			
+			int count = 0;
 			for (int i = 0; i < itemnames.Size(); i++)
 			{
 				if (itemnames[i] && !CountInv(itemnames[i]))
@@ -1463,9 +1419,12 @@ Class PlasmaRifleUpgradePickup : D4UpgradePickup
 					invoker.desc[invoker.index] = itemstr[i];
 					invoker.items[invoker.index] = itemnames[i];
 					invoker.index++;
+					count++;
 				}
 			}
 			
+			if (count < 1)
+				return true;
 			invoker.index--;
 			int rng = random(0,invoker.index);
 			
@@ -1497,7 +1456,7 @@ Class LightningGunUpgradePickup : D4UpgradePickup
 			
 			static const String itemstr[] =
 			{ "$LGUpgradeAmmo", "$LGUpgradeRange", "$LGUpgradeDamage", "$LGUpgradeAltFire" };
-			
+			int count = 0;
 			for (int i = 0; i < itemnames.Size(); i++)
 			{
 				if (itemnames[i] && !CountInv(itemnames[i]))
@@ -1505,9 +1464,12 @@ Class LightningGunUpgradePickup : D4UpgradePickup
 					invoker.desc[invoker.index] = itemstr[i];
 					invoker.items[invoker.index] = itemnames[i];
 					invoker.index++;
+					count++;
 				}
 			}
 			
+			if (count < 1)
+				return true;
 			invoker.index--;
 			int rng = random(0,invoker.index);
 			
@@ -1539,7 +1501,7 @@ Class VortexRifleUpgradePickup : D4UpgradePickup
 			
 			static const String itemstr[] =
 			{ "$VortexUpgradeDamage", "$VortexUpgradeAmmo", "$VortexUpgradeAltSpeed", "$VortexUpgradeAltPierce" };
-			
+			int count = 0;
 			for (int i = 0; i < itemnames.Size(); i++)
 			{
 				if (itemnames[i] && !CountInv(itemnames[i]))
@@ -1547,9 +1509,12 @@ Class VortexRifleUpgradePickup : D4UpgradePickup
 					invoker.desc[invoker.index] = itemstr[i];
 					invoker.items[invoker.index] = itemnames[i];
 					invoker.index++;
+					count++;
 				}
 			}
 			
+			if (count < 1)
+				return true;
 			invoker.index--;
 			int rng = random(0,invoker.index);
 			
@@ -1581,7 +1546,7 @@ Class GaussCannonUpgradePickup : D4UpgradePickup
 			
 			static const String itemstr[] =
 			{	"$GaussCannonMod1",	"$GaussCannonMod2"	};
-			
+			int count = 0;
 			for (int i = 0; i < itemnames.Size(); i++)
 			{
 				if (itemnames[i] && !CountInv(itemnames[i]))
@@ -1589,9 +1554,12 @@ Class GaussCannonUpgradePickup : D4UpgradePickup
 					invoker.desc[invoker.index] = itemstr[i];
 					invoker.items[invoker.index] = itemnames[i];
 					invoker.index++;
+				count++;
 				}
 			}
 			
+			if (count < 1)
+				return true;
 			invoker.index--;
 			int rng = random(0,invoker.index);
 			
@@ -1623,7 +1591,7 @@ Class BFGUpgradePickup : D4UpgradePickup
 			
 			static const String itemstr[] =
 			{ "$BFGUpgrade1", "$BFGUpgrade2", "$BFGUpgrade3", "$BFGUpgrade4" };
-			
+			int count = 0;
 			for (int i = 0; i < itemnames.Size(); i++)
 			{
 				if (itemnames[i] && !CountInv(itemnames[i]))
@@ -1631,9 +1599,12 @@ Class BFGUpgradePickup : D4UpgradePickup
 					invoker.desc[invoker.index] = itemstr[i];
 					invoker.items[invoker.index] = itemnames[i];
 					invoker.index++;
+					count++;
 				}
 			}
 			
+			if (count < 1)
+				return true;
 			invoker.index--;
 			int rng = random(0,invoker.index);
 			
@@ -1669,7 +1640,7 @@ Class CarrionCannonUpgradePickup : D4UpgradePickup
 			
 			static const String itemstr[] =
 			{ "$CarrionUpgradePickup", "$CarrionUpgradeAmmo", "$CarrionUpgradeStun", "$CarrionUpgradeTime" };
-			
+			int count = 0;
 			for (int i = 0; i < itemnames.Size(); i++)
 			{
 				if (itemnames[i] && !CountInv(itemnames[i]))
@@ -1677,9 +1648,12 @@ Class CarrionCannonUpgradePickup : D4UpgradePickup
 					invoker.desc[invoker.index] = itemstr[i];
 					invoker.items[invoker.index] = itemnames[i];
 					invoker.index++;
+					count++;
 				}
 			}
 			
+			if (count < 1)
+				return true;
 			invoker.index--;
 			int rng = random(0,invoker.index);
 			
