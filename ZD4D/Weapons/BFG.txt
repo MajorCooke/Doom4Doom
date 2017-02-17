@@ -262,7 +262,7 @@ Class BFGProjectile  : Actor
 			{	continue;	}
 			
 			// Don't target things that aren't monsters, or are already dead.
-			if (mo.bFRIENDLY || !mo.bISMONSTER || mo.bKILLED || !mo.bSHOOTABLE ||
+			if (mo.bFRIENDLY || !mo.bISMONSTER || mo.bKILLED ||
 				mo.CheckClass("DemonShield",DefPtr,true) ||
 				mo.CheckClass("PlayerPawn",DefPtr,true))
 			{	continue;	}
@@ -288,9 +288,10 @@ Class BFGProjectile  : Actor
 				!mo.CheckClass("D4OldSpiderMastermind",DefPtr,true) &&
 				!mo.CheckClass("Cyberdemon",DefPtr,true) &&
 				!mo.CheckClass("D4Cyberdemon",DefPtr,true) &&
-				!mo.CheckClass("D4OldCyberdemon",DefPtr,true))
+				!mo.CheckClass("D4OldCyberdemon",DefPtr,true) &&
+				!(mo is "BossBrain"))
 				{
-					mo.A_GiveInventory("BFGKillToken");
+					mo.A_SetInventory("BFGKillToken",1);
 				}
 			}
 			
@@ -411,7 +412,6 @@ Class BFG9000Shot : BFGProjectile
 		BFE1 C 0
 		{
 			A_StopSound(7);
-			A_TakeInventory("OrbiterActive",32767,0,TargetPtr);
 			if (GetCvar("HQEffectsWeapons"))
 			{
 				for (user_count = 0; user_count < 10; user_count++)

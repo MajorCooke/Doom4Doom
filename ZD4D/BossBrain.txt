@@ -1,0 +1,25 @@
+Class D4BossBrain : BossBrain replaces BossBrain
+{
+	Default
+	{
+		+DONTTHRUST
+		+DONTCORPSE
+		Health 5000;
+		DamageFactor "Crush", 20.0;
+	}
+	States
+	{
+	Pain:
+		BBRN B 8
+		{
+			bNOPAIN = true;
+			A_PlaySound("brain/pain",CHAN_VOICE,1,0,ATTN_NONE);
+			A_QuakeEx(2,2,2,35,0,32767,"",QF_SCALEDOWN);
+		}
+		BBRN B 28
+		{
+			bNOPAIN = false;
+		}
+		BBRN B 0 { return ResolveState("Spawn"); }
+	}
+}
