@@ -20,9 +20,9 @@ Class D4RocketExplosion : Actor
 	Default 
 	{
 		+NOINTERACTION
-		Scale 0.4;
 		+FORCEXYBILLBOARD
 		+ROLLSPRITE
+		Scale 0.4;
 	}
 	States
 	{
@@ -30,7 +30,7 @@ Class D4RocketExplosion : Actor
 		X126 A 0 NoDelay 
 		{
 			A_SetRoll(random(0,359));
-			A_SpawnItemEx("D4RocketExplosionBloom",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERROLL|SXF_SETMASTER);
+			A_SpawnItemEx("D4RocketExplosionBloom",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERROLL|SXF_SETMASTER|SXF_TRANSFERTRANSLATION);
 		}
 		X126 AA 1 Bright Light("YellowBigPoint3") A_SetScale(Scale.X+0.07);
 		X126 BB 1 Bright Light("YellowBigPoint3") A_SetScale(Scale.X+0.07);
@@ -56,9 +56,9 @@ Class D4RocketExplosionBloom : Actor
 	Default 
 	{
 		+NOINTERACTION
-		Scale 0.55;
 		+FORCEXYBILLBOARD
 		+ROLLSPRITE
+		Scale 0.55;
 		RenderStyle "Add";
 		Alpha 1;
 	}
@@ -89,9 +89,9 @@ Class D4RocketExplosionNoGL : Actor
 	Default 
 	{
 		+NOINTERACTION
-		Scale 0.4;
 		+FORCEXYBILLBOARD
 		+ROLLSPRITE
+		Scale 0.4;
 		RenderStyle "Translucent";
 	}
 	States
@@ -100,7 +100,7 @@ Class D4RocketExplosionNoGL : Actor
 		X126 A 0 NoDelay 
 		{
 			A_SetRoll(random(0,359));
-			A_SpawnItemEx("D4RocketExplosionBloom",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERROLL|SXF_SETMASTER);
+			A_SpawnItemEx("D4RocketExplosionBloom",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERROLL|SXF_SETMASTER|SXF_TRANSFERTRANSLATION);
 		}
 		X126 AA 1 Bright A_SetScale(Scale.X+0.07);
 		X126 BB 1 Bright A_SetScale(Scale.X+0.07);

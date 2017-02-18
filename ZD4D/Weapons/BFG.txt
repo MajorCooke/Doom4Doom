@@ -262,7 +262,7 @@ Class BFGProjectile  : Actor
 			{	continue;	}
 			
 			// Don't target things that aren't monsters, or are already dead.
-			if (mo.bFRIENDLY || !mo.bISMONSTER || mo.bKILLED ||
+			if (mo.bFRIENDLY || !mo.bISMONSTER || mo.bKILLED || !mo.bSHOOTABLE ||
 				mo.CheckClass("DemonShield",DefPtr,true) ||
 				mo.CheckClass("PlayerPawn",DefPtr,true))
 			{	continue;	}

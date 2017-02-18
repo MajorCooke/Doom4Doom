@@ -1,25 +1,319 @@
 Class D4BossBrain : BossBrain replaces BossBrain
 {
+	double bat;
+	bool seeBase;
 	Default
 	{
 		+DONTTHRUST
 		+DONTCORPSE
-		Health 5000;
+		Health 3000;
 		DamageFactor "Crush", 20.0;
 	}
+	
+	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags = 0, double angle = 0)
+	{
+		if ((inflictor && inflictor is "ExplosiveBarrel") || (source && source is "ExplosiveBarrel"))
+			damage *= 20;
+			
+		return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+	}
+	
+	void KillEverything()
+	{
+		ThinkerIterator it = ThinkerIterator.Create("Actor");
+		Actor mo;
+		while (mo = Actor(it.Next()))
+		{
+			if (mo == self || mo is "PlayerPawn")
+				continue;
+			
+			if (mo is "BossEye")
+			{
+				mo.Destroy();
+				continue;
+			}
+			
+			if (mo is "SpawnShot")
+			{
+				let explo =	mo.Spawn("D4RocketExplosion",mo.pos);
+				if (explo)
+				{
+					explo.A_PlaySound("Doom4/Weapon/RocketLauncher/HRExplo",CHAN_AUTO);
+					explo.A_XScream();
+					explo.A_PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
+				}
+				
+				let splatter = mo.Spawn("BloodGibDropper",mo.pos);
+				if (splatter)
+				{
+					int col = 0;
+					if (random(1,4) == 1)
+					{
+						col = randompick(Color_Green, Color_Blue, Color_Black);
+					}
+					splatter.ChangeTID(col);
+				}
+				mo.Destroy();
+				continue;
+			}
+			
+			if (mo.bNODAMAGE)
+				continue;
+			
+			if (mo.bISMONSTER && mo.health > 0)
+			{
+				mo.bVULNERABLE = true;
+				mo.A_Die("Extreme");
+				continue;
+			}
+		}
+	}
+	
 	States
 	{
+	Spawn:
+		BBRN A 7
+		{
+			if (!seeBase)
+			{
+				for (int i = 0; i < MAXPLAYERS; i++)
+				{
+					if (playeringame[i])
+					{
+						Actor plr = players[i].mo;
+						if (plr && plr.CheckSight(self))
+						{
+							seeBase = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+		Loop;
 	Pain:
 		BBRN B 8
 		{
 			bNOPAIN = true;
 			A_PlaySound("brain/pain",CHAN_VOICE,1,0,ATTN_NONE);
-			A_QuakeEx(2,2,2,35,0,32767,"",QF_SCALEDOWN);
+			A_QuakeEx(3,3,1,70,0,32767,"",QF_SCALEDOWN);
 		}
-		BBRN B 28
+		BBRN B 27
 		{
 			bNOPAIN = false;
 		}
 		BBRN B 0 { return ResolveState("Spawn"); }
+	
+	Death:
+		BBRN A 35
+		{
+			A_PlaySound("Doom4/Other/DollExplode",7,1,0,ATTN_NONE);
+			A_QuakeEx(5,5,3,35*5,0,32767,"",QF_SCALEUP|QF_SCALEDOWN|QF_MAX|QF_FULLINTENSITY|QF_RELATIVE);
+			for (int i = 0; i < MAXPLAYERS; i++)
+			{
+				if (playeringame[i] && players[i].mo)
+					players[i].mo.A_GiveInventory("PentagramOfProtection");
+			}
+			KillEverything();
+		}
+		BBRN A 105
+		{
+			if (seeBase)
+			{
+				let exploder = IOSFaceExploder(Spawn("IOSFaceExploder",pos));
+				if (exploder)	exploder.atPos = true;
+			}
+			else
+			{
+				A_SpawnItemEx("IOSFaceExploder",-288, angle: 90, flags: SXF_NOCHECKPOSITION);
+			}
+		}
+		BBRN A 35
+		{
+			A_PlaySound("BossMegaExplosion",5,1,0,ATTN_NONE);
+		}
+		TNT1 A 245
+		{
+			KillEverything();
+			A_QuakeEx(6,6,3,35*500,0,32767,"",QF_RELATIVE|QF_SCALEDOWN);
+			A_PlaySound("brain/death",6,1,0,ATTN_NONE);
+		}
+		TNT1 A 1
+		{
+			for (int i = 0; i < MAXPLAYERS; i++)
+			{
+				if (playeringame[i])
+				{
+					let plr = players[i].mo;
+					if (plr)
+					{
+						bat += (1.0 / (35.0 * 3));
+						plr.A_SetBlend("Black",bat,350);
+						
+						if (bat > 1.0)
+							Exit_Normal(0);
+					}
+				}
+			}
+		}
+		Wait;
+	}
+}
+
+Class IOSFaceExploder : Actor
+{
+	double px1, px2, py1, py2, pz1, pz2;
+	int count[2];
+	double sine;
+	bool atPos;
+	Actor nuke;
+	
+	property ExploPosition1X: px1;
+	property ExploPosition1Y: py1;
+	property ExploPosition1Z: pz1;
+	property ExploPosition2X: px2;
+	property ExploPosition2Y: py2;
+	property ExploPosition2Z: pz2;
+	Default
+	{
+		IOSFaceExploder.ExploPosition1X 0.0;
+		IOSFaceExploder.ExploPosition1Y -300.0;
+		IOSFaceExploder.ExploPosition1Z -200.0;
+		IOSFaceExploder.ExploPosition2X 50.0;
+		IOSFaceExploder.ExploPosition2Y 300.0;
+		IOSFaceExploder.ExploPosition2Z 200.0;
+		+NOINTERACTION
+		+BRIGHT
+		Scale 0;
+		RenderStyle "Translucent";
+		Translation "0:255=%[0,0,0]:[1,0.5,0]";
+	}
+	
+	override void Tick()
+	{
+		if ((globalfreeze || level.Frozen) && !bNOTIMEFREEZE)
+			return Super.Tick();
+			
+		count[0]++;
+		if (count[0] >= count[1])
+		{
+			// Spawn explosions.
+			count[1] = count[0] + random(1,4);
+			
+			int rng = random(2,6);
+			for (int i = 0; i < rng; i++)
+			{
+				Vector3 spos = Vec3Angle(atPos ? frandom(0, py2) : frandom(px1, px2),
+										(atPos ? frandom(0.0, 359.9) : angle),
+										frandom(pz1, pz2));
+										
+				let explo =	Spawn("D4RocketExplosionNoGL",spos);
+				//let explo = Actor(A_SpawnItemEx("D4RocketExplosionNoGL",flags: SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION));
+				if (explo)
+				{
+					explo.angle = angle;
+					explo.A_SetRenderStyle(1.0,STYLE_Translucent);
+					explo.Translation = Translation;
+					//explo.SetOrigin(spos, false);
+					if (!atPos)	explo.A_Warp(DefPtr,0,frandom(py1, py2),flags: WARPF_NOCHECKPOSITION);
+					
+					Vector3 sep = explo.pos;
+					if (sep.z < explo.floorz)			sep.z = explo.floorz + 1;
+					else if (sep.z > explo.ceilingz)	sep.z = explo.ceilingz - 1;
+					
+					explo.SetOrigin(sep, false);
+					
+					
+					explo.A_PlaySound("Doom4/Weapon/RocketLauncher/HRExplo",CHAN_AUTO,0.5);
+					//explo.A_XScream();
+					//explo.A_PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
+				}
+			}
+		}
+		
+		if (count[0] >= 35 * 5)
+		{
+			if (sine < 90.0)
+			{
+				sine += (90.0 / 35.0);
+				A_SetScale(sin(sine) * 2);
+			}
+			
+			if (count[0] % 35 == 0)
+			{
+				Vector3 spos = Vec3Angle(atPos ? frandom(0, py2) : frandom(px1, px2),
+										(atPos ? frandom(0.0, 359.9) : angle),
+										frandom(pz1, px2));
+										
+				let snuke = Spawn("D4SmallNuke",spos);
+				if (snuke)
+				{
+					snuke.angle = angle;
+					snuke.Translation = Translation;
+					if (!atPos)	snuke.A_Warp(DefPtr,0,frandom(py1, py2),flags: WARPF_NOCHECKPOSITION);
+				}
+			}
+			
+		}
+		Super.Tick();
+	}
+	
+	States
+	{
+	Spawn:
+		TNT1 AAAAA 35;
+		X119 ABCDEFGHIJKLMNOPQRSTUVWXYZ random(4,6);
+		X120 ABCDEFGHIJKLMNOPQRSTUVW random(4,6);
+		X120 WWWWWWWWWW 1 A_FadeOut(0.1,FTF_CLAMP);
+		TNT1 A -1;
+		Wait;
+	}
+}
+
+Class D4SmallNuke : Actor
+{
+	double size;
+	Default
+	{
+		+BRIGHT
+		+NOINTERACTION
+		RenderStyle "Add";
+		Scale 0;
+		Alpha 0.999;
+	}
+	
+	void UpScale()
+	{
+		if (size < 90)
+		{
+			size += (90.0 / 17.5);
+			A_SetScale(sin(size) * 1.5);
+		}
+	}
+	
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		if (pos.z < floorz)	A_Warp(DefPtr, pos.x, pos.y, floorz + 1, flags: WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEPOSITION);
+		if (pos.z > ceilingz)	A_Warp(DefPtr, pos.x, pos.y, ceilingz - 1, flags: WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEPOSITION);
+	}
+	
+	States
+	{
+	Spawn:
+		X119 A 1 NoDelay
+		{
+			A_PlaySound("Doom4/Other/DollExplode",CHAN_AUTO,1);
+			UpScale();
+		}
+		
+		X119 BCDEFGHIJKLMNOPQRSTUVWXYZ 2 UpScale();
+		X120 ABCDEFGHIJKLMNO 2 UpScale();
+		X120 PQRSTUVW 2 
+		{
+			A_FadeOut();
+			UpScale();
+		}
+		Wait;
 	}
 }

@@ -532,7 +532,7 @@ Class PowerD4Regen : PowerRegeneration
 		else
 			GiverTic = 31;
 		
-		if (Owner.CountInv("D4TimeFreeze"))
+		if (globalfreeze || level.Frozen)
 		{
 			EffectTics++; //'Freeze' the timer.
 		}
@@ -1263,7 +1263,7 @@ Class PowerInvulBase : PowerInvulnerable
 	{
 		if (Owner)
 		{
-			if (Owner.CountInv("D4TimeFreeze"))
+			if (globalfreeze || level.Frozen)
 			{
 				EffectTics++; //'Freeze' the timer.
 			}

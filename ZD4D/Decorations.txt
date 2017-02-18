@@ -20,7 +20,7 @@ Class NewFog : Actor replaces TeleportFog
 	}
 }
 
-Class D4ExplosiveBarrel : Actor replaces ExplosiveBarrel
+Class D4ExplosiveBarrel : ExplosiveBarrel replaces ExplosiveBarrel
 {
 	Default
 	{
