@@ -644,9 +644,12 @@ OptionMenu "PistolUpgradeAltCharge"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U1Pistol $D4DCash \"PistolUpgradeAltCharge 1; CTake $Cost_U1Pistol; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1Pistol, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	
+	//CostDisplay Cost_U1Pistol
+	CostDisplay Cost_U1Pistol
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1Pistol
+	//CreditDisplay D4DCash
 }
 OptionMenu "PistolUpgradeAltDamage"
 {
@@ -655,9 +658,9 @@ OptionMenu "PistolUpgradeAltDamage"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U2Pistol $D4DCash \"PistolUpgradeAltDamage 1; CTake $Cost_U2Pistol; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2Pistol, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2Pistol
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2Pistol
 }
 OptionMenu "PistolUpgradeDamage"
 {
@@ -666,9 +669,9 @@ OptionMenu "PistolUpgradeDamage"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U3Pistol $D4DCash \"PistolUpgradeDamage 1; CTake $Cost_U3Pistol; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U3Pistol, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U3Pistol
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U3Pistol
 }
 OptionMenu "PistolUpgradeAutomatic"
 {
@@ -679,9 +682,9 @@ OptionMenu "PistolUpgradeAutomatic"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U4Pistol $D4DCash \"PistolUpgradeAutomatic 1; CTake $Cost_U4Pistol; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U4Pistol, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U4Pistol
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U4Pistol
 }
 
 OptionMenu "PistolUpgradeLance"
@@ -693,9 +696,9 @@ OptionMenu "PistolUpgradeLance"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U5Pistol $D4DCash \"PistolUpgradeLance 1; CTake $Cost_U5Pistol; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U5Pistol, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U5Pistol
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U5Pistol
 }
 
 OptionMenu "PistolUpgradeLanceNA"
@@ -736,9 +739,9 @@ OptionMenu "ShotgunMod1"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U1Shotgun $D4DCash \"ShotgunMod1 1; CTake $Cost_U1Shotgun; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1Shotgun, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1Shotgun
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1Shotgun
 }
 
 OptionMenu "ShotgunMod2"
@@ -752,9 +755,9 @@ OptionMenu "ShotgunMod2"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U2Shotgun $D4DCash \"ShotgunMod2 1; CTake $Cost_U2Shotgun; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2Shotgun, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2Shotgun
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2Shotgun
 }
 
 //==============================================================================
@@ -781,9 +784,9 @@ OptionMenu "SSGUpgrade1"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U1SuperShotgun $D4DCash \"SSGUpgrade1 1; CTake $Cost_U1SuperShotgun; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1SuperShotgun, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1SuperShotgun
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1SuperShotgun
 }
 
 OptionMenu "SSGUpgrade2"
@@ -793,9 +796,9 @@ OptionMenu "SSGUpgrade2"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U2SuperShotgun $D4DCash \"SSGUpgrade2 1; CTake $Cost_U2SuperShotgun; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2SuperShotgun, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2SuperShotgun
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2SuperShotgun
 }
 
 OptionMenu "SSGUpgrade3"
@@ -805,9 +808,9 @@ OptionMenu "SSGUpgrade3"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U3SuperShotgun $D4DCash \"SSGUpgrade3 1; CTake $Cost_U3SuperShotgun; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U3SuperShotgun, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U3SuperShotgun
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U3SuperShotgun
 }
 
 OptionMenu "SSGUpgrade4"
@@ -821,9 +824,9 @@ OptionMenu "SSGUpgrade4"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U4SuperShotgun $D4DCash \"SSGUpgrade4 1; CTake $Cost_U4SuperShotgun; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U4SuperShotgun, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U4SuperShotgun
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U4SuperShotgun
 }
 
 OptionMenu "SSGUpgrade4NA"
@@ -865,9 +868,9 @@ OptionMenu "RepeaterUpgradePiercing"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U1Repeater $D4DCash \"RepeaterUpgradePiercing 1; CTake $Cost_U1Repeater; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1Repeater, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1Repeater
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 			0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1Repeater
 }
 
 OptionMenu "RepeaterUpgradeDamage"
@@ -879,9 +882,9 @@ OptionMenu "RepeaterUpgradeDamage"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U2Repeater $D4DCash \"RepeaterUpgradeDamage 1; CTake $Cost_U2Repeater; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2Repeater, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2Repeater
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000,			0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2Repeater
 }
 OptionMenu "RepeaterUpgradeAltDamage"
 {
@@ -890,9 +893,9 @@ OptionMenu "RepeaterUpgradeAltDamage"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U3Repeater $D4DCash \"RepeaterUpgradeAltDamage 1; CTake $Cost_U3Repeater; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U3Repeater, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U3Repeater
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000,			0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U3Repeater
 }
 OptionMenu "RepeaterUpgradeAltAmmo"
 {
@@ -901,9 +904,9 @@ OptionMenu "RepeaterUpgradeAltAmmo"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U4Repeater $D4DCash \"RepeaterUpgradeAltAmmo 1; CTake $Cost_U4Repeater; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U4Repeater, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U4Repeater
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000,			0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U4Repeater
 }
 
 
@@ -929,9 +932,9 @@ OptionMenu "AssaultRifleMod1"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U1AssaultRifle $D4DCash \"AssaultRifleMod1 1; CTake $Cost_U1AssaultRifle; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1AssaultRifle, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1AssaultRifle
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1AssaultRifle
 }
 OptionMenu "AssaultRifleMod2"
 {
@@ -942,9 +945,9 @@ OptionMenu "AssaultRifleMod2"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U2AssaultRifle $D4DCash \"AssaultRifleMod2 1; CTake $Cost_U2AssaultRifle; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2AssaultRifle, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2AssaultRifle
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2AssaultRifle
 }
 //==============================================================================
 // Chaingun
@@ -980,9 +983,9 @@ OptionMenu "ChaingunMod1"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U1Chaingun $D4DCash \"ChaingunMod1 1; CTake $Cost_U1Chaingun; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1Chaingun, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1Chaingun
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1Chaingun
 }
 OptionMenu "ChaingunMod2"
 {
@@ -995,9 +998,9 @@ OptionMenu "ChaingunMod2"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U2Chaingun $D4DCash \"ChaingunMod2 1; CTake $Cost_U2Chaingun; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2Chaingun, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2Chaingun
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2Chaingun
 }
 OptionMenu "ChaingunMod3"
 {
@@ -1043,9 +1046,9 @@ OptionMenu "RocketLauncherMod1"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U1RocketLauncher $D4DCash \"RocketLauncherMod1 1; CTake $Cost_U1RocketLauncher; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1RocketLauncher, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1RocketLauncher
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1RocketLauncher
 }
 
 OptionMenu "RocketLauncherMod2"
@@ -1057,9 +1060,9 @@ OptionMenu "RocketLauncherMod2"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U2RocketLauncher $D4DCash \"RocketLauncherMod2 1; CTake $Cost_U2RocketLauncher; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2RocketLauncher, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2RocketLauncher
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2RocketLauncher
 }
 //==============================================================================
 // Plasma Rifle
@@ -1085,9 +1088,9 @@ OptionMenu "PlasmaRifleMod1"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U1PlasmaRifle $D4DCash \"PlasmaRifleMod1 1; CTake $Cost_U1PlasmaRifle; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1PlasmaRifle, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1PlasmaRifle
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1PlasmaRifle
 }
 
 OptionMenu "PlasmaRifleMod2"
@@ -1101,9 +1104,9 @@ OptionMenu "PlasmaRifleMod2"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U2PlasmaRifle $D4DCash \"PlasmaRifleMod2 1; CTake $Cost_U2PlasmaRifle; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2PlasmaRifle, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2PlasmaRifle
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2PlasmaRifle
 }
 //==============================================================================
 // Lightning Gun
@@ -1129,9 +1132,9 @@ OptionMenu "LGUpgradeAmmo"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U1LightningGun $D4DCash \"LGUpgradeAmmo 1; CTake $Cost_U1LightningGun; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1LightningGun, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1LightningGun
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1LightningGun
 }
 OptionMenu "LGUpgradeRange"
 {
@@ -1140,9 +1143,9 @@ OptionMenu "LGUpgradeRange"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U2LightningGun $D4DCash \"LGUpgradeRange 1; CTake $Cost_U2LightningGun; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2LightningGun, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2LightningGun
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2LightningGun
 }
 OptionMenu "LGUpgradeDamage"
 {
@@ -1151,9 +1154,9 @@ OptionMenu "LGUpgradeDamage"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U3LightningGun $D4DCash \"LGUpgradeDamage 1; CTake $Cost_U3LightningGun; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U3LightningGun, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U3LightningGun
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U3LightningGun
 }
 OptionMenu "LGUpgradeAltFire"
 {
@@ -1164,9 +1167,9 @@ OptionMenu "LGUpgradeAltFire"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U4LightningGun $D4DCash \"LGUpgradeAltFire 1; CTake $Cost_U4LightningGun; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U4LightningGun, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U4LightningGun
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U4LightningGun
 }
 //==============================================================================
 // Vortex Rifle
@@ -1191,9 +1194,9 @@ OptionMenu "VortexUpgradeDamage"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U1VortexRifle $D4DCash \"VortexUpgradeDamage 1; CTake $Cost_U1VortexRifle; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1VortexRifle, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1VortexRifle
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1VortexRifle
 }
 OptionMenu "VortexUpgradeAmmo"
 {
@@ -1202,9 +1205,9 @@ OptionMenu "VortexUpgradeAmmo"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U2VortexRifle $D4DCash \"VortexUpgradeAmmo 1; CTake $Cost_U2VortexRifle; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2VortexRifle, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2VortexRifle
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay D4DCash
 }
 OptionMenu "VortexUpgradeAltSpeed"
 {
@@ -1215,9 +1218,9 @@ OptionMenu "VortexUpgradeAltSpeed"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U3VortexRifle $D4DCash \"VortexUpgradeAltSpeed 1; CTake $Cost_U3VortexRifle; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U3VortexRifle, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U3VortexRifle
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U3VortexRifle
 }
 OptionMenu "VortexUpgradeAltPierce"
 {
@@ -1226,9 +1229,9 @@ OptionMenu "VortexUpgradeAltPierce"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U4VortexRifle $D4DCash \"VortexUpgradeAltPierce 1; CTake $Cost_U4VortexRifle; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U4VortexRifle, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U4VortexRifle
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U4VortexRifle
 }
 //==============================================================================
 // Static Rifle
@@ -1254,9 +1257,9 @@ OptionMenu "StaticUpgrade1"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U1StaticRifle $D4DCash \"StaticUpgrade1 1; CTake $Cost_U1StaticRifle; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1StaticRifle, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1StaticRifle
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 				0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1StaticRifle
 }
 OptionMenu "StaticUpgrade2"
 {
@@ -1267,9 +1270,9 @@ OptionMenu "StaticUpgrade2"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U2StaticRifle $D4DCash \"StaticUpgrade2 1; CTake $Cost_U2StaticRifle; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2StaticRifle, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2StaticRifle
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 				0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2StaticRifle
 }
 
 OptionMenu "StaticUpgrade2NA"
@@ -1296,9 +1299,9 @@ OptionMenu "StaticUpgrade3"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U3StaticRifle $D4DCash \"StaticUpgrade3 1; CTake $Cost_U3StaticRifle; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U3StaticRifle, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U3StaticRifle
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 				0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2StaticRifle
 }
 
 OptionMenu "StaticUpgrade3NA"
@@ -1334,9 +1337,9 @@ OptionMenu "StaticUpgrade4"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U4StaticRifle $D4DCash \"StaticUpgrade4 1; CTake $Cost_U4StaticRifle; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U4StaticRifle, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U4StaticRifle
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 				0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U4StaticRifle
 }
 
 OptionMenu "StaticUpgrade4NA"
@@ -1383,9 +1386,9 @@ OptionMenu "GaussCannonMod1"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U1GaussCannon $D4DCash \"GaussCannonMod1 1; CTake $Cost_U1GaussCannon; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1GaussCannon, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1GaussCannon
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1GaussCannon
 }
 OptionMenu "GaussCannonMod2"
 {
@@ -1398,9 +1401,9 @@ OptionMenu "GaussCannonMod2"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U2GaussCannon $D4DCash \"GaussCannonMod2 1; CTake $Cost_U2GaussCannon; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2GaussCannon, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2GaussCannon
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2GaussCannon
 }
 //==============================================================================
 // BFG
@@ -1426,9 +1429,9 @@ OptionMenu "BFGUpgrade1"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U1BFG $D4DCash \"BFGUpgrade1 1; CTake $Cost_U1BFG; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1BFG, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1BFG
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1BFG
 }
 
 OptionMenu "BFGUpgrade2"
@@ -1442,9 +1445,9 @@ OptionMenu "BFGUpgrade2"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U2BFG $D4DCash \"BFGUpgrade2 1; CTake $Cost_U2BFG; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2BFG, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2BFG
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2BFG
 }
 
 OptionMenu "BFGUpgrade3"
@@ -1456,9 +1459,9 @@ OptionMenu "BFGUpgrade3"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U3BFG $D4DCash \"BFGUpgrade3 1; CTake $Cost_U3BFG; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U3BFG, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U3BFG
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U3BFG
 }
 
 OptionMenu "BFGUpgrade4"
@@ -1470,9 +1473,9 @@ OptionMenu "BFGUpgrade4"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U4BFG $D4DCash \"BFGUpgrade4 1; CTake $Cost_U4BFG; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U4BFG, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U4BFG
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U4BFG
 }
 //==============================================================================
 // Carrion Cannon
@@ -1499,9 +1502,9 @@ OptionMenu "CarrionUpgradePickup"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U1CarrionCannon $D4DCash \"CarrionUpgradePickup 1; CTake $Cost_U1CarrionCannon; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1CarrionCannon, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1CarrionCannon
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1CarrionCannon
 }
 
 OptionMenu "CarrionUpgradeAmmo"
@@ -1511,9 +1514,9 @@ OptionMenu "CarrionUpgradeAmmo"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U2CarrionCannon $D4DCash \"CarrionUpgradeAmmo 1; CTake $Cost_U2CarrionCannon; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2CarrionCannon, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2CarrionCannon
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2CarrionCannon
 }
 
 OptionMenu "CarrionUpgradeStun"
@@ -1523,9 +1526,9 @@ OptionMenu "CarrionUpgradeStun"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U3CarrionCannon $D4DCash \"CarrionUpgradeStun 1; CTake $Cost_U3CarrionCannon; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U3CarrionCannon, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U3CarrionCannon
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U3CarrionCannon
 }
 
 OptionMenu "CarrionUpgradeTime"
@@ -1535,9 +1538,9 @@ OptionMenu "CarrionUpgradeTime"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U4CarrionCannon $D4DCash \"CarrionUpgradeTime 1; CTake $Cost_U4CarrionCannon; BuyUpgradeWeapon;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U4CarrionCannon, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U4CarrionCannon
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U4CarrionCannon
 }
 
 
@@ -1602,9 +1605,9 @@ OptionMenu "D4HealthUpgrade1"
 	StaticText " "
 	Command "Buy", "test <= $Cost_U1Health $D4DCash \"D4Stamina 25; CTake $Cost_U1Health; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1Health, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1Health
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1Health
 }
 
 OptionMenu "D4HealthUpgrade2"
@@ -1626,9 +1629,9 @@ OptionMenu "D4HealthUpgrade2"
 	StaticText " "
 	Command "Buy", "test <= $Cost_U2Health $D4DCash \"D4Stamina 50; CTake $Cost_U2Health; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2Health, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2Health
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2Health
 }
 
 OptionMenu "D4HealthUpgrade3"
@@ -1650,9 +1653,9 @@ OptionMenu "D4HealthUpgrade3"
 	StaticText " "
 	Command "Buy", "test <= $Cost_U3Health $D4DCash \"D4Stamina 100; CTake $Cost_U3Health; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U3Health, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U3Health
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U3Health
 }
 
 //==============================================================================
@@ -1681,9 +1684,9 @@ OptionMenu "D4ArmorCapRaiser1"
 	StaticText " "
 	Command "Buy", "test <= $Cost_U1Armor $D4DCash \"D4ArmorCapRaiser 25; CTake $Cost_U1Armor; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1Armor, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1Armor
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1Armor
 }
 
 OptionMenu "D4ArmorCapRaiser2"
@@ -1709,9 +1712,9 @@ OptionMenu "D4ArmorCapRaiser2"
 	StaticText " "
 	Command "Buy", "test <= $Cost_U2Armor $D4DCash \"D4ArmorCapRaiser 50; CTake $Cost_U2Armor; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2Armor, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2Armor
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2Armor
 }
 
 OptionMenu "D4ArmorCapRaiser3"
@@ -1737,9 +1740,9 @@ OptionMenu "D4ArmorCapRaiser3"
 	StaticText " "
 	Command "Buy", "test <= $Cost_U3Armor $D4DCash \"D4ArmorCapRaiser 100; CTake $Cost_U3Armor; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U3Armor, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U3Armor
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U3Armor
 }
 
 //==============================================================================
@@ -1764,9 +1767,9 @@ OptionMenu "D4Jump1"
 	StaticText " "
 	Command "Buy", "test <= $Cost_HigherJump $D4DCash \"D4HigherJump 1; CTake $Cost_HigherJump; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_HigherJump, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_HigherJump
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_HigherJump
 }
 
 OptionMenu "D4Jump2"
@@ -1788,9 +1791,9 @@ OptionMenu "D4Jump2"
 	StaticText " "
 	Command "Buy", "test <= $Cost_TripleJump $D4DCash \"D4MultiJump 3; CTake $Cost_TripleJump; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_TripleJump, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_TripleJump
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_TripleJump
 }
 
 OptionMenu "D4Jump3"
@@ -1812,9 +1815,9 @@ OptionMenu "D4Jump3"
 	StaticText " "
 	Command "Buy", "test <= $Cost_AirControl $D4DCash \"D4AirControl 1; CTake $Cost_AirControl; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_AirControl, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_AirControl
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_AirControl
 }
 //==============================================================================
 // Cash Bonus
@@ -1840,9 +1843,9 @@ OptionMenu "CashPercentBonus1"
 	StaticText " "
 	Command "Buy", "test <= $Cost_U1Credit $D4DCash \"CashPercentBonus 10; CTake $Cost_U1Credit; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1Credit, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1Credit
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1Credit
 }
 
 OptionMenu "CashPercentBonus2"
@@ -1866,9 +1869,9 @@ OptionMenu "CashPercentBonus2"
 	StaticText " "
 	Command "Buy", "test <= $Cost_U2Credit $D4DCash \"CashPercentBonus 20; CTake $Cost_U2Credit; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2Credit, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2Credit
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2Credit
 }
 
 OptionMenu "CashPercentBonus3"
@@ -1892,9 +1895,9 @@ OptionMenu "CashPercentBonus3"
 	StaticText " "
 	Command "Buy", "test <= $Cost_U3Credit $D4DCash \"CashPercentBonus 30; CTake $Cost_U3Credit; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U3Credit, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U3Credit
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U3Credit
 }
 
 OptionMenu "CashPercentBonus4"
@@ -1918,9 +1921,9 @@ OptionMenu "CashPercentBonus4"
 	StaticText " "
 	Command "Buy", "test <= $Cost_U4Credit $D4DCash \"CashPercentBonus 40; CTake $Cost_U4Credit; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U4Credit, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U4Credit
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U4Credit
 }
 //==============================================================================
 // Protection
@@ -1944,9 +1947,9 @@ OptionMenu "ProtectionBonus1"
 	StaticText " "
 	Command "Buy", "test <= $Cost_U1Protection $D4DCash \"ProtectionBonus1 1; CTake $Cost_U1Protection; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1Protection, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1Protection
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1Protection
 }
 
 OptionMenu "ProtectionBonus2"
@@ -1968,9 +1971,9 @@ OptionMenu "ProtectionBonus2"
 	StaticText " "
 	Command "Buy", "test <= $Cost_U2Protection $D4DCash \"ProtectionBonus2 1; CTake $Cost_U2Protection; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2Protection, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2Protection
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2Protection
 }
 
 OptionMenu "ProtectionBonus3"
@@ -1992,9 +1995,9 @@ OptionMenu "ProtectionBonus3"
 	StaticText " "
 	Command "Buy", "test <= $Cost_U3Protection $D4DCash \"ProtectionBonus3 1; CTake $Cost_U3Protection; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U3Protection, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U3Protection
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U3Protection
 }
 //==============================================================================
 // Crates
@@ -2021,9 +2024,9 @@ OptionMenu "D4CrateUpgrade1"
 	StaticText " "
 	Command "Buy", "test <= $Cost_U1Crate $D4DCash \"D4CrateUpgrade 1; CTake $Cost_U1Crate; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1Crate, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1Crate
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1Crate
 }
 OptionMenu "D4CrateUpgrade2"
 {
@@ -2047,9 +2050,9 @@ OptionMenu "D4CrateUpgrade2"
 	StaticText " "
 	Command "Buy", "test <= $Cost_U2Crate $D4DCash \"D4CrateUpgrade 2; CTake $Cost_U2Crate; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2Crate, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2Crate
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2Crate
 }
 OptionMenu "D4CrateUpgrade3"
 {
@@ -2073,9 +2076,9 @@ OptionMenu "D4CrateUpgrade3"
 	StaticText " "
 	Command "Buy", "test <= $Cost_U3Crate $D4DCash \"D4CrateUpgrade 3; CTake $Cost_U3Crate; BuyUpgradeSuit;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U3Crate, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U3Crate
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U3Crate
 }
 
 
@@ -2174,9 +2177,9 @@ OptionMenu "D4MegachargeUpgrade1"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U1Megacharge $D4DCash \"D4MegachargeUpgrade1 1; CTake $Cost_U1Megacharge; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1Megacharge, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1Megacharge
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1Megacharge
 	StaticText ""
 	StaticText "Incites hallucinations of becoming a", WHITE
 	StaticText "Monster Truck that walks like a MAN", WHITE
@@ -2189,9 +2192,9 @@ OptionMenu "D4MegachargeUpgrade2"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U2Megacharge $D4DCash \"D4MegachargeUpgrade2 1; CTake $Cost_U2Megacharge; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2Megacharge, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2Megacharge
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2Megacharge
 	StaticText ""
 	StaticText "Tank 'n Spank an Impse", WHITE
 }
@@ -2205,9 +2208,9 @@ OptionMenu "D4DoomDollUpgrade1"
 	StaticText "Stacks with other movement powerups", GREEN
 	Command "Buy", "test <= $Cost_U1DoomDoll $D4DCash \"D4DoomDollUpgrade1 1; CTake $Cost_U1DoomDoll; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1DoomDoll, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1DoomDoll
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1DoomDoll
 	StaticText ""
 	StaticText "WARNING: Attracts fanbois from Bat Country", WHITE
 }
@@ -2219,9 +2222,9 @@ OptionMenu "D4DoomDollUpgrade2"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U2DoomDoll $D4DCash \"D4DoomDollUpgrade2 1; CTake $Cost_U2DoomDoll; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2DoomDoll, 0, 500000000, 	0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2DoomDoll
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 		0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2DoomDoll
 	StaticText ""
 	StaticText "PEANUT AKBAR", WHITE
 }
@@ -2233,9 +2236,9 @@ OptionMenu "D4RegenUpgrade1"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U1Regen $D4DCash \"D4RegenUpgrade1 1; CTake $Cost_U1Regen; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U1Regen, 0, 500000000, 			0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U1Regen
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 				0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U1Regen
 	StaticText ""
 	StaticText "Thy flesh be venomous sugar, most withering,", WHITE
 	StaticText "Thy skin burns their mithes by flaming salt.", WHITE
@@ -2249,9 +2252,9 @@ OptionMenu "D4RegenUpgrade2"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U2Regen $D4DCash \"D4RegenUpgrade2 1; CTake $Cost_U2Regen; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U2Regen, 0, 500000000, 			0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U2Regen
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 				0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U2Regen
 	StaticText ""
 	StaticText "Aspect of the Namekian:", WHITE
 	StaticText "Lose no hope when you lose an arm.", WHITE
@@ -2275,9 +2278,9 @@ OptionMenu "D4RegenUpgrade3"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U3Regen $D4DCash \"D4RegenUpgrade3 1; CTake $Cost_U3Regen; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U3Regen, 0, 500000000, 			0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U3Regen
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 				0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U3Regen
 	StaticText ""
 	StaticText "When you wake up in a tub full of ice, you're laughing.", WHITE
 }
@@ -2289,9 +2292,9 @@ OptionMenu "D4RegenUpgrade4"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U4Regen $D4DCash \"D4RegenUpgrade4 1; CTake $Cost_U4Regen; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	NumberField "Cost", Cost_U4Regen, 0, 500000000, 			0.00000000000000000000000001, Adjustable
+	CostDisplay Cost_U4Regen
 	StaticText ""
-	NumberField "Cash", D4DCash, -10, 500000000, 				0.00000000000000000000000001, Adjustable
+	CreditDisplay Cost_U4Regen
 	StaticText ""
 	StaticText "Steroids Without Consequences", WHITE
 }

@@ -1,0 +1,124 @@
+//==============================================================================
+// CvarDisplayInt
+// 	Like NumberField but is not selectable, nor adjustable. Simply reflects
+// 	a cvar in int form for on screen purposes only.
+//
+// Parameters:
+// - String Label
+//		The label to display on the left.
+// - Cvar Name 
+//		The cvar's value to show.
+// - Cvar graycheck: 
+//		If the cvar exists and is false, darkens the whole region.
+//==============================================================================
+
+class OptionMenuItemCvarDisplayInt : OptionMenuFieldBase
+{
+	OptionMenuItemCvarDisplayInt Init (String label, Name command, CVar graycheck = null)
+	{
+		Super.Init(label, command, graycheck);
+		return self;
+	}
+
+	override String Represent()
+	{
+		if (mCVar == null) return "";
+		return String.format("%d", mCVar.GetInt());
+	}
+
+
+	override bool MenuEvent (int mkey, bool fromcontroller)
+	{
+		if (mCVar)
+		{
+			if (mkey == Menu.MKEY_Left || mkey == Menu.MKEY_Right)
+				return false;
+		}
+		return Super.MenuEvent(mkey, fromcontroller);
+	}
+	
+	override bool Selectable()
+	{
+		return false;
+	}
+}
+
+/*==============================================================================
+	CreditDisplay
+		Used for D4D's upgrade purchasing menu, this performs a comparison
+		between the built-in D4DCash and the price of the item, coloring
+		the cash amount based on which comparison's higher.
+		
+		Turns red if the cost is higher than the current amount.
+		Turns green otherwise.
+
+ Parameters:
+ - Cvar Cost 
+		The cvar to be compared against D4DCash.
+ - Cvar graycheck: 
+		If the cvar exists and is false, darkens the whole region.
+==============================================================================*/
+
+class OptionMenuItemCreditDisplay : OptionMenuItemCvarDisplayInt
+{
+	CVar mCredit;
+	int CreditAmount, CostAmount;
+	OptionMenuItemCreditDisplay Init (Name command, CVar graycheck = null)
+	{
+		Super.Init("Credits", command, graycheck);
+		mCredit = CVar.FindCVar("D4DCash");
+		return self;
+	}
+	
+	override String Represent()
+	{
+		if (mCredit == null) return "";
+		return String.format("%d", mCredit.GetInt());
+	}
+	
+	override int Draw (OptionMenuDescriptor d, int y, int indent, bool selected)
+	{
+		bool grayed = mGrayCheck != null && !mGrayCheck.GetInt();
+		drawLabel(indent, y, OptionMenuSettings.mFontColor, grayed);
+
+		int col = OptionMenuSettings.mFontColorValue;
+		if (mCredit != null && mCVar != null)
+		{
+			CreditAmount = mCredit.GetInt();
+			CostAmount = mCVar.GetInt();
+			
+			if (CreditAmount >= CostAmount)
+				col = Font.CR_GREEN;
+			else
+				col = Font.CR_RED;
+		}
+		screen.DrawText(SmallFont, col, indent + CursorSpace(), y, Represent(), DTA_CleanNoMove_1, true);
+		return indent;
+	}
+}
+
+/*==============================================================================
+	CostDisplay
+		Nothing special, just CvarDisplayInt without the need to define "Cost".
+
+ Parameters:
+ - Cvar Cost 
+		The cvar's value to show.
+ - Cvar graycheck: 
+		If the cvar exists and is false, darkens the whole region.
+==============================================================================*/
+
+class OptionMenuItemCostDisplay : OptionMenuItemCvarDisplayInt
+{
+	OptionMenuItemCostDisplay Init (Name command, CVar graycheck = null)
+	{
+		Super.Init("Cost", command, graycheck);
+		return self;
+	}
+	
+	override String Represent()
+	{
+		if (mCVar == null) return "";
+		return String.format("%d", mCVar.GetInt());
+	}
+}
