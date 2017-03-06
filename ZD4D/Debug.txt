@@ -42,7 +42,7 @@ Struct TIteratorProperties
 // (!) - Private function. Must be called on by another.
 //------------------------------------------------------------------------------
 
-Struct TIterator play
+Struct TIterator
 {
 	TIteratorProperties p;
 	private Actor caller;
