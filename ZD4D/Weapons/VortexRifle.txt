@@ -382,13 +382,3 @@ Class VortexReloadPositionTracker : Inventory
 		Inventory.InterHubAmount 0;
 	}
 }
-
-//--------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------
-//	Mod tokens
-//--------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------
-Class VortexUpgradeDamage : Inventory 		{ Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-Class VortexUpgradeAmmo : Inventory 		{ Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-Class VortexUpgradeAltSpeed : Inventory 	{ Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-Class VortexUpgradeAltPierce : Inventory 	{ Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }

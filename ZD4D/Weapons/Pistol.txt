@@ -1,12 +1,3 @@
-//---------------------------------------------------------------------------
-// 	upgrades
-//---------------------------------------------------------------------------
-Class PistolUpgradeAutomatic : Inventory	{	Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-Class PistolUpgradeAltDamage : Inventory	{	Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-Class PistolUpgradeAltCharge : Inventory	{	Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-Class PistolUpgradeDamage 	 : Inventory	{	Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-Class PistolUpgradeLance 	 : Inventory	{	Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-
 Class PistolLanceActive : Inventory	
 {	Default { +INVENTORY.UNDROPPABLE } }
 Class PistolLanceReadyToken : Inventory	

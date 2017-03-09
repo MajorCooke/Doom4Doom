@@ -899,37 +899,6 @@ Class Sovietsaurus : Inventory
 //	Mod tokens
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-Class ChaingunMod1 : Inventory // rotator
-{
-	Default 
-	{
-		+INVENTORY.UNDROPPABLE
-		Scale 0.2;
-		Inventory.PickupMessage "Gatling Rotator module";
-	}
-	States
-	{
-	Spawn:
-		POSS A 10;
-		Loop;
-	}
-}
-Class ChaingunMod2 : Inventory // turret
-{
-	Default 
-	{
-		+INVENTORY.UNDROPPABLE
-		Scale 0.2;
-		Inventory.PickupMessage "Mobile turret module";
-	}
-	States
-	{
-	Spawn:
-		SPOS A 10;
-		Loop;
-	}
-}
-
 
 Class GatlingRotatorActive :	Inventory	{ Default { +INVENTORY.UNDROPPABLE }}
 Class MobileTurretActive : 		Inventory	{ Default { +INVENTORY.UNDROPPABLE }}

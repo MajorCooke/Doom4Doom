@@ -48,22 +48,6 @@ Class ShowSurroundings : Inventory {}
 // Upgrades
 //==============================================================================
 
-Class D4HigherJump : 	Inventory { Default { Inventory.InterhubAmount 1; +INVENTORY.UNDROPPABLE }}
-Class D4MultiJump : 	Inventory { Default { Inventory.MaxAmount 3; Inventory.InterHubAmount 3; +INVENTORY.UNDROPPABLE }}
-Class D4AirControl : 	Inventory { Default { Inventory.InterhubAmount 1; +INVENTORY.UNDROPPABLE }}
-
-Class CashPercentBonus : Inventory
-{
-	Default 
-	{
-		+INVENTORY.UNDROPPABLE
-		+INVENTORY.UNTOSSABLE
-		+INVENTORY.IGNORESKILL
-		Inventory.MaxAmount 1000000;
-		Inventory.InterhubAmount 1000000;
-	}
-}
-
 Class CashPercentBonusTemp : Inventory
 {
 	Default
@@ -74,6 +58,8 @@ Class CashPercentBonusTemp : Inventory
 		Inventory.InterhubAmount 0;
 	}
 }
+
+
 
 //Strangely, this doesn't work the way it's supposed to. Oh well.
 Class D4HealthUpgrade : UpgradeStamina
@@ -87,9 +73,19 @@ Class D4HealthUpgrade : UpgradeStamina
 	}
 }
 
-Class D4ArmorCapRaiser : Inventory { Default { Inventory.MaxAmount 100; +INVENTORY.UNDROPPABLE }}
 
-Class D4CrateUpgrade : Inventory { Default { Inventory.MaxAmount 3;	Inventory.InterhubAmount 3;	+INVENTORY.UNDROPPABLE}}
+
+Class CashPercentBonus : Inventory
+{
+	Default 
+	{
+		+INVENTORY.UNDROPPABLE
+		+INVENTORY.UNTOSSABLE
+		+INVENTORY.IGNORESKILL
+		Inventory.MaxAmount 1000000;
+		Inventory.InterhubAmount 1000000;
+	}
+}
  
 // Environment protection
 Class ProtectionBonus1 : PowerProtection
@@ -125,8 +121,6 @@ Class ProtectionBonus3 : PowerProtection
 		Inventory.MaxAmount 1;
 	}
 }
-
-Class D4Stamina : Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.MaxAmount 100; Inventory.InterhubAmount 100; } }
 
 Class UpgradeUpdater : CustomInventory
 {

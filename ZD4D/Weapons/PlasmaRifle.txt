@@ -442,37 +442,6 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 //	Upgrade tokens
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-Class PlasmaRifleMod1 : Inventory // heat shot upgrade
-{
-	Default 
-	{
-		+INVENTORY.UNDROPPABLE
-		Scale 0.2;
-		Inventory.PickupMessage "heat blast module";
-	}
-	States
-	{
-	Spawn:
-		POSS A 10;
-		Loop;
-	}
-}
-Class PlasmaRifleMod2 : Inventory // electric grenade upgrade
-{
-	Default 
-	{
-		+INVENTORY.UNDROPPABLE
-		Scale 0.2;
-		Inventory.PickupMessage "stun bomb module";
-	}
-	States
-	{
-	Spawn:
-		SPOS A 10;
-		Loop;
-	}
-}
-
 
 Class StunBombActive : Inventory	
 {	Default { +INVENTORY.UNDROPPABLE	} }

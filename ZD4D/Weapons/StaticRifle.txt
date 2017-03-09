@@ -277,10 +277,6 @@ Class D4StaticRifle : Doom4Weapon
 
 Class StaticChargeDrain : 	Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 0; } }
 Class StaticRifleActive : 	Inventory {}
-Class StaticUpgrade1 :		Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1; } }
-Class StaticUpgrade2 :		Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1; } }
-Class StaticUpgrade3 :		Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1; } }
-Class StaticUpgrade4 :		Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1; } }
 
 Class ChargeSoundPlayer : Actor 
 {

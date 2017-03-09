@@ -21,6 +21,8 @@ Class D4Cyberdemon : D4AbstractBoss
 		D4AbstractMonster.CrateDropAmount 3;
 		D4AbstractMonster.CrateDropChance 192;
 		D4AbstractMonster.CrateDropAlways 2;
+		D4AbstractMonster.CashAmount 400;
+		D4AbstractMonster.CashChainsawFinisher 2000;
 		Health 4000;
 		Radius 40;
 		Height 110;
@@ -754,29 +756,31 @@ Class D4OldCyberdemon : D4AbstractBoss // : Cyberdemon
 	
 	Default 
 	{
-	Health 4000;
-	Radius 40;
-	Height 110;
-	Mass 1000;
-	Speed 16;
-	PainChance 20;
-	Monster;
-	MinMissileChance 160;
-	+BOSS 
-	+MISSILEMORE
-	+FLOORCLIP
-	+NORADIUSDMG
-	+DONTMORPH
-	+BOSSDEATH
-	SeeSound "cyber/sight";
-	PainSound "cyber/pain";
-	DeathSound "cyber/death";
-	ActiveSound "cyber/active";
-	Obituary "$OB_CYBORG";
-	
-	+DONTCORPSE
-	PainChance "GloryKill", 255;
-	WoundHealth 150;
+		D4AbstractMonster.CashAmount 400;
+		D4AbstractMonster.CashChainsawFinisher 2000;
+		Health 4000;
+		Radius 40;
+		Height 110;
+		Mass 1000;
+		Speed 16;
+		PainChance 20;
+		Monster;
+		MinMissileChance 160;
+		+BOSS 
+		+MISSILEMORE
+		+FLOORCLIP
+		+NORADIUSDMG
+		+DONTMORPH
+		+BOSSDEATH
+		SeeSound "cyber/sight";
+		PainSound "cyber/pain";
+		DeathSound "cyber/death";
+		ActiveSound "cyber/active";
+		Obituary "$OB_CYBORG";
+		
+		+DONTCORPSE
+		PainChance "GloryKill", 255;
+		WoundHealth 150;
 	}
 	States
 	{

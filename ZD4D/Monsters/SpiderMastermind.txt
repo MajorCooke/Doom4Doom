@@ -26,6 +26,8 @@ Class D4SpiderMastermind : D4AbstractBoss
 		D4AbstractMonster.CrateDropAmount 3;
 		D4AbstractMonster.CrateDropChance 192;
 		D4AbstractMonster.CrateDropAlways 2;
+		D4AbstractMonster.CashAmount 400;
+		D4AbstractMonster.CashChainsawFinisher 2000;
 		Health 3000;
 		Radius 96;
 		Height 100;
@@ -871,6 +873,8 @@ Class D4OldSpiderMastermind : D4AbstractBoss // : SpiderMastermind
 	
 	Default 
 	{
+		D4AbstractMonster.CashAmount 400;
+		D4AbstractMonster.CashChainsawFinisher 2000;
 		Health 3000;
 		Radius 128;
 		Height 100;

@@ -204,14 +204,6 @@ Class D4LightningGun : Doom4Weapon
 }
 
 //---------------------------------------------------------------------------
-// 	upgrades
-//---------------------------------------------------------------------------
-Class LGUpgradeRange : Inventory	{	Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-Class LGUpgradeAmmo : Inventory		{	Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-Class LGUpgradeDamage : Inventory	{	Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-Class LGUpgradeAltFire : Inventory	{	Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-
-//---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 Class LightningPuffV2 : Actor 
 {

@@ -106,9 +106,8 @@ Struct D4DropList play
 
 Class D4AbstractMonster : Actor 
 {
-	uint CrateDropChance;
-	uint CrateDropAmount;
-	uint CrateDropAlways;
+	uint CrateDropChance, CrateDropAmount, CrateDropAlways;
+	uint CashAmount, CashChainsawPinata;
 	Class<Actor> CashDropper;
 	int CashMultiplier;
 	Name MOD;
@@ -118,11 +117,15 @@ Class D4AbstractMonster : Actor
 	property CrateDropChance: CrateDropChance;
 	property CrateDropAmount: CrateDropAmount;
 	property CrateDropAlways: CrateDropAlways;
+	property CashAmount: CashAmount;
+	property CashChainsawFinisher: CashChainsawPinata;
 	Default
 	{
 		D4AbstractMonster.CrateDropAmount 0;
 		D4AbstractMonster.CrateDropChance 0;
 		D4AbstractMonster.CrateDropAlways 0;
+		D4AbstractMonster.CashAmount -1;
+		D4AbstractMonster.CashChainsawFinisher -1;
 		BloodColor "Red";
 	}
 	
@@ -306,11 +309,40 @@ Class D4AbstractMonster : Actor
 		}
 		else
 		{
-			if (CashGiver == null)
-			{	return;		}
-			
-			let cashboy = CashGiverBase(Spawn(CashGiver,pos));
-			if (cashboy)	cashboy.Multiplier = CashMul;
+			if (CashAmount >= 0)
+			{
+				
+				int CashAmountPercent = 0;
+				int CPB1 = 0, CPB2 = 0;
+				if (CashChainsawPinata > 0 && MOD == 'ChainsawPinata')
+				{
+					CashAmount = CashChainsawPinata;
+					CashMul = 1;
+				}
+				
+				CPB1 = CountInv("CashPercentBonus", Player1);
+				CPB2 = CountInv("CashPercentBonusTemp", Player1);
+				
+				if (CPB1 > 0 || CPB2 > 0)
+				{
+					CashAmountPercent = CashAmount * (CPB1 + CPB2);
+					CashAmount += (CashAmountPercent / 100);
+				}
+				
+				if (CashMul > 1)	CashAmount *= CashMul;
+				if (CashAmount < 1)	return;
+				A_GiveInventory("D4DCash",		CashAmount, Player1);
+				A_GiveInventory("D4DCashFake",	CashAmount, Player1);
+				A_GiveInventory("CashUpdater",1,Player1);
+			}
+			else
+			{
+				if (CashGiver == null)
+				{	return;		}
+				
+				let cashboy = CashGiverBase(Spawn(CashGiver,pos));
+				if (cashboy)	cashboy.Multiplier = CashMul;
+			}
 		}
 	}
 	

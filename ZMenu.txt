@@ -1,4 +1,182 @@
 //==============================================================================
+class OptionMenuItemPurchase : OptionMenuItem
+{
+	int amt, cost, owned, quan, maxinv, toGive;
+	String toCheck;
+	bool badItem, notFirst;
+	Class<Inventory> check;
+	
+	OptionMenuItemPurchase Init(String command)
+	{
+		amt = cost = quan = maxinv = toGive = -1;
+		Super.Init("Purchase", command);
+		toCheck = command;
+		return self;
+	}
+	
+	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
+	{
+		if (badItem)
+		{
+			drawLabel(indent, y, Font.CR_RED);
+			return indent;
+		}
+		/*
+		let plr = players[consoleplayer].mo;
+		if (plr)
+		{
+			
+		}
+		*/
+		drawLabel(indent, y, selected ? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColorMore);
+		return indent;
+	}
+	
+	/*
+	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
+	{
+		if (badItem)
+		{
+			drawLabel(indent, y, Font.CR_RED);
+			return indent;
+		}
+		
+		let plr = players[consoleplayer].mo;
+		if (plr)
+		{
+			if (!notFirst)
+			{
+				if (!check)
+				{
+					// Item wasn't found.
+					badItem = true;
+					mLabel = "ERROR: Bad or non-existent item!";
+				}
+				notFirst = true;
+			}
+			
+			// Set up the cash/quantity checks.
+			if (amt == -1)
+			{
+				amt = plr.CountInv("D4DCash");
+				quan = plr.CountInv(check);
+				
+				// Look for the tiered type first.
+				let finder1 = UpgradeItemTier(plr.FindInventory(check));
+				if (!finder1)
+				{
+					// Not tiered, so search for the base.
+					let finder2 = UpgradeItem(plr.FindInventory(check));
+					if (!finder2)	
+					{
+						// No base, wrong type.
+						badItem = true;
+						mLabel = "ERROR: Item not of UpgradeItem type!";
+						return indent;
+					}
+					else
+					{
+						
+						maxinv = finder2.QuantityMax;
+						if (quan >= maxinv)
+						{
+							// Already bought.
+							badItem = true;
+							mLabel = "Already Purchased (Back)";
+							return indent;
+						}
+						
+						cost = finder2.Cost;
+						toGive = finder2.Quantity;
+					}
+				}
+				else
+				{
+					// Find the current tier by checking what quantity we have.
+					maxinv = Max(finder1.Quantity, finder1.Q2, finder1.Q3, finder1.Q4);
+					
+					if (quan >= maxinv)
+					{
+						// Already bought.
+						badItem = true;
+						mLabel = "Already Purchased (Back)";
+						return indent;
+					}
+					else if (Q4 != -1 && quan < Q4)
+					{
+						cost = finder1.Cost4;
+						toGive = finder1.Q4;
+					}
+					else if (Q3 != -1 && quan < Q3)
+					{
+						cost = finder1.Cost3;
+						toGive = finder1.Q3;
+					}
+					else if (Q2 != -1 && quan < Q2)
+					{
+						cost = finder1.Cost2;
+						toGive = finder1.Q2;
+					}
+					else if (Quantity != -1 && quan < Quantity)
+					{
+						cost = finder1.Cost;
+						toGive = finder1.Quantity;
+					}
+					else
+					{
+						badItem = true;
+						mLabel = "Error: Quantity must be greater than zero!";
+						return indent;
+					}
+					
+				}
+				
+			}
+			
+			if (cost == -1)
+			{
+				badItem = true;
+				mLabel = "ERROR: UpgradeItem(Tier) costs not set!";
+				return indent;
+			}
+			else if (amt > cost)
+			{
+				mLabel = "Purchase";
+			}
+			else
+			{
+				mLabel = "Not Enough Credits (Back)";
+			}
+			drawLabel(indent, y, selected ? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColorMore);
+		}
+		return indent;
+	}
+	*/
+	
+	override bool MenuEvent (int mkey, bool fromcontroller)
+	{
+		
+		if (mkey == Menu.MKEY_Enter)
+		{
+			// Grab the current menu...
+			let current = Menu.GetCurrentMenu();
+			if (badItem)
+			{
+				Menu.MenuSound("Doom4/Player/Nope");
+			}
+			else
+			{
+				Menu.MenuSound("Menu/Activate");
+			}
+			// ...and close it. Means it'll go back up a level.
+			if (current) current.Close();
+			return true;
+		}
+		return Super.MenuEvent(mkey, fromcontroller);
+	}
+}
+
+//==============================================================================
 // CvarDisplayInt
 // 	Like NumberField but is not selectable, nor adjustable. Simply reflects
 // 	a cvar in int form for on screen purposes only.
@@ -21,7 +199,7 @@ class OptionMenuItemCvarDisplayInt : OptionMenuFieldBase
 	}
 
 	override String Represent()
-	{
+	{		
 		if (mCVar == null) return "";
 		return String.format("%d", mCVar.GetInt());
 	}

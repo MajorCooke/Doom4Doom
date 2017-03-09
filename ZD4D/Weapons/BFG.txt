@@ -224,10 +224,6 @@ Class BFGRedirector : CustomInventory
 	}
 }
 
-Class BFGUpgrade1 : Inventory { Default { +INVENTORY.UNDROPPABLE }}	// Ammo Capacity
-Class BFGUpgrade2 : Inventory { Default { +INVENTORY.UNDROPPABLE }} // Alt Fire
-Class BFGUpgrade3 : Inventory { Default { +INVENTORY.UNDROPPABLE }}	// Projectile; Speed
-Class BFGUpgrade4 : Inventory { Default { +INVENTORY.UNDROPPABLE }}	// Redirector
 Class RedirectedToken : Inventory {}
 Class SineZoom : Inventory { Default { Inventory.MaxAmount 450; }}
 Class OrbiterActive : Inventory { Default { Inventory.InterhubAmount 0; }}

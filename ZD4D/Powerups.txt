@@ -129,11 +129,6 @@ Class D4MegasphereDamageReducer : Inventory
 	}
 }
 
-Class D4MegachargeUpgrade1 : Inventory	{ Default { +INVENTORY.UNDROPPABLE; } }
-Class D4MegachargeUpgrade2 : Inventory	{ Default { +INVENTORY.UNDROPPABLE; } }
-Class D4DoomDollUpgrade1 : Inventory	{ Default { +INVENTORY.UNDROPPABLE; } }
-Class D4DoomDollUpgrade2 : Inventory	{ Default { +INVENTORY.UNDROPPABLE; } }
-
 Class D4TimeFreezeGiver : PowerupGiver
 {
 	Default
@@ -574,13 +569,6 @@ Class PowerD4Regen : PowerRegeneration
 		Super.EndEffect();
 	}
 }
-
-
-
-Class D4RegenUpgrade1 : Inventory { Default { +INVENTORY.UNTOSSABLE +INVENTORY.UNDROPPABLE } }	// Armor Regen
-Class D4RegenUpgrade2 : Inventory { Default { +INVENTORY.UNTOSSABLE +INVENTORY.UNDROPPABLE } }	// Dual Regen
-Class D4RegenUpgrade3 : Inventory { Default { +INVENTORY.UNTOSSABLE +INVENTORY.UNDROPPABLE } }	// Double Regen Rate
-Class D4RegenUpgrade4 : Inventory { Default { +INVENTORY.UNTOSSABLE +INVENTORY.UNDROPPABLE } }	// Max health +100 (Soulsphere Only)
 
 Class RegenerationGiver : PowerupGiver
 {

@@ -499,24 +499,24 @@ Class ModuleGiver : CustomInventory
 	Pickup:
 		TNT1 A 0
 		{
-			A_GiveInventory("ShotgunMod1",1);
-			A_GiveInventory("ShotgunMod2",1);
-			A_GiveInventory("SSGUpgrade1",1);
-			A_GiveInventory("SSGUpgrade2",1);
-			A_GiveInventory("SSGUpgrade3",1);
-			A_GiveInventory("SSGUpgrade4",1);
-			A_GiveInventory("GaussCannonMod1",1);
-			A_GiveInventory("GaussCannonMod2",1);
-			A_GiveInventory("AssaultRifleMod1",1);
-			A_GiveInventory("AssaultRifleMod2",1);
-			A_GiveInventory("RocketLauncherMod1",1);
-			A_GiveInventory("RocketLauncherMod2",1);
-			A_GiveInventory("PlasmaRifleMod1",1);
-			A_GiveInventory("PlasmaRifleMod2",1);
-			A_GiveInventory("ChaingunMod1",1);
-			A_GiveInventory("ChaingunMod2",1);
-			A_GiveInventory("GaussCannonMod1",1);
-			A_GiveInventory("GaussCannonMod2",1);
+			A_GiveInventory("ShotgunMod1");
+			A_GiveInventory("ShotgunMod2");
+			A_GiveInventory("SSGUpgrade1");
+			A_GiveInventory("SSGUpgrade2");
+			A_GiveInventory("SSGUpgrade3");
+			A_GiveInventory("SSGUpgrade4");
+			A_GiveInventory("GaussCannonMod1");
+			A_GiveInventory("GaussCannonMod2");
+			A_GiveInventory("AssaultRifleMod1");
+			A_GiveInventory("AssaultRifleMod2");
+			A_GiveInventory("RocketLauncherMod1");
+			A_GiveInventory("RocketLauncherMod2");
+			A_GiveInventory("PlasmaRifleMod1");
+			A_GiveInventory("PlasmaRifleMod2");
+			A_GiveInventory("ChaingunMod1");
+			A_GiveInventory("ChaingunMod2");
+			A_GiveInventory("GaussCannonMod1");
+			A_GiveInventory("GaussCannonMod2");
 			A_GiveInventory("StaticUpgrade1");
 			A_GiveInventory("StaticUpgrade2");
 			A_GiveInventory("StaticUpgrade3");
@@ -537,6 +537,7 @@ Class ModuleGiver : CustomInventory
 			A_GiveInventory("PistolUpgradeAltDamage");
 			A_GiveInventory("PistolUpgradeAltCharge");
 			A_GiveInventory("PistolUpgradeDamage");
+			A_GiveInventory("PistolUpgradeLance");
 			A_GiveInventory("BFGUpgrade1");
 			A_GiveInventory("BFGUpgrade2");
 			A_GiveInventory("BFGUpgrade3");

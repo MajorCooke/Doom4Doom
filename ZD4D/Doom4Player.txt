@@ -1,3 +1,96 @@
+Struct ItemsToSave
+{
+	Array<String> ItemList;
+	void Init()
+	{
+		static const String SavedItemsStr[] =
+		{	
+			"D4DCash",
+			"AssaultRifleMod1", //1
+			"AssaultRifleMod2",
+			"ChaingunMod1",
+			"ChaingunMod2",
+			"GaussCannonMod1",
+			"GaussCannonMod2",
+			"PlasmaRifleMod1",
+			"PlasmaRifleMod2",
+			"RocketLauncherMod1",
+			"RocketLauncherMod2",
+			"ShotgunMod1",
+			"ShotgunMod2",
+			"SSGUpgrade1",
+			"SSGUpgrade2",
+			"SSGUpgrade3",
+			"SSGUpgrade4",
+			"PistolUpgradeAutomatic",
+			"PistolUpgradeAltDamage",
+			"PistolUpgradeAltCharge",
+			"PistolUpgradeDamage",
+			"PistolUpgradeLance",
+			"BFGUpgrade1",
+			"BFGUpgrade2",
+			"BFGUpgrade3",
+			"BFGUpgrade4", // 25
+			"StaticUpgrade1",
+			"StaticUpgrade2",
+			"StaticUpgrade3",
+			"StaticUpgrade4",
+			"SovietActive",
+			"SovietToken",
+			"LGUpgradeAmmo",
+			"LGUpgradeRange",
+			"LGUpgradeDamage",
+			"LGUpgradeAltFire",
+			"VortexUpgradeDamage",
+			"VortexUpgradeAmmo",
+			"VortexUpgradeAltSpeed",
+			"VortexUpgradeAltPierce",
+			"RepeaterUpgradePiercing",
+			"RepeaterUpgradeDamage",
+			"RepeaterUpgradeAltDamage",
+			"RepeaterUpgradeAltAmmo",
+			"D4CarrionCannon",
+			"D4CarrionToken",
+			"CarrionLevel",
+			"CarrionUpgradePickup",
+			"CarrionUpgradeAmmo",
+			"CarrionUpgradeStun",
+			"CarrionUpgradeTime",
+			"DollUses",
+			"FragGrenadePickup",
+			"HoloGrenadePickup",
+			"SyphonGrenadePickup",
+			"FragGrenadeSelected",
+			"MarineHoloSelected",
+			"SyphonGrenadeSelected",
+			"D4Stamina",
+			"ProtectionBonus1",
+			"ProtectionBonus2",
+			"ProtectionBonus3",
+			"D4ArmorCapRaiser",
+			"D4AirControl",
+			"D4HigherJump",
+			"D4MultiJump",
+			"D4CrateUpgrade",
+			"CashPercentBonus",
+			"D4MegasphereDamageReducer",
+			"D4MegachargeUpgrade1",
+			"D4MegachargeUpgrade2",
+			"D4DoomDollUpgrade1",
+			"D4DoomDollUpgrade2",
+			"D4RegenUpgrade1",
+			"D4RegenUpgrade2",
+			"D4RegenUpgrade3",
+			"D4RegenUpgrade4" // 77
+		};
+		ItemList.Clear();
+		for (int i = 0; i < SavedItemsStr.Size(); i++)
+		{
+			ItemList.Push (SavedItemsStr[i]);
+		}
+	}
+};
+
 Class Doom4Player : PlayerPawn
 {
 	const DamageDegree = 8;
@@ -623,6 +716,30 @@ Class RlyClimb : Inventory {}
 
 extend class Doom4Player
 {
+	override void PostBeginPlay()
+	{
+		if (!player || !player.mo || player.mo != self)
+		{
+			return Super.PostBeginPlay();
+		}
+		
+		Super.PostBeginPlay();
+		ItemsToSave ITS;
+		ITS.Init();
+		
+		// Because of KEEPDEPLETED, that's all we'll need. I am so happy this
+		// flag exists.
+		for (int i = 1; i < ITS.ItemList.Size(); i++)
+		{
+			Class<Inventory> check = ITS.ItemList[i];
+			if (check && !CountInv(check))
+			{
+				A_SetInventory(check,1);
+				A_SetInventory(check,0);	
+			}
+		}
+	}
+	
 	//==========================================================================
 	//	Health, Armor and Movement
 	//==========================================================================
@@ -893,7 +1010,6 @@ extend class Doom4Player
 				{
 					for (int i = 0; i < Tracker.ItemList.Size(); i++)
 					{
-						//A_LogInt(i);
 						Class<Inventory> checker = Tracker.ItemList[i];
 						if (checker != null)
 							A_SetInventory(checker, Tracker.ItemCount[i]);
@@ -962,86 +1078,10 @@ extend class Doom4Player
 		if (!player || !player.mo || player.mo != self)
 			return Super.Die(source, inflictor, dmgflags);
 		
-		static const String SavedItemsStr[] =
-		{	
-			"D4DCash",
-			"AssaultRifleMod1", //1
-			"AssaultRifleMod2",
-			"ChaingunMod1",
-			"ChaingunMod2",
-			"GaussCannonMod1",
-			"GaussCannonMod2",
-			"PlasmaRifleMod1",
-			"PlasmaRifleMod2",
-			"RocketLauncherMod1",
-			"RocketLauncherMod2",
-			"ShotgunMod1",
-			"ShotgunMod2",
-			"SSGUpgrade1",
-			"SSGUpgrade2",
-			"SSGUpgrade3",
-			"SSGUpgrade4",
-			"PistolUpgradeAutomatic",
-			"PistolUpgradeAltDamage",
-			"PistolUpgradeAltCharge",
-			"PistolUpgradeDamage",
-			"PistolUpgradeLance",
-			"BFGUpgrade1",
-			"BFGUpgrade2",
-			"BFGUpgrade3",
-			"BFGUpgrade4", // 25
-			"StaticUpgrade1",
-			"StaticUpgrade2",
-			"StaticUpgrade3",
-			"StaticUpgrade4",
-			"SovietActive",
-			"SovietToken",
-			"LGUpgradeAmmo",
-			"LGUpgradeRange",
-			"LGUpgradeDamage",
-			"LGUpgradeAltFire",
-			"VortexUpgradeDamage",
-			"VortexUpgradeAmmo",
-			"VortexUpgradeAltSpeed",
-			"VortexUpgradeAltPierce",
-			"RepeaterUpgradePiercing",
-			"RepeaterUpgradeDamage",
-			"RepeaterUpgradeAltDamage",
-			"RepeaterUpgradeAltAmmo",
-			"D4CarrionCannon",
-			"D4CarrionToken",
-			"CarrionLevel",
-			"CarrionUpgradePickup",
-			"CarrionUpgradeAmmo",
-			"CarrionUpgradeStun",
-			"CarrionUpgradeTime",
-			"DollUses",
-			"FragGrenadePickup",
-			"HoloGrenadePickup",
-			"SyphonGrenadePickup",
-			"FragGrenadeSelected",
-			"MarineHoloSelected",
-			"SyphonGrenadeSelected",
-			"D4Stamina",
-			"ProtectionBonus1",
-			"ProtectionBonus2",
-			"ProtectionBonus3",
-			"D4ArmorCapRaiser",
-			"D4AirControl",
-			"D4HigherJump",
-			"D4MultiJump",
-			"D4CrateUpgrade",
-			"CashPercentBonus",
-			"D4MegasphereDamageReducer",
-			"D4MegachargeUpgrade1",
-			"D4MegachargeUpgrade2",
-			"D4DoomDollUpgrade1",
-			"D4DoomDollUpgrade2",
-			"D4RegenUpgrade1",
-			"D4RegenUpgrade2",
-			"D4RegenUpgrade3",
-			"D4RegenUpgrade4" // 77
-		};
+		ItemsToSave ITS;
+		
+		if (ITS.ItemList.Size() < 1)
+			ITS.Init();
 		
 		let Tracker = D4DDeathStorage.Get();
 		if (Tracker)
@@ -1049,22 +1089,22 @@ extend class Doom4Player
 			Tracker.died = true;
 			Tracker.ItemList.Clear();
 			Tracker.ItemCount.Clear();
-			for (int i = 0; i < SavedItemsStr.Size(); i++)
+			for (int i = 0; i < ITS.ItemList.Size(); i++)
 			{
 				// Make sure the item is a real one. Otherwise, notify the players
 				// to report this to developers.
-				Class<Inventory> checker = SavedItemsStr[i];
+				Class<Inventory> checker = ITS.ItemList[i];
 				if (checker == null)
 				{
-					A_Log(SavedItemsStr[i].." is not an item! Report to devs!");
+					A_Log(ITS.ItemList[i].." is not an item! Report to devs!");
 					continue;
 				}
 				
 				// Same thing with the cvar.
-				CVar mCheck = CVar.FindCVar(SavedItemsStr[i]);
+				CVar mCheck = CVar.FindCVar(ITS.ItemList[i]);
 				if (mCheck == null)
 				{
-					A_Log(SavedItemsStr[i].." is an item but has no cvar! Report to devs!");
+					A_Log(ITS.ItemList[i].." is an item but has no cvar! Report to devs!");
 					continue;
 				}
 				
@@ -1072,12 +1112,12 @@ extend class Doom4Player
 				int amt = CountInv(checker);
 				//mCheck.SetInt(amt);
 				
-				Tracker.ItemList.Push(SavedItemsStr[i]);
+				Tracker.ItemList.Push(ITS.ItemList[i]);
 				Tracker.ItemCount.Push(amt);
 				CVar debug = CVar.FindCVar("D4Debug");
 				if (debug && debug.GetInt() > 0)
 				{
-					String msg = String.Format("%s : %d ", SavedItemsStr[i], amt);
+					String msg = String.Format("%s : %d ", ITS.ItemList[i], amt);
 					A_Log(msg);
 				}
 			}
@@ -1087,7 +1127,110 @@ extend class Doom4Player
 	}
 }
 
+//==============================================================================
 
+
+
+//==============================================================================
+
+Struct PlayerDelta
+{
+	Array<String> ItemName;
+	Array<Int> Count;
+	//==========================================================================
+	// Checks for an item and returns its position.
+	int CheckForItem (String thing)
+	{
+		// Abort if the item's invalid.
+		Class<Inventory> check = thing;
+		if (!check)	
+		{
+			return -2;
+		}
+		
+		// Otherwise, look for it.
+		for (int i = 0; i < ItemName.Size(); i++)
+		{
+			let tng = ItemName[i];
+			if (tng.Length() > 0 && thing ~== tng)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	//==========================================================================
+	// Sets an item if it exists, or adds the item to the array if not already,
+	// providing that item type is real.
+	bool SetItem (String thing, uint amt)
+	{
+		Class<Inventory> check = thing;
+		if (!check)	return false;
+		
+		for (int i = 0; i < ItemName.Size(); i++)
+		{
+			//let tng = ;
+			if (ItemName[i].Length() > 0 && thing ~== ItemName[i])
+			{
+				// Already exists, just update the amount.
+				Count[i] = amt;
+				return true;
+			}
+		}
+		
+		// Doesn't exist, make one.
+		ItemName.Push(thing);
+		Count.Push(amt);
+		return true;
+	}
+}
+
+/*==============================================================================
+
+==============================================================================*/
+
+Class D4DHandler : EventHandler
+{
+	PlayerDelta deltas[MAXPLAYERS];
+	
+	// Completely clear off all listings for a particular player.
+	void Init(int num)
+	{
+		deltas[num].ItemName.Clear();
+		deltas[num].Count.Clear();
+	}
+
+	// Update the listings, in the struct.
+	void Update(int num, string iname, uint count)
+	{
+		if (players[num].mo)
+		{
+			if (!deltas[num].SetItem(iname, count))
+			{
+				console.printf(iname.." is not a proper item");
+			}
+		}
+	}
+
+	void Apply(int num)
+	{
+		let plr = players[num].mo;
+		if (plr)
+		{
+			for (int i = 0; i < deltas[num].ItemName.Size(); i++)
+			{
+				Class<Inventory> item = deltas[num].ItemName[i];
+				if (item)
+				{
+					plr.A_SetInventory(item,deltas[num].Count[i]);
+				}
+			}
+		}
+		deltas[num].ItemName.Clear();
+		deltas[num].Count.Clear();
+	}
+}
 
 /*==============================================================================
 
@@ -1109,9 +1252,6 @@ class D4DDeathStorage : Thinker
 	{
 		ChangeStatNum(STAT_STATIC);
 		msg = "";
-		//died = false;
-		//ItemList.Clear();
-		//ItemCount.Clear();
 		return self;
 	}
 
@@ -1125,5 +1265,4 @@ class D4DDeathStorage : Thinker
 		}
 		return p;
 	}
-
 }

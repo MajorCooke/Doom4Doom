@@ -1,4 +1,3 @@
-
 //==============================================================================
 //==============================================================================
 // Main Menu
@@ -643,13 +642,11 @@ OptionMenu "PistolUpgradeAltCharge"
 	StaticText "$PistolUpgradeAltChargeD1"
 	StaticText ""
 	Command "Buy", "test <= $Cost_U1Pistol $D4DCash \"PistolUpgradeAltCharge 1; CTake $Cost_U1Pistol; BuyUpgradeWeapon;\" \"NEC\""
+	//Purchase "PistolUpgradeAltCharge"
 	StaticText ""
-	
-	//CostDisplay Cost_U1Pistol
 	CostDisplay Cost_U1Pistol
 	StaticText ""
 	CreditDisplay Cost_U1Pistol
-	//CreditDisplay D4DCash
 }
 OptionMenu "PistolUpgradeAltDamage"
 {

@@ -339,26 +339,6 @@ Class RepeaterAimHolding : Inventory
 
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-//	Mod tokens
-//--------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------
-//Upgrade 1: Bullets pierce 1 Monster;
-Class RepeaterUpgradePiercing : Inventory 	{ Default {+INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-
-//Upgrade 2: increased primary fire damage
-Class RepeaterUpgradeDamage : Inventory 	{ Default {+INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-
-//Upgrade 3: increased alt fire burn damage
-Class RepeaterUpgradeAltDamage : Inventory 	{ Default {+INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-
-//Upgrade 4: Decrease ammo requirement for alt fire
-Class RepeaterUpgradeAltAmmo : Inventory	{ Default {+INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-
-
-
-
-//--------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------
 //	Alt fire related
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------

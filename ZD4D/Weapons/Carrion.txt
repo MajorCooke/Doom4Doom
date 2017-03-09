@@ -23,11 +23,6 @@
 // Argent Accumulator
 // +1 second to flame downpour.
 
-Class CarrionUpgradePickup : Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1; }}
-Class CarrionUpgradeAmmo : Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1; }}
-Class CarrionUpgradeStun : Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1; }}
-Class CarrionUpgradeTime : Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1; }}
-
 enum CarrionConst
 {
 	CarrionAmmoCostPrimary = 14,

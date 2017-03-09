@@ -706,11 +706,6 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 	}
 }
 
-Class SSGUpgrade1 : Inventory	{ Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-Class SSGUpgrade2 : Inventory	{ Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-Class SSGUpgrade3 : Inventory	{ Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-Class SSGUpgrade4 : Inventory	{ Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
-
 Class SSRSecondShotToken : Inventory	{ 	Default { Inventory.MaxAmount 2;	} }
 Class SSLSecondShotToken : Inventory	{	Default { Inventory.MaxAmount 2;	} }
 

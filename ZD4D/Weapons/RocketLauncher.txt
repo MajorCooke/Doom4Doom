@@ -530,46 +530,6 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 
 Class RocketFired : Inventory { Default { Inventory.InterHubAmount 0; } }
 Class TripleShot : Inventory {	Default { Inventory.MaxAmount 2;	Inventory.InterHubAmount 0; } }
-//--------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------
-//	Mods tokens
-// (No, DBT, they did not have the right names. :P)
-//--------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------
-Class RocketLauncherMod1 : Inventory // detonate
-{
-	Default 
-	{
-		// Inventory.(Max)Amount 1 is superfluous and is assigned by default. No need
-		// to have it. InterhubAmount however is set to... something fucked up.
-		+INVENTORY.UNDROPPABLE
-		Inventory.InterHubAmount 1;
-		Scale 0.2;
-		Inventory.PickupMessage "Detonate module";
-	}
-	States
-	{
-	Spawn:
-		POSS A 10;
-		Loop;
-	}
-}
-Class RocketLauncherMod2 : Inventory // lock on
-{
-	Default 
-	{
-		+INVENTORY.UNDROPPABLE
-		Inventory.InterHubAmount 1;
-		Scale 0.2;
-		Inventory.PickupMessage "Lock On module";
-	}
-	States
-	{
-	Spawn:
-		SPOS A 10;
-		Loop;
-	}
-}
 
 Class RocketLauncherModSecondary : Inventory	//the token to switch between mods
 {}

@@ -20,7 +20,7 @@ InterpolateArmor false, 20;
 statusbar Normal, forcescaled	
 {
 	// Debug
-	inInventory ShowSurroundings
+	inInventory ShowSurroundings, 1
 	{
 		drawNumber 4, Q4HUDFONT, green,  DebugMonstersToken, alignment(right),   0,  0;	drawString bigfont, green,  "Monsters",   5,  0, 0, alignment(left);
 		drawNumber 4, Q4HUDFONT, yellow, DebugBiggiesToken,  alignment(right),   0, 35;	drawString bigfont, yellow, "Biggies",    5, 35, 0, alignment(left);
@@ -82,7 +82,7 @@ statusbar Normal, forcescaled
 		IfHealth 1 
 		{
 			// Armor
-			InInventory PowerInvulBase
+			InInventory PowerInvulBase, 1
 			{
 				drawbar "BODYARM1", "BODYARM0", armor(100), horizontal, 18,676;
 				drawbar "BODYARM2", "BODYARM0", armor(100), horizontal, 18,676;
@@ -135,7 +135,7 @@ statusbar Normal, forcescaled
 		}
 		
 		// Medals
-		InInventory D4DCash,1000000000 // billion
+		InInventory D4DCash, 1000000000 // billion
 		{
 			InInventory RewardToken,1 { drawimage "medal1GL", 600,0; } else { drawimage "medal0", 620,20; }
 			InInventory RewardToken,2 { drawimage "medal1GL", 650,0; } else { drawimage "medal0", 670,20; }
@@ -182,25 +182,25 @@ statusbar Normal, forcescaled
 		// Inventory
 		drawbar "KEYSLOTR", "KEYSLOT0", GrenadeCooldown, vertical, 825,680;
 		inInventory not GrenadeCooldown { drawimage "KEYSLOT1", 825, 680; } else { drawimage "KEYSLOT0", 825, 680; }
-		inInventory FragGrenadeSelected 	{ inInventory not GrenadeCooldown { drawimage "FragGren", 828,682; } else { drawimage "FragGre0", 828,682; } }	
-		inInventory SyphonGrenadeSelected 	{ inInventory not GrenadeCooldown { drawimage "SyphGren", 827,679; } else { drawimage "SyphGre0", 827,679; } }	
-		inInventory MarineHoloSelected 		{ inInventory not GrenadeCooldown { drawimage "HoloGren", 827,681; } else { drawimage "HoloGre0", 827,681; } }	
+		inInventory FragGrenadeSelected, 1 		{ inInventory not GrenadeCooldown { drawimage "FragGren", 828,682; } else { drawimage "FragGre0", 828,682; } }	
+		inInventory SyphonGrenadeSelected, 1 	{ inInventory not GrenadeCooldown { drawimage "SyphGren", 827,679; } else { drawimage "SyphGre0", 827,679; } }	
+		inInventory MarineHoloSelected, 1		{ inInventory not GrenadeCooldown { drawimage "HoloGren", 827,681; } else { drawimage "HoloGre0", 827,681; } }	
 		
 		// Ammo
 		drawimage "AMMOPANE", 866,669;
 		drawbar "AMMOBAR1", "AMMOBAR0", AmmoToken, horizontal, reverse, 881,693;
 		drawbar "AMMOBAR2", "AMMOBAR0", SuperAmmoToken, horizontal, reverse, 881,693;
 		drawnumber 6, Q4SMALLHUDFONT, white, ammo1,  alignment(right), 983,676;	
-		inInventory D4BFG 
+		inInventory D4BFG, 1
 		{
-			inInventory BFGUpgrade1
+			inInventory BFGUpgrade1, 1
 			{	drawbar "BFGAMM44", "BFGAMM04", D4BFGAmmo, horizontal, reverse, 878,713; }
 			else
 			{	drawbar "BFGAMM33", "BFGAMM03", D4BFGAmmo, horizontal, reverse, 878,713; }
 		}
-		inInventory D4Chainsaw
+		inInventory D4Chainsaw, 1
 		{
-			inInventory D4Backpack 
+			inInventory D4Backpack, 1
 			{	drawbar "CSAMMO88", "CSAMMO08", D4Fuel, horizontal, reverse, 982,713; }
 			else
 			{	drawbar "CSAMMO55", "CSAMMO05", D4Fuel, horizontal, reverse, 982,713; }
@@ -269,7 +269,7 @@ statusbar Normal, forcescaled
 			// Weapon icon
 			DrawImage "fist", 983,676;
 		}
-		isSelected D4Chainsaw
+		isSelected D4Chainsaw, 1
 		{
 			// Weapon icon
 			DrawImage "chainsaw", 983,676;
@@ -283,15 +283,15 @@ statusbar Normal, forcescaled
 			DrawImage "pistol", 983,676;
 			
 			// Lance Mod
-			inInventory PistolUpgradeLance { DrawImage "zancmod0", 882, 673; InInventory PistolLanceActive { DrawImage "zancmod1", 882, 673; }}
-			InInventory PistolLanceReadyToken { drawimage "rPLance",  465,337; }
+			inInventory PistolUpgradeLance, 1 { DrawImage "zancmod0", 882, 673; InInventory PistolLanceActive, 1 { DrawImage "zancmod1", 882, 673; }}
+			InInventory PistolLanceReadyToken, 1 { drawimage "rPLance",  465,337; }
 			
 			// Reticle
 			inInventory Not NoReticle 	{ DrawImage "rPistol",  465,337; }
 			
 			// Charging
 			InInventory PistolAltFireCounter,52 { 
-				InInventory PistolUpgradeAltDamage
+				InInventory PistolUpgradeAltDamage, 1
 				{ drawimage "red52",  465,337; } // upgraded fully charged--red counter
 				else
 				{ drawimage "cya52",  465,337; } // fully charged pistol--cyan counter
@@ -356,12 +356,12 @@ statusbar Normal, forcescaled
 			DrawImage "shotgun", 983,676;
 			
 			// Mods available and equipped
-			inInventory ShotgunMod1 { DrawImage "zhrgbrs0", 882, 673; InInventory TriShotActive { DrawImage "zhrgbrs1", 882, 673; } }
-			inInventory ShotgunMod2 { DrawImage "zplosht0", 910, 673; InInventory GrenadeActive { DrawImage "zplosht1", 910, 673; } }
+			inInventory ShotgunMod1, 1 { DrawImage "zhrgbrs0", 882, 673; InInventory TriShotActive, 1 { DrawImage "zhrgbrs1", 882, 673; } }
+			inInventory ShotgunMod2, 1 { DrawImage "zplosht0", 910, 673; InInventory GrenadeActive, 1 { DrawImage "zplosht1", 910, 673; } }
 			
-			InInventory TriShotActive
+			InInventory TriShotActive, 1
 			{
-				InInventory AltFireToken
+				InInventory AltFireToken, 1
 				{
 					inInventory Not NoReticle 	{ DrawImage "rSGT_ady",  465,337; }
 				}
@@ -437,7 +437,7 @@ statusbar Normal, forcescaled
 				}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} // 52 braces
 			}
 			else {
-			InInventory GrenadeActive
+			InInventory GrenadeActive, 1
 			{
 				InInventory AltFireToken
 				{
@@ -520,8 +520,8 @@ statusbar Normal, forcescaled
 			DrawImage "chaingun", 983,676;
 			
 			// Mods available and equipped
-			inInventory ChaingunMod1 { DrawImage "zotator0", 882, 673; InInventory GatlingRotatorActive { DrawImage "zotator1", 882, 673; } }
-			inInventory ChaingunMod2 { DrawImage "zurrets0", 910, 673; InInventory MobileTurretActive   { DrawImage "zurrets1", 910, 673; } }
+			inInventory ChaingunMod1, 1 { DrawImage "zotator0", 882, 673; InInventory GatlingRotatorActive { DrawImage "zotator1", 882, 673; } }
+			inInventory ChaingunMod2, 1 { DrawImage "zurrets0", 910, 673; InInventory MobileTurretActive   { DrawImage "zurrets1", 910, 673; } }
 			
 			// Reticle
 			inInventory Not NoReticle 	{ DrawImage "rCha_gun",  464,336; }
@@ -532,7 +532,7 @@ statusbar Normal, forcescaled
 			DrawImage "repeater", 983,676;
 			
 			// Reticle
-			InInventory RepeaterAimHolding
+			InInventory RepeaterAimHolding, 1
 			{
 				inInventory Not NoReticle 	{ DrawImage "rRep_ire",  465,337; }
 			}
@@ -618,8 +618,8 @@ statusbar Normal, forcescaled
 			DrawImage "harharha", 983,676;
 			
 			// Mods available and equipped
-			inInventory AssaultRifleMod1 { DrawImage "zactscp0", 882, 673; InInventory TacticalScopeActive { DrawImage "zactscp1", 882, 673; } }
-			inInventory AssaultRifleMod2 { DrawImage "zissile0", 910, 673; InInventory MicroMissilesActive { DrawImage "zissile1", 910, 673; } }
+			inInventory AssaultRifleMod1, 1 { DrawImage "zactscp0", 882, 673; InInventory TacticalScopeActive { DrawImage "zactscp1", 882, 673; } }
+			inInventory AssaultRifleMod2, 1 { DrawImage "zissile0", 910, 673; InInventory MicroMissilesActive { DrawImage "zissile1", 910, 673; } }
 			
 			// Reticle
 			InInventory AltFireToken && TacticalScopeActive
@@ -645,8 +645,8 @@ statusbar Normal, forcescaled
 			inInventory Not NoReticle 	{ DrawImage "rocketer", 983,676; }
 			
 			// Mods available and equipped
-			inInventory RocketLauncherMod1 { DrawImage "zetonat0", 882, 673; InInventory DetonateActive { DrawImage "zetonat1", 882, 673; } }
-			inInventory RocketLauncherMod2 { DrawImage "zocking0", 910, 673; InInventory LockOnActive   { DrawImage "zocking1", 910, 673; } }
+			inInventory RocketLauncherMod1, 1 { DrawImage "zetonat0", 882, 673; InInventory DetonateActive { DrawImage "zetonat1", 882, 673; } }
+			inInventory RocketLauncherMod2, 1 { DrawImage "zocking0", 910, 673; InInventory LockOnActive   { DrawImage "zocking1", 910, 673; } }
 			
 			// Reticle
 			inInventory DetonateActive
@@ -721,8 +721,8 @@ statusbar Normal, forcescaled
 			DrawImage "gauss", 983,676;
 			
 			// Mods available and equipped
-			inInventory GaussCannonMod1 { DrawImage "zrecblt0", 882, 673; InInventory PrecisionActive { DrawImage "zrecblt1", 882, 673; } }
-			inInventory GaussCannonMod2 { DrawImage "ziegemd0", 910, 673; InInventory SiegeActive     { DrawImage "ziegemd1", 910, 673; } }
+			inInventory GaussCannonMod1, 1 { DrawImage "zrecblt0", 882, 673; InInventory PrecisionActive { DrawImage "zrecblt1", 882, 673; } }
+			inInventory GaussCannonMod2, 1 { DrawImage "ziegemd0", 910, 673; InInventory SiegeActive     { DrawImage "ziegemd1", 910, 673; } }
 			
 			// Reticle
 			inInventory SiegeActive 
@@ -755,8 +755,8 @@ statusbar Normal, forcescaled
 			DrawImage "prifle", 983,676;
 			
 			// Mods available and equipped
-			inInventory PlasmaRifleMod1 { DrawImage "ztblast0", 882, 673; InInventory HeatBlastActive { DrawImage "ztblast1", 882, 673; } }
-			inInventory PlasmaRifleMod2 { DrawImage "ztunbom0", 910, 673; InInventory StunBombActive  { DrawImage "ztunbom1", 910, 673; } }
+			inInventory PlasmaRifleMod1, 1 { DrawImage "ztblast0", 882, 673; InInventory HeatBlastActive { DrawImage "ztblast1", 882, 673; } }
+			inInventory PlasmaRifleMod2, 1 { DrawImage "ztunbom0", 910, 673; InInventory StunBombActive  { DrawImage "ztunbom1", 910, 673; } }
 			
 			
 			// Charging
@@ -1207,9 +1207,9 @@ statusbar Fullscreen, forcescaled
 		
 		// Inventory
 		drawbar "KEYSLOTR", "KEYSLOTZ", GrenadeCooldown, vertical, 885,680;
-		inInventory FragGrenadeSelected 	{ inInventory not GrenadeCooldown { drawimage "FragGren", 888,682; } else { drawimage "FragGre0", 888,682; } }	
-		inInventory SyphonGrenadeSelected 	{ inInventory not GrenadeCooldown { drawimage "SyphGren", 887,679; } else { drawimage "SyphGre0", 887,679; } }	
-		inInventory MarineHoloSelected 		{ inInventory not GrenadeCooldown { drawimage "HoloGren", 887,681; } else { drawimage "HoloGre0", 887,681; } }	
+		inInventory FragGrenadeSelected, 1 	{ inInventory not GrenadeCooldown { drawimage "FragGren", 888,682; } else { drawimage "FragGre0", 888,682; } }	
+		inInventory SyphonGrenadeSelected, 1 	{ inInventory not GrenadeCooldown { drawimage "SyphGren", 887,679; } else { drawimage "SyphGre0", 887,679; } }	
+		inInventory MarineHoloSelected, 1 		{ inInventory not GrenadeCooldown { drawimage "HoloGren", 887,681; } else { drawimage "HoloGre0", 887,681; } }	
 		
 		// Ammo
 		drawbar "AMMOBAR1", "AMMOBAR0", AmmoToken, horizontal, reverse, 941,693;
@@ -1218,7 +1218,7 @@ statusbar Fullscreen, forcescaled
 		inInventory D4BFG {	drawbar "BFGAMMO3", "BFGAMMO0", D4BFGAmmo, horizontal, reverse, 938,713; }
 		inInventory D4Chainsaw
 		{
-			inInventory D4Backpack 
+			inInventory D4Backpack, 1
 			{	drawbar "CSAMMO88", "CSAMMO08", D4Fuel, horizontal, reverse, 1042,713; }
 			else
 			{	drawbar "CSAMMO55", "CSAMMO05", D4Fuel, horizontal, reverse, 1042,713; }
@@ -1304,12 +1304,12 @@ statusbar Fullscreen, forcescaled
 			inInventory Not NoReticle 	{ DrawImage "rPistol",  465,337; }
 			
 			// Lance
-			inInventory PistolUpgradeLance { DrawImage "zancmod0", 942, 673; InInventory PistolLanceActive { DrawImage "zancmod1", 942, 673; }}
-			InInventory PistolLanceReadyToken { drawimage "rPLance",  465,337; }
+			inInventory PistolUpgradeLance, 1 { DrawImage "zancmod0", 942, 673; InInventory PistolLanceActive { DrawImage "zancmod1", 942, 673; }}
+			InInventory PistolLanceReadyToken, 1 { drawimage "rPLance",  465,337; }
 			
 			// Charging
 			InInventory PistolAltFireCounter,52 { 
-				InInventory PistolUpgradeAltDamage
+				InInventory PistolUpgradeAltDamage, 1
 				{ drawimage "red52",  465,337; } // upgraded fully charged--red counter
 				else
 				{ drawimage "cya52",  465,337; } // fully charged pistol--cyan counter
@@ -1374,8 +1374,8 @@ statusbar Fullscreen, forcescaled
 			DrawImage "shotgun", 1043,676;
 			
 			// Mods available and equipped
-			inInventory ShotgunMod1 { DrawImage "zhrgbrs0", 942, 673; InInventory TriShotActive { DrawImage "zhrgbrs1", 942, 673; } }
-			inInventory ShotgunMod2 { DrawImage "zplosht0", 970, 673; InInventory GrenadeActive { DrawImage "zplosht1", 970, 673; } }
+			inInventory ShotgunMod1, 1 { DrawImage "zhrgbrs0", 942, 673; InInventory TriShotActive { DrawImage "zhrgbrs1", 942, 673; } }
+			inInventory ShotgunMod2, 1 { DrawImage "zplosht0", 970, 673; InInventory GrenadeActive { DrawImage "zplosht1", 970, 673; } }
 			
 			InInventory TriShotActive
 			{
@@ -1538,8 +1538,8 @@ statusbar Fullscreen, forcescaled
 			DrawImage "chaingun", 1043,676;
 			
 			// Mods available and equipped
-			inInventory ChaingunMod1 { DrawImage "zotator0", 942, 673; InInventory GatlingRotatorActive { DrawImage "zotator1", 942, 673; } }
-			inInventory ChaingunMod2 { DrawImage "zurrets0", 970, 673; InInventory MobileTurretActive   { DrawImage "zurrets1", 970, 673; } }
+			inInventory ChaingunMod1, 1 { DrawImage "zotator0", 942, 673; InInventory GatlingRotatorActive { DrawImage "zotator1", 942, 673; } }
+			inInventory ChaingunMod2, 1 { DrawImage "zurrets0", 970, 673; InInventory MobileTurretActive   { DrawImage "zurrets1", 970, 673; } }
 			
 			// Reticle
 			inInventory Not NoReticle 	{ DrawImage "rCha_gun",  464,336; }
@@ -1550,8 +1550,8 @@ statusbar Fullscreen, forcescaled
 			DrawImage "harharha", 1043,676;
 			
 			// Mods available and equipped
-			inInventory AssaultRifleMod1 { DrawImage "zactscp0", 942, 673; InInventory TacticalScopeActive { DrawImage "zactscp1", 942, 673; } }
-			inInventory AssaultRifleMod2 { DrawImage "zissile0", 970, 673; InInventory MicroMissilesActive { DrawImage "zissile1", 970, 673; } }
+			inInventory AssaultRifleMod1, 1 { DrawImage "zactscp0", 942, 673; InInventory TacticalScopeActive { DrawImage "zactscp1", 942, 673; } }
+			inInventory AssaultRifleMod2, 1 { DrawImage "zissile0", 970, 673; InInventory MicroMissilesActive { DrawImage "zissile1", 970, 673; } }
 			
 			// Reticle
 			InInventory AltFireToken && TacticalScopeActive
@@ -1663,8 +1663,8 @@ statusbar Fullscreen, forcescaled
 			DrawImage "rocketer", 1043,676;
 			
 			// Mods available and equipped
-			inInventory RocketLauncherMod1 { DrawImage "zetonat0", 942, 673; InInventory DetonateActive { DrawImage "zetonat1", 942, 673; } }
-			inInventory RocketLauncherMod2 { DrawImage "zocking0", 970, 673; InInventory LockOnActive   { DrawImage "zocking1", 970, 673; } }
+			inInventory RocketLauncherMod1, 1 { DrawImage "zetonat0", 942, 673; InInventory DetonateActive { DrawImage "zetonat1", 942, 673; } }
+			inInventory RocketLauncherMod2, 1 { DrawImage "zocking0", 970, 673; InInventory LockOnActive   { DrawImage "zocking1", 970, 673; } }
 			
 			// Reticle
 			inInventory DetonateActive
@@ -1739,8 +1739,8 @@ statusbar Fullscreen, forcescaled
 			DrawImage "gauss", 1043,676;
 			
 			// Mods available and equipped
-			inInventory GaussCannonMod1 { DrawImage "zrecblt0", 942, 673; InInventory PrecisionActive { DrawImage "zrecblt1", 942, 673; } }
-			inInventory GaussCannonMod2 { DrawImage "ziegemd0", 970, 673; InInventory SiegeActive     { DrawImage "ziegemd1", 970, 673; } }
+			inInventory GaussCannonMod1, 1 { DrawImage "zrecblt0", 942, 673; InInventory PrecisionActive { DrawImage "zrecblt1", 942, 673; } }
+			inInventory GaussCannonMod2, 1 { DrawImage "ziegemd0", 970, 673; InInventory SiegeActive     { DrawImage "ziegemd1", 970, 673; } }
 			
 			// Reticle
 			inInventory SiegeActive 
@@ -1758,8 +1758,8 @@ statusbar Fullscreen, forcescaled
 			DrawImage "prifle", 1043,676;
 			
 			// Mods available and equipped
-			inInventory PlasmaRifleMod1 { DrawImage "ztblast0", 942, 673; InInventory HeatBlastActive { DrawImage "ztblast1", 942, 673; } }
-			inInventory PlasmaRifleMod2 { DrawImage "ztunbom0", 970, 673; InInventory StunBombActive  { DrawImage "ztunbom1", 970, 673; } }
+			inInventory PlasmaRifleMod1, 1 { DrawImage "ztblast0", 942, 673; InInventory HeatBlastActive { DrawImage "ztblast1", 942, 673; } }
+			inInventory PlasmaRifleMod2, 1 { DrawImage "ztunbom0", 970, 673; InInventory StunBombActive  { DrawImage "ztunbom1", 970, 673; } }
 			
 			
 			// Charging
@@ -2222,9 +2222,9 @@ statusbar Automap, forcescaled
 		// Inventory
 		drawbar "KEYSLOTR", "KEYSLOT0", GrenadeCooldown, vertical, 825,680;
 		inInventory not GrenadeCooldown { drawimage "KEYSLOT1", 825, 680; } else { drawimage "KEYSLOT0", 825, 680; }
-		inInventory FragGrenadeSelected 	{ inInventory not GrenadeCooldown { drawimage "FragGren", 828,682; } else { drawimage "FragGre0", 828,682; } }	
-		inInventory SyphonGrenadeSelected 	{ inInventory not GrenadeCooldown { drawimage "SyphGren", 827,679; } else { drawimage "SyphGre0", 827,679; } }	
-		inInventory MarineHoloSelected 		{ inInventory not GrenadeCooldown { drawimage "HoloGren", 827,681; } else { drawimage "HoloGre0", 827,681; } }	
+		inInventory FragGrenadeSelected, 1 		{ inInventory not GrenadeCooldown { drawimage "FragGren", 828,682; } else { drawimage "FragGre0", 828,682; } }	
+		inInventory SyphonGrenadeSelected, 1 	{ inInventory not GrenadeCooldown { drawimage "SyphGren", 827,679; } else { drawimage "SyphGre0", 827,679; } }	
+		inInventory MarineHoloSelected, 1 		{ inInventory not GrenadeCooldown { drawimage "HoloGren", 827,681; } else { drawimage "HoloGre0", 827,681; } }	
 		
 		// Ammo
 		drawimage "AMMOPANE", 866,669;
@@ -2234,7 +2234,7 @@ statusbar Automap, forcescaled
 		inInventory D4BFG {	drawbar "BFGAMMO3", "BFGAMMO0", D4BFGAmmo, horizontal, reverse, 878,713; }
 		inInventory D4Chainsaw
 		{
-			inInventory D4Backpack 
+			inInventory D4Backpack, 1
 			{	drawbar "CSAMMO88", "CSAMMO08", D4Fuel, horizontal, reverse, 982,713; }
 			else
 			{	drawbar "CSAMMO55", "CSAMMO05", D4Fuel, horizontal, reverse, 982,713; }
@@ -2305,7 +2305,7 @@ statusbar Automap, forcescaled
 			DrawImage "pistol", 983,676;
 			
 			// Lance
-			inInventory PistolUpgradeLance { DrawImage "zancmod0", 882, 673; InInventory PistolLanceActive { DrawImage "zancmod1", 882, 673; }}
+			inInventory PistolUpgradeLance, 1 { DrawImage "zancmod0", 882, 673; InInventory PistolLanceActive, 1 { DrawImage "zancmod1", 882, 673; }}
 		}
 		isSelected D4Shotgun
 		{
@@ -2313,8 +2313,8 @@ statusbar Automap, forcescaled
 			DrawImage "shotgun", 983,676;
 			
 			// Mods available and equipped
-			inInventory ShotgunMod1 { DrawImage "zhrgbrs0", 882, 673; InInventory TriShotActive { DrawImage "zhrgbrs1", 882, 673; } }
-			inInventory ShotgunMod2 { DrawImage "zplosht0", 910, 673; InInventory GrenadeActive { DrawImage "zplosht1", 910, 673; } }
+			inInventory ShotgunMod1, 1 { DrawImage "zhrgbrs0", 882, 673; InInventory TriShotActive { DrawImage "zhrgbrs1", 882, 673; } }
+			inInventory ShotgunMod2, 1 { DrawImage "zplosht0", 910, 673; InInventory GrenadeActive { DrawImage "zplosht1", 910, 673; } }
 		}
 		isSelected D4SuperShotgun
 		{
@@ -2327,8 +2327,8 @@ statusbar Automap, forcescaled
 			DrawImage "chaingun", 983,676;
 			
 			// Mods available and equipped
-			inInventory ChaingunMod1 { DrawImage "zotator0", 882, 673; InInventory GatlingRotatorActive { DrawImage "zotator1", 882, 673; } }
-			inInventory ChaingunMod2 { DrawImage "zurrets0", 910, 673; InInventory MobileTurretActive   { DrawImage "zurrets1", 910, 673; } }
+			inInventory ChaingunMod1, 1 { DrawImage "zotator0", 882, 673; InInventory GatlingRotatorActive { DrawImage "zotator1", 882, 673; } }
+			inInventory ChaingunMod2, 1 { DrawImage "zurrets0", 910, 673; InInventory MobileTurretActive   { DrawImage "zurrets1", 910, 673; } }
 		}
 		isSelected D4AssaultRifle
 		{
@@ -2336,8 +2336,8 @@ statusbar Automap, forcescaled
 			DrawImage "harharha", 983,676;
 			
 			// Mods available and equipped
-			inInventory AssaultRifleMod1 { DrawImage "zactscp0", 882, 673; InInventory TacticalScopeActive { DrawImage "zactscp1", 882, 673; } }
-			inInventory AssaultRifleMod2 { DrawImage "zissile0", 910, 673; InInventory MicroMissilesActive { DrawImage "zissile1", 910, 673; } }
+			inInventory AssaultRifleMod1, 1 { DrawImage "zactscp0", 882, 673; InInventory TacticalScopeActive { DrawImage "zactscp1", 882, 673; } }
+			inInventory AssaultRifleMod2, 1 { DrawImage "zissile0", 910, 673; InInventory MicroMissilesActive { DrawImage "zissile1", 910, 673; } }
 		}
 		isSelected D4RocketLauncher
 		{
@@ -2345,8 +2345,8 @@ statusbar Automap, forcescaled
 			inInventory Not NoReticle 	{ DrawImage "rocketer", 983,676; }
 			
 			// Mods available and equipped
-			inInventory RocketLauncherMod1 { DrawImage "zetonat0", 882, 673; InInventory DetonateActive { DrawImage "zetonat1", 882, 673; } }
-			inInventory RocketLauncherMod2 { DrawImage "zocking0", 910, 673; InInventory LockOnActive   { DrawImage "zocking1", 910, 673; } }
+			inInventory RocketLauncherMod1, 1 { DrawImage "zetonat0", 882, 673; InInventory DetonateActive { DrawImage "zetonat1", 882, 673; } }
+			inInventory RocketLauncherMod2, 1 { DrawImage "zocking0", 910, 673; InInventory LockOnActive   { DrawImage "zocking1", 910, 673; } }
 		}
 		isSelected D4GaussCannon
 		{
@@ -2354,8 +2354,8 @@ statusbar Automap, forcescaled
 			DrawImage "gauss", 983,676;
 			
 			// Mods available and equipped
-			inInventory GaussCannonMod1 { DrawImage "zrecblt0", 882, 673; InInventory PrecisionActive { DrawImage "zrecblt1", 882, 673; } }
-			inInventory GaussCannonMod2 { DrawImage "ziegemd0", 910, 673; InInventory SiegeActive     { DrawImage "ziegemd1", 910, 673; } }
+			inInventory GaussCannonMod1, 1 { DrawImage "zrecblt0", 882, 673; InInventory PrecisionActive { DrawImage "zrecblt1", 882, 673; } }
+			inInventory GaussCannonMod2, 1 { DrawImage "ziegemd0", 910, 673; InInventory SiegeActive     { DrawImage "ziegemd1", 910, 673; } }
 		}
 		isSelected D4PlasmaRifle
 		{
@@ -2363,8 +2363,8 @@ statusbar Automap, forcescaled
 			DrawImage "prifle", 983,676;
 			
 			// Mods available and equipped
-			inInventory PlasmaRifleMod1 { DrawImage "ztblast0", 882, 673; InInventory HeatBlastActive { DrawImage "ztblast1", 882, 673; } }
-			inInventory PlasmaRifleMod2 { DrawImage "ztunbom0", 910, 673; InInventory StunBombActive  { DrawImage "ztunbom1", 910, 673; } }
+			inInventory PlasmaRifleMod1, 1 { DrawImage "ztblast0", 882, 673; InInventory HeatBlastActive { DrawImage "ztblast1", 882, 673; } }
+			inInventory PlasmaRifleMod2, 1 { DrawImage "ztunbom0", 910, 673; InInventory StunBombActive  { DrawImage "ztunbom1", 910, 673; } }
 		}
 		isSelected D4BFG
 		{

@@ -618,37 +618,6 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 //	Mod tokens
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-Class AssaultRifleMod1 : Inventory // Scope mod
-{
-	Default 
-	{
-		+INVENTORY.UNDROPPABLE
-		Scale 0.2;
-		Inventory.PickupMessage "Scope module";
-	}
-	States
-	{
-	Spawn:
-		POSS A 10;
-		Loop;
-	}
-}
-Class AssaultRifleMod2 : Inventory // mini missiles mod
-{ 
-	Default 
-	{
-		+INVENTORY.UNDROPPABLE
-		Scale 0.2;
-		Inventory.PickupMessage "Mini Missiles module";
-	}
-	States
-	{
-	Spawn:
-		SPOS A 10;
-		Loop;
-	}
-}
-
 
 Class AssaultRifleModSecondary : Inventory	//the token to switch between mods
 {	Default { +INVENTORY.UNDROPPABLE } }

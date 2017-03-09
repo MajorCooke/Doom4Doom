@@ -603,37 +603,6 @@ Class SiegeModeChargesCounter : Inventory
 //	Mods tokens
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-Class GaussCannonMod1 : Inventory // precision shot
-{
-	Default 
-	{
-		+INVENTORY.UNDROPPABLE
-		Scale 0.2;
-		Inventory.PickupMessage "Precision shot module";
-	}
-	States
-	{
-	Spawn:
-		POSS A 10;
-		Loop;
-	}
-}
-Class GaussCannonMod2 : Inventory // siege mode
-{
-	Default 
-	{
-		+INVENTORY.UNDROPPABLE
-		Scale 0.2;
-		Inventory.PickupMessage "Siege mode module";
-	}
-	States
-	{
-	Spawn:
-		SPOS A 10;
-		Loop;
-	}
-}
-
 Class PrecisionActive : Inventory	 //mod1
 {Default { +INVENTORY.UNDROPPABLE}}
 Class SiegeActive : Inventory		//mod2

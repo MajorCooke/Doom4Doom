@@ -564,36 +564,6 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 //	Mods tokens
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-Class ShotgunMod1 : Inventory // Triple shot
-{
-	Default 
-	{
-		+INVENTORY.UNDROPPABLE
-		Scale 0.2;
-		Inventory.PickupMessage "Triple shot module";
-	}
-	States
-	{
-	Spawn:
-		POSS A 10;
-		Loop;
-	}
-}
-Class ShotgunMod2 : Inventory // grenade mod
-{
-	Default 
-	{
-		+INVENTORY.UNDROPPABLE
-		Scale 0.2;
-		Inventory.PickupMessage "Grenade Module";
-	}
-	States
-	{
-	Spawn:
-		SPOS A 10;
-		Loop;
-	}
-}
 
 Class TriShotActive : Inventory		{	Default { +INVENTORY.UNDROPPABLE} }
 Class GrenadeActive : Inventory		{	Default { +INVENTORY.UNDROPPABLE} }
