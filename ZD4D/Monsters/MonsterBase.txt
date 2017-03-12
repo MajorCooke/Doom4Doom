@@ -127,6 +127,7 @@ Class D4AbstractMonster : Actor
 		D4AbstractMonster.CashAmount -1;
 		D4AbstractMonster.CashChainsawFinisher -1;
 		BloodColor "Red";
+		DamageFactor "Crush", 10.0;
 	}
 	
 	override void BeginPlay()

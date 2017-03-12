@@ -81,8 +81,8 @@ Class PlayerFatso : DemonPlayerBase
 		Player.MorphWeapon "D4DFatsoWeapon";
 		Player.ViewHeight 60;
 		Player.AttackZOffset 10;
-		Player.ForwardMove 0.4, 0.2;
-		Player.SideMove 0.4, 0.2;
+		Player.ForwardMove 0.6, 0.3;
+		Player.SideMove 0.6, 0.3;
 		Player.CrouchSprite "FATT";
 		Player.SoundClass "PlayerDemonCommon";
 		PainSound "Doom4/Monsters/Mancubus/Pain";
@@ -178,7 +178,7 @@ Class D4DFatsoWeapon : DoomWeapon
 		MARM A 1 A_Raise;
 		Loop;
 	Fire:
-		MARM A 25 A_PlaySound("Doom4/Monsters/Mancubus/Attack2",CHAN_WEAPON);
+		//MARM A 25 A_PlaySound("Doom4/Monsters/Mancubus/Attack2",CHAN_WEAPON);
 	FireLooper:
 		MARM A 0 
 		{
@@ -278,7 +278,7 @@ Class D4FatsoPlayerFire : Actor
 		Speed 25;
 		Radius 5;
 		Height 10;
-		Damage 15; //does some explosion damage too
+		Damage 20; //does some explosion damage too
 		Scale 0.6;
 		RenderStyle "Add";
 		Alpha 0.99;
@@ -286,6 +286,7 @@ Class D4FatsoPlayerFire : Actor
 		DeathSound "Doom4/Other/FireballHit1";
 		Decal "FireballScorchBig";
 		+EXTREMEDEATH
+		+FORCERADIUSDMG
 	}
 	States
 	{

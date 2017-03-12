@@ -8,6 +8,7 @@ Class D4DMonsterSpawner : Actor
 	Array<String> NewMonList;		// D4D
 	Class<Actor> OldMonster;		// You get the drift...
 	Class<Actor> NewMonster;
+	Actor MyLittleMonster;
 	property isBoss: isBoss;		// For monsters that trigger E*M8/MAP07 specials.
 	property OldMonster: OldMonster;
 	property NewMonster: NewMonster;
@@ -37,8 +38,6 @@ Class D4DMonsterSpawner : Actor
 		+LAXTELEFRAGDMG
 		+THRUACTORS
 		+NOINTERACTION
-		+NOBLOCKMAP
-		+NOCLIP
 		Species "D4DSpawner";
 		DamageFactor "Normal", 0.0;
 		DamageFactor "Massacre", 666;
@@ -61,93 +60,99 @@ Class D4DMonsterSpawner : Actor
 		if (GetClass() == "D4DMonsterSpawner")
 			return Destroy();
 		
+		Super.PostBeginPlay();
 		//======================================================================
 		// Check to see if modders have injected monster classes to spawn.
 		// Currently does not have an offset randomizer yet.
 		//======================================================================
-		
+		int montype = GetCvar("user_MonsterType");
 		// D4D Themed Section
 		
-		if (NewMonList.Size() > 0)
+		if (montype != 0)
 		{
-			for (int i = NewMonList.Size() - 1; i >= 0; i--)
-			{
-				Class<Actor> tester = NewMonList[i];
-				if (!tester)
-				{
-					A_Log(NewMonList[i].." doesn't exist! Check your spelling/definitions!" );
-					NewMonList.Pop();
-				}
-			}
-			
 			if (NewMonList.Size() > 0)
 			{
-				uint mMax = NewMonList.Size() - 1;
-				NewMonster = NewMonList[random(0,mMax)];
-			}
-		}
-		
-		// Classic Section
-		
-		if (OldMonList.Size() > 0)
-		{
-			for (int i = OldMonList.Size() - 1; i >= 0; i--)
-			{
-				Class<Actor> tester = OldMonList[i];
-				if (!tester)
+				for (int i = NewMonList.Size() - 1; i >= 0; i--)
 				{
-					A_Log(OldMonList[i].." doesn't exist! Check your spelling/definitions!" );
-					OldMonList.Pop();
+					Class<Actor> tester = NewMonList[i];
+					if (!tester)
+					{
+						A_Log(NewMonList[i].." doesn't exist! Check your spelling/definitions!" );
+						NewMonList.Pop();
+					}
+				}
+				
+				if (NewMonList.Size() > 0)
+				{
+					uint mMax = NewMonList.Size() - 1;
+					NewMonster = NewMonList[random(0,mMax)];
+					NewMonList.Clear();
 				}
 			}
-			
+		}
+		// Classic Section
+		else
+		{
 			if (OldMonList.Size() > 0)
 			{
-				uint mMax = OldMonList.Size() - 1;
-				OldMonster = OldMonList[random(0,mMax)];
+				for (int i = OldMonList.Size() - 1; i >= 0; i--)
+				{
+					Class<Actor> tester = OldMonList[i];
+					if (!tester)
+					{
+						A_Log(OldMonList[i].." doesn't exist! Check your spelling/definitions!" );
+						OldMonList.Pop();
+					}
+				}
+				
+				if (OldMonList.Size() > 0)
+				{
+					uint mMax = OldMonList.Size() - 1;
+					OldMonster = OldMonList[random(0,mMax)];
+					OldMonList.Clear();
+				}
 			}
 		}
 		
-		// Clear both lists of all memory.
-		NewMonList.Clear();
-		OldMonList.Clear();
-		
 		// And get back to our daily spawning.
-		int montype = GetCvar("user_MonsterType");
-		
+		Class<Actor> toSpawn = null;
 		if (montype == 0 && OldMonster)
-			A_SpawnItemEx(OldMonster,0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+			toSpawn = OldMonster;
 		else if (montype != 0 && NewMonster)
-			A_SpawnItemEx(NewMonster,0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+			toSpawn = NewMonster;
 		else return Destroy();
 		
-		if (tracer)
+		bool test;
+		[test, MyLittleMonster] = A_SpawnItemEx(toSpawn,0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+		
+		if (MyLittleMonster)
 		{
+			if (bBossSpawned)
+			{
+				MyLittleMonster.TeleportMove (MyLittleMonster.pos, true);
+				MyLittleMonster.bBossSpawned = true;
+			}
 			if (isBoss)
 			{
-				let d4mon = D4AbstractMonster(tracer);
+				let d4mon = D4AbstractMonster(MyLittleMonster);
 				if (d4mon)
 					d4mon.Spawner = self;
 			}
 			
 			if (master)	
-				tracer.master = master;
+				MyLittleMonster.master = master;
 			
 			if (goDormant) 
 			{	
-				tracer.Deactivate(self);	
-				tracer.A_ChangeCountFlags(false,0,bCOUNTSECRET);
+				MyLittleMonster.Deactivate(self);	
+				MyLittleMonster.A_ChangeCountFlags(false,0,bCOUNTSECRET);
 			}
-			tracer.A_ChangeCountFlags(-1,0,bCOUNTSECRET);
+			MyLittleMonster.A_ChangeCountFlags(-1,0,bCOUNTSECRET);
 			
 			if (health != GetSpawnHealth())	
-				tracer.A_SetHealth(health);
+				MyLittleMonster.A_SetHealth(health);
 		}
 		
-		if (!isBoss)	
-			return Destroy();
-			
-		Super.PostBeginPlay();
 	}
 	
 	States
@@ -155,11 +160,10 @@ Class D4DMonsterSpawner : Actor
 	Spawn:
 		TNT1 A 70 NODELAY
 		{
-			if (!tracer)
+			if (!MyLittleMonster || !isBoss)
 			{
-				A_BossDeath();
-				Destroy();
-				return;
+				if (isBoss) A_BossDeath();
+				return Destroy();
 			}
 		}
 		Loop;
@@ -183,6 +187,7 @@ Class ZombieReplacer : D4DMonsterSpawner replaces Zombieman
 	Default 
 	{
 		// Use these for just single spawning types. Keeps code compact.
+		// See fatso spawner below for example on how to spawn a random type.
 		D4DMonsterSpawner.OldMonster "D4OldZombieman";
 		D4DMonsterSpawner.NewMonster "D4Zombieman";
 		Radius 20;
@@ -390,7 +395,7 @@ Class FatsoReplacer : D4DMonsterSpawner replaces Fatso
 	// in your own cvar checks, that's totally fine).
 	
 	// Use the NewMonList.Push for D4D regular, and OldMonList.Push for classic.
-	// Make sure to call the Super.POstBeginPlay() at the end of it.
+	// Make sure to call the Super.PostBeginPlay() at the end of it.
 	override void PostBeginPlay()
 	{
 		NewMonList.Push("D4FatsoHell");
