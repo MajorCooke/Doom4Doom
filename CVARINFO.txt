@@ -67,7 +67,7 @@ server int D4D_StaggerLenght = 4;
 server bool D4D_PitchCompat = true;
 server bool D4D_MonsterLasers = true;
 
-server noarchive cheat int D4D_PickupDropChance = 300;
+server noarchive cheat int D4D_PickupDropChance = 275;
 server cheat int D4D_CurrentUpgradeMode = 0;
 server noarchive int D4DCash = 0;
 server noarchive bool AssaultRifleMod1 = false;
@@ -164,6 +164,14 @@ server noarchive bool D4RegenUpgrade1 = false;
 server noarchive bool D4RegenUpgrade2 = false;
 server noarchive bool D4RegenUpgrade3 = false;
 server noarchive bool D4RegenUpgrade4 = false;
+server noarchive bool D4PentagramUpgrade1 = false;
+server noarchive bool D4PentagramUpgrade2 = false;
+server noarchive bool D4PentagramUpgrade3 = false;
+server noarchive bool D4PentagramUpgrade4 = false;
+server noarchive bool D4RuneUpgrade1 = false;
+server noarchive bool D4RuneUpgrade2 = false;
+server noarchive bool D4RuneUpgrade3 = false;
+server noarchive bool D4RuneUpgrade4 = false;
 
 //==============================================================================
 // For the akimbo system.
@@ -280,3 +288,11 @@ server noarchive cheat int Cost_U1Regen =		12000;
 server noarchive cheat int Cost_U2Regen =		15000;
 server noarchive cheat int Cost_U3Regen =		25000;
 server noarchive cheat int Cost_U4Regen =		15000;
+server noarchive cheat int Cost_U1Rune =		5000;
+server noarchive cheat int Cost_U2Rune =		15000;
+server noarchive cheat int Cost_U3Rune =		20000;
+server noarchive cheat int Cost_U4Rune =		10000;
+server noarchive cheat int Cost_U1Pentagram =		6666;
+server noarchive cheat int Cost_U2Pentagram =		6666;
+server noarchive cheat int Cost_U3Pentagram =		6666;
+server noarchive cheat int Cost_U4Pentagram =		9999;

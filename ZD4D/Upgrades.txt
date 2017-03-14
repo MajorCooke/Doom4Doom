@@ -1,95 +1,44 @@
-Class LookObject : Actor
-{
-    Default
-	{
-		+NOGRAVITY;
-		+WALLSPRITE;
-		+BRIGHT;
-		+SOLID;
-		Scale 0.25;
-		Radius 8;
-		Height 16;
-	}
-
-    Override Void BeginPlay()
-	{
-	
-		//int sk = G_SkillPropertyInt(SKILLP_ACSReturn);
-		
-		//if(sk >= 3) { bINVISIBLE = 1; }
-		
-		Super.BeginPlay();
-	}
-    
-    Override Void Tick()
-	{
-		Super.Tick();
-		
-		if (!Target) { LookForPlayers(1); return; } 
-
-		double dst = 1.0-((clamp(Distance3D(target),128,256)-128)/(256-128));
-		A_SetTranslucent(dst);
-		
-		if (CheckIfInTargetLOS(20,0,96)) // Is the player looking at 'LookObject' ? 
-		{
-			//Do Stuff here
-			if (target)
-			{
-				double offs = target.height;
-				let plr = PlayerPawn(target);
-				if (plr)
-				{
-					offs *= plr.GetCrouchFactor();
-				}
-				A_Face(target,0,0,0,0,FAF_BOTTOM,offs);
-				
-				let tp = -target.pitch;
-				
-				bINVISIBLE = (tp - pitch >= height || tp - pitch <= 0);
-			}
-		}
-	}
-
-    States
-	{
-	Spawn:
-		PLAY A -1;
-		Loop;
-	}
-}
-
 Class UpgradeItem : Inventory
 {
-	int Cost;
-	int Quantity;
+	int Cost, Cost2, Cost3, Cost4;
+	int Quantity, Q2, Q3, Q4;
 	bool Tiered;
 	property Cost: Cost;
 	property Quantity: Quantity;
 	property Tiered: Tiered;
-	Default
-	{
-		UpgradeItem.Cost 3000;
-		UpgradeItem.Quantity 1;
-		UpgradeItem.Tiered false;
-		+INVENTORY.UNDROPPABLE;
-		+INVENTORY.UNTOSSABLE;
-		+INVENTORY.KEEPDEPLETED;
-	}
-}
-
-Class UpgradeItemTier : UpgradeItem
-{
-	int CurrentTier, MaxTier;
-	int Cost2, Cost3, Cost4;
-	int QuantityMax, Q2, Q3, Q4;
 	property Cost2: Cost2;
 	property Cost3: Cost3;
 	property Cost4: Cost4;
 	property Quantity2: Q2;
 	property Quantity3: Q3;
 	property Quantity4: Q4;
-	property QuantityMax: QuantityMax;
-	property MaxTier: MaxTier;
+	Default
+	{
+		UpgradeItem.Cost -1;
+		UpgradeItem.Cost2 -1;
+		UpgradeItem.Cost3 -1;
+		UpgradeItem.Cost4 -1;
+		UpgradeItem.Quantity 1;
+		UpgradeItem.Quantity2 -1;
+		UpgradeItem.Quantity3 -1;
+		UpgradeItem.Quantity4 -1;
+		UpgradeItem.Tiered false;
+		+INVENTORY.UNDROPPABLE;
+		+INVENTORY.UNTOSSABLE;
+		+INVENTORY.KEEPDEPLETED;
+	}
+}
+/*
+Class UpgradeItemTier : UpgradeItem
+{
+	int Cost2, Cost3, Cost4;
+	int Q2, Q3, Q4;
+	property Cost2: Cost2;
+	property Cost3: Cost3;
+	property Cost4: Cost4;
+	property Quantity2: Q2;
+	property Quantity3: Q3;
+	property Quantity4: Q4;
 	
 	Default
 	{
@@ -108,12 +57,104 @@ Class UpgradeItemTier : UpgradeItem
 		+INVENTORY.UNTOSSABLE;
 		+INVENTORY.KEEPDEPLETED;
 	}
+} */
+
+Class UpgradeItemSpecial : UpgradeItem
+{
+	Class<Inventory> RealItem;
+	Class<Inventory> SelfName;
+	property RealItem: RealItem;
 	
 	override void BeginPlay()
 	{
 		Super.BeginPlay();
-		
-		QuantityMax = Max(Quantity, Q2, Q3, Q4);
+		SelfName = GetClass();
+	}
+	
+	override bool TryPickup (in out Actor toucher)
+	{
+		if (Super.TryPickup(toucher))
+		{
+			toucher.A_SetInventory(RealItem,toucher.CountInv(SelfName));
+			return true;
+		}
+		return false;	
+	}
+	
+	override void DepleteOrDestroy()
+	{
+		if (Owner)
+		{
+			Owner.A_SetInventory(RealItem,0);
+		}
+		return Super.DepleteOrDestroy();
+	}
+}
+
+//Strangely, this doesn't work the way it's supposed to. Oh well.
+Class D4HealthUpgrade : UpgradeStamina
+{
+	Default 
+	{
+		+INVENTORY.IGNORESKILL
+		+INVENTORY.ALWAYSPICKUP
+		Inventory.Amount 1;
+		Inventory.MaxAmount 100;
+	}
+}
+
+Class CashPercentBonus : UpgradeItem
+{
+	Default 
+	{
+		UpgradeItem.Cost 3000;
+		UpgradeItem.Cost2 7500;
+		UpgradeItem.Cost3 12000;
+		UpgradeItem.Cost4 20000;
+		UpgradeItem.Quantity 10;
+		UpgradeItem.Quantity2 20;
+		UpgradeItem.Quantity3 30;
+		UpgradeItem.Quantity4 40;
+		Inventory.MaxAmount 1000000;
+		Inventory.InterhubAmount 1000000;
+		+INVENTORY.IGNORESKILL
+	}
+}
+ 
+// Environment protection
+
+Class ProtectionBonus1Real : PowerProtection
+{
+	Default 
+	{
+		DamageFactor "Normal", 1.0;
+		DamageFactor "Drowning",0.5;
+		DamageFactor "Slime", 	0.5;
+		DamageFactor "Fire", 	0.5;	// for lava
+		DamageFactor "Crush", 	0.5;
+		DamageFactor "Falling", 0.5;
+		+INVENTORY.PERSISTENTPOWER
+		+INVENTORY.UNTOSSABLE
+		+INVENTORY.UNDROPPABLE
+		Powerup.Duration 0x7FFFFFFD;
+		Inventory.InterhubAmount 1;
+		Inventory.MaxAmount 1;
+	}
+}
+
+// AoE damage protection
+Class ProtectionBonus3Real : PowerProtection
+{
+	Default 
+	{
+		DamageFactor "Normal", 1.0;
+		RadiusDamageFactor 0.5;
+		+INVENTORY.PERSISTENTPOWER
+		+INVENTORY.UNTOSSABLE
+		+INVENTORY.UNDROPPABLE
+		Powerup.Duration 0x7FFFFFFD;
+		Inventory.InterhubAmount 1;
+		Inventory.MaxAmount 1;
 	}
 }
 
@@ -174,47 +215,53 @@ Class VortexUpgradeAltPierce : UpgradeItem 		{ Default { UpgradeItem.Cost 3500; 
 //	Suit Upgrades
 //==============================================================================
 //==============================================================================
+// Environmental Protection
+Class ProtectionBonus1 : UpgradeItemSpecial		{ Default { UpgradeItem.Cost 5000; UpgradeItemSpecial.RealItem "ProtectionBonus1Real";	}	}
+// Self Protection
+Class ProtectionBonus2 : UpgradeItem 			{ Default {	UpgradeItem.Cost 7500;	}}
+// AoE Protection
+Class ProtectionBonus3 : UpgradeItemSpecial		{ Default {	UpgradeItem.Cost 10000; UpgradeItemSpecial.RealItem "ProtectionBonus3Real";	}	}
 
 Class D4HigherJump : UpgradeItem 				{ Default { UpgradeItem.Cost 6000;	}}
 Class D4MultiJump : UpgradeItem 				{ Default { UpgradeItem.Cost 8000;	Inventory.MaxAmount 3; }}
 Class D4AirControl : UpgradeItem 				{ Default { UpgradeItem.Cost 10000;	}}
-Class D4Stamina : UpgradeItemTier
+Class D4Stamina : UpgradeItem
 { 
 	Default 
 	{
 		UpgradeItem.Cost 5000;
-		UpgradeItemTier.Cost2 10000;
-		UpgradeItemTier.Cost3 20000;
+		UpgradeItem.Cost2 10000;
+		UpgradeItem.Cost3 20000;
 		UpgradeItem.Quantity 25;
-		UpgradeItemTier.Quantity2 50;
-		UpgradeItemTier.Quantity3 100;
+		UpgradeItem.Quantity2 50;
+		UpgradeItem.Quantity3 100;
 		Inventory.MaxAmount 100; 
 	}
 }
-Class D4ArmorCapRaiser : UpgradeItemTier
+Class D4ArmorCapRaiser : UpgradeItem
 { 
 	Default 
 	{
 		UpgradeItem.Cost 5000;
-		UpgradeItemTier.Cost2 10000;
-		UpgradeItemTier.Cost3 15000;
+		UpgradeItem.Cost2 10000;
+		UpgradeItem.Cost3 15000;
 		UpgradeItem.Quantity 25;
-		UpgradeItemTier.Quantity2 50;
-		UpgradeItemTier.Quantity3 100;
+		UpgradeItem.Quantity2 50;
+		UpgradeItem.Quantity3 100;
 		Inventory.MaxAmount 100; 
 	}
 }
 
-Class D4CrateUpgrade : UpgradeItemTier			
+Class D4CrateUpgrade : UpgradeItem			
 { 
 	Default 
 	{
 		UpgradeItem.Cost 999;
-		UpgradeItemTier.Cost2 9999;
-		UpgradeItemTier.Cost3 19999;
+		UpgradeItem.Cost2 9999;
+		UpgradeItem.Cost3 19999;
 		UpgradeItem.Quantity 1;
-		UpgradeItemTier.Quantity2 2;
-		UpgradeItemTier.Quantity3 3;
+		UpgradeItem.Quantity2 2;
+		UpgradeItem.Quantity3 3;
 		Inventory.MaxAmount 3; 
 	}
 }
@@ -233,3 +280,158 @@ Class D4MegachargeUpgrade1 : UpgradeItem		{ Default { UpgradeItem.Cost 10000; }}
 Class D4MegachargeUpgrade2 : UpgradeItem		{ Default { UpgradeItem.Cost 20000; }}	// time stop
 Class D4DoomDollUpgrade1 : UpgradeItem			{ Default { UpgradeItem.Cost 15000; }}	// + run & jump speed on use
 Class D4DoomDollUpgrade2 : UpgradeItem			{ Default { UpgradeItem.Cost 20000; }}	// powerful explosion on fist bump
+Class D4RuneUpgrade1 : UpgradeItem				{ Default { UpgradeItem.Cost 5000; }}	// Identifiable runes
+Class D4RuneUpgrade2 : UpgradeItem				{ Default { UpgradeItem.Cost 15000; }}	// same type demon runes refresh current rune
+Class D4RuneUpgrade3 : UpgradeItem				{ Default { UpgradeItem.Cost 20000; }}	// delimited spawning
+Class D4RuneUpgrade4 : UpgradeItem				{ Default { UpgradeItem.Cost 10000; }}	// Damage restores health
+Class D4PentagramUpgrade1 : UpgradeItem			{ Default { UpgradeItem.Cost 6666; }}	// Reflect projectiles
+Class D4PentagramUpgrade2 : UpgradeItem			{ Default { UpgradeItem.Cost 6666; }}	// Move through monsters
+Class D4PentagramUpgrade3 : UpgradeItem			{ Default { UpgradeItem.Cost 6666; }}	// Thorns
+Class D4PentagramUpgrade4 : UpgradeItem			{ Default { UpgradeItem.Cost 9999; }}	// Unkillable
+
+/*==============================================================================
+================================================================================
+
+
+
+================================================================================
+==============================================================================*/
+
+Struct PlayerDelta
+{
+	bool receiving;
+	Array<String> ItemName;
+	Array<Int> Count;
+	
+	//==========================================================================
+	// Checks for an item and returns its position.
+	int CheckForItem (String thing, bool getQuantity = false)
+	{
+		// Abort if the item's invalid.
+		Class<Inventory> check = thing;
+		if (!check)	
+		{
+			return -2;
+		}
+		
+		// Otherwise, look for it.
+		for (int i = 0; i < ItemName.Size(); i++)
+		{
+			let tng = ItemName[i];
+			if (tng.Length() > 0 && thing ~== tng)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	//==========================================================================
+	// Sets an item if it exists, or adds the item to the array if not already,
+	// providing that item type is real. ofs means add/subtract amt to the 
+	// current amount.
+	bool SetItem (String thing, int amt, bool ofs = false)
+	{
+		// Don't bother if we're not adding or taking away.
+		if (!amt && ofs)	return true;
+		
+		Class<Inventory> check = thing;
+		if (!check)	
+		{
+			Console.Printf(thing.." is not a valid item");
+			return false;
+		}
+		
+		if (ItemName.Size() > 0)
+		{
+			for (int i = 0; i < ItemName.Size(); i++)
+			{
+				if (thing ~== ItemName[i])
+				{
+					// Already exists, just update the amount.
+					if (ofs)	Count[i] = Max(Count[i] + amt,0);
+					else		Count[i] = amt;
+					return true;
+				}
+			}
+		}
+		// Doesn't exist, make one.
+		ItemName.Push(thing);
+		Count.Push(amt);
+		return true;
+	}
+}
+
+/*==============================================================================
+
+==============================================================================*/
+
+Class D4DHandler : EventHandler
+{
+	PlayerDelta deltas[MAXPLAYERS];
+	int Credits;
+	
+	override void NetworkProcess(ConsoleEvent e)
+	{
+		int num = e.Player;
+		let plr = players[num].mo;
+		
+		if (plr)
+		{
+			if (e.Name == 'UpdateItems')
+			{
+				if (deltas[num].ItemName.Size() > 0)
+				{
+					for (int i = 0; i < deltas[num].ItemName.Size(); i++)
+					{
+						Class<Inventory> item = deltas[num].ItemName[i];
+						if (item)
+						{
+							plr.A_SetInventory(item, deltas[num].Count[i]);
+						}
+					}
+				}
+				deltas[num].ItemName.Clear();
+				deltas[num].Count.Clear();			
+			}
+			else if (e.Name == 'EnableReception')
+			{
+				deltas[num].receiving = true;
+				Console.Printf("Enabled receiving.");
+			}
+			else if (e.Name == 'DisableReception')
+			{
+				deltas[num].receiving = false;
+				Console.Printf("Disabled receiving.");
+			}
+			else if (deltas[num].receiving)
+			{
+				Console.Printf("%s, %d, %d", e.Name, e.Args[0], e.Args[1]);
+				
+				//plr.A_SetInventory(e.Name, e.Args[0]);
+				deltas[num].SetItem(e.Name, e.Args[0], e.Args[1]);
+			}
+		}
+	}
+	
+	//==========================================================================
+	
+	// Completely clear off all listings for a particular player.
+	void Init(int num)
+	{
+		deltas[num].ItemName.Clear();
+		deltas[num].Count.Clear();
+	}
+
+	// Update the listings in the struct.
+	void Update(int num, string iname, uint count, bool ofs = false)
+	{
+		if (players[num].mo)
+		{
+			if (!deltas[num].SetItem(iname, count, ofs))
+			{
+				console.printf(iname.." is not a proper item");
+			}
+		}
+	}	
+}

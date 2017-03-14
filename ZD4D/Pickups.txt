@@ -489,6 +489,12 @@ Class D4UpgradePickupSpawner : Actor
 			if (!plr.CountInv("D4RegenUpgrade1") ||	!plr.CountInv("D4RegenUpgrade2") ||
 				!plr.CountInv("D4RegenUpgrade3") ||	!plr.CountInv("D4RegenUpgrade4"))
 				items.Push("D4RegenUpgradePickup");
+			if (!plr.CountInv("D4PentagramUpgrade1") ||	!plr.CountInv("D4PentagramUpgrade2") ||
+				!plr.CountInv("D4PentagramUpgrade3") ||	!plr.CountInv("D4PentagramUpgrade4"))
+				items.Push("D4PentagramUpgradePickup");
+			if (!plr.CountInv("D4RuneUpgrade1") ||	!plr.CountInv("D4RuneUpgrade2") ||
+				!plr.CountInv("D4RuneUpgrade3") ||	!plr.CountInv("D4RuneUpgrade4"))
+				items.Push("D4RuneUpgradePickup");
 			
 		
 			if (!plr.CountInv("D4AirControl"))					items.Push("D4AirControlUpgradePickup");
@@ -675,6 +681,68 @@ Class D4RegenUpgradePickup : D4PowerUpgradePickup
 			}
 			if (!CountInv("D4RegenUpgrade3"))	invoker.items.Push("D4RegenUpgrade3");
 			if (!CountInv("D4RegenUpgrade4"))	invoker.items.Push("D4RegenUpgrade4");
+			
+			if (invoker.items.Size() > 0)
+			{
+				int rng = random(0, invoker.items.Size() - 1);
+				Class<Inventory> som = invoker.items[rng];
+				if (som)	A_GiveInventory(som);
+				A_Print("$"..invoker.items[rng]);
+			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class D4PentagramUpgradePickup : D4PowerUpgradePickup
+{
+	Default
+	{
+		Inventory.PickupMessage "Pentagram Upgrade";
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			invoker.items.Clear();
+			if (!CountInv("D4PentagramUpgrade1"))	invoker.items.Push("D4PentagramUpgrade1");
+			if (!CountInv("D4PentagramUpgrade2"))	invoker.items.Push("D4PentagramUpgrade2");
+			if (!CountInv("D4PentagramUpgrade3"))	invoker.items.Push("D4PentagramUpgrade3");
+			if (!CountInv("D4PentagramUpgrade4"))	invoker.items.Push("D4PentagramUpgrade4");
+			
+			if (invoker.items.Size() > 0)
+			{
+				int rng = random(0, invoker.items.Size() - 1);
+				Class<Inventory> som = invoker.items[rng];
+				if (som)	A_GiveInventory(som);
+				A_Print("$"..invoker.items[rng]);
+			}
+			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			return true;
+		}
+		Stop;
+	}
+}
+
+Class D4RuneUpgradePickup : D4PowerUpgradePickup
+{
+	Default
+	{
+		Inventory.PickupMessage "Rune Upgrade";
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			invoker.items.Clear();
+			if (!CountInv("D4RuneUpgrade1"))	invoker.items.Push("D4RuneUpgrade1");
+			if (!CountInv("D4RuneUpgrade2"))	invoker.items.Push("D4RuneUpgrade2");
+			if (!CountInv("D4RuneUpgrade3"))	invoker.items.Push("D4RuneUpgrade3");
+			if (!CountInv("D4RuneUpgrade4"))	invoker.items.Push("D4RuneUpgrade4");
 			
 			if (invoker.items.Size() > 0)
 			{

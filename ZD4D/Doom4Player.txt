@@ -65,8 +65,10 @@ Struct ItemsToSave
 			"SyphonGrenadeSelected",
 			"D4Stamina",
 			"ProtectionBonus1",
+			"ProtectionBonus1Real",
 			"ProtectionBonus2",
 			"ProtectionBonus3",
+			"ProtectionBonus3Real",
 			"D4ArmorCapRaiser",
 			"D4AirControl",
 			"D4HigherJump",
@@ -81,7 +83,15 @@ Struct ItemsToSave
 			"D4RegenUpgrade1",
 			"D4RegenUpgrade2",
 			"D4RegenUpgrade3",
-			"D4RegenUpgrade4" // 77
+			"D4RegenUpgrade4", // 77
+			"D4PentagramUpgrade1",
+			"D4PentagramUpgrade2",
+			"D4PentagramUpgrade3",
+			"D4PentagramUpgrade4",
+			"D4RuneUpgrade1",
+			"D4RuneUpgrade2",
+			"D4RuneUpgrade3",
+			"D4RuneUpgrade4" // 85
 		};
 		ItemList.Clear();
 		for (int i = 0; i < SavedItemsStr.Size(); i++)
@@ -126,6 +136,7 @@ Class Doom4Player : PlayerPawn
 		+ALLOWPAIN
 		+PLAYERPAWN.CROUCHABLEMORPH
 		+NOICEDEATH
+		+AIMREFLECT
 		Speed 1;
 		Health 100;
 		Radius 16;
@@ -843,12 +854,12 @@ extend class Doom4Player
 			}
 			else if (vel.z != 0)
 			{
-				if(!user_jumpsDone)
+				if (!user_jumpsDone)
 				{
 					user_jumpsDone = 1;
 				}
 				
-				if(countInv("D4AirControl") && user_jumpsDone > 1)
+				if (CountInv("D4AirControl") && user_jumpsDone > 1)
 				{
 					A_ChangeVelocity(
 					((GetPlayerInput(MODINPUT_BUTTONS) & BT_FORWARD  ) ? .8 : 0) - 
@@ -872,7 +883,6 @@ extend class Doom4Player
 	//
 	//==========================================================================
 
-
 	int PentaNoiseWait;
 	
 	//--------------------------------------------------------------------------
@@ -895,8 +905,22 @@ extend class Doom4Player
 		// P_DamageMobj.
 		if (bINVULNERABLE || bNODAMAGE || FindInventory("PowerInvulnerable",true))
 		{
-			double alfa = Clamp(0.01 + damage * 0.01, 0.01, 0.6);
-			int fadetime = Clamp(damage * 0.01, 2, 35);
+			if (CountInv("D4PentagramUpgrade3") && mod != 'Reflection')
+			{
+				// Make sure never to do this to self! Otherwise, infiniloops happen.
+				// Doze are bad. Weally weally bad. :(
+				if (source && source != self && (source.bSHOOTABLE || source.bVULNERABLE))
+				{
+					source.DamageMobj(self, self, Max(1,damage * 0.2), "Reflection");
+				}
+				else if (inflictor && inflictor != self && (inflictor.bSHOOTABLE || inflictor.bVULNERABLE))
+				{
+					inflictor.DamageMobj(self, self, Max(1,damage * 0.2), "Reflection");
+				}
+			}
+			
+			double alfa = Clamp(0.01 + damage * 0.02, 0.01, 0.6);
+			int fadetime = Clamp(damage * 0.05, 2, 70);
 			A_SetBlend("White",alfa,fadetime);
 			
 			if (PentaNoiseWait < 1)
@@ -912,13 +936,26 @@ extend class Doom4Player
 				double ang = (flags & DMG_USEANGLE) ? angle : origin.AngleTo(self);
 				double thrust = 32.0;
 				
-				if (mass > 0)
+				if (!bNODAMAGE)
 				{
-					thrust = max((damage * 0.125) / mass, 0.0);
+					if (mass > 0)
+					{
+						int kb = 1;
+						
+						if (inflictor)
+						{
+							kb = inflictor.projectileKickback;
+						}
+						else if (source)
+						{
+							kb = source.projectileKickback;
+						}
+						
+						thrust = max((damage * 0.125 * kb) / mass, 0.0);
+					}
+					if (thrust >= 0.01)					
+						Thrust(thrust, ang);
 				}
-				if (thrust < 0.01)	thrust = 0;
-				
-				Thrust(thrust, ang);
 			}
 			
 			return 0;
@@ -936,6 +973,21 @@ extend class Doom4Player
 			}
 		}
 		return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+	}
+	
+	override bool CanCollideWith (Actor other, bool passive)
+	{
+		if (!passive)
+		{
+			// Upgrade 2 allows passing through enemies with invulnerability.
+			if (FindInventory("PowerInvulnerable",true) != null && 
+				CountInv("D4PentagramUpgrade2") && 
+				other.bISMONSTER)
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -1101,12 +1153,14 @@ extend class Doom4Player
 				}
 				
 				// Same thing with the cvar.
+				/*
 				CVar mCheck = CVar.FindCVar(ITS.ItemList[i]);
 				if (mCheck == null)
 				{
 					A_Log(ITS.ItemList[i].." is an item but has no cvar! Report to devs!");
 					continue;
 				}
+				*/
 				
 				// Either save or restore it.
 				int amt = CountInv(checker);
@@ -1127,111 +1181,6 @@ extend class Doom4Player
 	}
 }
 
-//==============================================================================
-
-
-
-//==============================================================================
-
-Struct PlayerDelta
-{
-	Array<String> ItemName;
-	Array<Int> Count;
-	//==========================================================================
-	// Checks for an item and returns its position.
-	int CheckForItem (String thing)
-	{
-		// Abort if the item's invalid.
-		Class<Inventory> check = thing;
-		if (!check)	
-		{
-			return -2;
-		}
-		
-		// Otherwise, look for it.
-		for (int i = 0; i < ItemName.Size(); i++)
-		{
-			let tng = ItemName[i];
-			if (tng.Length() > 0 && thing ~== tng)
-			{
-				return i;
-			}
-		}
-		return -1;
-	}
-	
-	//==========================================================================
-	// Sets an item if it exists, or adds the item to the array if not already,
-	// providing that item type is real.
-	bool SetItem (String thing, uint amt)
-	{
-		Class<Inventory> check = thing;
-		if (!check)	return false;
-		
-		for (int i = 0; i < ItemName.Size(); i++)
-		{
-			//let tng = ;
-			if (ItemName[i].Length() > 0 && thing ~== ItemName[i])
-			{
-				// Already exists, just update the amount.
-				Count[i] = amt;
-				return true;
-			}
-		}
-		
-		// Doesn't exist, make one.
-		ItemName.Push(thing);
-		Count.Push(amt);
-		return true;
-	}
-}
-
-/*==============================================================================
-
-==============================================================================*/
-
-Class D4DHandler : EventHandler
-{
-	PlayerDelta deltas[MAXPLAYERS];
-	
-	// Completely clear off all listings for a particular player.
-	void Init(int num)
-	{
-		deltas[num].ItemName.Clear();
-		deltas[num].Count.Clear();
-	}
-
-	// Update the listings, in the struct.
-	void Update(int num, string iname, uint count)
-	{
-		if (players[num].mo)
-		{
-			if (!deltas[num].SetItem(iname, count))
-			{
-				console.printf(iname.." is not a proper item");
-			}
-		}
-	}
-
-	void Apply(int num)
-	{
-		let plr = players[num].mo;
-		if (plr)
-		{
-			for (int i = 0; i < deltas[num].ItemName.Size(); i++)
-			{
-				Class<Inventory> item = deltas[num].ItemName[i];
-				if (item)
-				{
-					plr.A_SetInventory(item,deltas[num].Count[i]);
-				}
-			}
-		}
-		deltas[num].ItemName.Clear();
-		deltas[num].Count.Clear();
-	}
-}
-
 /*==============================================================================
 
 
@@ -1241,7 +1190,6 @@ Class D4DHandler : EventHandler
 class D4DDeathStorage : Thinker
 {
 	bool died;
-	String msg;
 	Array<String> ItemList;
 	Array<Int> ItemCount;
 	//--------------------------------------------------------------------------
@@ -1251,7 +1199,6 @@ class D4DDeathStorage : Thinker
 	D4DDeathStorage Init()
 	{
 		ChangeStatNum(STAT_STATIC);
-		msg = "";
 		return self;
 	}
 

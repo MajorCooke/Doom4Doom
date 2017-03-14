@@ -975,7 +975,41 @@ statusbar Normal, forcescaled
 		// Health
 		//drawnumber 4, Q4HUDFONT, yellow, health, alignment(right), 475,700;	
 		drawimage "DEMNBAR0", 18,694;
-		drawbar "RUNEBAR1", "RUNEBAR0", DemonTimerToken, horizontal, interpolate(1),  3,643;
+		
+											  drawbar "RUNEBAR1", "RUNEBAR0", DemonTimerToken,  horizontal, interpolate(1),  3,643;	
+			inInventory DemonTimerToken2	{ drawbar "RUNEBAR2", "RUNEBNIL", DemonTimerToken2, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken3	{ drawbar "RUNEBAR3", "RUNEBNIL", DemonTimerToken3, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken4	{ drawbar "RUNEBAR4", "RUNEBNIL", DemonTimerToken4, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken5	{ drawbar "RUNEBAR5", "RUNEBNIL", DemonTimerToken5, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken6	{ drawbar "RUNEBAR6", "RUNEBNIL", DemonTimerToken6, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken7	{ drawbar "RUNEBAR7", "RUNEBNIL", DemonTimerToken7, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken8	{ drawbar "RUNEBAR8", "RUNEBNIL", DemonTimerToken8, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken9	{ drawbar "RUNEBAR9", "RUNEBNIL", DemonTimerToken9, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerTokenA	{ drawbar "RUNEBARA", "RUNEBNIL", DemonTimerTokenA, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerTokenB	{ drawbar "RUNEBARB", "RUNEBNIL", DemonTimerTokenB, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerTokenC	{ drawbar "RUNEBARC", "RUNEBNIL", DemonTimerTokenC, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerTokenD	{ drawbar "RUNEBARD", "RUNEBNIL", DemonTimerTokenD, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerTokenI	{ drawbar "RUNEBARI", "RUNEBNIL", DemonTimerTokenI, horizontal, interpolate(1),  3,643; }
+
+
+		/*
+						inInventory DemonTimerTokenI	{ drawbar "RUNEBARI", "RUNEBNIL", DemonTimerTokenI, horizontal, interpolate(1),  3,643; }
+		else {}	inInventory DemonTimerTokenD	{ drawbar "RUNEBARD", "RUNEBNIL", DemonTimerTokenD, horizontal, interpolate(1),  3,643; }
+		else {}	inInventory DemonTimerTokenC	{ drawbar "RUNEBARC", "RUNEBNIL", DemonTimerTokenC, horizontal, interpolate(1),  3,643; }
+		else {}	inInventory DemonTimerTokenB	{ drawbar "RUNEBARB", "RUNEBNIL", DemonTimerTokenB, horizontal, interpolate(1),  3,643; }
+		else {}	inInventory DemonTimerTokenA	{ drawbar "RUNEBARA", "RUNEBNIL", DemonTimerTokenA, horizontal, interpolate(1),  3,643; }
+		else {}	inInventory DemonTimerToken9	{ drawbar "RUNEBAR9", "RUNEBNIL", DemonTimerToken9, horizontal, interpolate(1),  3,643; }
+		else {}	inInventory DemonTimerToken8	{ drawbar "RUNEBAR8", "RUNEBNIL", DemonTimerToken8, horizontal, interpolate(1),  3,643; }
+		else {}	inInventory DemonTimerToken7	{ drawbar "RUNEBAR7", "RUNEBNIL", DemonTimerToken7, horizontal, interpolate(1),  3,643; }
+		else {}	inInventory DemonTimerToken6	{ drawbar "RUNEBAR6", "RUNEBNIL", DemonTimerToken6, horizontal, interpolate(1),  3,643; }
+		else {}	inInventory DemonTimerToken5	{ drawbar "RUNEBAR5", "RUNEBNIL", DemonTimerToken5, horizontal, interpolate(1),  3,643; }
+		else {}	inInventory DemonTimerToken4	{ drawbar "RUNEBAR4", "RUNEBNIL", DemonTimerToken4, horizontal, interpolate(1),  3,643; }
+		else {}	inInventory DemonTimerToken3	{ drawbar "RUNEBAR3", "RUNEBNIL", DemonTimerToken3, horizontal, interpolate(1),  3,643; }
+		else {}	inInventory DemonTimerToken2	{ drawbar "RUNEBAR2", "RUNEBNIL", DemonTimerToken2, horizontal, interpolate(1),  3,643; }
+		else {}									  drawbar "RUNEBAR1", "RUNEBAR0", DemonTimerToken,  horizontal, interpolate(1),  3,643;	
+		//}
+		//}}}}}}}}}}}}
+		*/
 		
 		inInventory IamHellKnight       {
 			drawbar "DEMNBAR2", "DEMNBAR0", health(500), horizontal, interpolate(3), 18,694;
@@ -1979,7 +2013,20 @@ statusbar Fullscreen, forcescaled
 		// Health
 		//drawnumber 4, Q4HUDFONT, yellow, health, alignment(right), 475,700;	
 		drawimage "DEMNBAR0", 18,694;
-		drawbar "RUNEBAR1", "RUNEBAR0", DemonTimerToken, horizontal, interpolate(1),  3,643;
+											  drawbar "RUNEBAR1", "RUNEBAR0", DemonTimerToken,  horizontal, interpolate(1),  3,643;	
+			inInventory DemonTimerToken2	{ drawbar "RUNEBAR2", "RUNEBNIL", DemonTimerToken2, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken3	{ drawbar "RUNEBAR3", "RUNEBNIL", DemonTimerToken3, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken4	{ drawbar "RUNEBAR4", "RUNEBNIL", DemonTimerToken4, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken5	{ drawbar "RUNEBAR5", "RUNEBNIL", DemonTimerToken5, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken6	{ drawbar "RUNEBAR6", "RUNEBNIL", DemonTimerToken6, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken7	{ drawbar "RUNEBAR7", "RUNEBNIL", DemonTimerToken7, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken8	{ drawbar "RUNEBAR8", "RUNEBNIL", DemonTimerToken8, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken9	{ drawbar "RUNEBAR9", "RUNEBNIL", DemonTimerToken9, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerTokenA	{ drawbar "RUNEBARA", "RUNEBNIL", DemonTimerTokenA, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerTokenB	{ drawbar "RUNEBARB", "RUNEBNIL", DemonTimerTokenB, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerTokenC	{ drawbar "RUNEBARC", "RUNEBNIL", DemonTimerTokenC, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerTokenD	{ drawbar "RUNEBARD", "RUNEBNIL", DemonTimerTokenD, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerTokenI	{ drawbar "RUNEBARI", "RUNEBNIL", DemonTimerTokenI, horizontal, interpolate(1),  3,643; }
 		
 		inInventory IamHellKnight       {
 			drawbar "DEMNBAR2", "DEMNBAR0", health(500), horizontal, interpolate(3), 18,694;
@@ -2404,8 +2451,21 @@ statusbar Automap, forcescaled
 		// Health
 		drawnumber 4, Q4HUDFONT, yellow, health, alignment(right), 475,700;	
 		drawimage "DEMNBAR0", 18,694;
-		drawbar "RUNEBAR1", "RUNEBAR0", DemonTimerToken, horizontal, interpolate(1),  3,643;
-		drawnumber 4, Q4SMALLHUDFONT, orange, DemonTimerToken, alignment(right), 475,670;	
+											  drawbar "RUNEBAR1", "RUNEBAR0", DemonTimerToken,  horizontal, interpolate(1),  3,643;	
+			inInventory DemonTimerToken2	{ drawbar "RUNEBAR2", "RUNEBNIL", DemonTimerToken2, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken3	{ drawbar "RUNEBAR3", "RUNEBNIL", DemonTimerToken3, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken4	{ drawbar "RUNEBAR4", "RUNEBNIL", DemonTimerToken4, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken5	{ drawbar "RUNEBAR5", "RUNEBNIL", DemonTimerToken5, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken6	{ drawbar "RUNEBAR6", "RUNEBNIL", DemonTimerToken6, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken7	{ drawbar "RUNEBAR7", "RUNEBNIL", DemonTimerToken7, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken8	{ drawbar "RUNEBAR8", "RUNEBNIL", DemonTimerToken8, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerToken9	{ drawbar "RUNEBAR9", "RUNEBNIL", DemonTimerToken9, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerTokenA	{ drawbar "RUNEBARA", "RUNEBNIL", DemonTimerTokenA, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerTokenB	{ drawbar "RUNEBARB", "RUNEBNIL", DemonTimerTokenB, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerTokenC	{ drawbar "RUNEBARC", "RUNEBNIL", DemonTimerTokenC, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerTokenD	{ drawbar "RUNEBARD", "RUNEBNIL", DemonTimerTokenD, horizontal, interpolate(1),  3,643; }
+			inInventory DemonTimerTokenI	{ drawbar "RUNEBARI", "RUNEBNIL", DemonTimerTokenI, horizontal, interpolate(1),  3,643; }
+		drawnumber 4, Q4SMALLHUDFONT, orange, DemonTimerTotal, alignment(right), 475,670;	
 		
 		inInventory IamHellKnight       {
 			drawbar "DEMNBAR2", "DEMNBAR0", health(500), horizontal, interpolate(3), 18,694;

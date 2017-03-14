@@ -1,38 +1,181 @@
+Class D4DListMenu : ListMenu
+{
+	bool started;
+	Array<String> ItemNames;
+	bool OneValidItem;
+	Array<Int> Count;
+	bool UpgradeMenu;
+	
+	override void Ticker()
+	{
+		if (!started)
+		{
+			ItemNames.Clear();
+			Count.Clear();
+			started = true;
+		}
+	}
+	
+	override void OnDestroy()
+	{
+		started = false; // Because init only happens once at the start of the game.
+		
+		if (ItemNames.Size() > 0)
+		{
+			for (int i = 0; i < ItemNames.Size(); i++)
+			{
+				Class<Inventory> check = ItemNames[i];
+				if (check)
+				{
+					OneValidItem = true;
+					break;
+				}
+			}
+			
+			if (OneValidItem)
+			{
+				D4DHandler.SendNetworkEvent("EnableReception",0,0,0);
+				
+				for (int i = 0; i < ItemNames.Size(); i++)
+				{
+					Class<Inventory> check = ItemNames[i];
+					
+					if (check)
+					{
+						D4DHandler.SendNetworkEvent(ItemNames[i],Count[i],0,0);
+					}
+				}
+				D4DHandler.SendNetworkEvent("DisableReception",0,0,0);
+				D4DHandler.SendNetworkEvent("UpdateItems",0,0,0);
+			}
+		}
+		Super.OnDestroy();
+	}
+}
+
+Class D4DOptionMenuUpgrades : OptionMenu
+{
+	bool started;
+	D4DListMenu baseParent;
+	D4DOptionMenuUpgrades stepParent;
+	Menu nextParent;
+	int safety;
+	
+	//==========================================================================
+	override void Ticker()
+	{
+		
+		if (!baseparent && mParentMenu)
+		{
+			// See if we have a parent directly related to the D4D one.
+			baseParent = D4DListMenu(mParentMenu);
+			if (baseParent)
+			{
+				started = true;
+				return;
+			}
+			
+			// If not, find the parent stored within the parent, hopefully
+			// skipping the chain.
+			stepParent = D4DOptionMenuUpgrades(mParentMenu);
+			if (stepParent && stepParent.baseParent)
+			{
+				baseParent = stepParent.baseParent;
+				started = true;
+				return;
+			}
+		
+			nextParent = mParentMenu;
+			while (safety < 100)
+			{
+				if (nextParent && nextParent.mParentMenu)
+				{
+					nextParent = Menu(nextParent.mParentMenu);
+					safety++;
+					
+					if (safety >= 100)
+					{
+						Console.Printf("Safety limit reached!");
+						break;
+					}
+				}
+				else
+				{
+					baseParent = D4DListMenu(nextParent);
+					if (!baseParent)
+					{
+						Console.Printf("Parent not D4DListMenu!");
+					}
+					break;
+				}	
+			}
+			started = true;
+		}
+	Super.Ticker();
+	}
+} 
+
 //==============================================================================
 class OptionMenuItemPurchase : OptionMenuItem
 {
 	int amt, cost, owned, quan, maxinv, toGive;
 	String toCheck;
-	bool badItem, notFirst;
+	bool badItem, notFirst, started;
 	Class<Inventory> check;
 	
+	D4DListMenu baseParent;
+	Menu startParent;
+	Menu nextParent;
+	
+	//==========================================================================
 	OptionMenuItemPurchase Init(String command)
 	{
 		amt = cost = quan = maxinv = toGive = -1;
 		Super.Init("Purchase", command);
-		toCheck = command;
+		toCheck = command;		
 		return self;
 	}
 	
-	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
+	//==========================================================================
+	override void Ticker()
 	{
-		if (badItem)
+		if (!startParent)
 		{
-			drawLabel(indent, y, Font.CR_RED);
-			return indent;
+			startParent = Menu.GetCurrentMenu();
+		}
+		if (!baseParent && startParent)
+		{
+			let mm = D4DOptionMenuUpgrades(startParent.mParentMenu);
+			if (mm)	baseParent = mm.baseParent;
 		}
 		/*
-		let plr = players[consoleplayer].mo;
-		if (plr)
+		if (!started)
 		{
+			started = true;
+			nextParent = Menu.GetCurrentMenu();
 			
+			if (nextParent)
+			{
+				while (nextParent.mParentMenu != null)
+				{
+					nextParent = nextParent.mParentMenu;
+					baseParent = D4DListMenu(nextParent.mParentMenu);
+					if (baseParent) break;
+				}
+				
+				if (!nextParent.mParentMenu && !baseParent)
+				{
+					badItem = true;
+					mLabel = "Bad parent!";
+					console.printf(mLabel);
+				}
+			}
 		}
 		*/
-		drawLabel(indent, y, selected ? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColorMore);
-		return indent;
+		Super.Ticker();
 	}
 	
-	/*
+	//==========================================================================
 	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
 	{
 		if (badItem)
@@ -40,17 +183,19 @@ class OptionMenuItemPurchase : OptionMenuItem
 			drawLabel(indent, y, Font.CR_RED);
 			return indent;
 		}
-		
+		//mLabel = "Purchase";
 		let plr = players[consoleplayer].mo;
 		if (plr)
 		{
 			if (!notFirst)
 			{
+				check = toCheck;
 				if (!check)
 				{
 					// Item wasn't found.
 					badItem = true;
 					mLabel = "ERROR: Bad or non-existent item!";
+					Console.Printf(mLabel);
 				}
 				notFirst = true;
 			}
@@ -61,39 +206,27 @@ class OptionMenuItemPurchase : OptionMenuItem
 				amt = plr.CountInv("D4DCash");
 				quan = plr.CountInv(check);
 				
-				// Look for the tiered type first.
-				let finder1 = UpgradeItemTier(plr.FindInventory(check));
+				// Look for the type
+				let finder1 = UpgradeItem(plr.FindInventory(check, true));
 				if (!finder1)
 				{
-					// Not tiered, so search for the base.
-					let finder2 = UpgradeItem(plr.FindInventory(check));
-					if (!finder2)	
-					{
-						// No base, wrong type.
-						badItem = true;
-						mLabel = "ERROR: Item not of UpgradeItem type!";
-						return indent;
-					}
-					else
-					{
-						
-						maxinv = finder2.QuantityMax;
-						if (quan >= maxinv)
-						{
-							// Already bought.
-							badItem = true;
-							mLabel = "Already Purchased (Back)";
-							return indent;
-						}
-						
-						cost = finder2.Cost;
-						toGive = finder2.Quantity;
-					}
+					// No base, wrong type.
+					badItem = true;
+					mLabel = "ERROR: "..toCheck.." not of UpgradeItem type!";
+					Console.Printf(mLabel);
+					return indent;
 				}
 				else
 				{
+					int curquan = -1;
+					if (baseParent)
+					{
+						curquan = baseParent.ItemNames.Find(toCheck);
+						if (curquan >= 0 && baseParent.Count.Size() > 0)
+							curquan = baseParent.Count[curquan];
+					}
 					// Find the current tier by checking what quantity we have.
-					maxinv = Max(finder1.Quantity, finder1.Q2, finder1.Q3, finder1.Q4);
+					maxinv = Max(finder1.Quantity, finder1.Q2, finder1.Q3, finder1.Q4, curquan);
 					
 					if (quan >= maxinv)
 					{
@@ -102,77 +235,117 @@ class OptionMenuItemPurchase : OptionMenuItem
 						mLabel = "Already Purchased (Back)";
 						return indent;
 					}
-					else if (Q4 != -1 && quan < Q4)
-					{
-						cost = finder1.Cost4;
-						toGive = finder1.Q4;
-					}
-					else if (Q3 != -1 && quan < Q3)
-					{
-						cost = finder1.Cost3;
-						toGive = finder1.Q3;
-					}
-					else if (Q2 != -1 && quan < Q2)
-					{
-						cost = finder1.Cost2;
-						toGive = finder1.Q2;
-					}
-					else if (Quantity != -1 && quan < Quantity)
+					else if (finder1.Quantity != -1 && quan < finder1.Quantity)
 					{
 						cost = finder1.Cost;
 						toGive = finder1.Quantity;
 					}
+					else if (finder1.Q2 != -1 && quan < finder1.Q2)
+					{
+						cost = finder1.Cost2;
+						toGive = finder1.Q2;
+					}
+					else if (finder1.Q3 != -1 && quan < finder1.Q3)
+					{
+						cost = finder1.Cost3;
+						toGive = finder1.Q3;
+					}
+					else if (finder1.Q4 != -1 && quan < finder1.Q4)
+					{
+						cost = finder1.Cost4;
+						toGive = finder1.Q4;
+					}
 					else
 					{
 						badItem = true;
-						mLabel = "Error: Quantity must be greater than zero!";
+						mLabel = "ERROR: Quantity must be greater than zero!";
+						Console.Printf(mLabel);
 						return indent;
-					}
-					
+					}	
 				}
-				
 			}
 			
 			if (cost == -1)
 			{
 				badItem = true;
-				mLabel = "ERROR: UpgradeItem(Tier) costs not set!";
+				mLabel = "ERROR: UpgradeItem costs not set!";
+				Console.Printf(mLabel);
 				return indent;
 			}
-			else if (amt > cost)
+			else if (amt >= cost)
 			{
 				mLabel = "Purchase";
+				badItem = false;
 			}
 			else
 			{
+				badItem = true;
 				mLabel = "Not Enough Credits (Back)";
 			}
 			drawLabel(indent, y, selected ? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColorMore);
 		}
 		return indent;
 	}
-	*/
 	
+	//==========================================================================
 	override bool MenuEvent (int mkey, bool fromcontroller)
 	{
-		
 		if (mkey == Menu.MKEY_Enter)
 		{
 			// Grab the current menu...
 			let current = Menu.GetCurrentMenu();
-			if (badItem)
+			if (badItem || !baseParent)
 			{
 				Menu.MenuSound("Doom4/Player/Nope");
 			}
 			else
 			{
+				bool found = false;
+				/*
+				D4DHandler.SendNetworkEvent("EnableReception");
+				D4DHandler.SendNetworkEvent("D4DCash",-abs(cost),1);
+				D4DHandler.SendNetworkEvent(toCheck,toGive);
+				D4DHandler.SendNetworkEvent("DisableReception");
+				D4DHandler.SendNetworkEvent("UpdateItems");
+				*/
+				for (int i = 0; i < baseParent.ItemNames.Size(); i++)
+				{
+					if (baseParent.Itemnames[i] ~== toCheck)
+					{
+						baseParent.Count[i] = toGive;
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+				{
+					baseParent.ItemNames.Push(toCheck);
+					baseParent.Count.Push(toGive);
+				}
 				Menu.MenuSound("Menu/Activate");
 			}
 			// ...and close it. Means it'll go back up a level.
 			if (current) current.Close();
+			Reset();
 			return true;
 		}
+		Reset();
 		return Super.MenuEvent(mkey, fromcontroller);
+	}
+	
+	void Reset()
+	{
+		amt = cost = quan = maxinv = toGive = -1;
+		notFirst = started = badItem = false;
+		check = null;
+	}
+	
+	override void OnDestroy()
+	{
+		amt = cost = quan = maxinv = toGive = -1;
+		notFirst = started = badItem = false;
+		check = null;
+		Super.OnDestroy();
 	}
 }
 
@@ -197,14 +370,15 @@ class OptionMenuItemCvarDisplayInt : OptionMenuFieldBase
 		Super.Init(label, command, graycheck);
 		return self;
 	}
-
+	
+	//==========================================================================
 	override String Represent()
 	{		
 		if (mCVar == null) return "";
 		return String.format("%d", mCVar.GetInt());
 	}
 
-
+	//==========================================================================
 	override bool MenuEvent (int mkey, bool fromcontroller)
 	{
 		if (mCVar)
@@ -215,6 +389,7 @@ class OptionMenuItemCvarDisplayInt : OptionMenuFieldBase
 		return Super.MenuEvent(mkey, fromcontroller);
 	}
 	
+	//==========================================================================
 	override bool Selectable()
 	{
 		return false;
@@ -241,19 +416,26 @@ class OptionMenuItemCreditDisplay : OptionMenuItemCvarDisplayInt
 {
 	CVar mCredit;
 	int CreditAmount, CostAmount;
+	
+	//==========================================================================
 	OptionMenuItemCreditDisplay Init (Name command, CVar graycheck = null)
 	{
 		Super.Init("Credits", command, graycheck);
+		
+//		if (plr)
+//			mCredit = plr.CountInv("D4DCash");
 		mCredit = CVar.FindCVar("D4DCash");
 		return self;
 	}
 	
+	//==========================================================================
 	override String Represent()
 	{
-		if (mCredit == null) return "";
-		return String.format("%d", mCredit.GetInt());
+		//if (mCredit == null) return "";
+		return String.format("%d", CreditAmount);
 	}
 	
+	//==========================================================================
 	override int Draw (OptionMenuDescriptor d, int y, int indent, bool selected)
 	{
 		bool grayed = mGrayCheck != null && !mGrayCheck.GetInt();
@@ -262,6 +444,8 @@ class OptionMenuItemCreditDisplay : OptionMenuItemCvarDisplayInt
 		int col = OptionMenuSettings.mFontColorValue;
 		if (mCredit != null && mCVar != null)
 		{
+			//let plr = players[consoleplayer].mo;
+			//if (plr) CreditAmount = plr.CountInv("D4DCash"); //mCredit.GetInt();
 			CreditAmount = mCredit.GetInt();
 			CostAmount = mCVar.GetInt();
 			
@@ -288,12 +472,14 @@ class OptionMenuItemCreditDisplay : OptionMenuItemCvarDisplayInt
 
 class OptionMenuItemCostDisplay : OptionMenuItemCvarDisplayInt
 {
+	
 	OptionMenuItemCostDisplay Init (Name command, CVar graycheck = null)
 	{
 		Super.Init("Cost", command, graycheck);
 		return self;
 	}
 	
+	//==========================================================================
 	override String Represent()
 	{
 		if (mCVar == null) return "";

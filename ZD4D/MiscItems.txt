@@ -59,69 +59,6 @@ Class CashPercentBonusTemp : Inventory
 	}
 }
 
-
-
-//Strangely, this doesn't work the way it's supposed to. Oh well.
-Class D4HealthUpgrade : UpgradeStamina
-{
-	Default 
-	{
-		+INVENTORY.IGNORESKILL
-		+INVENTORY.ALWAYSPICKUP
-		Inventory.Amount 1;
-		Inventory.MaxAmount 100;
-	}
-}
-
-
-
-Class CashPercentBonus : Inventory
-{
-	Default 
-	{
-		+INVENTORY.UNDROPPABLE
-		+INVENTORY.UNTOSSABLE
-		+INVENTORY.IGNORESKILL
-		Inventory.MaxAmount 1000000;
-		Inventory.InterhubAmount 1000000;
-	}
-}
- 
-// Environment protection
-Class ProtectionBonus1 : PowerProtection
-{
-	Default 
-	{
-		DamageFactor "Normal", 1.0;
-		DamageFactor "Drowning",0.5;
-		DamageFactor "Slime", 	0.5;
-		DamageFactor "Fire", 	0.5;	// for lava
-		DamageFactor "Crush", 	0.5;
-		DamageFactor "Falling", 0.5;
-		+INVENTORY.PERSISTENTPOWER
-		+INVENTORY.UNDROPPABLE
-		Powerup.Duration 0x7FFFFFFD;
-		Inventory.MaxAmount 1;
-	}
-}
-
-// Self-damage protection
-Class ProtectionBonus2 : Inventory { Default { +INVENTORY.UNDROPPABLE }}
-
-// AoE damage protection
-Class ProtectionBonus3 : PowerProtection
-{
-	Default 
-	{
-		DamageFactor "Normal", 1.0;
-		RadiusDamageFactor 0.5;
-		+INVENTORY.PERSISTENTPOWER
-		+INVENTORY.UNDROPPABLE
-		Powerup.Duration 0x7FFFFFFD;
-		Inventory.MaxAmount 1;
-	}
-}
-
 Class UpgradeUpdater : CustomInventory
 {
 	Default 
@@ -195,9 +132,9 @@ Class UpgradeUpdater : CustomInventory
 			
 			A_SetInventory("D4HigherJump",int(GetCvar("D4HigherJump")));
 			A_SetInventory("D4AirControl",int(GetCvar("D4AirControl")));
-			A_SetInventory("ProtectionBonus1",int(GetCvar("ProtectionBonus1")));
+			A_SetInventory("ProtectionBonus1Real",int(GetCvar("ProtectionBonus1")));
 			A_SetInventory("ProtectionBonus2",int(GetCvar("ProtectionBonus2")));
-			A_SetInventory("ProtectionBonus3",int(GetCvar("ProtectionBonus3")));
+			A_SetInventory("ProtectionBonus3Real",int(GetCvar("ProtectionBonus3")));
 			A_SetInventory("D4CrateUpgrade",int(GetCvar("D4CrateUpgrade")));
 			if (GetCvar("D4Stamina") > Stamina)		
 			{
@@ -216,6 +153,15 @@ Class UpgradeUpdater : CustomInventory
 			A_SetInventory("D4RegenUpgrade2",GetCvar("D4RegenUpgrade2"));
 			A_SetInventory("D4RegenUpgrade3",GetCvar("D4RegenUpgrade3"));
 			A_SetInventory("D4RegenUpgrade4",GetCvar("D4RegenUpgrade4"));
+			A_SetInventory("D4PentagramUpgrade1",GetCvar("D4PentagramUpgrade1"));
+			A_SetInventory("D4PentagramUpgrade2",GetCvar("D4PentagramUpgrade2"));
+			A_SetInventory("D4PentagramUpgrade3",GetCvar("D4PentagramUpgrade3"));
+			A_SetInventory("D4PentagramUpgrade4",GetCvar("D4PentagramUpgrade4"));
+			A_SetInventory("D4RuneUpgrade1",GetCvar("D4RuneUpgrade1"));
+			A_SetInventory("D4RuneUpgrade2",GetCvar("D4RuneUpgrade2"));
+			A_SetInventory("D4RuneUpgrade3",GetCvar("D4RuneUpgrade3"));
+			A_SetInventory("D4RuneUpgrade4",GetCvar("D4RuneUpgrade4"));
+			
 			/* Template:
 			A_SetInventory("",GetCvar(""));
 			*/

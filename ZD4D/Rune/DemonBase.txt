@@ -1,5 +1,20 @@
 Class IamADemonToken  : Inventory { Default { Inventory.MaxAmount 1;    Inventory.InterHubAmount 0; }}
 Class DemonTimerToken : Inventory { Default { Inventory.MaxAmount 2100; Inventory.InterHubAmount 0; }}
+Class DemonTimerToken2 : Inventory { Default { Inventory.MaxAmount 2100; Inventory.InterHubAmount 0; }}
+Class DemonTimerToken3 : Inventory { Default { Inventory.MaxAmount 2100; Inventory.InterHubAmount 0; }}
+Class DemonTimerToken4 : Inventory { Default { Inventory.MaxAmount 2100; Inventory.InterHubAmount 0; }}
+Class DemonTimerToken5 : Inventory { Default { Inventory.MaxAmount 2100; Inventory.InterHubAmount 0; }}
+Class DemonTimerToken6 : Inventory { Default { Inventory.MaxAmount 2100; Inventory.InterHubAmount 0; }}
+Class DemonTimerToken7 : Inventory { Default { Inventory.MaxAmount 2100; Inventory.InterHubAmount 0; }}
+Class DemonTimerToken8 : Inventory { Default { Inventory.MaxAmount 2100; Inventory.InterHubAmount 0; }}
+Class DemonTimerToken9 : Inventory { Default { Inventory.MaxAmount 2100; Inventory.InterHubAmount 0; }}
+Class DemonTimerTokenA : Inventory { Default { Inventory.MaxAmount 2100; Inventory.InterHubAmount 0; }}
+Class DemonTimerTokenB : Inventory { Default { Inventory.MaxAmount 2100; Inventory.InterHubAmount 0; }}
+Class DemonTimerTokenC : Inventory { Default { Inventory.MaxAmount 2100; Inventory.InterHubAmount 0; }}
+Class DemonTimerTokenD : Inventory { Default { Inventory.MaxAmount 2100; Inventory.InterHubAmount 0; }}
+Class DemonTimerTokenI : Inventory { Default { Inventory.MaxAmount 2100; Inventory.InterHubAmount 0; }}
+Class DemonTimerTotal : Inventory { Default { Inventory.MaxAmount 25200; Inventory.InterHubAmount 0; }}
+
 Class OverlaysStarted : Inventory { Default { Inventory.MaxAmount 1;    Inventory.InterHubAmount 0; }}
 
 Class IamHellKnight 		: Inventory { Default { Inventory.MaxAmount 1; Inventory.InterHubAmount 0; }}
@@ -39,10 +54,38 @@ Class IamArachnotron 		: Inventory { Default { Inventory.MaxAmount 1; Inventory.
 
 Class DemonPlayerBase : Doom4Player
 {
+	Class<Inventory> RuneBase;
 	int TicDelay;
+	int prevTic, currTic, nextTic;
+	const interTic = 15;
+	const minuteTic = 60 * 35;
 	// Only ever called once.
 	override void PostBeginPlay()
 	{
+		static const String Demons[] =
+		{
+			"PlayerArachnotron",		"ArachnotronRune",
+			"PlayerBaron",				"BaronRune",
+			"PlayerCacodemon",			"CacodemonRune",
+			"PlayerCyberdemon",			"CyberdemonRune",
+			"PlayerFatso",				"FatsoRune",
+			"PlayerKnight",				"KnightRune",
+			"PlayerMastermind",			"MastermindRune",
+			"PlayerPainElemental",		"PainElementalRune",
+			"PlayerRevenant",			"RevenantRune",
+			"PlayerArchvile",			"ArchvileRune"
+		};
+		
+		for (int i = 0; i < Demons.Size(); i += 2)
+		{
+			if (GetClass() == Demons[i])
+			{
+				RuneBase = Demons[i + 1];
+				break;
+			}
+		}
+		let inv = PowerMorph(FindInventory("PowerMorph",true));
+		if (inv)	currTic = inv.EffectTics;
 		PlayDemonStartSound();
 		StartDemonOverlays();
 		Super.PostBeginPlay();	//Always call the super version to ensure everything's in working order.
@@ -52,11 +95,49 @@ Class DemonPlayerBase : Doom4Player
 	{
 		if (GetPlayerInput(MODINPUT_BUTTONS) & BT_USER4)
 		{
-			ACS_NamedExecuteWithResult('ForceUnmorph',0,0,0,0);
+			let inv = PowerMorph(FindInventory("PowerMorph",true));
+			if (inv)
+			{
+				A_SetInventory("DemonTimerToken",0);
+				A_SetInventory("DemonTimerToken2",0);
+				A_SetInventory("DemonTimerToken3",0);
+				A_SetInventory("DemonTimerToken4",0);
+				A_SetInventory("DemonTimerToken5",0);
+				A_SetInventory("DemonTimerToken6",0);
+				A_SetInventory("DemonTimerToken7",0);
+				A_SetInventory("DemonTimerToken8",0);
+				A_SetInventory("DemonTimerToken9",0);
+				A_SetInventory("DemonTimerTokenA",0);
+				A_SetInventory("DemonTimerTokenB",0);
+				A_SetInventory("DemonTimerTokenC",0);
+				A_SetInventory("DemonTimerTokenD",0);
+				A_SetInventory("DemonTimerTokenI",0);
+				TicDelay = -1;
+				inv.EffectTics = 0;
+				inv.EndEffect();
+				return Super.Tick();
+			}
 		}
 	
 		// Count down the timer effect.
-		A_TakeInventory("DemonTimerToken",1,0);
+		let check = PowerMorph(FindInventory("PowerMorph",true));
+		prevTic = currTic;
+		nextTic = check.EffectTics;
+		currTic += Clamp(nextTic - currTic, -interTic, interTic);
+		A_SetInventory("DemonTimerToken", currTic - (minuteTic * 0),0);
+		A_SetInventory("DemonTimerToken2",currTic - (minuteTic * 1),0);
+		A_SetInventory("DemonTimerToken3",currTic - (minuteTic * 2),0);
+		A_SetInventory("DemonTimerToken4",currTic - (minuteTic * 3),0);
+		A_SetInventory("DemonTimerToken5",currTic - (minuteTic * 4),0);
+		A_SetInventory("DemonTimerToken6",currTic - (minuteTic * 5),0);
+		A_SetInventory("DemonTimerToken7",currTic - (minuteTic * 6),0);
+		A_SetInventory("DemonTimerToken8",currTic - (minuteTic * 7),0);
+		A_SetInventory("DemonTimerToken9",currTic - (minuteTic * 8),0);
+		A_SetInventory("DemonTimerTokenA",currTic - (minuteTic * 9),0);
+		A_SetInventory("DemonTimerTokenB",currTic - (minuteTic * 10),0);
+		A_SetInventory("DemonTimerTokenC",currTic - (minuteTic * 11),0);
+		A_SetInventory("DemonTimerTokenD",currTic - (minuteTic * 12),0);
+		A_SetInventory("DemonTimerTotal",nextTic,DefPtr,true);
 		
 		TicDelay++;
 		
@@ -70,10 +151,13 @@ Class DemonPlayerBase : Doom4Player
 			
 			// So, create an iterator that searches for D4KeyBase-inheriting
 			// only.
-			ThinkerIterator KeyFinder = ThinkerIterator.Create("D4KeyBase");
+			ThinkerIterator it = ThinkerIterator.Create("Inventory");
 			Actor mo;
-			while (mo = D4KeyBase(KeyFinder.Next()))
+			while (mo = Inventory(it.Next()))
 			{
+				if (!(mo is "D4KeyBase") && !(mo is "DemonRuneBase"))
+					continue;
+					
 				// Make sure it can be touched.
 				double blockdist = radius + mo.radius;
 				if (abs(pos.x - mo.pos.x) > blockdist || abs(pos.y - mo.pos.y) > blockdist)
@@ -82,6 +166,48 @@ Class DemonPlayerBase : Doom4Player
 				// So we're in range horizontally. What about vertically?
 				if (pos.z + height < mo.pos.z || mo.pos.z + mo.height < pos.z)
 				{	continue;	}
+				
+				if (mo is "DemonRuneBase")
+				{
+					if (!CountInv("D4RuneUpgrade2"))
+						continue;
+					
+					
+					if (check)
+					{
+						if (mo.GetClass() == RuneBase)
+						{
+							check.EffectTics += (35 * 60);
+							A_ResetHealth();
+							
+							if (CountInv("D4RuneUpgrade4"))
+							{
+								let drain = PowerDrain(FindInventory("PowerDrain",true));
+								if (!drain)
+								{
+									A_GiveInventory("DemonRuneDrainGiver");
+									drain = PowerDrain(FindInventory("PowerDrain",true));
+									if (drain)	drain.EffectTics = check.EffectTics;
+								}
+								else
+								{
+									drain.EffectTics = check.EffectTics;
+								}
+							}
+							
+							A_SetInventory("DemonTimerToken",CountInv("DemonTimerToken") + (35*60), DefPtr, true);
+							A_SpawnItemEx("DemonRuneMorphOn",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
+							mo.Destroy();
+						}
+						/*
+						else
+						{
+							Console.Printf(mo.GetClass().." "..RuneBase);
+						}
+						*/
+					}
+					continue;
+				}
 				
 				// Execute any specials this thing had.				
 				if (mo && mo.special)
@@ -156,7 +282,6 @@ Class DemonPlayerBase : Doom4Player
 	
 	void PlayDemonStartSound()
 	{
-		int entries = 10;
 		static const Class<Actor> Demons[] =
 		{
 			"PlayerArachnotron",
@@ -185,7 +310,7 @@ Class DemonPlayerBase : Doom4Player
 			"Doom4/Monsters/Archvile/Sight"
 		};
 		
-		for (int index = 0; index < entries; index++)
+		for (int index = 0; index < Demons.Size(); index++)
 		{
 			if (CheckClass(Demons[index]))
 			{
@@ -216,7 +341,6 @@ Class DemonPlayerBase : Doom4Player
 
 // upon getting this thing, player will unmorph immediately
 // No longer used.
-// Instead, an ACS script performs unmorphing.
 Class UnMorpher : ArtiTomeOfPower
 {
 	Default 
@@ -250,7 +374,7 @@ Class DemonRuneMorphOff : Actor
 		{
 			//Depending on the token, will play the death sound of that demon
 			if (CountInv("IamHellKnight",TargetPtr))
-			{	A_PlaySound("Doom4/Monsters/HellKnight/Death	",7); }
+			{	A_PlaySound("Doom4/Monsters/HellKnight/Death",7); }
 			else if (CountInv("IamBaronOfHell",TargetPtr))
 			{	A_PlaySound("Doom4/Monsters/Baron/Death",7); }
 			else if (CountInv("IamRevenant",TargetPtr))
@@ -333,7 +457,6 @@ Class DemonOverlayCleaner : CustomInventory
 		TNT1 A 0 
 		{
 			A_ClearOverlays(6000,6100); //all demon overlays are between these two
-			A_GiveInventory("Invul3s");
 			ACS_NamedExecute("ResetOverlayState",0,0,0,0);
 		}
 		Stop;
@@ -348,24 +471,21 @@ Class HealthArmorSaver : CustomInventory
 {
 	Default 
 	{
-		Inventory.MaxAmount 1;
-		Inventory.Amount 1;
 		+INVENTORY.ALWAYSPICKUP
-		+INVENTORY.AUTOACTIVATE
 		+NOTIMEFREEZE
 	}
 	States
 	{
-	Spawn:
-		BOS2 A 10 Bright;
-		Loop;
 	Pickup:
 		TNT1 A 0 
 		{
+			A_GiveInventory("PowerDrain",1);
 			A_GiveInventory("DHealthCount",health);
-			
+			A_SetHealth(1);
+			bNODAMAGE = true;
 			if(countinv("BasicArmor"))
 			{	A_GiveInventory("DArmorCount",CountInv("BasicArmor",Player1)); }
+			return true;
 		}
 		Stop;
 	}
@@ -389,13 +509,13 @@ Class HealthArmorRestorer : CustomInventory
 	Pickup:
 		TNT1 A 0 
 		{
+			A_GiveInventory("Invul3s");
 			A_SetHealth(CountInv("DHealthCount",Player1)); 
 			while(countinv("DArmorCount"))
 			{
 				A_GiveInventory("ArmorSinglePoint",1);
 				A_TakeInventory("DArmorCount",1);
 			}
-			
 			
 			A_SetInventory("DHealthCount",0);
 			A_SetInventory("DArmorCount",0);
@@ -679,6 +799,9 @@ Class SoundStopper : CustomInventory
 
 Class DemonRuneBase : CustomInventory
 {
+	
+	Class<Inventory> RuneName;
+	property RuneName: RuneName;
 	int user_time;
 	Default 
 	{
@@ -695,48 +818,53 @@ Class DemonRuneBase : CustomInventory
 	Spawn:
 		RUNE A 0 NoDelay
 		{
+			
 			// ONLY CHECK FOR THE SAME TYPE OF ITSELF. Do not check others, that's ridiculous!
-			if (CheckClass("ArachnotronRune"))
+			if (!CountInv("D4RuneUpgrade3",Player1))
 			{
-				return (A_CheckProximity("Null","ArachnotronRune", 	32767, 1, CPXF_NOZ));
-			}
-			else if (CheckClass("BaronRune"))
-			{
-				return (A_CheckProximity("Null","BaronRune", 	32767, 1, CPXF_NOZ));
-			}
-			else if (CheckClass("CacodemonRune"))
-			{
-				return (A_CheckProximity("Null","CacodemonRune", 	32767, 1, CPXF_NOZ));
-			}
-			else if (CheckClass("CyberdemonRune"))
-			{
-				return (A_CheckProximity("Null","CyberdemonRune", 	32767, 1, CPXF_NOZ));
-			}
-			else if (CheckClass("FatsoRune"))
-			{
-				return (A_CheckProximity("Null","FatsoRune", 	32767, 1, CPXF_NOZ));
-			}
-			else if (CheckClass("KnightRune"))
-			{
-				return (A_CheckProximity("Null","KnightRune", 	32767, 1, CPXF_NOZ));
-			}
-			else if (CheckClass("MastermindRune"))
-			{
-				return (A_CheckProximity("Null","MastermindRune", 	32767, 1, CPXF_NOZ));
-			}
-			else if (CheckClass("PainElementalRune"))
-			{
-				return (A_CheckProximity("Null","PainElementalRune",32767, 1, CPXF_NOZ));
-			}
-			else if (CheckClass("RevenantRune"))
-			{
-				return (A_CheckProximity("Null","RevenantRune", 	32767, 1, CPXF_NOZ));
-			}
-			else if (CheckClass("ArchvileRune"))
-			{
-				return (A_CheckProximity("Null","ArchvileRune", 	32767, 1, CPXF_NOZ));
+				if (CheckClass("ArachnotronRune"))
+				{
+					return (A_CheckProximity("Null","ArachnotronRune", 	32767, 1, CPXF_NOZ));
+				}
+				else if (CheckClass("BaronRune"))
+				{
+					return (A_CheckProximity("Null","BaronRune", 	32767, 1, CPXF_NOZ));
+				}
+				else if (CheckClass("CacodemonRune"))
+				{
+					return (A_CheckProximity("Null","CacodemonRune", 	32767, 1, CPXF_NOZ));
+				}
+				else if (CheckClass("CyberdemonRune"))
+				{
+					return (A_CheckProximity("Null","CyberdemonRune", 	32767, 1, CPXF_NOZ));
+				}
+				else if (CheckClass("FatsoRune"))
+				{
+					return (A_CheckProximity("Null","FatsoRune", 	32767, 1, CPXF_NOZ));
+				}
+				else if (CheckClass("KnightRune"))
+				{
+					return (A_CheckProximity("Null","KnightRune", 	32767, 1, CPXF_NOZ));
+				}
+				else if (CheckClass("MastermindRune"))
+				{
+					return (A_CheckProximity("Null","MastermindRune", 	32767, 1, CPXF_NOZ));
+				}
+				else if (CheckClass("PainElementalRune"))
+				{
+					return (A_CheckProximity("Null","PainElementalRune",32767, 1, CPXF_NOZ));
+				}
+				else if (CheckClass("RevenantRune"))
+				{
+					return (A_CheckProximity("Null","RevenantRune", 	32767, 1, CPXF_NOZ));
+				}
+				else if (CheckClass("ArchvileRune"))
+				{
+					return (A_CheckProximity("Null","ArchvileRune", 	32767, 1, CPXF_NOZ));
+				}
 			}
 			return ResolveState(null);
+			
 		}
 		RUNE A 0 
 		{ 
@@ -882,6 +1010,18 @@ Class DemonPuffMelee : FistPuff //for xdeathing everything
 	}
 }
 
+Class DemonRuneDrainGiver : PowerupGiver
+{
+	Default
+	{
+		+INVENTORY.ALWAYSPICKUP
+		+INVENTORY.AUTOACTIVATE
+		Powerup.Duration -60;
+		Powerup.Strength 0.25;
+		Powerup.Type "PowerDrain";
+	}
+}
+
 Class PowerRuneBase : PowerMorph
 {
 	override void InitEffect()
@@ -899,7 +1039,7 @@ Class PowerRuneBase : PowerMorph
 	{	
 		if (Owner)
 		{
-			if (Owner.CountInv("D4TimeFreeze"))
+			if (globalfreeze || level.frozen)
 			{
 				EffectTics++; //'Freeze' the timer.
 			}
@@ -924,9 +1064,10 @@ Class PowerRuneBase : PowerMorph
 		}
 		Super.DoEffect();
 	}
-	
+	/*
 	override void EndEffect()
 	{
 		Super.EndEffect();
 	}
+	*/
 }

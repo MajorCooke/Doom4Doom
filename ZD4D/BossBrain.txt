@@ -72,7 +72,7 @@ Class D4BossBrain : BossBrain replaces BossBrain
 	States
 	{
 	Spawn:
-		BBRN A 7
+		BBRN A 7 NoDelay
 		{
 			if (!seeBase)
 			{
@@ -112,7 +112,28 @@ Class D4BossBrain : BossBrain replaces BossBrain
 			for (int i = 0; i < MAXPLAYERS; i++)
 			{
 				if (playeringame[i] && players[i].mo)
-					players[i].mo.A_GiveInventory("PentagramOfProtection");
+				{
+					let plr = players[i].mo;
+					if (plr)
+					{
+						bool invul = plr.bINVULNERABLE;
+						plr.bINVULNERABLE = false;
+						let inv = PowerMorph(plr.FindInventory("PowerMorph",true));
+						if (inv)
+						{
+							inv.EffectTics = 0;	
+							inv.EndEffect();
+						}
+						plr.bINVULNERABLE = invul;
+						
+					}
+					plr = players[i].mo;
+					if (plr)
+					{
+						plr.A_GiveInventory("PentagramOfProtection");
+					}
+					
+				}
 			}
 			KillEverything();
 		}

@@ -1243,6 +1243,10 @@ Class PowerInvulBase : PowerInvulnerable
 		if (!Owner)	return;
 		
 		NoiseMaker = Owner.Spawn("InvulPickupNoise",Owner.pos);
+		if (Owner.CountInv("D4PentagramUpgrade1"))	Owner.bREFLECTIVE = true;
+		if (Owner.CountInv("D4PentagramUpgrade4"))	Owner.bNODAMAGE = true;
+		
+		
 		if (!NoiseMaker) A_Log("This isn't good.");
 		//PrevTic = EffectTics;
 	}
@@ -1251,6 +1255,8 @@ Class PowerInvulBase : PowerInvulnerable
 	{
 		if (Owner)
 		{
+			if (Owner.CountInv("D4PentagramUpgrade1"))	Owner.bREFLECTIVE = true;
+			if (Owner.CountInv("D4PentagramUpgrade4"))	Owner.bNODAMAGE = true;
 			if (globalfreeze || level.Frozen)
 			{
 				EffectTics++; //'Freeze' the timer.
@@ -1280,6 +1286,11 @@ Class PowerInvulBase : PowerInvulnerable
 		if (NoiseMaker)
 			NoiseMaker.Destroy();
 		
+		if (Owner)	
+		{
+			Owner.bREFLECTIVE = false;
+			Owner.bNODAMAGE = false;
+		}
 		Super.EndEffect();
 	}
 }
