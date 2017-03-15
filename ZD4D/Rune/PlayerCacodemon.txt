@@ -68,7 +68,7 @@ Class FlyingMonsterPowerup : PowerupGiver
 	{
 		+FLOATBOB
 		Powerup.Type "PowerFlight";
-		powerup.duration -60;
+		powerup.duration 0x7FFFFFFD;
 		+Inventory.AutoActivate
 	}
 	states

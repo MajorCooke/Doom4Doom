@@ -193,6 +193,8 @@ Class DemonPlayerBase : Doom4Player
 								{
 									drain.EffectTics = check.EffectTics;
 								}
+								let flight = PowerFlight(FindInventory("PowerFlight",true));
+								if (flight)	flight.EffectTics = check.EffectTics;
 							}
 							
 							A_SetInventory("DemonTimerToken",CountInv("DemonTimerToken") + (35*60), DefPtr, true);
