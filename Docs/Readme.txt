@@ -1,19 +1,19 @@
 ===========================================================================
 Archive Maintainer      : (special instructions if any)
 Update to               : D4D.pk3
-Advanced engine needed  : GZDoom v2.2
+Advanced engine needed  : GZDoom v2.4
 Primary purpose         : Single player, no levels included
 ===========================================================================
 Title                   : DOOM(4) for DooM
 Filename                : D4D.pk
 Release date            : 10-31-16
-Author                  : DBThanatos, Major Cooke, Michaelis
-Email Address           : DBThanatos@hotmail.com
+Author                  : Major Cooke, DBThanatos (ex-author), Michaelis
+Email Address           : MajorCooke22@gmail.com
 Other Files By Author   : DBThanatos: "Quake4 Lightning Fast Mod Doom Edition",
                           "Doomstorm", "AEons of Death", "Super Doom 3 Take II",
                           "The Ultimate Torment & Torture: Take II", "Dream of 
                           magic 2.0"
-                          Major Cooke: "AEons of Death"
+                          Major Cooke: "AEons of Death", "DooMwinia"
                           Michaelis: "ZBlood+", "AEons of Death"
 Misc. Author Info       : Stuff.
 
@@ -61,11 +61,10 @@ Known Bugs              : Sometimes glory kills will only do a quick punch
                           through walls, floors or celings while being
                           executed.
                           If you use GZDoom devbuilds, HUD elements might
-                          look off. GZDoom 2.2 is recommended.
-May Not Run With        : GZDoom current devbuilds. Will NOT work with 
-                          Zandronum. It might run in ZDoom but it will look
-                          like crap due to color limitations.
-Tested With             : GZDoom v2.2
+                          look off. GZDoom 2.4 is recommended.
+Might Not Run With      : Some GZDoom devbuilds. 
+Will NOT Work With 		: Zandronum. ZDoom.
+Tested With             : GZDoom v2.4
 
 
 ===========================================================================
@@ -74,25 +73,9 @@ Tested With             : GZDoom v2.2
 
 Neccronixis             : Creator of all the Doom 4 weapon sprites &
                           doomdoll pickup and animation.
-
-DBThanatos              : Project idea and direction. Import, offseting, 
-                          renaming all of Neccronixis' weapon sprites.
-                          Edited all muzleflash sprites from the weapons.
-                          Created base functional code of all weapons.
-                          Doom4 sound ripping, conversion and processing. 
-                          Created voxels for: ammo pickups, health pickups,
-                          armor pickups, chaingun pickup and it's holograph
-                          version, all holo system mod/upgrades and cursor.
-                          Created sprites for all voxels DBT made.
-                          Coding and adding all decals for monsters and
-                          weapons. Coded all monsters. Titlemap. Menu
-                          graphics and design. Implementation of DoomDoll
-                          and grenade system. "Roach" monster recolor (which
-                          was used as D4D imp). Game balance.
-                          Resource gatherer and organizer.  
-                          Final polishing of visual effects.
-
-Major Cooke             : Design, creation and implementation of the "Holo
+						  
+Major Cooke             : Current owner. Project idea and direction. 
+						  Design, creation and implementation of the "Holo
                           upgrade system". General overhaul of the weapon
                           code to enable "hold altfire to ready mod". Creator
                           of the BFG tracers and electric effects. Creator
@@ -108,6 +91,23 @@ Major Cooke             : Design, creation and implementation of the "Holo
                           Half Life-like laser for Gauss Cannon, Static 
                           Rifle and many more. Created the Carrion Cannon.
                           General DECORATE & ZScript mastermind.
+
+DBThanatos              : Retired owner. 
+                          Import, offseting, renaming all of Neccronixis' weapon
+                          sprites. Edited all muzleflash sprites from the 
+                          weapons. Created base functional code of all weapons.
+                          Doom4 sound ripping, conversion and processing. 
+                          Created voxels for: ammo pickups, health pickups,
+                          armor pickups, chaingun pickup and it's holograph
+                          version, all holo system mod/upgrades and cursor.
+                          Created sprites for all voxels DBT made.
+                          Coding and adding all decals for monsters and
+                          weapons. Coded all monsters. Titlemap. Menu
+                          graphics and design. Implementation of DoomDoll
+                          and grenade system. "Roach" monster recolor (which
+                          was used as D4D imp). Game balance.
+                          Resource gatherer and organizer.  
+                          Final polishing of visual effects.
 
 Michaelis               : Ripping, conversion and processing of graphics for
                           the Heads Up Display. Implementation of reticles
@@ -174,12 +174,12 @@ Blizzard                : Diablo II Sound (just one!)
 
 * Beta Testers *
 
-- 3xlneed
+- 3xlneet
 - BeardedDoomGuy
 - Colossus
 - Hellser
 - iSpook
-- JonnyTheWolf
+- JohnnyTheWolf
 - Matsilagi
 - TheZombieKiller
 - TiberiumSoul
