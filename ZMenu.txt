@@ -1,488 +1,350 @@
-Class D4DListMenu : ListMenu
-{
-	bool started;
-	Array<String> ItemNames;
-	bool OneValidItem;
-	Array<Int> Count;
-	bool UpgradeMenu;
-	
-	override void Ticker()
-	{
-		if (!started)
-		{
-			ItemNames.Clear();
-			Count.Clear();
-			started = true;
-		}
-	}
-	
-	override void OnDestroy()
-	{
-		started = false; // Because init only happens once at the start of the game.
-		
-		if (ItemNames.Size() > 0)
-		{
-			for (int i = 0; i < ItemNames.Size(); i++)
-			{
-				Class<Inventory> check = ItemNames[i];
-				if (check)
-				{
-					OneValidItem = true;
-					break;
-				}
-			}
-			
-			if (OneValidItem)
-			{
-				D4DHandler.SendNetworkEvent("EnableReception",0,0,0);
-				
-				for (int i = 0; i < ItemNames.Size(); i++)
-				{
-					Class<Inventory> check = ItemNames[i];
-					
-					if (check)
-					{
-						D4DHandler.SendNetworkEvent(ItemNames[i],Count[i],0,0);
-					}
-				}
-				D4DHandler.SendNetworkEvent("DisableReception",0,0,0);
-				D4DHandler.SendNetworkEvent("UpdateItems",0,0,0);
-			}
-		}
-		Super.OnDestroy();
-	}
-}
-
-Class D4DOptionMenuUpgrades : OptionMenu
-{
-	bool started;
-	D4DListMenu baseParent;
-	D4DOptionMenuUpgrades stepParent;
-	Menu nextParent;
-	int safety;
-	
-	//==========================================================================
-	override void Ticker()
-	{
-		
-		if (!baseparent && mParentMenu)
-		{
-			// See if we have a parent directly related to the D4D one.
-			baseParent = D4DListMenu(mParentMenu);
-			if (baseParent)
-			{
-				started = true;
-				return;
-			}
-			
-			// If not, find the parent stored within the parent, hopefully
-			// skipping the chain.
-			stepParent = D4DOptionMenuUpgrades(mParentMenu);
-			if (stepParent && stepParent.baseParent)
-			{
-				baseParent = stepParent.baseParent;
-				started = true;
-				return;
-			}
-		
-			nextParent = mParentMenu;
-			while (safety < 100)
-			{
-				if (nextParent && nextParent.mParentMenu)
-				{
-					nextParent = Menu(nextParent.mParentMenu);
-					safety++;
-					
-					if (safety >= 100)
-					{
-						Console.Printf("Safety limit reached!");
-						break;
-					}
-				}
-				else
-				{
-					baseParent = D4DListMenu(nextParent);
-					if (!baseParent)
-					{
-						Console.Printf("Parent not D4DListMenu!");
-					}
-					break;
-				}	
-			}
-			started = true;
-		}
-	Super.Ticker();
-	}
-} 
-
 //==============================================================================
-class OptionMenuItemPurchase : OptionMenuItem
+//
+// MenuItemList 
+//
+// This is responsible for storing all information such as the custom menus,
+// items, and quantity counts for updating the player once purchases are made.
+//==============================================================================
+Class MenuItemList : Object ui
 {
-	int amt, cost, owned, quan, maxinv, toGive;
-	String toCheck;
-	bool badItem, notFirst, started;
-	Class<Inventory> check;
+	Array<String> ItemNames;
+	Array<UInt> Count;
+	bool req;
+	Actor plr;
 	
-	D4DListMenu baseParent;
-	Menu startParent;
-	Menu nextParent;
-	
-	//==========================================================================
-	OptionMenuItemPurchase Init(String command)
+	void Init()
 	{
-		amt = cost = quan = maxinv = toGive = -1;
-		Super.Init("Purchase", command);
-		toCheck = command;		
-		return self;
+		plr = null;
+		ItemNames.Clear();
+		Count.Clear();
 	}
-	
 	//==========================================================================
-	override void Ticker()
-	{
-		if (!startParent)
-		{
-			startParent = Menu.GetCurrentMenu();
-		}
-		if (!baseParent && startParent)
-		{
-			let mm = D4DOptionMenuUpgrades(startParent.mParentMenu);
-			if (mm)	baseParent = mm.baseParent;
-		}
-		/*
-		if (!started)
-		{
-			started = true;
-			nextParent = Menu.GetCurrentMenu();
-			
-			if (nextParent)
-			{
-				while (nextParent.mParentMenu != null)
-				{
-					nextParent = nextParent.mParentMenu;
-					baseParent = D4DListMenu(nextParent.mParentMenu);
-					if (baseParent) break;
-				}
-				
-				if (!nextParent.mParentMenu && !baseParent)
-				{
-					badItem = true;
-					mLabel = "Bad parent!";
-					console.printf(mLabel);
-				}
-			}
-		}
-		*/
-		Super.Ticker();
-	}
-	
-	//==========================================================================
-	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
-	{
-		if (badItem)
-		{
-			drawLabel(indent, y, Font.CR_RED);
-			return indent;
-		}
-		//mLabel = "Purchase";
-		let plr = players[consoleplayer].mo;
-		if (plr)
-		{
-			if (!notFirst)
-			{
-				check = toCheck;
-				if (!check)
-				{
-					// Item wasn't found.
-					badItem = true;
-					mLabel = "ERROR: Bad or non-existent item!";
-					Console.Printf(mLabel);
-				}
-				notFirst = true;
-			}
-			
-			// Set up the cash/quantity checks.
-			if (amt == -1)
-			{
-				amt = plr.CountInv("D4DCash");
-				quan = plr.CountInv(check);
-				
-				// Look for the type
-				let finder1 = UpgradeItem(plr.FindInventory(check, true));
-				if (!finder1)
-				{
-					// No base, wrong type.
-					badItem = true;
-					mLabel = "ERROR: "..toCheck.." not of UpgradeItem type!";
-					Console.Printf(mLabel);
-					return indent;
-				}
-				else
-				{
-					int curquan = -1;
-					if (baseParent)
-					{
-						curquan = baseParent.ItemNames.Find(toCheck);
-						if (curquan >= 0 && baseParent.Count.Size() > 0)
-							curquan = baseParent.Count[curquan];
-					}
-					// Find the current tier by checking what quantity we have.
-					maxinv = Max(finder1.Quantity, finder1.Q2, finder1.Q3, finder1.Q4, curquan);
-					
-					if (quan >= maxinv)
-					{
-						// Already bought.
-						badItem = true;
-						mLabel = "Already Purchased (Back)";
-						return indent;
-					}
-					else if (finder1.Quantity != -1 && quan < finder1.Quantity)
-					{
-						cost = finder1.Cost;
-						toGive = finder1.Quantity;
-					}
-					else if (finder1.Q2 != -1 && quan < finder1.Q2)
-					{
-						cost = finder1.Cost2;
-						toGive = finder1.Q2;
-					}
-					else if (finder1.Q3 != -1 && quan < finder1.Q3)
-					{
-						cost = finder1.Cost3;
-						toGive = finder1.Q3;
-					}
-					else if (finder1.Q4 != -1 && quan < finder1.Q4)
-					{
-						cost = finder1.Cost4;
-						toGive = finder1.Q4;
-					}
-					else
-					{
-						badItem = true;
-						mLabel = "ERROR: Quantity must be greater than zero!";
-						Console.Printf(mLabel);
-						return indent;
-					}	
-				}
-			}
-			
-			if (cost == -1)
-			{
-				badItem = true;
-				mLabel = "ERROR: UpgradeItem costs not set!";
-				Console.Printf(mLabel);
-				return indent;
-			}
-			else if (amt >= cost)
-			{
-				mLabel = "Purchase";
-				badItem = false;
-			}
-			else
-			{
-				badItem = true;
-				mLabel = "Not Enough Credits (Back)";
-			}
-			drawLabel(indent, y, selected ? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColorMore);
-		}
-		return indent;
-	}
-	
-	//==========================================================================
-	override bool MenuEvent (int mkey, bool fromcontroller)
-	{
-		if (mkey == Menu.MKEY_Enter)
-		{
-			// Grab the current menu...
-			let current = Menu.GetCurrentMenu();
-			if (badItem || !baseParent)
-			{
-				Menu.MenuSound("Doom4/Player/Nope");
-			}
-			else
-			{
-				bool found = false;
-				/*
-				D4DHandler.SendNetworkEvent("EnableReception");
-				D4DHandler.SendNetworkEvent("D4DCash",-abs(cost),1);
-				D4DHandler.SendNetworkEvent(toCheck,toGive);
-				D4DHandler.SendNetworkEvent("DisableReception");
-				D4DHandler.SendNetworkEvent("UpdateItems");
-				*/
-				for (int i = 0; i < baseParent.ItemNames.Size(); i++)
-				{
-					if (baseParent.Itemnames[i] ~== toCheck)
-					{
-						baseParent.Count[i] = toGive;
-						found = true;
-						break;
-					}
-				}
-				if (!found)
-				{
-					baseParent.ItemNames.Push(toCheck);
-					baseParent.Count.Push(toGive);
-				}
-				Menu.MenuSound("Menu/Activate");
-			}
-			// ...and close it. Means it'll go back up a level.
-			if (current) current.Close();
-			Reset();
-			return true;
-		}
-		Reset();
-		return Super.MenuEvent(mkey, fromcontroller);
-	}
-	
 	void Reset()
 	{
-		amt = cost = quan = maxinv = toGive = -1;
-		notFirst = started = badItem = false;
-		check = null;
+		plr = null;
+		ItemNames.Clear();
+		Count.Clear();
+	}
+	
+	//==========================================================================
+	// The 'find' function never returns where the entity actually is so pairing
+	// it with the Count array couldn't possibly work.
+	int FindItem (String item = "", bool getCount = false, bool autoadd = false, bool silent = true)
+	{
+		// Handle errors first.
+		if (item.Length() < 1)
+		{
+			if (!silent)
+			{
+				Console.Printf("Item field was empty.");
+			}
+			return -1;
+		}
+		
+		if (item == 'null')	return -1;
+		
+		if (ItemNames.Size() < 1)
+		{
+			Console.Printf("ItemNames is empty.");
+			return -1;
+		}
+		
+		Class<Inventory> ch = item;
+		if (!ch)
+		{
+			Console.Printf(item.." is not a valid item.");
+			return -1;
+		}
+		
+		if (!plr)
+		{
+			plr = players[consoleplayer].mo;
+			if (!plr)
+			{
+				Console.Printf("Player doesn't exist.");
+				return -1;
+			}
+		}
+		int i = 0;
+		// Error check passed -- find the item.
+		for (i = 0; i < ItemNames.Size(); i++)
+		{
+			// Check for case sensitivity.
+			if (item ~== ItemNames[i])
+			{
+				// If the count is desired, return that instead of the index.
+				if (getCount)
+				{
+					return Count[i];
+				}
+				return i;
+			}
+		}
+		
+		// If desired, auto-add the item to the list and get the count or index.
+		if (autoadd)
+		{
+			int am = plr.CountInv(ch);
+			if (am > 0)
+			{
+				ItemNames.Push(item);
+				Count.Push(am);
+			}
+			return (getCount ? am : i);
+		}
+		
+		
+		// Wasn't found.
+		return -1;
+	}
+	
+	//==========================================================================
+	int FindRequirementCount(String item, int which = 0)
+	{
+		
+		if (item.Length() > 0)
+		{
+			Class<Inventory> check = item;
+			if (check && plr)
+			{
+				let ins = UpgradeItem(plr.FindInventory(check,true));
+				if (ins)
+				{
+					String names[4];
+					int quan[4];
+					
+					names[0] = ins.Req1;
+					names[1] = ins.Req2;
+					names[2] = ins.Req3;
+					names[3] = ins.Req4;
+					
+					quan[0] = ins.ReqQ1;
+					quan[1] = ins.ReqQ2;
+					quan[2] = ins.ReqQ3;
+					quan[3] = ins.ReqQ4;
+					
+					which = Clamp(which,0,names.Size() - 1);
+					Class<Inventory> c2 = names[which];
+					if (c2)
+					{
+						return quan[which];
+					}
+				}
+			}
+		}
+		return 0;
+	}
+	
+	//==========================================================================
+	// Adds/Updates an item depending on if it's already in or not. First checks
+	// to make sure it's valid. Returns the index of where it was positioned
+	// should it be needed.
+	int SetItem (String item, int amount, bool add = false)
+	{
+		Class<Inventory> check = item;
+		if (check)
+		{
+			if (ItemNames.Size() > 0)
+			{
+				// If the item already exists, update the count.
+				for (int i = 0; i < ItemNames.Size(); i++)
+				{
+					if (check == ItemNames[i])
+					{
+						Count[i] = (add ? (Count[i] + amount) : amount);
+						return i;	// Return the index, just in case if needed.
+					}
+				}
+				
+				// Otherwise make a new slot for it.
+			}
+			ItemNames.Push(item);
+			Count.Push(amount);
+			return ItemNames.Size();
+		}
+		
+		// Item isn't real.
+		Console.Printf(item.." is not a valid item!");
+		return -1;
 	}
 	
 	override void OnDestroy()
 	{
-		amt = cost = quan = maxinv = toGive = -1;
-		notFirst = started = badItem = false;
-		check = null;
+		Console.Printf("MenuItemList was destroyed.");
 		Super.OnDestroy();
 	}
+	
 }
 
+
 //==============================================================================
-// CvarDisplayInt
-// 	Like NumberField but is not selectable, nor adjustable. Simply reflects
-// 	a cvar in int form for on screen purposes only.
 //
-// Parameters:
-// - String Label
-//		The label to display on the left.
-// - Cvar Name 
-//		The cvar's value to show.
-// - Cvar graycheck: 
-//		If the cvar exists and is false, darkens the whole region.
+//
+//
 //==============================================================================
 
-class OptionMenuItemCvarDisplayInt : OptionMenuFieldBase
+Class D4DListMenu : ListMenu version("2.4")
 {
-	OptionMenuItemCvarDisplayInt Init (String label, Name command, CVar graycheck = null)
-	{
-		Super.Init(label, command, graycheck);
-		return self;
-	}
+	bool started, UpgradeMenu, OneValidItem;
+	MenuItemList m;
 	
 	//==========================================================================
-	override String Represent()
-	{		
-		if (mCVar == null) return "";
-		return String.format("%d", mCVar.GetInt());
+	override void Init(Menu parent = NULL, ListMenuDescriptor desc = NULL)
+	{
+		Super.Init(parent, desc);
+		
+		let p1 = D4DListMenu(parent);
+		if (p1)	
+		{
+			m = p1.m;
+			return;
+		}
+		
+		let p2 = D4DOptionMenuUpgrades(parent);
+		if (p2)	
+		{
+			m = p2.m;
+			return;
+		}
+		
+		m = new("MenuItemList");
+		m.Reset();
+		m.plr = players[consoleplayer].mo;
+		
+		if (m.plr)
+		{
+			int cashamt = m.plr.CountInv("D4DCash");
+			m.SetItem("D4DCash", cashamt);
+			Console.Printf("Cash pushed.");
+		}
 	}
-
+	
 	//==========================================================================
 	override bool MenuEvent (int mkey, bool fromcontroller)
 	{
-		if (mCVar)
+		if (mkey == MKEY_Back)
 		{
-			if (mkey == Menu.MKEY_Left || mkey == Menu.MKEY_Right)
-				return false;
+			Close();
+			let cur = GetCurrentMenu();
+			MenuSound (cur != null ? "menu/backup" : "menu/clear");
+			if (cur == null)
+			{
+				if (m && m.ItemNames.Size() > 0)
+				{
+					D4DHandler.SendNetworkEvent("EnableReception",0,0,0);
+						
+					for (int i = 0; i < m.ItemNames.Size(); i++)
+					{
+						D4DHandler.SendNetworkEvent(m.ItemNames[i],m.Count[i],0,0);
+					}
+					D4DHandler.SendNetworkEvent("DisableReception",0,0,0);
+					D4DHandler.SendNetworkEvent("UpdateItems",0,0,0);
+				}
+				else
+				{
+					Console.Printf("ItemSize is zero or MenuItemList doesn't exist.");
+				}
+				if (m) m.Destroy();
+			}
+			return true;
 		}
 		return Super.MenuEvent(mkey, fromcontroller);
 	}
-	
-	//==========================================================================
-	override bool Selectable()
-	{
-		return false;
-	}
 }
 
-/*==============================================================================
-	CreditDisplay
-		Used for D4D's upgrade purchasing menu, this performs a comparison
-		between the built-in D4DCash and the price of the item, coloring
-		the cash amount based on which comparison's higher.
-		
-		Turns red if the cost is higher than the current amount.
-		Turns green otherwise.
-
- Parameters:
- - Cvar Cost 
-		The cvar to be compared against D4DCash.
- - Cvar graycheck: 
-		If the cvar exists and is false, darkens the whole region.
-==============================================================================*/
-
-class OptionMenuItemCreditDisplay : OptionMenuItemCvarDisplayInt
+//==============================================================================
+Class D4DOptionMenuUpgrades : OptionMenu version("2.4")
 {
-	CVar mCredit;
-	int CreditAmount, CostAmount;
+	bool started, full, anything;
+	MenuItemList m;
 	
-	//==========================================================================
-	OptionMenuItemCreditDisplay Init (Name command, CVar graycheck = null)
+	void NotifyItems()
 	{
-		Super.Init("Credits", command, graycheck);
-		
-//		if (plr)
-//			mCredit = plr.CountInv("D4DCash");
-		mCredit = CVar.FindCVar("D4DCash");
-		return self;
-	}
-	
-	//==========================================================================
-	override String Represent()
-	{
-		//if (mCredit == null) return "";
-		return String.format("%d", CreditAmount);
-	}
-	
-	//==========================================================================
-	override int Draw (OptionMenuDescriptor d, int y, int indent, bool selected)
-	{
-		bool grayed = mGrayCheck != null && !mGrayCheck.GetInt();
-		drawLabel(indent, y, OptionMenuSettings.mFontColor, grayed);
-
-		int col = OptionMenuSettings.mFontColorValue;
-		if (mCredit != null && mCVar != null)
+		if (m)
 		{
-			//let plr = players[consoleplayer].mo;
-			//if (plr) CreditAmount = plr.CountInv("D4DCash"); //mCredit.GetInt();
-			CreditAmount = mCredit.GetInt();
-			CostAmount = mCVar.GetInt();
-			
-			if (CreditAmount >= CostAmount)
-				col = Font.CR_GREEN;
-			else
-				col = Font.CR_RED;
+			int itemsize = mDesc.mItems.Size();
+			// notify all items that the menu was just created.
+			for (int i = 0; i < itemsize; i++)
+			{
+				let i1 = OptionMenuItemPurchase(mDesc.mItems[i]);
+				if (i1)
+				{
+					if (!i1.m)
+						i1.m = m;
+					i1.OnMenuCreatedOld();
+					continue;
+				}
+				
+				let i2 = OptionMenuItemDisplayInt(mDesc.mItems[i]);
+				if (i2)
+				{
+					if (!i2.m)
+						i2.m = m;
+					i2.OnMenuCreatedOld();
+					continue;
+				}
+				
+				let i3 = OptionMenuItemSubmenuReqs(mDesc.mItems[i]);
+				if (i3)
+				{
+					if (!i3.m)
+						i3.m = m;
+					i3.OnMenuCreatedOld();
+					continue;
+				}
+				/*
+				let i4 = OptionMenuItemStaticTextTier(mDesc.mItems[i]);
+				if (i4)
+				{
+					if (!i4.m)
+						i4.m = m;
+					i4.OnMenuCreatedOld();
+					continue;
+				}
+				*/
+			}
 		}
-		screen.DrawText(SmallFont, col, indent + CursorSpace(), y, Represent(), DTA_CleanNoMove_1, true);
-		return indent;
-	}
-}
-
-/*==============================================================================
-	CostDisplay
-		Nothing special, just CvarDisplayInt without the need to define "Cost".
-
- Parameters:
- - Cvar Cost 
-		The cvar's value to show.
- - Cvar graycheck: 
-		If the cvar exists and is false, darkens the whole region.
-==============================================================================*/
-
-class OptionMenuItemCostDisplay : OptionMenuItemCvarDisplayInt
-{
-	
-	OptionMenuItemCostDisplay Init (Name command, CVar graycheck = null)
-	{
-		Super.Init("Cost", command, graycheck);
-		return self;
+		else
+		{
+			Console.Printf("This menu must be opened via the keybinding.");
+		}
 	}
 	
 	//==========================================================================
-	override String Represent()
+	override void Init(Menu parent, OptionMenuDescriptor desc)
 	{
-		if (mCVar == null) return "";
-		return String.format("%d", mCVar.GetInt());
+		Super.Init(parent, desc);
+		
+		let p1 = D4DListMenu(parent);
+		if (p1)	
+		{
+			m = p1.m;
+		}
+		
+		let p2 = D4DOptionMenuUpgrades(parent);
+		if (p2)	
+		{
+			m = p2.m;
+		}
+		NotifyItems();
 	}
+	
+	//==========================================================================
+	override bool MenuEvent (int mkey, bool fromcontroller)
+	{
+		// Using a custom int here so I can easily have different behaviors
+		// while preserving the core functionality.
+		if (mkey == -1)
+		{
+			Close();
+			let cur = D4DOptionMenuUpgrades(GetCurrentMenu());
+			if (cur)
+			{
+				cur.NotifyItems();
+			}
+			return true;
+		}
+		return Super.MenuEvent(mkey, fromcontroller);
+	}	
 }
+

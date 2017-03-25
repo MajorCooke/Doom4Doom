@@ -1,0 +1,803 @@
+//==============================================================================
+//
+//==============================================================================
+class OptionMenuItemStaticTextTier : OptionMenuItemStaticText version("2.4")
+{
+	String toCheck;
+	int tier;
+	MenuItemList m;
+	const maxTier = 4;
+	Class<Inventory> check;
+	
+	
+	OptionMenuItemStaticTextTier Init(String label, String itemname = "", int mtier = 1, int cr = -1)
+	{
+		Super.Init(label, cr);
+		toCheck = itemname;
+		tier = mtier;
+		return self;
+	}
+
+	OptionMenuItemStaticTextTier InitDirect(String label, String itemname, int mtier, int cr)
+	{
+		Super.Init(label, cr);
+		toCheck = itemname;
+		tier = mtier;
+		mColor = cr;
+		return self;
+	}
+	
+	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
+	{
+		if (!m)
+		{
+			let p1 = D4DOptionMenuUpgrades(Menu.GetCurrentMenu());
+			if (p1) m = p1.m;
+			
+			let p2 = D4DListMenu(Menu.GetCurrentMenu());
+			if (p2) m = p2.m;
+			
+		}
+		if (m)
+		{
+			check = toCheck;
+			if (check)
+			{
+				let finder1 = UpgradeItem(m.plr.FindInventory(check, true));
+				if (finder1)
+				{
+					int quan = m.FindItem(toCheck, true);
+					if (quan < 0)
+					{
+						quan = m.plr.CountInv(check);
+					}
+					
+					int tierToGet = 0, prevTier = 0;
+					switch (tier)
+					{
+						Default:
+						Case 1:
+						{
+							tierToGet = finder1.Quantity;
+							break;
+						}
+						Case 2:
+						{
+							prevTier = finder1.Quantity;
+							tierToGet = finder1.Q2;
+							break;
+						}
+						Case 3:
+						{
+							prevTier = finder1.Q2;
+							tierToGet = finder1.Q3;
+							break;
+						}
+						Case 4:
+						{
+							prevTier = finder1.Q3;
+							tierToGet = finder1.Q4;
+							break;
+						}
+					}
+					
+					if (quan >= tierToGet)
+					{
+						mColor = Font.CR_GREEN;
+					}
+					else if (quan >= prevTier && quan < tierToGet)
+					{
+						mColor = Font.CR_GOLD;
+					}
+					else
+					{
+						mColor = Font.CR_TAN;
+					}
+				}
+			}
+		}
+		drawLabel(indent, y, mColor);
+		return -1;
+	}
+}
+
+//==============================================================================
+//
+// "Purchase" Menu Item
+//
+// Sets up and performs a bunch of checks for item purchase eligibility such as
+// pricing and requirements.
+//==============================================================================
+
+class OptionMenuItemPurchase : OptionMenuItem version("2.4")
+{
+	int amt, cost, quan, maxinv, toGive;
+	String toCheck;
+	bool badItem, bought;
+	Class<Inventory> check;
+	MenuItemList m;
+	Menu current;
+	//==========================================================================
+	OptionMenuItemPurchase Init(String command)
+	{
+		// If anything goes wrong, this will be indicated by the button reading
+		// as "UNINITIALIZED" in game.
+		Super.Init("UNINITIALIZED", command);
+		toCheck = command;
+		bought = baditem = false;
+		return self;
+	}
+	
+	//==========================================================================
+	void OnMenuCreatedOld()
+	{
+		let p1 = D4DOptionMenuUpgrades(Menu.GetCurrentMenu());
+		if (p1) m = p1.m;
+		
+		let p2 = D4DListMenu(Menu.GetCurrentMenu());
+		if (p2) m = p2.m;
+		
+		if (!m)
+		{
+			badItem = true;
+			Console.Printf("The menu has no list!");
+			return;
+		}
+		// First check for the player.
+		if (!m.plr)
+		{
+			badItem = true;
+			Console.Printf("No player!");
+			return;
+		}
+		
+		// Then set up everything and find the parent menu.
+		amt = cost = quan = maxinv = toGive = -1;
+		badItem = bought = false;
+		check = null;
+		current = Menu.GetCurrentMenu();
+		
+		check = toCheck;
+		if (!check)
+		{
+			// Item wasn't found.
+			badItem = true;
+			Console.Printf("ERROR: Bad or non-existent item!");
+			return;
+		}
+		
+		amt = m.FindItem("D4DCash", true);
+		if (amt < 0)
+		{
+			amt = m.plr.CountInv("D4DCash");
+			m.SetItem("D4DCash",amt);
+		}
+		
+		// Look for the type
+		let finder1 = UpgradeItem(m.plr.FindInventory(check, true));
+		if (!finder1)
+		{
+			// No base, wrong type.
+			badItem = true;
+			Console.Printf("ERROR: "..toCheck.." not of UpgradeItem type!");
+			return;
+		}
+		else
+		{
+			
+			quan = m.FindItem(toCheck, true);
+			if (quan < 0)
+			{
+				quan = m.plr.CountInv(check);
+			}
+			
+			// Find the current tier by checking what quantity we have.
+			maxinv = Max(finder1.Quantity, finder1.Q2, finder1.Q3, finder1.Q4);
+			
+			Console.Printf("%s: %d, %d", toCheck, quan, maxinv);
+			
+			if (quan >= maxinv)
+			{
+				// Already bought.
+				badItem = bought = true;
+				Console.Printf("Already bought.");
+				return;
+			}
+			else if (finder1.Quantity > -1 && quan < finder1.Quantity)
+			{
+				cost = finder1.Cost;
+				toGive = finder1.Quantity;
+			}
+			else if (finder1.Q2 > -1 && quan < finder1.Q2)
+			{
+				cost = finder1.Cost2;
+				toGive = finder1.Q2;
+			}
+			else if (finder1.Q3 > -1 && quan < finder1.Q3)
+			{
+				cost = finder1.Cost3;
+				toGive = finder1.Q3;
+			}
+			else if (finder1.Q4 > -1 && quan < finder1.Q4)
+			{
+				cost = finder1.Cost4;
+				toGive = finder1.Q4;
+			}
+			else
+			{
+				badItem = true;
+				Console.Printf("ERROR: Quantity must be greater than zero!");
+				return;
+			}
+		}
+		
+		if (cost < 0)
+		{
+			badItem = true;
+			Console.Printf("ERROR: UpgradeItem costs not set!");
+			return;
+		}
+		else if (amt >= cost)
+		{
+			badItem = false;
+			mLabel = "Purchase";
+		}
+		else
+		{
+			badItem = true;
+			Console.Printf("Not enough credits.");
+		}
+	}
+	
+	//==========================================================================
+	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
+	{
+		if (badItem)
+		{
+			if (bought)
+			{
+				mLabel = "Owned (Back)";
+				drawLabel(indent, y, Font.CR_GREEN);
+			}
+			else
+			{
+				mLabel = "Back";
+				drawLabel(indent, y, Font.CR_RED);
+			}
+		}
+		else
+		{
+			drawLabel(indent, y, selected ? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColorMore);
+		}
+		return indent;
+	}
+	
+	//==========================================================================
+	// We only need to deliver the items back if the purchase was successful.
+	override bool MenuEvent (int mkey, bool fromcontroller)
+	{
+		
+		if (mkey == Menu.MKEY_Enter)
+		{
+			// Make sure the item's not bad or already bought. 
+			// badItem indicates both.
+			current = Menu.GetCurrentMenu();
+			if (badItem || !m)
+			{
+				if (!m)	Console.Printf("Item list is missing!");
+				Menu.MenuSound("Doom4/Player/Nope");
+			}
+			else
+			{
+				// It worked. Update the object.
+				m.SetItem(toCheck, toGive);
+				m.SetItem("D4DCash", -abs(cost), true);
+				Menu.MenuSound("Menu/Activate");
+			}
+			// ...and close it. Means it'll go back up a level.
+			if (current) current.MenuEvent(-1, fromcontroller);
+			return true;
+		}
+		return Super.MenuEvent(mkey, fromcontroller); 
+	}
+}
+
+//==============================================================================
+//==============================================================================
+
+//==============================================================================
+//==============================================================================
+
+Class OptionMenuItemSubmenuWeapon : OptionMenuItemSubmenu version("2.4")
+{
+	MenuItemList m;
+	String toCheck;
+	bool started;
+	int amt;
+	bool greyed;
+	
+	OptionMenuItemSubmenuWeapon Init(String label, Name command, String itemname = "", int param = 0)
+	{
+		amt = 0;
+		toCheck = itemname;
+		Super.init(label, command);
+		mParam = param;
+		greyed = started = false;
+		return self;
+	}
+	
+	void OnMenuCreatedOld()
+	{
+		Class<Inventory> check = toCheck;
+		greyed = true;
+		if (check)
+		{
+			if (!m)
+			{
+				let p1 = D4DOptionMenuUpgrades(Menu.GetCurrentMenu());
+				if (p1) m = p1.m;
+				
+				let p2 = D4DListMenu(Menu.GetCurrentMenu());
+				if (p2) m = p2.m;
+				
+				if (!m.plr)	m.plr = players[consoleplayer].mo;
+				
+			}
+			
+			if (m)
+			{
+				greyed = (m.plr.CountInv(check) <= 0);
+			}
+			started = true;
+		}
+	}
+	
+	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
+	{
+		if (!started)	OnMenuCreatedOld();
+		drawLabel(indent, y, selected? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColorMore, greyed);
+		return indent;
+	}
+
+	override bool Activate()
+	{
+		started = false;
+		if (greyed)
+		{
+			Menu.MenuSound("Doom4/Player/Nope");
+			Console.Printf("Upgrades for selection not available");
+			return false;
+		}
+		Menu.MenuSound("menu/choose");
+		Menu.SetMenu(mAction, mParam);
+		return true;
+	}
+}
+
+//==============================================================================
+//==============================================================================
+//
+//==============================================================================
+//==============================================================================
+
+class OptionMenuItemSubmenuReqs : OptionMenuItemSubmenu version("2.4")
+{
+	int mParam;
+	MenuItemList m;
+	bool started, reqs, openable, bought;
+	String toCheck;
+	Class<Inventory> check;
+	Name reqMenu;
+	bool secret;
+	
+	OptionMenuItemSubmenuReqs Init(String label, Name command, String itemName = "", Name requiredMenu = '', int param = 0)
+	{
+		Super.init(label, command);
+		started = reqs = openable = bought = false;
+		mParam = param;
+		toCheck = itemName;
+		reqMenu = requiredMenu;
+		secret = (param == -1);
+		return self;
+	}
+	
+	void OnMenuCreatedOld()
+	{
+		started = true;
+		bought = openable = reqs = false;
+		
+		let p1 = D4DOptionMenuUpgrades(Menu.GetCurrentMenu());
+		if (p1) m = p1.m;
+		
+		let p2 = D4DListMenu(Menu.GetCurrentMenu());
+		if (p2) m = p2.m;
+		
+		// Handle the errors first.
+		if (!m)
+		{
+			Console.Printf("ERROR: SubmenuReqs has no item list!");
+			return;
+		}
+		
+		if (secret)
+		{
+			ItemsToSave l;
+			reqs = l.Init(true, m.plr);
+			return;
+		}
+		
+		check = toCheck;
+		if (!check)
+		{
+			if (toCheck.Length() > 0)
+			{
+				Console.Printf("ERROR: "..toCheck.." is not a valid item!");
+				return;
+			}
+			openable = true;
+			return;
+		}
+		
+		let finder1 = UpgradeItem(m.plr.FindInventory(check, true));
+		if (finder1)
+		{
+			// No errors, so allow menu opening.
+			openable = true;
+			
+			if (!m.plr)
+			{
+				m.plr = players[consoleplayer].mo;
+			}
+			
+			int maxinv = Max(finder1.Quantity, finder1.Q2, finder1.Q3, finder1.Q4);
+			if (finder1.Amount >= maxinv ||	m.FindItem(toCheck) >= maxinv)
+			{
+				reqs = false;
+				openable = true;
+				bought = true;
+				Console.Printf("Already bought");
+				return;
+			}
+			
+			if (reqMenu == '' || reqMenu == 'null' || reqMenu == 'none')
+			{
+				reqs = false;
+				openable = true;
+				Console.Printf("No requirements");
+				return;
+			}
+			
+			// MenuItemList's FindItem returns -1 if something wasn't found.
+			// Ensure it's clamped to 0.
+			uint quan[4];
+			//quan[0] = Max(0, finder1.ReqQ1);
+			//quan[1] = Max(0, finder1.ReqQ2);
+			//quan[2] = Max(0, finder1.ReqQ3);
+			//quan[3] = Max(0, finder1.ReqQ4);
+			
+			quan[0] = m.FindRequirementCount(toCheck,0);
+			quan[1] = m.FindRequirementCount(toCheck,1);
+			quan[2] = m.FindRequirementCount(toCheck,2);
+			quan[3] = m.FindRequirementCount(toCheck,3);
+			
+			int reqsToMeet = 0;
+			if (quan[0] + quan[1] + quan[2] + quan[3] > 0)
+			{
+				uint owned[4];
+				owned[0] = Max(0, m.FindItem(finder1.Req1, true, false));
+				owned[1] = Max(0, m.FindItem(finder1.Req2, true, false));
+				owned[2] = Max(0, m.FindItem(finder1.Req3, true, false));
+				owned[3] = Max(0, m.FindItem(finder1.Req4, true, false));
+				
+				String inames[4];
+				inames[0] = finder1.Req1;
+				inames[1] = finder1.Req2;
+				inames[2] = finder1.Req3;
+				inames[3] = finder1.Req4;
+				
+				
+				for (int i = 0; i < quan.Size(); i++)
+				{
+					if (quan[i] > 0 && owned[i] < quan[i])
+					{
+						Class<Inventory> checker = inames[i];
+						if (checker)
+						{
+							reqsToMeet++;
+							Console.Printf(inames[i]);
+						}
+					}
+				}
+				if (reqsToMeet > 0)	reqs = true;
+			}
+			else
+			{
+				reqs = false;
+				openable = true;
+			}
+			Console.Printf("%s: %d", toCheck, reqsToMeet);
+			
+		}
+		else
+		{
+			if (toCheck.Length() > 0)	// Shuts up the whining if nothing was in there.
+			{
+				Console.Printf("ERROR: "..toCheck.." not found! To fix: Add the class to the ItemToSave struct found in ZD4D/Doom4Player.txt. Make sure it inherits from UpgradeItem! See Upgrades.txt for details.");
+			}
+			else
+			{
+				Console.Printf("No item check");
+				openable = true;
+			}
+		}
+	}
+
+	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
+	{
+		if (secret && reqs)	return indent;
+		if (bought)
+		{
+			drawLabel(indent, y, selected ? Font.CR_GOLD : Font.CR_GREEN, true);
+		}
+		else
+		{
+			drawLabel(indent, y, selected ? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColorMore, (!openable || bought || reqs));
+		}
+		return indent;
+	}
+	
+	bool IsMenuReal(Name mu)
+	{
+		if (mu == '' || mu == 'null' || mu == 'none')
+			return false;
+		return true;
+	}
+
+	override bool Activate()
+	{
+		if (openable)
+		{
+			Name toGo = ((IsMenuReal(reqMenu) && reqs) ? reqMenu : mAction);
+			Menu.MenuSound("menu/choose");
+			Menu.SetMenu(toGo, mParam);
+		}
+		else
+		{
+			Menu.MenuSound("Doom4/Player/Nope");
+		}
+		return openable;
+	}
+	
+	override bool Selectable()
+	{
+		return (!(secret && reqs));
+	}
+}
+
+//==============================================================================
+// DisplayInt
+// 	A base class for inheritance purposes
+// 	
+//
+// Parameters:
+// - String Label
+//		The label to display on the left.
+// - String Name 
+//		The cvar's value to show.
+// - Cvar graycheck: 
+//		If the cvar exists and is false, darkens the whole region.
+//==============================================================================
+
+class OptionMenuItemDisplayInt : OptionMenuFieldBase version("2.4")
+{
+	String toCheck;
+	Class<Inventory> check;
+	int amt, cost, quan, maxinv;
+	Menu current;
+	MenuItemList m;
+	
+	bool buyable, full;
+	
+	OptionMenuItemDisplayInt Init (String label, String command, CVar graycheck = null)
+	{
+		Super.Init(label, command, graycheck);
+		full = false;
+		toCheck = command;
+		return self;
+	}
+	
+	void OnMenuCreatedOld()
+	{
+		// Grab the shared object.
+		let p1 = D4DOptionMenuUpgrades(Menu.GetCurrentMenu());
+		if (p1) m = p1.m;
+		
+		let p2 = D4DListMenu(Menu.GetCurrentMenu());
+		if (p2) m = p2.m;
+		
+		if (!m)
+		{
+			Console.Printf("ERROR: DisplayInt has no item list!");
+			return;
+		}
+		
+		amt = cost = quan = maxinv = -1;
+		check = toCheck;
+		full = false;
+		
+		if (check)
+		{
+			if (m.plr)
+			{
+				amt = m.FindItem("D4DCash", true);
+				if (amt < 0)
+				{
+					amt = m.plr.CountInv("D4DCash");
+					m.SetItem("D4DCash",amt);
+				}
+			
+				let finder1 = UpgradeItem(m.plr.FindInventory(check, true));
+				if (!finder1)
+				{
+					// No base, wrong type.
+					Console.Printf("ERROR: "..toCheck.." not of UpgradeItem type!");
+					return;
+				}
+				else
+				{
+					// Find the item quantity in the list or in the player.
+					quan = m.FindItem(toCheck, true);
+					if (quan < 0)
+					{
+						quan = m.plr.CountInv(check);
+					}
+					
+					// Find the current tier by checking what quantity we have.
+					maxinv = Max(finder1.Quantity, finder1.Q2, finder1.Q3, finder1.Q4);
+					
+					if (quan >= maxinv)
+					{
+						// Already bought.
+						full = true;
+						return;
+					}
+					else if (finder1.Quantity > -1 && quan < finder1.Quantity)
+					{
+						cost = finder1.Cost;
+					}
+					else if (finder1.Q2 > -1 && quan < finder1.Q2)
+					{
+						cost = finder1.Cost2;
+					}
+					else if (finder1.Q3 > -1 && quan < finder1.Q3)
+					{
+						cost = finder1.Cost3;
+					}
+					else if (finder1.Q4 > -1 && quan < finder1.Q4)
+					{
+						cost = finder1.Cost4;
+					}
+					else
+					{
+						m = null;
+						Console.Printf("ERROR: Quantity must be greater than zero!");
+						return;
+					}
+				}
+			}
+		}
+		buyable = (amt >= cost);
+	}
+	
+	//==========================================================================
+	override String Represent()
+	{
+		if (!m || full) return "";
+		return String.format("%d",amt);
+	}
+	
+	override int Draw (OptionMenuDescriptor d, int y, int indent, bool selected)
+	{
+		if (!m || full)	return indent;
+		return Super.Draw(d, y, indent, selected);
+	}
+
+	//==========================================================================
+	override bool MenuEvent (int mkey, bool fromcontroller)
+	{
+		if (mkey == Menu.MKEY_Left || mkey == Menu.MKEY_Right)
+			return false;
+		
+		return Super.MenuEvent(mkey, fromcontroller);
+	}
+	
+	//==========================================================================
+	override bool Selectable()
+	{
+		return false;
+	}
+}
+
+/*==============================================================================
+	CreditDisplay
+		Used for D4D's upgrade purchasing menu, this performs a comparison
+		between the built-in D4DCash and the price of the item, coloring
+		the cash amount based on which comparison's higher.
+		
+		Turns red if the cost is higher than the current amount.
+		Turns green otherwise.
+
+ Parameters:
+ - "command": The item to check.
+==============================================================================*/
+
+class OptionMenuItemCreditDisplay : OptionMenuItemDisplayInt version("2.4")
+{
+	bool grayed;
+	//==========================================================================
+	OptionMenuItemCreditDisplay Init (String command = "")
+	{
+		Super.Init("Credits", "");
+		grayed = buyable = full = false;
+		toCheck = command;
+		return self;
+	}
+	
+	//==========================================================================
+	override String Represent()
+	{
+		return String.format("%d", amt);
+	}
+	
+	//==========================================================================
+	override int Draw (OptionMenuDescriptor d, int y, int indent, bool selected)
+	{
+		if (full || !m) 
+		{
+			return indent;
+		}
+		Super.Draw(d, y, indent, selected);
+		
+		int col = OptionMenuSettings.mFontColorValue;
+		if (buyable)
+			col = Font.CR_GREEN;
+		else
+			col = Font.CR_RED;
+		screen.DrawText(SmallFont, col, indent + CursorSpace(), y, Represent(), DTA_CleanNoMove_1, true);
+		return indent;
+	}
+}
+
+/*==============================================================================
+	CostDisplay
+		Nothing special, just CvarDisplayInt without the need to define "Cost".
+
+ Parameters:
+ - Cvar Cost 
+		The cvar's value to show.
+ - Cvar graycheck: 
+		If the cvar exists and is false, darkens the whole region.
+==============================================================================*/
+
+class OptionMenuItemCostDisplay : OptionMenuItemDisplayInt version("2.4")
+{
+	OptionMenuItemCostDisplay Init (String command = "")
+	{
+		Super.Init("Cost", "");
+		toCheck = command;
+		return self;
+	}
+	
+	//==========================================================================
+	override String Represent()
+	{
+		return String.format("%d", cost);
+	}
+	
+	override int Draw (OptionMenuDescriptor d, int y, int indent, bool selected)
+	{
+		if (full) return indent;
+		return Super.Draw(d, y, indent, selected);
+	}
+}
+

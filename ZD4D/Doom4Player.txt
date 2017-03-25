@@ -1,7 +1,7 @@
 Struct ItemsToSave
 {
 	Array<String> ItemList;
-	void Init()
+	bool Init(bool chain = false, Actor plr = null)
 	{
 		static const String SavedItemsStr[] =
 		{	
@@ -64,12 +64,12 @@ Struct ItemsToSave
 			"MarineHoloSelected",
 			"SyphonGrenadeSelected",
 			"D4Stamina",
-			"ProtectionBonus1",
+			"ProtectionBonus",
 			"ProtectionBonus1Real",
 			"ProtectionBonus2",
-			"ProtectionBonus3",
 			"ProtectionBonus3Real",
 			"D4ArmorCapRaiser",
+			"D4AirUpgrade",
 			"D4AirControl",
 			"D4HigherJump",
 			"D4MultiJump",
@@ -94,10 +94,25 @@ Struct ItemsToSave
 			"D4RuneUpgrade4" // 85
 		};
 		ItemList.Clear();
+		
+		if (chain)
+		{
+			if (!plr) return false;
+			int amt;
+			for (int i = 1; i < 26; i++)
+			{
+				Class<Inventory> check = SavedItemsStr[i];
+				if (check && plr.CountInv(check))
+					amt++;
+			}
+			return (amt >= 25);
+		}
+		
 		for (int i = 0; i < SavedItemsStr.Size(); i++)
 		{
 			ItemList.Push (SavedItemsStr[i]);
 		}
+		return false;
 	}
 };
 
@@ -749,6 +764,8 @@ extend class Doom4Player
 				A_SetInventory(check,0);	
 			}
 		}
+		stamina = 0;
+		A_SetHealth(100);
 	}
 	
 	//==========================================================================

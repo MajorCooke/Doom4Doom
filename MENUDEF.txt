@@ -115,7 +115,7 @@ OptionMenu "D4DUpgradeMode"
 	StaticText "Pickups", GOLD
 	StaticText "Upgrade menu disabled. Monsters rarely drop upgrades for", YELLOW
 	StaticText "weapons/suit/powerups. Weapon upgrades drop only for owned weapons.", YELLOW
-	StaticText "May replace already owned items. Monsters give crates instead of credits.", YELLOW
+	StaticText "Monsters give crates instead of credits.", YELLOW
 	StaticText ""
 	Option "Upgrade Mode",					"D4D_UpgradeMode", "UpgradeMode"
 	Command "End Game",						"menu_endgame"
@@ -588,35 +588,35 @@ ListMenu "D4DUpgradeMenu"
 
 OptionMenu "D4DUpgrade.Weapons"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Weapons"
-	Command "Pistol", 			"test > $D4Pistol 0 \"openmenu D4DUpgrade.Pistol\" \"WNA\" "
+	SubmenuWeapon "Pistol",					"D4DUpgrade.Pistol", 			"D4Pistol"
 	StaticText ""
-	Command "Shotgun", 			"test > $D4Shotgun 0 \"openmenu D4DUpgrade.Shotgun\" \"WNA\" "
+	SubmenuWeapon "Shotgun",				"D4DUpgrade.Shotgun", 			"D4Shotgun"
 	StaticText ""
-	Command "Super Shotgun", 	"test > $D4SuperShotgun 0 \"openmenu D4DUpgrade.SuperShotgun\" \"WNA\" "
+	SubmenuWeapon "Super Shotgun",			"D4DUpgrade.SuperShotgun", 		"D4SuperShotgun"
 	StaticText ""
-	Command "Repeater", 		"test > $D4Repeater 0 \"openmenu D4DUpgrade.Repeater\" \"WNA\" "
+	SubmenuWeapon "Repeater",				"D4DUpgrade.Repeater", 			"D4Repeater"
 	StaticText ""
-	Command "H. A. R.", 		"test > $D4AssaultRifle 0 \"openmenu D4DUpgrade.HAR\" \"WNA\" "
+	SubmenuWeapon "H. A. R.",				"D4DUpgrade.AssaultRifle", 		"D4AssaultRifle"
 	StaticText ""
-	Command "Chaingun", 		"test > $D4Chaingun 0 \"CheckChgReq\" \"WNA\" "
+	SubmenuWeapon "Chaingun",				"D4DUpgrade.Chaingun", 			"D4Chaingun"
 	StaticText ""
-	Command "Rocket Launcher", 	"test > $D4RocketLauncher 0 \"openmenu D4DUpgrade.RocketLauncher\" \"WNA\" "
+	SubmenuWeapon "Rocket Launcher",		"D4DUpgrade.RocketLauncher", 	"D4RocketLauncher"
 	StaticText ""
-	Command "Plasma Rifle", 	"test > $D4PlasmaRifle 0 \"openmenu D4DUpgrade.PlasmaRifle\" \"WNA\" "
+	SubmenuWeapon "Plasma Rifle",			"D4DUpgrade.PlasmaRifle", 		"D4PlasmaRifle"
 	StaticText ""
-	Command "Lightning Gun", 	"test > $D4LightningGun 0 \"openmenu D4DUpgrade.LightningGun\" \"WNA\" "
+	SubmenuWeapon "Lightning Gun",			"D4DUpgrade.LightningGun", 		"D4LightningGun"
 	StaticText ""
-	Command "Vortex Rifle", 	"test > $D4VortexRifle 0 \"openmenu D4DUpgrade.VortexRifle\" \"WNA\" "
+	SubmenuWeapon "Vortex Rifle",			"D4DUpgrade.VortexRifle", 		"D4VortexRifle"
 	StaticText ""
-	Command "Static Rifle", 	"test > $D4StaticRifle 0 \"openmenu D4DUpgrade.StaticRifle\" \"WNA\" "
+	SubmenuWeapon "Static Rifle",			"D4DUpgrade.StaticRifle", 		"D4StaticRifle"
 	StaticText ""
-	Command "Gauss Cannon", 	"test > $D4GaussCannon 0 \"openmenu D4DUpgrade.GaussCannon\" \"WNA\" "
+	SubmenuWeapon "Gauss Cannon",			"D4DUpgrade.GaussCannon", 		"D4GaussCannon"
 	StaticText ""
-	Command "BFG", 				"test > $D4BFG 0 \"openmenu D4DUpgrade.BFG\" \"WNA\" "
+	SubmenuWeapon "BFG",					"D4DUpgrade.BFG", 				"D4BFG"
 	StaticText ""
-	Command "Carrion Cannon", 	"test > $D4CarrionCannon 0 \"openmenu D4DUpgrade.CarrionCannon\" \"WNA\" "
+	SubmenuWeapon "Carrion Cannon",			"D4DUpgrade.CarrionCannon", 	"D4CarrionCannon"
 }
 
 //==============================================================================
@@ -624,95 +624,90 @@ OptionMenu "D4DUpgrade.Weapons"
 //==============================================================================
 OptionMenu "D4DUpgrade.Pistol"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Pistol"
 	StaticText "Choose An Upgrade", GOLD
 	StaticText ""
-	Command "$PistolUpgradeAltCharge",	"test > $PistolUpgradeAltCharge 0 \"AlreadyBought\" \"openmenu PistolUpgradeAltCharge\""
+	SubmenuReqs "$PistolUpgradeAltCharge",	"PistolUpgradeAltCharge",	"PistolUpgradeAltCharge"
 	StaticText ""
-	Command "$PistolUpgradeAltDamage",	"test > $PistolUpgradeAltDamage 0 \"AlreadyBought\" \"openmenu PistolUpgradeAltDamage\""
+	SubmenuReqs "$PistolUpgradeAltDamage",	"PistolUpgradeAltDamage",	"PistolUpgradeAltDamage"
 	StaticText ""
-	Command "$PistolUpgradeDamage",		"test > $PistolUpgradeDamage 0 \"AlreadyBought\" \"openmenu PistolUpgradeDamage\""
+	SubmenuReqs "$PistolUpgradeDamage",		"PistolUpgradeDamage",		"PistolUpgradeDamage"
 	StaticText ""
-	Command "$PistolUpgradeAutomatic",	"test > $PistolUpgradeAutomatic 0 \"AlreadyBought\" \"openmenu PistolUpgradeAutomatic\""
+	SubmenuReqs "$PistolUpgradeAutomatic",	"PistolUpgradeAutomatic",	"PistolUpgradeAutomatic"
     StaticText ""
-	Command "$PistolUpgradeLance",	"test > $PistolUpgradeLance 0 \"AlreadyBought\" \"CheckLanceReq\""
+	SubmenuReqs "$PistolUpgradeLance",		"PistolUpgradeLance",		"PistolUpgradeLance",	"PistolUpgradeLanceNA"
 }
 
 OptionMenu "PistolUpgradeAltCharge"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$PistolUpgradeAltCharge"
 	StaticText "$PistolUpgradeAltChargeD1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U1Pistol $D4DCash \"PistolUpgradeAltCharge 1; CTake $Cost_U1Pistol; BuyUpgradeWeapon;\" \"NEC\""
-	//Purchase "PistolUpgradeAltCharge"
+	Purchase PistolUpgradeAltCharge
 	StaticText ""
-	CostDisplay Cost_U1Pistol
+	CostDisplay PistolUpgradeAltCharge
 	StaticText ""
-	CreditDisplay Cost_U1Pistol
+	CreditDisplay PistolUpgradeAltCharge
 }
 OptionMenu "PistolUpgradeAltDamage"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$PistolUpgradeAltDamage"
 	StaticText "$PistolUpgradeAltDamageD1"
 	StaticText ""
-	//Purchase "PistolUpgradeAltDamage"
-	Command "Buy", "test <= $Cost_U2Pistol $D4DCash \"PistolUpgradeAltDamage 1; CTake $Cost_U2Pistol; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase PistolUpgradeAltDamage
 	StaticText ""
-	CostDisplay Cost_U2Pistol
+	CostDisplay PistolUpgradeAltDamage
 	StaticText ""
-	CreditDisplay Cost_U2Pistol
+	CreditDisplay PistolUpgradeAltDamage
 }
 OptionMenu "PistolUpgradeDamage"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$PistolUpgradeDamage"
 	StaticText "$PistolUpgradeDamageD1"
 	StaticText ""
-	//Purchase "PistolUpgradeDamage"
-	Command "Buy", "test <= $Cost_U3Pistol $D4DCash \"PistolUpgradeDamage 1; CTake $Cost_U3Pistol; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase PistolUpgradeDamage
 	StaticText ""
-	CostDisplay Cost_U3Pistol
+	CostDisplay PistolUpgradeDamage
 	StaticText ""
-	CreditDisplay Cost_U3Pistol
+	CreditDisplay PistolUpgradeDamage
 }
 OptionMenu "PistolUpgradeAutomatic"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$PistolUpgradeAutomatic"
 	StaticText "$PistolUpgradeAutomaticD1"
 	StaticText ""
 	StaticText "$PistolUpgradeAutomaticD2", RED
 	StaticText ""
-	//Purchase "PistolUpgradeAutomatic"
-	Command "Buy", "test <= $Cost_U4Pistol $D4DCash \"PistolUpgradeAutomatic 1; CTake $Cost_U4Pistol; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase PistolUpgradeAutomatic
 	StaticText ""
-	CostDisplay Cost_U4Pistol
+	CostDisplay PistolUpgradeAutomatic
 	StaticText ""
-	CreditDisplay Cost_U4Pistol
+	CreditDisplay PistolUpgradeAutomatic
 }
 
 OptionMenu "PistolUpgradeLance"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$PistolUpgradeLance"
 	StaticText "$PistolUpgradeLanceD1"
 	StaticText ""
 	StaticText "$PistolUpgradeLanceD2", RED
 	StaticText ""
-	//Purchase "PistolUpgradeLance"
-	Command "Buy", "test <= $Cost_U5Pistol $D4DCash \"PistolUpgradeLance 1; CTake $Cost_U5Pistol; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase PistolUpgradeLance
 	StaticText ""
-	CostDisplay Cost_U5Pistol
+	CostDisplay PistolUpgradeLance
 	StaticText ""
-	CreditDisplay Cost_U5Pistol
+	CreditDisplay PistolUpgradeLance
 }
 
 OptionMenu "PistolUpgradeLanceNA"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$PistolUpgradeLance"
 	StaticText "$PistolUpgradeLanceD1"
 	StaticText ""
@@ -721,8 +716,8 @@ OptionMenu "PistolUpgradeLanceNA"
 	StaticText "Pre-requisites not met.", RED
 	StaticText "You must have the following upgrades:", ORANGE
 	StaticText ""
-	Command "$PistolUpgradeDamage",	"test > $PistolUpgradeDamage 0 \"AlreadyBought\" \"openmenu PistolUpgradeDamage\""
-	Command "$PistolUpgradeAltDamage",	"test > $PistolUpgradeAltDamage 0 \"AlreadyBought\" \"openmenu PistolUpgradeAltDamage\""
+	SubmenuReqs "$PistolUpgradeAltCharge",		"PistolUpgradeAltCharge",		"PistolUpgradeAltCharge"
+	SubmenuReqs "$PistolUpgradeAltDamage",		"PistolUpgradeAltDamage",		"PistolUpgradeAltDamage"
 }
 
 //==============================================================================
@@ -730,18 +725,18 @@ OptionMenu "PistolUpgradeLanceNA"
 //==============================================================================
 OptionMenu "D4DUpgrade.Shotgun"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Shotgun"
 	StaticText "Choose An Upgrade", GOLD
 	StaticText ""
-	Command "$ShotgunMod1",	"test > $ShotgunMod1 0 \"AlreadyBought\" \"openmenu ShotgunMod1\""
+	SubmenuReqs "$ShotgunMod1", "ShotgunMod1", "ShotgunMod1"
 	StaticText ""
-	Command "$ShotgunMod2",	"test > $ShotgunMod2 0 \"AlreadyBought\" \"openmenu ShotgunMod2\""
+	SubmenuReqs "$ShotgunMod2", "ShotgunMod2", "ShotgunMod2"
 }
 
 OptionMenu "ShotgunMod1"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$ShotgunMod1"
 	StaticText "$ShotgunMod1D1", TAN
 	StaticText ""
@@ -749,16 +744,16 @@ OptionMenu "ShotgunMod1"
 	StaticText ""
 	StaticText "$ShotgunMod1D3", YELLOW
 	StaticText ""
-	Command "Buy", "test <= $Cost_U1Shotgun $D4DCash \"ShotgunMod1 1; CTake $Cost_U1Shotgun; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase ShotgunMod1
 	StaticText ""
-	CostDisplay Cost_U1Shotgun
+	CostDisplay ShotgunMod1
 	StaticText ""
-	CreditDisplay Cost_U1Shotgun
+	CreditDisplay ShotgunMod1
 }
 
 OptionMenu "ShotgunMod2"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$ShotgunMod2"
 	StaticText "$ShotgunMod2D1", TAN
 	StaticText ""
@@ -766,11 +761,11 @@ OptionMenu "ShotgunMod2"
 	StaticText ""
 	StaticText "$ShotgunMod2D3", YELLOW
 	StaticText ""
-	Command "Buy", "test <= $Cost_U2Shotgun $D4DCash \"ShotgunMod2 1; CTake $Cost_U2Shotgun; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase ShotgunMod2
 	StaticText ""
-	CostDisplay Cost_U2Shotgun
+	CostDisplay ShotgunMod2
 	StaticText ""
-	CreditDisplay Cost_U2Shotgun
+	CreditDisplay ShotgunMod2
 }
 
 //==============================================================================
@@ -778,61 +773,61 @@ OptionMenu "ShotgunMod2"
 //==============================================================================
 OptionMenu "D4DUpgrade.SuperShotgun"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Super Shotgun"
 	StaticText "Choose An Upgrade", GOLD
 	StaticText ""
-	Command "$SSGUpgrade1",	"test > $SSGUpgrade1 0 \"AlreadyBought\" \"openmenu SSGUpgrade1\""
+	SubmenuReqs "$SSGUpgrade1", "SSGUpgrade1", "SSGUpgrade1"
 	StaticText " "
-	Command "$SSGUpgrade2",	"test > $SSGUpgrade2 0 \"AlreadyBought\" \"openmenu SSGUpgrade2\""
+	SubmenuReqs "$SSGUpgrade2", "SSGUpgrade2", "SSGUpgrade2"
 	StaticText " "
-	Command "$SSGUpgrade3",	"test > $SSGUpgrade3 0 \"AlreadyBought\" \"openmenu SSGUpgrade3\""
+	SubmenuReqs "$SSGUpgrade3", "SSGUpgrade3", "SSGUpgrade3"
 	StaticText " "
-	Command "$SSGUpgrade4",	"test > $SSGUpgrade4 0 \"AlreadyBought\" \"CheckSSGReq\""
+	SubmenuReqs "$SSGUpgrade4", "SSGUpgrade4", "SSGUpgrade4", "SSGUpgrade4NA"
 }
 
 OptionMenu "SSGUpgrade1"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$SSGUpgrade1"
 	StaticText "$SSGUpgrade1D1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U1SuperShotgun $D4DCash \"SSGUpgrade1 1; CTake $Cost_U1SuperShotgun; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase SSGUpgrade1
 	StaticText ""
-	CostDisplay Cost_U1SuperShotgun
+	CostDisplay SSGUpgrade1
 	StaticText ""
-	CreditDisplay Cost_U1SuperShotgun
+	CreditDisplay SSGUpgrade1
 }
 
 OptionMenu "SSGUpgrade2"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$SSGUpgrade2"
 	StaticText "$SSGUpgrade2D1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U2SuperShotgun $D4DCash \"SSGUpgrade2 1; CTake $Cost_U2SuperShotgun; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase SSGUpgrade2
 	StaticText ""
-	CostDisplay Cost_U2SuperShotgun
+	CostDisplay SSGUpgrade2
 	StaticText ""
-	CreditDisplay Cost_U2SuperShotgun
+	CreditDisplay SSGUpgrade2
 }
 
 OptionMenu "SSGUpgrade3"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$SSGUpgrade3"
 	StaticText "$SSGUpgrade3D1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U3SuperShotgun $D4DCash \"SSGUpgrade3 1; CTake $Cost_U3SuperShotgun; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase SSGUpgrade3
 	StaticText ""
-	CostDisplay Cost_U3SuperShotgun
+	CostDisplay SSGUpgrade3
 	StaticText ""
-	CreditDisplay Cost_U3SuperShotgun
+	CreditDisplay SSGUpgrade3
 }
 
 OptionMenu "SSGUpgrade4"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$SSGUpgrade4"
 	StaticText "$SSGUpgrade4D1", YELLOW
 	StaticText ""
@@ -840,16 +835,16 @@ OptionMenu "SSGUpgrade4"
 	StaticText ""
 	StaticText "$SSGUpgrade4D3", TAN
 	StaticText ""
-	Command "Buy", "test <= $Cost_U4SuperShotgun $D4DCash \"SSGUpgrade4 1; CTake $Cost_U4SuperShotgun; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase SSGUpgrade4
 	StaticText ""
-	CostDisplay Cost_U4SuperShotgun
+	CostDisplay SSGUpgrade4
 	StaticText ""
-	CreditDisplay Cost_U4SuperShotgun
+	CreditDisplay SSGUpgrade4
 }
 
 OptionMenu "SSGUpgrade4NA"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$SSGUpgrade4"
 	StaticText "$SSGUpgrade4D1", GOLD
 	StaticText ""
@@ -860,77 +855,77 @@ OptionMenu "SSGUpgrade4NA"
 	StaticText "Pre-requisites not met.", RED
 	StaticText "You must have the following upgrades:", ORANGE
 	StaticText ""
-	Command "$SSGUpgrade1",	"test > $SSGUpgrade1 0 \"AlreadyBought\" \"openmenu SSGUpgrade1\""
-	Command "$SSGUpgrade2",	"test > $SSGUpgrade2 0 \"AlreadyBought\" \"openmenu SSGUpgrade2\""
+	SubmenuReqs "$SSGUpgrade1", "SSGUpgrade1", "SSGUpgrade1"
+	SubmenuReqs "$SSGUpgrade2", "SSGUpgrade2", "SSGUpgrade2"
 }
 //==============================================================================
 // Repeater
 //==============================================================================
 OptionMenu "D4DUpgrade.Repeater"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Repeater"
 	StaticText "Choose An Upgrade", GOLD
 	StaticText ""
-	Command "$RepeaterUpgradePiercing",	"test > $RepeaterUpgradePiercing 0 \"AlreadyBought\" \"openmenu RepeaterUpgradePiercing\""
+	SubmenuReqs "$RepeaterUpgradePiercing", "RepeaterUpgradePiercing", "RepeaterUpgradePiercing"
 	StaticText ""
-	Command "$RepeaterUpgradeDamage",	"test > $RepeaterUpgradeDamage 0 \"AlreadyBought\" \"openmenu RepeaterUpgradeDamage\""
+	SubmenuReqs "$RepeaterUpgradeDamage", "RepeaterUpgradeDamage", "RepeaterUpgradeDamage"
 	StaticText ""
-	Command "$RepeaterUpgradeAltDamage",	"test > $RepeaterUpgradeAltDamage 0 \"AlreadyBought\" \"openmenu RepeaterUpgradeAltDamage\""
+	SubmenuReqs "$RepeaterUpgradeAltDamage", "RepeaterUpgradeAltDamage", "RepeaterUpgradeAltDamage"
 	StaticText ""
-	Command "$RepeaterUpgradeAltAmmo",	"test > $RepeaterUpgradeAltAmmo 0 \"AlreadyBought\" \"openmenu RepeaterUpgradeAltAmmo\""
+	SubmenuReqs "$RepeaterUpgradeAltAmmo", "RepeaterUpgradeAltAmmo", "RepeaterUpgradeAltAmmo"
 }
 
 OptionMenu "RepeaterUpgradePiercing"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$RepeaterUpgradePiercing"
 	StaticText "$RepeaterUpgradePiercingD1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U1Repeater $D4DCash \"RepeaterUpgradePiercing 1; CTake $Cost_U1Repeater; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase RepeaterUpgradePiercing
 	StaticText ""
-	CostDisplay Cost_U1Repeater
+	CostDisplay RepeaterUpgradePiercing
 	StaticText ""
-	CreditDisplay Cost_U1Repeater
+	CreditDisplay RepeaterUpgradePiercing
 }
 
 OptionMenu "RepeaterUpgradeDamage"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$RepeaterUpgradeDamage"
 	StaticText "$RepeaterUpgradeDamageD1"
 	StaticText ""
 	StaticText "$RepeaterUpgradeDamageD2", RED
 	StaticText ""
-	Command "Buy", "test <= $Cost_U2Repeater $D4DCash \"RepeaterUpgradeDamage 1; CTake $Cost_U2Repeater; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase RepeaterUpgradeDamage
 	StaticText ""
-	CostDisplay Cost_U2Repeater
+	CostDisplay RepeaterUpgradeDamage
 	StaticText ""
-	CreditDisplay Cost_U2Repeater
+	CreditDisplay RepeaterUpgradeDamage
 }
 OptionMenu "RepeaterUpgradeAltDamage"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$RepeaterUpgradeAltDamage"
 	StaticText "$RepeaterUpgradeAltDamageD1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U3Repeater $D4DCash \"RepeaterUpgradeAltDamage 1; CTake $Cost_U3Repeater; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase RepeaterUpgradeAltDamage
 	StaticText ""
-	CostDisplay Cost_U3Repeater
+	CostDisplay RepeaterUpgradeAltDamage
 	StaticText ""
-	CreditDisplay Cost_U3Repeater
+	CreditDisplay RepeaterUpgradeAltDamage
 }
 OptionMenu "RepeaterUpgradeAltAmmo"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$RepeaterUpgradeAltAmmo"
 	StaticText "$RepeaterUpgradeAltAmmoD1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U4Repeater $D4DCash \"RepeaterUpgradeAltAmmo 1; CTake $Cost_U4Repeater; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase RepeaterUpgradeAltAmmo
 	StaticText ""
-	CostDisplay Cost_U4Repeater
+	CostDisplay RepeaterUpgradeAltAmmo
 	StaticText ""
-	CreditDisplay Cost_U4Repeater
+	CreditDisplay RepeaterUpgradeAltAmmo
 }
 
 
@@ -939,87 +934,76 @@ OptionMenu "RepeaterUpgradeAltAmmo"
 //==============================================================================
 OptionMenu "D4DUpgrade.HAR"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Heavy Assault Rifle"
 	StaticText "Choose An Upgrade", GOLD
 	StaticText ""
-	Command "$AssaultRifleMod1",	"test > $AssaultRifleMod1 0 \"AlreadyBought\" \"openmenu AssaultRifleMod1\""
+	SubmenuReqs "$AssaultRifleMod1", "AssaultRifleMod1", "AssaultRifleMod1"
 	StaticText ""
-	Command "$AssaultRifleMod2",	"test > $AssaultRifleMod2 0 \"AlreadyBought\" \"openmenu AssaultRifleMod2\""
+	SubmenuReqs "$AssaultRifleMod2", "AssaultRifleMod2", "AssaultRifleMod2"
 }
 
 OptionMenu "AssaultRifleMod1"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$AssaultRifleMod1"
 	StaticText "$AssaultRifleMod1D1", TAN
 	StaticText ""
 	StaticText "$AssaultRifleMod1D2", YELLOW
 	StaticText ""
-	Command "Buy", "test <= $Cost_U1AssaultRifle $D4DCash \"AssaultRifleMod1 1; CTake $Cost_U1AssaultRifle; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase AssaultRifleMod1
 	StaticText ""
-	CostDisplay Cost_U1AssaultRifle
+	CostDisplay AssaultRifleMod1
 	StaticText ""
-	CreditDisplay Cost_U1AssaultRifle
+	CreditDisplay AssaultRifleMod1
 }
 OptionMenu "AssaultRifleMod2"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$AssaultRifleMod2"
 	StaticText "$AssaultRifleMod2D1", TAN
 	StaticText ""
 	StaticText "$AssaultRifleMod2D2", YELLOW
 	StaticText ""
-	Command "Buy", "test <= $Cost_U2AssaultRifle $D4DCash \"AssaultRifleMod2 1; CTake $Cost_U2AssaultRifle; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase AssaultRifleMod2
 	StaticText ""
-	CostDisplay Cost_U2AssaultRifle
+	CostDisplay AssaultRifleMod2
 	StaticText ""
-	CreditDisplay Cost_U2AssaultRifle
+	CreditDisplay AssaultRifleMod2
 }
 //==============================================================================
 // Chaingun
 //==============================================================================
 OptionMenu "D4DUpgrade.Chaingun"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Chaingun"
 	StaticText "Choose An Upgrade", GOLD
 	StaticText ""
-	Command "$ChaingunMod1",	"test > $ChaingunMod1 0 \"AlreadyBought\" \"openmenu ChaingunMod1\""
+	SubmenuReqs "$ChaingunMod1", "ChaingunMod1", "ChaingunMod1"
 	StaticText ""
-	Command "$ChaingunMod2",	"test > $ChaingunMod2 0 \"AlreadyBought\" \"openmenu ChaingunMod2\""
-}
-
-OptionMenu "D4DUpgrade.ChaingunSpec"
-{
-	//Class "D4DOptionMenuUpgrades"
-	Title "Chaingun"
-	StaticText "Choose An Upgrade", GOLD
+	SubmenuReqs "$ChaingunMod2", "ChaingunMod2", "ChaingunMod2"
 	StaticText ""
-	Command "$ChaingunMod1",	"test > $ChaingunMod1 0 \"AlreadyBought\" \"openmenu ChaingunMod1\""
-	StaticText ""
-	Command "$ChaingunMod2",	"test > $ChaingunMod2 0 \"AlreadyBought\" \"openmenu ChaingunMod2\""
-	StaticText ""
-	Command "Mother Russia's Gift",	"test > $ChaingunMod3 0 \"AlreadyBought\" \"openmenu ChaingunMod3\""
+	SubmenuReqs "Mother Russia's Gift", "ChaingunMod3", "", "", -1
 }
 
 OptionMenu "ChaingunMod1"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$ChaingunMod1"
 	StaticText "$ChaingunMod1D1", TAN
 	StaticText ""
 	StaticText "$ChaingunMod1D2", YELLOW
 	StaticText ""
-	Command "Buy", "test <= $Cost_U1Chaingun $D4DCash \"ChaingunMod1 1; CTake $Cost_U1Chaingun; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase ChaingunMod1
 	StaticText ""
-	CostDisplay Cost_U1Chaingun
+	CostDisplay ChaingunMod1
 	StaticText ""
-	CreditDisplay Cost_U1Chaingun
+	CreditDisplay ChaingunMod1
 }
 OptionMenu "ChaingunMod2"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$ChaingunMod2"
 	StaticText "$ChaingunMod2D1", TAN
 	StaticText ""
@@ -1027,15 +1011,15 @@ OptionMenu "ChaingunMod2"
 	StaticText ""
 	StaticText "$ChaingunMod2D3", YELLOW
 	StaticText ""
-	Command "Buy", "test <= $Cost_U2Chaingun $D4DCash \"ChaingunMod2 1; CTake $Cost_U2Chaingun; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase ChaingunMod2
 	StaticText ""
-	CostDisplay Cost_U2Chaingun
+	CostDisplay ChaingunMod2
 	StaticText ""
-	CreditDisplay Cost_U2Chaingun
+	CreditDisplay ChaingunMod2
 }
 OptionMenu "ChaingunMod3"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Mother Russia's Gift"
 	StaticText "In Yu-Double-Ess-ARRRR, my comrade...", GOLD
 	StaticText "Spinmegun is paid for YOU.", GOLD
@@ -1043,8 +1027,7 @@ OptionMenu "ChaingunMod3"
 	StaticText "May your weapons sing the march of DooM.", GOLD
 	StaticText "Pack their bags and send them back to Hell!", GOLD
 	StaticText " "
-	StaticText "!!!WARNING!!!", RED
-	StaticText "Motion Sickness Trigger!", ORANGE
+	StaticText "Motion Sickness Possible!", RED
 	StaticText " "
 	StaticText "Toggled with Chaingun Special Keybind", WHITE
 	StaticText " "
@@ -1059,18 +1042,18 @@ OptionMenu "ChaingunMod3"
 //==============================================================================
 OptionMenu "D4DUpgrade.RocketLauncher"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Rocket Launcher"
 	StaticText "Choose An Upgrade"
 	StaticText ""
-	Command "$RocketLauncherMod1",	"test > $RocketLauncherMod1 0 \"AlreadyBought\" \"openmenu RocketLauncherMod1\""
+	SubmenuReqs "$RocketLauncherMod1", "RocketLauncherMod1", "RocketLauncherMod1"
 	StaticText ""
-	Command "$RocketLauncherMod2",	"test > $RocketLauncherMod2 0 \"AlreadyBought\" \"openmenu RocketLauncherMod2\""
+	SubmenuReqs "$RocketLauncherMod2", "RocketLauncherMod2", "RocketLauncherMod2"
 }
 
 OptionMenu "RocketLauncherMod1"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$RocketLauncherMod1"
 	StaticText "$RocketLauncherMod1D1", TAN
 	StaticText ""
@@ -1078,44 +1061,44 @@ OptionMenu "RocketLauncherMod1"
 	StaticText ""
 	StaticText "$RocketLauncherMod1D3", YELLOW
 	StaticText ""
-	Command "Buy", "test <= $Cost_U1RocketLauncher $D4DCash \"RocketLauncherMod1 1; CTake $Cost_U1RocketLauncher; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase RocketLauncherMod1
 	StaticText ""
-	CostDisplay Cost_U1RocketLauncher
+	CostDisplay RocketLauncherMod1
 	StaticText ""
-	CreditDisplay Cost_U1RocketLauncher
+	CreditDisplay RocketLauncherMod1
 }
 
 OptionMenu "RocketLauncherMod2"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$RocketLauncherMod2"
 	StaticText "$RocketLauncherMod2D1", TAN
 	StaticText ""
 	StaticText "$RocketLauncherMod2D2", YELLOW
 	StaticText ""
-	Command "Buy", "test <= $Cost_U2RocketLauncher $D4DCash \"RocketLauncherMod2 1; CTake $Cost_U2RocketLauncher; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase RocketLauncherMod2
 	StaticText ""
-	CostDisplay Cost_U2RocketLauncher
+	CostDisplay RocketLauncherMod2
 	StaticText ""
-	CreditDisplay Cost_U2RocketLauncher
+	CreditDisplay RocketLauncherMod2
 }
 //==============================================================================
 // Plasma Rifle
 //==============================================================================
 OptionMenu "D4DUpgrade.PlasmaRifle"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Plasma Rifle"
 	StaticText "Choose An Upgrade"
 	StaticText ""
-	Command "$PlasmaRifleMod1",	"test > $PlasmaRifleMod1 0 \"AlreadyBought\" \"openmenu PlasmaRifleMod1\""
+	SubmenuReqs "$PlasmaRifleMod1", "PlasmaRifleMod1", "PlasmaRifleMod1"
 	StaticText ""
-	Command "$PlasmaRifleMod2",	"test > $PlasmaRifleMod2 0 \"AlreadyBought\" \"openmenu PlasmaRifleMod2\""
+	SubmenuReqs "$PlasmaRifleMod2", "PlasmaRifleMod2", "PlasmaRifleMod2"
 }
 
 OptionMenu "PlasmaRifleMod1"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$PlasmaRifleMod1"
 	StaticText "$PlasmaRifleMod1D1", TAN
 	StaticText ""
@@ -1123,16 +1106,16 @@ OptionMenu "PlasmaRifleMod1"
 	StaticText ""
 	StaticText "$PlasmaRifleMod1D3", YELLOW
 	StaticText ""
-	Command "Buy", "test <= $Cost_U1PlasmaRifle $D4DCash \"PlasmaRifleMod1 1; CTake $Cost_U1PlasmaRifle; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase PlasmaRifleMod1
 	StaticText ""
-	CostDisplay Cost_U1PlasmaRifle
+	CostDisplay PlasmaRifleMod1
 	StaticText ""
-	CreditDisplay Cost_U1PlasmaRifle
+	CreditDisplay PlasmaRifleMod1
 }
 
 OptionMenu "PlasmaRifleMod2"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$PlasmaRifleMod2"
 	StaticText "$PlasmaRifleMod2D1", TAN
 	StaticText ""
@@ -1140,195 +1123,195 @@ OptionMenu "PlasmaRifleMod2"
 	StaticText ""
 	StaticText "$PlasmaRifleMod2D3", YELLOW
 	StaticText ""
-	Command "Buy", "test <= $Cost_U2PlasmaRifle $D4DCash \"PlasmaRifleMod2 1; CTake $Cost_U2PlasmaRifle; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase PlasmaRifleMod2
 	StaticText ""
-	CostDisplay Cost_U2PlasmaRifle
+	CostDisplay PlasmaRifleMod2
 	StaticText ""
-	CreditDisplay Cost_U2PlasmaRifle
+	CreditDisplay PlasmaRifleMod2
 }
 //==============================================================================
 // Lightning Gun
 //==============================================================================
 OptionMenu "D4DUpgrade.LightningGun"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Lightning Gun"
 	StaticText "Choose An Upgrade"
 	StaticText ""
-	Command "$LGUpgradeAmmo",	"test > $LGUpgradeAmmo 0 \"AlreadyBought\" \"openmenu LGUpgradeAmmo\""
+	SubmenuReqs "$LGUpgradeAmmo", "LGUpgradeAmmo", "LGUpgradeAmmo"
 	StaticText ""
-	Command "$LGUpgradeRange",	"test > $LGUpgradeRange 0 \"AlreadyBought\" \"openmenu LGUpgradeRange\""
+	SubmenuReqs "$LGUpgradeRange", "LGUpgradeRange", "LGUpgradeRange"
 	StaticText ""
-	Command "$LGUpgradeDamage",	"test > $LGUpgradeDamage 0 \"AlreadyBought\" \"openmenu LGUpgradeDamage\""
+	SubmenuReqs "$LGUpgradeDamage", "LGUpgradeDamage", "LGUpgradeDamage"
 	StaticText ""
-	Command "$LGUpgradeAltFire",	"test > $LGUpgradeAltFire 0 \"AlreadyBought\" \"openmenu LGUpgradeAltFire\""
+	SubmenuReqs "$LGUpgradeAltFire", "LGUpgradeAltFire", "LGUpgradeAltFire"
 }
 
 OptionMenu "LGUpgradeAmmo"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$LGUpgradeAmmo"
 	StaticText "$LGUpgradeAmmoD1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U1LightningGun $D4DCash \"LGUpgradeAmmo 1; CTake $Cost_U1LightningGun; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase LGUpgradeAmmo
 	StaticText ""
-	CostDisplay Cost_U1LightningGun
+	CostDisplay LGUpgradeAmmo
 	StaticText ""
-	CreditDisplay Cost_U1LightningGun
+	CreditDisplay LGUpgradeAmmo
 }
 OptionMenu "LGUpgradeRange"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$LGUpgradeRange"
 	StaticText "$LGUpgradeRangeD1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U2LightningGun $D4DCash \"LGUpgradeRange 1; CTake $Cost_U2LightningGun; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase LGUpgradeRange
 	StaticText ""
-	CostDisplay Cost_U2LightningGun
+	CostDisplay LGUpgradeRange
 	StaticText ""
-	CreditDisplay Cost_U2LightningGun
+	CreditDisplay LGUpgradeRange
 }
 OptionMenu "LGUpgradeDamage"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$LGUpgradeDamage"
 	StaticText "$LGUpgradeDamageD1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U3LightningGun $D4DCash \"LGUpgradeDamage 1; CTake $Cost_U3LightningGun; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase LGUpgradeDamage
 	StaticText ""
-	CostDisplay Cost_U3LightningGun
+	CostDisplay LGUpgradeDamage
 	StaticText ""
-	CreditDisplay Cost_U3LightningGun
+	CreditDisplay LGUpgradeDamage
 }
 OptionMenu "LGUpgradeAltFire"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$LGUpgradeAltFire"
 	StaticText "$LGUpgradeAltFireD1", GOLD
 	StaticText ""
 	StaticText "$LGUpgradeAltFireD2", TAN
 	StaticText ""
-	Command "Buy", "test <= $Cost_U4LightningGun $D4DCash \"LGUpgradeAltFire 1; CTake $Cost_U4LightningGun; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase LGUpgradeAltFire
 	StaticText ""
-	CostDisplay Cost_U4LightningGun
+	CostDisplay LGUpgradeAltFire
 	StaticText ""
-	CreditDisplay Cost_U4LightningGun
+	CreditDisplay LGUpgradeAltFire
 }
 //==============================================================================
 // Vortex Rifle
 //==============================================================================
 OptionMenu "D4DUpgrade.VortexRifle"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Vortex Rifle"
 	StaticText "Choose An Upgrade"
 	StaticText ""
-	Command "$VortexUpgradeDamage",	"test > $VortexUpgradeDamage 0 \"AlreadyBought\" \"openmenu VortexUpgradeDamage\""
+	SubmenuReqs "$VortexUpgradeDamage", "VortexUpgradeDamage", "VortexUpgradeDamage"
 	StaticText ""
-	Command "$VortexUpgradeAmmo",	"test > $VortexUpgradeAmmo 0 \"AlreadyBought\" \"openmenu VortexUpgradeAmmo\""
+	SubmenuReqs "$VortexUpgradeAmmo", "VortexUpgradeAmmo", "VortexUpgradeAmmo"
 	StaticText ""
-	Command "$VortexUpgradeAltSpeed",	"test > $VortexUpgradeAltSpeed 0 \"AlreadyBought\" \"openmenu VortexUpgradeAltSpeed\""
+	SubmenuReqs "$VortexUpgradeAltSpeed", "VortexUpgradeAltSpeed", "VortexUpgradeAltSpeed"
 	StaticText ""
-	Command "$VortexUpgradeAltPierce","test > $VortexUpgradeAltPierce 0 \"AlreadyBought\" \"openmenu VortexUpgradeAltPierce\""
+	SubmenuReqs "$VortexUpgradeAltPierce", "VortexUpgradeAltPierce", "VortexUpgradeAltPierce"
 }
 OptionMenu "VortexUpgradeDamage"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$VortexUpgradeDamage"
 	StaticText "$VortexUpgradeDamageD1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U1VortexRifle $D4DCash \"VortexUpgradeDamage 1; CTake $Cost_U1VortexRifle; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase VortexUpgradeDamage
 	StaticText ""
-	CostDisplay Cost_U1VortexRifle
+	CostDisplay VortexUpgradeDamage
 	StaticText ""
-	CreditDisplay Cost_U1VortexRifle
+	CreditDisplay VortexUpgradeDamage
 }
 OptionMenu "VortexUpgradeAmmo"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$VortexUpgradeAmmo"
 	StaticText "$VortexUpgradeAmmoD1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U2VortexRifle $D4DCash \"VortexUpgradeAmmo 1; CTake $Cost_U2VortexRifle; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase VortexUpgradeAmmo
 	StaticText ""
-	CostDisplay Cost_U2VortexRifle
+	CostDisplay VortexUpgradeAmmo
 	StaticText ""
-	CreditDisplay D4DCash
+	CreditDisplay VortexUpgradeAmmo
 }
 OptionMenu "VortexUpgradeAltSpeed"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$VortexUpgradeAltSpeed"
 	StaticText "$VortexUpgradeAltSpeedD1"
 	StaticText ""
 	StaticText "$VortexUpgradeAltSpeedD2"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U3VortexRifle $D4DCash \"VortexUpgradeAltSpeed 1; CTake $Cost_U3VortexRifle; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase VortexUpgradeAltSpeed
 	StaticText ""
-	CostDisplay Cost_U3VortexRifle
+	CostDisplay VortexUpgradeAltSpeed
 	StaticText ""
-	CreditDisplay Cost_U3VortexRifle
+	CreditDisplay VortexUpgradeAltSpeed
 }
 OptionMenu "VortexUpgradeAltPierce"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$VortexUpgradeAltPierce"
 	StaticText "$VortexUpgradeAltPierceD1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U4VortexRifle $D4DCash \"VortexUpgradeAltPierce 1; CTake $Cost_U4VortexRifle; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase VortexUpgradeAltPierce
 	StaticText ""
-	CostDisplay Cost_U4VortexRifle
+	CostDisplay VortexUpgradeAltPierce
 	StaticText ""
-	CreditDisplay Cost_U4VortexRifle
+	CreditDisplay VortexUpgradeAltPierce
 }
 //==============================================================================
 // Static Rifle
 //==============================================================================
 OptionMenu "D4DUpgrade.StaticRifle"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Static Rifle"
 	StaticText "Choose An Upgrade"
 	StaticText ""
-	Command "$StaticUpgrade1",	"test > $StaticUpgrade1 0 \"AlreadyBought\" \"openmenu StaticUpgrade1\""
+	SubmenuReqs "$StaticUpgrade1", "StaticUpgrade1", "StaticUpgrade1"
 	StaticText ""
-	Command "$StaticUpgrade2",	"test > $StaticUpgrade2 0 \"AlreadyBought\" \"CheckSTRReq2\""
+	SubmenuReqs "$StaticUpgrade2", "StaticUpgrade2", "StaticUpgrade2", "StaticUpgrade2NA"
 	StaticText ""
-	Command "$StaticUpgrade3",	"test > $StaticUpgrade3 0 \"AlreadyBought\" \"CheckSTRReq3\""
+	SubmenuReqs "$StaticUpgrade3", "StaticUpgrade3", "StaticUpgrade3", "StaticUpgrade3NA"
 	StaticText ""
-	Command "$StaticUpgrade4",	"test > $StaticUpgrade4 0 \"AlreadyBought\" \"CheckSTRReq4\""
+	SubmenuReqs "$StaticUpgrade4", "StaticUpgrade4", "StaticUpgrade4", "StaticUpgrade4NA"
 }
 
 OptionMenu "StaticUpgrade1"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$StaticUpgrade1"
 	StaticText "$StaticUpgrade1D1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U1StaticRifle $D4DCash \"StaticUpgrade1 1; CTake $Cost_U1StaticRifle; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase StaticUpgrade1
 	StaticText ""
-	CostDisplay Cost_U1StaticRifle
+	CostDisplay StaticUpgrade1
 	StaticText ""
-	CreditDisplay Cost_U1StaticRifle
+	CreditDisplay StaticUpgrade1
 }
 OptionMenu "StaticUpgrade2"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$StaticUpgrade2"
 	StaticText "$StaticUpgrade2D1"
 	StaticText ""
 	StaticText "$StaticUpgrade2D2"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U2StaticRifle $D4DCash \"StaticUpgrade2 1; CTake $Cost_U2StaticRifle; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase StaticUpgrade2
 	StaticText ""
-	CostDisplay Cost_U2StaticRifle
+	CostDisplay StaticUpgrade2
 	StaticText ""
-	CreditDisplay Cost_U2StaticRifle
+	CreditDisplay StaticUpgrade2
 }
 
 OptionMenu "StaticUpgrade2NA"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$StaticUpgrade2"
 	StaticText "$StaticUpgrade2D1"
 	StaticText ""
@@ -1337,12 +1320,12 @@ OptionMenu "StaticUpgrade2NA"
 	StaticText "Pre-requisites not met.", RED
 	StaticText "You must have the following upgrades:", ORANGE
 	StaticText ""
-	Command "$StaticUpgrade1",	"test > $StaticUpgrade1 0 \"AlreadyBought\" \"openmenu StaticUpgrade1\""
+	SubmenuReqs "$StaticUpgrade1", "StaticUpgrade1", "StaticUpgrade1"
 }
 
 OptionMenu "StaticUpgrade3"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$StaticUpgrade3"
 	StaticText "$StaticUpgrade3D1"
 	StaticText ""
@@ -1350,16 +1333,16 @@ OptionMenu "StaticUpgrade3"
 	StaticText ""
 	StaticText "$StaticUpgrade3D3"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U3StaticRifle $D4DCash \"StaticUpgrade3 1; CTake $Cost_U3StaticRifle; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase StaticUpgrade3
 	StaticText ""
-	CostDisplay Cost_U3StaticRifle
+	CostDisplay StaticUpgrade3
 	StaticText ""
-	CreditDisplay Cost_U2StaticRifle
+	CreditDisplay StaticUpgrade3
 }
 
 OptionMenu "StaticUpgrade3NA"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$StaticUpgrade3"
 	StaticText "$StaticUpgrade3D1"
 	StaticText ""
@@ -1370,13 +1353,13 @@ OptionMenu "StaticUpgrade3NA"
 	StaticText "Pre-requisites not met.", RED
 	StaticText "You must have the following upgrades:", ORANGE
 	StaticText ""
-	Command "$StaticUpgrade1",	"test > $StaticUpgrade1 0 \"AlreadyBought\" \"openmenu StaticUpgrade1\""
-	Command "$StaticUpgrade2",	"test > $StaticUpgrade2 0 \"AlreadyBought\" \"openmenu StaticUpgrade2\""
+	SubmenuReqs "$StaticUpgrade1", "StaticUpgrade1", "StaticUpgrade1"
+	SubmenuReqs "$StaticUpgrade2", "StaticUpgrade2", "StaticUpgrade2", "StaticUpgrade2NA"
 }
 
 OptionMenu "StaticUpgrade4"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$StaticUpgrade4"
 	StaticText "$StaticUpgrade4D1"
 	StaticText ""
@@ -1390,16 +1373,16 @@ OptionMenu "StaticUpgrade4"
 	StaticText ""
 	StaticText "$StaticUpgrade4D6", GOLD
 	StaticText ""
-	Command "Buy", "test <= $Cost_U4StaticRifle $D4DCash \"StaticUpgrade4 1; CTake $Cost_U4StaticRifle; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase StaticUpgrade4
 	StaticText ""
-	CostDisplay Cost_U4StaticRifle
+	CostDisplay StaticUpgrade4
 	StaticText ""
-	CreditDisplay Cost_U4StaticRifle
+	CreditDisplay StaticUpgrade4
 }
 
 OptionMenu "StaticUpgrade4NA"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$StaticUpgrade4"
 	StaticText "$StaticUpgrade4D1"
 	StaticText ""
@@ -1416,41 +1399,41 @@ OptionMenu "StaticUpgrade4NA"
 	StaticText "Pre-requisites not met.", RED
 	StaticText "You must have the following upgrades:", ORANGE
 	StaticText ""
-	Command "$StaticUpgrade1",	"test > $StaticUpgrade1 0 \"AlreadyBought\" \"openmenu StaticUpgrade1\""
-	Command "$StaticUpgrade2",	"test > $StaticUpgrade2 0 \"AlreadyBought\" \"openmenu StaticUpgrade2\""
-	Command "$StaticUpgrade3",	"test > $StaticUpgrade3 0 \"AlreadyBought\" \"openmenu StaticUpgrade3\""
+	SubmenuReqs "$StaticUpgrade1", "StaticUpgrade1", "StaticUpgrade1"
+	SubmenuReqs "$StaticUpgrade2", "StaticUpgrade2", "StaticUpgrade2", "StaticUpgrade2NA"
+	SubmenuReqs "$StaticUpgrade3", "StaticUpgrade3", "StaticUpgrade3", "StaticUpgrade3NA"
 }
 //==============================================================================
 // Gauss Cannon
 //==============================================================================
 OptionMenu "D4DUpgrade.GaussCannon"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Gauss Cannon"
 	StaticText "Choose An Upgrade"
 	StaticText ""
-	Command "$GaussCannonMod1",	"test > $GaussCannonMod1 0 \"AlreadyBought\" \"openmenu GaussCannonMod1\""
+	SubmenuReqs "$GaussCannonMod1", "GaussCannonMod1", "GaussCannonMod1"
 	StaticText ""
-	Command "$GaussCannonMod2",	"test > $GaussCannonMod2 0 \"AlreadyBought\" \"openmenu GaussCannonMod2\""
+	SubmenuReqs "$GaussCannonMod2", "GaussCannonMod2", "GaussCannonMod2"
 }
 
 OptionMenu "GaussCannonMod1"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$GaussCannonMod1"
 	StaticText "$GaussCannonMod1D1", TAN
 	StaticText ""
 	StaticText "$GaussCannonMod1D2", YELLOW
 	StaticText ""
-	Command "Buy", "test <= $Cost_U1GaussCannon $D4DCash \"GaussCannonMod1 1; CTake $Cost_U1GaussCannon; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase GaussCannonMod1
 	StaticText ""
-	CostDisplay Cost_U1GaussCannon
+	CostDisplay GaussCannonMod1
 	StaticText ""
-	CreditDisplay Cost_U1GaussCannon
+	CreditDisplay GaussCannonMod1
 }
 OptionMenu "GaussCannonMod2"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$GaussCannonMod2"
 	StaticText "$GaussCannonMod2D1", TAN
 	StaticText ""
@@ -1458,46 +1441,46 @@ OptionMenu "GaussCannonMod2"
 	StaticText ""
 	StaticText "$GaussCannonMod2D3", YELLOW
 	StaticText ""
-	Command "Buy", "test <= $Cost_U2GaussCannon $D4DCash \"GaussCannonMod2 1; CTake $Cost_U2GaussCannon; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase GaussCannonMod2
 	StaticText ""
-	CostDisplay Cost_U2GaussCannon
+	CostDisplay GaussCannonMod2
 	StaticText ""
-	CreditDisplay Cost_U2GaussCannon
+	CreditDisplay GaussCannonMod2
 }
 //==============================================================================
 // BFG
 //==============================================================================
 OptionMenu "D4DUpgrade.BFG"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "BFG"
 	StaticText "Choose An Upgrade", GOLD
 	StaticText ""
-	Command "$BFGUpgrade1",	"test > $BFGUpgrade1 0 \"AlreadyBought\" \"openmenu BFGUpgrade1\""
+	SubmenuReqs "$BFGUpgrade1", "BFGUpgrade1", "BFGUpgrade1"
 	StaticText " "
-	Command "$BFGUpgrade2",	"test > $BFGUpgrade2 0 \"AlreadyBought\" \"openmenu BFGUpgrade2\""
+	SubmenuReqs "$BFGUpgrade2", "BFGUpgrade2", "BFGUpgrade2"
 	StaticText " "
-	Command "$BFGUpgrade3",	"test > $BFGUpgrade3 0 \"AlreadyBought\" \"openmenu BFGUpgrade3\""
+	SubmenuReqs "$BFGUpgrade3", "BFGUpgrade3", "BFGUpgrade3"
 	StaticText " "
-	Command "$BFGUpgrade4",	"test > $BFGUpgrade4 0 \"AlreadyBought\" \"openmenu BFGUpgrade4\""
+	SubmenuReqs "$BFGUpgrade4", "BFGUpgrade4", "BFGUpgrade4"
 }
 
 OptionMenu "BFGUpgrade1"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$BFGUpgrade1"
 	StaticText "$BFGUpgrade1D1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U1BFG $D4DCash \"BFGUpgrade1 1; CTake $Cost_U1BFG; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase BFGUpgrade1
 	StaticText ""
-	CostDisplay Cost_U1BFG
+	CostDisplay BFGUpgrade1
 	StaticText ""
-	CreditDisplay Cost_U1BFG
+	CreditDisplay BFGUpgrade1
 }
 
 OptionMenu "BFGUpgrade2"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$BFGUpgrade2"
 	StaticText "$BFGUpgrade2D1"
 	StaticText ""
@@ -1505,111 +1488,111 @@ OptionMenu "BFGUpgrade2"
 	StaticText ""
 	StaticText "$BFGUpgrade2D3", GOLD
 	StaticText ""
-	Command "Buy", "test <= $Cost_U2BFG $D4DCash \"BFGUpgrade2 1; CTake $Cost_U2BFG; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase BFGUpgrade2
 	StaticText ""
-	CostDisplay Cost_U2BFG
+	CostDisplay BFGUpgrade2
 	StaticText ""
-	CreditDisplay Cost_U2BFG
+	CreditDisplay BFGUpgrade2
 }
 
 OptionMenu "BFGUpgrade3"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$BFGUpgrade3"
 	StaticText "$BFGUpgrade3D1"
 	StaticText ""
 	StaticText "$BFGUpgrade3D2"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U3BFG $D4DCash \"BFGUpgrade3 1; CTake $Cost_U3BFG; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase BFGUpgrade3
 	StaticText ""
-	CostDisplay Cost_U3BFG
+	CostDisplay BFGUpgrade3
 	StaticText ""
-	CreditDisplay Cost_U3BFG
+	CreditDisplay BFGUpgrade3
 }
 
 OptionMenu "BFGUpgrade4"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$BFGUpgrade4"
 	StaticText "$BFGUpgrade4D1"
 	StaticText ""
 	StaticText "$BFGUpgrade4D2", TAN
 	StaticText ""
-	Command "Buy", "test <= $Cost_U4BFG $D4DCash \"BFGUpgrade4 1; CTake $Cost_U4BFG; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase BFGUpgrade4
 	StaticText ""
-	CostDisplay Cost_U4BFG
+	CostDisplay BFGUpgrade4
 	StaticText ""
-	CreditDisplay Cost_U4BFG
+	CreditDisplay BFGUpgrade4
 }
 //==============================================================================
 // Carrion Cannon
 //==============================================================================
 OptionMenu "D4DUpgrade.CarrionCannon"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Carrion Cannon"
 	//$CarrionUpgradeTime
 	StaticText "Choose An Upgrade", GOLD
 	StaticText ""
-	Command "$CarrionUpgradePickup","test > $CarrionUpgradePickup 0 \"AlreadyBought\" \"openmenu CarrionUpgradePickup\""
+	SubmenuReqs "$CarrionUpgradePickup", "CarrionUpgradePickup", "CarrionUpgradePickup"
 	StaticText " "
-	Command "$CarrionUpgradeAmmo",	"test > $CarrionUpgradeAmmo 0 \"AlreadyBought\" \"openmenu CarrionUpgradeAmmo\""
+	SubmenuReqs "$CarrionUpgradeAmmo", "CarrionUpgradeAmmo", "CarrionUpgradeAmmo"
 	StaticText " "
-	Command "$CarrionUpgradeStun",	"test > $CarrionUpgradeStun 0 \"AlreadyBought\" \"openmenu CarrionUpgradeStun\""
+	SubmenuReqs "$CarrionUpgradeStun", "CarrionUpgradeStun", "CarrionUpgradeStun"
 	StaticText " "
-	Command "$CarrionUpgradeTime",	"test > $CarrionUpgradeTime 0 \"AlreadyBought\" \"openmenu CarrionUpgradeTime\""
+	SubmenuReqs "$CarrionUpgradeTime", "CarrionUpgradeTime", "CarrionUpgradeTime"
 }
 
 OptionMenu "CarrionUpgradePickup"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$CarrionUpgradePickup"
 	StaticText "$CarrionUpgradePickupD1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U1CarrionCannon $D4DCash \"CarrionUpgradePickup 1; CTake $Cost_U1CarrionCannon; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase CarrionUpgradePickup
 	StaticText ""
-	CostDisplay Cost_U1CarrionCannon
+	CostDisplay CarrionUpgradePickup
 	StaticText ""
-	CreditDisplay Cost_U1CarrionCannon
+	CreditDisplay CarrionUpgradePickup
 }
 
 OptionMenu "CarrionUpgradeAmmo"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$CarrionUpgradeAmmo"
 	StaticText "$CarrionUpgradeAmmoD1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U2CarrionCannon $D4DCash \"CarrionUpgradeAmmo 1; CTake $Cost_U2CarrionCannon; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase CarrionUpgradeAmmo
 	StaticText ""
-	CostDisplay Cost_U2CarrionCannon
+	CostDisplay CarrionUpgradeAmmo
 	StaticText ""
-	CreditDisplay Cost_U2CarrionCannon
+	CreditDisplay CarrionUpgradeAmmo
 }
 
 OptionMenu "CarrionUpgradeStun"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$CarrionUpgradeStun"
 	StaticText "$CarrionUpgradeStunD1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U3CarrionCannon $D4DCash \"CarrionUpgradeStun 1; CTake $Cost_U3CarrionCannon; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase CarrionUpgradeStun
 	StaticText ""
-	CostDisplay Cost_U3CarrionCannon
+	CostDisplay CarrionUpgradeStun
 	StaticText ""
-	CreditDisplay Cost_U3CarrionCannon
+	CreditDisplay CarrionUpgradeStun
 }
 
 OptionMenu "CarrionUpgradeTime"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "$CarrionUpgradeTime"
 	StaticText "$CarrionUpgradeTimeD1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U4CarrionCannon $D4DCash \"CarrionUpgradeTime 1; CTake $Cost_U4CarrionCannon; BuyUpgradeWeapon;\" \"NEC\""
+	Purchase CarrionUpgradeTime
 	StaticText ""
-	CostDisplay Cost_U4CarrionCannon
+	CostDisplay CarrionUpgradeTime
 	StaticText ""
-	CreditDisplay Cost_U4CarrionCannon
+	CreditDisplay CarrionUpgradeTime
 }
 
 
@@ -1633,21 +1616,21 @@ OptionMenu "CarrionUpgradeTime"
 //==============================================================================
 OptionMenu "D4DUpgrade.Suit"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Suit Upgrades"
-	Command "Health",		"test >= $D4Stamina 100 \"AlreadyBought\" \"CH3\""
+	SubmenuReqs "Health", 		"D4HealthUpgrade", 	"D4Stamina"
 	StaticText " "
-	Command "Armor",		"test >= $D4ArmorCapRaiser 100 \"AlreadyBought\" \"CheckArmor3\""
+	SubmenuReqs "Armor", 		"D4ArmorCapRaiser", "D4ArmorCapRaiser"
 	StaticText " "
-	Command "Air Movement",	"test >= $D4AirControl 1 \"AlreadyBought\" \"CheckJump3\""
+	SubmenuReqs "Air Movement", "D4AirUpgrade", 	"D4AirUpgrade"
 	StaticText " "
-	Command "Credits",	"test >= $CashPercentBonus 40 \"AlreadyBought\" \"CheckCredits4\""
+	SubmenuReqs "Credits", 		"CashPercentBonus", "CashPercentBonus"
 	StaticText " "
-	Command "Protection",	"test >= $ProtectionBonus3 1 \"AlreadyBought\" \"CheckProtect3\""
+	SubmenuReqs "Protection", 	"ProtectionBonus", 	"ProtectionBonus"
 	//StaticText " "
 	//Command "Grenades",		"openmenu D4Grenades"
 	StaticText " "
-	Command "Crates",		"test >= $D4CrateUpgrade 3 \"AlreadyBought\" \"CheckCrates3\""
+	SubmenuReqs "Crates", 		"D4CrateUpgrade", 	"D4CrateUpgrade"
 	//StaticText " "
 	//Command "Pinatas",		""
 	//StaticText " "
@@ -1656,9 +1639,9 @@ OptionMenu "D4DUpgrade.Suit"
 //==============================================================================
 // Health
 //==============================================================================
-OptionMenu "D4HealthUpgrade1"
+OptionMenu "D4HealthUpgrade"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Health Upgrades"
 	StaticText "*** COLOR LEGEND ***", WHITE
 	StaticText " "
@@ -1668,75 +1651,25 @@ OptionMenu "D4HealthUpgrade1"
 	StaticText " "
 	StaticText "------- STATUS -------", WHITE
 	StaticText " "
-	StaticText "+25 Maximum Health", GOLD
+	StaticTextTier "+25 Maximum Health", "D4Stamina", 1
 	StaticText " "
-	StaticText "+25 Maximum Health", TAN
+	StaticTextTier "+25 Maximum Health", "D4Stamina", 2
 	StaticText " "
-	StaticText "+50 Maximum Health", TAN
+	StaticTextTier "+25 Maximum Health", "D4Stamina", 3
 	StaticText " "
-	Command "Buy", "test <= $Cost_U1Health $D4DCash \"D4Stamina 25; CTake $Cost_U1Health; BuyUpgradeSuit;\" \"NEC\""
-	StaticText ""
-	CostDisplay Cost_U1Health
-	StaticText ""
-	CreditDisplay Cost_U1Health
-}
-
-OptionMenu "D4HealthUpgrade2"
-{
-	//Class "D4DOptionMenuUpgrades"
-	Title "Health Upgrades"
-	StaticText "*** COLOR LEGEND ***", WHITE
+	Purchase D4Stamina
 	StaticText " "
-	StaticText "OWNED"
-	StaticText "BUYING", GOLD
-	StaticText "GATED", TAN
+	CostDisplay D4HealthUpgrade
 	StaticText " "
-	StaticText "------- STATUS -------", WHITE
-	StaticText " "
-	StaticText "+25 Maximum Health"
-	StaticText " "
-	StaticText "+25 Maximum Health", GOLD
-	StaticText " "
-	StaticText "+50 Maximum Health", TAN
-	StaticText " "
-	Command "Buy", "test <= $Cost_U2Health $D4DCash \"D4Stamina 50; CTake $Cost_U2Health; BuyUpgradeSuit;\" \"NEC\""
-	StaticText ""
-	CostDisplay Cost_U2Health
-	StaticText ""
-	CreditDisplay Cost_U2Health
-}
-
-OptionMenu "D4HealthUpgrade3"
-{
-	//Class "D4DOptionMenuUpgrades"
-	Title "Health Upgrades"
-	StaticText "*** COLOR LEGEND ***", WHITE
-	StaticText " "
-	StaticText "OWNED"
-	StaticText "BUYING", GOLD
-	StaticText "GATED", TAN
-	StaticText " "
-	StaticText "------- STATUS -------", WHITE
-	StaticText " "
-	StaticText "+25 Maximum Health"
-	StaticText " "
-	StaticText "+25 Maximum Health"
-	StaticText " "
-	StaticText "+50 Maximum Health", GOLD
-	StaticText " "
-	Command "Buy", "test <= $Cost_U3Health $D4DCash \"D4Stamina 100; CTake $Cost_U3Health; BuyUpgradeSuit;\" \"NEC\""
-	StaticText ""
-	CostDisplay Cost_U3Health
-	StaticText ""
-	CreditDisplay Cost_U3Health
+	CreditDisplay D4HealthUpgrade
 }
 
 //==============================================================================
 // Armor
 //==============================================================================
-OptionMenu "D4ArmorCapRaiser1"
+OptionMenu "D4ArmorCapRaiser"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Armor Upgrades"
 	StaticText "*** COLOR LEGEND ***", WHITE
 	StaticText " "
@@ -1746,87 +1679,28 @@ OptionMenu "D4ArmorCapRaiser1"
 	StaticText " "
 	StaticText "------- STATUS -------", WHITE
 	StaticText " "
-	StaticText "+25 Maximum Armor", GOLD
-	StaticText "Chainsaw Secondary: Drops max 2 armor shards (50%)", GOLD
+	StaticTextTier "+25 Maximum Armor", "D4ArmorCapRaiser", 1
+	StaticTextTier "Chainsaw Secondary: Drops max 2 armor shards (50%)", "D4ArmorCapRaiser", 1
 	StaticText " "
-	StaticText "+25 Maximum Armor", TAN
-	StaticText "Chainsaw Secondary: Drops max 4 armor shards (50%)", TAN
-	StaticText "Enemies rarely drop armor shards on death", TAN
+	StaticTextTier "+25 Maximum Armor", "D4ArmorCapRaiser", 2
+	StaticTextTier "Chainsaw Secondary: Drops max 4 armor shards (50%)", "D4ArmorCapRaiser", 2
+	StaticTextTier "Enemies rarely drop armor shards on death", "D4ArmorCapRaiser", 2
 	StaticText " "
-	StaticText "+50 Maximum Armor", TAN
-	StaticText "Chainsaw Secondary: Adds 2 guaranteed shards", TAN
+	StaticTextTier "+50 Maximum Armor", "D4ArmorCapRaiser", 3
+	StaticTextTier "Chainsaw Secondary: Adds 2 guaranteed shards", "D4ArmorCapRaiser", 3
 	StaticText " "
-	Command "Buy", "test <= $Cost_U1Armor $D4DCash \"D4ArmorCapRaiser 25; CTake $Cost_U1Armor; BuyUpgradeSuit;\" \"NEC\""
+	Purchase D4ArmorCapRaiser
 	StaticText ""
-	CostDisplay Cost_U1Armor
+	CostDisplay D4ArmorCapRaiser
 	StaticText ""
-	CreditDisplay Cost_U1Armor
+	CreditDisplay D4ArmorCapRaiser
 }
-
-OptionMenu "D4ArmorCapRaiser2"
-{
-	//Class "D4DOptionMenuUpgrades"
-	Title "Armor Upgrades"
-	StaticText "*** COLOR LEGEND ***", WHITE
-	StaticText " "
-	StaticText "OWNED"
-	StaticText "BUYING", GOLD
-	StaticText "GATED", TAN
-	StaticText " "
-	StaticText "------- STATUS -------", WHITE
-	StaticText " "
-	StaticText "+25 Maximum Armor"
-	StaticText "Chainsaw Secondary: Drops max 2 armor shards (50%)"
-	StaticText " "
-	StaticText "+25 Maximum Armor", GOLD
-	StaticText "Chainsaw Secondary: Drops max 4 armor shards (50%)", GOLD
-	StaticText "Enemies rarely drop armor shards on death", GOLD
-	StaticText " "
-	StaticText "+50 Maximum Armor", TAN
-	StaticText "Chainsaw Secondary: Adds 2 guaranteed shards", TAN
-	StaticText " "
-	Command "Buy", "test <= $Cost_U2Armor $D4DCash \"D4ArmorCapRaiser 50; CTake $Cost_U2Armor; BuyUpgradeSuit;\" \"NEC\""
-	StaticText ""
-	CostDisplay Cost_U2Armor
-	StaticText ""
-	CreditDisplay Cost_U2Armor
-}
-
-OptionMenu "D4ArmorCapRaiser3"
-{
-	//Class "D4DOptionMenuUpgrades"
-	Title "Armor Upgrades"
-	StaticText "*** COLOR LEGEND ***", WHITE
-	StaticText " "
-	StaticText "OWNED"
-	StaticText "BUYING", GOLD
-	StaticText "GATED", TAN
-	StaticText " "
-	StaticText "------- STATUS -------", WHITE
-	StaticText " "
-	StaticText "+25 Maximum Armor"
-	StaticText "Chainsaw Secondary: Drops max 2 armor shards (50%)"
-	StaticText " "
-	StaticText "+25 Maximum Armor"
-	StaticText "Chainsaw Secondary: Drops max 4 armor shards (50%)"
-	StaticText "Enemies rarely drop armor shards on death"
-	StaticText " "
-	StaticText "+50 Maximum Armor", GOLD
-	StaticText "Chainsaw Secondary: Adds 2 guaranteed shards", GOLD
-	StaticText " "
-	Command "Buy", "test <= $Cost_U3Armor $D4DCash \"D4ArmorCapRaiser 100; CTake $Cost_U3Armor; BuyUpgradeSuit;\" \"NEC\""
-	StaticText ""
-	CostDisplay Cost_U3Armor
-	StaticText ""
-	CreditDisplay Cost_U3Armor
-}
-
 //==============================================================================
 // Jump
 //==============================================================================
-OptionMenu "D4Jump1"
+OptionMenu "D4AirUpgrade"
 {
-	//Class "D4DOptionMenuUpgrades"
+	Class "D4DOptionMenuUpgrades"
 	Title "Jump Upgrades"
 	StaticText "*** COLOR LEGEND ***", WHITE
 	StaticText " "
@@ -1836,71 +1710,25 @@ OptionMenu "D4Jump1"
 	StaticText " "
 	StaticText "------- STATUS -------", WHITE
 	StaticText " "
-	StaticText "Higher Jump", GOLD
+	StaticTextTier "Higher Jump", "D4AirUpgrade", 1
 	StaticText " "
-	StaticText "Triple Jump", TAN
+	StaticTextTier "Triple Jump", "D4AirUpgrade", 2
 	StaticText " "
-	StaticText "Air Control", TAN
+	StaticTextTier "Air Control", "D4AirUpgrade", 3
 	StaticText " "
-	Command "Buy", "test <= $Cost_HigherJump $D4DCash \"D4HigherJump 1; CTake $Cost_HigherJump; BuyUpgradeSuit;\" \"NEC\""
+	Purchase D4AirUpgrade
 	StaticText ""
-	CostDisplay Cost_HigherJump
+	CostDisplay D4AirUpgrade
 	StaticText ""
-	CreditDisplay Cost_HigherJump
+	CreditDisplay D4AirUpgrade
 }
 
-OptionMenu "D4Jump2"
-{
-	Title "Jump Upgrades"
-	StaticText "*** COLOR LEGEND ***", WHITE
-	StaticText " "
-	StaticText "OWNED"
-	StaticText "BUYING", GOLD
-	StaticText "GATED", TAN
-	StaticText " "
-	StaticText "------- STATUS -------", WHITE
-	StaticText " "
-	StaticText "Higher Jump"
-	StaticText " "
-	StaticText "Triple Jump", GOLD
-	StaticText " "
-	StaticText "Air Control", TAN
-	StaticText " "
-	Command "Buy", "test <= $Cost_TripleJump $D4DCash \"D4MultiJump 3; CTake $Cost_TripleJump; BuyUpgradeSuit;\" \"NEC\""
-	StaticText ""
-	CostDisplay Cost_TripleJump
-	StaticText ""
-	CreditDisplay Cost_TripleJump
-}
-
-OptionMenu "D4Jump3"
-{
-	Title "Jump Upgrades"
-	StaticText "*** COLOR LEGEND ***", WHITE
-	StaticText " "
-	StaticText "OWNED"
-	StaticText "BUYING", GOLD
-	StaticText "GATED", TAN
-	StaticText " "
-	StaticText "------- STATUS -------", WHITE
-	StaticText " "
-	StaticText "Higher Jump"
-	StaticText " "
-	StaticText "Triple Jump"
-	StaticText " "
-	StaticText "Air Control", GOLD
-	StaticText " "
-	Command "Buy", "test <= $Cost_AirControl $D4DCash \"D4AirControl 1; CTake $Cost_AirControl; BuyUpgradeSuit;\" \"NEC\""
-	StaticText ""
-	CostDisplay Cost_AirControl
-	StaticText ""
-	CreditDisplay Cost_AirControl
-}
 //==============================================================================
 // Cash Bonus
 //==============================================================================
-OptionMenu "CashPercentBonus1"
+OptionMenu "CashPercentBonus"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "Credit Upgrades"
 	StaticText "*** COLOR LEGEND ***", WHITE
 	StaticText " "
@@ -1910,103 +1738,27 @@ OptionMenu "CashPercentBonus1"
 	StaticText " "
 	StaticText "------- STATUS -------", WHITE
 	StaticText " "
-	StaticText "+10% Credits", GOLD
+	StaticTextTier "+10% Credits", "CashPercentBonus", 1
 	StaticText " "
-	StaticText "+20% Credits", TAN
+	StaticTextTier "+20% Credits", "CashPercentBonus", 2
 	StaticText " "
-	StaticText "+30% Credits", TAN
+	StaticTextTier "+30% Credits", "CashPercentBonus", 3
 	StaticText " "
-	StaticText "+40% Credits", TAN
+	StaticTextTier "+40% Credits", "CashPercentBonus", 4
 	StaticText " "
-	Command "Buy", "test <= $Cost_U1Credit $D4DCash \"CashPercentBonus 10; CTake $Cost_U1Credit; BuyUpgradeSuit;\" \"NEC\""
+	Purchase CashPercentBonus
 	StaticText ""
-	CostDisplay Cost_U1Credit
+	CostDisplay CashPercentBonus
 	StaticText ""
-	CreditDisplay Cost_U1Credit
+	CreditDisplay CashPercentBonus
 }
 
-OptionMenu "CashPercentBonus2"
-{
-	Title "Credit Upgrades"
-	StaticText "*** COLOR LEGEND ***", WHITE
-	StaticText " "
-	StaticText "OWNED"
-	StaticText "BUYING", GOLD
-	StaticText "GATED", TAN
-	StaticText " "
-	StaticText "------- STATUS -------", WHITE
-	StaticText " "
-	StaticText "+10% Credits"
-	StaticText " "
-	StaticText "+20% Credits", GOLD
-	StaticText " "
-	StaticText "+30% Credits", TAN
-	StaticText " "
-	StaticText "+40% Credits", TAN
-	StaticText " "
-	Command "Buy", "test <= $Cost_U2Credit $D4DCash \"CashPercentBonus 20; CTake $Cost_U2Credit; BuyUpgradeSuit;\" \"NEC\""
-	StaticText ""
-	CostDisplay Cost_U2Credit
-	StaticText ""
-	CreditDisplay Cost_U2Credit
-}
-
-OptionMenu "CashPercentBonus3"
-{
-	Title "Credit Upgrades"
-	StaticText "*** COLOR LEGEND ***", WHITE
-	StaticText " "
-	StaticText "OWNED"
-	StaticText "BUYING", GOLD
-	StaticText "GATED", TAN
-	StaticText " "
-	StaticText "------- STATUS -------", WHITE
-	StaticText " "
-	StaticText "+10% Credits"
-	StaticText " "
-	StaticText "+20% Credits"
-	StaticText " "
-	StaticText "+30% Credits", GOLD
-	StaticText " "
-	StaticText "+40% Credits", TAN
-	StaticText " "
-	Command "Buy", "test <= $Cost_U3Credit $D4DCash \"CashPercentBonus 30; CTake $Cost_U3Credit; BuyUpgradeSuit;\" \"NEC\""
-	StaticText ""
-	CostDisplay Cost_U3Credit
-	StaticText ""
-	CreditDisplay Cost_U3Credit
-}
-
-OptionMenu "CashPercentBonus4"
-{
-	Title "Credit Upgrades"
-	StaticText "*** COLOR LEGEND ***", WHITE
-	StaticText " "
-	StaticText "OWNED"
-	StaticText "BUYING", GOLD
-	StaticText "GATED", TAN
-	StaticText " "
-	StaticText "------- STATUS -------", WHITE
-	StaticText " "
-	StaticText "+10% Credits"
-	StaticText " "
-	StaticText "+20% Credits"
-	StaticText " "
-	StaticText "+30% Credits"
-	StaticText " "
-	StaticText "+40% Credits", GOLD
-	StaticText " "
-	Command "Buy", "test <= $Cost_U4Credit $D4DCash \"CashPercentBonus 40; CTake $Cost_U4Credit; BuyUpgradeSuit;\" \"NEC\""
-	StaticText ""
-	CostDisplay Cost_U4Credit
-	StaticText ""
-	CreditDisplay Cost_U4Credit
-}
 //==============================================================================
 // Protection
 //==============================================================================
-OptionMenu "ProtectionBonus1"
+OptionMenu "ProtectionBonus"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "Protection Upgrades"
 	StaticText "*** COLOR LEGEND ***", WHITE
 	StaticText " "
@@ -2016,71 +1768,25 @@ OptionMenu "ProtectionBonus1"
 	StaticText " "
 	StaticText "------- STATUS -------", WHITE
 	StaticText " "
-	StaticText "50% Environmental Protection", GOLD
+	StaticTextTier "50% Environmental Protection", "ProtectionBonus", 1
 	StaticText " "
-	StaticText "50% Self Damage Reduction", TAN
+	StaticTextTier "50% Self Damage Reduction", "ProtectionBonus", 2
 	StaticText " "
-	StaticText "50% Radius Damage Reduction", TAN
+	StaticTextTier "50% Radius Damage Reduction", "ProtectionBonus", 3
 	StaticText " "
-	Command "Buy", "test <= $Cost_U1Protection $D4DCash \"ProtectionBonus1 1; CTake $Cost_U1Protection; BuyUpgradeSuit;\" \"NEC\""
+	Purchase ProtectionBonus
 	StaticText ""
-	CostDisplay Cost_U1Protection
+	CostDisplay ProtectionBonus
 	StaticText ""
-	CreditDisplay Cost_U1Protection
+	CreditDisplay ProtectionBonus
 }
 
-OptionMenu "ProtectionBonus2"
-{
-	Title "Protection Upgrades"
-	StaticText "*** COLOR LEGEND ***", WHITE
-	StaticText " "
-	StaticText "OWNED"
-	StaticText "BUYING", GOLD
-	StaticText "GATED", TAN
-	StaticText " "
-	StaticText "------- STATUS -------", WHITE
-	StaticText " "
-	StaticText "50% Environmental Protection"
-	StaticText " "
-	StaticText "50% Self Damage Reduction", GOLD
-	StaticText " "
-	StaticText "50% Radius Damage Reduction", TAN
-	StaticText " "
-	Command "Buy", "test <= $Cost_U2Protection $D4DCash \"ProtectionBonus2 1; CTake $Cost_U2Protection; BuyUpgradeSuit;\" \"NEC\""
-	StaticText ""
-	CostDisplay Cost_U2Protection
-	StaticText ""
-	CreditDisplay Cost_U2Protection
-}
-
-OptionMenu "ProtectionBonus3"
-{
-	Title "Protection Upgrades"
-	StaticText "*** COLOR LEGEND ***", WHITE
-	StaticText " "
-	StaticText "OWNED"
-	StaticText "BUYING", GOLD
-	StaticText "GATED", TAN
-	StaticText " "
-	StaticText "------- STATUS -------", WHITE
-	StaticText " "
-	StaticText "50% Environmental Protection"
-	StaticText " "
-	StaticText "50% Self Damage Reduction"
-	StaticText " "
-	StaticText "50% Radius Damage Reduction", GOLD
-	StaticText " "
-	Command "Buy", "test <= $Cost_U3Protection $D4DCash \"ProtectionBonus3 1; CTake $Cost_U3Protection; BuyUpgradeSuit;\" \"NEC\""
-	StaticText ""
-	CostDisplay Cost_U3Protection
-	StaticText ""
-	CreditDisplay Cost_U3Protection
-}
 //==============================================================================
 // Crates
 //==============================================================================
-OptionMenu "D4CrateUpgrade1"
+OptionMenu "D4CrateUpgrade"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "Crate Upgrades"
 	StaticText "*** COLOR LEGEND ***", WHITE
 	StaticText " "
@@ -2090,72 +1796,20 @@ OptionMenu "D4CrateUpgrade1"
 	StaticText " "
 	StaticText "------- STATUS -------", WHITE
 	StaticText " "
-	StaticText "- Heavy Crates -", GOLD
-	StaticText "Removes small health/ammo/armor items", GOLD
+	StaticTextTier "- Heavy Crates -", "D4CrateUpgrade", 1
+	StaticTextTier "Removes small health/ammo/armor items", "D4CrateUpgrade", 1
 	StaticText " "
-	StaticText "- Awareness Crates -", TAN
-	StaticText "Drops items based around player status", TAN
+	StaticTextTier "- Awareness Crates -", "D4CrateUpgrade", 2
+	StaticTextTier "Drops items based around player status", "D4CrateUpgrade", 2
 	StaticText " "
-	StaticText "- Weaponized Crates -", TAN
-	StaticText "Chance to spawn weapons", TAN
+	StaticTextTier "- Weaponized Crates -", "D4CrateUpgrade", 3
+	StaticTextTier "Chance to spawn weapons", "D4CrateUpgrade", 3
 	StaticText " "
-	Command "Buy", "test <= $Cost_U1Crate $D4DCash \"D4CrateUpgrade 1; CTake $Cost_U1Crate; BuyUpgradeSuit;\" \"NEC\""
+	Purchase D4CrateUpgrade
 	StaticText ""
-	CostDisplay Cost_U1Crate
+	CostDisplay D4CrateUpgrade
 	StaticText ""
-	CreditDisplay Cost_U1Crate
-}
-OptionMenu "D4CrateUpgrade2"
-{
-	Title "Crate Upgrades"
-	StaticText "*** COLOR LEGEND ***", WHITE
-	StaticText " "
-	StaticText "OWNED"
-	StaticText "BUYING", GOLD
-	StaticText "GATED", TAN
-	StaticText " "
-	StaticText "------- STATUS -------", WHITE
-	StaticText " "
-	StaticText "- Heavy Crates -"
-	StaticText "Removes small health/ammo/armor items"
-	StaticText " "
-	StaticText "- Awareness Crates -", GOLD
-	StaticText "Drops items based around player status", GOLD
-	StaticText " "
-	StaticText "- Weaponized Crates -", TAN
-	StaticText "Chance to spawn weapons", TAN
-	StaticText " "
-	Command "Buy", "test <= $Cost_U2Crate $D4DCash \"D4CrateUpgrade 2; CTake $Cost_U2Crate; BuyUpgradeSuit;\" \"NEC\""
-	StaticText ""
-	CostDisplay Cost_U2Crate
-	StaticText ""
-	CreditDisplay Cost_U2Crate
-}
-OptionMenu "D4CrateUpgrade3"
-{
-	Title "Crate Upgrades"
-	StaticText "*** COLOR LEGEND ***", WHITE
-	StaticText " "
-	StaticText "OWNED"
-	StaticText "BUYING", GOLD
-	StaticText "GATED", TAN
-	StaticText " "
-	StaticText "------- STATUS -------", WHITE
-	StaticText " "
-	StaticText "- Heavy Crates -"
-	StaticText "Removes small health/ammo/armor items"
-	StaticText " "
-	StaticText "- Awareness Crates -"
-	StaticText "Drops items based around player status"
-	StaticText " "
-	StaticText "- Weaponized Crates -", GOLD
-	StaticText "Chance to spawn weapons", GOLD
-	StaticText " "
-	Command "Buy", "test <= $Cost_U3Crate $D4DCash \"D4CrateUpgrade 3; CTake $Cost_U3Crate; BuyUpgradeSuit;\" \"NEC\""
-	StaticText ""
-	CostDisplay Cost_U3Crate
-	StaticText ""
-	CreditDisplay Cost_U3Crate
+	CreditDisplay D4CrateUpgrade
 }
 
 
@@ -2186,6 +1840,7 @@ OptionMenu "D4CrateUpgrade3"
 
 OptionMenu "D4DUpgrade.Powerups"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "Powerups"
 	Command "Megacharge", 					"openmenu D4DUpgrade.Megacharge"
 	StaticText ""
@@ -2214,78 +1869,84 @@ OptionMenu "D4DUpgrade.Powerups"
 //==============================================================================
 OptionMenu "D4DUpgrade.Megacharge"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "Megacharge"
 	StaticText "Choose An Upgrade"
 	StaticText ""
-	Command "$D4MegachargeUpgrade1",	"test > $D4MegachargeUpgrade1 0 \"AlreadyBought\" \"openmenu D4MegachargeUpgrade1\""
+	SubmenuReqs "$D4MegachargeUpgrade1", 		"D4MegachargeUpgrade1", "D4MegachargeUpgrade1"
 	StaticText ""
-	Command "$D4MegachargeUpgrade2",	"test > $D4MegachargeUpgrade2 0 \"AlreadyBought\" \"openmenu D4MegachargeUpgrade2\""
+	SubmenuReqs "$D4MegachargeUpgrade2", 		"D4MegachargeUpgrade2", "D4MegachargeUpgrade2"
 }
 
 OptionMenu "D4DUpgrade.DoomDoll"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "Doom Doll"
 	StaticText "Choose An Upgrade"
 	StaticText ""
-	Command "$D4DoomDollUpgrade1",	"test > $D4DoomDollUpgrade1 0 \"AlreadyBought\" \"openmenu D4DoomDollUpgrade1\""
+	SubmenuReqs "$D4DoomDollUpgrade1", 	"D4DoomDollUpgrade1", "D4DoomDollUpgrade1"
 	StaticText ""
-	Command "$D4DoomDollUpgrade2",	"test > $D4DoomDollUpgrade2 0 \"AlreadyBought\" \"openmenu D4DoomDollUpgrade2\""
+	SubmenuReqs "$D4DoomDollUpgrade2", 	"D4DoomDollUpgrade2", "D4DoomDollUpgrade2"
 }
 
 OptionMenu "D4DUpgrade.SuperCharge"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "Super Charge"
 	StaticText "Choose An Upgrade"
 	StaticText ""
-	Command "$D4RegenUpgrade1",	"test > $D4RegenUpgrade1 0 \"AlreadyBought\" \"openmenu D4RegenUpgrade1\""
+	SubmenuReqs "$D4RegenUpgrade1", "D4RegenUpgrade1", "D4RegenUpgrade1"
 	StaticText ""
-	Command "$D4RegenUpgrade2",	"test > $D4RegenUpgrade2 0 \"AlreadyBought\" \"CheckRegenReq1\""
+	SubmenuReqs "$D4RegenUpgrade2", "D4RegenUpgrade2", "D4RegenUpgrade2", "D4RegenUpgrade2NA"
 	StaticText ""
-	Command "$D4RegenUpgrade3",	"test > $D4RegenUpgrade3 0 \"AlreadyBought\" \"openmenu D4RegenUpgrade3\""
+	SubmenuReqs "$D4RegenUpgrade3", "D4RegenUpgrade3", "D4RegenUpgrade3"
 	StaticText ""
-	Command "$D4RegenUpgrade4",	"test > $D4RegenUpgrade4 0 \"AlreadyBought\" \"openmenu D4RegenUpgrade4\""
+	SubmenuReqs "$D4RegenUpgrade4", "D4RegenUpgrade4", "D4RegenUpgrade4"
 }
 
 OptionMenu "D4DUpgrade.PentagramOfProtection"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "Pentagram of Protection"
 	StaticText "Choose An Upgrade"
 	StaticText ""
-	Command "$D4PentagramUpgrade1",	"test > $D4PentagramUpgrade1 0 \"AlreadyBought\" \"openmenu D4PentagramUpgrade1\""
+	SubmenuReqs "$D4PentagramUpgrade1", "D4PentagramUpgrade1", "D4PentagramUpgrade1"
 	StaticText ""
-	Command "$D4PentagramUpgrade2",	"test > $D4PentagramUpgrade2 0 \"AlreadyBought\" \"openmenu D4PentagramUpgrade2\""
+	SubmenuReqs "$D4PentagramUpgrade2", "D4PentagramUpgrade2", "D4PentagramUpgrade2"
 	StaticText ""
-	Command "$D4PentagramUpgrade3",	"test > $D4PentagramUpgrade3 0 \"AlreadyBought\" \"openmenu D4PentagramUpgrade3\""
+	SubmenuReqs "$D4PentagramUpgrade3", "D4PentagramUpgrade3", "D4PentagramUpgrade3"
 	StaticText ""
-	Command "$D4PentagramUpgrade4",	"test > $D4PentagramUpgrade4 0 \"AlreadyBought\" \"openmenu D4PentagramUpgrade4\""
+	SubmenuReqs "$D4PentagramUpgrade4", "D4PentagramUpgrade4", "D4PentagramUpgrade4"
 }
 
 OptionMenu "D4DUpgrade.DemonRunes"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "Demon Runes"
 	StaticText "Choose An Upgrade"
 	//StaticText ""
-	//Command "$D4RuneUpgrade1",	"test > $D4RuneUpgrade1 0 \"AlreadyBought\" \"openmenu D4RuneUpgrade1\""
+	//SubmenuReqs "$D4RuneUpgrade1", "D4RuneUpgrade1", "D4RuneUpgrade1"
 	StaticText ""
-	Command "$D4RuneUpgrade2",	"test > $D4RuneUpgrade2 0 \"AlreadyBought\" \"openmenu D4RuneUpgrade2\""
+	SubmenuReqs "$D4RuneUpgrade2", "D4RuneUpgrade2", "D4RuneUpgrade2"
 	StaticText ""
-	Command "$D4RuneUpgrade3",	"test > $D4RuneUpgrade3 0 \"AlreadyBought\" \"openmenu D4RuneUpgrade3\""
+	SubmenuReqs "$D4RuneUpgrade3", "D4RuneUpgrade3", "D4RuneUpgrade3"
 	StaticText ""
-	Command "$D4RuneUpgrade4",	"test > $D4RuneUpgrade4 0 \"AlreadyBought\" \"openmenu D4RuneUpgrade4\""
+	SubmenuReqs "$D4RuneUpgrade4", "D4RuneUpgrade4", "D4RuneUpgrade4"
 }
 
 OptionMenu "D4MegachargeUpgrade1"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "$D4MegachargeUpgrade1"
 	StaticText "On Pickup: Grants +1% Damage Reduction", GREEN
 	StaticText ""
 	StaticText "Stacks to maximum 25%", GREEN
 	StaticText ""
-	Command "Buy", "test <= $Cost_U1Megacharge $D4DCash \"D4MegachargeUpgrade1 1; CTake $Cost_U1Megacharge; BuyUpgradePowerup;\" \"NEC\""
+	Purchase D4MegachargeUpgrade1
 	StaticText ""
-	CostDisplay Cost_U1Megacharge
+	CostDisplay D4MegachargeUpgrade1
 	StaticText ""
-	CreditDisplay Cost_U1Megacharge
+	CreditDisplay D4MegachargeUpgrade1
 	StaticText ""
 	StaticText "Incites hallucinations of becoming a", WHITE
 	StaticText "Monster Truck that walks like a MAN", WHITE
@@ -2293,58 +1954,62 @@ OptionMenu "D4MegachargeUpgrade1"
 
 OptionMenu "D4MegachargeUpgrade2"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "$D4MegachargeUpgrade2"
 	StaticText "On Pickup: Freezes time for 5 seconds", GREEN
 	StaticText ""
-	Command "Buy", "test <= $Cost_U2Megacharge $D4DCash \"D4MegachargeUpgrade2 1; CTake $Cost_U2Megacharge; BuyUpgradePowerup;\" \"NEC\""
+	Purchase D4MegachargeUpgrade2
 	StaticText ""
-	CostDisplay Cost_U2Megacharge
+	CostDisplay D4MegachargeUpgrade2
 	StaticText ""
-	CreditDisplay Cost_U2Megacharge
+	CreditDisplay D4MegachargeUpgrade2
 	StaticText ""
 	StaticText "Tank 'n Spank an Impse", WHITE
 }
 
 OptionMenu "D4DoomDollUpgrade1"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "$D4DoomDollUpgrade1"
 	StaticText "On Use:", GOLD
 	StaticText "+100% Movement Speed", GREEN
 	StaticText "+100% Jump Height", GREEN
 	StaticText "Stacks with other movement powerups", GREEN
-	Command "Buy", "test <= $Cost_U1DoomDoll $D4DCash \"D4DoomDollUpgrade1 1; CTake $Cost_U1DoomDoll; BuyUpgradePowerup;\" \"NEC\""
+	Purchase D4DoomDollUpgrade1
 	StaticText ""
-	CostDisplay Cost_U1DoomDoll
+	CostDisplay D4DoomDollUpgrade1
 	StaticText ""
-	CreditDisplay Cost_U1DoomDoll
+	CreditDisplay D4DoomDollUpgrade1
 	StaticText ""
 	StaticText "WARNING: Attracts fanbois from Bat Country", WHITE
 }
 
 OptionMenu "D4DoomDollUpgrade2"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "$D4DoomDollUpgrade2"
 	StaticText "+1000% Explosion Damage", GREEN
 	StaticText ""
-	Command "Buy", "test <= $Cost_U2DoomDoll $D4DCash \"D4DoomDollUpgrade2 1; CTake $Cost_U2DoomDoll; BuyUpgradePowerup;\" \"NEC\""
+	Purchase D4DoomDollUpgrade2
 	StaticText ""
-	CostDisplay Cost_U2DoomDoll
+	CostDisplay D4DoomDollUpgrade2
 	StaticText ""
-	CreditDisplay Cost_U2DoomDoll
+	CreditDisplay D4DoomDollUpgrade2
 	StaticText ""
 	StaticText "PEANUT AKBAR", WHITE
 }
 
 OptionMenu "D4RegenUpgrade1"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "$D4RegenUpgrade1"
 	StaticText "Armor regenerates when health is full"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U1Regen $D4DCash \"D4RegenUpgrade1 1; CTake $Cost_U1Regen; BuyUpgradePowerup;\" \"NEC\""
+	Purchase D4RegenUpgrade1 
 	StaticText ""
-	CostDisplay Cost_U1Regen
+	CostDisplay D4RegenUpgrade1
 	StaticText ""
-	CreditDisplay Cost_U1Regen
+	CreditDisplay D4RegenUpgrade1
 	StaticText ""
 	StaticText "Thy flesh be venomous sugar, most withering,", WHITE
 	StaticText "Thy skin burns their mithes by flaming salt.", WHITE
@@ -2353,14 +2018,15 @@ OptionMenu "D4RegenUpgrade1"
 
 OptionMenu "D4RegenUpgrade2"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "$D4RegenUpgrade2"
 	StaticText "Armor regenerates with health"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U2Regen $D4DCash \"D4RegenUpgrade2 1; CTake $Cost_U2Regen; BuyUpgradePowerup;\" \"NEC\""
+	Purchase D4RegenUpgrade2
 	StaticText ""
-	CostDisplay Cost_U2Regen
+	CostDisplay D4RegenUpgrade2
 	StaticText ""
-	CreditDisplay Cost_U2Regen
+	CreditDisplay D4RegenUpgrade2
 	StaticText ""
 	StaticText "Aspect of the Namekian:", WHITE
 	StaticText "Lose no hope when you lose an arm.", WHITE
@@ -2368,94 +2034,101 @@ OptionMenu "D4RegenUpgrade2"
 
 OptionMenu "D4RegenUpgrade2NA"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "$D4RegenUpgrade2"
 	StaticText "Armor regenerates with health"
 	StaticText ""
 	StaticText "Pre-requisites not met.", RED
 	StaticText "You must have the following upgrades:", ORANGE
 	StaticText ""
-	Command "$D4RegenUpgrade1",	"test > $D4RegenUpgrade1 0 \"AlreadyBought\" \"openmenu D4RegenUpgrade1\""
+	SubmenuReqs "$D4RegenUpgrade1", "D4RegenUpgrade1", "D4RegenUpgrade1"
 }
 
 OptionMenu "D4RegenUpgrade3"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "$D4RegenUpgrade3"
 	StaticText "-50% Regen Time Delay"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U3Regen $D4DCash \"D4RegenUpgrade3 1; CTake $Cost_U3Regen; BuyUpgradePowerup;\" \"NEC\""
+	Purchase D4RegenUpgrade3 //Command "Buy", "test <= $Cost_U3Regen $D4DCash \"D4RegenUpgrade3 1; CTake $Cost_U3Regen; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	CostDisplay Cost_U3Regen
+	CostDisplay D4RegenUpgrade3
 	StaticText ""
-	CreditDisplay Cost_U3Regen
+	CreditDisplay D4RegenUpgrade3
 	StaticText ""
 	StaticText "When you wake up in a tub full of ice, you're laughing.", WHITE
 }
 
 OptionMenu "D4RegenUpgrade4"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "$D4RegenUpgrade4"
 	StaticText "+100 Health Overheal + Regeneration Capacity"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U4Regen $D4DCash \"D4RegenUpgrade4 1; CTake $Cost_U4Regen; BuyUpgradePowerup;\" \"NEC\""
+	Purchase D4RegenUpgrade4 //Command "Buy", "test <= $Cost_U4Regen $D4DCash \"D4RegenUpgrade4 1; CTake $Cost_U4Regen; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	CostDisplay Cost_U4Regen
+	CostDisplay D4RegenUpgrade4
 	StaticText ""
-	CreditDisplay Cost_U4Regen
+	CreditDisplay D4RegenUpgrade4
 	StaticText ""
 	StaticText "Steroids Without Consequences", WHITE
 }
 
 OptionMenu "D4PentagramUpgrade1"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "$D4PentagramUpgrade1"
 	StaticText ""
 	StaticText "$D4PentagramUpgrade1D1"
 	//StaticText "$D4PentagramUpgrade1D2"
 	//StaticText "$D4PentagramUpgrade1D3"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U1Pentagram $D4DCash \"D4PentagramUpgrade1 1; CTake $Cost_U1Pentagram; BuyUpgradePowerup;\" \"NEC\""
+	Purchase D4PentagramUpgrade1 //Command "Buy", "test <= $Cost_U1Pentagram $D4DCash \"D4PentagramUpgrade1 1; CTake $Cost_U1Pentagram; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	CostDisplay Cost_U1Pentagram
+	CostDisplay D4PentagramUpgrade1
 	StaticText ""
-	CreditDisplay Cost_U1Pentagram
+	CreditDisplay D4PentagramUpgrade1
 	StaticText ""
 	StaticText "$D4PentagramUpgrade1F1", WHITE
 }
 
 OptionMenu "D4PentagramUpgrade2"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "$D4PentagramUpgrade2"
 	StaticText ""
 	StaticText "$D4PentagramUpgrade2D1"
 	//StaticText "$D4PentagramUpgrade2D2"
 	//StaticText "$D4PentagramUpgrade2D3"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U2Pentagram $D4DCash \"D4PentagramUpgrade2 1; CTake $Cost_U2Pentagram; BuyUpgradePowerup;\" \"NEC\""
+	Purchase D4PentagramUpgrade2 //Command "Buy", "test <= $Cost_U2Pentagram $D4DCash \"D4PentagramUpgrade2 1; CTake $Cost_U2Pentagram; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	CostDisplay Cost_U2Pentagram
+	CostDisplay D4PentagramUpgrade2
 	StaticText ""
-	CreditDisplay Cost_U2Pentagram
+	CreditDisplay D4PentagramUpgrade2
 	StaticText ""
 	StaticText "$D4PentagramUpgrade2F1", WHITE
 }
 
 OptionMenu "D4PentagramUpgrade3"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "$D4PentagramUpgrade3"
 	StaticText ""
 	StaticText "$D4PentagramUpgrade3D1"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U3Pentagram $D4DCash \"D4PentagramUpgrade3 1; CTake $Cost_U3Pentagram; BuyUpgradePowerup;\" \"NEC\""
+	Purchase D4PentagramUpgrade3 //Command "Buy", "test <= $Cost_U3Pentagram $D4DCash \"D4PentagramUpgrade3 1; CTake $Cost_U3Pentagram; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	CostDisplay Cost_U3Pentagram
+	CostDisplay D4PentagramUpgrade3
 	StaticText ""
-	CreditDisplay Cost_U3Pentagram
+	CreditDisplay D4PentagramUpgrade3
 	StaticText ""
 	StaticText "$D4PentagramUpgrade3F1", WHITE
 }
 
 OptionMenu "D4PentagramUpgrade4"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "$D4PentagramUpgrade4"
 	StaticText ""
 	StaticText "$D4PentagramUpgrade4D1"
@@ -2463,17 +2136,18 @@ OptionMenu "D4PentagramUpgrade4"
 	//StaticText "$D4PentagramUpgrade4D3"
 	//StaticText "$D4PentagramUpgrade4D4"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U4Pentagram $D4DCash \"D4PentagramUpgrade4 1; CTake $Cost_U4Pentagram; BuyUpgradePowerup;\" \"NEC\""
+	Purchase D4PentagramUpgrade4 //Command "Buy", "test <= $Cost_U4Pentagram $D4DCash \"D4PentagramUpgrade4 1; CTake $Cost_U4Pentagram; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	CostDisplay Cost_U4Pentagram
+	CostDisplay D4PentagramUpgrade4
 	StaticText ""
-	CreditDisplay Cost_U4Pentagram
+	CreditDisplay D4PentagramUpgrade4
 	StaticText ""
 	StaticText "$D4PentagramUpgrade4F1", WHITE
 }
 
 OptionMenu "D4RuneUpgrade1"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "$D4RuneUpgrade1"
 	StaticText ""
 	/*
@@ -2484,17 +2158,18 @@ OptionMenu "D4RuneUpgrade1"
 	*/
 	StaticText "This one needs a new effect..."
 	StaticText ""
-	//Command "Buy", "test <= $Cost_U1Rune $D4DCash \"D4RuneUpgrade1 1; CTake $Cost_U1Rune; BuyUpgradePowerup;\" \"NEC\""
+	Purchase D4RuneUpgrade1 //Command "Buy", "test <= $Cost_U1Rune $D4DCash \"D4RuneUpgrade1 1; CTake $Cost_U1Rune; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	CostDisplay Cost_U1Rune
+	CostDisplay D4RuneUpgrade1
 	StaticText ""
-	CreditDisplay Cost_U1Rune
+	CreditDisplay D4RuneUpgrade1
 	StaticText ""
 	StaticText "$D4RuneUpgrade1F1", WHITE
 }
 
 OptionMenu "D4RuneUpgrade2"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "$D4RuneUpgrade2"
 	StaticText ""
 	StaticText ""
@@ -2508,17 +2183,18 @@ OptionMenu "D4RuneUpgrade2"
 	*/
 	StaticText "While active: Picking up same-type runes adds to duration"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U2Rune $D4DCash \"D4RuneUpgrade2 1; CTake $Cost_U2Rune; BuyUpgradePowerup;\" \"NEC\""
+	Purchase D4RuneUpgrade2 //Command "Buy", "test <= $Cost_U2Rune $D4DCash \"D4RuneUpgrade2 1; CTake $Cost_U2Rune; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	CostDisplay Cost_U2Rune
+	CostDisplay D4RuneUpgrade2
 	StaticText ""
-	CreditDisplay Cost_U2Rune
+	CreditDisplay D4RuneUpgrade2
 	StaticText ""
 	StaticText "$D4RuneUpgrade2F1", WHITE
 }
 
 OptionMenu "D4RuneUpgrade3"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "$D4RuneUpgrade3"
 	StaticText ""
 	/*
@@ -2531,17 +2207,18 @@ OptionMenu "D4RuneUpgrade3"
 	*/
 	StaticText "Delimits rune creation"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U3Rune $D4DCash \"D4RuneUpgrade3 1; CTake $Cost_U3Rune; BuyUpgradePowerup;\" \"NEC\""
+	Purchase D4RuneUpgrade3 //Command "Buy", "test <= $Cost_U3Rune $D4DCash \"D4RuneUpgrade3 1; CTake $Cost_U3Rune; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	CostDisplay Cost_U3Rune
+	CostDisplay D4RuneUpgrade3
 	StaticText ""
-	CreditDisplay Cost_U3Rune
+	CreditDisplay D4RuneUpgrade3
 	StaticText ""
 	StaticText "$D4RuneUpgrade3F1", WHITE
 }
 
 OptionMenu "D4RuneUpgrade4"
 {
+	Class "D4DOptionMenuUpgrades"
 	Title "$D4RuneUpgrade4"
 	StaticText ""
 	/*
@@ -2555,11 +2232,11 @@ OptionMenu "D4RuneUpgrade4"
 	*/
 	StaticText "While active: Attacks heal"
 	StaticText ""
-	Command "Buy", "test <= $Cost_U4Rune $D4DCash \"D4RuneUpgrade4 1; CTake $Cost_U4Rune; BuyUpgradePowerup;\" \"NEC\""
+	Purchase D4RuneUpgrade4 //Command "Buy", "test <= $Cost_U4Rune $D4DCash \"D4RuneUpgrade4 1; CTake $Cost_U4Rune; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
-	CostDisplay Cost_U4Rune
+	CostDisplay D4RuneUpgrade4
 	StaticText ""
-	CreditDisplay Cost_U4Rune
+	CreditDisplay D4RuneUpgrade4
 	StaticText ""
 	StaticText "$D4RuneUpgrade4F1", WHITE
 }

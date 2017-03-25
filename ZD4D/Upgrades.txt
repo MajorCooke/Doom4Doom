@@ -3,15 +3,37 @@ Class UpgradeItem : Inventory
 	int Cost, Cost2, Cost3, Cost4;
 	int Quantity, Q2, Q3, Q4;
 	bool Tiered;
+	String Req1, Req2, Req3, Req4;
+	int ReqQ1, ReqQ2, ReqQ3, ReqQ4;
+	String Attach1, Attach2, Attach3, Attach4;
+	int Attamt1, Attamt2, Attamt3, Attamt4;
 	property Cost: Cost;
-	property Quantity: Quantity;
-	property Tiered: Tiered;
 	property Cost2: Cost2;
 	property Cost3: Cost3;
 	property Cost4: Cost4;
+	property Quantity: Quantity;
 	property Quantity2: Q2;
 	property Quantity3: Q3;
 	property Quantity4: Q4;
+	property Tiered: Tiered;
+	
+	property Attached1: Attach1, Attamt1;
+	property Attached2: Attach2, Attamt2;
+	property Attached3: Attach3, Attamt3;
+	property Attached4: Attach4, Attamt4;
+	
+	property Req1: Req1, ReqQ1;
+	property Req2: Req2, ReqQ2;
+	property Req3: Req3, ReqQ3;
+	property Req4: Req4, ReqQ4;
+	
+	// ONLY USE ONE OF THESE.
+	// This is simply for the sake of saving copy/paste extensions, but if
+	// something needs to be more thorough, use the Req# properties instead.
+	property Requirements1: Req1, ReqQ1;
+	property Requirements2: Req1, ReqQ1, Req2, ReqQ2;
+	property Requirements3: Req1, ReqQ1, Req2, ReqQ2, Req3, ReqQ3;
+	property Requirements4: Req1, ReqQ1, Req2, ReqQ2, Req3, ReqQ3, Req4, ReqQ4;
 	Default
 	{
 		UpgradeItem.Cost -1;
@@ -23,9 +45,38 @@ Class UpgradeItem : Inventory
 		UpgradeItem.Quantity3 -1;
 		UpgradeItem.Quantity4 -1;
 		UpgradeItem.Tiered false;
+		UpgradeItem.Req1 "", 1;
+		UpgradeItem.Req2 "", 1;
+		UpgradeItem.Req3 "", 1;
+		UpgradeItem.Req4 "", 1;
+		UpgradeItem.Attached1 "", 0;
+		UpgradeItem.Attached2 "", 0;
+		UpgradeItem.Attached3 "", 0;
+		UpgradeItem.Attached4 "", 0;
 		+INVENTORY.UNDROPPABLE;
 		+INVENTORY.UNTOSSABLE;
 		+INVENTORY.KEEPDEPLETED;
+	}
+	
+	virtual void UpdateItem() {}
+	
+	override void BeginPlay()
+	{
+		Super.BeginPlay();
+		
+		String badItems = "";
+		Class<Inventory> check = Req1;
+		if (Req1.Length() > 0 && !check) { badItems = badItems..Req1.." ";	Req1 = ""; }
+		check = Req2;
+		if (Req2.Length() > 0 && !check) { badItems = badItems..Req2.." ";	Req2 = ""; }
+		check = Req3;
+		if (Req3.Length() > 0 && !check) { badItems = badItems..Req3.." ";	Req3 = ""; }
+		check = Req4;
+		if (Req4.Length() > 0 && !check) { badItems = badItems..Req4.." ";	Req4 = ""; }
+		InterhubAmount = MaxAmount;
+		
+		if (badItems.Length() > 0)
+			Console.Printf("Bad item requirements in %s: %s", badItems, GetClass());
 	}
 }
 /*
@@ -71,18 +122,21 @@ Class UpgradeItemSpecial : UpgradeItem
 		SelfName = GetClass();
 	}
 	
-	override bool TryPickup (in out Actor toucher)
+	override void UpdateItem()
 	{
-		if (Super.TryPickup(toucher))
+		if (!Owner || GetClass() == "UpgradeItemSpecial")
+			return;
+			
+		if (RealItem && SelfName)
 		{
-			toucher.A_SetInventory(RealItem,toucher.CountInv(SelfName));
-			return true;
+			Owner.A_SetInventory(RealItem,Owner.CountInv(SelfName));
 		}
-		return false;	
 	}
 	
 	override void DepleteOrDestroy()
 	{
+		if (GetClass() == "UpgradeItemSpecial")
+			return Super.DepleteOrDestroy();
 		if (Owner)
 		{
 			Owner.A_SetInventory(RealItem,0);
@@ -100,6 +154,25 @@ Class D4HealthUpgrade : UpgradeStamina
 		+INVENTORY.ALWAYSPICKUP
 		Inventory.Amount 1;
 		Inventory.MaxAmount 100;
+	}
+	
+	override bool TryPickup (in out Actor toucher)
+	{
+		if (toucher.player == NULL)
+			return false;
+			
+		int amt = 0;
+		
+		int inv = toucher.player.mo.stamina;
+		int in2 = toucher.CountInv("D4Stamina");
+		
+		toucher.player.mo.stamina = Max(inv, in2);
+		if (toucher.player.mo.stamina >= MaxAmount)
+			toucher.player.mo.stamina = MaxAmount;
+			
+		toucher.GiveBody (-100);
+		GoAwayAndDie();
+		return true;
 	}
 }
 
@@ -186,7 +259,7 @@ Class PistolUpgradeAutomatic : UpgradeItem		{ Default { UpgradeItem.Cost 2000; }
 Class PistolUpgradeAltDamage : UpgradeItem		{ Default { UpgradeItem.Cost 4000; }}
 Class PistolUpgradeAltCharge : UpgradeItem		{ Default { UpgradeItem.Cost 4000; }}
 Class PistolUpgradeDamage : UpgradeItem			{ Default { UpgradeItem.Cost 2500; }}
-Class PistolUpgradeLance : UpgradeItem			{ Default { UpgradeItem.Cost 12000; }}
+Class PistolUpgradeLance : UpgradeItem			{ Default { UpgradeItem.Cost 12000; UpgradeItem.Requirements2 "PistolUpgradeAltCharge", 1, "PistolUpgradeAltDamage", 1; }}
 Class PlasmaRifleMod1 : UpgradeItem				{ Default { UpgradeItem.Cost 5000; }}	// heat shot upgrade
 Class PlasmaRifleMod2 : UpgradeItem 			{ Default { UpgradeItem.Cost 3000; }}	// electric grenade upgrade
 Class RepeaterUpgradePiercing : UpgradeItem 	{ Default { UpgradeItem.Cost 4000; }}	// Upgrade 1: Bullets pierce 1 Monster;
@@ -198,13 +271,13 @@ Class RocketLauncherMod2 : UpgradeItem 			{ Default { UpgradeItem.Cost 5000; }}	
 Class ShotgunMod1 : UpgradeItem 				{ Default { UpgradeItem.Cost 3000; }}	// Triple shot
 Class ShotgunMod2 : UpgradeItem 				{ Default { UpgradeItem.Cost 3000; }}	// grenade mod
 Class StaticUpgrade1 : UpgradeItem 				{ Default { UpgradeItem.Cost 2500; }}
-Class StaticUpgrade2 : UpgradeItem 				{ Default { UpgradeItem.Cost 5000; }}
-Class StaticUpgrade3 : UpgradeItem 				{ Default { UpgradeItem.Cost 7500; }}
-Class StaticUpgrade4 : UpgradeItem 				{ Default { UpgradeItem.Cost 10000; }}
+Class StaticUpgrade2 : UpgradeItem 				{ Default { UpgradeItem.Cost 5000;	UpgradeItem.Requirements1 "StaticUpgrade1", 1; }}
+Class StaticUpgrade3 : UpgradeItem 				{ Default { UpgradeItem.Cost 7500;	UpgradeItem.Requirements1 "StaticUpgrade2", 1; }}
+Class StaticUpgrade4 : UpgradeItem 				{ Default { UpgradeItem.Cost 10000;	UpgradeItem.Requirements1 "StaticUpgrade3", 1; }}
 Class SSGUpgrade1 : UpgradeItem					{ Default { UpgradeItem.Cost 2000; }}
 Class SSGUpgrade2 : UpgradeItem					{ Default { UpgradeItem.Cost 2500; }}
 Class SSGUpgrade3 : UpgradeItem					{ Default { UpgradeItem.Cost 4000; }}
-Class SSGUpgrade4 : UpgradeItem					{ Default { UpgradeItem.Cost 10000; }}
+Class SSGUpgrade4 : UpgradeItem					{ Default { UpgradeItem.Cost 10000;	UpgradeItem.Requirements2 "SSGUpgrade1", 1, "SSGUpgrade2", 1; }}
 Class VortexUpgradeDamage : UpgradeItem 		{ Default { UpgradeItem.Cost 4000; }}
 Class VortexUpgradeAmmo : UpgradeItem 			{ Default { UpgradeItem.Cost 6000; }}
 Class VortexUpgradeAltSpeed : UpgradeItem 		{ Default { UpgradeItem.Cost 2500; }}
@@ -222,9 +295,78 @@ Class ProtectionBonus2 : UpgradeItem 			{ Default {	UpgradeItem.Cost 7500;	}}
 // AoE Protection
 Class ProtectionBonus3 : UpgradeItemSpecial		{ Default {	UpgradeItem.Cost 10000; UpgradeItemSpecial.RealItem "ProtectionBonus3Real";	}	}
 
+Class ProtectionBonus : UpgradeItem
+{
+	Default
+	{
+		UpgradeItem.Cost 5000;
+		UpgradeItem.Cost2 7500;
+		UpgradeItem.Cost3 10000;
+		UpgradeItem.Quantity 1;
+		UpgradeItem.Quantity2 2;
+		UpgradeItem.Quantity3 3;
+		Inventory.MaxAmount 3;
+	}
+	override void UpdateItem()
+	{
+		if (Owner)
+		{
+			int amt = Owner.CountInv("D4AirUpgrade");
+			if (amt > 0)	Owner.A_SetInventory("ProtectionBonus1Real",1);
+			if (amt > 1)	Owner.A_SetInventory("ProtectionBonus2",1);
+			if (amt > 2)	Owner.A_SetInventory("ProtectionBonus3Real",1);
+		}
+	}
+	override void DepleteOrDestroy()
+	{
+		if (Owner)
+		{
+			Owner.A_SetInventory("ProtectionBonus1Real",0);
+			Owner.A_SetInventory("ProtectionBonus2",0);
+			Owner.A_SetInventory("ProtectionBonus3Real",0);
+		}
+		Super.DepleteOrDestroy();
+	}
+}
+
 Class D4HigherJump : UpgradeItem 				{ Default { UpgradeItem.Cost 6000;	}}
 Class D4MultiJump : UpgradeItem 				{ Default { UpgradeItem.Cost 8000;	Inventory.MaxAmount 3; }}
 Class D4AirControl : UpgradeItem 				{ Default { UpgradeItem.Cost 10000;	}}
+
+Class D4AirUpgrade : UpgradeItem
+{
+	Default
+	{
+		UpgradeItem.Cost 6000;
+		UpgradeItem.Cost2 8000;
+		UpgradeItem.Cost3 10000;
+		UpgradeItem.Quantity 1;
+		UpgradeItem.Quantity2 2;
+		UpgradeItem.Quantity3 3;
+		Inventory.MaxAmount 3;
+	}
+	override void UpdateItem()
+	{
+		if (Owner)
+		{
+			int amt = Owner.CountInv("D4AirUpgrade");
+			if (amt > 0)	Owner.A_SetInventory("D4HigherJump",1);
+			if (amt > 1)	Owner.A_SetInventory("D4MultiJump",3);
+			if (amt > 2)	Owner.A_SetInventory("D4AirControl",1);
+		}
+	}
+	override void DepleteOrDestroy()
+	{
+		if (Owner)
+		{
+			Owner.A_SetInventory("D4HigherJump",0);
+			Owner.A_SetInventory("D4MultiJump",2);
+			Owner.A_SetInventory("D4AirControl",0);
+		}
+		Super.DepleteOrDestroy();
+	}
+}
+
 Class D4Stamina : UpgradeItem
 { 
 	Default 
@@ -235,7 +377,24 @@ Class D4Stamina : UpgradeItem
 		UpgradeItem.Quantity 25;
 		UpgradeItem.Quantity2 50;
 		UpgradeItem.Quantity3 100;
-		Inventory.MaxAmount 100; 
+		Inventory.MaxAmount 100;
+	}
+	override void UpdateItem()
+	{
+		if (Owner)
+		{
+			Owner.A_SetInventory("D4HealthUpgrade",0);
+			Owner.A_SetInventory("D4HealthUpgrade",Owner.CountInv("D4Stamina"));
+		}
+	}
+	override void DepleteOrDestroy()
+	{
+		if (Owner && Owner.player)
+		{
+			Owner.player.mo.stamina -= Owner.CountInv("D4HealthUpgrade"); 
+			Owner.A_SetInventory("D4HealthUpgrade",0);
+		}
+		Super.DepleteOrDestroy();
 	}
 }
 Class D4ArmorCapRaiser : UpgradeItem
@@ -378,7 +537,22 @@ Class D4DHandler : EventHandler
 		
 		if (plr)
 		{
-			if (e.Name == 'UpdateItems')
+			if (e.Name == 'DisableReception')
+			{
+				deltas[num].receiving = false;
+				Console.Printf("Disabled receiving.");
+			}
+			else if (deltas[num].receiving)
+			{
+				Console.Printf("%s, %d, %d", e.Name, e.Args[0], e.Args[1]);
+				deltas[num].SetItem(e.Name, e.Args[0], e.Args[1]);
+			}
+			else if (e.Name == 'EnableReception')
+			{
+				deltas[num].receiving = true;
+				Console.Printf("Enabled receiving.");
+			}
+			else if (e.Name == 'UpdateItems')
 			{
 				if (deltas[num].ItemName.Size() > 0)
 				{
@@ -388,28 +562,17 @@ Class D4DHandler : EventHandler
 						if (item)
 						{
 							plr.A_SetInventory(item, deltas[num].Count[i]);
+							let it = UpgradeItem(plr.FindInventory(item));
+							
+							if (it)
+							{
+								it.UpdateItem();
+							}
 						}
 					}
 				}
 				deltas[num].ItemName.Clear();
 				deltas[num].Count.Clear();			
-			}
-			else if (e.Name == 'EnableReception')
-			{
-				deltas[num].receiving = true;
-				Console.Printf("Enabled receiving.");
-			}
-			else if (e.Name == 'DisableReception')
-			{
-				deltas[num].receiving = false;
-				Console.Printf("Disabled receiving.");
-			}
-			else if (deltas[num].receiving)
-			{
-				Console.Printf("%s, %d, %d", e.Name, e.Args[0], e.Args[1]);
-				
-				//plr.A_SetInventory(e.Name, e.Args[0]);
-				deltas[num].SetItem(e.Name, e.Args[0], e.Args[1]);
 			}
 		}
 	}

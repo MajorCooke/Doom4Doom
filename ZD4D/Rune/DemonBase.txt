@@ -62,6 +62,7 @@ Class DemonPlayerBase : Doom4Player
 	// Only ever called once.
 	override void PostBeginPlay()
 	{
+		Super.PostBeginPlay();	//Always call the super version to ensure everything's in working order.
 		MaxHealth = Health;
 		static const String Demons[] =
 		{
@@ -89,7 +90,6 @@ Class DemonPlayerBase : Doom4Player
 		if (inv)	currTic = inv.EffectTics;
 		PlayDemonStartSound();
 		StartDemonOverlays();
-		Super.PostBeginPlay();	//Always call the super version to ensure everything's in working order.
 	}
 	
 	override void Tick()
@@ -1008,7 +1008,7 @@ Class DemonRuneDrainGiver : PowerupGiver
 		+INVENTORY.ALWAYSPICKUP
 		+INVENTORY.AUTOACTIVATE
 		Powerup.Duration 0x7FFFFFFD;
-		Powerup.Strength 0.2;
+		Powerup.Strength 0.05;
 		Powerup.Type "PowerDrain";
 	}
 }
