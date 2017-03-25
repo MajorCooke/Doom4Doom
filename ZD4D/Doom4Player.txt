@@ -750,22 +750,26 @@ extend class Doom4Player
 		}
 		
 		Super.PostBeginPlay();
-		ItemsToSave ITS;
-		ITS.Init();
 		
-		// Because of KEEPDEPLETED, that's all we'll need. I am so happy this
-		// flag exists.
-		for (int i = 1; i < ITS.ItemList.Size(); i++)
+		if (self.GetClass() == "Doom4Player")
 		{
-			Class<Inventory> check = ITS.ItemList[i];
-			if (check && !CountInv(check))
+			ItemsToSave ITS;
+			ITS.Init();
+			
+			// Because of KEEPDEPLETED, that's all we'll need. I am so happy this
+			// flag exists.
+			for (int i = 1; i < ITS.ItemList.Size(); i++)
 			{
-				A_SetInventory(check,1);
-				A_SetInventory(check,0);	
+				Class<Inventory> check = ITS.ItemList[i];
+				if (check && !CountInv(check))
+				{
+					A_SetInventory(check,1);
+					A_SetInventory(check,0);	
+				}
 			}
+			stamina = 0;
+			A_SetHealth(100);
 		}
-		stamina = 0;
-		A_SetHealth(100);
 	}
 	
 	//==========================================================================
