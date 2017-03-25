@@ -137,6 +137,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	Fire:
 		"####" "#" 0 
 		{
+			
 			if (CountInv("DetonateActive"))	{	return ResolveState("DetonateSprite");	}
 			if (CountInv("LockOnActive"))	{	return ResolveState("LockOnSprite");	}
 			return ResolveState("NormalSprite");
@@ -188,18 +189,17 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	// Flash sequence, used by all three firemodes and alt fires
 	//-------------------------------------------------------
 	
-	FireAnimation:
-			Flash_StartPreparingFireSprites:	//all "Start preparing" are to assign what sprite to display in the "####" instances
-				RLNF A 0
-				{
-					if (CountInv("DetonateActive"))			{	return ResolveState("DetonateSpriteFlash");	}
-					if (CountInv("LockOnActive"))			{	return ResolveState("LockOnSpriteFlash");	}
-					return ResolveState ("ResumeFlashSequence");
-				}
-				DetonateSpriteFlash:
-					RLDF A 0 { return ResolveState("ResumeFlashSequence"); }
-				LockOnSpriteFlash:
-					RLLF A 0 { return ResolveState("ResumeFlashSequence"); }
+	FireAnimation:	//all "Start preparing" are to assign what sprite to display in the "####" instances
+		RLNF A 0
+		{
+			if (CountInv("DetonateActive"))			{	return ResolveState("DetonateSpriteFlash");	}
+			if (CountInv("LockOnActive"))			{	return ResolveState("LockOnSpriteFlash");	}
+			return ResolveState ("ResumeFlashSequence");
+		}
+		DetonateSpriteFlash:
+			RLDF A 0 { return ResolveState("ResumeFlashSequence"); }
+		LockOnSpriteFlash:
+			RLLF A 0 { return ResolveState("ResumeFlashSequence"); }
 			
 	ResumeFlashSequence:
 		"####" B 1 Bright 
@@ -273,14 +273,14 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 		Stop;
 		
 	RFSFast:
-		"####" A 1 A_WeaponOffset(-4,-2,WOF_ADD); //-4 -2
-		"####" A 1 A_WeaponOffset(-4,-2,WOF_ADD);							//-8 -4
-		"####" C 1 A_WeaponOffset(-4,-2,WOF_ADD);							//-12 -6 
-		"####" D 1 A_WeaponOffset(-4,-2,WOF_ADD);							//-16 -8 
-		"####" E 1 A_WeaponOffset(-4,-2,WOF_ADD);							//-20 -10 
-		"####" F 1 A_WeaponOffset(-4,-2,WOF_ADD);							//-24 -12
-		"####" G 1 A_WeaponOffset(-4,-6,WOF_ADD);							//-26 -15
-		"####" I 1 A_WeaponOffset(-4,-4,WOF_ADD);							//-30 -20
+		"####" A 1 A_WeaponOffset(-4,-2,WOF_ADD); 							//+26 +18
+		"####" A 1 A_WeaponOffset(-4,-2,WOF_ADD);							//+22 +16
+		"####" C 1 A_WeaponOffset(-4,-2,WOF_ADD);							//+18 +14 
+		"####" D 1 A_WeaponOffset(-4,-2,WOF_ADD);							//+14 +12
+		"####" E 1 A_WeaponOffset(-4,-2,WOF_ADD);							//+10 +10 
+		"####" F 1 A_WeaponOffset(-4,-2,WOF_ADD);							//+6 +8
+		"####" G 1 A_WeaponOffset(-4,-6,WOF_ADD);							//+2 +2
+		"####" I 1 A_WeaponOffset(-2,-2,WOF_ADD);							//+0 +0
 		"####" JLMPR 1;
 		"####" T 1 
 		{
