@@ -194,13 +194,13 @@ class OptionMenuItemPurchase : OptionMenuItem version("2.4")
 			// Find the current tier by checking what quantity we have.
 			maxinv = Max(finder1.Quantity, finder1.Q2, finder1.Q3, finder1.Q4);
 			
-			Console.Printf("%s: %d, %d", toCheck, quan, maxinv);
+			//Console.Printf("%s: %d, %d", toCheck, quan, maxinv);
 			
 			if (quan >= maxinv)
 			{
 				// Already bought.
 				badItem = bought = true;
-				Console.Printf("Already bought.");
+				//Console.Printf("Already bought.");
 				return;
 			}
 			else if (finder1.Quantity > -1 && quan < finder1.Quantity)
@@ -245,7 +245,7 @@ class OptionMenuItemPurchase : OptionMenuItem version("2.4")
 		else
 		{
 			badItem = true;
-			Console.Printf("Not enough credits.");
+			//Console.Printf("Not enough credits.");
 		}
 	}
 	
@@ -455,7 +455,7 @@ class OptionMenuItemSubmenuReqs : OptionMenuItemSubmenu version("2.4")
 				reqs = false;
 				openable = true;
 				bought = true;
-				Console.Printf("Already bought");
+				//Console.Printf("Already bought");
 				return;
 			}
 			
@@ -463,7 +463,7 @@ class OptionMenuItemSubmenuReqs : OptionMenuItemSubmenu version("2.4")
 			{
 				reqs = false;
 				openable = true;
-				Console.Printf("No requirements");
+				//Console.Printf("No requirements");
 				return;
 			}
 			
@@ -504,7 +504,7 @@ class OptionMenuItemSubmenuReqs : OptionMenuItemSubmenu version("2.4")
 						if (checker)
 						{
 							reqsToMeet++;
-							Console.Printf(inames[i]);
+							//Console.Printf(inames[i]);
 						}
 					}
 				}
@@ -515,7 +515,7 @@ class OptionMenuItemSubmenuReqs : OptionMenuItemSubmenu version("2.4")
 				reqs = false;
 				openable = true;
 			}
-			Console.Printf("%s: %d", toCheck, reqsToMeet);
+			//Console.Printf("%s: %d", toCheck, reqsToMeet);
 			
 		}
 		else

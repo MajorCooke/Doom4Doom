@@ -167,13 +167,13 @@ Class MenuItemList : Object ui
 		Console.Printf(item.." is not a valid item!");
 		return -1;
 	}
-	
+	/*
 	override void OnDestroy()
 	{
 		Console.Printf("MenuItemList was destroyed.");
 		Super.OnDestroy();
 	}
-	
+	*/
 }
 
 
@@ -215,7 +215,7 @@ Class D4DListMenu : ListMenu version("2.4")
 		{
 			int cashamt = m.plr.CountInv("D4DCash");
 			m.SetItem("D4DCash", cashamt);
-			Console.Printf("Cash pushed.");
+			//Console.Printf("Cash pushed.");
 		}
 	}
 	

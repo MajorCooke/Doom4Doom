@@ -540,17 +540,17 @@ Class D4DHandler : EventHandler
 			if (e.Name == 'DisableReception')
 			{
 				deltas[num].receiving = false;
-				Console.Printf("Disabled receiving.");
+				//Console.Printf("Disabled receiving.");
 			}
 			else if (deltas[num].receiving)
 			{
-				Console.Printf("%s, %d, %d", e.Name, e.Args[0], e.Args[1]);
+				//Console.Printf("%s, %d, %d", e.Name, e.Args[0], e.Args[1]);
 				deltas[num].SetItem(e.Name, e.Args[0], e.Args[1]);
 			}
 			else if (e.Name == 'EnableReception')
 			{
 				deltas[num].receiving = true;
-				Console.Printf("Enabled receiving.");
+				//Console.Printf("Enabled receiving.");
 			}
 			else if (e.Name == 'UpdateItems')
 			{
