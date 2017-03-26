@@ -292,6 +292,16 @@ Class D4DOptionMenuUpgrades : OptionMenu version("2.4")
 					i3.OnMenuCreatedOld();
 					continue;
 				}
+				
+				let i4 = OptionMenuItemSubmenuWeapon(mDesc.mItems[i]);
+				if (i4)
+				{
+					if (!i4.m)
+						i4.m = m;
+					i4.OnMenuCreatedOld();
+					continue;
+				}
+				
 				/*
 				let i4 = OptionMenuItemStaticTextTier(mDesc.mItems[i]);
 				if (i4)

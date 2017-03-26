@@ -322,7 +322,8 @@ Class OptionMenuItemSubmenuWeapon : OptionMenuItemSubmenu version("2.4")
 		toCheck = itemname;
 		Super.init(label, command);
 		mParam = param;
-		greyed = started = false;
+		started = false;
+		greyed = true;
 		return self;
 	}
 	
@@ -390,14 +391,14 @@ class OptionMenuItemSubmenuReqs : OptionMenuItemSubmenu version("2.4")
 	Name reqMenu;
 	bool secret;
 	
-	OptionMenuItemSubmenuReqs Init(String label, Name command, String itemName = "", Name requiredMenu = '', int param = 0)
+	OptionMenuItemSubmenuReqs Init(String label, Name command, String itemName = "", Name requiredMenu = '', bool seekaret = false, int param = 0)
 	{
 		Super.init(label, command);
 		started = reqs = openable = bought = false;
 		mParam = param;
 		toCheck = itemName;
 		reqMenu = requiredMenu;
-		secret = (param == -1);
+		secret = seekaret;
 		return self;
 	}
 	
@@ -422,7 +423,7 @@ class OptionMenuItemSubmenuReqs : OptionMenuItemSubmenu version("2.4")
 		if (secret)
 		{
 			ItemsToSave l;
-			reqs = l.Init(true, m.plr);
+			reqs = !(l.Init(true, m.plr));
 			return;
 		}
 		
