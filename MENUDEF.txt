@@ -1618,7 +1618,7 @@ OptionMenu "D4DUpgrade.Suit"
 {
 	Class "D4DOptionMenuUpgrades"
 	Title "Suit Upgrades"
-	SubmenuReqs "Health", 		"D4HealthUpgrade", 	"D4Stamina"
+	SubmenuReqs "Health", 		"D4Stamina", 	"D4Stamina"
 	StaticText " "
 	SubmenuReqs "Armor", 		"D4ArmorCapRaiser", "D4ArmorCapRaiser"
 	StaticText " "
@@ -1639,7 +1639,7 @@ OptionMenu "D4DUpgrade.Suit"
 //==============================================================================
 // Health
 //==============================================================================
-OptionMenu "D4HealthUpgrade"
+OptionMenu "D4Stamina"
 {
 	Class "D4DOptionMenuUpgrades"
 	Title "Health Upgrades"
@@ -1659,9 +1659,9 @@ OptionMenu "D4HealthUpgrade"
 	StaticText " "
 	Purchase D4Stamina
 	StaticText " "
-	CostDisplay D4HealthUpgrade
+	CostDisplay D4Stamina
 	StaticText " "
-	CreditDisplay D4HealthUpgrade
+	CreditDisplay D4Stamina
 }
 
 //==============================================================================
