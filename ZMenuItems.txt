@@ -424,6 +424,10 @@ class OptionMenuItemSubmenuReqs : OptionMenuItemSubmenu version("2.4")
 		{
 			ItemsToSave l;
 			reqs = !(l.Init(true, m.plr));
+			if (!reqs)
+			{
+				openable = true;
+			}
 			return;
 		}
 		
@@ -485,10 +489,10 @@ class OptionMenuItemSubmenuReqs : OptionMenuItemSubmenu version("2.4")
 			if (quan[0] + quan[1] + quan[2] + quan[3] > 0)
 			{
 				uint owned[4];
-				owned[0] = Max(0, m.FindItem(finder1.Req1, true, false));
-				owned[1] = Max(0, m.FindItem(finder1.Req2, true, false));
-				owned[2] = Max(0, m.FindItem(finder1.Req3, true, false));
-				owned[3] = Max(0, m.FindItem(finder1.Req4, true, false));
+				owned[0] = Max(0, m.FindItem(finder1.Req1, true, true));
+				owned[1] = Max(0, m.FindItem(finder1.Req2, true, true));
+				owned[2] = Max(0, m.FindItem(finder1.Req3, true, true));
+				owned[3] = Max(0, m.FindItem(finder1.Req4, true, true));
 				
 				String inames[4];
 				inames[0] = finder1.Req1;
