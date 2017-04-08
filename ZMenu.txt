@@ -99,13 +99,18 @@ Class MenuItemList : Object ui
 	}
 	
 	//==========================================================================
+	// Finds the required inventory amount of an item, via a subitem.
 	int FindRequirementCount(String item, int which = 0)
 	{
-		
 		if (item.Length() > 0)
 		{
 			Class<Inventory> check = item;
-			if (check && plr)
+			if (!check)
+			{
+				Console.printf(item.." is not a valid item.");
+				return 0;
+			}
+			if (plr)
 			{
 				let ins = UpgradeItem(plr.FindInventory(check,true));
 				if (ins)
@@ -183,7 +188,7 @@ Class MenuItemList : Object ui
 //
 //==============================================================================
 
-Class D4DListMenu : ListMenu version("2.4")
+Class D4DListMenu : ListMenu
 {
 	bool started, UpgradeMenu, OneValidItem;
 	MenuItemList m;
@@ -253,7 +258,7 @@ Class D4DListMenu : ListMenu version("2.4")
 }
 
 //==============================================================================
-Class D4DOptionMenuUpgrades : OptionMenu version("2.4")
+Class D4DOptionMenuUpgrades : OptionMenu
 {
 	bool started, full, anything;
 	MenuItemList m;
@@ -301,17 +306,6 @@ Class D4DOptionMenuUpgrades : OptionMenu version("2.4")
 					i4.OnMenuCreatedOld();
 					continue;
 				}
-				
-				/*
-				let i4 = OptionMenuItemStaticTextTier(mDesc.mItems[i]);
-				if (i4)
-				{
-					if (!i4.m)
-						i4.m = m;
-					i4.OnMenuCreatedOld();
-					continue;
-				}
-				*/
 			}
 		}
 		else

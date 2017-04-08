@@ -1,7 +1,7 @@
 //==============================================================================
 //
 //==============================================================================
-class OptionMenuItemStaticTextTier : OptionMenuItemStaticText version("2.4")
+class OptionMenuItemStaticTextTier : OptionMenuItemStaticText
 {
 	String toCheck;
 	int tier;
@@ -109,7 +109,7 @@ class OptionMenuItemStaticTextTier : OptionMenuItemStaticText version("2.4")
 // pricing and requirements.
 //==============================================================================
 
-class OptionMenuItemPurchase : OptionMenuItem version("2.4")
+class OptionMenuItemPurchase : OptionMenuItem
 {
 	int amt, cost, quan, maxinv, toGive;
 	String toCheck;
@@ -308,7 +308,7 @@ class OptionMenuItemPurchase : OptionMenuItem version("2.4")
 //==============================================================================
 //==============================================================================
 
-Class OptionMenuItemSubmenuWeapon : OptionMenuItemSubmenu version("2.4")
+Class OptionMenuItemSubmenuWeapon : OptionMenuItemSubmenu
 {
 	MenuItemList m;
 	String toCheck;
@@ -381,7 +381,7 @@ Class OptionMenuItemSubmenuWeapon : OptionMenuItemSubmenu version("2.4")
 //==============================================================================
 //==============================================================================
 
-class OptionMenuItemSubmenuReqs : OptionMenuItemSubmenu version("2.4")
+class OptionMenuItemSubmenuReqs : OptionMenuItemSubmenu
 {
 	int mParam;
 	MenuItemList m;
@@ -455,7 +455,7 @@ class OptionMenuItemSubmenuReqs : OptionMenuItemSubmenu version("2.4")
 			}
 			
 			int maxinv = Max(finder1.Quantity, finder1.Q2, finder1.Q3, finder1.Q4);
-			if (finder1.Amount >= maxinv ||	m.FindItem(toCheck) >= maxinv)
+			if (finder1.Amount >= maxinv || m.plr.CountInv(check) >= maxinv || m.FindItem(toCheck) >= maxinv)
 			{
 				reqs = false;
 				openable = true;
@@ -475,10 +475,6 @@ class OptionMenuItemSubmenuReqs : OptionMenuItemSubmenu version("2.4")
 			// MenuItemList's FindItem returns -1 if something wasn't found.
 			// Ensure it's clamped to 0.
 			uint quan[4];
-			//quan[0] = Max(0, finder1.ReqQ1);
-			//quan[1] = Max(0, finder1.ReqQ2);
-			//quan[2] = Max(0, finder1.ReqQ3);
-			//quan[3] = Max(0, finder1.ReqQ4);
 			
 			quan[0] = m.FindRequirementCount(toCheck,0);
 			quan[1] = m.FindRequirementCount(toCheck,1);
@@ -593,7 +589,7 @@ class OptionMenuItemSubmenuReqs : OptionMenuItemSubmenu version("2.4")
 //		If the cvar exists and is false, darkens the whole region.
 //==============================================================================
 
-class OptionMenuItemDisplayInt : OptionMenuFieldBase version("2.4")
+class OptionMenuItemDisplayInt : OptionMenuFieldBase
 {
 	String toCheck;
 	Class<Inventory> check;
@@ -736,7 +732,7 @@ class OptionMenuItemDisplayInt : OptionMenuFieldBase version("2.4")
  - "command": The item to check.
 ==============================================================================*/
 
-class OptionMenuItemCreditDisplay : OptionMenuItemDisplayInt version("2.4")
+class OptionMenuItemCreditDisplay : OptionMenuItemDisplayInt
 {
 	bool grayed;
 	//==========================================================================
@@ -784,7 +780,7 @@ class OptionMenuItemCreditDisplay : OptionMenuItemDisplayInt version("2.4")
 		If the cvar exists and is false, darkens the whole region.
 ==============================================================================*/
 
-class OptionMenuItemCostDisplay : OptionMenuItemDisplayInt version("2.4")
+class OptionMenuItemCostDisplay : OptionMenuItemDisplayInt
 {
 	OptionMenuItemCostDisplay Init (String command = "")
 	{

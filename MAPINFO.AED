@@ -1,6 +1,7 @@
 GameInfo
 {
 	AddEventHandlers = "D4DHandler"
+	PlayerClasses = "Doom4Player"
 }
 
 Map TITLEMAP "Doom 4 For Doom"
@@ -17,12 +18,6 @@ AddDefaultMap
 	TeamPlayOn
 	TotalInfighting
 }
-
-GameInfo
-{
-   PlayerClasses = "Doom4Player"
-}
-
 
 Clearskills
 

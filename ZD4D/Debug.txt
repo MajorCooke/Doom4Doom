@@ -183,6 +183,14 @@ Class AmmoRemover : IteratorBase
 		
 		finder.Setup(self);
 		finder.DoFindActors("Ammo",instructions, flags, maxcount, dist);
+		finder.DoFindActors("ClipReplacer",instructions, flags, maxcount, dist);
+		finder.DoFindActors("ClipBoxReplacer",instructions, flags, maxcount, dist);
+		finder.DoFindActors("ShellReplacer",instructions, flags, maxcount, dist);
+		finder.DoFindActors("ShellBoxReplacer",instructions, flags, maxcount, dist);
+		finder.DoFindActors("RocketAmmoReplacer",instructions, flags, maxcount, dist);
+		finder.DoFindActors("RocketBoxReplacer",instructions, flags, maxcount, dist);
+		finder.DoFindActors("CellReplacer",instructions, flags, maxcount, dist);
+		finder.DoFindActors("CellPackReplacer",instructions, flags, maxcount, dist);
 		Destroy();
 		return;
 	}

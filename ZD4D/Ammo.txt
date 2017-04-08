@@ -10,7 +10,10 @@ Class ClipReplacer : CustomInventory replaces Clip
 		+INVENTORY.QUIET
 		+INVENTORY.ALWAYSPICKUP
 		-COUNTITEM
+		+NOTONAUTOMAP
 		Inventory.Amount 0;
+		Species "Ammo";
+		Renderstyle "None";
 	}
 	States
 	{
@@ -34,7 +37,10 @@ Class ClipBoxReplacer : CustomInventory replaces ClipBox
 		+INVENTORY.QUIET
 		+INVENTORY.ALWAYSPICKUP
 		-COUNTITEM
+		+NOTONAUTOMAP
 		Inventory.Amount 0;
+		Species "Ammo";
+		Renderstyle "None";
 	}
 	States
 	{
@@ -58,7 +64,10 @@ Class ShellReplacer : CustomInventory replaces Shell
 		+INVENTORY.QUIET
 		+INVENTORY.ALWAYSPICKUP
 		-COUNTITEM
+		+NOTONAUTOMAP
 		Inventory.Amount 0;
+		Species "Ammo";
+		Renderstyle "None";
 	}
 	States
 	{
@@ -82,7 +91,10 @@ Class ShellBoxReplacer : CustomInventory replaces ShellBox
 		+INVENTORY.QUIET
 		+INVENTORY.ALWAYSPICKUP
 		-COUNTITEM
+		+NOTONAUTOMAP
 		Inventory.Amount 0;
+		Species "Ammo";
+		Renderstyle "None";
 	}
 	States
 	{
@@ -107,7 +119,10 @@ Class RocketAmmoReplacer : CustomInventory replaces RocketAmmo
 		+INVENTORY.QUIET
 		+INVENTORY.ALWAYSPICKUP
 		-COUNTITEM
+		+NOTONAUTOMAP
 		Inventory.Amount 0;
+		Species "Ammo";
+		Renderstyle "None";
 	}
 	States
 	{
@@ -131,7 +146,10 @@ Class RocketBoxReplacer : CustomInventory replaces RocketBox
 		+INVENTORY.QUIET
 		+INVENTORY.ALWAYSPICKUP
 		-COUNTITEM
+		+NOTONAUTOMAP
 		Inventory.Amount 0;
+		Species "Ammo";
+		Renderstyle "None";
 	}
 	States
 	{
@@ -156,7 +174,10 @@ Class CellReplacer : CustomInventory replaces Cell
 		+INVENTORY.QUIET
 		+INVENTORY.ALWAYSPICKUP
 		-COUNTITEM
+		+NOTONAUTOMAP
 		Inventory.Amount 0;
+		Species "Ammo";
+		Renderstyle "None";
 	}
 	States
 	{
@@ -183,7 +204,10 @@ Class CellPackReplacer : CustomInventory replaces CellPack
 		+INVENTORY.QUIET
 		+INVENTORY.ALWAYSPICKUP
 		-COUNTITEM
+		+NOTONAUTOMAP
 		Inventory.Amount 0;
+		Species "Ammo";
+		Renderstyle "None";
 	}
 	States
 	{
