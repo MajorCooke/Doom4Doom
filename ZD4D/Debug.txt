@@ -65,7 +65,7 @@ Struct TIterator play
 			}
 			Default:	break;
 		}
-		caller.A_Log(msg);
+		Console.Printf(msg);
 	}
 	
 //------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ Struct TIterator play
 			}
 			
 			if (flags & p.ITN_LOGCOUNT)
-				caller.A_LogInt(count);
+				Console.printf("%s", msg);
 		}
 	}
 //------------------------------------------------------------------------------
@@ -143,7 +143,7 @@ Struct TIterator play
 // Houses all the setup materials for inheriting from. 
 //------------------------------------------------------------------------------
 
-Class IteratorBase : Actor
+Class D4DIteratorBase : Actor
 {
 	TIteratorProperties p;
 	
@@ -168,10 +168,10 @@ Class IteratorBase : Actor
 //==============================================================================
 //==============================================================================
 
-// Removes ammo on the map and prints the number of actors removed, but only if
-// they have no tid or special.
-Class AmmoRemover : IteratorBase
+Class AmmoRemover : Actor
 {
+	TIteratorProperties p;
+	
 	override void PostBeginPlay()
 	{
 		TIterator finder;
@@ -191,7 +191,14 @@ Class AmmoRemover : IteratorBase
 		finder.DoFindActors("RocketBoxReplacer",instructions, flags, maxcount, dist);
 		finder.DoFindActors("CellReplacer",instructions, flags, maxcount, dist);
 		finder.DoFindActors("CellPackReplacer",instructions, flags, maxcount, dist);
-		Destroy();
-		return;
+		return Destroy();
+	}
+	
+	Default
+	{
+		+NOSECTOR
+		+NOINTERACTION
+		+THRUACTORS
+		+NOBLOCKMAP
 	}
 }

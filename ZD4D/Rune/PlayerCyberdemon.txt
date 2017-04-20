@@ -83,8 +83,8 @@ Class PlayerCyberdemon : DemonPlayerBase
 		Player.AttackZOffset 30;
 		Player.SoundClass "PlayerDemonCommon";
 		Player.CrouchSprite "CYBR";
-		PainSound "Doom4/Monsters/Cyberdemon/Pain";
-		DeathSound "Doom4/Monsters/Cyberdemon/Death";
+		PainSound "Doom4/Cyberdemon/Pain";
+		DeathSound "Doom4/Cyberdemon/Death";
 		Player.ForwardMove 0.8, 0.4;
 		Player.SideMove 0.8, 0.4;
 		DamageFactor "Normal", 0.5;
@@ -125,17 +125,17 @@ Class PlayerCyberdemon : DemonPlayerBase
 	Overlay.Steps:
 		TNT1 A 5
 		{
-			user_speed = (vel.x*vel.x + vel.y*vel.y);
-			if(A_CheckFloor("Null"))
+			user_speed = vel.Length();
+			if (A_CheckFloor("Null"))
 			{
-				if(user_speed > 150)
+				if(user_speed > 10)
 				{
-					A_PlaySound("Player/Demon/CyberdemonStep",CHAN_AUTO);
+					A_PlaySound("Doom4/Cyberdemon/Step",CHAN_AUTO);
 					A_SetTics(14);
 				}
-				else if(user_speed > 20)
+				else if(user_speed > 5)
 				{
-					A_PlaySound("Player/Demon/CyberdemonStep",CHAN_AUTO);
+					A_PlaySound("Doom4/Cyberdemon/Step",CHAN_AUTO);
 					A_SetTics(18);
 				}
 			}

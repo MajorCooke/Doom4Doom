@@ -82,6 +82,7 @@ Class D4Chaingun : Doom4Weapon
 			A_TakeInventory("SpinLoopFrame",32767);
 			A_TakeInventory("SpinUpCount",32767);
 			A_TakeInventory("FrameTimeLeft",32767);
+			return ResolveState("SelLoop");
 		}
 	SelLoop:
 		CGNS A 1 A_Raise;

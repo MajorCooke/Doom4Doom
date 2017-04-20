@@ -69,6 +69,7 @@ server bool D4D_MonsterLasers = true;
 
 server noarchive cheat int D4D_PickupDropChance = 275;
 server cheat int D4D_CurrentUpgradeMode = 0;
+/*
 server noarchive int D4DCash = 0;
 server noarchive bool AssaultRifleMod1 = false;
 server noarchive bool AssaultRifleMod2 = false;
@@ -172,7 +173,7 @@ server noarchive bool D4RuneUpgrade1 = false;
 server noarchive bool D4RuneUpgrade2 = false;
 server noarchive bool D4RuneUpgrade3 = false;
 server noarchive bool D4RuneUpgrade4 = false;
-
+*/
 //==============================================================================
 // For the akimbo system.
 
@@ -208,7 +209,7 @@ server noarchive int CTake = 0;
 //==============================================================================
 // Expenses
 // Cost_U# associates itself with <WeaponName>Mod# or <WeaponName>Upgrade# respectively.
-	
+/*
 server noarchive cheat int Cost_U1Pistol = 			4000;	//charge speed
 server noarchive cheat int Cost_U2Pistol = 			4000;	//charged damage +
 server noarchive cheat int Cost_U3Pistol = 			2000;	//full auto
@@ -296,3 +297,4 @@ server noarchive cheat int Cost_U1Pentagram =		6666;
 server noarchive cheat int Cost_U2Pentagram =		6666;
 server noarchive cheat int Cost_U3Pentagram =		6666;
 server noarchive cheat int Cost_U4Pentagram =		9999;
+*/

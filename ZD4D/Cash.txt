@@ -46,7 +46,7 @@ Class CashUpdater : CustomInventory
 	States
 	{
 	Pickup:
-		TNT1 A 0 ACS_NamedExecute("CashDisplay",0,0,0,0);
+		TNT1 A 0; //ACS_NamedExecute("CashDisplay",0,0,0,0);
 		Stop;
 	}
 }
@@ -62,7 +62,7 @@ Class CashUpdaterNegative : CustomInventory
 	States
 	{
 	Pickup:
-		TNT1 A 0 ACS_NamedExecute("CashDisplay",0,1,0,0);
+		TNT1 A 0; //ACS_NamedExecute("CashDisplay",0,1,0,0);
 		Stop;
 	}
 }

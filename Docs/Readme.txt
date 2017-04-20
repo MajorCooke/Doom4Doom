@@ -1,7 +1,7 @@
 ===========================================================================
 Archive Maintainer      : (special instructions if any)
 Update to               : D4D.pk3
-Advanced engine needed  : GZDoom v2.4
+Advanced engine needed  : GZDoom v2.5
 Primary purpose         : Single player, no levels included
 ===========================================================================
 Title                   : DOOM(4) for DooM
@@ -61,10 +61,10 @@ Known Bugs              : Sometimes glory kills will only do a quick punch
                           through walls, floors or celings while being
                           executed.
                           If you use GZDoom devbuilds, HUD elements might
-                          look off. GZDoom 2.4 is recommended.
+                          look off. GZDoom 2.5 is recommended.
 Might Not Run With      : Some GZDoom devbuilds. 
 Will NOT Work With 		: Zandronum. ZDoom.
-Tested With             : GZDoom v2.4
+Tested With             : GZDoom v2.5 
 
 
 ===========================================================================
@@ -81,18 +81,19 @@ Major Cooke             : Current owner. Project idea and direction.
                           of the BFG tracers and electric effects. Creator
                           of almost all particle effects, including bullet
                           tracers, pickup trails and just about every single
-                          fancy particle system found in here. Finetunning
-                          most of the DECORATE code. Deprecation of many
-                          ACS based systems and ported them to DECORATE.
+                          fancy particle system found in here. Finetuning
+                          most of the ZScript code. Deprecation of many
+                          ACS/DECORATE based systems for ZScript.
                           Implementation of "Double Double Trouble Trouble"
                           (double supershotgun) via overlays. Behavior and
                           visual effects of syphon grenade explosion. Coder
                           for spawned Holo-player. Developed and implemented
                           Half Life-like laser for Gauss Cannon, Static 
-                          Rifle and many more. Created the Carrion Cannon.
+                          Rifle and many more. Created the Carrion Cannon,
+						  powerup upgrades, and overhauled upgrade menu.
                           General DECORATE & ZScript mastermind.
 
-DBThanatos              : Retired owner. 
+DBThanatos              : Retired owner.
                           Import, offseting, renaming all of Neccronixis' weapon
                           sprites. Edited all muzleflash sprites from the 
                           weapons. Created base functional code of all weapons.
@@ -108,6 +109,8 @@ DBThanatos              : Retired owner.
                           was used as D4D imp). Game balance.
                           Resource gatherer and organizer.  
                           Final polishing of visual effects.
+						  (We miss you, buddy! We wish you good luck and
+						  God speed on your future endeavors.)
 
 Michaelis               : Ripping, conversion and processing of graphics for
                           the Heads Up Display. Implementation of reticles
@@ -169,6 +172,10 @@ Activision              : Battlezone I & II sounds
 Monolith                : Sprite used for Baron of Hell hand
 
 Blizzard                : Diablo II Sound (just one!)
+
+Xeotroid				: Ripping Doom 4 Cyberdemon sounds
+
+Croteam					: Serious Sam's Serious Damage sound
 
 
 

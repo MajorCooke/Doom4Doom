@@ -8,19 +8,19 @@ Doom4/Menu/Hover					"sounds/Menu/MouseHover.ogg"
 Doom4/Menu/Navigate					"sounds/Menu/NavigateKeys.ogg"
 Doom4/Menu/Select					"sounds/Menu/Select.ogg"
 Doom4/Menu/Slider					"sounds/Menu/Slider.ogg"
-Doom4/Menu/IntroLower					"sounds/Menu/D4Dintro1Lower.ogg"
-Doom4/Menu/Menu					"sounds/Menu/D4Dmenu.ogg"
-Doom4/Menu/RipAndTear					"sounds/Menu/RipandTear.ogg"
+Doom4/Menu/IntroLower				"sounds/Menu/D4Dintro1Lower.ogg"
+Doom4/Menu/Menu						"sounds/Menu/D4Dmenu.ogg"
+Doom4/Menu/RipAndTear				"sounds/Menu/RipandTear.ogg"
 
 menu/activate			"sounds/Menu/Select.ogg"	// Activate a new menu
-menu/backup			"sounds/Menu/Back.ogg"	// Backup to previous menu
-menu/prompt			dsswtchn	// Activate a prompt "menu"
-menu/cursor			"sounds/Menu/MouseHover.ogg"		// Move cursor up/down
-menu/change			"sounds/Menu/Slider.ogg"	// Select new value for option
+menu/backup				"sounds/Menu/Back.ogg"	// Backup to previous menu
+menu/prompt				dsswtchn	// Activate a prompt "menu"
+menu/cursor				"sounds/Menu/MouseHover.ogg"		// Move cursor up/down
+menu/change				"sounds/Menu/Slider.ogg"	// Select new value for option
 menu/invalid			dsoof		// Menu not available
 menu/dismiss			"sounds/Menu/Back.ogg"	// Dismiss a prompt message
-menu/choose			"sounds/Menu/Select.ogg"	// Choose a menu item
-menu/clear			"sounds/Menu/Back.ogg"	// Close top menu
+menu/choose				"sounds/Menu/Select.ogg"	// Choose a menu item
+menu/clear				"sounds/Menu/Back.ogg"	// Close top menu
 
 $alias dssecret	menu/clear
 $volume dssecret 0.5
@@ -174,7 +174,7 @@ Doom4/Weapon/Shotgun/TripleFire				"sounds/weapons/SG/SGTripleFire.ogg"
 Doom4/Weapon/Shotgun/TripleFireDeeper		"sounds/weapons/SG/SGTripleShotEnhanced.ogg"
 Doom4/Weapon/Shotgun/SwitchToGrenade		"sounds/weapons/SG/SGSwitchToGrenade.ogg"
 Doom4/Weapon/Shotgun/SwitchToTripleShot		"sounds/weapons/SG/SGSwitchTo3Shot.ogg"
-Doom4/Weapon/Shotgun/CancelAim		"sounds/weapons/SG/ShotungStopAim.ogg"
+Doom4/Weapon/Shotgun/CancelAim				"sounds/weapons/SG/ShotungStopAim.ogg"
 
 
 //==============================================================================================
@@ -187,34 +187,37 @@ Doom4/Weapon/GaussGun/Charge1Fire		"sounds/weapons/GC/GaussChargeFire.ogg"
 Doom4/Weapon/GaussGun/Charge1Loop		"sounds/weapons/GC/GaussChargeLoop.ogg"
 Doom4/Weapon/GaussGun/Charge1Start		"sounds/weapons/GC/GaussChargeStart.ogg"
 Doom4/Weapon/GaussGun/Fire				"sounds/weapons/GC/GaussFire.ogg"
-Doom4/Weapon/GaussGun/SwitchToPrecision				"sounds/weapons/GC/GCSwitchToPrecision.ogg"
-Doom4/Weapon/GaussGun/SwitchToSiege				"sounds/weapons/GC/GCSwitchToSiege.ogg"
-Doom4/Weapon/GaussGun/PrecisionDown				"sounds/weapons/GC/GaussPrecisionDown.ogg"
+Doom4/Weapon/GaussGun/SwitchToPrecision		"sounds/weapons/GC/GCSwitchToPrecision.ogg"
+Doom4/Weapon/GaussGun/SwitchToSiege			"sounds/weapons/GC/GCSwitchToSiege.ogg"
+Doom4/Weapon/GaussGun/PrecisionDown			"sounds/weapons/GC/GaussPrecisionDown.ogg"
 Doom4/Weapon/GaussGun/SiegeDown				"sounds/weapons/GC/GaussSiegeDown.ogg"
-Doom4/Weapon/GaussGun/SiegeDownSimpler				"sounds/weapons/GC/GCSiegeDownSimpler.ogg"
+Doom4/Weapon/GaussGun/SiegeDownSimpler		"sounds/weapons/GC/GCSiegeDownSimpler.ogg"
 
 //==============================================================================================
 //		BFG
 //==============================================================================================
 Doom4/Weapon/BFG/Fire		"sounds/weapons/BFG/BFGFire.ogg"
 Doom4/Weapon/BFG/Impact		"sounds/weapons/BFG/BFGimpact.ogg"
-Doom4/Weapon/BFG/AmmoLoop		"sounds/weapons/BFG/BFGAmmoLoop.ogg"
+Doom4/Weapon/BFG/AmmoLoop	"sounds/weapons/BFG/BFGAmmoLoop.ogg"
 Doom4/Weapon/BFG/Flying		"sounds/weapons/BFG/BFGFlying.ogg"
+Doom4/Weapon/BFG/Raise		"sounds/weapons/BFG/BFGRaise.ogg"
+Doom4/Weapon/BFG/Idle		"sounds/weapons/BFG/BFGIdle.ogg"
+Doom4/Weapon/BFG/Pickup		"sounds/weapons/BFG/BFGPickup.ogg"
 
 $rolloff Doom4/Weapon/BFG/Impact 1800 2000
 
 //==============================================================================================
 //		Chaingun 
 //==============================================================================================
-Doom4/Weapon/Chaingun/Fire			"sounds/weapons/CG/ChaingunFire.ogg"
-Doom4/Weapon/Chaingun/Loop			"sounds/weapons/CG/ChaingunLoop.ogg"
-Doom4/Weapon/Chaingun/WindUp		"sounds/weapons/CG/ChaingunLoopStart.ogg"
-Doom4/Weapon/Chaingun/WindDown		"sounds/weapons/CG/ChaingunLoopStop.ogg"
+Doom4/Weapon/Chaingun/Fire				"sounds/weapons/CG/ChaingunFire.ogg"
+Doom4/Weapon/Chaingun/Loop				"sounds/weapons/CG/ChaingunLoop.ogg"
+Doom4/Weapon/Chaingun/WindUp			"sounds/weapons/CG/ChaingunLoopStart.ogg"
+Doom4/Weapon/Chaingun/WindDown			"sounds/weapons/CG/ChaingunLoopStop.ogg"
 Doom4/Weapon/Chaingun/TurretStart		"sounds/weapons/CG/TurretStart.ogg"
 Doom4/Weapon/Chaingun/TurretLoop		"sounds/weapons/CG/TurretLoop.ogg"
-Doom4/Weapon/Chaingun/TurretEnd		"sounds/weapons/CG/TurretEnd.ogg"
+Doom4/Weapon/Chaingun/TurretEnd			"sounds/weapons/CG/TurretEnd.ogg"
 Doom4/Weapon/Chaingun/SwitchToRotator	"sounds/weapons/CG/ChaingunSwitchToRotator.ogg"
-Doom4/Weapon/Chaingun/SwitchToTurret		"sounds/weapons/CG/ChaingunSwitchToTurret.ogg"
+Doom4/Weapon/Chaingun/SwitchToTurret	"sounds/weapons/CG/ChaingunSwitchToTurret.ogg"
 Doom4/Weapon/Chaingun/UnreadyTurret		"sounds/weapons/CG/ChaingunUnreadyTurret.ogg"
 Doom4/Weapon/Chaingun/ReadyTurret		"sounds/weapons/CG/ChaingunReadyTurret.ogg"
 Doom4/Weapon/Chaingun/TurretLoopBS		"sounds/weapons/CG/BarrelSpinLoop.ogg"
@@ -224,8 +227,8 @@ Doom4/Weapon/Chaingun/TurretLoopBS		"sounds/weapons/CG/BarrelSpinLoop.ogg"
 //		Lightning gun
 //==============================================================================================
 
-Doom4/Weapon/LightningGun/LightningGunFire				"sounds/weapons/LG/LGFire.ogg"
-Doom4/Weapon/LightningGun/LightningGunEnd				"sounds/weapons/LG/LGEnd.ogg"
+Doom4/Weapon/LightningGun/LightningGunFire		"sounds/weapons/LG/LGFire.ogg"
+Doom4/Weapon/LightningGun/LightningGunEnd		"sounds/weapons/LG/LGEnd.ogg"
 Doom4/Weapon/LightningGun/LG2Loop				"sounds/weapons/LG/Lgun_loop.ogg" //from Q4, because fuck this LG sounds...
 
 //==============================================================================================
@@ -351,6 +354,7 @@ Doom4/Monsters/MastermindLaserCharge		"sounds/Other/plasma_cumulative_charge_sta
 Doom4/Monsters/MastermindLaserFire		"sounds/Other/plasma_cumulative_fire.L.ogg"
 Doom4/Monsters/MastermindBeamFire		"sounds/Other/Lgun_fire.ogg"
 
+
 Doom4/Monsters/DemonCharge		"sounds/Other/DemonCharge.ogg"
 
 
@@ -359,13 +363,18 @@ Doom4/Monsters/DemonCharge		"sounds/Other/DemonCharge.ogg"
 //		Pickup sounds
 //==============================================================================================
 //==============================================================================================
+Doom4/Pickups/HealthLarge		"sounds/Pickups/HealthLarge.ogg"
 Doom4/Pickups/Health			"sounds/Pickups/HealthMed.ogg"
-Doom4/Pickups/HealthBonus			"sounds/Pickups/HealthSmall.ogg"
-Doom4/Pickups/MegaHealth			"sounds/Pickups/Mega.ogg"
+Doom4/Pickups/HealthBonus		"sounds/Pickups/HealthSmall.ogg"
+Doom4/Pickups/MegaHealth		"sounds/Pickups/Mega.ogg"
 Doom4/Pickups/AmmoSmall			"sounds/Pickups/Ammo.ogg"
 Doom4/Pickups/AmmoBig			"sounds/Pickups/AmmoBigger.ogg"
-Doom4/Pickups/ArmorShard			"sounds/Pickups/AmorShard.ogg"
-Doom4/Pickups/Armor			"sounds/Pickups/Armor.ogg"
+Doom4/Pickups/ArmorShard		"sounds/Pickups/ArmorShard.ogg"
+Doom4/Pickups/Armor				"sounds/Pickups/Armor.ogg"
+Doom4/Pickups/ArmorMed			"Sounds/Pickups/ArmorMed.ogg"
+Doom4/Pickups/BFGAmmo			"Sounds/Pickups/BFGAmmo.ogg"
+Doom4/Pickups/KeySkull			"Sounds/Pickups/KeySkull.ogg"
+Doom4/Pickups/KeyCard			"Sounds/Pickups/KeyCard.ogg"
 
 //==============================================================================================
 //==============================================================================================
@@ -446,19 +455,19 @@ $playersound	player	other	*usefail	"sounds/Player/Beep.ogg"
 //		MiscSounds
 //==============================================================================================
 //==============================================================================================
-Doom4/Other/DollExplode							"Sounds/Weapons/DollExplode.ogg"
-Doom4/Other/GlimpseIntoTheFuture				"sounds/Weapons/DoomDoll.ogg"
-Doom4/Other/WeaponPickup				"sounds/Other/weapon.ogg"
+Doom4/Other/DollExplode				"Sounds/Weapons/DollExplode.ogg"
+Doom4/Other/GlimpseIntoTheFuture	"sounds/Weapons/DoomDoll.ogg"
+Doom4/Other/WeaponPickup			"sounds/Other/weapon.ogg"
 Doom4/Weapons/WeaponSwitch			"sounds/Weapons/SwitchWeapon.ogg"
-Doom4/Other/FireballHit1				"sounds/Other/3IMPFHT1.ogg"
-Doom4/Other/FireballHit2				"sounds/Other/3IMPFHT3.ogg"
+Doom4/Other/FireballHit1			"sounds/Other/3IMPFHT1.ogg"
+Doom4/Other/FireballHit2			"sounds/Other/3IMPFHT3.ogg"
 Doom4/Other/FlamerLoop				"sounds/Other/FlmrLoop.ogg"
 Doom4/Other/FlamerStart				"sounds/Other/FlmrStart.ogg"
 /*Doom4/Other/				"sounds/Other/"
 Doom4/Other/				"sounds/Other/"*/
 Doom4/Other/BarrelBreak1			"sounds/Other/BarrelBreak1.wav"
 Doom4/Other/BarrelBreak2			"sounds/Other/BarrelBreak2.wav"
-Doom4/Other/OtherRocketExplo "sounds/Other/grenade_launcher-explosion3.ogg"
+Doom4/Other/OtherRocketExplo 		"sounds/Other/grenade_launcher-explosion3.ogg"
 
 
 
@@ -902,6 +911,8 @@ Haste/Whisper						"Sounds/Pickups/inv3.wav"
 Regen/Pickup						"Sounds/Pickups/suit.wav"
 Regen/Warning						"Sounds/Pickups/suit2.wav"
 RenameMe6							"Sounds/Pickups/itembk2.wav"
+Doom4/Pickups/PowerupLoop			"Sounds/Pickups/PowerupLoop.ogg"
+Doom4/Pickups/Berserk				"Sounds/Pickups/Berserk.ogg"
 Konami								"Sounds/Other/uuddlrlr.ogg"
 
 
@@ -1013,10 +1024,143 @@ Doom4/Monsters/Cyberdemon/Idle						"Sounds/Monsters/CyberdemonIdle.ogg"
 Doom4/Monsters/Cyberdemon/Pain						"Sounds/Monsters/CyberdemonPain.ogg"
 Doom4/Monsters/Cyberdemon/Sight						"Sounds/Monsters/CyberdemonSight.ogg"
 
+Doom4/Cyberdemon/Attack1		"Sounds/Monsters/Cyberdemon/Attack1.ogg"
+Doom4/Cyberdemon/Attack2		"Sounds/Monsters/Cyberdemon/Attack2.ogg"
+Doom4/Cyberdemon/Attack3		"Sounds/Monsters/Cyberdemon/Attack3.ogg"
+Doom4/Cyberdemon/Attack4		"Sounds/Monsters/Cyberdemon/Attack4.ogg"
+Doom4/Cyberdemon/Attack5		"Sounds/Monsters/Cyberdemon/Attack5.ogg"
+Doom4/Cyberdemon/Attack6		"Sounds/Monsters/Cyberdemon/Attack6.ogg"
+Doom4/Cyberdemon/Attack7		"Sounds/Monsters/Cyberdemon/Attack7.ogg"
+Doom4/Cyberdemon/Attack8		"Sounds/Monsters/Cyberdemon/Attack8.ogg"
+Doom4/Cyberdemon/Pain1			"Sounds/Monsters/Cyberdemon/Pain1.ogg"
+Doom4/Cyberdemon/Pain2			"Sounds/Monsters/Cyberdemon/Pain2.ogg"
+Doom4/Cyberdemon/Pain3			"Sounds/Monsters/Cyberdemon/Pain3.ogg"
+Doom4/Cyberdemon/Pain4			"Sounds/Monsters/Cyberdemon/Pain4.ogg"
+Doom4/Cyberdemon/Pain5			"Sounds/Monsters/Cyberdemon/Pain5.ogg"
+Doom4/Cyberdemon/Pain6			"Sounds/Monsters/Cyberdemon/Pain6.ogg"
+Doom4/Cyberdemon/Pain7			"Sounds/Monsters/Cyberdemon/Pain7.ogg"
+Doom4/Cyberdemon/Pain8			"Sounds/Monsters/Cyberdemon/Pain8.ogg"
+Doom4/Cyberdemon/Step1			"Sounds/Monsters/Cyberdemon/Step1.ogg"
+Doom4/Cyberdemon/Step2			"Sounds/Monsters/Cyberdemon/Step2.ogg"
+Doom4/Cyberdemon/Step3			"Sounds/Monsters/Cyberdemon/Step3.ogg"
+Doom4/Cyberdemon/Step4			"Sounds/Monsters/Cyberdemon/Step4.ogg"
+Doom4/Cyberdemon/StepMetal1		"Sounds/Monsters/Cyberdemon/StepMetal1.ogg"
+Doom4/Cyberdemon/StepMetal2		"Sounds/Monsters/Cyberdemon/StepMetal2.ogg"
+Doom4/Cyberdemon/StepMetal3		"Sounds/Monsters/Cyberdemon/StepMetal3.ogg"
+Doom4/Cyberdemon/StepMetal4		"Sounds/Monsters/Cyberdemon/StepMetal4.ogg"
+Doom4/Cyberdemon/Death			"Sounds/Monsters/Cyberdemon/Death.ogg"
+Doom4/Cyberdemon/Sight			"Sounds/Monsters/Cyberdemon/Sight.ogg"
+
+$random Doom4/Cyberdemon/Pain
+{	Doom4/Cyberdemon/Pain1 Doom4/Cyberdemon/Pain2 Doom4/Cyberdemon/Pain3
+	Doom4/Cyberdemon/Pain4 Doom4/Cyberdemon/Pain5 Doom4/Cyberdemon/Pain6
+	Doom4/Cyberdemon/Pain7 Doom4/Cyberdemon/Pain8 }
+	
+$random Doom4/Cyberdemon/Attack
+{	Doom4/Cyberdemon/Attack1 Doom4/Cyberdemon/Attack2 Doom4/Cyberdemon/Attack3
+	Doom4/Cyberdemon/Attack4 Doom4/Cyberdemon/Attack5 Doom4/Cyberdemon/Attack6
+	Doom4/Cyberdemon/Attack7 Doom4/Cyberdemon/Attack8 }
+	
+$random Doom4/Cyberdemon/Step
+{	Doom4/Cyberdemon/Step1 Doom4/Cyberdemon/Step2 Doom4/Cyberdemon/Step3 Doom4/Cyberdemon/Step4 }
+
+$random Doom4/Cyberdemon/StepMetal
+{	Doom4/Cyberdemon/StepMetal1 Doom4/Cyberdemon/StepMetal2
+	Doom4/Cyberdemon/StepMetal3 Doom4/Cyberdemon/StepMetal4 }
+	
+$limit Doom4/Cyberdemon/StepMetal 0
+$limit Doom4/Cyberdemon/Step 0
+
 Doom4/Monsters/Mastermind/Death						"Sounds/Monsters/MastermindDeath.ogg"
 Doom4/Monsters/Mastermind/Idle						"Sounds/Monsters/MastermindIdle.ogg"
 Doom4/Monsters/Mastermind/Pain						"Sounds/Monsters/MastermindPain.ogg"
 Doom4/Monsters/Mastermind/Sight						"Sounds/Monsters/MastermindSight.ogg"
+
+Doom4/SpiderMastermind/Death			"Sounds/Monsters/SpiderMastermind/death.ogg"
+Doom4/SpiderMastermind/LaserCharge		"Sounds/Monsters/SpiderMastermind/LaserCharge.ogg"
+Doom4/SpiderMastermind/LaserLoop		"Sounds/Monsters/SpiderMastermind/LaserLoop.ogg"
+Doom4/SpiderMastermind/LaunchPlasma1	"Sounds/Monsters/SpiderMastermind/LaunchPlasma1.ogg"
+Doom4/SpiderMastermind/LaunchPlasma2	"Sounds/Monsters/SpiderMastermind/LaunchPlasma2.ogg"
+Doom4/SpiderMastermind/LaunchPlasma3	"Sounds/Monsters/SpiderMastermind/LaunchPlasma3.ogg"
+Doom4/SpiderMastermind/LaunchPlasma4	"Sounds/Monsters/SpiderMastermind/LaunchPlasma4.ogg"
+Doom4/SpiderMastermind/PlasmaExplode1	"Sounds/Monsters/SpiderMastermind/PlasmaExplode1.ogg"
+Doom4/SpiderMastermind/PlasmaExplode2	"Sounds/Monsters/SpiderMastermind/PlasmaExplode2.ogg"
+Doom4/SpiderMastermind/PlasmaExplode3	"Sounds/Monsters/SpiderMastermind/PlasmaExplode3.ogg"
+Doom4/SpiderMastermind/PlasmaExplode4	"Sounds/Monsters/SpiderMastermind/PlasmaExplode4.ogg"
+Doom4/SpiderMastermind/GunExplode		"Sounds/Monsters/SpiderMastermind/GunExplode.ogg"
+Doom4/SpiderMastermind/Sight			"Sounds/Monsters/SpiderMastermind/Sight.ogg"
+Doom4/SpiderMastermind/Pain1			"Sounds/Monsters/SpiderMastermind/Pain1.ogg"
+Doom4/SpiderMastermind/Pain2			"Sounds/Monsters/SpiderMastermind/Pain2.ogg"
+Doom4/SpiderMastermind/Pain3			"Sounds/Monsters/SpiderMastermind/Pain3.ogg"
+Doom4/SpiderMastermind/Pain4			"Sounds/Monsters/SpiderMastermind/Pain4.ogg"
+Doom4/SpiderMastermind/Pain5			"Sounds/Monsters/SpiderMastermind/Pain5.ogg"
+Doom4/SpiderMastermind/Pain6			"Sounds/Monsters/SpiderMastermind/Pain6.ogg"
+Doom4/SpiderMastermind/Pain7			"Sounds/Monsters/SpiderMastermind/Pain7.ogg"
+Doom4/SpiderMastermind/Pain8			"Sounds/Monsters/SpiderMastermind/Pain8.ogg"
+Doom4/SpiderMastermind/Pain9			"Sounds/Monsters/SpiderMastermind/Pain9.ogg"
+Doom4/SpiderMastermind/Pain10			"Sounds/Monsters/SpiderMastermind/Pain10.ogg"
+Doom4/SpiderMastermind/Pain11			"Sounds/Monsters/SpiderMastermind/Pain11.ogg"
+Doom4/SpiderMastermind/Pain12			"Sounds/Monsters/SpiderMastermind/Pain12.ogg"
+Doom4/SpiderMastermind/Pain13			"Sounds/Monsters/SpiderMastermind/Pain13.ogg"
+Doom4/SpiderMastermind/Pain14			"Sounds/Monsters/SpiderMastermind/Pain14.ogg"
+Doom4/SpiderMastermind/Pain15			"Sounds/Monsters/SpiderMastermind/Pain15.ogg"
+Doom4/SpiderMastermind/StepLight1		"Sounds/Monsters/SpiderMastermind/StepLight1.ogg"
+Doom4/SpiderMastermind/StepLight2		"Sounds/Monsters/SpiderMastermind/StepLight2.ogg"
+Doom4/SpiderMastermind/StepLight3		"Sounds/Monsters/SpiderMastermind/StepLight3.ogg"
+Doom4/SpiderMastermind/StepHeavy1		"Sounds/Monsters/SpiderMastermind/StepHeavy1.ogg"
+Doom4/SpiderMastermind/StepHeavy2		"Sounds/Monsters/SpiderMastermind/StepHeavy2.ogg"
+Doom4/SpiderMastermind/StepHeavy3		"Sounds/Monsters/SpiderMastermind/StepHeavy3.ogg"
+Doom4/SpiderMastermind/StepHeavy4		"Sounds/Monsters/SpiderMastermind/StepHeavy4.ogg"
+Doom4/SpiderMastermind/Servo1			"Sounds/Monsters/SpiderMastermind/Servo1.ogg"
+Doom4/SpiderMastermind/Servo2			"Sounds/Monsters/SpiderMastermind/Servo2.ogg"
+Doom4/SpiderMastermind/Servo3			"Sounds/Monsters/SpiderMastermind/Servo3.ogg"
+Doom4/SpiderMastermind/Servo4			"Sounds/Monsters/SpiderMastermind/Servo4.ogg"
+Doom4/SpiderMastermind/Servo5			"Sounds/Monsters/SpiderMastermind/Servo5.ogg"
+Doom4/SpiderMastermind/Servo6			"Sounds/Monsters/SpiderMastermind/Servo6.ogg"
+Doom4/SpiderMastermind/Servo7			"Sounds/Monsters/SpiderMastermind/Servo7.ogg"
+Doom4/SpiderMastermind/Servo8			"Sounds/Monsters/SpiderMastermind/Servo8.ogg"
+Doom4/SpiderMastermind/Servo9			"Sounds/Monsters/SpiderMastermind/Servo9.ogg"
+Doom4/SpiderMastermind/Servo10			"Sounds/Monsters/SpiderMastermind/Servo10.ogg"
+Doom4/SpiderMastermind/Idle1			"Sounds/Monsters/SpiderMastermind/Idle1.ogg"
+Doom4/SpiderMastermind/Idle2			"Sounds/Monsters/SpiderMastermind/Idle2.ogg"
+Doom4/SpiderMastermind/Idle3			"Sounds/Monsters/SpiderMastermind/Idle3.ogg"
+Doom4/SpiderMastermind/Idle4			"Sounds/Monsters/SpiderMastermind/Idle4.ogg"
+Doom4/SpiderMastermind/Idle5			"Sounds/Monsters/SpiderMastermind/Idle5.ogg"
+Doom4/SpiderMastermind/Idle6			"Sounds/Monsters/SpiderMastermind/Idle6.ogg"
+Doom4/SpiderMastermind/Idle7			"Sounds/Monsters/SpiderMastermind/Idle7.ogg"
+Doom4/SpiderMastermind/Idle8			"Sounds/Monsters/SpiderMastermind/Idle8.ogg"
+
+$limit Doom4/SpiderMastermind/Idle 10
+$limit Doom4/SpiderMastermind/Servo 10
+$limit Doom4/SpiderMastermind/Pain 10
+$limit Doom4/SpiderMastermind/GunExplode 10
+
+$random Doom4/SpiderMastermind/LaunchPlasma 
+{ 	Doom4/SpiderMastermind/LaunchPlasma1 Doom4/SpiderMastermind/LaunchPlasma2 
+	Doom4/SpiderMastermind/LaunchPlasma3 Doom4/SpiderMastermind/LaunchPlasma4 }
+$random Doom4/SpiderMastermind/PlasmaExplode
+{	Doom4/SpiderMastermind/PlasmaExplode1 Doom4/SpiderMastermind/PlasmaExplode2
+	Doom4/SpiderMastermind/PlasmaExplode3 Doom4/SpiderMastermind/PlasmaExplode4 }
+$random Doom4/SpiderMastermind/Pain
+{	Doom4/SpiderMastermind/Pain1 Doom4/SpiderMastermind/Pain2 Doom4/SpiderMastermind/Pain3
+	Doom4/SpiderMastermind/Pain4 Doom4/SpiderMastermind/Pain5 Doom4/SpiderMastermind/Pain6
+	Doom4/SpiderMastermind/Pain7 Doom4/SpiderMastermind/Pain8 Doom4/SpiderMastermind/Pain9
+	Doom4/SpiderMastermind/Pain10 Doom4/SpiderMastermind/Pain11 Doom4/SpiderMastermind/Pain12
+	Doom4/SpiderMastermind/Pain13 Doom4/SpiderMastermind/Pain14 Doom4/SpiderMastermind/Pain15 }
+$random Doom4/SpiderMastermind/StepLight 
+{	Doom4/SpiderMastermind/StepLight1 Doom4/SpiderMastermind/StepLight2 Doom4/SpiderMastermind/StepLight3 }
+$random Doom4/SpiderMastermind/StepHeavy
+{	Doom4/SpiderMastermind/StepHeavy1 Doom4/SpiderMastermind/StepHeavy2 
+	Doom4/SpiderMastermind/StepHeavy3 Doom4/SpiderMastermind/StepHeavy4 }
+$random Doom4/SpiderMastermind/Servo
+{	Doom4/SpiderMastermind/Servo1 Doom4/SpiderMastermind/Servo2 Doom4/SpiderMastermind/Servo3
+	Doom4/SpiderMastermind/Servo4 Doom4/SpiderMastermind/Servo5 Doom4/SpiderMastermind/Servo6
+	Doom4/SpiderMastermind/Servo7 Doom4/SpiderMastermind/Servo8 Doom4/SpiderMastermind/Servo9
+	Doom4/SpiderMastermind/Servo10 }
+$random Doom4/SpiderMastermind/Idle
+{	Doom4/SpiderMastermind/Idle1 Doom4/SpiderMastermind/Idle2 Doom4/SpiderMastermind/Idle3
+	Doom4/SpiderMastermind/Idle4 Doom4/SpiderMastermind/Idle5 Doom4/SpiderMastermind/Idle6
+	Doom4/SpiderMastermind/Idle7 Doom4/SpiderMastermind/Idle8 }
 
 Doom4/Monsters/PainElemental/Death						"Sounds/Monsters/PainDeath.ogg"
 Doom4/Monsters/PainElemental/DeathExplo						"Sounds/Monsters/PainDeath2.ogg"

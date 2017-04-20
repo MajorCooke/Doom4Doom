@@ -13,6 +13,10 @@ global int 3:upgradeMode;
 // Upgrade System Keybinds
 //==============================================================================
 //==============================================================================
+Script "RestoreMusicVolume" UNLOADING
+{
+	SetMusicVolume(1);
+}
 
 Script "GameModeSwitch" ENTER
 {
@@ -112,7 +116,7 @@ Script "ShowCash" OPEN
 	If (GameType() == GAME_TITLE_MAP) Terminate; //if we're on titlemap, dont display anything
 	TakeInventory("D4DCashFake",5000000);
 	SetFont("Q4SMALLERHUDFONT");
-	HudMessage(s:"Credits";HUDMSG_PLAIN,		999,CR_GRAY,0.98,0.00,0);
+	//HudMessage(s:"Credits";HUDMSG_PLAIN,		999,CR_GRAY,0.98,0.00,0);
 	int counter = 0;
 	while (1)
 	{
@@ -131,8 +135,8 @@ Script "ShowResistance" OPEN
 	//SetFont("CONFONT");
 	//HudMessage(s:"Resistance";HUDMSG_PLAIN,		1102,CR_GRAY,0.98,0.07,0);
 	int a = CheckInventory("D4MegasphereDamageReducer");
-	SetFont("Q4SMALLERHUDFONT");
-	HudMessage(d:a;HUDMSG_PLAIN,			1101,CR_WHITE,0.96,0.100,0);
+	//SetFont("Q4SMALLERHUDFONT");
+	//HudMessage(d:a;HUDMSG_PLAIN,			1101,CR_WHITE,0.96,0.100,0);
 }
 
 Function int UpdateCash (int fromCvar)
@@ -161,8 +165,8 @@ Function int UpdateCash (int fromCvar)
 Function int UpdateMsg (int fromCvar)
 {
 	int amt = UpdateCash(fromCvar);
-	SetFont("Q4SMALLERHUDFONT");
-	HudMessage(d:amt;HUDMSG_PLAIN,		1000,CR_WHITE,0.96,0.03,0);
+	//SetFont("Q4SMALLERHUDFONT");
+	//HudMessage(d:amt;HUDMSG_PLAIN,		1000,CR_WHITE,0.96,0.03,0);
 	return amt;
 }
 
@@ -214,12 +218,12 @@ Script "CashDisplay" (int negative, int notears)
 			counter1 = UpdateCash(0);
 			counter2 = counter2 + CheckInventory("D4DCashFake");
 			
-			SetFont("Q4SMALLERHUDFONT");			
-			HudMessage(d:counter1;HUDMSG_PLAIN,		1000,CR_WHITE,0.96,0.03,0);
+			//SetFont("Q4SMALLERHUDFONT");			
+			//HudMessage(d:counter1;HUDMSG_PLAIN,		1000,CR_WHITE,0.96,0.03,0);
 			SetFont("Q4SMALLESTHUDFONT");
 			
-			if (negative)	HudMessage(s:"-", d:counter2;HUDMSG_FADEOUT,	1001,CR_RED,0.96,0.08,2.0,1.0);
-			else			HudMessage(s:"+", d:counter2;HUDMSG_FADEOUT,	1002,CR_orange,0.96,0.08,2.0,1.0);
+			//if (negative)	HudMessage(s:"-", d:counter2;HUDMSG_FADEOUT,	1001,CR_RED,0.96,0.08,2.0,1.0);
+			//else			HudMessage(s:"+", d:counter2;HUDMSG_FADEOUT,	1002,CR_orange,0.96,0.08,2.0,1.0);
 			TakeInventory("D4DCashFake",5000000);
 			
 			if (!negative && ((counter2 >= 400 && KeepOn) || ((counter2 >= 3000) && (GetCvar("user_Completionist") == 1))))
@@ -259,7 +263,7 @@ Script "LevelWatcherSetup" ENTER
 	
 	int reward = 0;
 	int bonus = 0;
-	int bonusmul = GetCvar("CashPercentBonus");
+	int bonusmul = CheckInventory("CashPercentBonus");
 	bool RewardTime = false;
 	while (1)
 	{
@@ -300,7 +304,7 @@ Script "LevelWatcherSetup" ENTER
 					
 					if (RewardTime)
 					{
-						bonus = GetCvar("CashPercentBonus") / 10;
+						bonus = CheckInventory("CashPercentBonus") / 10;
 						GiveCash(reward + bonus, msg);
 						RewardTime = false;
 						reward = 0; bonus = 0;
@@ -322,7 +326,7 @@ Script "LevelWatcherSetup" ENTER
 					
 					if (RewardTime)
 					{
-						bonusmul = GetCvar("CashPercentBonus");
+						bonusmul = CheckInventory("CashPercentBonus");
 						bonus = ((reward * bonusmul) / 100);
 						GiveCash(reward + bonus, msg);
 						RewardTime = false;
@@ -342,7 +346,7 @@ Script "LevelWatcherSetup" ENTER
 			}
 			else
 			{
-				bonusmul = GetCvar("CashPercentBonus");
+				bonusmul = CheckInventory("CashPercentBonus");
 				reward = (rsf - secretsfound) * 100;
 				bonus = (reward * bonusmul) / 100;
 				GiveCash(reward + bonus,6);
@@ -361,7 +365,7 @@ Script "LevelWatcherSetup" ENTER
 			}
 			else
 			{
-				bonusmul = GetCvar("CashPercentBonus");
+				bonusmul = CheckInventory("CashPercentBonus");
 				reward = (((((RewardedKillPortions[4] * multiplier) * 10) + (totalsecrets * 100)) * 5) / 4);
 				bonus = (reward * bonusmul) / 100;
 				GiveCash(reward + bonus,7);

@@ -2,6 +2,7 @@ GameInfo
 {
 	AddEventHandlers = "D4DHandler"
 	PlayerClasses = "Doom4Player"
+	StatusBarClass = "Doom4StatusBar"
 }
 
 Map TITLEMAP "Doom 4 For Doom"
@@ -17,6 +18,26 @@ AddDefaultMap
 	TeamDamage = 0
 	TeamPlayOn
 	TotalInfighting
+	// Because we no longer have any options besides OpenAL,
+	// lets precache the entire classes so we can have the sounds ready to go.
+	PrecacheClasses =
+		"D4Arachnotron",
+		"D4Archvile",
+		"D4BaronofHell",
+		"D4Cacodemon",
+		"D4ChaingunGuy",
+		"D4Cyberdemon",
+		"D4Demon",
+		"D4DoomImp",
+		"D4FatsoTech",
+		"D4FatsoHell",
+		"D4HellKnight",
+		"D4LostSoul",
+		"D4PainElemental",
+		"D4Revenant",
+		"D4ShotgunGuy",
+		"D4SpiderMastermind",
+		"D4Zombieman"
 }
 
 Clearskills

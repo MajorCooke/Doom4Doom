@@ -1,5 +1,5 @@
 # Version
-2.0.4 Alpha
+3.0 Alpha
 
 # Issues
 Found a bug? Please specify in the title what version number via brackets you're using. I.e.
@@ -30,15 +30,7 @@ These rules are for contributing directly towards Doom4Doom via pull requests.
   * We all have lives to deal with. It may take time to go through and sort out all the issues and pull requests, depending. If you have the mail system set up and watch this project, you'll be notified of any activity pertaining to the issue/pull request. 
 
 # Requirements
-GZDoom 2.3.x
+GZDoom 2.5.x
 
 # Changes
-2.0.3 --> 2.0.4a - Pre-GitHub
-
-NEW
-* "Enhanced Monster Chasing" available under the D4D option menu.
-* Haste and blur sphere spawning preferences can be changed in the menu.
-
-CHANGED
-* Player Summoner primary charge rate doubled, made more responsive.
-* Fixed laser and monster issues due to pitch problems with GZDoom 2.2
+See the Changelog inside the Docs tab for the most up-to-date changes.
