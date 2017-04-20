@@ -15,7 +15,7 @@ global int 3:upgradeMode;
 //==============================================================================
 Script "RestoreMusicVolume" UNLOADING
 {
-	SetMusicVolume(1);
+	SetMusicVolume(1.0);
 }
 
 Script "GameModeSwitch" ENTER
