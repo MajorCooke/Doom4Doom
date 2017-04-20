@@ -98,7 +98,7 @@ Class D4SpiderMastermind : D4AbstractBoss
 		SPID A 0 
 		{
 			A_SpawnItemEx("LaserChargeIndicator",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION);
-			A_PlaySound("Doom4/SpiderMastermind/LaserCharge",5,1,0,(target is "PlayerPawn" ? ATTN_NONE : 0));
+			A_PlaySound("Doom4/SpiderMastermind/LaserCharge",5,1,0,(target is "PlayerPawn" ? ATTN_NONE : ATTN_NORM));
 		}
 		SPID GGGGGGGGGG 2 
 		{
@@ -111,7 +111,7 @@ Class D4SpiderMastermind : D4AbstractBoss
 		SPID G 3 //gives you a tiny bit of chance to run away
 		{
 			A_FaceTarget(0,0,0,0,FAF_MIDDLE);
-			int attn = (target is "PlayerPawn" ? ATTN_NONE : 0);
+			int attn = (target is "PlayerPawn" ? ATTN_NONE : ATTN_NORM);
 			A_PlaySound("Doom4/Monsters/MastermindLaserFire",5,1,0,attn);
 			A_PlaySound("Doom4/SpiderMastermind/LaserLoop",6,1,1,attn);
 			A_PlaySound("Doom4/SpiderMastermind/LaunchPlasma",7,1,0,attn);
@@ -156,14 +156,14 @@ Class D4SpiderMastermind : D4AbstractBoss
 		TNT1 A 0 A_JumpIfCloser(800,"InRageForBeam");
 		Goto DecideAllAttacks;
 	InRageForBeam:
-		SPID A 0 A_PlaySound("Doom4/SpiderMasterMind/LaserCharge",5,1,0,(target is "PlayerPawn" ? ATTN_NONE : 0));
+		SPID A 0 A_PlaySound("Doom4/SpiderMasterMind/LaserCharge",5,1,0,(target is "PlayerPawn" ? ATTN_NONE : ATTN_NORM));
 		SPID AAAA 5 A_FaceTarget(0,0,0,0,FAF_MIDDLE);	//aims at target
 		SPID A 0	//attack setup
 		{
 			user_direction = randompick(-1,1); //if 1, means will turn left, -1 means right
 			user_angle = 0;
 			user_pitch = pitch;
-			A_PlaySound("Doom4/SpiderMastermind/LaserLoop",6,1,1,(target is "PlayerPawn" ? ATTN_NONE : 0));
+			A_PlaySound("Doom4/SpiderMastermind/LaserLoop",6,1,1,(target is "PlayerPawn" ? ATTN_NONE : ATTN_NORM));
 			A_PlaySound("Doom4/Monsters/MastermindBeamFire",7,1);
 		}
 		
