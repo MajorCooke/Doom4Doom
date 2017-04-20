@@ -147,7 +147,6 @@ Class Doom4StatusBar : BaseStatusBar
 		{
 			BeginHUD(1.0, true);
 			DrawFullScreenStuff();
-			//DrawMainBar (TicFrac);
 		}
 	}
 	
@@ -165,7 +164,7 @@ Class Doom4StatusBar : BaseStatusBar
 		// Demon Runes
 		if (GetAmountOnly("IAmADemonToken"))
 		{	
-			DrawImage("Shade3Br", (-171, 0), imageAlignment);
+			DrawImage("Shade2Br", (-171, 0), imageAlignment);
 			DrawImage("DEMNBAR0", (18, 694), imageAlignment);
 			
 			int inv, maxinv;
