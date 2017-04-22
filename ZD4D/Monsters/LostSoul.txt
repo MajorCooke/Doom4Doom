@@ -97,6 +97,11 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 		PSUL B 0 BRIGHT A_SkullAttack;	//attack frame
 		PSUL B 2 BRIGHT Light("OrangeMediumFlicker3")
 		{
+			if (bFRIENDLY)
+			{
+				A_FaceTarget(0,0,0,0,FAF_MIDDLE);
+				A_ChangeVelocity(cos(pitch) * 20, 0, -sin(pitch) * 20,CVF_RELATIVE|CVF_REPLACE);
+			}
 			if(GetCvar("HQEffects"))
 			{
 				A_SpawnItemEx("LostSoulRedFlame",random(-10,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,85);
@@ -144,7 +149,15 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 		PSUL A 0 
 		{
 			if (bFRIENDLY)
-			{	A_DamageTarget(random(50,150),"Melee",DMSS_AFFECTARMOR);	} //if lost soul is friendly, deals more damage
+			{	
+				int dmg = random(50,150);
+				A_DamageTarget(dmg,"Melee",DMSS_AFFECTARMOR);
+				
+				if (master && master.FindInventory("PowerDrain",true) != null)
+				{
+					A_DamageMaster(-(dmg * 0.05));
+				}
+			} //if lost soul is friendly, deals more damage
 			else
 			{	A_Explode(random(30,50),64,XF_NOTMISSILE);	}
 		}
