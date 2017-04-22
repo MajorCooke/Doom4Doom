@@ -101,6 +101,9 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 			{
 				A_FaceTarget(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch) * 20, 0, -sin(pitch) * 20,CVF_RELATIVE|CVF_REPLACE);
+				if (!target || target.health < 1)
+					return ResolveState("See");
+				
 			}
 			if(GetCvar("HQEffects"))
 			{
@@ -112,6 +115,7 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 				A_SpawnItemEx("LostSoulRedFlame",random(-10,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,160);
 				A_SpawnItemEx("LostSoulRedFlare",-20,random(10,-10),25+random(10,-10),0,0,frandom(0.1,0.5),0,SXF_NOCHECKPOSITION,128);
 			}
+			return ResolveState(null);
 		}
 		Wait;
 	Pain: 

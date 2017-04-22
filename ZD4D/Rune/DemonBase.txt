@@ -355,9 +355,9 @@ Class DemonRuneMorphOff : Actor
 			A_SetInventory("PowerFlight",0,TargetPtr);		//to remove the flying of cacos and pelementals
 			A_SetInventory("PowerDrain",0,TargetPtr);		// Remove the drain effect.
 			A_GiveInventory("DemonOverlayCleaner",1,TargetPtr);		//cleans the demon overlays on unmorphed player
-			A_GiveInventory("DemonWarpersCleaner",1,TargetPtr);		//cleans the demon overlays on unmorphed player
+			A_GiveInventory("DemonWarpersCleaner",1,TargetPtr);		//cleans the demon warpers on unmorphed player
 			A_GiveInventory("MinionsTurner",1,TargetPtr);			//makes all minions enemy to unmorphed player
-			A_GiveInventory("HealthArmorRestorer",1,TargetPtr);			//makes all minions enemy to unmorphed player
+			A_GiveInventory("HealthArmorRestorer",1,TargetPtr);			//restores health and armor
 		
 			
 			//Removes any and all demon tokens from player
