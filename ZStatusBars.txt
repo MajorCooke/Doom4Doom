@@ -9,6 +9,7 @@ Class Doom4StatusBar : BaseStatusBar
 {
 	const FakeCashStart = 35 * 4;
 	const FakeCashFade = 35.0;
+	const imageAlignment = DI_ITEM_LEFT_TOP;
 	DynamicValueInterpolator mHealthInterpolator;
 	DynamicValueInterpolator mHealthInterpolator2;
 	DynamicValueInterpolator mHealthInterpolator3;
@@ -25,7 +26,6 @@ Class Doom4StatusBar : BaseStatusBar
 	Actor plr;
 	Vector2 BaseSize;
 	double fadeamt;
-	int imageAlignment;
 	uint FakeCashTimer, FakeCash, Cash, HP, MaxHP;
 	uint8 DoomDollMax, DoomDollCount, MegasphereCount;
 	bool ignoreFakeUpdate, noReticle, addonOverride, automap;
@@ -73,7 +73,6 @@ Class Doom4StatusBar : BaseStatusBar
 	{
 		Super.Tick();
 		mHealthInterpolator.Update(CPlayer.health);
-		imageAlignment = DI_ITEM_LEFT_TOP;
 		noReticle = GetAmountOnly("NoReticle");
 		if (GetAmount("IAmADemonToken"))
 		{
@@ -160,11 +159,7 @@ Class Doom4StatusBar : BaseStatusBar
 	
 	protected void DrawMainBar (double TicFrac)
 	{
-		// Image alignment for best visual quality.
-		int imageAlignment = DI_ITEM_LEFT_TOP;
-		
 		// Draw the powerup screens first so they don't overlap the rest of the hud.
-		
 		if (!automap)
 		{
 			if (GetAmountOnly("PowerD4QuadDamage"))	DrawImage("Shade2Ma", (-171, 0), imageAlignment);
@@ -196,8 +191,8 @@ Class Doom4StatusBar : BaseStatusBar
 				"RUNEBARA", "RUNEBNIL",
 				"RUNEBARB", "RUNEBNIL",
 				"RUNEBARC", "RUNEBNIL",
-				"RUNEBARD", "RUNEBNIL",
-				"RUNEBARI", "RUNEBNIL"
+				"RUNEBARD", "RUNEBNIL"
+				//"RUNEBARI", "RUNEBNIL"
 			};
 			int size = bars.Size();
 			for (int i = 0; i < size; i += 2)
@@ -212,7 +207,6 @@ Class Doom4StatusBar : BaseStatusBar
 			
 			if (!noReticle)
 			{
-				//HellKnight
 				if (GetAmountOnly("IamHellKnight"))
 					DrawImage("rUpg_and", (465, 337), imageAlignment);
 				else if (GetAmountOnly("IamBaronOfHell"))
