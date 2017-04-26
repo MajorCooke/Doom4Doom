@@ -24,14 +24,11 @@ Class Doom4StatusBar : BaseStatusBar
 	InventoryBarState diparms_sbar;
 	Actor plr;
 	Vector2 BaseSize;
-	int imageAlignment;
-	uint FakeCashTimer, FakeCash;
-	uint HP, MaxHP, Cash;
-	uint8 DoomDollMax, DoomDollCount;
-	uint8 MegasphereCount;
-	bool ignoreFakeUpdate;
 	double fadeamt;
-	bool noReticle;
+	int imageAlignment;
+	uint FakeCashTimer, FakeCash, Cash, HP, MaxHP;
+	uint8 DoomDollMax, DoomDollCount, MegasphereCount;
+	bool ignoreFakeUpdate, noReticle, addonOverride, automap;
 
 	override void Init()
 	{
@@ -91,6 +88,8 @@ Class Doom4StatusBar : BaseStatusBar
 		// draw functions because these really don't need updating every single TicFrac.
 		else
 		{
+			mTimeInterpolator.Reset(GetMaxAmount("DemonTimerToken"));
+			
 			// Cash
 			Cash = GetAmountOnly("D4DCash");
 			
@@ -134,9 +133,11 @@ Class Doom4StatusBar : BaseStatusBar
 
 	override void Draw (int state, double TicFrac)
 	{
-		Super.Draw (state, TicFrac);
-		
 		if (!plr)	plr = CPlayer.mo;
+		
+		Super.Draw (state, TicFrac);
+
+		if (addonOverride)	return;
 
 		if (state == HUD_StatusBar)
 		{
@@ -148,6 +149,13 @@ Class Doom4StatusBar : BaseStatusBar
 			BeginHUD(1.0, true);
 			DrawFullScreenStuff();
 		}
+		automap = false;
+	}
+	
+	override void DrawAutomapHUD(double ticFrac)
+	{
+		automap = true;
+		Super.DrawAutomapHud(ticFrac);
 	}
 	
 	protected void DrawMainBar (double TicFrac)
@@ -156,15 +164,18 @@ Class Doom4StatusBar : BaseStatusBar
 		int imageAlignment = DI_ITEM_LEFT_TOP;
 		
 		// Draw the powerup screens first so they don't overlap the rest of the hud.
-		if (GetAmountOnly("PowerD4QuadDamage"))	DrawImage("Shade2Ma", (-171, 0), imageAlignment);
-		if (GetAmountOnly("PowerD4Regen"))		DrawImage("Shade2Cy", (-171, 0), imageAlignment);
-		if (GetAmountOnly("PowerD4Haste"))		DrawImage("Shade2Ye", (-171, 0), imageAlignment);
-		if (GetAmountOnly("PowerD4Money"))		DrawImage("Shade2Gr", (-171, 0), imageAlignment);
 		
+		if (!automap)
+		{
+			if (GetAmountOnly("PowerD4QuadDamage"))	DrawImage("Shade2Ma", (-171, 0), imageAlignment);
+			if (GetAmountOnly("PowerD4Regen"))		DrawImage("Shade2Cy", (-171, 0), imageAlignment);
+			if (GetAmountOnly("PowerD4Haste"))		DrawImage("Shade2Ye", (-171, 0), imageAlignment);
+			if (GetAmountOnly("PowerD4Money"))		DrawImage("Shade2Gr", (-171, 0), imageAlignment);
+		}
 		// Demon Runes
 		if (GetAmountOnly("IAmADemonToken"))
 		{	
-			DrawImage("Shade2Br", (-171, 0), imageAlignment);
+			if (!automap)	DrawImage("Shade2Br", (-171, 0), imageAlignment);
 			DrawImage("DEMNBAR0", (18, 694), imageAlignment);
 			
 			int inv, maxinv;
@@ -566,11 +577,6 @@ Class Doom4StatusBar : BaseStatusBar
 					if (!noReticle)
 						DrawImage("rSG", (465, 337), imageAlignment);
 				}
-				/*
-				amt = Clamp(GetAmountOnly("Counter"), 0, 52);
-				DialName = String.Format("cnt%02d", amt);
-				DrawImage(DialName, (465, 337), imageAlignment);
-				*/
 			}
 			else if (CheckWeaponSelected("D4SuperShotgun"))
 			{
@@ -627,15 +633,6 @@ Class Doom4StatusBar : BaseStatusBar
 			{
 				DrawImage("chaingun", (983,676), imageAlignment);
 				
-				/*
-				// Mods available and equipped
-				inInventory ChaingunMod1, 1 { DrawImage "zotator0", 942, 673; InInventory GatlingRotatorActive { DrawImage "zotator1", 942, 673; } }
-				inInventory ChaingunMod2, 1 { DrawImage "zurrets0", 970, 673; InInventory MobileTurretActive   { DrawImage "zurrets1", 970, 673; } }
-				
-				// Reticle
-				inInventory Not NoReticle 	{ DrawImage "rCha_gun",  464,336; }
-				*/
-				
 				if (GetAmountOnly("ChaingunMod1"))
 				{
 					String img = (GetAmountOnly("GatlingRotatorActive")) ? "zotator1" : "zotator0";
@@ -668,7 +665,10 @@ Class Doom4StatusBar : BaseStatusBar
 				{
 					if (!noReticle) DrawImage("rRLD_ate", (465, 337), imageAlignment);
 				}
-								
+				
+				// In the event the maximums are changed later, the system 
+				// will maintain without needing to change anything here.
+				// Hooray for automation!
 				else if (GetAmountOnly("LockOnActive"))
 				{
 					if (!noReticle) DrawImage("rRLL_kOn", (465, 337), imageAlignment);
@@ -705,9 +705,6 @@ Class Doom4StatusBar : BaseStatusBar
 					DrawImage(img, (910, 673), imageAlignment);
 				}
 				
-				// In the event the maximums are changed later, the system 
-				// will maintain without needing to change anything here.
-				// Hooray for automation!
 				if (GetAmountOnly("HeatBlastActive"))
 				{
 					int Heat, HMax;
@@ -715,6 +712,7 @@ Class Doom4StatusBar : BaseStatusBar
 					
 					if (Heat > 0)
 					{
+						// Special image for max count. Don't bother mathing it out if so.
 						String img = (Heat >= HMax) ? "cya52" : String.Format("cnt%02d", Clamp(((52 * Heat) / Max(1, HMax)), 0, 52));
 						DrawImage(img, (465, 337), imageAlignment);
 					}
@@ -780,33 +778,6 @@ Class Doom4StatusBar : BaseStatusBar
 					String img = (GetAmountOnly("SiegeActive")) ? "ziegemd1" : "ziegemd0";
 					DrawImage(img, (910, 673), imageAlignment);
 				}
-				
-				/*
-				inInventory SiegeActive 
-				{
-					inInventory Not NoReticle 	{ DrawImage "rGau_ege",  465,337; }
-				}
-				else 
-				{
-					inInventory PrecisionActive
-					{
-						inInventory AltFireToken
-						{
-							DrawBar "rGau_er1", "rGau_er0", PrecisionShotChargesCounter, vertical, 394,334;
-							DrawImage "rGau_er4", 0,128;
-						}
-						else
-						{
-							inInventory Not NoReticle 	{ DrawImage "rGauss",  465,337; }
-						}
-					}
-					else
-					{
-						inInventory Not NoReticle 	{ DrawImage "rGauss",  465,337; }
-					}
-				}
-				
-				*/
 				
 				if (GetAmountOnly("PrecisionActive") && GetAmountOnly("AltFireToken"))
 				{
