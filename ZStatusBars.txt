@@ -74,6 +74,13 @@ Class Doom4StatusBar : BaseStatusBar
 		Super.Tick();
 		mHealthInterpolator.Update(CPlayer.health);
 		noReticle = GetAmountOnly("NoReticle");
+		
+		if (addonOverride)	
+		{
+			automap = false;
+			return;
+		}
+		
 		if (GetAmount("IAmADemonToken"))
 		{
 			mTimeInterpolator.Update(GetAmount("DemonTimerToken"));
@@ -128,6 +135,7 @@ Class Doom4StatusBar : BaseStatusBar
 					FakeCash = 0;
 			}
 		}
+		automap = false;
 	}
 
 	override void Draw (int state, double TicFrac)
@@ -136,7 +144,7 @@ Class Doom4StatusBar : BaseStatusBar
 		
 		Super.Draw (state, TicFrac);
 
-		if (addonOverride)	return;
+		if (addonOverride) return;
 
 		if (state == HUD_StatusBar)
 		{
@@ -148,7 +156,6 @@ Class Doom4StatusBar : BaseStatusBar
 			BeginHUD(1.0, true);
 			DrawFullScreenStuff();
 		}
-		automap = false;
 	}
 	
 	override void DrawAutomapHUD(double ticFrac)
@@ -284,7 +291,7 @@ Class Doom4StatusBar : BaseStatusBar
 			DrawImage ("BODYBAR0", (-69, 669), imageAlignment);
 			
 			// Health + Armor
-			int hp = (CPlayer ? CPlayer.mo.health : 0);
+			hp = (CPlayer ? CPlayer.mo.health : 0);
 			if (hp > 0)
 			{
 				Vector2 ArmorTextPos = (-4, 679);

@@ -1,5 +1,6 @@
 clearplayerclasses
 addplayerclass Doom4Player
+alias RemoveAmmo "NetEvent RemoveAmmo"
 alias RemoveAllGibs "RemoveGibs1; RemoveGibs2; RemoveGibs3; RemoveGibs4"
 alias RemoveGibs1 "remove BloodGibDropper; remove NewMeat; remove D4BloodCloud;"
 alias RemoveGibs2 "remove BloodGib1; remove BloodGib2; remove BloodGib3; remove BloodGib4;"

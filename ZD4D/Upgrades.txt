@@ -402,7 +402,8 @@ Class D4CrateUpgrade : UpgradeItem
 //==============================================================================
 
 Class D4RegenUpgrade1 : UpgradeItem 			{ Default { UpgradeItem.Cost 12000; }}	// Armor Regen
-Class D4RegenUpgrade2 : UpgradeItem 			{ Default { UpgradeItem.Cost 15000; }}	// Dual Regen
+Class D4RegenUpgrade2 : UpgradeItem 			{ Default { UpgradeItem.Cost 15000;	
+									UpgradeItem.Requirements1 "D4RegenUpgrade1", 1; }}	// Dual Regen
 Class D4RegenUpgrade3 : UpgradeItem 			{ Default { UpgradeItem.Cost 25000; }}	// Double Regen Rate
 Class D4RegenUpgrade4 : UpgradeItem 			{ Default { UpgradeItem.Cost 15000; }}	// Max health +100 (Soulsphere Only)
 Class D4MegachargeUpgrade1 : UpgradeItem		{ Default { UpgradeItem.Cost 10000; }}	// +1% resist, max 25%

@@ -1,5 +1,7 @@
+//==============================================================================
+// D4D Keys Code
 // ALL KEYS MUST INHERIT FROM D4KeyBase. NO EXCEPTIONS OR ELSE IT WON'T WORK.
-
+//==============================================================================
 Class D4KeyBase : CustomInventory {}
 
 Class D4RedCard : D4KeyBase replaces RedCard
