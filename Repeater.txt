@@ -1,0 +1,508 @@
+//===================================================================================================
+//===================================================================================================
+//
+//		Repeater (I like this name better than "Burst rifle")
+//
+//	Sprites: Neccronixis
+//	MuzzleFlash sprite edit: DBThanatos
+//	Code: DBThanatos
+//
+//===================================================================================================
+//===================================================================================================
+// Primary fire: 3 shot burst. Fairly accurate for mid range. One bullet per shot
+// Secondary fire: Fires an incendiary round. Five bullets per shot
+//   Upgrades:
+// ->Accuracy: makes primary fire a perfectly accurate shots
+// ->Piercing: makes primary bullets pierce ONE Monster;
+// ->AltDamage: Increases damage of the incendiary round
+// ->AltAmmo: Decreases the cost of the incendiary round from 5 to 3
+//===================================================================================================
+
+Class D4Repeater : Doom4Weapon
+{
+	Default 
+	{
+		+FLOORCLIP
+		+INVENTORY.UNDROPPABLE
+		+INVENTORY.UNTOSSABLE
+		+INVENTORY.IGNORESKILL
+		+WEAPON.NOAUTOFIRE
+		+WEAPON.NOALERT
+		Scale 0.7;
+		Tag "Plasma Rifle";
+		Weapon.AmmoType1 "D4Bullets";
+		Weapon.AmmoType2 "D4Bullets";
+		Weapon.AmmoGive1 40;
+		Weapon.AmmoUse1 0;
+		Weapon.AmmoUse2 1;
+		Weapon.SelectionOrder 41 ;//slightly below HAR which is 40
+		
+		Obituary "%o was repeater'd by %k'.";
+		Inventory.PickupMessage "Repeater. It has a Certain Affinity to other bullet weapons.";
+		Tag "Repeater";
+	}
+	States
+	{
+	Spawn:
+		WPPK L -1;
+		Wait;
+	//-------------------------------------------------------
+	// Deselect sequence
+	//-------------------------------------------------------
+	Deselect:
+		REPG A 1 A_Lower;
+		REPG AAAAA 0 A_Lower;
+		Loop;
+	//-------------------------------------------------------
+	// Select sequence
+	//-------------------------------------------------------
+	Select:
+		REPG A 0 ACS_NamedExecute("RemoveModText",0,0,0,0);
+		REPG A 1 A_Raise;
+		REPG AAAAA 0 A_Raise;
+		Goto Select+1;
+	//-------------------------------------------------------
+	// Ready sequence
+	//-------------------------------------------------------
+	Ready:
+	    M666 A 0 A_Overlay(SwitchWatcher,"SwitchWatcher",true);
+		REPG A 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+		Loop;
+	SwitchWatcher:
+		M666 A 1
+		{
+			if ((GetPlayerInput(MODINPUT_BUTTONS) & BT_USER1) &&
+				!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_USER1))
+			{
+				ACS_NamedExecute("ToggleRepeaterMode",0,0,0,0);
+			}
+		}
+		Loop;	
+	//===========================================================================	
+	// Primary fire
+	Fire:
+		REPG B 0 
+		{
+			//alt fire check
+			if(CountInv("RepeaterAimHolding")) 
+			{	return ResolveState("AltFireShoot"); }
+			
+			if(CountInv("RepeaterUpgradeDamage"))
+			{
+				if(GetCvar("sv_infiniteammo") || CountInv("D4Bullets")>2)
+				{
+					return ResolveState("FireDamageUpgraded");	
+				}
+				else
+				{
+					return ResolveState("NotEnoughAmmo");
+				}
+			}
+			else
+			{
+				if(GetCvar("sv_infiniteammo") || CountInv("D4Bullets")>1)
+				{
+					return ResolveState("FireNormal");	
+				}
+				else
+				{
+					return ResolveState("NotEnoughAmmo");
+				}
+			}
+		}
+	
+	//...What's the difference between this...
+	FireNormal:
+		REPG B 0
+		{
+			//primary fire checks
+			if(!GetCvar("D4D_RepeaterMode") && (GetCvar("sv_infiniteammo") || CountInv("D4Bullets")>=4)) //not in single mode and enough for 2 shots
+			{	A_PlaySound("Doom4/Weapon/Repeater/FireTriple",CHAN_WEAPON);		}
+			else if(CountInv("D4Bullets")>=2)  //enough for 1 shot
+			{	A_PlaySound("Doom4/Weapon/Repeater/FireSingle",CHAN_WEAPON);		}
+			
+		}
+		Goto FireCommon;
+	//...and this?
+	FireDamageUpgraded:
+		REPG B 0
+		{
+			//primary fire checks
+			if (!GetCvar("D4D_RepeaterMode") && (GetCvar("sv_infiniteammo") || CountInv("D4Bullets")>=6)) //not in single mode and enough for 2 shots
+			{	A_PlaySound("Doom4/Weapon/Repeater/FireTriple",CHAN_WEAPON);		}
+			else if (CountInv("D4Bullets")>=3)  //enough for 1 shot
+			{	A_PlaySound("Doom4/Weapon/Repeater/FireSingle",CHAN_WEAPON);		}
+		}
+		Goto FireCommon;
+		
+	FireCommon:
+		REPG B 1 Bright 
+		{
+			//checks if it already shot 3 times or if it's out of ammo
+			if(CountInv("RepeaterUpgradeDamage"))
+			{
+				if(CountInv("RepeaterCounter")>=3 || CountInv("D4Bullets")<3)
+				{
+					A_TakeInventory("RepeaterCounter",1000,Player1);
+					return ResolveState("EndFire");
+				}
+			}
+			else
+			{
+				if(CountInv("RepeaterCounter")>=3 || CountInv("D4Bullets")<2)
+				{
+					A_TakeInventory("RepeaterCounter",1000,Player1);
+					return ResolveState("EndFire");
+				}
+			}
+			
+			//checks for upgrades
+			if(CountInv("RepeaterUpgradePiercing"))	// if piercing upgrade
+			{
+				if (GetCvar("user_TracerFX") > 0)	{	A_FireProjectile("BulletTracerFX",0,0,6,0,0,0); }
+				A_RailAttack((CountInv("RepeaterUpgradeDamage") ? 22 : 14)*random(1,3),0,1,-1,-1,RGF_SILENT|RGF_NORANDOMPUFFZ,0,"D4BulletPuffForRails",0,0,0,10,0,0,null,0,0,2); 
+				A_TakeInventory("D4Bullets",(CountInv("RepeaterUpgradeDamage") ? 3 : 2),TIF_NOTAKEINFINITE);
+			}
+			
+			else //didnt have piercing upgrade
+			{
+				if (GetCvar("user_TracerFX") > 0)	{	A_FireBullets(0,0,-1,(CountInv("RepeaterUpgradeDamage") ? 22 : 14),"D4BulletPuff",PuffTracer|FBF_USEAMMO,0,"BulletTracerFX",-1,7); 	}
+				else								{	A_FireBullets(0,0,-1,(CountInv("RepeaterUpgradeDamage") ? 22 : 14)); 	}
+				A_TakeInventory("D4Bullets",(CountInv("RepeaterUpgradeDamage") ? 3 : 2),TIF_NOTAKEINFINITE);
+			}
+			
+			//casings on?
+			if (GetCvar("user_Casings"))
+			{ A_SpawnItemEx("HARCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER); }
+
+			//weapon HQ on?
+			if(GetCvar("HQEffectsWeapons"))
+			{ A_FireProjectile("MGSmokeSpawner",0,0,4,2); }
+			
+			A_GiveInventory("RepeaterCounter",1,Player1);
+			if (GetCvar("D4D_RepeaterMode")) //In Single-Round mode, force the burst to end after 1 round.
+			{ A_GiveInventory("RepeaterCounter",2,Player1); }
+			A_GunFlash("Null");
+			A_SetPitch(pitch-0.8);
+			A_WeaponOffset(8,8,WOF_ADD);
+			A_AlertMonsters();
+
+			return ResolveState(null);
+		}
+		
+		REPG C 1 
+		{
+			A_SetPitch(pitch+0.4);
+			A_WeaponOffset(-3,-3,WOF_ADD);
+			A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); 
+		}
+		REPG D 1 
+		{
+			A_SetPitch(pitch+0.4);
+			A_WeaponOffset(-3,-3,WOF_ADD);
+		}
+		Goto FireCommon; //skips the sound playing
+		
+	EndFire:
+		REPG C 1 A_WeaponOffset(6,38);
+		REPG C 1 { A_WeaponOffset(5,37); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+		REPG A 1 A_WeaponOffset(4,36);
+		REPG A 1 { A_WeaponOffset(3,35); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+		REPG A 1 A_WeaponOffset(2,34);
+		REPG A 1 { A_WeaponOffset(1,33); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+		REPG A 0 A_WeaponOffset(0.5,32.5);
+		
+		REPG AAAAAAAAAAAAAAAAAA 1 A_WeaponReady(WRF_NOBOB|WRF_ALLOWRELOAD|WRF_ALLOWUSER2); // half a second without bob, to avoid jerkiness when running and firing
+		Goto Ready;
+		
+	Flash:
+		TNT1 A 0 A_SetBlend("Orange",0.05,2);
+		ZZZZ C 1 A_Light1();
+		ZZZZ C 0 A_Light0();
+		Stop;
+		
+	NotEnoughAmmo:
+		REPG A 5 ACS_NamedExecute("NotEnoughAmmo",0,0,0);
+		Goto Ready;
+	//===========================================================================	
+	// Alt fire
+	AltFire:
+		REPG A 0
+		{
+			if (!GetCvar("sv_infiniteammo") && (CountInv("D4Bullets") < (CountInv("RepeaterUpgradeAltAmmo") ? 5 : 8)))
+			{	return ResolveState("NotEnoughAmmo");	}
+			
+			A_PlaySound("Doom4/Weapon/Shotgun/GrenadeAim",6);
+			A_GiveInventory("RepeaterAimHolding");
+			A_ZoomFactor(1.1,ZOOM_NOSCALETURNING);
+			return ResolveState(null);
+		}
+	AltFireHolding:
+		REPG A 1 A_WeaponReady(WRF_NOBOB|WRF_NOSWITCH|WRF_NOSECONDARY);
+		REPG A 0
+		{
+			if (GetPlayerInput(MODINPUT_BUTTONS|MODINPUT_OLDBUTTONS) & BT_ALTATTACK)
+			{
+				return ResolveState("AltFireHolding");
+			}
+			return ResolveState(null);
+		}
+		Goto AltFireReleaseButton;
+		
+	AltFireReleaseButton:
+		REPG A 5
+		{
+			A_TakeInventory("RepeaterAimHolding");
+			A_ZoomFactor(1.00);
+			A_PlaySound("Doom4/Weapon/Shotgun/CancelAim",6);
+		}
+		Goto Ready;
+		
+	AltFireShoot:
+		REPG B 2 Bright
+		{
+			A_PlaySound("Doom4/Weapon/Repeater/FireSingle",CHAN_WEAPON);
+			A_PlaySound("Doom4/Weapon/HellShot/AltFire",5);
+			
+			//Ammo upgrade?
+			A_TakeInventory("D4Bullets",CountInv("RepeaterUpgradeAltAmmo") ? 5 : 8,TIF_NOTAKEINFINITE);
+			
+			A_GunFlash("Null");
+			//Alt damage upgrade?
+			if(CountInv("RepeaterUpgradeAltDamage"))
+			{	A_FireProjectile("IncendiaryBulletDMG",0,0,6);	}
+			else
+			{	A_FireProjectile("IncendiaryBullet",0,0,6);	}
+			
+			//casings on?
+			if (GetCvar("user_Casings"))
+			{ 
+				A_SpawnItemEx("HARCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER); 
+				A_SpawnItemEx("HARCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER); 
+				A_SpawnItemEx("HARCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER); 
+			}
+
+			//weapon HQ on?
+			if(GetCvar("HQEffectsWeapons"))
+			{ 
+				A_FireProjectile("MGSmokeSpawner",0,0,4,2); 
+				A_FireProjectile("MGSmokeSpawner",0,0,4,2); 
+				A_FireProjectile("MGSmokeSpawner",0,0,4,2); 
+			}
+			
+			A_SetPitch(pitch-1.8);
+			A_WeaponOffset(20,20,WOF_ADD);
+			A_SetBlend("Orange",0.05,5);
+			A_Light2();
+			A_AlertMonsters();
+		}
+		REPG C 0 
+		{
+			A_Light0();
+			return A_JumpIf(CountInv("PowerD4DFS"),"AltFast");
+		}
+		REPG CCDDCC 1 
+		{
+			A_SetPitch(pitch+0.3);
+			A_WeaponOffset(-2,-2,WOF_ADD);
+		}
+		REPG AAAAAAAA 1 A_WeaponOffSet(-1,-1,WOF_ADD);
+		Goto AltCheck;
+	AltFast:
+		REPG CDC 1 
+		{
+			A_SetPitch(pitch+0.6);
+			A_WeaponOffset(-4,-4,WOF_ADD);
+		}
+		REPG AAAA 1 A_WeaponOffSet(-2,-2,WOF_ADD);
+		Goto AltCheck;
+		
+		// checks if still holding alt fire, otherwise, unzooms
+	AltCheck:
+		REPG A 0
+		{
+			if (GetPlayerInput(MODINPUT_BUTTONS|MODINPUT_OLDBUTTONS) & BT_ALTATTACK)
+			{
+				return ResolveState("AltFireHolding");
+			}
+			return ResolveState(null);
+		}
+		Goto AltFireReleaseButton;
+	}
+}
+
+//--------------------------------------------------------------------------------
+//	Weapon tokens
+Class RepeaterCounter : Inventory	{ Default { Inventory.MaxAmount 3;	}}
+Class RepeaterAimHolding : Inventory
+{}
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//	Mod tokens
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//Upgrade 1: Bullets pierce 1 Monster;
+Class RepeaterUpgradePiercing : Inventory 	{ Default {+INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
+
+//Upgrade 2: increased primary fire damage
+Class RepeaterUpgradeDamage : Inventory 	{ Default {+INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
+
+//Upgrade 3: increased alt fire burn damage
+Class RepeaterUpgradeAltDamage : Inventory 	{ Default {+INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
+
+//Upgrade 4: Decrease ammo requirement for alt fire
+Class RepeaterUpgradeAltAmmo : Inventory	{ Default {+INVENTORY.UNDROPPABLE Inventory.InterhubAmount 1;} }
+
+
+
+
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//	Alt fire related
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+
+Class IncendiaryBullet : FastProjectile
+{
+	double user_anglea, user_angleb;
+	int user_count;
+	double user_x;
+	double user_y;
+	double user_z;
+	double user_oldangle;
+	Default 
+	{
+		Speed 90;
+		Radius 2;
+		Height 4;
+		+HITTRACER
+		+PAINLESS
+		-BLOODSPLATTER
+		alpha 0.9;
+		scale 0.2;
+		Damage 1;
+		RenderStyle "Add";
+		/*MissileType "FlareParticleSpawner"
+		MissileHeight 8*/
+	}
+	States
+	{
+	Spawn:
+		TRAC A 1 Bright
+		{
+			if(GetCvar("HQEffectsWeapons"))
+			{
+				A_SpawnItemEx("FTFlameTrail2",0,0,random(0,2),0,0,frandom(0,1),0,32,128);
+			}
+		}
+		Loop;
+	Death:
+		TNT1 AAAAAAA 2 A_SpawnItemEx("FlareParticleSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+		Stop;
+	XDeath:
+		TNT1 A 0 
+		{
+			if (!tracer || tracer.health < 1)	{ return ResolveState("Dropout"); }
+			user_anglea = angle;
+			user_z = pos.z;
+			A_Warp(AAPTR_TRACER,0,0,0,0,WARPF_NOCHECKPOSITION);
+			user_angleb = angle;
+			user_z -= pos.z;
+			A_Warp(AAPTR_TRACER,0,0,user_z,user_anglea-user_angleb,WARPF_NOCHECKPOSITION,"Null",0,-0.5);
+			return ResolveState("Warping");
+		}
+	Warping:
+		D008 P 0 A_JumpIf(IsPointerEqual(AAPTR_TRACER,AAPTR_NULL),"Dropout");
+		D008 P 0 A_JumpIfHealthLower(1,"DropOut",AAPTR_TRACER);
+		D008 P 0 A_Warp(AAPTR_TRACER,0,0,user_z,user_anglea-user_angleb,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,null,0,-0.5);
+		TNT1 A 0
+		{
+			if(GetCvar("HQEffectsWeapons"))
+			{
+				A_SpawnItemEx("FlareParticleSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnParticle("FFEBDB",SPF_FULLBRIGHT|SPF_RELATIVE,random(10,22),random(3,6),0,0,0,0,frandom(1.85,-1.85),frandom(1.85,-1.85),frandom(-1.85,1.85),0,0,vel.z-0.06);
+				A_SpawnParticle("EBA121",SPF_FULLBRIGHT|SPF_RELATIVE,random(10,22),random(3,6),0,0,0,0,frandom(1.85,-1.85),frandom(1.85,-1.85),frandom(-1.85,1.85),0,0,vel.z-0.06);
+			}
+			A_SpawnParticle("FF9100",SPF_FULLBRIGHT|SPF_RELATIVE,random(10,22),random(3,6),0,0,0,0,frandom(1.85,-1.85),frandom(1.85,-1.85),frandom(-1.85,1.85),0,0,vel.z-0.06);
+			A_SpawnParticle("FF9933",SPF_FULLBRIGHT|SPF_RELATIVE,random(10,22),random(3,6),0,0,0,0,frandom(1.85,-1.85),frandom(1.85,-1.85),frandom(-1.85,1.85),0,0,vel.z-0.06);
+	
+			A_Explode(random(2,6),3);
+			user_count++;
+		}
+		TNT1 A 1 Bright;
+		D008 P 0 
+		{
+			if(user_count >= 105)
+			{
+				return ResolveState("Dropout");
+			}
+			else
+			{
+				user_count++;
+			}
+			return ResolveState(null);
+		}
+		Loop;
+
+	Dropout:
+		TROO ABCDE 3;
+		Stop;
+	}
+}
+
+Class FlareParticleSpawner : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY ;
+		TNT1 A 0 A_SpawnItemEx("FlmThrwrSmoke",random(5,-5),random(0,10),random(-5,5),frandom(0.3,-0.3),0,frandom(0.2,1.0),0,32,196);
+		TNT1 A 0 A_SpawnItemEx("FTFlameTrail2",random(5,-5),random(0,10),random(-5,5),frandom(0.3,-0.3),0,frandom(0,1),0,32,128);
+		TNT1 A 1;
+		TNT1 A 0 A_SpawnItemEx("FlmThrwrSmoke",random(5,-5),random(0,10),random(5,5),frandom(0.3,-0.3),0,frandom(0.2,1.0),0,32,196);
+		TNT1 A 1 A_SpawnItemEx("FTFlameTrail2",random(5,-5),random(0,10),random(0,5),frandom(0.3,-0.3),0,frandom(0,1),0,32,128);
+		Stop;
+	}
+}
+
+Class IncendiaryBulletDMG : IncendiaryBullet
+{
+	states
+	{
+	Warping:
+		D008 P 0 A_JumpIf(IsPointerEqual(AAPTR_TRACER,AAPTR_NULL),"Dropout");
+		D008 P 0 A_JumpIfHealthLower(1,"DropOut",AAPTR_TRACER);
+		D008 P 0 A_Warp(AAPTR_TRACER,0,0,user_z,user_anglea-user_angleb,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,null,0,-0.5);
+		TNT1 A 0
+		{
+			if(GetCvar("HQEffectsWeapons"))
+			{
+				A_SpawnParticle("FFEBDB",SPF_FULLBRIGHT|SPF_RELATIVE,random(10,22),random(4,8),0,0,0,0,frandom(1.85,-1.85),frandom(1.85,-1.85),frandom(-1.85,1.85),0,0,vel.z-0.06);
+				A_SpawnParticle("EBA121",SPF_FULLBRIGHT|SPF_RELATIVE,random(10,22),random(4,8),0,0,0,0,frandom(1.85,-1.85),frandom(1.85,-1.85),frandom(-1.85,1.85),0,0,vel.z-0.06);
+				A_SpawnItemEx("FlareParticleSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnParticle("FF9100",SPF_FULLBRIGHT|SPF_RELATIVE,random(10,22),random(4,8),0,0,0,0,frandom(1.85,-1.85),frandom(1.85,-1.85),frandom(-1.85,1.85),0,0,vel.z-0.06);
+			A_SpawnParticle("FF9933",SPF_FULLBRIGHT|SPF_RELATIVE,random(10,22),random(4,8),0,0,0,0,frandom(1.85,-1.85),frandom(1.85,-1.85),frandom(-1.85,1.85),0,0,vel.z-0.06);
+			A_Explode(random(4,8),3);
+		}
+		TNT1 A 1 Bright {user_count++;}
+		D008 P 0 
+		{
+			if(user_count>=105)
+			{
+				return ResolveState("Dropout");
+			}
+			else
+			{
+				user_count++;
+			}
+			return ResolveState(null);
+		}
+		Loop;
+	}
+}
