@@ -1133,22 +1133,24 @@ extend class Doom4Player
 	override void MovePlayer()
 	{
 		Super.MovePlayer();
-		let plyr = self.player;
-		if (plyr)
+		if (GetClass() == 'Doom4Player')
 		{
-			if (CountInv("D4AirControl") && !plyr.onground)
+			let plyr = self.player;
+			if (plyr)
 			{
-				int gpi = GetPlayerInput(MODINPUT_BUTTONS);
-				A_ChangeVelocity(
-				((gpi & BT_FORWARD  ) ? .8 : 0) - 
-				((gpi & BT_BACK     ) ? .8 : 0),
-				((gpi & BT_MOVELEFT ) ? .8 : 0) -
-				((gpi & BT_MOVERIGHT) ? .8 : 0),
-				0,CVF_RELATIVE);
-				A_ChangeVelocity(vel.x*.95,vel.y*.95,vel.z,CVF_REPLACE);
+				if (CountInv("D4AirControl") && !plyr.onground)
+				{
+					int gpi = GetPlayerInput(MODINPUT_BUTTONS);
+					A_ChangeVelocity(
+					((gpi & BT_FORWARD  ) ? .8 : 0) - 
+					((gpi & BT_BACK     ) ? .8 : 0),
+					((gpi & BT_MOVELEFT ) ? .8 : 0) -
+					((gpi & BT_MOVERIGHT) ? .8 : 0),
+					0,CVF_RELATIVE);
+					A_ChangeVelocity(vel.x*.95,vel.y*.95,vel.z,CVF_REPLACE);
+				}
 			}
 		}
-		
 	}
 	
 	//--------------------------------------------------------------------------

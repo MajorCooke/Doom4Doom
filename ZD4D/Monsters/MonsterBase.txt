@@ -32,11 +32,10 @@ enum RuneChances
 
 Struct D4DropList play
 {
-	const MaxSize = 20;	
 	int Credits;
 	
-	Class<Actor> ItemName[MaxSize];
-	int ItemCount[MaxSize];
+	Array<String> ItemName;
+	Array<Int> ItemCount;
 	
 	//--------------------------------------------------------------------------
 	// ResetList()
@@ -46,39 +45,40 @@ Struct D4DropList play
 	
 	void ResetList()
 	{
-		for (int i = 0; i < MaxSize; i++)
-		{
-			ItemName[i] = null;
-			ItemCount[i] = 0;
-		}
+		ItemName.Clear();
+		ItemCount.Clear();
 	}
 	
 	//--------------------------------------------------------------------------
 	// AddItem(actor, count)
 	//
-	// Adds an item to the list and how many to spawn. Can store up to 20 items.
+	// Adds an item to the list and how many to spawn.
 	//--------------------------------------------------------------------------
 	
-	void AddItem(Class<Actor> newitem, int count = 1, bool adding = true)
+	void AddItem(String newthing, int count = 1, bool adding = true)
 	{
+		// Make sure the item's valid first.
+		
+		Class<Inventory> newitem = newthing;
 		if (newitem == null)	return;
 		
-		for (int i = 0; i < MaxSize; i++)
+		// Search the array first for something, if its size is > 0. Otherwise,
+		// add it in if not found.
+		
+		int size = ItemName.Size();
+		if (size > 0)
 		{
-			bool isNull = (ItemName[i] == null);
-			bool isSame = (ItemName[i] == newitem);
-			if (isNull)
+			for (int i = 0; i < size; i++)
 			{
-				ItemName[i] = newitem;
-				ItemCount[i] = (adding ? (ItemCount[i] + count) : count);
-				return;
-			}
-			if (isSame)
-			{
-				ItemCount[i] = (adding ? (ItemCount[i] + count) : count);
-				return;
+				if (newthing ~== ItemName[i])
+				{
+					ItemCount[i] = adding ? ItemCount[i] + count : count;
+					return;
+				}
 			}
 		}
+		ItemName.Push(newthing);
+		ItemCount.Push(count);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -91,14 +91,19 @@ Struct D4DropList play
 	{
 		if (!dropper)	return;
 		
-		for (int i = 0; i < MaxSize; i++)
+		int size = ItemName.Size();
+		if (size > 0)
 		{
-			if (ItemName[i] == null || ItemCount[i] < 1)	continue;
-			
-			for (; ItemCount[i] > 0; ItemCount[i]--)
+			for (int i = 0; i < size; i++)
 			{
-				int ZHeight = 32;
-				dropper.A_SpawnItemEx(ItemName[i],0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+				Class<Inventory> check = ItemName[i];
+				if (check == null || ItemCount[i] < 1)	continue;
+				
+				for (; ItemCount[i] > 0; ItemCount[i]--)
+				{
+					int ZHeight = 32;
+					dropper.A_SpawnItemEx(check,0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+				}
 			}
 		}
 	}
@@ -127,7 +132,7 @@ Class D4AbstractMonster : Actor
 		D4AbstractMonster.CashAmount -1;
 		D4AbstractMonster.CashChainsawFinisher -1;
 		BloodColor "Red";
-		DamageFactor "Crush", 10.0;
+		DamageFactor "Crush", 15.0;
 	}
 	
 	override void BeginPlay()
@@ -181,7 +186,7 @@ Class D4AbstractMonster : Actor
 		if (GetCvar("D4D_EnhancedChase"))
 		{
 			if (!target || target.bKilled)
-			{	A_Chase(null,null,CHF_DONTMOVE|CHF_DONTTURN|CHF_NODIRECTIONTURN|CHF_NORANDOMTURN|CHF_NOPOSTATTACKTURN);	}
+				A_Chase(null,null,CHF_DONTMOVE|CHF_DONTTURN|CHF_NODIRECTIONTURN|CHF_NORANDOMTURN|CHF_NOPOSTATTACKTURN);
 			
 			if (A_JumpIfTargetInLOS("Null",360,JLOSF_DEADNOJUMP))
 			{
@@ -199,9 +204,7 @@ Class D4AbstractMonster : Actor
 				else
 				{
 					angle = ang;
-					
 					newflags = 0;
-					
 				}
 			}
 		}
@@ -221,10 +224,11 @@ Class D4AbstractMonster : Actor
 		
 		if (!rarity)	return 0;
 		
-		// Spider masterminds are the rarest of enemies. Give them special treatment so
-		// players can enjoy playing the hell out of them.
-		if (CheckClass("D4SpiderMastermind") || CheckClass("D4OldSpidermastermind"))
+		// Spider masterminds are the rarest of enemies. Give them special 
+		// treatment so players can enjoy playing the hell out of them.
+		if (CheckClass("D4SpiderMastermind") || CheckClass("D4OldSpiderMastermind"))
 		{
+			// Only check for live ones.
 			int howmany = Max(1,CountProximity("D4SpiderMastermind",32767) + CountProximity("D4OldSpiderMastermind",32767) + 1);
 			howmany = Clamp(howmany,1,RuneChance_Master);
 			if (rarity == 2)
@@ -257,13 +261,16 @@ Class D4AbstractMonster : Actor
 	
 	void D4SetupLoot(bool carrion = false)
 	{	
+		bool chainsawed = false;
+		bool LootDrop = GetCvar("user_LootDrop");
 		MOD = DamagetypeReceived;
-		if (carrion && GetCvar("MPWeapons"))
-		{	Pinatas.AddItem("D4PinataCarrion",1);	}
+		CashMultiplier = 1;
+		
+		if (carrion && GetCvar("MPWeapons"))	Pinatas.AddItem("D4PinataCarrion",1);
 		if (MOD == 'ChainsawPinata')
 		{
 			CashMultiplier = 4;
-			AddPinataSmashedChainsaw(); 
+			chainsawed = true;
 		}
 		else if (MOD == 'BerserkKill' || 
 				MOD == 'ChainsawKill' || 
@@ -271,13 +278,104 @@ Class D4AbstractMonster : Actor
 				MOD == 'GloryKill')
 		{
 			CashMultiplier = 2;
-			AddPinataSmashedNormal();
-			if (GetCvar("user_LootDrop")) { Pinatas.AddItem("D4PinataHealth", 5); }
+			if (LootDrop)  Pinatas.AddItem("D4PinataHealth", 5); 
 		}
-		else
-		{	
-			CashMultiplier = 1;
-			AddPinataSmashedNormal();
+		
+		
+		
+		if (chainsawed)
+		{
+			Pinatas.AddItem("D4PinataBulletsBig", 	LootDrop ? 4 : 1);
+			Pinatas.AddItem("D4PinataShellsBig", 	LootDrop ? 4 : 1);
+			Pinatas.AddItem("D4PinataCellsBig", 	LootDrop ? 5 : 1);
+			Pinatas.AddItem("D4PinataRocketsBig", 	LootDrop ? 3 : 1);
+		}
+			
+		if (LootDrop)
+		{			
+			if (chainsawed)
+			{
+				//armor giver
+				if (CountInv("D4ArmorCapRaiser",Player1) >= 25)
+				{
+					int rng[2];
+					rng[0] = random(1,256) > 128 ? 1 : 0;
+					rng[1] = random(1,256) > 128 ? 1 : 0;
+					Pinatas.AddItem("D4PinataArmor", rng[0] + rng[1]);
+				}
+				if (CountInv("D4ArmorCapRaiser",Player1) >= 50)
+				{
+					int rng[2];
+					rng[0] = random(1,256) > 128 ? 1 : 0;
+					rng[1] = random(1,256) > 128 ? 1 : 0;
+					Pinatas.AddItem("D4PinataArmor", rng[0] + rng[1]);
+				}
+				if (CountInv("D4ArmorCapRaiser",Player1) >= 100)
+				{
+					Pinatas.AddItem("D4PinataArmor", 2);
+				}
+			}
+			// Armor giver
+			else if (CountInv("BasicArmor",AAPTR_PLAYER1) < 200 && CountInv("D4ArmorCapRaiser",AAPTR_PLAYER1)>=50)	//only if player isnt at full armor and has upgraded his armor
+			{	
+				int rng = random(1,256) > 192 ? 1 : 0;
+				Pinatas.AddItem("D4PinataArmor", rng); //very rarely they will drop armor
+			}
+		
+			//health giver
+			if (A_JumpIfHealthLower(60,"Null",AAPTR_PLAYER1))
+			{
+				int rng = random(1,256) > 192 ? 1 : 0;
+				Pinatas.AddItem("D4PinataHealth", 1 + rng);
+			}
+			
+			//bullets giver
+			if ((CountInv("D4AssaultRifle",AAPTR_PLAYER1) || 
+				CountInv("D4Chaingun",AAPTR_PLAYER1) ||
+				CountInv("D4Repeater",AAPTR_PLAYER1)) && 
+				CountInv("D4Bullets",AAPTR_PLAYER1) < 10)
+			{
+				int rng[2];
+				rng[0] = random(1,256) > 128 ? 1 : 0;
+				rng[1] = random(1,256) > 240 ? 1 : 0;
+				Pinatas.AddItem("D4PinataBullets", rng[0] + rng[1]);
+			}
+			
+			//Shells giver
+			if ((CountInv("D4Shotgun",AAPTR_PLAYER1) || 
+				CountInv("D4SuperShotgun",AAPTR_PLAYER1)) && 
+				CountInv("D4Shells",AAPTR_PLAYER1) < 5)
+			{
+				int rng[2];
+				rng[0] = random(1,256) > 128 ? 1 : 0;
+				rng[1] = random(1,256) > 128 ? 1 : 0;
+				Pinatas.AddItem("D4PinataShells", rng[0] + rng[1]);
+			}
+			
+			//Cells giver
+			if ((CountInv("D4PlasmaRifle",AAPTR_PLAYER1) ||
+				CountInv("D4GaussCannon",AAPTR_PLAYER1) ||
+				CountInv("D4LightningGun",AAPTR_PLAYER1)) && 
+				CountInv("D4Cells",AAPTR_PLAYER1) < 16)
+			{
+				int rng[2];
+				rng[0] = random(1,256) > 128 ? 1 : 0;
+				rng[1] = random(1,256) > 128 ? 1 : 0;
+				Pinatas.AddItem("D4PinataCells", rng[0] + rng[1]);
+			}
+			//Rockets giver
+			if(CountInv("D4RocketLauncher",AAPTR_PLAYER1) && CountInv("D4Rockets",AAPTR_PLAYER1) < 5)
+			{
+				int rng = random(1,256) > 196 ? 1 : 0;
+				Pinatas.AddItem("D4PinataRockets", rng);
+			}
+			
+			//BFG ammo giver, this one doesnt check for ammo low, but it does check for the weapon
+			if (CountInv("D4BFG",AAPTR_PLAYER1) && CountInv("BFGUpgrade1",AAPTR_PLAYER1))
+			{
+				int rng = random(1,256) > 232 ? 1 : 0;
+				Pinatas.AddItem("D4PinataBFG", rng);
+			}
 		}
 	}
 	
@@ -401,123 +499,7 @@ Class D4AbstractMonster : Actor
 				A_DropItem("SovietChaingunUpgradePickup");
 			}
 		}
-	}
-	
-	// How this works is pretty simple. Behaves just like A_SpawnItemEx's 'chance'
-	// parameter to NOT spawn. So basically returns false more often the higher 
-	// the number is.
-	int RNG256(int num)		{	return (random(1,256) > num) ? 1 : 0;	}
-	
-	//==========================================================================
-	//
-	// AddPinataSmashedChainsaw
-	//
-	// Adds standard pinata drops to Pinatas list.
-	//==========================================================================
-	void AddPinataSmashedChainsaw()
-	{
-		if (GetCvar("user_LootDrop"))
-		{
-			//D4PinataBullets
-			//health giver
-			if (A_JumpIfHealthLower(60,"Null",AAPTR_PLAYER1))
-			{
-				Pinatas.AddItem("D4PinataHealth", 2 + RNG256(128) + RNG256(240));
-			}
-			
-			//armor giver
-			if (CountInv("D4ArmorCapRaiser",Player1) >= 25)
-			{
-				Pinatas.AddItem("D4PinataArmor", RNG256(128) + RNG256(128));
-			}
-			if (CountInv("D4ArmorCapRaiser",Player1) >= 50)
-			{
-				Pinatas.AddItem("D4PinataArmor", RNG256(128) + RNG256(128));
-			}
-			if (CountInv("D4ArmorCapRaiser",Player1) >= 100)
-			{
-				Pinatas.AddItem("D4PinataArmor", 2);
-			}
-			
-			Pinatas.AddItem("D4PinataBulletsBig", 	4);
-			Pinatas.AddItem("D4PinataShellsBig", 	4);
-			Pinatas.AddItem("D4PinataCellsBig", 	5);
-			Pinatas.AddItem("D4PinataRocketsBig", 	3);
-			
-			//BFG ammo giver, this one doesnt check for ammo low, but it does check for the weapon
-			if (CountInv("D4BFG",AAPTR_PLAYER1))
-			{
-				Pinatas.AddItem("D4PinataBFG", RNG256(232)); //very rarely
-			}
-		}
-		else
-		{
-			Pinatas.AddItem("D4PinataBulletsBig", 	1);
-			Pinatas.AddItem("D4PinataShellsBig", 	1);
-			Pinatas.AddItem("D4PinataCellsBig", 	1);
-			Pinatas.AddItem("D4PinataRocketsBig", 	1);
-		}
-	}
-	//==========================================================================
-	//
-	// AddPinataSmashedNormal
-	//
-	// Adds standard pinata drops to Pinatas list.
-	//==========================================================================
-	void AddPinataSmashedNormal()
-	{
-		if (GetCvar("user_LootDrop"))
-		{
-			//health giver
-			if (A_JumpIfHealthLower(40,"Null",AAPTR_PLAYER1))
-			{
-				Pinatas.AddItem("D4PinataHealth", 1 + RNG256(192));
-			}
-			
-			//Armor giver
-			if (CountInv("BasicArmor",AAPTR_PLAYER1) < 200 && CountInv("D4ArmorCapRaiser",AAPTR_PLAYER1)>=50)	//only if player isnt at full armor and has upgraded his armor
-			{
-				Pinatas.AddItem("D4PinataArmor", RNG256(192)); //very rarely they will drop armor
-			}
-			
-			//bullets giver
-			if ((CountInv("D4AssaultRifle",AAPTR_PLAYER1) || 
-				CountInv("D4Chaingun",AAPTR_PLAYER1) ||
-				CountInv("D4Repeater",AAPTR_PLAYER1)) && 
-				CountInv("D4Bullets",AAPTR_PLAYER1) < 10)
-			{
-				Pinatas.AddItem("D4PinataBullets", RNG256(128) + RNG256(240));
-			}
-			
-			//Shells giver
-			if ((CountInv("D4Shotgun",AAPTR_PLAYER1) || 
-				CountInv("D4SuperShotgun",AAPTR_PLAYER1)) && 
-				CountInv("D4Shells",AAPTR_PLAYER1) < 5)
-			{
-				Pinatas.AddItem("D4PinataShells", RNG256(128) + RNG256(240));
-			}
-			
-			//Cells giver
-			if ((CountInv("D4PlasmaRifle",AAPTR_PLAYER1) ||
-				CountInv("D4GaussCannon",AAPTR_PLAYER1) ||
-				CountInv("D4LightningGun",AAPTR_PLAYER1)) && 
-				CountInv("D4Cells",AAPTR_PLAYER1) < 16)
-			{
-				Pinatas.AddItem("D4PinataCells", RNG256(128) + RNG256(240));
-			}
-			//Rockets giver
-			if(CountInv("D4RocketLauncher",AAPTR_PLAYER1) && CountInv("D4Rockets",AAPTR_PLAYER1) < 5)
-			{
-				Pinatas.AddItem("D4PinataRockets", RNG256(196));
-			}
-			
-			//BFG ammo giver, this one doesnt check for ammo low, but it does check for the weapon
-			if (CountInv("D4BFG",AAPTR_PLAYER1) && CountInv("BFGUpgrade1",AAPTR_PLAYER1))
-			{
-				Pinatas.AddItem("D4PinataBFG", RNG256(253));
-			}
-		}
-	}
+	}	
 	
 	//==========================================================================
 	//
