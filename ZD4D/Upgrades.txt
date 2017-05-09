@@ -209,7 +209,39 @@ Class ProtectionBonus3Real : PowerProtection
 
 Class AssaultRifleMod1 : UpgradeItem 			{ Default {	UpgradeItem.Cost 3000;	}}	// Scope mod
 Class AssaultRifleMod2 : UpgradeItem 			{ Default {	UpgradeItem.Cost 4000;	}}	// mini missiles mod
-Class BFGUpgrade1 : UpgradeItem 				{ Default { UpgradeItem.Cost 10000; }}	// Ammo Capacity
+Class BFGUpgrade1 : UpgradeItem	// Ammo Capacity
+{
+	Default 
+	{
+		UpgradeItem.Cost 10000;
+	}
+	
+	override void UpdateItem()
+	{
+		if (Owner)
+		{
+			let inv = Owner.FindInventory("D4BFGAmmo");
+			if (inv)
+			{
+				inv.MaxAmount = 4;
+				inv.InterHubAmount = 4;
+			}
+		}
+	}
+	override void DepleteOrDestroy()
+	{
+		if (Owner)
+		{
+			let inv = Owner.FindInventory("D4BFGAmmo");
+			if (inv)
+			{
+				inv.MaxAmount = 3;
+				inv.InterHubAmount = 3;
+			}
+		}
+		Super.DepleteOrDestroy();
+	}
+}
 Class BFGUpgrade2 : UpgradeItem 				{ Default { UpgradeItem.Cost 20000; }} 	// Alt Fire
 Class BFGUpgrade3 : UpgradeItem 				{ Default { UpgradeItem.Cost 10000; }}	// Projectile; Speed
 Class BFGUpgrade4 : UpgradeItem 				{ Default { UpgradeItem.Cost 10000; }}	// Redirector

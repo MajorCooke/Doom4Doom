@@ -428,7 +428,7 @@ Class Doom4StatusBar : BaseStatusBar
 			
 			if (GetAmountOnly("D4BFG"))
 			{
-				int BFGUpgrade = GetAmountOnly("BFGUpgrade1");
+				int BFGUpgrade = Clamp(GetAmountOnly("BFGUpgrade1"),0,1);
 				int BFGAmmo = 0, BFGMaxAmmo = 0;
 				[BFGAmmo, BFGMaxAmmo] = GetAmount("D4BFGAmmo");
 				BFGMaxAmmo += BFGUpgrade;
