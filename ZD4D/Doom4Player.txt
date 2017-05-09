@@ -773,132 +773,6 @@ extend class Doom4Player
 	}
 	
 	//==========================================================================
-	//	Health, Armor and Movement
-	//==========================================================================
-	
-	void UpdateHAM()
-	{
-		
-		//======================================================================
-		// Health & Armor
-		//======================================================================
-		A_SetInventory("SuperHealthToken",Clamp(health-100,0,100));
-		A_SetInventory("HealthToken",Clamp(health,0,100));
-		A_SetInventory("SuperArmorToken",Clamp(CountInv("BasicArmor")-100,0,100));
-		
-		//======================================================================
-		// Movement
-		//======================================================================
-		// Give static tokens based on movement.
-		
-		if (CountInv("StaticRifleActive"))
-		{
-			if (CountInv("StaticChargeDrain"))
-			{
-				if (CountInv("StaticRifleChargingToken") > 540)
-				{
-					A_SetInventory("StaticRifleChargingToken",508);
-				}
-				else if (CountInv("StaticRifleChargingToken"))
-				{
-					A_TakeInventory("StaticRifleChargingToken",32);
-					if (!CountInv("StaticRifleChargingToken"))
-					{	A_SetInventory("StaticChargeDrain",0);	}
-				}
-				else
-				{	A_SetInventory("StaticChargeDrain",0);	}
-			}
-			else if (CountInv("StaticRifleChargingToken") < 540)
-			{
-				user_vel = sqrt((vel.x*vel.x) + (vel.y*vel.y) + (vel.z*vel.z));
-				if (CountInv("StaticRifleActive") && (user_vel / 4) >= 1.0)
-				{
-						 if (CountInv("StaticUpgrade4"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.9) / 4));		}
-					else if (CountInv("StaticUpgrade3"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.55) / 4));	}
-					else if (CountInv("StaticUpgrade2"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.2) / 4));		}
-					else if (CountInv("StaticUpgrade1"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 1.85) / 4));	}
-					else									{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 1.5) / 4));		}
-				}
-			}
-		}
-		
-		if (CountInv("D4IdfaTrap")) { A_GiveInventory("IdfaStamp"); A_SetInventory("D4IdfaTrap",0); }
-		
-		//======================================================================
-		// Double Jump
-		//======================================================================
-		if (GetCvar("user_MultiJump") > 0)
-		{
-			user_ordersJump = ((GetPlayerInput(MODINPUT_BUTTONS)    & BT_JUMP) &&
-							  !(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_JUMP)) ? 1 : 0;
-			
-			if (user_ordersJump)
-			{
-				user_jumpsDone += 1;
-				
-				if (CountInv("D4HigherJump") && user_jumpsdone == 1)
-				{
-					A_ChangeVelocity(vel.x,vel.y,vel.z + 1,CVF_REPLACE);
-				}
-				
-				else if (user_jumpsDone > 1 &&
-					user_jumpsDone <= countInv("D4MultiJump"))
-				{
-					int ddjj = Clamp(CountInv("D4DoomDollUpgrade1") + CountInv("D4DoomDollHands"),1,2);
-					if (vel.z <= 0) // Stop fall
-					{
-						A_ChangeVelocity(vel.x,vel.y,(8.2 + CountInv("D4HigherJump")) * ddjj,CVF_REPLACE);
-						A_ChangeVelocity(
-						((GetPlayerInput(MODINPUT_BUTTONS) & BT_FORWARD  ) ? 2 : 0) - 
-						((GetPlayerInput(MODINPUT_BUTTONS) & BT_BACK     ) ? 2 : 0),
-						((GetPlayerInput(MODINPUT_BUTTONS) & BT_MOVELEFT ) ? 2 : 0) -
-						((GetPlayerInput(MODINPUT_BUTTONS) & BT_MOVERIGHT) ? 2 : 0),
-						0,CVF_RELATIVE);
-					}
-					else // advance jump
-					{
-						if (GetCvar("D4D_JumpExploit"))
-						{	A_ChangeVelocity(vel.x,vel.y,(vel.z + 8.2 + CountInv("D4HigherJump")) * ddjj,CVF_REPLACE);	}
-						else
-						{	A_ChangeVelocity(vel.x,vel.y,(sqrt(vel.z) + 8.2 + CountInv("D4HigherJump")) * ddjj,CVF_REPLACE);	}
-						
-						A_ChangeVelocity(
-						((GetPlayerInput(MODINPUT_BUTTONS) & BT_FORWARD  ) ? 2 : 0) - 
-						((GetPlayerInput(MODINPUT_BUTTONS) & BT_BACK     ) ? 2 : 0),
-						((GetPlayerInput(MODINPUT_BUTTONS) & BT_MOVELEFT ) ? 2 : 0) -
-						((GetPlayerInput(MODINPUT_BUTTONS) & BT_MOVERIGHT) ? 2 : 0),
-						0,CVF_RELATIVE);
-					}
-					
-					A_PlaySound("Doom4/Player/DoubleJump");
-				}
-			}
-			else if (vel.z != 0)
-			{
-				if (!user_jumpsDone)
-				{
-					user_jumpsDone = 1;
-				}
-				
-				if (CountInv("D4AirControl") && user_jumpsDone > 1)
-				{
-					A_ChangeVelocity(
-					((GetPlayerInput(MODINPUT_BUTTONS) & BT_FORWARD  ) ? .8 : 0) - 
-					((GetPlayerInput(MODINPUT_BUTTONS) & BT_BACK     ) ? .8 : 0),
-					((GetPlayerInput(MODINPUT_BUTTONS) & BT_MOVELEFT ) ? .8 : 0) -
-					((GetPlayerInput(MODINPUT_BUTTONS) & BT_MOVERIGHT) ? .8 : 0),
-					0,CVF_RELATIVE);
-					A_ChangeVelocity(vel.x*.95,vel.y*.95,vel.z,CVF_REPLACE);
-				}
-			}
-			else if ((vel.z == 0 && user_zvel == 0) || pos.z <= floorz)
-			{	user_jumpsDone = 0;	}
-			
-			user_zvel = vel.z;
-		}
-	}
-	
-	//==========================================================================
 	//
 	//
 	//
@@ -1072,6 +946,11 @@ extend class Doom4Player
 			return Super.Tick();
 		}
 		
+		let plyr = self.player;
+		if (plyr && plyr.onground)
+		{
+			user_jumpsDone = 0;
+		}
 		if (PentaNoiseWait > 0)	PentaNoiseWait--;
 		if (level.maptime <= 1)	
 		{
@@ -1137,14 +1016,144 @@ extend class Doom4Player
 		
 		//----------------------------------------------------------------------
 		
-		if (GetClass() == "Doom4Player")		UpdateHAM();
+		if (GetClass() == "Doom4Player")
+		{
+			if (CountInv("StaticRifleActive"))
+			{
+				if (CountInv("StaticChargeDrain"))
+				{
+					if (CountInv("StaticRifleChargingToken") > 540)
+					{
+						A_SetInventory("StaticRifleChargingToken",508);
+					}
+					else if (CountInv("StaticRifleChargingToken"))
+					{
+						A_TakeInventory("StaticRifleChargingToken",32);
+						if (!CountInv("StaticRifleChargingToken"))
+						{	A_SetInventory("StaticChargeDrain",0);	}
+					}
+					else
+					{	A_SetInventory("StaticChargeDrain",0);	}
+				}
+				else if (CountInv("StaticRifleChargingToken") < 540)
+				{
+					user_vel = sqrt((vel.x*vel.x) + (vel.y*vel.y) + (vel.z*vel.z));
+					if (CountInv("StaticRifleActive") && (user_vel / 4) >= 1.0)
+					{
+							 if (CountInv("StaticUpgrade4"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.9) / 4));		}
+						else if (CountInv("StaticUpgrade3"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.55) / 4));	}
+						else if (CountInv("StaticUpgrade2"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.2) / 4));		}
+						else if (CountInv("StaticUpgrade1"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 1.85) / 4));	}
+						else									{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 1.5) / 4));		}
+					}
+				}
+			}
+			
+			if (CountInv("D4IdfaTrap")) { A_GiveInventory("IdfaStamp"); A_SetInventory("D4IdfaTrap",0); }
+		}
 		Super.Tick();
+	}
+	
+	//----------------------------------------------------------------------------
+	//
+	// PROC P_CheckJump
+	//
+	//----------------------------------------------------------------------------
+	//bool justJumped;
+	override void CheckJump()
+	{
+		
+		let player = self.player;
+		// [RH] check for jump
+		if (player.cmd.buttons & BT_JUMP)
+		{
+			if (player.crouchoffset != 0)
+			{
+				// Jumping while crouching will force an un-crouch but not jump
+				player.crouching = 1;
+			}
+			else if (waterlevel >= 2)
+			{
+				Vel.Z = 4 * Speed;
+				user_jumpsDone = 1;
+			}
+			else if (bNoGravity)
+			{
+				Vel.Z = 3.;
+				user_jumpsDone = 1;
+			}
+			else if (level.IsJumpingAllowed())
+			{
+				if (player.onground)
+				{				
+					// Regular jump
+					if (player.jumpTics == 0)
+					{
+						user_jumpsDone = 1;
+						double jumpvelz = JumpZ * 35 / TICRATE;
+						double jumpfac = 0;
+
+						// [BC] If the player has the high jump power, double his jump velocity.
+						// (actually, pick the best factors from all active items.)
+						for (let p = Inv; p != null; p = p.Inv)
+						{
+							let pp = PowerHighJump(p);
+							if (pp)
+							{
+								double f = pp.Strength;
+								if (f > jumpfac) jumpfac = f;
+							}
+						}
+						if (jumpfac > 0) jumpvelz *= jumpfac;
+
+						Vel.Z += jumpvelz + CountInv("D4HigherJump");
+						bOnMobj = false;
+						player.jumpTics = -1;
+						if (!(player.cheats & CF_PREDICTING)) 
+						{
+							A_PlaySound("*jump", CHAN_BODY);
+						}
+					}
+				}
+				else if (GetClass() == 'Doom4Player' && 
+					GetCVar("user_MultiJump") && 
+					(user_jumpsDone < CountInv("D4MultiJump") - 1) && 
+					!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_JUMP))
+				{
+					if (Vel.Z < 0.0)	Vel.Z = 0.0;
+						
+					Vel.Z += (8.2 + CountInv("D4HigherJump"));
+					user_jumpsDone++;
+					A_PlaySound("Doom4/Player/DoubleJump");
+				}
+			}
+		}
+	}
+	
+	override void MovePlayer()
+	{
+		Super.MovePlayer();
+		let plyr = self.player;
+		if (plyr)
+		{
+			if (CountInv("D4AirControl") && !plyr.onground)
+			{
+				int gpi = GetPlayerInput(MODINPUT_BUTTONS);
+				A_ChangeVelocity(
+				((gpi & BT_FORWARD  ) ? .8 : 0) - 
+				((gpi & BT_BACK     ) ? .8 : 0),
+				((gpi & BT_MOVELEFT ) ? .8 : 0) -
+				((gpi & BT_MOVERIGHT) ? .8 : 0),
+				0,CVF_RELATIVE);
+				A_ChangeVelocity(vel.x*.95,vel.y*.95,vel.z,CVF_REPLACE);
+			}
+		}
+		
 	}
 	
 	//--------------------------------------------------------------------------
 	//
 	//--------------------------------------------------------------------------
-	//CVar debug;
 	
 	override void Die(Actor source, Actor inflictor, int dmgflags = 0)
 	{
@@ -1200,6 +1209,8 @@ extend class Doom4Player
 		
 		Super.Die(source, inflictor, dmgflags);
 	}
+	
+	
 }
 
 /*==============================================================================
