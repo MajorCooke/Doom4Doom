@@ -134,10 +134,12 @@ Class D4DHandler : EventHandler
 			{
 				RemoveAmmoActors();
 			}
+			/*
 			else
 			{
 				Console.Printf(e.Name..": Undefined net event");
 			}
+			*/
 		}
 	}
 	

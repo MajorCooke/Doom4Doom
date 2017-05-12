@@ -81,6 +81,7 @@ Class DemonPlayerBase : Doom4Player
 	
 	override void Tick()
 	{
+		Super.Tick();
 		if (GetPlayerInput(MODINPUT_BUTTONS) & BT_USER4)
 		{
 			let inv = PowerMorph(FindInventory("PowerMorph",true));
@@ -90,7 +91,7 @@ Class DemonPlayerBase : Doom4Player
 				TicDelay = -1;
 				inv.EffectTics = 0;
 				inv.EndEffect();
-				return Super.Tick();
+				return;
 			}
 		}
 	
@@ -221,7 +222,7 @@ Class DemonPlayerBase : Doom4Player
 			
 		}
 		
-		Super.Tick();
+		
 	}
 	
 	virtual void StartDemonOverlays()
