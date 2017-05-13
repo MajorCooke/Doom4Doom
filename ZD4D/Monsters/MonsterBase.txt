@@ -371,7 +371,7 @@ Class D4AbstractMonster : Actor
 			}
 			
 			//BFG ammo giver, this one doesnt check for ammo low, but it does check for the weapon
-			if (CountInv("D4BFG",AAPTR_PLAYER1) && CountInv("BFGUpgrade1",AAPTR_PLAYER1))
+			if (CountInv("D4BFG",AAPTR_PLAYER1))
 			{
 				int rng = random(1,256) > 232 ? 1 : 0;
 				Pinatas.AddItem("D4PinataBFG", rng);
