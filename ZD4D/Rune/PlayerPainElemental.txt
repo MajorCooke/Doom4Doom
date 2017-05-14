@@ -187,11 +187,27 @@ Class D4DPainElementalWeapon : DoomWeapon
 	AltFire:
 		TNT1 AAAAAAAAAA 1 A_SetPitch(pitch-0.8, SPF_INTERPOLATE);
 		TNT1 AAAA 1 A_SetPitch(pitch+4, SPF_INTERPOLATE);
-		TNT1 A 1 
+		TNT1 A -1 
 		{
-			A_Explode(1000,768,XF_NOTMISSILE,0,512);
+			int TimeLeft = 0;
+			let inv = PowerMorph(FindInventory("PowerMorph",true));
+			if (inv)	TimeLeft = Max(0, inv.EffectTics - (60 * 35));
+				
+			int ExploDamage = Max(1000, 1000 + TimeLeft);
+			int ExploRadius = Max(768, 768 + TimeLeft);
+			A_Explode(ExploDamage,ExploRadius,XF_NOTMISSILE,0,512);
 			A_SpawnItemEx("PainKamikazeExploFX",0,0,25,0,0,pitch,0,SXF_NOCHECKPOSITION);
-			ACS_NamedExecuteWithResult('ForceUnmorph',0,0,0,0);
+			
+			if (invoker && invoker.Owner)
+			{
+				let plr = DemonPlayerBase(invoker.Owner);
+				if (plr)	plr.EndMe = true;
+			}
+			else if (inv)
+			{	// Failsafe in the event the above doesn't work.
+				inv.EffectTics = 1;
+			}
+			
 		}
 		Goto Ready+1;
 		
@@ -203,7 +219,7 @@ Class D4DPainElementalWeapon : DoomWeapon
 		SHOT A -1;
 		Stop;
 	}
-}	
+}
 
 Class LostSoulCoolerToken : Inventory
 {

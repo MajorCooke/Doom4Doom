@@ -1,6 +1,6 @@
 Class IamADemonToken  : Inventory { Default { Inventory.MaxAmount 1;    Inventory.InterHubAmount 0; }}
 Class DemonTimerToken : Inventory { Default { Inventory.MaxAmount 2100; Inventory.InterHubAmount 0; }}
-Class DemonTimerTotal : Inventory { Default { Inventory.MaxAmount 25200; Inventory.InterHubAmount 0; }}
+//Class DemonTimerTotal : Inventory { Default { Inventory.MaxAmount 25200; Inventory.InterHubAmount 0; }}
 
 Class OverlaysStarted : Inventory { Default { Inventory.MaxAmount 1;    Inventory.InterHubAmount 0; }}
 
@@ -46,10 +46,15 @@ Class DemonPlayerBase : Doom4Player
 	int prevTic, currTic, nextTic;
 	const interTic = 15;
 	const minuteTic = 60 * 35;
+	bool EndMe;
 	// Only ever called once.
 	override void PostBeginPlay()
 	{
-		Super.PostBeginPlay();	//Always call the super version to ensure everything's in working order.
+		if (!player || !player.mo || player.mo != self)
+		{
+			return PlayerPawn.PostBeginPlay();
+		}
+		PlayerPawn.PostBeginPlay();	//Always call the super version to ensure everything's in working order.
 		MaxHealth = Health;
 		static const String Demons[] =
 		{
@@ -75,167 +80,12 @@ Class DemonPlayerBase : Doom4Player
 		}
 		let inv = PowerMorph(FindInventory("PowerMorph",true));
 		if (inv)	currTic = inv.EffectTics;
-		PlayDemonStartSound();
+		
+		PlayDemonSightSound();
 		StartDemonOverlays();
 	}
 	
-	override void Tick()
-	{
-		Super.Tick();
-		if (GetPlayerInput(MODINPUT_BUTTONS) & BT_USER4)
-		{
-			let inv = PowerMorph(FindInventory("PowerMorph",true));
-			if (inv)
-			{
-				A_SetInventory("DemonTimerToken",0);
-				TicDelay = -1;
-				inv.EffectTics = 0;
-				inv.EndEffect();
-				return;
-			}
-		}
-	
-		// Count down the timer effect.
-		let check = PowerMorph(FindInventory("PowerMorph",true));
-		//prevTic = currTic;
-		nextTic = check.EffectTics;
-		//currTic += Clamp(nextTic - currTic, -interTic, interTic);
-		A_SetInventory("DemonTimerToken",nextTic, DefPtr, true);
-		A_SetInventory("DemonTimerTotal",nextTic, DefPtr, true);
-		
-		TicDelay++;
-		
-		if (TicDelay >= 2)
-		{
-			TicDelay = 0;
-			
-			if (!CountInv("PowerDrain") && CountInv("D4RuneUpgrade4"))
-			{
-				A_GiveInventory("DemonRuneDrainGiver");
-			}
-			
-			// Think of this as A_CheckProximity, but with less limitation.
-			// However, we have to invent all the checks in order to use it
-			// properly.
-			
-			// So, create an iterator that searches for D4KeyBase-inheriting
-			// only.
-			ThinkerIterator it = ThinkerIterator.Create("Inventory");
-			Actor mo;
-			while (mo = Inventory(it.Next()))
-			{
-				if (!(mo is "D4KeyBase") && (!CountInv("D4RuneUpgrade2") && !(mo is "DemonRuneBase")))
-					continue;
-					
-				// Make sure it can be touched.
-				double blockdist = radius + mo.radius;
-				if (abs(pos.x - mo.pos.x) > blockdist || abs(pos.y - mo.pos.y) > blockdist)
-				{	continue;	}
-								
-				// So we're in range horizontally. What about vertically?
-				if (pos.z + height < mo.pos.z || mo.pos.z + mo.height < pos.z)
-				{	continue;	}
-				
-				if (mo is "DemonRuneBase")
-				{
-					if (!CountInv("D4RuneUpgrade2"))
-						continue;
-					
-					
-					if (check)
-					{
-						if (mo.GetClass() == RuneBase)
-						{
-							check.EffectTics += (35 * 60);
-							int MaxHP = GetMaxHealth();
-							int QuarterHP = MaxHP / 4;
-							A_SetHealth(Clamp(health + QuarterHP, 1, MaxHP));
-							A_SetInventory("DemonTimerToken",CountInv("DemonTimerToken") + (35*60), DefPtr, true);
-							A_SpawnItemEx("DemonRuneMorphOn",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
-							mo.Destroy();
-						}
-						/*
-						else
-						{
-							Console.Printf(mo.GetClass().." "..RuneBase);
-						}
-						*/
-					}
-					continue;
-				}
-				
-				// Execute any specials this thing had.				
-				if (mo && mo.special)
-				{
-					A_CallSpecial(mo.special, mo.args[0], mo.args[1], mo.args[2], mo.args[3], mo.args[4]);
-				}
-				
-				// Assemble the arrays only if we succeed. This first array
-				// contains the actor's hard names.
-				static const Class<Actor> KeyName[] =
-				{
-					"D4RedCard",
-					"D4YellowCard",
-					"D4BlueCard",
-					"D4RedSkull",
-					"D4YellowSkull",
-					"D4BlueSkull"
-				};
-				
-				// Contains the nice names for logging.
-				static const String NiceKeyName[] =
-				{
-					"Red Card",
-					"Yellow Card",
-					"Blue Card",
-					"Red Skull",
-					"Yellow Skull",
-					"Blue Skull"
-				};
-				
-				// In the event someone decides to screw with the keys, check the base class.
-				for (int index = 0; index < 6; index++)
-				{
-					if (mo.CheckClass(KeyName[index], DefPtr, true))
-					{
-						//Concatenate a string with .. (two periods)
-						A_Log(NiceKeyName[index].." Found");
-						break;
-					}
-				}
-				
-				// Grabs the actual key and gives it to the player. This would
-				// be the same as if I had done A_GiveInventory(KeyName[Index])
-				// inside the for loop and if block. However, if done above, it
-				// wouldn't be safe as D4D mods could possibly modify them.
-				// This ensures nothing is missed so long as they inherit from
-				// D4KeyBase. The worst that will happen, they simply don't have
-				// a pickup message attached. No big deal.
-				
-				Class<D4KeyBase> keypick = (Class<D4KeyBase>)(mo.GetClass());
-				if (keypick != null)
-				{
-					A_GiveInventory(keypick,1);
-					mo.A_Remove(DefPtr,RMVF_EVERYTHING);
-				}
-			}
-			
-		}
-		
-		
-	}
-	
-	virtual void StartDemonOverlays()
-	{
-		A_ClearOverlays();
-		A_Overlay(6000,"Overlay.IdleSound",true);
-		A_Overlay(6001,"Overlay.Steps",true);
-		
-		//Strangely, the timer visual runs out at least like a few second before.
-		A_SetInventory("DemonTimerToken",62*35, DefPtr, true);
-	}
-	
-	void PlayDemonStartSound()
+	void PlayDemonSightSound()
 	{
 		static const Class<Actor> Demons[] =
 		{
@@ -267,12 +117,169 @@ Class DemonPlayerBase : Doom4Player
 		
 		for (int index = 0; index < Demons.Size(); index++)
 		{
-			if (CheckClass(Demons[index]))
+			if (self is Demons[index])
 			{
 				A_PlaySound(SightSound[index], 5);
 				return;
 			}
 		}
+	}
+	
+	virtual void StartDemonOverlays()
+	{
+		A_ClearOverlays();
+		A_Overlay(6000,"Overlay.IdleSound",true);
+		A_Overlay(6001,"Overlay.Steps",true);
+		
+		//Strangely, the timer visual runs out at least a few seconds before.
+		A_SetInventory("DemonTimerToken",62*35, DefPtr, true);
+	}
+	
+	//--------------------------------------------------------------------------
+	// Tick
+	//--------------------------------------------------------------------------
+	override void Tick()
+	{
+		Super.Tick();
+		if (EndMe || GetPlayerInput(MODINPUT_BUTTONS) & BT_USER4)
+		{
+			let inv = PowerMorph(FindInventory("PowerMorph",true));
+			if (inv)
+			{
+				A_SetInventory("DemonTimerToken",0);
+				TicDelay = -1;
+				inv.EffectTics = 0;
+				inv.EndEffect();
+				return;
+			}
+		}
+	
+		// Count down the timer effect. Purely visual, not the actual timer.
+		let check = PowerMorph(FindInventory("PowerMorph",true));
+		nextTic = check.EffectTics;
+		A_SetInventory("DemonTimerToken",nextTic, DefPtr, true);
+		
+		TicDelay++;
+		
+		if (TicDelay >= 2)
+		{
+			TicDelay = 0;
+			
+			if (!CountInv("PowerDrain") && CountInv("D4RuneUpgrade4"))
+			{
+				A_GiveInventory("DemonRuneDrainGiver");
+			}
+			
+			// Think of this as A_CheckProximity, but with less limitation.
+			// However, we have to invent all the checks in order to use it
+			// properly.
+			
+			// So, create an iterator that searches for D4KeyBase-inheriting
+			// only.
+			ThinkerIterator it = ThinkerIterator.Create("Inventory");
+			Actor mo;
+			while (mo = Inventory(it.Next()))
+			{
+				if (!(mo is "D4KeyBase") && (!CountInv("D4RuneUpgrade2") && !(mo is "DemonRuneBase")))
+					continue;
+					
+				// Make sure it can be touched.
+				double blockdist = radius + mo.radius;
+				if (abs(pos.x - mo.pos.x) > blockdist || abs(pos.y - mo.pos.y) > blockdist)
+					continue;	
+								
+				// So we're in range horizontally. What about vertically?
+				if (pos.z + height < mo.pos.z || mo.pos.z + mo.height < pos.z)
+					continue;	
+				
+				if (mo is "DemonRuneBase")
+				{
+					if (!CountInv("D4RuneUpgrade2"))
+						continue;
+					
+					if (check)
+					{
+						if (mo.GetClass() == RuneBase)
+						{
+							check.EffectTics += (35 * 60);
+							int MaxHP = GetMaxHealth();
+							int QuarterHP = MaxHP / 4;
+							A_SetHealth(Clamp(health + QuarterHP, 1, MaxHP));
+							A_SetInventory("DemonTimerToken",CountInv("DemonTimerToken") + (35*60), DefPtr, true);
+							A_SpawnItemEx("DemonRuneMorphOn",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
+							mo.Destroy();
+						}
+					}
+					continue;
+				}
+				
+				// Execute any specials this thing had.				
+				if (mo && mo.special)
+				{
+					mo.A_CallSpecial(mo.special, mo.args[0], mo.args[1], mo.args[2], mo.args[3], mo.args[4]);
+				}
+				
+				// Assemble the arrays only if we succeed. This first array
+				// contains the actor's hard names.
+				static const Class<Actor> KeyName[] =
+				{
+					"D4RedCard",
+					"D4YellowCard",
+					"D4BlueCard",
+					"D4RedSkull",
+					"D4YellowSkull",
+					"D4BlueSkull"
+				};
+				
+				
+				
+				// In the event someone decides to screw with the keys, check the base class.
+				for (int index = 0; index < 6; index++)
+				{
+					if (mo.GetClass() == KeyName[index])
+					{
+						// Contains the nice names for logging.
+						static const String NiceKeyName[] =
+						{
+							"Red Card",
+							"Yellow Card",
+							"Blue Card",
+							"Red Skull",
+							"Yellow Skull",
+							"Blue Skull"
+						};
+						//Concatenate a string with .. (two periods)
+						if (index >= 0 && index < NiceKeyName.Size())
+							A_Log(NiceKeyName[index].." Found");
+						else
+							A_Log(mo.GetClass().." Found");
+						break;
+					}
+				}
+				
+				// Grabs the actual key and gives it to the player. This would
+				// be the same as if I had done A_GiveInventory(KeyName[Index])
+				// inside the for loop and if block. However, if done above, it
+				// wouldn't be safe as D4D mods could possibly modify them.
+				// This ensures nothing is missed so long as they inherit from
+				// D4KeyBase. The worst that will happen, they simply don't have
+				// a pickup message attached. No big deal.
+				
+				Class<D4KeyBase> keypick = (Class<D4KeyBase>)(mo.GetClass());
+				if (keypick != null)
+				{
+					A_GiveInventory(keypick,1);
+					mo.A_Remove(DefPtr,RMVF_EVERYTHING);
+				}
+			}
+			
+		}
+	}
+	
+	// Skip the Doom4Player's version.
+	override void CheckJump()
+	{
+		PlayerPawn.CheckJump();
 	}
 	
 	Default
@@ -322,66 +329,72 @@ Class DemonRuneMorphOff : Actor
 		+NOTIMEFREEZE
 		RenderStyle "None";
 	}
+	
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		//Depending on the token, will play the death sound of that demon		
+		static const Sound deathsnd[] =
+		{
+			"Doom4/Monsters/HellKnight/Death",
+			"Doom4/Monsters/Baron/Death",
+			"Doom4/Monsters/Revenant/Death",
+			"Doom4/Monsters/Cacodemon/Death",
+			"Doom4/Monsters/Mancubus/Death",
+			"Doom4/Monsters/PainElemental/Death",
+			"Doom4/Cyberdemon/Death",
+			"Doom4/SpiderMastermind/Death",
+			"Doom4/Monsters/Archvile/Death",
+			"Doom4/Monsters/Arachnotron/Death"
+		};
+		
+		static const Class<Inventory> things[] =
+		{
+			"IamHellKnight",
+			"IamBaronOfHell",
+			"IamRevenant",
+			"IamCacodemon",
+			"IamFatso",
+			"IamPainElemental",
+			"IamCyberdemon",
+			"IamSpiderMastermind",
+			"IamArchvile",
+			"IamArachnotron",
+			"IamADemonToken",
+			"OverlaysStarted",
+			"PowerFlight",
+			"PowerDrain",
+			"BusyToken"
+		};
+		
+		//Removes any and all demon tokens from player
+		bool played = false;
+		int size = things.Size();
+		if (target)
+		{
+			for (int i = 0; i < size; i++)
+			{
+				if (!played && i < deathsnd.Size() && target.CountInv(things[i]) > 0)
+				{
+					played = true;
+					A_PlaySound(deathsnd[i],7);
+				}
+				target.A_SetInventory(things[i], 0);
+			}
+		
+			target.A_GiveInventory("DemonOverlayCleaner",1);	//cleans the demon overlays on unmorphed player
+			target.A_GiveInventory("DemonWarpersCleaner",1);	//cleans the demon warpers on unmorphed player
+			target.A_GiveInventory("MinionsTurner",1);			//makes all minions enemy to unmorphed player
+			target.A_GiveInventory("HealthArmorRestorer",1);	//restores health and armor
+		}
+		A_SpawnItemEx("BloodGibDropper",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION/*|SXF_USEBLOODCOLOR*/);
+		A_PlaySound("Doom4/Other/GibExplode",6);
+	}
+	
 	States
 	{
 	Spawn:
-		PLAY A 0 NODELAY 
-		{
-			//Depending on the token, will play the death sound of that demon
-			if (CountInv("IamHellKnight",TargetPtr))
-			{	A_PlaySound("Doom4/Monsters/HellKnight/Death",7); }
-			else if (CountInv("IamBaronOfHell",TargetPtr))
-			{	A_PlaySound("Doom4/Monsters/Baron/Death",7); }
-			else if (CountInv("IamRevenant",TargetPtr))
-			{	A_PlaySound("Doom4/Monsters/Revenant/Death",7); }
-			else if (CountInv("IamCacodemon",TargetPtr))
-			{	A_PlaySound("Doom4/Monsters/Cacodemon/Death",7); }
-			else if (CountInv("IamFatso",TargetPtr))
-			{	A_PlaySound("Doom4/Monsters/Mancubus/Death",7); }
-			else if (CountInv("IamPainElemental",TargetPtr))
-			{	A_PlaySound("Doom4/Monsters/PainElemental/Death",7); }
-			else if (CountInv("IamCyberdemon",TargetPtr))
-			{	A_PlaySound("Doom4/Cyberdemon/Death",7); }
-			else if (CountInv("IamSpiderMastermind",TargetPtr))
-			{	A_PlaySound("Doom4/SpiderMastermind/Death",7); }
-			else if (CountInv("IamArchvile",TargetPtr))
-			{	A_PlaySound("Doom4/Monsters/Archvile/Death",7); }
-			else if (CountInv("IamArachnotron",TargetPtr))
-			{	A_PlaySound("Doom4/Monsters/Arachnotron/Death",7); }
-			
-			
-			
-			A_SetInventory("IamADemonToken",0,TargetPtr); 	//main identifier as "demon"
-			A_SetInventory("OverlaysStarted",0,TargetPtr);	//the one that stops doing overlays in spawn state
-			A_SetInventory("PowerFlight",0,TargetPtr);		//to remove the flying of cacos and pelementals
-			A_SetInventory("PowerDrain",0,TargetPtr);		// Remove the drain effect.
-			A_GiveInventory("DemonOverlayCleaner",1,TargetPtr);		//cleans the demon overlays on unmorphed player
-			A_GiveInventory("DemonWarpersCleaner",1,TargetPtr);		//cleans the demon warpers on unmorphed player
-			A_GiveInventory("MinionsTurner",1,TargetPtr);			//makes all minions enemy to unmorphed player
-			A_GiveInventory("HealthArmorRestorer",1,TargetPtr);			//restores health and armor
-		
-			
-			//Removes any and all demon tokens from player
-			A_TakeInventory("IamHellKnight",32768,0,TargetPtr);
-			A_TakeInventory("IamBaronOfHell",32768,0,TargetPtr);
-			A_TakeInventory("IamRevenant",32768,0,TargetPtr);
-			A_TakeInventory("IamCacodemon",32768,0,TargetPtr);
-			A_TakeInventory("IamFatso",32768,0,TargetPtr);
-			A_TakeInventory("IamPainElemental",32768,0,TargetPtr);
-			A_TakeInventory("IamCyberdemon",32768,0,TargetPtr);
-			A_TakeInventory("IamSpiderMastermind",32768,0,TargetPtr);
-			A_TakeInventory("IamArchvile",32768,0,TargetPtr);
-			A_TakeInventory("IamArachnotron",32768,0,TargetPtr);
-			A_TakeInventory("BusyToken",32767,0,TargetPtr);
-			
-			A_SpawnItemEx("BloodGibDropper",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION/*|SXF_USEBLOODCOLOR*/);
-			A_PlaySound("Doom4/Other/GibExplode",6);
-			
-			while (A_CheckProximity("Null","RuneWearOffWarning",32767,1,CPXF_SETTRACER))
-			{
-				A_RemoveTracer(RMVF_EVERYTHING);
-			}
-		}
+		PLAY A 0;
 		PLAY AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 1 
 		{
 			A_SpawnItemEx("CarrionFlameFast",0,0,0,frandom(4,-4),frandom(4,-4),frandom(4,-4),random(0,359),SXF_NOCHECKPOSITION);
@@ -398,17 +411,10 @@ Class DemonOverlayCleaner : CustomInventory
 {
 	Default 
 	{
-		Inventory.MaxAmount 1;
-		Inventory.Amount 1;
 		+INVENTORY.ALWAYSPICKUP
-		+INVENTORY.AUTOACTIVATE
-		+NOTIMEFREEZE
 	}
 	States
 	{
-	Spawn:
-		BOS2 A 10 Bright;
-		Loop;
 	Pickup:
 		TNT1 A 0 
 		{
@@ -428,7 +434,6 @@ Class HealthArmorSaver : CustomInventory
 	Default 
 	{
 		+INVENTORY.ALWAYSPICKUP
-		+NOTIMEFREEZE
 	}
 	States
 	{
@@ -449,17 +454,10 @@ Class HealthArmorRestorer : CustomInventory
 {
 	Default 
 	{
-		Inventory.MaxAmount 1;
-		Inventory.Amount 1;
 		+INVENTORY.ALWAYSPICKUP
-		+INVENTORY.AUTOACTIVATE
-		+NOTIMEFREEZE
 	}
 	States
 	{
-	Spawn:
-		BOS2 A 10 Bright;
-		Loop;
 	Pickup:
 		TNT1 A 0 
 		{
@@ -490,17 +488,10 @@ Class DemonWarpersCleaner : CustomInventory
 {
 	Default 
 	{
-		Inventory.MaxAmount 1;
-		Inventory.Amount 1;
 		+INVENTORY.ALWAYSPICKUP
-		+INVENTORY.AUTOACTIVATE
-		+NOTIMEFREEZE
 	}
 	States
 	{
-	Spawn:
-		BOS2 A 10 Bright;
-		Loop;
 	Pickup:
 		TNT1 A 0 
 		{
@@ -522,17 +513,10 @@ Class MinionsTurner : CustomInventory
 {
 	Default 
 	{
-		Inventory.MaxAmount 1;
-		Inventory.Amount 1;
 		+INVENTORY.ALWAYSPICKUP
-		+INVENTORY.AUTOACTIVATE
-		+NOTIMEFREEZE	
 	}
 	States
 	{
-	Spawn:
-		BOS2 A 10 Bright;
-		Loop;
 	Pickup:
 		TNT1 A 0 
 		{
@@ -634,7 +618,6 @@ Class DemonRuneMorphOn : Actor
 			invoker.user_duration = 2;
 			invoker.user_roll = RollAmount * randompick(-1,1);
 			A_PlaySound("Player/Demon/Fire",7,0.7);
-			//A_SpawnItemEx("RuneWearOffWarning",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS);
 		}
 	Looping:
 		"####" "#" 1
@@ -678,56 +661,14 @@ Class DemonRuneMorphOn : Actor
 	}
 }
 
-Class RuneWearOffWarning : Actor 
-{
-	bool warning;
-	Default 
-	{
-		Projectile;
-		+NOTONAUTOMAP
-		+NOINTERACTION
-		RenderStyle "None";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 0;
-		Stop;
-		TNT1 A 1995; //57 seconds
-		TNT1 AAA 35
-		{
-			let plr = PlayerPawn(target);
-			
-			if (CountInv("IamADemonToken",TargetPtr))
-			{
-				if (!warning)
-				{
-					warning = true;
-					A_PlaySound("PentagramOfProtection/Warning",5,1,0,ATTN_NONE);
-				}
-			
-				A_GiveInventory("PentagramFade",1,TargetPtr);
-			}
-		}
-		Stop;
-	}
-}
-
 Class SoundStopper : CustomInventory
 {
 	Default 
 	{
-		Inventory.MaxAmount 1;
-		Inventory.Amount 1;
 		+INVENTORY.ALWAYSPICKUP
-		+INVENTORY.AUTOACTIVATE
-		+NOTIMEFREEZE
 	}
 	States
 	{
-	Spawn:
-		BOS2 A 10 Bright;
-		Loop;
 	Pickup:
 		TNT1 A 0 
 		{

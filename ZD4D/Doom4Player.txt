@@ -411,7 +411,12 @@ Class Doom4Player : PlayerPawn
 		M666 A 1 ;
 		M666 A 0
 		{
-			if (GetCvar("D4D_AllowClimbing"))
+			int waitTics = 14;
+			if (!GetCvar("D4D_AllowClimbing"))
+			{
+				A_SetTics(waitTics);
+			}
+			else
 			{
 				//user_wasClimbing
 				//user_accx
@@ -461,12 +466,8 @@ Class Doom4Player : PlayerPawn
 					}
 						
 					bSlidesOnWalls = true;
-					A_SetTics(14);
+					A_SetTics(waitTics);
 				}
-			}
-			else
-			{
-				A_SetTics(14);
 			}
 		}
 		Loop;
