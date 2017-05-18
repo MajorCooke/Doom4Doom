@@ -282,7 +282,7 @@ Class PowerD4QuadDamage : PowerDamage
 	bool hasMelee, hasMissile;
 	Default 
 	{
-		damagefactor "normal", 4;
+		DamageFactor "normal", 4;
 	}
 	
 	override void InitEffect()
@@ -352,7 +352,7 @@ Class QuadDamageGiver : PowerupGiver
 	{
 		inventory.maxamount 0;
 		Powerup.Type "PowerD4QuadDamage";
-		powerup.duration 900000;
+		powerup.duration -30;
 		+INVENTORY.AUTOACTIVATE
 		+INVENTORY.ALWAYSPICKUP
 	}
@@ -377,9 +377,7 @@ Class D4QuadDamage : CustomInventory
 		M680 B 1 Light("QuadDamageLightWorld") NoDelay
 		{
 			if (!A_CheckSight("Null"))
-			{
 				A_SpawnItemEx("PentaShadow",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERSPRITEFRAME);
-			}
 		}
 		Loop;
 	Pickup:
@@ -419,21 +417,6 @@ Class QuadPickupNoise : D4NoiseMaker
 	}
 }
 
-Class QuadDamageFade : CustomInventory
-{
-	Default 
-	{
-		+INVENTORY.ALWAYSPICKUP
-		Inventory.InterhubAmount 0;
-	}
-	States
-	{
-	Pickup:
-		TNT1 A 0 A_SetBlend("Purple",0.4,12);
-		Stop;
-	}
-}
-
 Class QuadDamageLight : Actor 
 {
 	Default 
@@ -446,30 +429,12 @@ Class QuadDamageLight : Actor
 	Spawn:
 		TNT1 A 1 Light("QuadLight") 
 		{
-			if (CountInv("PowerD4QuadDamage",MasterPtr))
-			{
-				A_Warp(MasterPtr, 0,0,0, 0, WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION);
-				return ResolveState(null);
-			}
-			return ResolveState("Null");
+			if (master && master.CountInv("PowerD4QuadDamage"))
+				SetOrigin(master.pos, true);
+			else 
+				return Destroy();
 		}
 		Wait;
-	}
-}
-
-Class QuadNoise : Actor 
-{
-	Default 
-	{
-		+NOINTERACTION
-		+NOTONAUTOMAP
-		RenderStyle "None";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 35 NoDelay A_PlaySound("QuadDamage/Firing",7,1,0,ATTN_NONE);
-		Stop;
 	}
 }
 
@@ -570,7 +535,6 @@ Class PowerD4Regen : PowerRegeneration
 			else
 				GiveHealth();
 		}
-		//Super.DoEffect();
 	}
 	
 	override void EndEffect()
@@ -616,9 +580,8 @@ Class D4Regeneration : CustomInventory replaces SoulSphere
 		M680 D 1 Light("RegenLightWorld") 
 		{
 			if (!A_CheckSight("Null"))
-			{
 				A_SpawnItemEx("PentaShadow",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERROLL|SXF_TRANSFERSPRITEFRAME);
-			}
+			
 			A_SetRoll(roll + 1,SPF_INTERPOLATE);
 		}
 		Wait;
@@ -626,7 +589,7 @@ Class D4Regeneration : CustomInventory replaces SoulSphere
 		TNT1 A 0
 		{
 			if (CountInv("D4RegenUpgrade4"))	A_GiveInventory("SoulSphereHPUpgraded",1);
-			else 							A_GiveInventory("SoulSphereHP",1);
+			else 								A_GiveInventory("SoulSphereHP",1);
 			
 			let inv = PowerD4Regen(FindInventory("PowerD4Regen"));
 			if (inv)
@@ -674,12 +637,10 @@ Class RegenerationLight : Actor
 	Spawn:
 		TNT1 A 1 Light("RegenLight") 
 		{
-			if (CountInv("PowerRegeneration",MasterPtr))
-			{
-				A_Warp(MasterPtr,0,0,0,0,WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION);
-				return ResolveState(null);
-			}
-			return ResolveState("Null");
+			if (master && master.CountInv("PowerRegeneration"))
+				SetOrigin(master.pos, true);
+			else 
+				return Destroy();
 		}
 		Wait;
 	}
@@ -900,39 +861,14 @@ Class HasteLight : Actor
 	Spawn:
 		TNT1 A 1 Light("HasteLight") 
 		{
-			if (CountInv("PowerD4Haste",MasterPtr))
-			{
-				A_Warp(MasterPtr, 0,0,0, 0, WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION);
-				return ResolveState(null);
-			}
-			return ResolveState("Null");
+			if (master && master.CountInv("PowerD4Haste"))
+				SetOrigin(master.pos, true);
+			else 
+				return Destroy();
 		}
 		Wait;
 	}
 }
-/*
-Class HasteController : Actor 
-{
-	int user_alt;
-	+NOINTERACTION
-	RenderStyle "None";
-	States
-	{
-	Spawn:
-		TNT1 A 12 NoDelay
-		{
-			if (CountInv("PowerSpeed",MasterPtr))
-			{
-				//ACS_NamedExecuteAlways("D4HasteFlash", 0, user_alt);
-				//user_alt = (user_alt + 1) % 3;
-				return ResolveState(null);
-			}
-			return ResolveState("Null");
-		}
-		Wait;
-	}
-}
-*/
 
 //=======================================================================
 //=======================================================================
@@ -1075,6 +1011,7 @@ Class QuadMoneyLight : Actor
 	Default 
 	{
 		+NOINTERACTION
+		+NOTONAUTOMAP
 		RenderStyle "None";
 	}
 	States
@@ -1082,38 +1019,14 @@ Class QuadMoneyLight : Actor
 	Spawn:
 		TNT1 A 1 Light("MoneyLight") 
 		{
-			if (CountInv("PowerD4Money",MasterPtr))
-			{
-				A_Warp(MasterPtr, 0,0,0, 0, WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION);
-				return ResolveState(null);
-			}
-			return ResolveState("Null");
+			if (master && master.CountInv("PowerD4Money"))
+				SetOrigin(master.pos, true);
+			else 
+				return Destroy();
 		}
 		Wait;
 	}
 }
-/*
-Class QuadMoneyController : Actor 
-{
-	int user_alt;
-	+NOINTERACTION
-	RenderStyle "None";
-	States
-	{
-	Spawn:
-		TNT1 A 36 NoDelay
-		{
-			if (CountInv("PowerD4Money",MasterPtr))
-			{
-				//ACS_NamedExecuteAlways("D4MoneyFlash", 0, user_alt);
-				user_alt = (user_alt + 1) % 2;
-				return ResolveState(null);
-			}
-			return ResolveState("Null");
-		}
-		Wait;
-	}
-} */
 
 //==============================================================================
 //==============================================================================
@@ -1198,9 +1111,6 @@ Class PentagramOfProtection : CustomInventory replaces InvulnerabilitySphere
 	Pickup:
 		TNT1 A 0
 		{
-			//A_GiveInventory("InvulTimer",1050);
-			//if (!CountInv("PowerInvulBase"))
-			//{	A_SpawnItemEx("PentagramManager",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);	}
 			let inv = PowerInvulBase(FindInventory("PowerInvulBase"));
 			if (inv)
 			{
@@ -1257,10 +1167,6 @@ Class PowerInvulBase : PowerInvulnerable
 		NoiseMaker = Owner.Spawn("InvulPickupNoise",Owner.pos);
 		if (Owner.CountInv("D4PentagramUpgrade1"))	Owner.bREFLECTIVE = true;
 		if (Owner.CountInv("D4PentagramUpgrade4"))	Owner.bNODAMAGE = true;
-		
-		
-		if (!NoiseMaker) A_Log("This isn't good.");
-		//PrevTic = EffectTics;
 	}
 	
 	override void DoEffect()
@@ -1304,29 +1210,5 @@ Class PowerInvulBase : PowerInvulnerable
 			Owner.bNODAMAGE = false;
 		}
 		Super.EndEffect();
-	}
-}
-
-Class InvulTimer : Inventory
-{
-	Default 
-	{
-		Inventory.MaxAmount 1000000;
-		Inventory.InterhubAmount 0;
-	}
-}
-
-Class PentagramFade : CustomInventory
-{
-	Default 
-	{
-		+INVENTORY.ALWAYSPICKUP
-		Inventory.InterhubAmount 0;
-	}
-	States
-	{
-	Pickup:
-		TNT1 A 0 A_SetBlend("Yellow",0.4,12);
-		Stop;
 	}
 }

@@ -586,12 +586,6 @@ Class Doom4Player : PlayerPawn
 		PLAY F 1 bright light("PlayerLight5");
 		PLAY F 1 bright light("PlayerLight6");
 		Goto MissileCont;
-	Overlay.QuadDamage:
-		M666 A 35
-		{
-			A_SpawnItemEx("QuadNoise",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-		}
-		Stop;
 	Overlay.Protection:
 		M666 A 70
 		{
