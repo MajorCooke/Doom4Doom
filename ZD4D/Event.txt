@@ -134,12 +134,17 @@ Class D4DHandler : EventHandler
 			{
 				RemoveAmmoActors();
 			}
-			/*
 			else
 			{
-				Console.Printf(e.Name..": Undefined net event");
+				// If it has D4DAddon_, assume the addons will handle it.
+				String s = e.Name;
+				String prefix = "D4DAddon_";
+				int size = prefix.Length();
+				
+				if (!(s.Mid(0,size) ~== prefix))
+					Console.Printf(e.Name..": Undefined net event");
 			}
-			*/
+			
 		}
 	}
 	

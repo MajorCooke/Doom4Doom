@@ -48,7 +48,7 @@ Class D4DFist : Doom4Weapon
 	States
 	{
 	Ready:
-		MELE "]" 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+		MELE "]" 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWRELOAD);
 		Loop;
 	Deselect:
 		MELE "]" 1 A_Lower;
@@ -82,10 +82,14 @@ Class D4DFist : Doom4Weapon
 		Goto Ready;*/
 		
 	User2:
-		MELE "]" 0 A_Jump(256,"Fire"); //with A_Jump to ensure it jumps in this weapon, not the parent's
+		MELE "]" 0 { return ResolveState("Fire"); } //A_Jump(256,"Fire"); //with A_Jump to ensure it jumps in this weapon, not the parent's
 		
 	Fire:
-		MELE "]" 0 A_TakeInventory("PunchedAlready",32767);
+		MELE "]" 0 
+		{
+			A_SetShootable();
+			A_TakeInventory("PunchedAlready",32767);
+		}
 		MELE "]" 1 A_WeaponOffset(10,10,WOF_ADD); //lowers the idle fist
 		MELE "]" 1 { A_WeaponOffset(10,10,WOF_ADD); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
 		MELE "]" 1 A_WeaponOffset(10,10,WOF_ADD);

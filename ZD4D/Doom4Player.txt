@@ -570,29 +570,22 @@ Class Doom4Player : PlayerPawn
 	See:
 		PLAY ABCD 4 ;
 		Loop;
+		
+	// These are separated for the sake of quad damage state findings.
 	Missile:
-		PLAY E 12
-		{
-			if (CountInv("PowerD4QuadDamage"))
-			{
-				A_Overlay(Overlay_QuadDamage,"Overlay.QuadDamage",true);
-			}
-		}
+		PLAY E 1;
+	MissileCont:
+		PLAY E 11;
 		Goto Spawn;
 	Melee:
-		PLAY F 1 BRIGHT light("PlayerLight1")
-		{
-			if (CountInv("PowerD4QuadDamage"))
-			{
-				A_Overlay(Overlay_QuadDamage,"Overlay.QuadDamage",true);
-			}
-		}
+		PLAY F 1 BRIGHT light("PlayerLight1");
+	MeleeCont:
 		PLAY F 1 bright light("PlayerLight2");
 		PLAY F 1 bright light("PlayerLight3");
 		PLAY F 1 bright light("PlayerLight4");
 		PLAY F 1 bright light("PlayerLight5");
 		PLAY F 1 bright light("PlayerLight6");
-		Goto Missile;
+		Goto MissileCont;
 	Overlay.QuadDamage:
 		M666 A 35
 		{
@@ -854,7 +847,7 @@ extend class Doom4Player
 				}
 			}
 			
-			return 0;
+			return -1;
 		}
 		
 		// Don't negate stuff if it's telefrag damage.

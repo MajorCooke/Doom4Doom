@@ -1,5 +1,11 @@
 Class D4NoiseMaker : Actor
 {
+	Default
+	{
+		+NOINTERACTION
+		+NOTONAUTOMAP
+		RenderStyle "None";
+	}
 	void Silence()
 	{
 		A_StopSound(CHAN_BODY);
@@ -271,9 +277,72 @@ Class BerserkSpawner : RandomSpawner replaces Berserk
 
 Class PowerD4QuadDamage : PowerDamage
 {
+	Actor NoiseMaker;
+	int DelayTimer;
+	bool hasMelee, hasMissile;
 	Default 
 	{
 		damagefactor "normal", 4;
+	}
+	
+	override void InitEffect()
+	{
+		if (Owner)
+		{
+			Super.InitEffect();
+			NoiseMaker = Spawn("QuadPickupNoise", Owner.pos);
+			hasMelee = (Owner.MeleeState != null);
+			hasMissile = (Owner.MissileState != null);
+		}
+	}
+	
+	override void DoEffect()
+	{
+		if (!Owner || Owner.Health < 1)
+			return EndEffect();
+		
+		if (globalfreeze || level.Frozen)
+		{
+			EffectTics++; //'Freeze' the timer.
+		}
+		else
+		{
+			if (NoiseMaker)	NoiseMaker.SetOrigin(Owner.pos,false);
+			
+			if (DelayTimer < 1)
+			{
+				if ((hasMelee && InStateSequence(Owner.CurState, Owner.MeleeState)) ||
+					(hasMissile && InStateSequence(Owner.CurState, Owner.MissileState)))
+				{
+					DelayTimer = 35;
+					if (NoiseMaker) NoiseMaker.A_PlaySound("QuadDamage/Firing",6);
+				}
+			}
+			else DelayTimer--;
+			
+			if (EffectTics > 105)	NoiseMaker.A_StopSound(5);
+			else Switch (EffectTics)
+			{
+				Case 105:
+				{
+					if (NoiseMaker)	NoiseMaker.A_PlaySound("QuadDamage/Warning",7,1,0);
+				}
+				Case 70:
+				Case 35:
+					Owner.A_SetBlend("Purple",0.4,12);
+				Default:
+					break;
+			}
+		}
+		Super.DoEffect();
+	}
+	
+	override void EndEffect()
+	{
+		if (NoiseMaker)
+			NoiseMaker.Destroy();
+			
+		Super.EndEffect();
 	}
 }
 
@@ -315,33 +384,27 @@ Class D4QuadDamage : CustomInventory
 		Loop;
 	Pickup:
 		TNT1 A 0
-		{
-			A_GiveInventory("QuadDamageTimer",1000);
-			if (!CountInv("PowerD4QuadDamage"))
+		{			
+			let inv = PowerD4QuadDamage(FindInventory("PowerD4QuadDamage"));
+			if (inv)
 			{
-				// [MC] Target is just in case Michaelis' scripts rely on target
-				// retrieval, and I don't want to touch them.
-				A_SpawnItemEx("QuadDamageManager",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
-				A_SpawnItemEx("QuadDamageLight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
+				if (inv.NoiseMaker)
+				{
+					let nm = D4NoiseMaker(inv.NoiseMaker);
+					if (nm)	nm.A_StopSound(7);
+				}
+				inv.EffectTics += 1050;
+				return;
 			}
+			A_SpawnItemEx("QuadDamageLight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
 			A_GiveInventory("QuadDamageGiver", 1);
 		}
 		Stop;
 	}
 }
 
-Class QuadDamageTimer : Inventory
+Class QuadPickupNoise : D4NoiseMaker 
 {
-	Default 
-	{
-		Inventory.MaxAmount 1000000;
-		Inventory.InterhubAmount 0;
-	}
-}
-
-Class QuadDamageManager : Actor 
-{
-	int user_time;
 	Default 
 	{
 		+NOINTERACTION
@@ -351,37 +414,8 @@ Class QuadDamageManager : Actor
 	States
 	{
 	Spawn:
-		TNT1 A 1 
-		{
-			if (CountInv("QuadDamageTimer",MasterPtr))
-			{
-				user_time += CountInv("QuadDamageTimer",MasterPtr);
-				A_TakeInventory("QuadDamageTimer",32767,0,MasterPtr);
-				A_StopSound(5);
-			}
-			else
-			{
-				user_time--;
-			}
-			
-			if (user_time == 105 || user_time == 70 || user_time == 35)
-			{
-				if (user_time == 105)
-				{
-					A_PlaySound("QuadDamage/Warning",5,1,0,ATTN_NONE);
-				}
-				A_GiveInventory("QuadDamageFade",1,MasterPtr);
-			}
-			
-			if (user_time <= 0)
-			{
-				A_TakeInventory("PowerD4QuadDamage",32767,0,MasterPtr);
-				A_TakeInventory("QuadDamageTimer",32767,0,MasterPtr);
-				return ResolveState("Null");
-			}
-			return ResolveState(null);
-		}
-		Wait;
+		TNT1 A -1 NoDelay A_PlaySound("QuadDamage/Pickup",5,1,0,ATTN_NONE);
+		Stop;
 	}
 }
 
@@ -422,29 +456,6 @@ Class QuadDamageLight : Actor
 		Wait;
 	}
 }
-/*
-Class QuadDamageController : Actor 
-{
-	int user_alt;
-	+NOINTERACTION
-	RenderStyle "None";
-	States
-	{
-	Spawn:
-		TNT1 A 36 NoDelay
-		{
-			if (CountInv("PowerD4QuadDamage",MasterPtr))
-			{
-				//ACS_NamedExecuteAlways("D4QuadFlash", 0, user_alt);
-				user_alt = (user_alt + 1) % 2;
-				return ResolveState(null);
-			}
-			A_PlaySound("QuadDamage/Warning",CHAN_AUTO,1,0,ATTN_NONE);
-			return ResolveState("Null");
-		}
-		Wait;
-	}
-} */
 
 Class QuadNoise : Actor 
 {
