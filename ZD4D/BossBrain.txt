@@ -121,8 +121,7 @@ Class D4BossBrain : BossBrain replaces BossBrain
 						let inv = PowerMorph(plr.FindInventory("PowerMorph",true));
 						if (inv)
 						{
-							inv.EffectTics = 0;	
-							inv.EndEffect();
+							inv.EffectTics = 0;
 						}
 						plr.bINVULNERABLE = invul;
 						
