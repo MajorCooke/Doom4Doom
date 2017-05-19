@@ -149,7 +149,6 @@ Class DemonPlayerBase : Doom4Player
 				A_SetInventory("DemonTimerToken",0);
 				TicDelay = -1;
 				inv.EffectTics = 0;
-				inv.EndEffect();
 				return;
 			}
 		}
