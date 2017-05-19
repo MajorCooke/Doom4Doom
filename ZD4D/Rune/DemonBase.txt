@@ -146,16 +146,17 @@ Class DemonPlayerBase : Doom4Player
 			let inv = PowerMorph(FindInventory("PowerMorph",true));
 			if (inv)
 			{
+				EndMe = true;
 				A_SetInventory("DemonTimerToken",0);
 				TicDelay = -1;
-				inv.EffectTics = 0;
+				inv.EffectTics = 1;
 				return;
 			}
 		}
 	
 		// Count down the timer effect. Purely visual, not the actual timer.
 		let check = PowerMorph(FindInventory("PowerMorph",true));
-		nextTic = check.EffectTics;
+		if (check) nextTic = check.EffectTics;
 		A_SetInventory("DemonTimerToken",nextTic, DefPtr, true);
 		
 		TicDelay++;

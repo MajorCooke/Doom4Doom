@@ -43,6 +43,7 @@ Class D4BossBrain : BossBrain replaces BossBrain
 					explo.A_PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
 				}
 				
+				// Make it look like a monster with this blood color was going to spawn.
 				let splatter = mo.Spawn("BloodGibDropper",mo.pos);
 				if (splatter)
 				{
@@ -121,10 +122,8 @@ Class D4BossBrain : BossBrain replaces BossBrain
 						let inv = PowerMorph(plr.FindInventory("PowerMorph",true));
 						if (inv)
 						{
-							inv.EffectTics = 0;
-						}
-						plr.bINVULNERABLE = invul;
-						
+							inv.EffectTics = 1;
+						}						
 					}
 					plr = players[i].mo;
 					if (plr)
@@ -138,6 +137,7 @@ Class D4BossBrain : BossBrain replaces BossBrain
 		}
 		BBRN A 105
 		{
+			KillEverything();
 			if (seeBase)
 			{
 				let exploder = IOSFaceExploder(Spawn("IOSFaceExploder",pos));
@@ -171,7 +171,10 @@ Class D4BossBrain : BossBrain replaces BossBrain
 						plr.A_SetBlend("Black",bat,350);
 						
 						if (bat > 1.0)
+						{
+							KillEverything();
 							Exit_Normal(0);
+						}
 					}
 				}
 			}
