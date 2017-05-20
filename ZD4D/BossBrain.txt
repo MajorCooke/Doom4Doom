@@ -106,7 +106,7 @@ Class D4BossBrain : BossBrain replaces BossBrain
 		BBRN B 0 { return ResolveState("Spawn"); }
 	
 	Death:
-		BBRN A 35
+		BBRN A 2
 		{
 			A_PlaySound("Doom4/Other/DollExplode",7,1,0,ATTN_NONE);
 			A_QuakeEx(5,5,3,35*5,0,32767,"",QF_SCALEUP|QF_SCALEDOWN|QF_MAX|QF_FULLINTENSITY|QF_RELATIVE);
@@ -124,16 +124,24 @@ Class D4BossBrain : BossBrain replaces BossBrain
 						{
 							inv.EffectTics = 1;
 						}						
-					}
-					plr = players[i].mo;
+					}					
+				}
+			}
+			KillEverything();
+		}
+		BBRN A 33
+		{
+			for (int i = 0; i < MAXPLAYERS; i++)
+			{
+				if (playeringame[i] && players[i].mo)
+				{
+					let plr = players[i].mo;
 					if (plr)
 					{
 						plr.A_GiveInventory("PentagramOfProtection");
 					}
-					
 				}
 			}
-			KillEverything();
 		}
 		BBRN A 105
 		{

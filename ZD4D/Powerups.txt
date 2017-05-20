@@ -729,12 +729,7 @@ Class PowerD4Haste : PowerSpeed
 				Switch (EffectTics)
 				{
 					Case 105:
-					{
-						if (NoiseMaker)	
-						{
-							NoiseMaker.A_PlaySound("Haste/Warning",5,1,0);
-						}
-					}
+						if (NoiseMaker)	NoiseMaker.A_PlaySound("Haste/Warning",5,1,0);
 					Case 70:
 					Case 35:
 						Owner.A_SetBlend("Yellow",0.4,12);
