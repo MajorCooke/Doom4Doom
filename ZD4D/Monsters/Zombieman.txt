@@ -168,7 +168,7 @@ Class D4Zombieman : D4AbstractMonster // : Zombieman //replaces Zombieman
 		Goto XDeathNoDrops;
 		
 	XDeathNoDrops:	
-		TNT1 A 0
+		TNT1 A 1
 		{
 			bThruActors = true;
 			XDeathGush();

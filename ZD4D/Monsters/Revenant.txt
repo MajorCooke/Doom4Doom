@@ -179,7 +179,7 @@ Class D4Revenant : D4AbstractBiggie
 		Goto XDeathNoDrops;
 		
 	XDeathNoDrops:	
-		TNT1 A 0
+		TNT1 A 1
 		{
 			bThruActors = true;
 			XDeathGush();

@@ -106,8 +106,10 @@ Class D4BossBrain : BossBrain replaces BossBrain
 		BBRN B 0 { return ResolveState("Spawn"); }
 	
 	Death:
-		BBRN A 2
+		BBRN A 35
 		{
+			if (!seeBase)
+				seeBase = !(A_CheckSight("Null"));
 			A_PlaySound("Doom4/Other/DollExplode",7,1,0,ATTN_NONE);
 			A_QuakeEx(5,5,3,35*5,0,32767,"",QF_SCALEUP|QF_SCALEDOWN|QF_MAX|QF_FULLINTENSITY|QF_RELATIVE);
 			for (int i = 0; i < MAXPLAYERS; i++)
@@ -123,12 +125,16 @@ Class D4BossBrain : BossBrain replaces BossBrain
 						if (inv)
 						{
 							inv.EffectTics = 1;
+							inv.EndEffect();
 						}						
-					}					
+					}
+					plr = players[i].mo;
+					if (plr) plr.A_GiveInventory("PentagramOfProtection");
 				}
 			}
 			KillEverything();
 		}
+		/*
 		BBRN A 33
 		{
 			for (int i = 0; i < MAXPLAYERS; i++)
@@ -138,13 +144,16 @@ Class D4BossBrain : BossBrain replaces BossBrain
 					let plr = players[i].mo;
 					if (plr)
 					{
-						plr.A_GiveInventory("PentagramOfProtection");
+						
 					}
 				}
 			}
 		}
+		*/
 		BBRN A 105
 		{
+			if (!seeBase)
+				seeBase = !(A_CheckSight("Null"));
 			KillEverything();
 			if (seeBase)
 			{
@@ -256,8 +265,6 @@ Class IOSFaceExploder : Actor
 					
 					
 					explo.A_PlaySound("Doom4/Weapon/RocketLauncher/HRExplo",CHAN_AUTO,0.5);
-					//explo.A_XScream();
-					//explo.A_PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
 				}
 			}
 		}

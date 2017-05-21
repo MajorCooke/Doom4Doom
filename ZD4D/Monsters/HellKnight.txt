@@ -427,7 +427,7 @@ Class D4HellKnight : D4AbstractBiggie
 		Goto XDeathNoDrops;
 		
 	XDeathNoDrops:	
-		TNT1 A 0
+		TNT1 A 1
 		{
 			bThruActors = true;
 			XDeathGush(Color_Green);
