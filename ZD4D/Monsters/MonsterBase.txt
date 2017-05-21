@@ -154,6 +154,7 @@ Class D4AbstractMonster : Actor
 	}
 	
 	// Don't let removing scripts leave gaps.
+	
 	override void OnDestroy()
 	{
 		if (health > 1)
@@ -163,14 +164,11 @@ Class D4AbstractMonster : Actor
 				Spawner.bVULNERABLE = true;
 				Spawner.A_Die();
 			}
-			else if (master && (master is "D4DMonsterSpawner" || master is master.GetReplacee("D4DMonsterSpawner")))
-			{
-				master.bVULNERABLE = true;
-				master.A_Die();
-			}
 		}
-		return;
+		
+		Super.OnDestroy();
 	}
+	
 	
 	//--------------------------------------------------------------------------
 	//
