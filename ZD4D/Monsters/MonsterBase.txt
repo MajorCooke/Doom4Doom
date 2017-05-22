@@ -389,7 +389,7 @@ Class D4AbstractMonster : Actor
 			if (CrateDropChance && CrateDropAmount)
 			{
 				int crateamt = CrateDropAlways;
-				for (int i = 0; i < (CrateDropAmount * CashMul); i++)
+				for (int i = 0; i < (CrateDropAmount * Min(4,CashMul)); i++)
 				{
 					if (random(1,256) <= CrateDropChance)
 						crateamt++;
@@ -463,7 +463,9 @@ Class D4AbstractMonster : Actor
 		Pinatas.DropItems(self);
 		if (GetCvar("D4D_CurrentUpgradeMode"))
 		{
-			if (random(1,GetCvar("D4D_PickupDropChance")) == 1)
+			let plr = players[0].mo;
+			int QuadChance = (plr && plr.CountInv("PowerD4Money")) ? 4 : 1;
+			if (random(1, (GetCvar("D4D_PickupDropChance") / QuadChance)) == 1)
 				A_DropItem("D4UpgradePickupSpawner");
 			
 			if (CountInv("AssaultRifleMod1",Player1) &&
