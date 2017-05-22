@@ -57,7 +57,7 @@ Class D4StaticRifle : Doom4Weapon
 			A_TakeInventory("StaticRifleActive",1);
 		}
 		STRF A 1 A_Lower;
-		STRF AAAAA 0 A_Lower;
+		STRF A 0 A_Lower(WeaponSwitchSpeed);
 		Goto Deselect+1;
 	//-------------------------------------------------------
 	// Select sequence
@@ -71,7 +71,7 @@ Class D4StaticRifle : Doom4Weapon
 			//A_TakeInventory("StaticRifleChargingToken",1000);  //it only charges while you have it out
 		}
 		STRF A 1 A_Raise;
-		STRF AAAAA 0 A_Raise;
+		STRF A 0 A_Raise(WeaponSwitchSpeed);
 		Goto Select+1;
 	//-------------------------------------------------------
 	// Ready sequence

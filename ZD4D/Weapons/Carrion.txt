@@ -75,7 +75,7 @@ Class D4CarrionCannon : Doom4Weapon
 		}
 	SelLoop:
 		HELG H 1 A_Raise;
-		"####" "###" 0 A_Raise;
+		"####" "#" 0 A_Raise(WeaponSwitchSpeed);
 		Loop;
 	Deselect:
 		HELG H 0 
@@ -86,7 +86,7 @@ Class D4CarrionCannon : Doom4Weapon
 		}
 	DesLoop:
 		HELG H 1 A_Lower;
-		"####" "###" 0 A_Lower;
+		"####" "#" 0 A_Lower(WeaponSwitchSpeed);
 		Loop;
 	Ready:
 		HELG H 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER1|WRF_ALLOWUSER2);

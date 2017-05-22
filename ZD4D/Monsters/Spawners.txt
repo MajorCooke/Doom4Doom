@@ -132,12 +132,12 @@ Class D4DMonsterSpawner : Actor
 				MyLittleMonster.TeleportMove (MyLittleMonster.pos, true);
 				MyLittleMonster.bBossSpawned = true;
 			}
-			if (isBoss)
-			{
+			//if (isBoss)
+			//{
 				let d4mon = D4AbstractMonster(MyLittleMonster);
 				if (d4mon)
 					d4mon.Spawner = self;
-			}
+			//}
 			
 			if (master)	
 				MyLittleMonster.master = master;
@@ -160,11 +160,13 @@ Class D4DMonsterSpawner : Actor
 	Spawn:
 		TNT1 A 70 NODELAY
 		{
+			/*
 			if (!MyLittleMonster || !isBoss)
 			{
 				if (isBoss) A_BossDeath();
-				return Destroy();
+				//return Destroy();
 			}
+			*/
 		}
 		Loop;
 	Death:

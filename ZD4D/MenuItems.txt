@@ -117,6 +117,8 @@ class OptionMenuItemPurchase : OptionMenuItem
 	Class<Inventory> check;
 	MenuItemList m;
 	Menu current;
+	CVar UpgradeModeCVar;
+	uint8 UpgradeMode;
 	//==========================================================================
 	OptionMenuItemPurchase Init(String command)
 	{
@@ -131,6 +133,20 @@ class OptionMenuItemPurchase : OptionMenuItem
 	//==========================================================================
 	void OnMenuCreatedOld()
 	{
+		UpgradeModeCVar = CVar.FindCVar("D4D_CurrentUpgradeMode");
+		
+		if (UpgradeModeCVar)
+		{
+			UpgradeMode = UpgradeModeCVar.GetInt();
+			if (UpgradeMode > 0)
+			{
+				badItem = true;
+				mLabel = "Can't Buy With Crates";
+				return;
+			}
+		}
+		
+		
 		let p1 = D4DOptionMenuUpgrades(Menu.GetCurrentMenu());
 		if (p1) m = p1.m;
 		
@@ -139,6 +155,7 @@ class OptionMenuItemPurchase : OptionMenuItem
 		
 		if (!m)
 		{
+			mLabel = "Back";
 			badItem = true;
 			Console.Printf("The menu has no list!");
 			return;
@@ -146,6 +163,7 @@ class OptionMenuItemPurchase : OptionMenuItem
 		// First check for the player.
 		if (!m.plr)
 		{
+			mLabel = "Back";
 			badItem = true;
 			Console.Printf("No player!");
 			return;
@@ -161,6 +179,7 @@ class OptionMenuItemPurchase : OptionMenuItem
 		if (!check)
 		{
 			// Item wasn't found.
+			mLabel = "BAD ITEM";
 			badItem = true;
 			Console.Printf("ERROR: Bad or non-existent item!");
 			return;
@@ -178,6 +197,7 @@ class OptionMenuItemPurchase : OptionMenuItem
 		if (!finder1)
 		{
 			// No base, wrong type.
+			mLabel = "BAD ITEM";
 			badItem = true;
 			Console.Printf("ERROR: "..toCheck.." not of UpgradeItem type!");
 			return;
@@ -199,6 +219,7 @@ class OptionMenuItemPurchase : OptionMenuItem
 			if (quan >= maxinv)
 			{
 				// Already bought.
+				mLabel = "Owned (Back)";
 				badItem = bought = true;
 				//Console.Printf("Already bought.");
 				return;
@@ -225,11 +246,13 @@ class OptionMenuItemPurchase : OptionMenuItem
 			}
 			else
 			{
+				mLabel = "BAD QUANTITY";
 				badItem = true;
 				Console.Printf("ERROR: Quantity must be greater than zero!");
 				return;
 			}
 		}
+		
 		
 		if (cost < 0)
 		{
@@ -245,7 +268,7 @@ class OptionMenuItemPurchase : OptionMenuItem
 		else
 		{
 			badItem = true;
-			//Console.Printf("Not enough credits.");
+			mLabel = "Back";
 		}
 	}
 	
@@ -261,7 +284,7 @@ class OptionMenuItemPurchase : OptionMenuItem
 			}
 			else
 			{
-				mLabel = "Back";
+				
 				drawLabel(indent, y, Font.CR_RED);
 			}
 		}

@@ -52,7 +52,7 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 		}
 	DesLoop:
 		"####" "#" 1 A_Lower;
-		"####" "###" 0 A_Lower;
+		"####" "#" 0 A_Lower(WeaponSwitchSpeed);
 		Loop;
 	ZoomDeselect:	//this one has assigned sprites because if it reached here, it HAD to had the scope
 		ARSI A 1
@@ -89,7 +89,7 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 			
 	ResumeSelectSequence:
 		"####" "#" 1 A_Raise;
-		"####" "###" 0 A_Raise;
+		"####" "#" 0 A_Raise(WeaponSwitchSpeed);
 		Loop;
 	
 	//-------------------------------------------------------

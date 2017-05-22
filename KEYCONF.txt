@@ -10,9 +10,10 @@ alias RemoveGibs4 "remove MCBloodSprite; remove MCBloodParticle; remove D4BloodS
 
 // Begin upgrade menu stuffs here.
 alias UpgradeMenuNC "UpdateWeaponsNC; wait 1; OpenMenu D4DUpgradeMenu"
-alias UpgradeMenu "test > $D4D_CurrentUpgradeMode 0 \"newp\" \"PrepMenu\""
-//alias PrepMenu "UU; UpdateWeapons; wait 1; OpenMenu D4DUpgradeMenu"
-alias PrepMenu "UpdateWeapons; wait 1; OpenMenu D4DUpgradeMenu"
+alias UpgradeMenu "OpenMenu D4DUpgradeMenu"
+//alias UpgradeMenu "test > $D4D_CurrentUpgradeMode 0 \"newp\" \"PrepMenu\""
+
+//alias PrepMenu "UpdateWeapons; wait 1; OpenMenu D4DUpgradeMenu"
 
 alias UpdateWeapons "pukename UpdateWeaponList always 0"
 alias UpdateWeaponsNC "pukename UpdateWeaponList always 1"

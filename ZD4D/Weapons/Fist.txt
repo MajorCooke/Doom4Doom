@@ -52,12 +52,12 @@ Class D4DFist : Doom4Weapon
 		Loop;
 	Deselect:
 		MELE "]" 1 A_Lower;
-		"####" "###" 0 A_Lower;
+		"####" "#" 0 A_Lower(WeaponSwitchSpeed);
 		Loop;
 	Select:
 		MELE "]" 0 ACS_NamedExecute("RemoveModText",0,0,0,0);
 		MELE "]" 1 A_Raise;
-		"####" "###" 0 A_Raise;
+		"####" "#" 0 A_Raise(WeaponSwitchSpeed);
 		Goto Select+1;
 	/*Fire:
 		PKFS ABC 1 A_TakeInventory("PunchedAlready",1)
@@ -87,7 +87,6 @@ Class D4DFist : Doom4Weapon
 	Fire:
 		MELE "]" 0 
 		{
-			A_SetShootable();
 			A_TakeInventory("PunchedAlready",32767);
 		}
 		MELE "]" 1 A_WeaponOffset(10,10,WOF_ADD); //lowers the idle fist

@@ -9,7 +9,7 @@ Class Doom4StatusBar : BaseStatusBar
 {
 	const FakeCashStart = 35 * 4;
 	const FakeCashFade = 35.0;
-	const imageAlignment = DI_ITEM_LEFT_TOP|DI_FORCESCALE;
+	const imageAlignment = DI_ITEM_LEFT_TOP;
 	DynamicValueInterpolator mHealthInterpolator;
 	DynamicValueInterpolator mHealthInterpolator2;
 	DynamicValueInterpolator mHealthInterpolator3;

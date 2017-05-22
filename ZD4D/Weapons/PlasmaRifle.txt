@@ -80,7 +80,7 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 		}
 	DesLoop:
 		"####" A 1 A_Lower;
-		"####" AAA 0 A_Lower;
+		"####" A 0 A_Lower(WeaponSwitchSpeed);
 		Loop;
 	//-------------------------------------------------------
 	// Select sequence
@@ -96,7 +96,7 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 		}
 		PRNI A 0 ACS_NamedExecute("RemoveModText",0,0,0,0);	//remove previous wep text
 		PRNI A 1 A_Raise;
-		PRNI AAA 0 A_Raise;
+		PRNI A 0 A_Raise(WeaponSwitchSpeed);
 		Goto Select+2;
 		
 	//-------------------------------------------------------

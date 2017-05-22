@@ -36,12 +36,12 @@ Class D4Pistol : Doom4Weapon
 		WEP1 A 0 A_Overlay(GunWatcher,"Null");
 	DesLoop:
 		WEP1 A 1 A_Lower;
-		WEP1 AAA 0 A_Lower;
+		WEP1 A 0 A_Lower(WeaponSwitchSpeed);
 		Loop;
 	Select:
 		WEP1 A 0 ACS_NamedExecute("RemoveModText",0,0,0,0);
 		WEP1 A 1 A_Raise;
-		WEP1 AAA 0 A_Raise;
+		WEP1 A 0 A_Raise(WeaponSwitchSpeed);
 		Goto Select+1;
 	Ready:
 		WEP1 A 0

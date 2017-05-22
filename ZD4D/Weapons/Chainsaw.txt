@@ -57,7 +57,7 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 			
 		ContinueSelect:
 			"####" A 1 A_Raise;
-			"####" AAAAA 0 A_Raise;
+			"----" A 0 A_Raise(WeaponSwitchSpeed);
 			Loop;
 			
 	Deselect:
@@ -71,8 +71,8 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 			A_Overlay(Ch_Sizzling,"Null");
 			A_Overlay(AcidFX,"Null");
 		}
-		"####" A 1 A_Lower;
-		"####" AAAAA 0 A_Lower;
+		"----" A 1 A_Lower;
+		"----" A 0 A_Lower(WeaponSwitchSpeed);
 		Goto Deselect+1;
 		
 	

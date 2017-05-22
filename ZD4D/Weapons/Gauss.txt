@@ -99,11 +99,11 @@ Class D4GaussCannon : Doom4Weapon
 		}
 	DesLoop:
 		"####" "#" 1 A_Lower;
-		"####" "###" 0 A_Lower;
+		"####" "#" 0 A_Lower(WeaponSwitchSpeed);
 		Loop;
 	Select:
 		WEP8 A 1 A_Raise;
-		WEP8 AAA 0 A_Raise;
+		WEP8 A 0 A_Raise(WeaponSwitchSpeed);
 		Loop;
 		
 	//-------------------------------------------------------
