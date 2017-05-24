@@ -7,6 +7,12 @@ Class UpgradeItem : Inventory
 	int ReqQ1, ReqQ2, ReqQ3, ReqQ4;
 	String Attach1, Attach2, Attach3, Attach4;
 	int Attamt1, Attamt2, Attamt3, Attamt4;
+	String Desc, Desc1, Desc2, Desc3, Desc4;
+	property Desc: Desc;
+	property Desc1: Desc1;
+	property Desc2: Desc2;
+	property Desc3: Desc3;
+	property Desc4: Desc4;
 	property Cost: Cost;
 	property Cost2: Cost2;
 	property Cost3: Cost3;
@@ -59,6 +65,14 @@ Class UpgradeItem : Inventory
 	}
 	
 	virtual void UpdateItem() {}
+	virtual void PrintDesc()
+	{
+		if (Desc.Length() < 1)
+			Desc = "Insert description for "..GetClassName().." here";
+			
+		if (Owner)
+			Owner.A_Print(Desc);
+	}
 	
 	override void BeginPlay()
 	{
@@ -179,9 +193,15 @@ Class ProtectionBonus1Real : PowerProtection
 		+INVENTORY.PERSISTENTPOWER
 		+INVENTORY.UNTOSSABLE
 		+INVENTORY.UNDROPPABLE
-		Powerup.Duration 0x7FFFFFFD;
+		Powerup.Duration 1000000;
 		Inventory.InterhubAmount 1;
 		Inventory.MaxAmount 1;
+	}
+	
+	override void DoEffect()
+	{
+		Super.DoEffect();
+		EffectTics = 1000000;
 	}
 }
 
@@ -198,6 +218,11 @@ Class ProtectionBonus3Real : PowerProtection
 		Powerup.Duration 0x7FFFFFFD;
 		Inventory.InterhubAmount 1;
 		Inventory.MaxAmount 1;
+	}
+	override void DoEffect()
+	{
+		Super.DoEffect();
+		EffectTics = 1000000;
 	}
 }
 
@@ -291,7 +316,7 @@ Class VortexUpgradeAltPierce : UpgradeItem 		{ Default { UpgradeItem.Cost 3500; 
 //==============================================================================
 //==============================================================================
 // Environmental Protection
-Class ProtectionBonus1 : UpgradeItemSpecial		{ Default { UpgradeItem.Cost 5000; UpgradeItemSpecial.RealItem "ProtectionBonus1Real";	}	}
+Class ProtectionBonus1 : UpgradeItemSpecial		{ Default {	UpgradeItem.Cost 5000; UpgradeItemSpecial.RealItem "ProtectionBonus1Real";	}}
 // Self Protection
 Class ProtectionBonus2 : UpgradeItem 			{ Default {	UpgradeItem.Cost 7500;	}}
 // AoE Protection
@@ -307,16 +332,31 @@ Class ProtectionBonus : UpgradeItem
 		UpgradeItem.Quantity 1;
 		UpgradeItem.Quantity2 2;
 		UpgradeItem.Quantity3 3;
+		UpgradeItem.Desc1 "+50% Environment Damage Reduction";
+		UpgradeItem.Desc2 "+50% Self Damage Reduction";
+		UpgradeItem.Desc3 "+50% Radius Damage Reduction";
 		Inventory.MaxAmount 3;
+	}
+	
+	override void PrintDesc()
+	{
+		int amt = Owner.CountInv("ProtectionBonus");
+		Switch (amt)
+		{
+			Case 1: Desc = Desc1; break;
+			Case 2: Desc = Desc2; break;
+			Case 3: Desc = Desc3; break;
+		}
+		Super.PrintDesc();
 	}
 	override void UpdateItem()
 	{
 		if (Owner)
 		{
-			int amt = Owner.CountInv("D4AirUpgrade");
-			if (amt > 0)	Owner.A_SetInventory("ProtectionBonus1Real",1);
-			if (amt > 1)	Owner.A_SetInventory("ProtectionBonus2",1);
-			if (amt > 2)	Owner.A_SetInventory("ProtectionBonus3Real",1);
+			int amt = Owner.CountInv("ProtectionBonus");
+			if (amt > 0)	{ Owner.A_SetInventory("ProtectionBonus1Real",1);	}
+			if (amt > 1)	{ Owner.A_SetInventory("ProtectionBonus2",1);		}
+			if (amt > 2)	{ Owner.A_SetInventory("ProtectionBonus3Real",1);	}
 		}
 	}
 	override void DepleteOrDestroy()
@@ -345,16 +385,32 @@ Class D4AirUpgrade : UpgradeItem
 		UpgradeItem.Quantity 1;
 		UpgradeItem.Quantity2 2;
 		UpgradeItem.Quantity3 3;
+		UpgradeItem.Desc1 "Higher Jump";
+		UpgradeItem.Desc2 "Triple Jump";
+		UpgradeItem.Desc3 "Air Control";
 		Inventory.MaxAmount 3;
 	}
+	
+	override void PrintDesc()
+	{
+		int amt = Owner.CountInv("D4AirUpgrade");
+		Switch (amt)
+		{
+			Case 1: Desc = Desc1; break;
+			Case 2: Desc = Desc2; break;
+			Case 3: Desc = Desc3; break;
+		}
+		Super.PrintDesc();
+	}
+	
 	override void UpdateItem()
 	{
 		if (Owner)
 		{
 			int amt = Owner.CountInv("D4AirUpgrade");
-			if (amt > 0)	Owner.A_SetInventory("D4HigherJump",1);
-			if (amt > 1)	Owner.A_SetInventory("D4MultiJump",3);
-			if (amt > 2)	Owner.A_SetInventory("D4AirControl",1);
+			if (amt > 0)	{ Owner.A_SetInventory("D4HigherJump",1);	}
+			if (amt > 1)	{ Owner.A_SetInventory("D4MultiJump",3);	}
+			if (amt > 2)	{ Owner.A_SetInventory("D4AirControl",1);	}
 		}
 	}
 	override void DepleteOrDestroy()
@@ -379,7 +435,21 @@ Class D4Stamina : UpgradeItem
 		UpgradeItem.Quantity 25;
 		UpgradeItem.Quantity2 50;
 		UpgradeItem.Quantity3 100;
+		UpgradeItem.Desc1 "+25 Max Health";
+		UpgradeItem.Desc2 "+50 Max Health";
+		UpgradeItem.Desc3 "+100 Max Health";
+		UpgradeItem.Desc4 "WHAAAAAAAT!?";
 		Inventory.MaxAmount 100;
+	}
+	
+	override void PrintDesc()
+	{
+		int amt = Owner.CountInv("D4Stamina");
+			 if (amt <= 25) 	Desc = Desc1;
+		else if (amt <= 50)		Desc = Desc2;
+		else					Desc = Desc3;
+		
+		Super.PrintDesc();
 	}
 	override void UpdateItem()
 	{
@@ -423,7 +493,20 @@ Class D4CrateUpgrade : UpgradeItem
 		UpgradeItem.Quantity 1;
 		UpgradeItem.Quantity2 2;
 		UpgradeItem.Quantity3 3;
+		UpgradeItem.Desc1 "Heavy Crates\nGuarantees larger quality items";
+		UpgradeItem.Desc2 "Sensor Crates\nCrates are more situationally aware";
+		UpgradeItem.Desc3 "Weapon Crates\nCrates may contain weapons";
 		Inventory.MaxAmount 3; 
+	}
+	
+	override void PrintDesc()
+	{
+		int amt = Owner.CountInv("D4CrateUpgrade");
+			 if (amt <= 0) 		Desc = Desc1;
+		else if (amt <= 1)		Desc = Desc2;
+		else					Desc = Desc3;
+		
+		Super.PrintDesc();
 	}
 }
 

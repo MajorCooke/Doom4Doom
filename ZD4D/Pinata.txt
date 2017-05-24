@@ -11,7 +11,7 @@
 Class D4PinataBorder : Actor 
 {
 	int user_t;
-	int user_count;
+	int count;
 	double user_pitch;
 	double user_dist;
 	const Increment = 4;
@@ -159,50 +159,124 @@ Class D4PinataParticles : Actor
 
 Struct PlrCheck play
 {
-	static void CheckForPlayers(Actor checkee)
+	static void SetFlying (Actor who, bool enabled)
 	{
-		if (!checkee)	return;
+		if (!who) return;
+		
+		who.bNOINTERACTION = who.bNOCLIP = enabled;
+		who.A_ChangeLinkFlags(enabled);
+	}
+
+	// Checks if the freeze cheat or powerup is active.
+	static bool CheckTimeFreeze()
+	{	return (globalfreeze || level.Frozen);	}
+	
+	// Checks if the pinata and/or upgrade is near a player that's not morphed 
+	// and alive. 
+	static Actor CheckForPlayers(Actor checkee)
+	{
+		if (!checkee)	return null;
 		Actor trc = checkee.tracer;
 		
-		if (trc && trc.player && checkee.Distance3D(trc) <= RadiusPull)
+		if (trc)
 		{
-			if (trc.health > 0 && !trc.FindInventory("PowerMorph",true))
-				return;
+			if (trc is "PlayerPawn" && !trc.FindInventory("PowerMorph",true) &&
+				trc.health > 0)
+					return trc;
 		}
 		
-		checkee.tracer = null;
 		for (int i = 0; i < MAXPLAYERS; i++)
 		{
 			if (playeringame[i])
 			{
 				Actor plr = players[i].mo;
-				if (plr && checkee.Distance3D(plr) <= RadiusPull)
+				if (plr && !plr.FindInventory("PowerMorph",true) && plr.health > 0 && 
+					checkee.Distance3D(plr) <= RadiusPull)
 				{
-					if (plr.health > 0 && !plr.FindInventory("PowerMorph",true))
-					{
-						checkee.tracer = plr;
-						return;
-					}
+					return plr;
 				}
-				else checkee.tracer = null;
 			}
-			else checkee.tracer = null;
 		}
-		checkee.tracer = null;
+		return null;
+	}
+}
+
+/* UpgradePinataFlier
+ *
+ * Serves as the latest think tank for the pinatas to help reduce code bloat.
+ * One can pass in what items to check along with the upgrades that supplement
+ * the check to ensure it's eligible for picking up.
+ * 
+ * I.e. 
+ */
+
+Class UpgradePinataFlier : Thinker
+{
+	Actor 				Spawner;			// The main actor to move and monitor.
+	PlayerPawn			Target;				// The target to fly after.
+	Class<Inventory> 	Item;				// The item to check for < max
+	Class<Inventory>	Condition;			// Other item to check
+	int					Conditional; 		// Amount of the conditional to add on
+	int 				MaxAmt;				// Max Amount
+	bool 				NoUnlimited;		// Ignore unlimited pickup cvar?
+	bool				DestroyMe;			// Destroy on the next tic.
+	bool				NoItem;				// For upgrades.
+	private bool		IsHealth;			// Special treatment required.
+	private int			OddTic;
+	
+	override void PostBeginPlay()
+	{
+		// Strictly enforce conditions for health.
+		if (Item && Item == 'Health')
+		{
+			NoUnlimited = IsHealth = true;
+			Condition = null;
+			Conditional = 0;
+			NoItem = false;
+		}
+		Super.PostBeginPlay();
+	}
+	
+	override void Tick()
+	{
+		if (DestroyMe || !Spawner || (!NoItem && !Item))
+			return Destroy();
+		
+		OddTic = (OddTic + 1) % 2;
+		
+		if (PlrCheck.CheckTimeFreeze() || !OddTic)	
+			return Super.Tick();
+		
+		Target = PlayerPawn(PlrCheck.CheckForPlayers(Spawner));
+		int Amt = 0;
+		if (Target && !NoItem)
+		{
+			if (IsHealth)
+			{
+				Amt = Target.health;
+				MaxAmt = Target.GetMaxHealth(true);
+			}
+			else	
+				Amt = Target.CountInv(Item) + (Condition ? Target.CountInv(Condition) : 0);
+				
+			if ((NoUnlimited || !sv_unlimited_pickup) && Amt >= MaxAmt)
+				Target = null;
+		}
+		
+		// Will pass in the player that's eligible for this item.
+		Spawner.tracer = Target;
+		
+		Super.Tick();
 	}
 }
 
 //---------------------------------
-// Piñata Armor
+// Pinata Armor
 Class D4PinataArmor : D4ArmorBonus
 {
-	PlrCheck s;
-	int user_count;
-	double user_ang;
-	const Distance = 5;
-	const MaxSteps = 30;
-	
-	bool Landed, Flying;
+	UpgradePinataFlier flier;
+	int count;	
+	bool Flying;
 	int Lifetime;
 	property Lifetime: Lifetime;
 	Default 
@@ -229,47 +303,36 @@ Class D4PinataArmor : D4ArmorBonus
 		{
 			A_SpawnItemEx("D4PinataBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER,0,Color_Green);
+			flier = new("UpgradePinataFlier");
+			if (flier)
+			{
+				flier.Spawner = self;
+				flier.Item = "Armor";
+				flier.MaxAmt = 200;
+			}
 		}
 	Looping:
-		"----" A 1
+		"----" A 2
 		{
-			if (A_CheckFloor("Null"))	Landed = true;
-			
-			if (user_count >= DelayVacuum)
+			if (count < DelayVacuum)	{	count += 2;	return;		}
+			// Tracer should automatically be handled by the thinker.
+			if (tracer)
 			{
-				PlrCheck.CheckForPlayers(self);
-				if (tracer && (Flying || Distance3D(tracer) <= RadiusPull))
-				{
-					if (((GetCvar("sv_unlimited_pickup") > 0) || tracer.CountInv("Armor") < 200))
-					{
-						Flying = true;
-						user_count = DelayVacuum;
-						bNOCLIP = bNOINTERACTION = true;
-						A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-						A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-						if (GetDistance(true,TracerPtr) <= 32)
-						{
-							A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
-							bNoclip = false;
-							bNoInteraction = false;
-							A_ChangeLinkFlags(false);
-						}
-					}
-					else
-					{
-						Flying = false;
-						user_count++;
-						bNOCLIP = bNOINTERACTION = false;
-						A_ChangeLinkFlags(true);
-					}
-				}
+				count = DelayVacuum;
+				PlrCheck.SetFlying(self, true);
+				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
+				if (Distance3D(tracer) <= 32)
+				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
 			}
-			if (!Flying)
-				user_count++;
+			else
+			{
+				PlrCheck.SetFlying(self, false);
+				count += 2;
+			}
 			
-			if (user_count > Lifetime && !Flying)
-				A_FadeOut();
-			
+			if (count > Lifetime)	A_FadeOut();
+			else 					Alpha = 1.0;
 		}
 		Loop;
 	}
@@ -281,9 +344,9 @@ Class D4PinataArmor : D4ArmorBonus
 // Pinata health
 Class D4PinataHealth : D4Stimpack
 {
-	PlrCheck s;
-	int user_count;
-	bool Landed, Flying;
+	UpgradePinataFlier flier;
+	int count;	
+	bool Flying;
 	int Lifetime;
 	property Lifetime: Lifetime;
 	Default 
@@ -311,45 +374,35 @@ Class D4PinataHealth : D4Stimpack
 		{
 			A_SpawnItemEx("D4PinataBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER,0,Color_Blue);
+			flier = new("UpgradePinataFlier");
+			if (flier)
+			{
+				flier.Spawner = self;
+				flier.Item = "Health";
+			}
 		}
 	Looping:
 		"----" A 2
 		{
-			if (A_CheckFloor("Null"))	Landed = true;
-			if (user_count >= DelayVacuum)
+			if (count < DelayVacuum)	{	count += 2;	return;		}
+			// Tracer should automatically be handled by the thinker.
+			if (tracer)
 			{
-				PlrCheck.CheckForPlayers(self);
-				if (tracer && (Flying || Distance3D(tracer) <= RadiusPull))
-				{
-					if (tracer.health < (100 + int(GetCvar("D4Stamina"))))
-					{	Flying = true;
-						user_count = DelayVacuum;
-						bNOCLIP = bNOINTERACTION = true;
-						A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-						A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-						if (GetDistance(true,TracerPtr) <= 32)
-						{
-							A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
-							bNoclip = false;
-							bNoInteraction = false;
-							A_ChangeLinkFlags(false);
-						}
-					}
-					else
-					{
-						Flying = false;
-						user_count++;
-						bNOCLIP = bNOINTERACTION = false;
-						A_ChangeLinkFlags(true);
-					}
-				}
+				count = DelayVacuum;
+				PlrCheck.SetFlying(self, true);
+				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
+				if (Distance3D(tracer) <= 32)
+				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
 			}
-			if (!Flying)
-				user_count++;
+			else
+			{
+				PlrCheck.SetFlying(self, false);
+				count += 2;
+			}
 			
-			if (user_count > Lifetime && !Flying)
-				A_FadeOut();
-			
+			if (count > Lifetime)	A_FadeOut();
+			else 					Alpha = 1.0;
 		}
 		Loop;
 	}
@@ -360,9 +413,9 @@ Class D4PinataHealth : D4Stimpack
 // Pinata ammo bullets
 Class D4PinataBullets : D4Bullets
 {
-	PlrCheck s;
-	int user_count;
-	bool Landed, Flying;
+	UpgradePinataFlier flier;
+	int count;	
+	bool Flying;
 	int Lifetime;
 	property Lifetime: Lifetime;
 	Default 
@@ -391,45 +444,36 @@ Class D4PinataBullets : D4Bullets
 		{
 			A_SpawnItemEx("D4PinataBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+			flier = new("UpgradePinataFlier");
+			if (flier)
+			{
+				flier.Spawner = self;
+				flier.Item = "D4Bullets";
+				flier.MaxAmt = 250;
+			}
 		}
 	Looping:
 		"----" A 2
 		{
-			if (A_CheckFloor("Null"))	Landed = true;
-			if (user_count >= DelayVacuum)
+			if (count < DelayVacuum)	{	count += 2;	return;		}
+			// Tracer should automatically be handled by the thinker.
+			if (tracer)
 			{
-				PlrCheck.CheckForPlayers(self);
-				if (tracer && (Flying || Distance3D(tracer) <= RadiusPull))
-				{
-					if ((GetCvar("sv_unlimited_pickup") > 0 || CountInv("D4Bullets",TracerPtr) < 250) && tracer && !tracer.FindInventory("PowerMorph",true) )
-					{	Flying = true;
-						user_count = DelayVacuum;
-						bNOCLIP = bNOINTERACTION = true;
-						A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-						A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-						if (GetDistance(true,TracerPtr) <= 32)
-						{
-							A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
-							bNoclip = false;
-							bNoInteraction = false;
-							A_ChangeLinkFlags(false);
-						}
-					}
-					else
-					{
-						Flying = false;
-						user_count++;
-						bNOCLIP = bNOINTERACTION = false;
-						A_ChangeLinkFlags(true);
-					}
-				}
+				count = DelayVacuum;
+				PlrCheck.SetFlying(self, true);
+				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
+				if (Distance3D(tracer) <= 32)
+				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
 			}
-			if (!Flying)
-				user_count++;
+			else
+			{
+				PlrCheck.SetFlying(self, false);
+				count += 2;
+			}
 			
-			if (user_count > Lifetime && !Flying)
-				A_FadeOut();
-			
+			if (count > Lifetime)	A_FadeOut();
+			else 					Alpha = 1.0;
 		}
 		Loop;
 	}
@@ -449,9 +493,9 @@ Class D4PinataBulletsBig : D4PinataBullets
 // Pinata ammo shells
 Class D4PinataShells : D4Shells
 {
-	PlrCheck s;
-	int user_count;
-	bool Landed, Flying;
+	UpgradePinataFlier flier;
+	int count;	
+	bool Flying;
 	int Lifetime;
 	property Lifetime: Lifetime;
 	Default 
@@ -479,45 +523,36 @@ Class D4PinataShells : D4Shells
 		{
 			A_SpawnItemEx("D4PinataBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+			flier = new("UpgradePinataFlier");
+			if (flier)
+			{
+				flier.Spawner = self;
+				flier.Item = "D4Shells";
+				flier.MaxAmt = D4Shells_MaxAmount1;
+			}
 		}
 	Looping:
 		"----" A 2
 		{
-			if (A_CheckFloor("Null"))	Landed = true;
-			if (user_count >= DelayVacuum)
+			if (count < DelayVacuum)	{	count += 2;	return;		}
+			// Tracer should automatically be handled by the thinker.
+			if (tracer)
 			{
-				PlrCheck.CheckForPlayers(self);
-				if (tracer && (Flying || Distance3D(tracer) <= RadiusPull))
-				{
-					if ((GetCvar("sv_unlimited_pickup") > 0 || CountInv("D4Shells",TracerPtr) < 45))
-					{	Flying = true;
-						user_count = DelayVacuum;
-						bNOCLIP = bNOINTERACTION = true;
-						A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-						A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-						if (GetDistance(true,TracerPtr) <= 32)
-						{
-							A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
-							bNoclip = false;
-							bNoInteraction = false;
-							A_ChangeLinkFlags(false);
-						}
-					}
-					else
-					{
-						Flying = false;
-						user_count++;
-						bNOCLIP = bNOINTERACTION = false;
-						A_ChangeLinkFlags(true);
-					}
-				}
+				count = DelayVacuum;
+				PlrCheck.SetFlying(self, true);
+				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
+				if (Distance3D(tracer) <= 32)
+				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
 			}
-			if (!Flying)
-				user_count++;
+			else
+			{
+				PlrCheck.SetFlying(self, false);
+				count += 2;
+			}
 			
-			if (user_count > Lifetime && !Flying)
-				A_FadeOut();
-			
+			if (count > Lifetime)	A_FadeOut();
+			else 					Alpha = 1.0;
 		}
 		Loop;
 	}
@@ -540,8 +575,9 @@ Class D4PinataShellsBig : D4PinataShells
 // Pinata ammo cells
 Class D4PinataCells : D4Cells
 {
-	int user_count;
-	bool Landed, Flying;
+	UpgradePinataFlier flier;
+	int count;	
+	bool Flying;
 	int Lifetime;
 	property Lifetime: Lifetime;
 	Default 
@@ -567,45 +603,36 @@ Class D4PinataCells : D4Cells
 		{
 			A_SpawnItemEx("D4PinataBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+			flier = new("UpgradePinataFlier");
+			if (flier)
+			{
+				flier.Spawner = self;
+				flier.Item = "D4Cells";
+				flier.MaxAmt = D4Cells_MaxAmount1;
+			}
 		}
 	Looping:
 		"----" A 2
 		{
-			if (A_CheckFloor("Null"))	Landed = true;
-			if (user_count >= DelayVacuum)
+			if (count < DelayVacuum)	{	count += 2;	return;		}
+			// Tracer should automatically be handled by the thinker.
+			if (tracer)
 			{
-				PlrCheck.CheckForPlayers(self);
-				if (tracer && (Flying || Distance3D(tracer) <= RadiusPull))
-				{
-					if (GetCvar("sv_unlimited_pickup") > 0 || CountInv("D4Cells",TracerPtr) < 200)
-					{	Flying = true;
-						user_count = DelayVacuum;
-						bNOCLIP = bNOINTERACTION = true;
-						A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-						A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-						if (GetDistance(true,TracerPtr) <= 32)
-						{
-							A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
-							bNoclip = false;
-							bNoInteraction = false;
-							A_ChangeLinkFlags(false);
-						}
-					}
-					else
-					{
-						Flying = false;
-						user_count++;
-						bNOCLIP = bNOINTERACTION = false;
-						A_ChangeLinkFlags(true);
-					}
-				}
+				count = DelayVacuum;
+				PlrCheck.SetFlying(self, true);
+				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
+				if (Distance3D(tracer) <= 32)
+				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
 			}
-			if (!Flying)
-				user_count++;
+			else
+			{
+				PlrCheck.SetFlying(self, false);
+				count += 2;
+			}
 			
-			if (user_count > Lifetime && !Flying)
-				A_FadeOut();
-			
+			if (count > Lifetime)	A_FadeOut();
+			else 					Alpha = 1.0;
 		}
 		Loop;
 	}
@@ -624,9 +651,9 @@ Class D4PinataCellsBig : D4PinataCells
 // Pinata ammo rockets
 Class D4PinataRockets : D4Rockets
 {
-	PlrCheck s;
-	int user_count;
-	bool Landed, Flying;
+	UpgradePinataFlier flier;
+	int count;	
+	bool Flying;
 	int Lifetime;
 	property Lifetime: Lifetime;
 	Default 
@@ -653,45 +680,36 @@ Class D4PinataRockets : D4Rockets
 		{
 			A_SpawnItemEx("D4PinataBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+			flier = new("UpgradePinataFlier");
+			if (flier)
+			{
+				flier.Spawner = self;
+				flier.Item = "D4Rockets";
+				flier.MaxAmt = D4Rockets_MaxAmount1;
+			}
 		}
 	Looping:
 		"----" A 2
 		{
-			if (A_CheckFloor("Null"))	Landed = true;
-			if (user_count >= DelayVacuum)
+			if (count < DelayVacuum)	{	count += 2;	return;		}
+			// Tracer should automatically be handled by the thinker.
+			if (tracer)
 			{
-				PlrCheck.CheckForPlayers(self);
-				if (tracer && (Flying || Distance3D(tracer) <= RadiusPull))
-				{
-					if (GetCvar("sv_unlimited_pickup") > 0 || CountInv("D4Rockets",TracerPtr) < 30)
-					{	Flying = true;
-						user_count = DelayVacuum;
-						bNOCLIP = bNOINTERACTION = true;
-						A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-						A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-						if (GetDistance(true,TracerPtr) <= 32)
-						{
-							A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
-							bNoclip = false;
-							bNoInteraction = false;
-							A_ChangeLinkFlags(false);
-						}
-					}
-					else
-					{
-						Flying = false;
-						user_count++;
-						bNOCLIP = bNOINTERACTION = false;
-						A_ChangeLinkFlags(true);
-					}
-				}
+				count = DelayVacuum;
+				PlrCheck.SetFlying(self, true);
+				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
+				if (Distance3D(tracer) <= 32)
+				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
 			}
-			if (!Flying)
-				user_count++;
+			else
+			{
+				PlrCheck.SetFlying(self, false);
+				count += 2;
+			}
 			
-			if (user_count > Lifetime && !Flying)
-				A_FadeOut();
-			
+			if (count > Lifetime)	A_FadeOut();
+			else 					Alpha = 1.0;
 		}
 		Loop;
 	}
@@ -712,9 +730,9 @@ Class D4PinataRocketsBig : D4PinataRockets
 
 Class D4PinataBFG : D4BFGAmmo
 {
-	PlrCheck s;
-	int user_count;
-	bool Landed, Flying;
+	UpgradePinataFlier flier;
+	int count;	
+	bool Flying;
 	int Lifetime;
 	property Lifetime: Lifetime;
 	Default 
@@ -739,45 +757,36 @@ Class D4PinataBFG : D4BFGAmmo
 		{
 			A_SpawnItemEx("D4PinataBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER,0,Color_Green);
+			flier = new("UpgradePinataFlier");
+			if (flier)
+			{
+				flier.Spawner = self;
+				flier.Item = "D4BFGAmmo";
+				flier.MaxAmt = D4BFGAmmo_MaxAmount;
+			}
 		}
 	Looping:
 		"----" A 2
 		{
-			if (A_CheckFloor("Null"))	Landed = true;
-			if (user_count >= DelayVacuum)
+			if (count < DelayVacuum)	{	count += 2;	return;		}
+			// Tracer should automatically be handled by the thinker.
+			if (tracer)
 			{
-				PlrCheck.CheckForPlayers(self);
-				if (tracer && (Flying || Distance3D(tracer) <= RadiusPull))
-				{
-					if (GetCvar("sv_unlimited_pickup") > 0 && tracer && !tracer.FindInventory("PowerMorph",true) || CountInv("D4BFGAmmo",TracerPtr) < 3 && tracer && !tracer.FindInventory("PowerMorph",true))
-					{	Flying = true;
-						user_count = DelayVacuum;
-						bNOCLIP = bNOINTERACTION = true;
-						A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-						A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-						if (GetDistance(true,TracerPtr) <= 32)
-						{
-							A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
-							bNoclip = false;
-							bNoInteraction = false;
-							A_ChangeLinkFlags(false);
-						}
-					}
-					else
-					{
-						Flying = false;
-						user_count++;
-						bNOCLIP = bNOINTERACTION = false;
-						A_ChangeLinkFlags(true);
-					}
-				}
+				count = DelayVacuum;
+				PlrCheck.SetFlying(self, true);
+				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
+				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
+				if (Distance3D(tracer) <= 32)
+				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
 			}
-			if (!Flying)
-				user_count++;
+			else
+			{
+				PlrCheck.SetFlying(self, false);
+				count += 2;
+			}
 			
-			if (user_count > Lifetime && !Flying)
-				A_FadeOut();
-			
+			if (count > Lifetime)	A_FadeOut();
+			else 					Alpha = 1.0;
 		}
 		Loop;
 	}
@@ -793,8 +802,7 @@ Class D4PinataBFG : D4BFGAmmo
 // zombieman
 Class D4PinataBulletsZombieman : D4Bullets	//only dropped by these guys, and they dont go after player
 {
-	int user_count;
-	
+	int count;
 	Default 
 	{
 		Scale 0.3;
@@ -828,8 +836,8 @@ Class D4PinataBulletsZombieman : D4Bullets	//only dropped by these guys, and the
 	Landed:
 		"####" "#" 1
 		{
-			user_count++;
-			if (user_count > PinataLifetimeLong)
+			count++;
+			if (count > PinataLifetimeLong)
 			{	return ResolveState("Fading");		}
 			return ResolveState(null);
 		}
@@ -843,8 +851,7 @@ Class D4PinataBulletsZombieman : D4Bullets	//only dropped by these guys, and the
 
 Class D4PinataShellsShotgunGuy : D4Shells	//only dropped by these guys, and they dont go after player
 {
-	int user_count;
-	
+	int count;
 	Default 
 	{
 		Scale 0.3;
@@ -878,8 +885,8 @@ Class D4PinataShellsShotgunGuy : D4Shells	//only dropped by these guys, and they
 	Landed:
 		"####" "#" 1
 		{
-			user_count++;
-			if (user_count > PinataLifetimeLong)
+			count++;
+			if (count > PinataLifetimeLong)
 			{	return ResolveState("Fading");		}
 			return ResolveState(null);
 		}

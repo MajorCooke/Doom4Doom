@@ -1,3 +1,19 @@
+enum D4AmmoConstants
+{
+	D4Fuel_MaxAmount1 = 5,
+	D4Fuel_MaxAmount2 = 8,
+	D4Bullets_MaxAmount1 = 250,
+	D4Bullets_MaxAmount2 = 350,
+	D4Shells_MaxAmount1 = 45,
+	D4Shells_MaxAmount2 = 75,
+	D4Cells_MaxAmount1 = 200,
+	D4Cells_MaxAmount2 = 300,
+	D4Rockets_MaxAmount1 = 30,
+	D4Rockets_MaxAmount2 = 40,
+	D4BFGAmmo_MaxAmount = 3,
+	D4Carrion_MaxAmount = 5000,
+};
+
 //=======================================================================
 //=======================================================================
 // Special ammo spawners
@@ -230,6 +246,7 @@ Class CellPackReplacer : CustomInventory replaces CellPack
 //=============================================================================
 //
 //=============================================================================
+
 Class D4Fuel : Ammo 
 {
 	
@@ -243,8 +260,8 @@ Class D4Fuel : Ammo
 		//Inventory.Icon "AMMON0"
 		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
 		Inventory.Amount 2;
-		Inventory.MaxAmount 5;
-		Ammo.BackpackMaxAmount 8;
+		Inventory.MaxAmount D4Fuel_MaxAmount1;
+		Ammo.BackpackMaxAmount D4Fuel_MaxAmount2;
 		DistanceCheck "user_MaxDrawDistance";
 		Scale 0.45;
 	}
@@ -270,6 +287,7 @@ Class D4FuelSmall : D4Fuel
 //=============================================================================
 //
 //=============================================================================
+
 Class D4Bullets : Ammo replaces ClipBox
 {
 	
@@ -282,8 +300,8 @@ Class D4Bullets : Ammo replaces ClipBox
 		Inventory.PickupMessage "Bullets";
 		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
 		Inventory.Amount 50;
-		Inventory.MaxAmount 250;
-		Ammo.BackpackMaxAmount 350;
+		Inventory.MaxAmount D4Bullets_MaxAmount1;
+		Ammo.BackpackMaxAmount D4Bullets_MaxAmount2;
 		Ammo.BackpackAmount 16;
 		DistanceCheck "user_MaxDrawDistance";
 		Scale 0.3;
@@ -316,9 +334,9 @@ Class D4BulletsSmall : D4Bullets replaces clip
 //=============================================================================
 //
 //=============================================================================
+
 Class D4Shells : Ammo replaces ShellBox
 {
-	
 	Default
 	{
 		+FLOORCLIP
@@ -328,8 +346,8 @@ Class D4Shells : Ammo replaces ShellBox
 		Inventory.PickupMessage "Shotgun shells";
 		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
 		Inventory.Amount 20;
-		Inventory.MaxAmount 45;
-		Ammo.BackpackMaxAmount 75;
+		Inventory.MaxAmount D4Shells_MaxAmount1;
+		Ammo.BackpackMaxAmount D4Shells_MaxAmount2;
 		Ammo.BackpackAmount 6;
 		DistanceCheck "user_MaxDrawDistance";
 		Scale 0.3;
@@ -358,9 +376,10 @@ Class D4ShellsSmall : D4Shells replaces Shell
 		Stop;
 	}
 }
-//=============================================================================
+
+//==============================================================================
 //
-//=============================================================================
+//==============================================================================
 Class D4Cells : Ammo //replaces CellPack
 {
 	Default
@@ -372,8 +391,8 @@ Class D4Cells : Ammo //replaces CellPack
 	Inventory.PickupMessage "Plasma cells";
 	Inventory.PickupSound "Doom4/Pickups/AmmoBig";
 	Inventory.Amount 30;
-	Inventory.MaxAmount 200;
-	Ammo.BackpackMaxAmount 300;
+	Inventory.MaxAmount D4Cells_MaxAmount1;
+	Ammo.BackpackMaxAmount D4Cells_MaxAmount2;
 	Ammo.BackpackAmount 10;
 	DistanceCheck "user_MaxDrawDistance";
 	Scale 0.4;
@@ -401,8 +420,6 @@ Class D4CellsSmall : D4Cells //replaces Cell
 	}
 }
 
-
-
 //=============================================================================
 //
 //=============================================================================
@@ -417,8 +434,8 @@ Class D4Rockets : Ammo //replaces RocketBox
 		Inventory.PickupMessage "Rockets";
 		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
 		Inventory.Amount 5;
-		Inventory.MaxAmount 30;
-		Ammo.BackpackMaxAmount 40;
+		Inventory.MaxAmount D4Rockets_MaxAmount1;
+		Ammo.BackpackMaxAmount D4Rockets_MaxAmount2;
 		Ammo.BackpackAmount 1;
 		DistanceCheck "user_MaxDrawDistance";
 		Scale 0.3;
@@ -445,7 +462,6 @@ Class D4RocketsSmall : D4Rockets //replaces RocketAmmo
 		Stop;
 	}
 }
-
 //==============================================================================
 //
 //==============================================================================
@@ -455,10 +471,10 @@ Class D4BFGAmmo : Ammo
 	{
 		Inventory.PickupMessage "BFG cells";
 		Inventory.Amount 1;
-		Inventory.MaxAmount 3;
+		Inventory.MaxAmount D4BFGAmmo_MaxAmount;
 		Inventory.Icon "BFUGA0";
 		Ammo.BackpackAmount 1;
-		Ammo.BackpackMaxAmount 3;
+		Ammo.BackpackMaxAmount D4BFGAmmo_MaxAmount;
 		Inventory.PickupSound "Doom4/Pickups/BFGAmmo";
 		DistanceCheck "user_MaxDrawDistance";
 		Scale 0.40;
@@ -481,9 +497,9 @@ Class D4Carrion : Ammo
 	{
 		+INVENTORY.IGNORESKILL
 		Inventory.Amount 1;	//Don't touch this. See "PickupAmount" in D4PinataCarrion below.
-		Inventory.MaxAmount 5000;
+		Inventory.MaxAmount D4Carrion_MaxAmount;
 		Ammo.BackpackAmount 0;
-		Ammo.BackpackMaxAmount 5000;
+		Ammo.BackpackMaxAmount D4Carrion_MaxAmount;
 	}
 }
 

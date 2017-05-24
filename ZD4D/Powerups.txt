@@ -746,7 +746,7 @@ Class D4QuadMoney : CustomInventory
 	Pickup:
 		TNT1 A 0
 		{			
-			let inv = PowerD4Regen(FindInventory("PowerD4Money"));
+			let inv = PowerD4Money(FindInventory("PowerD4Money"));
 			if (inv)
 			{
 				if (inv.NoiseMaker)
@@ -843,6 +843,10 @@ Class PowerD4Haste : PowerSpeed
 	{
 		if (!Owner || Owner.Health < 1)
 			return EndEffect();
+			
+		let inv = PowerD4DFS(FindInventory("PowerD4DFS"));
+		if (!inv) Owner.A_GiveInventory("PowerD4DFS");
+		else		inv.EffectTics = EffectTics;
 		
 		if (globalfreeze || level.Frozen)
 		{
@@ -850,6 +854,7 @@ Class PowerD4Haste : PowerSpeed
 		}
 		else
 		{
+			if (NoiseMaker) NoiseMaker.SetOrigin(Owner.pos, false);
 			if (EffectTics > 105)
 			{
 				// Whispering from Quake's Ring of Shadows
@@ -860,7 +865,7 @@ Class PowerD4Haste : PowerSpeed
 					{
 						if (random(1,30) == 1)
 						{
-							NoiseMaker.A_PlaySound("Haste/Whisper",CHAN_AUTO,1);
+							if (NoiseMaker) NoiseMaker.A_PlaySound("Haste/Whisper",CHAN_AUTO,1);
 							Timer = random(35 * 2, 35 * 7);
 						}
 					}
@@ -887,12 +892,6 @@ Class PowerD4Haste : PowerSpeed
 	{
 		if (NoiseMaker)
 			NoiseMaker.Destroy();
-			
-		if (Owner)
-		{
-			let in2 = PowerD4DFS(Owner.FindInventory("PowerD4DFS"));
-			if (in2 && in2.EffectTics > 1)	in2.EffectTics = 1;
-		}
 		Super.EndEffect();
 	}
 }

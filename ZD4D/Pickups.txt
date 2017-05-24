@@ -482,27 +482,39 @@ Class D4UpgradePickupSpawner : Actor
 					items.Push("CarrionCannonUpgradePickup");
 			}
 			
-			if (!plr.CountInv("D4MegachargeUpgrade1") || !plr.CountInv("D4MegachargeUpgrade2"))
-				items.Push("D4MegachargeUpgradePickup");
-			if (!plr.CountInv("D4DoomDollUpgrade1") || !plr.CountInv("D4DoomDollUpgrade2"))
-				items.Push("D4DoomDollUpgradePickup");
-			if (!plr.CountInv("D4RegenUpgrade1") ||	!plr.CountInv("D4RegenUpgrade2") ||
-				!plr.CountInv("D4RegenUpgrade3") ||	!plr.CountInv("D4RegenUpgrade4"))
-				items.Push("D4RegenUpgradePickup");
-			if (!plr.CountInv("D4PentagramUpgrade1") ||	!plr.CountInv("D4PentagramUpgrade2") ||
-				!plr.CountInv("D4PentagramUpgrade3") ||	!plr.CountInv("D4PentagramUpgrade4"))
-				items.Push("D4PentagramUpgradePickup");
-			if (!plr.CountInv("D4RuneUpgrade1") ||	!plr.CountInv("D4RuneUpgrade2") ||
-				!plr.CountInv("D4RuneUpgrade3") ||	!plr.CountInv("D4RuneUpgrade4"))
-				items.Push("D4RuneUpgradePickup");
+			if (!plr.CountInv("D4MegachargeUpgrade1") || 
+				!plr.CountInv("D4MegachargeUpgrade2") ||
+				!plr.CountInv("D4DoomDollUpgrade1") || 
+				!plr.CountInv("D4DoomDollUpgrade2") ||
+				!plr.CountInv("D4RegenUpgrade1") ||	
+				!plr.CountInv("D4RegenUpgrade2") ||
+				!plr.CountInv("D4RegenUpgrade3") ||	
+				!plr.CountInv("D4RegenUpgrade4") ||
+				!plr.CountInv("D4PentagramUpgrade1") ||	
+				!plr.CountInv("D4PentagramUpgrade2") ||
+				!plr.CountInv("D4PentagramUpgrade3") ||	
+				!plr.CountInv("D4PentagramUpgrade4") ||
+				// !plr.CountInv("D4RuneUpgrade1") || 
+				!plr.CountInv("D4RuneUpgrade2") ||
+				!plr.CountInv("D4RuneUpgrade3") ||
+				!plr.CountInv("D4RuneUpgrade4"))
+				items.Push("D4PowerUpgradePickup");
 			
 		
+			if (!plr.CountInv("D4AirControl") ||
+				plr.Stamina < 100 ||
+				plr.CountInv("D4ArmorCapRaiser") < 100 ||
+				plr.CountInv("D4CrateUpgrade") < 3 ||
+				!plr.CountInv("ProtectionBonus3"))
+					items.Push("D4SuitUpgradePickup");
+					
+			/*
 			if (!plr.CountInv("D4AirControl"))					items.Push("D4AirControlUpgradePickup");
 			if (plr.Stamina < 100)								items.Push("D4HealthUpgradePickup");
 			if (plr.CountInv("D4ArmorCapRaiser") < 100)			items.Push("D4ArmorUpgradePickup");
-			//if (plr.CountInv("CashPercentBonus") < 40)			items.Push("D4CashUpgradePickup");
 			if (plr.CountInv("D4CrateUpgrade") < 3)				items.Push("D4CrateUpgradePickup");
 			if (!plr.CountInv("ProtectionBonus3"))				items.Push("D4ProtectionUpgradePickup");
+			*/
 		}
 		
 		// The weapons needed for the soviet chaingun have all been filled.
@@ -517,29 +529,27 @@ Class D4UpgradePickupSpawner : Actor
 				soviet.master = master;
 				soviet.tracer = tracer;
 			}
-		}
-		
-		if (items.Size() < 1)	return Destroy();
-		
+		}		
 		int size = items.Size() - 1;
 		
-		Class<Inventory> check = items[random(0,size)];
-		
-		Actor ItemToSpawn = Actor(Spawn(check,pos));
-		if (ItemToSpawn)
+		if (size > 0)
 		{
-			ItemToSpawn.vel = vel;
-			ItemToSpawn.target = target;
-			ItemToSpawn.master = master;
-			ItemToSpawn.tracer = tracer;
-			return Destroy();
+			Class<Inventory> check = items[random(0,size)];
+			
+			Actor ItemToSpawn = Actor(Spawn(check,pos));
+			if (ItemToSpawn)
+			{
+				ItemToSpawn.vel = vel;
+				ItemToSpawn.target = target;
+				ItemToSpawn.master = master;
+				ItemToSpawn.tracer = tracer;
+				return Destroy();
+			}
 		}
-		
 		//======================================================================
 		// Weapons
 		//======================================================================
-		Destroy();
-		return;		
+		return Destroy();		
 	}
 	
 	Default
@@ -554,6 +564,7 @@ Class D4UpgradePickupSpawner : Actor
 
 Class D4PowerUpgradePickup : CustomInventory
 {
+	UpgradePinataFlier flier;
 	int count;
 	int ticker;
 	bool Flying;
@@ -562,157 +573,63 @@ Class D4PowerUpgradePickup : CustomInventory
 	{
 		+INVENTORY.ALWAYSPICKUP
 		+BRIGHT
+		Inventory.PickupMessage "Random Powerup Upgrade gives you...";
 	}
 	States
 	{
 	Spawn:
-		M670 F 17;
+		M670 F 17 NoDelay
+		{
+			invoker.flier = new("UpgradePinataFlier");
+			if (invoker.flier)
+			{
+				invoker.flier.Spawner = invoker;
+				invoker.flier.NoItem = true;
+			}
+		}
 		M671 F 17;
 		"----" A 1
 		{
 			invoker.ticker = (invoker.ticker + 1) % 34;
 			
-			if (invoker.ticker < 17)
-				sprite = GetSpriteIndex("M670");
-			else
-				sprite = GetSpriteIndex("M671");
+			Name spr = (invoker.ticker < 17) ? "M670" : "M671";
 				
 			if (invoker.count >= DelayVacuum)
 			{
-				PlrCheck.CheckForPlayers(self);
-				if (tracer && (invoker.Flying || Distance3D(tracer) <= RadiusPull))
+				if (invoker.tracer)
 				{
-					bNOCLIP = bNOINTERACTION = true;
+					invoker.count = DelayVacuum;
+					PlrCheck.SetFlying(invoker, true);
 					A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 					A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-					if (GetDistance(true,TracerPtr) <= 32)
-					{
-						A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
-						bNoclip = false;
-						bNoInteraction = false;
-						A_ChangeLinkFlags(false);
-					}
+					if (Distance3D(tracer) <= 32)
+					{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false);	}
 				}
+				else	PlrCheck.SetFlying(invoker, false);
 			}
 			else invoker.count++;
 		}
 		Wait;
-	Pickup:
-		TNT1 A 0;
-		Stop;
-	}
-}
-
-Class D4MegachargeUpgradePickup : D4PowerUpgradePickup
-{
-	Default
-	{
-		Inventory.PickupMessage "Megacharge Upgrade";
-	}
-	States
-	{
 	Pickup:
 		TNT1 A 0
 		{
 			invoker.items.Clear();
 			if (!CountInv("D4MegachargeUpgrade1"))	invoker.items.Push("D4MegachargeUpgrade1");
 			if (!CountInv("D4MegachargeUpgrade2"))	invoker.items.Push("D4MegachargeUpgrade2");
-			
-			if (invoker.items.Size() > 0)
-			{
-				int rng = random(0, invoker.items.Size() - 1);
-				Class<Inventory> som = invoker.items[rng];
-				if (som)	A_GiveInventory(som);
-				A_Print("$"..invoker.items[rng]);
-			}
-			
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
-			return true;
-		}
-		Stop;
-	}
-}
-Class D4DoomDollUpgradePickup : D4PowerUpgradePickup
-{
-	Default
-	{
-		Inventory.PickupMessage "Doom Doll Upgrade";
-	}
-	States
-	{
-	Pickup:
-		TNT1 A 0
-		{
-			invoker.items.Clear();
 			if (!CountInv("D4DoomDollUpgrade1"))	invoker.items.Push("D4DoomDollUpgrade1");
 			if (!CountInv("D4DoomDollUpgrade2"))	invoker.items.Push("D4DoomDollUpgrade2");
-			
-			if (invoker.items.Size() > 0)
-			{
-				int rng = random(0, invoker.items.Size() - 1);
-				Class<Inventory> som = invoker.items[rng];
-				if (som)	A_GiveInventory(som);
-				A_Print("$"..invoker.items[rng]);
-			}
-			
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
-			return true;
-		}
-		Stop;
-	}
-}
-Class D4RegenUpgradePickup : D4PowerUpgradePickup
-{
-	Default
-	{
-		Inventory.PickupMessage "Regeneration Upgrade";
-	}
-	States
-	{
-	Pickup:
-		TNT1 A 0
-		{
-			invoker.items.Clear();
 			if (!CountInv("D4RegenUpgrade1"))	invoker.items.Push("D4RegenUpgrade1");
-			if (!CountInv("D4RegenUpgrade2"))	
-			{
-				if (CountInv("D4RegenUpgrade1"))
-					invoker.items.Push("D4RegenUpgrade2");
-			}
+			else if (!CountInv("D4RegenUpgrade2"))	invoker.items.Push("D4RegenUpgrade2"); //Requires the first.
 			if (!CountInv("D4RegenUpgrade3"))	invoker.items.Push("D4RegenUpgrade3");
 			if (!CountInv("D4RegenUpgrade4"))	invoker.items.Push("D4RegenUpgrade4");
-			
-			if (invoker.items.Size() > 0)
-			{
-				int rng = random(0, invoker.items.Size() - 1);
-				Class<Inventory> som = invoker.items[rng];
-				if (som)	A_GiveInventory(som);
-				A_Print("$"..invoker.items[rng]);
-			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
-			return true;
-		}
-		Stop;
-	}
-}
-
-Class D4PentagramUpgradePickup : D4PowerUpgradePickup
-{
-	Default
-	{
-		Inventory.PickupMessage "Pentagram Upgrade";
-	}
-	States
-	{
-	Pickup:
-		TNT1 A 0
-		{
-			invoker.items.Clear();
 			if (!CountInv("D4PentagramUpgrade1"))	invoker.items.Push("D4PentagramUpgrade1");
 			if (!CountInv("D4PentagramUpgrade2"))	invoker.items.Push("D4PentagramUpgrade2");
 			if (!CountInv("D4PentagramUpgrade3"))	invoker.items.Push("D4PentagramUpgrade3");
 			if (!CountInv("D4PentagramUpgrade4"))	invoker.items.Push("D4PentagramUpgrade4");
-			
+			//if (!CountInv("D4RuneUpgrade1"))	invoker.items.Push("D4RuneUpgrade1");
+			if (!CountInv("D4RuneUpgrade2"))	invoker.items.Push("D4RuneUpgrade2");
+			if (!CountInv("D4RuneUpgrade3"))	invoker.items.Push("D4RuneUpgrade3");
+			if (!CountInv("D4RuneUpgrade4"))	invoker.items.Push("D4RuneUpgrade4");
 			if (invoker.items.Size() > 0)
 			{
 				int rng = random(0, invoker.items.Size() - 1);
@@ -720,6 +637,7 @@ Class D4PentagramUpgradePickup : D4PowerUpgradePickup
 				if (som)	A_GiveInventory(som);
 				A_Print("$"..invoker.items[rng]);
 			}
+			
 			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
@@ -727,36 +645,6 @@ Class D4PentagramUpgradePickup : D4PowerUpgradePickup
 	}
 }
 
-Class D4RuneUpgradePickup : D4PowerUpgradePickup
-{
-	Default
-	{
-		Inventory.PickupMessage "Rune Upgrade";
-	}
-	States
-	{
-	Pickup:
-		TNT1 A 0
-		{
-			invoker.items.Clear();
-			if (!CountInv("D4RuneUpgrade1"))	invoker.items.Push("D4RuneUpgrade1");
-			if (!CountInv("D4RuneUpgrade2"))	invoker.items.Push("D4RuneUpgrade2");
-			if (!CountInv("D4RuneUpgrade3"))	invoker.items.Push("D4RuneUpgrade3");
-			if (!CountInv("D4RuneUpgrade4"))	invoker.items.Push("D4RuneUpgrade4");
-			
-			if (invoker.items.Size() > 0)
-			{
-				int rng = random(0, invoker.items.Size() - 1);
-				Class<Inventory> som = invoker.items[rng];
-				if (som)	A_GiveInventory(som);
-				A_Print("$"..invoker.items[rng]);
-			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
-			return true;
-		}
-		Stop;
-	}
-}
 
 /*
 // Template
@@ -789,6 +677,7 @@ Class D4SuitUpgradePickup : CustomInventory
 	int ticker;
 	int count;
 	bool Flying;
+	UpgradePinataFlier flier;
 	Default
 	{
 		+INVENTORY.ALWAYSPICKUP
@@ -797,88 +686,80 @@ Class D4SuitUpgradePickup : CustomInventory
 	States
 	{
 	Spawn:
-		M670 G 17;
+		M670 G 17 NoDelay
+		{
+			invoker.flier = new("UpgradePinataFlier");
+			if (invoker.flier)
+			{
+				invoker.flier.Spawner = invoker;
+				invoker.flier.NoItem = true;
+			}
+		}
 		M671 G 17;
 		"----" A 1
 		{
 			invoker.ticker = (invoker.ticker + 1) % 34;
 			
-			if (invoker.ticker < 17)
-				sprite = GetSpriteIndex("M670");
-			else
-				sprite = GetSpriteIndex("M671");
+			Name spr = (invoker.ticker < 17) ? "M670" : "M671";
+			sprite = GetSpriteIndex(spr);
 				
 			if (invoker.count >= DelayVacuum)
 			{
-				PlrCheck.CheckForPlayers(self);
-				if (tracer && (invoker.Flying || Distance3D(tracer) <= RadiusPull))
+				if (tracer)
 				{
-					bNOCLIP = bNOINTERACTION = true;
+					invoker.count = DelayVacuum;
+					PlrCheck.SetFlying(invoker, true);
 					A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 					A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-					if (GetDistance(true,TracerPtr) <= 32)
-					{
-						A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
-						bNoclip = false;
-						bNoInteraction = false;
-						A_ChangeLinkFlags(false);
-					}
+					if (Distance3D(tracer) <= 32)
+					{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false);	}
 				}
+				else	PlrCheck.SetFlying(invoker, false);
 			}
-			else invoker.count++;			
+			else invoker.count++;
 		}
 		Wait;
-	}
-}
-
-Class D4AirControlUpgradePickup : D4SuitUpgradePickup
-{
-	Default
-	{
-		Inventory.PickupMessage "Air Control Upgrade";
-	}
-	States
-	{
 	Pickup:
 		TNT1 A 0
 		{
-			if (!CountInv("D4HigherJump"))		
-			{	A_SetInventory("D4HigherJump",1);	A_Print("Higher Jump");	}
-			else if (CountInv("D4MultiJump") < 3)	
-			{	A_SetInventory("D4MultiJump",3);	A_Print("Triple Jump");	}
-			else if (!CountInv("D4AirControl"))		
-			{	A_SetInventory("D4AirControl",1);	A_Print("Air Control");	}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
-			return true;
-		}
-		Stop;
-	}
-}
-
-Class D4HealthUpgradePickup : D4SuitUpgradePickup
-{
-	Default
-	{
-		Inventory.PickupMessage "Health Upgrade";
-	}
-	action void SetStamina(int amt)
-	{
-		bool given = (stamina < 100);
-		A_SetInventory("D4Stamina",amt);
-		stamina = amt;
-		A_SetHealth(Max(health, 100 + amt));
-		
-		if (given) A_Print("Max Health +"..amt);
-	}
-	States
-	{
-	Pickup:
-		TNT1 A 0
-		{
-				 if (Stamina < 25)		SetStamina(25);
-			else if (Stamina < 50)		SetStamina(50);
-			else 						SetStamina(100);
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			// He's making a list, checking it twice!
+			// Gonna find out whose a jackass or vice!
+			// Satan Claws is coming to drown!
+			
+			Array<String> list;
+			list.Clear();
+			
+			if (CountInv("D4AirUpgrade") < 3)			list.Push("D4AirUpgrade");
+			if (CountInv("D4Stamina") < 100)			list.Push("D4Stamina");
+			if (CountInv("D4ArmorCapRaiser") < 100)		list.Push("D4ArmorCapRaiser");
+			if (CountInv("D4CrateUpgrade") < 3)			list.Push("D4CrateUpgrade");
+			if (CountInv("ProtectionBonus") < 3)		list.Push("ProtectionBonus");
+			
+			if (list.Size() < 1)	
+				return true;
+			
+			int rng = random(0, list.Size() - 1);	// Choose a random one.
+			Class<Inventory> check = list[rng];		// Make sure it exists.
+			
+			if (check)
+			{
+				if (list[rng] == 'D4Stamina' || list[rng] == 'D4ArmorCapRaiser')
+				{
+					if (CountInv(check) >= 50)	A_SetInventory(check,100);
+					else						A_GiveInventory(check, 25);
+				}
+				else
+				{
+					A_GiveInventory(check,1);
+				}
+				let item = UpgradeItem(FindInventory(check));
+				if (item)
+				{
+					item.UpdateItem();
+					item.PrintDesc();
+				}
+			}
+			else Console.Printf("ERROR: %s - bad item!", list[rng]);
 			return true;
 		}
 		Stop;
@@ -1024,6 +905,7 @@ Class D4ProtectionUpgradePickup : D4SuitUpgradePickup
 
 Class D4UpgradePickup : CustomInventory
 {
+	UpgradePinataFlier flier;
 	Class<Inventory> items[10];	
 	String desc[5];
 	uint index;
@@ -1054,33 +936,36 @@ Class D4UpgradePickup : CustomInventory
 	States
 	{
 	Spawn:
+		"----" A 0 NoDelay
+		{
+			invoker.flier = new("UpgradePinataFlier");
+			if (invoker.flier)
+			{
+				invoker.flier.Spawner = invoker;
+				invoker.flier.NoItem = true;
+			}
+		}
 		"----" A 1
 		{
 			invoker.ticker = (invoker.ticker + 1) % 34;
 			
-			if (invoker.ticker < 17)
-				sprite = GetSpriteIndex("M668");
-			else
-				sprite = GetSpriteIndex("M669");
+			name spr = (invoker.ticker < 17) ? "M668" : "M669";
+			sprite = GetSpriteIndex(spr);
 				
 			frame = invoker.frm;
 				
 			if (invoker.count >= DelayVacuum)
 			{
-				PlrCheck.CheckForPlayers(self);
-				if (tracer && (invoker.Flying || Distance3D(tracer) <= RadiusPull))
+				if (tracer)
 				{
-					bNOCLIP = bNOINTERACTION = true;
+					invoker.count = DelayVacuum;
+					PlrCheck.SetFlying(invoker, true);
 					A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 					A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-					if (GetDistance(true,TracerPtr) <= 32)
-					{
-						A_Warp(TracerPtr,0,0,16,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_STOP);
-						bNoclip = false;
-						bNoInteraction = false;
-						A_ChangeLinkFlags(false);
-					}
+					if (Distance3D(tracer) <= 32)
+					{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false);	}
 				}
+				else	PlrCheck.SetFlying(invoker, false);
 			}
 			else invoker.count++;
 		}
@@ -1696,10 +1581,6 @@ Class CarrionCannonUpgradePickup : D4UpgradePickup
 	}
 	States
 	{
-	Spawn:
-		M668 O 17;
-		M669 O 17;
-		Loop;
 	Pickup:
 		TNT1 A 0
 		{
