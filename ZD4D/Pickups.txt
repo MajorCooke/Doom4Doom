@@ -501,20 +501,12 @@ Class D4UpgradePickupSpawner : Actor
 				items.Push("D4PowerUpgradePickup");
 			
 		
-			if (!plr.CountInv("D4AirControl") ||
-				plr.Stamina < 100 ||
+			if (plr.CountInv("D4AirUpgrade") < 3 ||
+				plr.CountInv("D4Stamina") < 100 ||
 				plr.CountInv("D4ArmorCapRaiser") < 100 ||
 				plr.CountInv("D4CrateUpgrade") < 3 ||
-				!plr.CountInv("ProtectionBonus3"))
+				plr.CountInv("ProtectionBonus") < 3)
 					items.Push("D4SuitUpgradePickup");
-					
-			/*
-			if (!plr.CountInv("D4AirControl"))					items.Push("D4AirControlUpgradePickup");
-			if (plr.Stamina < 100)								items.Push("D4HealthUpgradePickup");
-			if (plr.CountInv("D4ArmorCapRaiser") < 100)			items.Push("D4ArmorUpgradePickup");
-			if (plr.CountInv("D4CrateUpgrade") < 3)				items.Push("D4CrateUpgradePickup");
-			if (!plr.CountInv("ProtectionBonus3"))				items.Push("D4ProtectionUpgradePickup");
-			*/
 		}
 		
 		// The weapons needed for the soviet chaingun have all been filled.

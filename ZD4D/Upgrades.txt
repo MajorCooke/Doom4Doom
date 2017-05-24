@@ -396,6 +396,7 @@ Class D4AirUpgrade : UpgradeItem
 		int amt = Owner.CountInv("D4AirUpgrade");
 		Switch (amt)
 		{
+			Default:
 			Case 1: Desc = Desc1; break;
 			Case 2: Desc = Desc2; break;
 			Case 3: Desc = Desc3; break;
@@ -479,7 +480,22 @@ Class D4ArmorCapRaiser : UpgradeItem
 		UpgradeItem.Quantity 25;
 		UpgradeItem.Quantity2 50;
 		UpgradeItem.Quantity3 100;
-		Inventory.MaxAmount 100; 
+		UpgradeItem.Desc1 "Armor Capacity +25\nChainsaw Alt: + 0 to 2 Armor Shards";
+		UpgradeItem.Desc2 "Armor Capacity +50\nChainsaw Alt: + 0 to 4 Armor Shards";
+		UpgradeItem.Desc3 "Armor Capacity +100\nChainsaw Alt guarantees minimum 2 armor shards";
+		Inventory.MaxAmount 100;
+	}
+	
+	override void PrintDesc()
+	{
+		if (Owner)
+		{
+			int amt = Owner.CountInv("D4ArmorCapRaiser");
+				 if (amt >= 100)	Desc = Desc3;
+			else if (amt >= 50)		Desc = Desc2;
+			else					Desc = Desc1;
+		}
+		Super.PrintDesc();
 	}
 }
 
