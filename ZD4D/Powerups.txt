@@ -844,7 +844,7 @@ Class PowerD4Haste : PowerSpeed
 		if (!Owner || Owner.Health < 1)
 			return EndEffect();
 			
-		let inv = PowerD4DFS(FindInventory("PowerD4DFS"));
+		let inv = PowerD4DFS(Owner.FindInventory("PowerD4DFS"));
 		if (!inv) Owner.A_GiveInventory("PowerD4DFS");
 		else		inv.EffectTics = EffectTics;
 		
@@ -890,6 +890,11 @@ Class PowerD4Haste : PowerSpeed
 	
 	override void EndEffect()
 	{
+		if (Owner)
+		{
+			let inv = PowerD4DFS(Owner.FindInventory("PowerD4DFS"));
+			if (inv) inv.EndEffect();
+		}
 		if (NoiseMaker)
 			NoiseMaker.Destroy();
 		Super.EndEffect();

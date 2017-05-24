@@ -375,13 +375,6 @@ Class D4UpgradePickupSpawner : Actor
 		let plr = PlayerPawn(tracer);
 		tracer = temp;
 		
-		if (!plr || !plr.player)
-		{
-			A_Log("ERROR: Couldn't find player!");
-			Destroy();
-			return;
-		}
-		
 		int filled = 0;
 		items.Clear();
 		
@@ -508,6 +501,11 @@ Class D4UpgradePickupSpawner : Actor
 				plr.CountInv("ProtectionBonus") < 3)
 					items.Push("D4SuitUpgradePickup");
 		}
+		else
+		{
+			Console.Printf("ERROR: Couldn't find player!");
+			return Destroy();
+		}
 		
 		// The weapons needed for the soviet chaingun have all been filled.
 		// Spawn it in addition to whatever else will spawn as a bonus reward.
@@ -522,11 +520,11 @@ Class D4UpgradePickupSpawner : Actor
 				soviet.tracer = tracer;
 			}
 		}		
-		int size = items.Size() - 1;
+		int size = items.Size();
 		
 		if (size > 0)
 		{
-			Class<Inventory> check = items[random(0,size)];
+			Class<Inventory> check = items[random(0,size - 1)];
 			
 			Actor ItemToSpawn = Actor(Spawn(check,pos));
 			if (ItemToSpawn)

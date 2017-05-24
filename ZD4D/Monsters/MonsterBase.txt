@@ -389,11 +389,14 @@ Class D4AbstractMonster : Actor
 			if (CrateDropChance && CrateDropAmount)
 			{
 				int crateamt = CrateDropAlways;
-				for (int i = 0; i < (CrateDropAmount * Min(4,CashMul)); i++)
+				int cratedrops = CrateDropAmount * Clamp(CashMul,1,4);
+				if (cratedrops > 0)
 				{
-					if (random(1,256) <= CrateDropChance)
-						crateamt++;
-					
+					for (int i = 0; i < cratedrops; i++)
+					{
+						if (random(1,256) <= CrateDropChance)
+							crateamt++;
+					}
 				}
 				if (crateamt > 0)
 				{
