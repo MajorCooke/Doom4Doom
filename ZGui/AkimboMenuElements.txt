@@ -2,15 +2,21 @@ extend class Drawer
 {
 	void DrawAkimboWeaponButton(ButtonState b, bool animated, double x, double y)
 	{
+		Vector2 TexSize = TexMan.GetScaledSize(b.mTex);
+		//Screen.DrawTexture(b.mTex, animated, x, y,
 		Screen.DrawTexture(b.mTex, animated, VirtualX+x, VirtualY+y,
-		
-			DTA_VirtualWidthF, VirtualWidth,
-			DTA_VirtualHeightF, VirtualHeight,
-			DTA_KeepRatio, true,
+		//Screen.DrawTexture(b.mTex, animated, VirtualX, VirtualY,
+			//DTA_CleanNoMove, true,
+			DTA_CenterOffset, true
+			//DTA_VirtualWidthF, VirtualWidth,
+			//DTA_VirtualHeightF, VirtualHeight,
+			/*
 			DTA_ClipTop, int(ClipTop),
 			DTA_ClipLeft, int(ClipLeft),
 			DTA_ClipBottom, int(ClipBottom),
 			DTA_ClipRight, int(ClipRight)
+			*/
+			
 			//,
 			//DTA_Alpha, b.mAlpha,
 		);
@@ -18,17 +24,24 @@ extend class Drawer
 		if (b.mAlpha > 0.0)
 			Screen.DrawTexture(b.mTex, animated, VirtualX+x, VirtualY+y,
 			
-				DTA_VirtualWidthF, VirtualWidth,
-				DTA_VirtualHeightF, VirtualHeight,
-				DTA_KeepRatio, true,
+				//DTA_VirtualWidthF, VirtualWidth,
+				//DTA_VirtualHeightF, VirtualHeight,
+				//DTA_KeepRatio, true,
+				DTA_CenterOffset, true,
+				/*
 				DTA_ClipTop, int(ClipTop),
 				DTA_ClipLeft, int(ClipLeft),
 				DTA_ClipBottom, int(ClipBottom),
 				DTA_ClipRight, int(ClipRight),
+				*/
 				DTA_Alpha, b.mAlpha,
 				DTA_RenderStyle, b.mRenderStyle,
-				DTA_ColorOverlay, b.mColor
+				DTA_ColorOverlay, b.mColor,
+				DTA_AlphaChannel, true
+				
 			);
+			
+			
 	}
 }
 
@@ -71,18 +84,19 @@ Struct ButtonState
 	void Init()
 	{
 		mRenderStyle = 1;
-		mColor = Color(255, 255, 255, 255);
+		mColor = Color(64, 255, 255, 255);
 		mAlpha = 1.0;
 		text = "";
 		fontColor = Font.CR_RED;
 		textAlpha = 1.0;
 	}
 	
-	void SetProperties(String tex, String tx = "", int style = -1, double ta = -1.0, int r = -1, int g = -1, int b = -1)
+	void SetProperties(String tex, String tx = "", int style = -1, double ta = -1.0, int a = -1, int r = -1, int g = -1, int b = -1)
 	{
 		//if (tex.Length() > 0)
 		mTex = TexMan.CheckForTexture(tex, TexMan.Type_Any);
 		if (ta >= 0.0) mAlpha = ta;
+		if (a >= 0) mColor.a = a;
 		if (r >= 0) mColor.r = Clamp(r, 0, 255);
 		if (g >= 0) mColor.g = Clamp(g, 0, 255);
 		if (b >= 0) mColor.b = Clamp(b, 0, 255);
@@ -150,9 +164,9 @@ class AkimboMenuButton : Element
 	void PostCreate()
 	{
 		mButtonUp.SetProperties(gfx, "", STYLE_Translucent, 0.0);
-		mButtonDown.SetProperties(gfx, "", STYLE_Translucent, 0.5, 0, 0, 0);
+		mButtonDown.SetProperties(gfx, "", STYLE_Translucent, 0.5, 64, 0, 0, 0);
 		mButtonHover.SetProperties(gfx, "", STYLE_Add, 0.5);
-		mButtonDisabled.SetProperties(gfx, "", STYLE_Translucent, 0.5, 128, 0, 0);
+		mButtonDisabled.SetProperties(gfx, "", STYLE_Translucent, 0.5, 64, 128, 0, 0);
 	}
 	
 	override void Draw()
@@ -290,7 +304,7 @@ class AkimboMenuElement : Element
 {
 	//
 	const WeaponCount = 13;
-	const ScreenSpacingY = 200.0 / 13.0;
+	double ScreenSpacingY;
 	
 	PlayerPawn plr;
 	AkimboMenuMouse mMouse;
@@ -333,7 +347,7 @@ class AkimboMenuElement : Element
 		//[TexX, TexY] = TexMan.GetSize(texture);
 		
 		AddChild(button);
-		button.mRect = Rect.FromXYWH(mbPosX - (Tex.X / 2), mbPosY, Tex.X, Tex.Y);
+		button.mRect = Rect.FromXYWH(mbPosX - (Tex.X), mbPosY - Tex.Y, Tex.X, Tex.Y);
 		mbPosY += ScreenSpacingY;
 		button.plr = plr;
 		button.WeaponID = WeaponID;
@@ -350,6 +364,7 @@ class AkimboMenuElement : Element
 
 	override void OnCreate()
 	{
+		ScreenSpacingY = (Screen.GetHeight() * 0.9) / 13.0;
 		//mButtonsLeft.Clear();
 		//mButtonsRight.Clear();
 		plr = PlayerPawn(players[consoleplayer].mo);
@@ -357,14 +372,14 @@ class AkimboMenuElement : Element
 		
 		// approximately tries to scale to 4:3 800x600, if the resolution is larger.
 		// otherwise at least try to make it readable (don't try to scale smaller than 1x1 px)
-		mScale = max(1.0, double(int(double(Screen.GetHeight())/600.0+1)));
-		mbPosX = 80;
+		mScale = 1.0; //max(1.0, double(int(double(Screen.GetHeight())/600.0+1)));
+		mbPosX = (Screen.GetWidth() / 4.0);
 		mbPosY = ScreenSpacingY / 2.0;
 		
 		for (int i = 0; i < 2; i++)
 		{
-			mbPosY = ScreenSpacingY / 2.0;
-			mbPosX = 80 + (160 * (i * 2));
+			mbPosY = (ScreenSpacingY / 2.0);
+			if (i == 1) mbPosX *= 3.0;
 			mbPistol[i] =			AddButton("D4Pistol", 			"WPPKB0",	i);
 			mbShotgun[i] =			AddButton("D4Shotgun",			"WPPKC0",	i);
 			mbSuperShotgun[i] =		AddButton("D4SuperShotgun",		"WPPKD0",	i);
