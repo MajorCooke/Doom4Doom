@@ -125,7 +125,7 @@ Class AkimboWeapon : Weapon
 			if (!invoker.RightGun)	invoker.RightGun = invoker.RightPend; invoker.RightPend = null;
 			A_Overlay(OV_LeftWeapon, invoker.LeftNext);
 			A_Overlay(OV_RightWeapon, invoker.RightNext);
-			A_OverlayFlags(OV_LeftWeapon, PSPF_ADDWEAPON|PSPF_MIRROR|PSPF_FLIP, true);
+			A_OverlayFlags(OV_LeftWeapon, PSPF_ADDWEAPON|PSPF_FLIP, true);
 			A_OverlayFlags(OV_RightWeapon, PSPF_ADDWEAPON, true);
 			A_Overlay(OV_Custom + 1, "Overlay.OffsetManager");
 			
@@ -176,7 +176,7 @@ Class AkimboWeapon : Weapon
 				invoker.LeftGun = invoker.WeaponList[cnt];
 				
 				A_Overlay(OV_LeftWeapon, invoker.WeaponReadyStates[cnt]);
-				A_OverlayFlags(OV_LeftWeapon, PSPF_ADDWEAPON|PSPF_MIRROR|PSPF_FLIP, true);
+				A_OverlayFlags(OV_LeftWeapon, PSPF_ADDWEAPON|PSPF_FLIP, true);
 				A_Overlay(OV_RightWeapon, invoker.WeaponReadyStates[cnt]);
 				A_OverlayFlags(OV_RightWeapon, PSPF_ADDWEAPON, true);
 			}
