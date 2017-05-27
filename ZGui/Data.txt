@@ -1,0 +1,63 @@
+class Rect
+{
+	double X;
+	double Y;
+	double Width;
+	double Height;
+	
+	static Rect FromRect(Rect r)
+	{
+		Rect nr = new('Rect');
+		nr.X = r.X;
+		nr.Y = r.Y;
+		nr.Width = r.Width;
+		nr.Height = r.Height;
+		return nr;
+	}
+	
+	// convenience
+	Rect Clone()
+	{
+		return Rect.FromRect(self);
+	}
+	
+	// Makes a new rectangle from one edge to another, full sized.
+	static Rect FromXYWH(double x, double y, double w, double h)
+	{
+		Rect nr = new('Rect');
+		nr.X = x;
+		nr.Y = y;
+		nr.Width = w;
+		nr.Height = h;
+		return nr;
+	}
+	// Makes a new rectangle that is half the size.
+	static Rect FromLTRB(double left, double top, double right, double bottom)
+	{
+		Rect nr = new('Rect');
+		nr.X = left;
+		nr.Y = top;
+		nr.Width = right-left;
+		nr.Height = bottom-top;
+		return nr;
+	}
+	
+	static Rect FromV1V2(vector2 topLeft, vector2 bottomRight)
+	{
+		return FromLTRB(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y);
+	}
+	
+	double GetLeft() { return X; }
+	double GetTop() { return Y; }
+	double GetRight() { return X+Width; }
+	double GetBottom() { return Y+Height; }
+	
+	// Returns the vertice locations of the minimum and maximum points.
+	vector2 GetV1() { return (X, Y); }
+	vector2 GetV2() { return (X+Width, Y+Height); }
+	
+	String ToString()
+	{
+		return String.Format("Rect { X=%.2f, Y=%.2f, W=%.2f, H=%.2f }", X, Y, Width, Height);
+	}
+}

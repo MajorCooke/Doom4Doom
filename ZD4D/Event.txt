@@ -64,6 +64,13 @@ Class D4DHandler : EventHandler
 	{
 		int num = e.Player;
 		let plr = players[num].mo;
+		static const Name KeyWords[] =
+		{
+			'D4DAddon_',
+			'Akimbo_SetLeft_',
+			'Akimbo_SetRight_'
+			
+		};
 		
 		if (plr)
 		{
@@ -74,6 +81,7 @@ Class D4DHandler : EventHandler
 			{
 				static const Name ProtectedCommands[] =
 				{
+					//'AkimboSystem'
 					'DisableReception',
 					'EnableReception',
 					'UpdateItems'
@@ -87,7 +95,6 @@ Class D4DHandler : EventHandler
 						return;
 					}
 				}
-				
 			}
 			if (e.Name == 'DisableReception')
 			{
@@ -136,13 +143,45 @@ Class D4DHandler : EventHandler
 			}
 			else
 			{
-				// If it has D4DAddon_, assume the addons will handle it.
-				String s = e.Name;
-				String prefix = "D4DAddon_";
-				int size = prefix.Length();
+				Name prefix;
+				Name suffix;
+				int presize = 0;
+				int size = KeyWords.Size();
+				for (int i = 0; i < size; i++)
+				{
+					String s = KeyWords[i];
+					Name check = s.Left(s.Length());
+					if (s.Left(s.Length()) == KeyWords[i])
+					{
+						s = check;
+						prefix = check;
+						presize = s.Length();
+						suffix = s.Mid(presize, e.Name.Length());
+						
+						Switch (i)
+						{
+							Case 0: return; // If it has D4DAddon_, assume the addons will handle it.
+							Case 1:			// Akimbo_SetLeft_
+							
+								
+								let ak = AkimboWeapon(plr.FindInventory("AkimboWeapon"));
+								if (ak)
+								{
+									
+								}
+							
+								return;
+							Case 2:			// Akimbo_SetRight_
+							{
+								
+							}
+							return;
+						}
+						return;
+					}
+				}
+				Console.Printf(e.Name..": Undefined net event");
 				
-				if (!(s.Mid(0,size) ~== prefix))
-					Console.Printf(e.Name..": Undefined net event");
 			}
 			
 		}
@@ -220,4 +259,77 @@ Class D4DHandler : EventHandler
 		Console.Printf("%d ammo actors destroyed", count);
 	}
 	
+}
+
+/*==============================================================================
+================================================================================
+
+
+
+================================================================================
+==============================================================================*/
+
+Struct PlayerDelta
+{
+	bool receiving;
+	Array<String> ItemName;
+	Array<Int> Count;
+	
+	//==========================================================================
+	// Checks for an item and returns its position.
+	int CheckForItem (String thing, bool getQuantity = false)
+	{
+		// Abort if the item's invalid.
+		Class<Inventory> check = thing;
+		if (!check)	
+		{
+			return -2;
+		}
+		
+		// Otherwise, look for it.
+		for (int i = 0; i < ItemName.Size(); i++)
+		{
+			let tng = ItemName[i];
+			if (tng.Length() > 0 && thing ~== tng)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	//==========================================================================
+	// Sets an item if it exists, or adds the item to the array if not already,
+	// providing that item type is real. ofs means add/subtract amt to the 
+	// current amount.
+	bool SetItem (String thing, int amt, bool ofs = false)
+	{
+		// Don't bother if we're not adding or taking away.
+		if (!amt && ofs)	return true;
+		
+		Class<Inventory> check = thing;
+		if (!check)	
+		{
+			Console.Printf(thing.." is not a valid item");
+			return false;
+		}
+		
+		if (ItemName.Size() > 0)
+		{
+			for (int i = 0; i < ItemName.Size(); i++)
+			{
+				if (thing ~== ItemName[i])
+				{
+					// Already exists, just update the amount.
+					if (ofs)	Count[i] = Max(Count[i] + amt,0);
+					else		Count[i] = amt;
+					return true;
+				}
+			}
+		}
+		// Doesn't exist, make one.
+		ItemName.Push(thing);
+		Count.Push(amt);
+		return true;
+	}
 }

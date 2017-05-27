@@ -1,0 +1,509 @@
+extend class Drawer
+{
+	void DrawAkimboWeaponButton(ButtonState b, bool animated, double x, double y)
+	{
+		Screen.DrawTexture(b.mTex, animated, VirtualX+x, VirtualY+y,
+		
+			DTA_VirtualWidthF, VirtualWidth,
+			DTA_VirtualHeightF, VirtualHeight,
+			DTA_KeepRatio, true,
+			DTA_ClipTop, int(ClipTop),
+			DTA_ClipLeft, int(ClipLeft),
+			DTA_ClipBottom, int(ClipBottom),
+			DTA_ClipRight, int(ClipRight)
+			//,
+			//DTA_Alpha, b.mAlpha,
+		);
+		
+		if (b.mAlpha > 0.0)
+			Screen.DrawTexture(b.mTex, animated, VirtualX+x, VirtualY+y,
+			
+				DTA_VirtualWidthF, VirtualWidth,
+				DTA_VirtualHeightF, VirtualHeight,
+				DTA_KeepRatio, true,
+				DTA_ClipTop, int(ClipTop),
+				DTA_ClipLeft, int(ClipLeft),
+				DTA_ClipBottom, int(ClipBottom),
+				DTA_ClipRight, int(ClipRight),
+				DTA_Alpha, b.mAlpha,
+				DTA_RenderStyle, b.mRenderStyle,
+				DTA_ColorOverlay, b.mColor
+			);
+	}
+}
+
+class AkimboMenuMouse : Element
+{
+	TextureID mMouse;
+	bool IsEnabled;
+	
+	override void OnCreate()
+	{
+		//mMouse = TexMan.CheckForTexture("graphics/D3Mouse.png", TexMan.Type_Any);
+		IsEnabled = false;
+	}
+
+	override void Draw()
+	{
+		// don't draw if not enabled at all
+		if (!IsEnabled) return;
+		
+		// note: don't draw if using mouse...
+		if (m_use_mouse) return;
+	
+		//vector2 mPos = GetMouseXY();
+		//GetDrawer().DrawTexture(mMouse, false, mPos.x, mPos.y);
+	}
+}
+
+// this element is a button's state. The next class is the actual button.
+
+Struct ButtonState
+{
+	int mRenderStyle;
+	Color mColor;
+	double mAlpha;
+	TextureID mTex;
+	String text;
+	int fontColor;
+	double textAlpha;
+	
+	void Init()
+	{
+		mRenderStyle = 1;
+		mColor = Color(255, 255, 255, 255);
+		mAlpha = 1.0;
+		text = "";
+		fontColor = Font.CR_RED;
+		textAlpha = 1.0;
+	}
+	
+	void SetProperties(String tex, String tx = "", int style = -1, double ta = -1.0, int r = -1, int g = -1, int b = -1)
+	{
+		//if (tex.Length() > 0)
+		mTex = TexMan.CheckForTexture(tex, TexMan.Type_Any);
+		if (ta >= 0.0) mAlpha = ta;
+		if (r >= 0) mColor.r = Clamp(r, 0, 255);
+		if (g >= 0) mColor.g = Clamp(g, 0, 255);
+		if (b >= 0) mColor.b = Clamp(b, 0, 255);
+		if (style >= 0)	mRenderStyle = style;
+		text = tx;
+	}
+	
+	String, int, double GetTextColorAlpha()
+	{
+		return text, fontColor, textAlpha;
+	}
+}
+class AkimboMenuButton : Element
+{
+	protected bool IsDown;
+	protected bool IsClicked;
+	protected bool IsHovered;
+	String gfx;
+	Weapon PlrWeapon;
+	Class<Weapon> WeaponID;
+	PlayerPawn plr;
+	AkimboWeapon ak;
+	
+	protected Font mFont;
+	private double mHoverAlpha; // these are for hover animation
+	
+	//--------------------------------------------------------------------------
+	// public properties
+	String Text;
+	int tColor;
+	double tAlpha;
+	bool IsEnabled;
+	bool IsFocused;
+	
+	// Specifics for weapons
+	bool IsMod, IsRight;
+	
+	//--------------------------------------------------------------------------
+	// images
+	ButtonState mButtonUp;
+	ButtonState mButtonDown;
+	ButtonState mButtonHover;
+	ButtonState mButtonDisabled;
+
+	override void OnCreate()
+	{
+		IsDown = false;
+		IsEnabled = true;
+		IsFocused = false;
+		
+		mButtonUp.Init();
+		mButtonDown.Init();
+		mButtonHover.Init();
+		mButtonDisabled.Init();
+		/*
+		mButtonUp = TexMan.CheckForTexture("graphics/button1Up.png", TexMan.Type_Any);
+		mButtonDown = TexMan.CheckForTexture("graphics/button1Down.png", TexMan.Type_Any);
+		mButtonHover = TexMan.CheckForTexture("graphics/button1Hover.png", TexMan.Type_Any);
+		mButtonDisabled = TexMan.CheckForTexture("graphics/button1Disabled.png", TexMan.Type_Any);
+		mFont = Font.GetFont('tah09.bmf');
+		*/
+		mFont = "BIGFONT";
+	}
+	
+	void PostCreate()
+	{
+		mButtonUp.SetProperties(gfx, "", STYLE_Translucent, 0.0);
+		mButtonDown.SetProperties(gfx, "", STYLE_Translucent, 0.5, 0, 0, 0);
+		mButtonHover.SetProperties(gfx, "", STYLE_Add, 0.5);
+		mButtonDisabled.SetProperties(gfx, "", STYLE_Translucent, 0.5, 128, 0, 0);
+	}
+	
+	override void Draw()
+	{
+		//
+		Rect r = GetClientRect();
+		Drawer d = GetDrawer();
+		if (!IsEnabled)
+		{
+			d.DrawAkimboWeaponButton(mButtonDisabled, false, 0, 0);
+			[Text, tColor, tAlpha] = mButtonDisabled.GetTextColorAlpha();
+		}
+		else
+		{
+			if (IsFocused && !IsDown)
+			{
+				d.DrawAkimboWeaponButton(mButtonHover, false, 0, 0);
+				[Text, tColor, tAlpha] = mButtonHover.GetTextColorAlpha();
+			}
+			else if (!IsDown)
+			{
+				d.DrawAkimboWeaponButton(mButtonUp, false, 0, 0);
+				[Text, tColor, tAlpha] = mButtonUp.GetTextColorAlpha();
+				if (mHoverAlpha > 0)
+				{
+					d.DrawAkimboWeaponButton(mButtonHover, false, 0, 0);
+				}
+			}
+			else
+			{
+				d.DrawAkimboWeaponButton(mButtonDown, false, 0, 0);
+				[Text, tColor, tAlpha] = mButtonDown.GetTextColorAlpha();
+			}
+		}
+		
+		double alpha = 1.0;
+		double xOffset = 0;
+		double yOffset = 0;
+		if (!IsEnabled)
+		{
+			alpha = 0.6;
+		}
+		else if (IsDown)
+		{
+			alpha = 0.6;
+			xOffset+=1;
+			yOffset+=1;
+		}
+		
+		if (Text.Length() > 0)
+			d.DrawText(mFont, tColor, r.Width/2+xOffset, 4+yOffset, Text, tAlpha, Drawer.Align_Center);
+	}
+	
+	override bool Process(ElementEvent e)
+	{
+		if (!IsEnabled) return false;
+	
+		Rect r = GetClientRect();
+		r.X = 0;
+		r.Y = 0;
+		
+		if (e.Type >= UiEvent.Type_FirstMouseEvent && e.Type <= UiEvent.Type_LastMouseEvent)
+		{
+			vector2 m = GetMouseXY();
+			bool mouseInRect = (m.x >= r.X && m.x < r.X+r.Width &&
+								m.y >= r.Y && m.y < r.Y+r.Height);
+			IsHovered = mouseInRect;
+			
+			if (mouseInRect && e.Type == UiEvent.Type_LButtonDown)
+			{
+				IsDown = true;
+				AkimboMenuElement(mParent).SetFocus(self);
+				return true;
+			}
+			else if (e.Type == UiEvent.Type_LButtonUp)
+			{
+				IsClicked = IsDown && IsHovered; // you can click, move mouse away and release, and it wont click - just like windows
+				IsDown = false;
+				return false;
+			}
+		}
+		
+		return false;
+	}
+	
+	override void Tick()
+	{
+		IsClicked = false;
+		
+		if (WeaponID)
+		{
+			if (!plr)	plr = PlayerPawn(players[consoleplayer].mo);
+			if (plr)
+			{
+				if (!PlrWeapon)		PlrWeapon = Weapon(plr.FindInventory(WeaponID,true));	
+				if (PlrWeapon)
+				{
+					if (!ak)		ak = AkimboWeapon(plr.FindInventory("AkimboWeapon"));
+					if (ak)
+					{
+						IsEnabled = (!(ak.LeftGun == WeaponID || ak.RightGun == WeaponID || ak.LeftPend == WeaponID || ak.RightPend == WeaponID));
+						mButtonDisabled.text = "Selected";
+					}
+					else { IsEnabled = false; mButtonDisabled.text = "Akimbo System unavailable"; }
+				}
+				else { IsEnabled = false; mButtonDisabled.text = "Weapon Not Found"; }
+			}
+			else { IsEnabled = false; mButtonDisabled.text = "Player Non-Existant"; }
+				
+		}
+		else 
+		{
+			IsEnabled = false;
+		}
+		
+		double hoverDelta = IsHovered ? 0.08 : -0.08;
+		mHoverAlpha += hoverDelta;
+		mHoverAlpha = clamp(mHoverAlpha, 0.0, 1.0);
+	}
+	
+	void Click()
+	{
+		IsClicked = true;
+	}
+	
+	// get methods
+	// returns true if this button was clicked in this or previous tick
+	bool CheckClicked()
+	{
+		return IsClicked;
+	}
+}
+
+class AkimboMenuElement : Element
+{
+	//
+	const WeaponCount = 13;
+	const ScreenSpacingY = 200.0 / 13.0;
+	
+	PlayerPawn plr;
+	AkimboMenuMouse mMouse;
+	AkimboWeapon ak;
+	
+	AkimboMenuButton mbPistol[2];
+	AkimboMenuButton mbShotgun[2];
+	AkimboMenuButton mbSuperShotgun[2];
+	AkimboMenuButton mbRepeater[2];
+	AkimboMenuButton mbAssaultRifle[2];
+	AkimboMenuButton mbChaingun[2];
+	AkimboMenuButton mbRocketLauncher[2];
+	AkimboMenuButton mbLightningGun[2];
+	AkimboMenuButton mbPlasmaRifle[2];
+	AkimboMenuButton mbStaticRifle[2];
+	AkimboMenuButton mbVortexRifle[2];
+	AkimboMenuButton mbGaussCannon[2];
+	AkimboMenuButton mbCarrionCannon[2];
+	AkimboMenuButton mbBFG[2];
+	
+	// this is used for navigating with arrows
+	//Array<AkimboMenuButton> mButtonsLeft;
+	//Array<AkimboMenuButton> mButtonsRight;
+	Array<AkimboMenuButton> mButtons;
+	int mButton;
+	
+	private double mbPosX, mbPosY;
+	private AkimboMenuButton AddButton(Class<Weapon> WeaponID, String texName, bool right, bool mod = false)
+	{
+		// button size varies based on the texture.
+		Rect r = GetClientRect();
+		
+		AkimboMenuButton button = new('AkimboMenuButton');
+		button.Init();
+		button.gfx = texName;
+		
+		TextureID texture = TexMan.CheckForTexture(texName, TexMan.Type_Any);
+		Vector2 Tex = TexMan.GetScaledSize(texture);
+		//int TexX, TexY;
+		//[TexX, TexY] = TexMan.GetSize(texture);
+		
+		AddChild(button);
+		button.mRect = Rect.FromXYWH(mbPosX - (Tex.X / 2), mbPosY, Tex.X, Tex.Y);
+		mbPosY += ScreenSpacingY;
+		button.plr = plr;
+		button.WeaponID = WeaponID;
+		button.IsRight = right;
+		button.IsMod = mod;
+		button.PostCreate();
+		
+		//if (left) mButtonsLeft.Push(button);	else	mButtonsRight.Push(button);
+		mButtons.Push(button);
+		
+		return button;
+	}
+
+
+	override void OnCreate()
+	{
+		//mButtonsLeft.Clear();
+		//mButtonsRight.Clear();
+		plr = PlayerPawn(players[consoleplayer].mo);
+		mRect = Rect.FromXYWH(0, 0, Screen.GetWidth(), Screen.GetHeight());
+		
+		// approximately tries to scale to 4:3 800x600, if the resolution is larger.
+		// otherwise at least try to make it readable (don't try to scale smaller than 1x1 px)
+		mScale = max(1.0, double(int(double(Screen.GetHeight())/600.0+1)));
+		mbPosX = 80;
+		mbPosY = ScreenSpacingY / 2.0;
+		
+		for (int i = 0; i < 2; i++)
+		{
+			mbPosY = ScreenSpacingY / 2.0;
+			mbPosX = 80 + (160 * (i * 2));
+			mbPistol[i] =			AddButton("D4Pistol", 			"WPPKB0",	i);
+			mbShotgun[i] =			AddButton("D4Shotgun",			"WPPKC0",	i);
+			mbSuperShotgun[i] =		AddButton("D4SuperShotgun",		"WPPKD0",	i);
+			mbRepeater[i] =			AddButton("D4Repeater",			"WPPKL0",	i);
+			mbAssaultRifle[i] =		AddButton("D4AssaultRifle",		"WPPKE0",	i);
+			mbChaingun[i] =			AddButton("D4Chaingun",			"WPPKF0",	i);
+			mbRocketLauncher[i] =	AddButton("D4RocketLauncher",	"WPPKG0",	i);
+			mbLightningGun[i] =		AddButton("D4LightningGun",		"WPPKN0",	i);
+			mbPlasmaRifle[i] = 		AddButton("D4PlasmaRifle",		"WPPKH0",	i);
+			mbStaticRifle[i] =		AddButton("D4StaticRifle",		"WPPKK0",	i);
+			mbVortexRifle[i] =		AddButton("D4VortexRifle",		"WPPKM0",	i);
+			mbGaussCannon[i] =		AddButton("D4GaussCannon",		"WPPKJ0",	i);
+			mbCarrionCannon[i] =	AddButton("D4CarrionCannon",	"WPPKO0",	i);
+			mbBFG[i] =				AddButton("D4BFG",				"WPPKI0",	i);
+			
+		}
+		
+		// init buttons
+		/*
+		mbPosY = 150;
+		mbNew = AddButton("New game");
+		mbLoad = AddButton("Load game");
+		mbSave = AddButton("Save game");
+		mbOptions = AddButton("Options");
+		if (gamestate == GS_LEVEL) mbResume = AddButton("Resume game");
+		mbQuit = AddButton("Quit");
+		
+		SetFocus((gamestate==GS_LEVEL)?mbResume:mbNew);
+		*/
+		
+		mMouse = AkimboMenuMouse(new('AkimboMenuMouse').Init());
+		AddChild(mMouse);
+		mMouse.mRect = GetClientRect().Clone();
+		
+	}
+
+	override void Draw()
+	{
+		Rect r = GetClientRect();
+		Drawer d = GetDrawer();
+		
+		// this is very important.
+		//d.Dim(0x000000, 0.5, 0, 0, r.Width, r.Height);
+		//d.DrawTexture(mDoom, false, r.Width/2-64, 48);
+	}
+	
+	override bool Process(ElementEvent e)
+	{
+		
+		if (e.Type >= UiEvent.Type_FirstMouseEvent &&
+			e.Type <= UiEvent.Type_LastMouseEvent)
+		{
+			mMouse.IsEnabled = true;
+		}
+		
+		
+		return false;
+	}
+	
+	override void Tick()
+	{	
+		/*
+		if (mbNew.CheckClicked())
+		{
+			Menu.SetMenu('PlayerclassMenu');
+		}
+		else if (mbLoad.CheckClicked())
+		{
+			Menu.SetMenu('LoadGameMenu');
+		}
+		else if (mbSave.CheckClicked())
+		{
+			Menu.SetMenu('SaveGameMenu');
+		}
+		else if (mbOptions.CheckClicked())
+		{
+			Menu.SetMenu('OptionsMenu');
+		}
+		else if (mbQuit.CheckClicked())
+		{
+			Menu.SetMenu('QuitMenu');
+		}
+		else if (mbResume && mbResume.CheckClicked())
+		{
+			Menu.GetCurrentMenu().Close();
+		}
+		*/
+	}
+	
+	void SetFocus(AkimboMenuButton button)
+	{
+		for (int i = 0; i < mButtons.Size(); i++)
+		{
+			bool theButton = (mButtons[i] == button);
+			mButtons[i].IsFocused = theButton;
+			if (theButton) mButton = i;
+		}
+	}
+	
+	// sadly we also need to handle menu events directly because menus are retarded..........
+	bool MenuEvent(int mkey, bool fromcontroller)
+	{
+		switch (mkey)
+		{
+			case Menu.MKEY_Up:
+				mMouse.IsEnabled = false;
+				
+				if (mButton > 0)
+				{
+					do
+					{
+						mButton--;
+					}
+					while (mButton > 0 && !mButtons[mButton].IsEnabled);
+				}
+				
+				SetFocus(mButtons[mButton]);
+				return true;
+				
+			case Menu.MKEY_Down:
+				mMouse.IsEnabled = false;
+				
+				if (mButton < mButtons.Size()-1)
+				{
+					do
+					{
+						mButton++;
+					}
+					while (mButton < mButtons.Size() && !mButtons[mButton].IsEnabled)
+				}
+				
+				SetFocus(mButtons[mButton]);
+				return true;
+				
+			case Menu.MKEY_Enter:
+				mButtons[mButton].Click();
+				return true;
+		}
+	
+		return false;
+	}
+}

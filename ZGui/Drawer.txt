@@ -1,0 +1,181 @@
+class Drawer ui
+{
+	enum TextAlign
+	{
+		Align_Left,
+		Align_Right,
+		Align_Center
+	}
+
+	protected double VirtualX;
+	protected double VirtualY;
+	protected double VirtualWidth;
+	protected double VirtualHeight;
+	
+	protected double ClipLeft;
+	protected double ClipRight;
+	protected double ClipTop;
+	protected double ClipBottom;
+	protected double Scale;
+	
+	private Element Base;
+
+	static Drawer Create(Element el)
+	{
+		return Drawer.CreateMod('Drawer', el);
+	}
+
+	static Drawer CreateMod(class<Drawer> cls, Element el)
+	{
+		Drawer d = Drawer(new(cls));
+		d.Base = el;
+		// calculate screen x/y.
+		Rect sr = d.Base.GetScreenRect();
+		d.ClipLeft = sr.GetLeft();
+		d.ClipRight = sr.GetRight();
+		d.ClipTop = sr.GetTop();
+		d.ClipBottom = sr.GetBottom();
+		// get final scale to set virtualwidth/virtualheight
+		d.VirtualWidth = Screen.GetWidth();
+		d.VirtualHeight = Screen.GetHeight();
+		d.VirtualX = d.ClipLeft;
+		d.VirtualY = d.ClipTop;
+		d.Scale = d.Base.mScale;
+		Element p = d.Base;
+		while (p)
+		{
+			d.VirtualWidth /= p.mScale;
+			d.VirtualHeight /= p.mScale;
+			d.VirtualX /= p.mScale;
+			d.VirtualY /= p.mScale;
+			d.Scale *= p.mParent?p.mParent.mScale:1;
+			p = p.mParent;
+		}
+		
+		return d;
+	}
+	
+	void SetClipRect(Rect r)
+	{
+		Rect sr = Base.GetScreenRect();
+		ClipLeft = sr.GetLeft() + r.X*Scale;
+		ClipRight = ClipLeft + r.Width*Scale;
+		ClipTop = sr.GetTop() + r.Y*Scale;
+		ClipBottom = ClipTop + r.Height*Scale;
+	}
+	
+	void DrawTexture(TextureID tex, bool animated, double x, double y, double alpha = 1.0)
+	{
+		Screen.DrawTexture(tex, animated, VirtualX+x, VirtualY+y,
+		
+			DTA_VirtualWidthF, VirtualWidth,
+			DTA_VirtualHeightF, VirtualHeight,
+			DTA_KeepRatio, true,
+			DTA_ClipTop, int(ClipTop),
+			DTA_ClipLeft, int(ClipLeft),
+			DTA_ClipBottom, int(ClipBottom),
+			DTA_ClipRight, int(ClipRight),
+			DTA_Alpha, alpha
+		
+		);
+	}
+	
+	void DrawChar(Font font, int normalcolor, double x, double y, int character, double alpha = 1.0)
+	{
+		Screen.DrawChar(font, normalcolor, VirtualX+x, VirtualY+y, character,
+		
+			DTA_VirtualWidthF, VirtualWidth,
+			DTA_VirtualHeightF, VirtualHeight,
+			DTA_KeepRatio, true,
+			DTA_ClipTop, int(ClipTop),
+			DTA_ClipLeft, int(ClipLeft),
+			DTA_ClipBottom, int(ClipBottom),
+			DTA_ClipRight, int(ClipRight),
+			DTA_Alpha, alpha
+		
+		);
+	}
+	
+	void DrawText(Font font, int normalcolor, double x, double y, String text, double alpha = 1.0, int align = Align_Left, int wrapwidth = 0)
+	{
+		if (wrapwidth > 0)
+		{
+			BrokenLines bl = font.BreakLines(text, wrapwidth);
+			for (int i = 0; i < bl.Count(); i++)
+				DrawText(font, normalcolor, x, y+i*font.GetHeight(), bl.StringAt(i), alpha, align, 0);
+			return;
+		}
+		
+		if (align == Align_Right)
+			x -= font.StringWidth(text);
+		else if (align == Align_Center)
+			x -= double(font.StringWidth(text))/2;
+	
+		Screen.DrawText(font, normalcolor, VirtualX+x, VirtualY+y, text,
+			
+			DTA_VirtualWidthF, VirtualWidth,
+			DTA_VirtualHeightF, VirtualHeight,
+			DTA_KeepRatio, true,
+			DTA_ClipTop, int(ClipTop),
+			DTA_ClipLeft, int(ClipLeft),
+			DTA_ClipBottom, int(ClipBottom),
+			DTA_ClipRight, int(ClipRight),
+			DTA_Alpha, alpha
+			
+		);
+	}
+	
+	private Rect ConvertRect(Rect r)
+	{
+		Rect or = r.Clone();
+		// convert virtual to real
+		or.X += VirtualX;
+		or.Y += VirtualY;
+		or.X *= Scale;
+		or.Y *= Scale;
+		or.Width *= Scale;
+		or.Height *= Scale;
+		// clamp
+		if (or.X < ClipLeft)
+		{
+			or.Width -= (ClipLeft-or.X);
+			or.X = ClipLeft;
+		}
+		if (or.Y < ClipTop)
+		{
+			or.Height -= (ClipTop-or.Y);
+			or.Y = ClipTop;
+		}
+		if (or.X+or.Width > ClipRight)
+		{
+			or.Width = ClipRight-or.X;
+		}
+		if (or.Y+or.Height > ClipBottom)
+		{
+			or.Height = ClipBottom-or.Y;
+		}
+		return or;
+	}
+	
+	void DrawFrame(int x, int y, int w, int h)
+	{
+		Rect cr = ConvertRect(Rect.FromXYWH(x, y, w, h));
+		if (cr.Width <= 0 || cr.Height <= 0) return;
+		Screen.DrawFrame(cr.X, cr.Y, cr.Width, cr.Height);
+	}
+	
+	void Dim(Color col, double alpha, int x, int y, int w, int h)
+	{
+		Rect cr = ConvertRect(Rect.FromXYWH(x, y, w, h));
+		if (cr.Width <= 0 || cr.Height <= 0) return;
+		Screen.Dim(col, alpha, cr.X, cr.Y, cr.Width, cr.Height);
+	}
+	
+	void Clear(Color col, int x, int y, int w, int h, int palcolor = -1)
+	{
+		Rect cr = ConvertRect(Rect.FromXYWH(x, y, w, h));
+		if (cr.Width <= 0 || cr.Height <= 0) return;
+		Screen.Clear(cr.GetLeft(), cr.GetTop(), cr.GetRight(), cr.GetBottom(), col, palcolor);
+	}
+}
+

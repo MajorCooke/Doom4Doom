@@ -550,78 +550,7 @@ Class D4PentagramUpgrade2 : UpgradeItem			{ Default { UpgradeItem.Cost 6666; }}	
 Class D4PentagramUpgrade3 : UpgradeItem			{ Default { UpgradeItem.Cost 6666; }}	// Thorns
 Class D4PentagramUpgrade4 : UpgradeItem			{ Default { UpgradeItem.Cost 9999; }}	// Unkillable
 
-/*==============================================================================
-================================================================================
 
-
-
-================================================================================
-==============================================================================*/
-
-Struct PlayerDelta
-{
-	bool receiving;
-	Array<String> ItemName;
-	Array<Int> Count;
-	
-	//==========================================================================
-	// Checks for an item and returns its position.
-	int CheckForItem (String thing, bool getQuantity = false)
-	{
-		// Abort if the item's invalid.
-		Class<Inventory> check = thing;
-		if (!check)	
-		{
-			return -2;
-		}
-		
-		// Otherwise, look for it.
-		for (int i = 0; i < ItemName.Size(); i++)
-		{
-			let tng = ItemName[i];
-			if (tng.Length() > 0 && thing ~== tng)
-			{
-				return i;
-			}
-		}
-		return -1;
-	}
-	
-	//==========================================================================
-	// Sets an item if it exists, or adds the item to the array if not already,
-	// providing that item type is real. ofs means add/subtract amt to the 
-	// current amount.
-	bool SetItem (String thing, int amt, bool ofs = false)
-	{
-		// Don't bother if we're not adding or taking away.
-		if (!amt && ofs)	return true;
-		
-		Class<Inventory> check = thing;
-		if (!check)	
-		{
-			Console.Printf(thing.." is not a valid item");
-			return false;
-		}
-		
-		if (ItemName.Size() > 0)
-		{
-			for (int i = 0; i < ItemName.Size(); i++)
-			{
-				if (thing ~== ItemName[i])
-				{
-					// Already exists, just update the amount.
-					if (ofs)	Count[i] = Max(Count[i] + amt,0);
-					else		Count[i] = amt;
-					return true;
-				}
-			}
-		}
-		// Doesn't exist, make one.
-		ItemName.Push(thing);
-		Count.Push(amt);
-		return true;
-	}
-}
 
 /*==============================================================================
 

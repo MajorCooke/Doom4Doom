@@ -12,6 +12,8 @@ Class Doom4Weapon : Weapon
 	const PunchOverlay = 52;
 	const PunchSway = 53;
 	
+	Inventory Modules[2];
+	Inventory ActiveMod;
 	
 	Default 
 	{

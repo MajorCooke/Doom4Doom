@@ -54,6 +54,11 @@ server int D4D_NMGrenades = 2; // [0,1,2] = [none,frag,all]
 server int D4D_UpgradeMode = 0; // [0,1] = [Credits, Drops]
 server bool D4D_HUDPercentages = true;
 
+server int LOfx = 0;
+server int LOfy = 0;
+server int ROfx = 0;
+server int ROfy = 0;
+
 
 // The Zombie Killer's Footsteps
 server float fs_volume_mul = 1.4;
