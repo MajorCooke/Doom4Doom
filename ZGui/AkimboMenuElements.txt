@@ -6,16 +6,23 @@ extend class Drawer
 		//Screen.DrawTexture(b.mTex, animated, x, y,
 		Screen.DrawTexture(b.mTex, animated, VirtualX+x, VirtualY+y,
 		//Screen.DrawTexture(b.mTex, animated, VirtualX, VirtualY,
-			//DTA_CleanNoMove, true,
-			DTA_CenterOffset, true
-			//DTA_VirtualWidthF, VirtualWidth,
-			//DTA_VirtualHeightF, VirtualHeight,
+			//DTA_KeepRatio, true,
+			//DTA_CenterOffset, true,
+			DTA_VirtualWidthF, VirtualWidth,
+			DTA_VirtualHeightF, VirtualHeight,
+			
+			DTA_ClipTop, int(ClipTop),
+			DTA_ClipLeft, int(ClipLeft),
+			DTA_ClipBottom, int(ClipBottom),
+			DTA_ClipRight, int(ClipRight)
+			
 			/*
 			DTA_ClipTop, int(ClipTop),
 			DTA_ClipLeft, int(ClipLeft),
 			DTA_ClipBottom, int(ClipBottom),
 			DTA_ClipRight, int(ClipRight)
 			*/
+			
 			
 			//,
 			//DTA_Alpha, b.mAlpha,
@@ -24,24 +31,22 @@ extend class Drawer
 		if (b.mAlpha > 0.0)
 			Screen.DrawTexture(b.mTex, animated, VirtualX+x, VirtualY+y,
 			
-				//DTA_VirtualWidthF, VirtualWidth,
-				//DTA_VirtualHeightF, VirtualHeight,
+				DTA_VirtualWidthF, VirtualWidth,
+				DTA_VirtualHeightF, VirtualHeight,
 				//DTA_KeepRatio, true,
-				DTA_CenterOffset, true,
-				/*
+				//DTA_CenterOffset, true,
+				
 				DTA_ClipTop, int(ClipTop),
 				DTA_ClipLeft, int(ClipLeft),
 				DTA_ClipBottom, int(ClipBottom),
 				DTA_ClipRight, int(ClipRight),
-				*/
+				
 				DTA_Alpha, b.mAlpha,
 				DTA_RenderStyle, b.mRenderStyle,
 				DTA_ColorOverlay, b.mColor,
 				DTA_AlphaChannel, true
 				
 			);
-			
-			
 	}
 }
 
@@ -113,7 +118,7 @@ class AkimboMenuButton : Element
 {
 	protected bool IsDown;
 	protected bool IsClicked;
-	protected bool IsHovered;
+	protected bool IsHovered, wasHovered;
 	String gfx;
 	Weapon PlrWeapon;
 	Class<Weapon> WeaponID;
@@ -163,10 +168,10 @@ class AkimboMenuButton : Element
 	
 	void PostCreate()
 	{
-		mButtonUp.SetProperties(gfx, "", STYLE_Translucent, 0.0);
+		mButtonUp.SetProperties(gfx, "", STYLE_None, 0.0);
 		mButtonDown.SetProperties(gfx, "", STYLE_Translucent, 0.5, 64, 0, 0, 0);
 		mButtonHover.SetProperties(gfx, "", STYLE_Add, 0.5);
-		mButtonDisabled.SetProperties(gfx, "", STYLE_Translucent, 0.5, 64, 128, 0, 0);
+		mButtonDisabled.SetProperties(gfx, "", STYLE_Translucent, 0.5, 128, 255, 0, 0);
 	}
 	
 	override void Draw()
@@ -254,6 +259,9 @@ class AkimboMenuButton : Element
 	
 	override void Tick()
 	{
+		if (!wasHovered && wasHovered != isHovered)
+			Menu.MenuSound("Menu/Cursor");
+		wasHovered = isHovered;
 		IsClicked = false;
 		
 		if (WeaponID)
@@ -268,7 +276,7 @@ class AkimboMenuButton : Element
 					if (ak)
 					{
 						IsEnabled = (!(ak.LeftGun == WeaponID || ak.RightGun == WeaponID || ak.LeftPend == WeaponID || ak.RightPend == WeaponID));
-						mButtonDisabled.text = "Selected";
+						mButtonDisabled.text = (WeaponID == ak.LeftPend || WeaponID == ak.RightPend) ? "Selected" : "Active";
 					}
 					else { IsEnabled = false; mButtonDisabled.text = "Akimbo System unavailable"; }
 				}
@@ -291,6 +299,11 @@ class AkimboMenuButton : Element
 	{
 		IsClicked = true;
 	}
+	void UnClick()
+	{
+		Menu.MenuSound("Menu/Activate");
+		IsClicked = false;
+	}
 	
 	// get methods
 	// returns true if this button was clicked in this or previous tick
@@ -303,6 +316,7 @@ class AkimboMenuButton : Element
 class AkimboMenuElement : Element
 {
 	//
+	String CmdToSend;
 	const WeaponCount = 13;
 	double ScreenSpacingY;
 	
@@ -347,7 +361,7 @@ class AkimboMenuElement : Element
 		//[TexX, TexY] = TexMan.GetSize(texture);
 		
 		AddChild(button);
-		button.mRect = Rect.FromXYWH(mbPosX - (Tex.X), mbPosY - Tex.Y, Tex.X, Tex.Y);
+		button.mRect = Rect.FromXYWH(mbPosX - (Tex.X / 2.0), mbPosY - Tex.Y, Tex.X, Tex.Y);
 		mbPosY += ScreenSpacingY;
 		button.plr = plr;
 		button.WeaponID = WeaponID;
@@ -361,9 +375,16 @@ class AkimboMenuElement : Element
 		return button;
 	}
 
+	override void OnDestroy()
+	{
+		Menu.MenuSound("Menu/clear");
+		if (CmdToSend.Length() > 0)
+			D4DHandler.SendNetworkEvent(CmdToSend);
+	}
 
 	override void OnCreate()
 	{
+		Menu.MenuSound("Menu/activate");
 		ScreenSpacingY = (Screen.GetHeight() * 0.9) / 13.0;
 		//mButtonsLeft.Clear();
 		//mButtonsRight.Clear();
@@ -380,36 +401,24 @@ class AkimboMenuElement : Element
 		{
 			mbPosY = (ScreenSpacingY / 2.0);
 			if (i == 1) mbPosX *= 3.0;
-			mbPistol[i] =			AddButton("D4Pistol", 			"WPPKB0",	i);
-			mbShotgun[i] =			AddButton("D4Shotgun",			"WPPKC0",	i);
-			mbSuperShotgun[i] =		AddButton("D4SuperShotgun",		"WPPKD0",	i);
-			mbRepeater[i] =			AddButton("D4Repeater",			"WPPKL0",	i);
-			mbAssaultRifle[i] =		AddButton("D4AssaultRifle",		"WPPKE0",	i);
-			mbChaingun[i] =			AddButton("D4Chaingun",			"WPPKF0",	i);
-			mbRocketLauncher[i] =	AddButton("D4RocketLauncher",	"WPPKG0",	i);
-			mbLightningGun[i] =		AddButton("D4LightningGun",		"WPPKN0",	i);
-			mbPlasmaRifle[i] = 		AddButton("D4PlasmaRifle",		"WPPKH0",	i);
-			mbStaticRifle[i] =		AddButton("D4StaticRifle",		"WPPKK0",	i);
-			mbVortexRifle[i] =		AddButton("D4VortexRifle",		"WPPKM0",	i);
-			mbGaussCannon[i] =		AddButton("D4GaussCannon",		"WPPKJ0",	i);
-			mbCarrionCannon[i] =	AddButton("D4CarrionCannon",	"WPPKO0",	i);
-			mbBFG[i] =				AddButton("D4BFG",				"WPPKI0",	i);
+			mbPistol[i] =			AddButton("D4Pistol", 			"Graphics/akPistol.png",		i);
+			mbShotgun[i] =			AddButton("D4Shotgun",			"Graphics/akShotgun.png",		i);
+			mbSuperShotgun[i] =		AddButton("D4SuperShotgun",		"Graphics/akSuperShotgun.png",	i);
+			mbRepeater[i] =			AddButton("D4Repeater",			"Graphics/akRepeater.png",		i);
+			mbAssaultRifle[i] =		AddButton("D4AssaultRifle",		"Graphics/akAssaultRifle.png",	i);
+			mbChaingun[i] =			AddButton("D4Chaingun",			"Graphics/akChaingun.png",		i);
+			mbRocketLauncher[i] =	AddButton("D4RocketLauncher",	"Graphics/akRocketLauncher.png",i);
+			mbLightningGun[i] =		AddButton("D4LightningGun",		"Graphics/akLightningGun.png",	i);
+			mbPlasmaRifle[i] = 		AddButton("D4PlasmaRifle",		"Graphics/akPlasmaRifle.png",	i);
+			mbStaticRifle[i] =		AddButton("D4StaticRifle",		"Graphics/akStaticRifle.png",	i);
+			mbVortexRifle[i] =		AddButton("D4VortexRifle",		"Graphics/akVortexRifle.png",	i);
+			mbGaussCannon[i] =		AddButton("D4GaussCannon",		"Graphics/akGaussCannon.png",	i);
+			mbCarrionCannon[i] =	AddButton("D4CarrionCannon",	"Graphics/akCarrionCannon.png",	i);
+			mbBFG[i] =				AddButton("D4BFG",				"Graphics/akBFG.png",			i);
 			
 		}
 		
-		// init buttons
-		/*
-		mbPosY = 150;
-		mbNew = AddButton("New game");
-		mbLoad = AddButton("Load game");
-		mbSave = AddButton("Save game");
-		mbOptions = AddButton("Options");
-		if (gamestate == GS_LEVEL) mbResume = AddButton("Resume game");
-		mbQuit = AddButton("Quit");
-		
-		SetFocus((gamestate==GS_LEVEL)?mbResume:mbNew);
-		*/
-		
+		// init buttons		
 		mMouse = AkimboMenuMouse(new('AkimboMenuMouse').Init());
 		AddChild(mMouse);
 		mMouse.mRect = GetClientRect().Clone();
@@ -422,7 +431,7 @@ class AkimboMenuElement : Element
 		Drawer d = GetDrawer();
 		
 		// this is very important.
-		//d.Dim(0x000000, 0.5, 0, 0, r.Width, r.Height);
+		d.Dim(0x000000, 0.5, 0, 0, r.Width, r.Height);
 		//d.DrawTexture(mDoom, false, r.Width/2-64, 48);
 	}
 	
@@ -441,32 +450,35 @@ class AkimboMenuElement : Element
 	
 	override void Tick()
 	{	
-		/*
-		if (mbNew.CheckClicked())
+		CmdToSend = "";
+		int size = mButtons.Size();
+		if (size > 0)
 		{
-			Menu.SetMenu('PlayerclassMenu');
+			for (int i = 0; i < size; i++)
+			{
+				if (mButtons[i].CheckClicked())
+				{
+					let Weap = plr.FindInventory(mButtons[i].WeaponID,true);
+					if (Weap)
+					{
+						String WeapName = Weap.GetClassName();
+						CmdToSend = "Akimbo_Set"..(mButtons[i].IsRight ? "Right" : "Left").."_"..WeapName;
+					
+						D4DHandler.SendNetworkEvent(CmdToSend);
+						Menu.MenuSound("Menu/Activate");
+					}
+					else
+					{
+						Console.Printf("ERROR: Weapon not found!");
+						Menu.MenuSound("Doom4/Player/Nope");
+					}
+					mButtons[i].UnClick();
+					//Menu m = Menu.GetCurrentMenu();
+					//if (m) m.Close();
+					return;
+				}
+			}
 		}
-		else if (mbLoad.CheckClicked())
-		{
-			Menu.SetMenu('LoadGameMenu');
-		}
-		else if (mbSave.CheckClicked())
-		{
-			Menu.SetMenu('SaveGameMenu');
-		}
-		else if (mbOptions.CheckClicked())
-		{
-			Menu.SetMenu('OptionsMenu');
-		}
-		else if (mbQuit.CheckClicked())
-		{
-			Menu.SetMenu('QuitMenu');
-		}
-		else if (mbResume && mbResume.CheckClicked())
-		{
-			Menu.GetCurrentMenu().Close();
-		}
-		*/
 	}
 	
 	void SetFocus(AkimboMenuButton button)

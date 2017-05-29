@@ -405,6 +405,7 @@ Class D4AbstractMonster : Actor
 					A_GiveInventory("CashUpdater",1,Player1);
 				}
 			}
+			return;
 		}
 		else
 		{

@@ -155,52 +155,32 @@ Class D4Pistol : Doom4Weapon
 		ChargeStart:
 			TNT1 A 0 
 			{
-				if (CountInv("PistolUpgradeAltCharge"))
-				{
-					A_PlaySound("Doom4/Weapon/Pistol2/Charge",5,1,1); //plays Pistol2 charge sound
-				}
-				else
-				{
-					A_PlaySound("Doom4/Weapon/Pistol/Charge",5,1,1);	//plays regular pistol sund
-				}
+				Sound snd = CountInv("PistolUpgradeAltCharge") ? "Doom4/Weapon/Pistol2/Charge" : "Doom4/Weapon/Pistol/Charge";
+				A_PlaySound(snd,5,1,1);
 				
-				if (CountInv("PistolUpgradeAltDamage"))
-				{
-					return ResolveState("PrepareRed");
-				}
-				return ResolveState("PrepareNormal");
+				PSprite psp = player.FindPSprite(PSP_WEAPON);
+				if (psp) psp.Sprite = GetSpriteIndex(CountInv("PistolUpgradeAltDamage") ? "PIS2" : "WEP1");
 			}
-		PrepareNormal:
-			WEP1 A 0;
-			Goto SecondaryCharging;
-		PrepareRed:
-			PIS2 A 0;
-			Goto SecondaryCharging;
-			
 		SecondaryCharging:
 			"####" A 1;
 			"####" A 0
 			{
+				int counter[2];
+				counter[0] = CountInv("PistolAltFireCounter");
+				counter[1] = CountInv("PistolLanceCounter");
 				//------------
 				//charge speed upgrade check
-				if (CountInv("PistolUpgradeAltCharge"))
-				{
-					A_GiveInventory("PistolAltFireCounter",2 + (CountInv("PowerD4DFS") * 2)); 
-				}
-				else
-				{
-					A_GiveInventory("PistolAltFireCounter",1 + (CountInv("PowerD4DFS") * 1)); 
-				}
+				A_GiveInventory("PistolAltFireCounter",1 + CountInv("PistolUpgradeAltCharge") + (CountInv("PowerD4DFS") * 1));
 								
-				if (CountInv("PistolLanceCounter")>=52)
+				if (counter[1] >= 52)
 				{
-						if (!CountInv("PistolLanceReadyToken"))
-					    {
-						    A_GiveInventory("PistolLanceReadyToken",1);
-						    A_PlaySound("Doom4/Weapon/Shotgun/TripleShotAim",CHAN_WEAPON,1);
-					    }
+					if (!CountInv("PistolLanceReadyToken"))
+					{
+						A_SetInventory("PistolLanceReadyToken",1);
+						A_PlaySound("Doom4/Weapon/Shotgun/TripleShotAim",CHAN_WEAPON,1);
+					}
 				}				
-				if (CountInv("PistolAltFireCounter")>=50)
+				if (counter[0] >= 50)
 				{
 					A_WeaponOffset(0+random(2,-2),32+random(0,4));
 					if (CountInv("PistolLanceActive"))
@@ -208,20 +188,8 @@ Class D4Pistol : Doom4Weapon
 					    A_GiveInventory("PistolLanceCounter",4 + (CountInv("PowerD4DFS") * 2)); 
 			     	}
 				}
-				else if (CountInv("PistolAltFireCounter")>=20)
-				{
-					if (CountInv("PistolAltFireCounter")>=35)
-					{
-						A_WeaponOffset(0+random(1,-1),32+random(0,2));
-					}
-					else
-					{
-						if (random(1,2)==2)
-						{
-							A_WeaponOffset(0+random(1,-1),32+random(0,2));
-						}
-					}
-				}
+				else if ((counter[0] >= 35) || (counter[0] >= 20 && random(0,1))) 
+					A_WeaponOffset(0+random(1,-1),32+random(0,2));
 			}
 			"####" A 1 A_Refire("SecondaryCharging");
 			Goto ReleaseCharge;
@@ -356,10 +324,13 @@ Class D4Pistol : Doom4Weapon
 	User1:
 		"####" "#" 10 
 		{
-			A_SetInventory("PistolLanceActive", ((CountInv("PistolLanceActive") > 0) ? 0 : 1));
-			
 			if (CountInv("PistolLanceActive"))
+				A_SetInventory("PistolLanceActive", 0);
+			else
+			{
+				A_SetInventory("PistolLanceActive",1);
 				A_PlaySound("Doom4/Weapon/GaussGun/PrecisionDown",CHAN_WEAPON,1);	
+			}
 		}
 		Goto Ready;
 	}

@@ -64,7 +64,7 @@ Class D4DHandler : EventHandler
 	{
 		int num = e.Player;
 		let plr = players[num].mo;
-		static const Name KeyWords[] =
+		static const String KeyWords[] =
 		{
 			'D4DAddon_',
 			'Akimbo_SetLeft_',
@@ -143,40 +143,33 @@ Class D4DHandler : EventHandler
 			}
 			else
 			{
-				Name prefix;
-				Name suffix;
-				int presize = 0;
+				String debug = e.Name;
+				Console.Printf(debug);
 				int size = KeyWords.Size();
 				for (int i = 0; i < size; i++)
 				{
-					String s = KeyWords[i];
-					Name check = s.Left(s.Length());
-					if (s.Left(s.Length()) == KeyWords[i])
-					{
-						s = check;
-						prefix = check;
-						presize = s.Length();
-						suffix = s.Mid(presize, e.Name.Length());
+					// If it doesn't have the matching command, next please.
+					
+					Name check1 = e.Name.Left(Keywords[i].Length());
+					Name check2 = KeyWords[i];
+					if (check1 != check2)
+						continue;
 						
-						Switch (i)
+					// It's one of the keywords. Process it.
+					String suffix = e.Name.Mid(KeyWords[i].Length(), e.Name.Length());
+					//Console.Printf(suffix);
+					
+					if (!i) return; 		// 0 = D4DAddon_
+					if (i == 1 || i == 2) 	// 1 = SetLeft, 2 = SetRight
+					{
+						bool IsRight = (i == 2);
+						let ak = AkimboWeapon(plr.FindInventory("AkimboWeapon",true));
+						if (ak)
 						{
-							Case 0: return; // If it has D4DAddon_, assume the addons will handle it.
-							Case 1:			// Akimbo_SetLeft_
-							
-								
-								let ak = AkimboWeapon(plr.FindInventory("AkimboWeapon"));
-								if (ak)
-								{
-									
-								}
-							
-								return;
-							Case 2:			// Akimbo_SetRight_
-							{
-								
-							}
-							return;
-						}
+							String str = (ak.SetWeaponSide (suffix, IsRight)) ? ("Passed "..suffix.." onto command") : (suffix.." is not a weapon for akimbo!");
+							Console.Printf("%s", str);
+						}	
+						else	Console.Printf("No akimbo found!");
 						return;
 					}
 				}

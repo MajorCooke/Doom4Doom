@@ -21,15 +21,57 @@ Will be changed to help accommodate if needed.
 To keep the code clean, see the bottom for all the functions.
 ==============================================================================*/
 
+Struct AkimboStates
+{
+	StateLabel ReadyState;
+	StateLabel FireState;
+	StateLabel AltFireState;
+	StateLabel SelectState;
+	StateLabel DeselectState;
+	
+	void Init()
+	{
+		ReadyState = FireState = AltFireState = SelectState = DeselectState = null;
+	}
+}
+
+Struct AkimboStateFlags
+{
+	bool bAddWeapon;
+	bool bAddBob;
+	bool bPowDouble;
+	bool bCVarFast;
+	bool bFlip;	
+}
+
 Class AkimboWeapon : Weapon
 {
+	enum StatesNum
+	{
+		ID_D4Pistol = 1,
+		ID_D4Shotgun,
+		ID_D4SuperShotgun,
+		ID_D4Repeater,
+		ID_D4AssaultRifle,
+		ID_D4Chaingun,
+		ID_D4RocketLauncher,
+		ID_D4LightningGun,
+		ID_D4PlasmaRifle,
+		ID_D4StaticRifle,
+		ID_D4VortexRifle,
+		ID_D4GaussCannon,
+		ID_D4CarrionCannon,
+		ID_D4BFG
+	};
+	AkimboStates as[15], LeftStates, RightStates;
 	int Status[2];
 	StateLabel LeftNext, RightNext;
 	Class<Weapon> LeftPend, RightPend;
 	Class<Weapon> LeftGun, RightGun;
 	int UpdateLeft, UpdateRight;
 	int LFlag, RFlag;
-	int GPIM, GPIO;
+	int InputCur, InputOld;
+	int WeaponFlags;
 	Vector2 LOff, ROff;
 	uint8 WeaponID[2];
 	enum StatusState
@@ -47,7 +89,8 @@ Class AkimboWeapon : Weapon
 	};
 	enum AKOverlays
 	{
-		AKRLow = 30002,
+		AKBase = 30000,
+		AKRLow = 30003,
 		AKRHigh = 39999,
 		OV_LeftWeapon = 30000,
 		OV_RightWeapon = 30001,
@@ -77,31 +120,27 @@ Class AkimboWeapon : Weapon
 			invoker.WeaponID[Left] = CountInv("LeftWeaponCount");
 			invoker.WeaponID[Right] = CountInv("RightWeaponCount");
 			
-			invoker.ROff = (invoker.RightOffset[(invoker.WeaponID[Right] * 2)] + ROfx, 
-							invoker.RightOffset[(invoker.WeaponID[Right] * 2) + 1] + ROfy);
-			
 			if (invoker.Status[Left] <= Ready)
 			{
-				/*
 				invoker.LOff = (invoker.LeftOffset[(invoker.WeaponID[Left] * 2)] + LOfx, 
 								invoker.LeftOffset[(invoker.WeaponID[Left] * 2) + 1] + LOfy);
 				A_OverlayOffset(OV_LeftWeapon, Invoker.LOff.x, Invoker.LOff.y, WOF_INTERPOLATE);
-				*/
 				
-				A_OverlayOffset(OV_LeftWeapon, Invoker.ROff.x, Invoker.ROff.y, WOF_INTERPOLATE);
+				
+				//A_OverlayOffset(OV_LeftWeapon, Invoker.ROff.x, Invoker.ROff.y, WOF_INTERPOLATE);
 			}
 			
 			if (invoker.Status[Right] <= Ready)
-			{	
-				
-			//	invoker.ROff = (invoker.RightOffset[(invoker.WeaponID[Right] * 2)] + ROfx, 
-			//					invoker.RightOffset[(invoker.WeaponID[Right] * 2) + 1] + ROfy);
+			{
+				invoker.ROff = (invoker.RightOffset[(invoker.WeaponID[Right] * 2)] + ROfx, 
+								invoker.RightOffset[(invoker.WeaponID[Right] * 2) + 1] + ROfy);
 				A_OverlayOffset(OV_RightWeapon, Invoker.ROff.x, Invoker.ROff.y, WOF_INTERPOLATE);
-				
 			}
+			
+			
 		}
 		Wait;
-		
+	
 	//==========================================================================
 	// Main States
 	//==========================================================================
@@ -118,13 +157,26 @@ Class AkimboWeapon : Weapon
 				return ResolveState("Deselect");
 			}
 			
+			invoker.PrepareStates();
+			int ci = CountInv("LeftWeaponCount");
+			invoker.LeftStates.ReadyState = 	invoker.as[ci].ReadyState;
+			invoker.LeftStates.FireState = 		invoker.as[ci].FireState;
+			invoker.LeftStates.AltFireState = 	invoker.as[ci].AltFireState;
+			invoker.LeftStates.SelectState = 	invoker.as[ci].SelectState;
+			invoker.LeftStates.DeselectState = 	invoker.as[ci].DeselectState;
 			
+			ci = CountInv("RightWeaponCount");
+			invoker.RightStates.ReadyState = 		invoker.as[ci].ReadyState;
+			invoker.RightStates.FireState = 		invoker.as[ci].FireState;
+			invoker.RightStates.AltFireState = 		invoker.as[ci].AltFireState;
+			invoker.RightStates.SelectState = 		invoker.as[ci].SelectState;
+			invoker.RightStates.DeselectState = 	invoker.as[ci].DeselectState;
 			
 			// Skip the offsetting for this situation.
-			if (!invoker.LeftGun)	invoker.LeftGun = invoker.LeftPend; invoker.LeftPend = null;
-			if (!invoker.RightGun)	invoker.RightGun = invoker.RightPend; invoker.RightPend = null;
-			A_Overlay(OV_LeftWeapon, invoker.LeftNext);
-			A_Overlay(OV_RightWeapon, invoker.RightNext);
+			if (!invoker.LeftGun)	invoker.LeftGun = 	invoker.LeftPend; 	invoker.LeftPend = null;
+			if (!invoker.RightGun)	invoker.RightGun = 	invoker.RightPend; 	invoker.RightPend = null;
+			A_Overlay(OV_LeftWeapon, 	invoker.LeftNext);
+			A_Overlay(OV_RightWeapon, 	invoker.RightNext);
 			A_OverlayFlags(OV_LeftWeapon, PSPF_ADDWEAPON|PSPF_FLIP, true);
 			A_OverlayFlags(OV_RightWeapon, PSPF_ADDWEAPON, true);
 			A_Overlay(OV_Custom + 1, "Overlay.OffsetManager");
@@ -140,6 +192,13 @@ Class AkimboWeapon : Weapon
 		{
 			A_OverlayFlags(OV_LeftWeapon, PSPF_ADDWEAPON, true);
 			A_OverlayFlags(OV_RightWeapon, PSPF_ADDWEAPON, true);
+			
+			int size = invoker.WeaponList.Size();
+			for (int i = 0; i < size; i++)
+			{
+				if (invoker.LeftGun == invoker.WeaponList[i]) 	{	A_SetInventory("LeftWeaponCount", i); continue; }
+				if (invoker.RightGun == invoker.WeaponList[i]) 	{	A_SetInventory("RightWeaponCount", i); }
+			}
 		}
 	DesLoop:
 		M666 A 1 A_Lower();
@@ -152,19 +211,19 @@ Class AkimboWeapon : Weapon
 			for (int i = 0; i < invoker.Status.Size(); i++)
 				if (invoker.Status[i] <= invoker.Nurr)
 					invoker.Status[i] = Ready;
-			invoker.GPIM = GetPlayerInput(MODINPUT_BUTTONS);
-			invoker.GPIO = GetPlayerInput(MODINPUT_OLDBUTTONS);
-			A_WeaponReady(WRF_NOFIRE);
+			invoker.InputCur = GetPlayerInput(MODINPUT_BUTTONS);
+			invoker.InputOld = GetPlayerInput(MODINPUT_OLDBUTTONS);
+			
+			A_WeaponReady(WRF_NOFIRE|invoker.WeaponFlags);
 			
 			
-			if ((invoker.GPIM & BT_USER3) && !(invoker.GPIO & BT_USER3))
+			if ((invoker.InputCur & BT_USER3) && !(invoker.InputOld & BT_USER3))
 			{
-				
 				Menu.SetMenu("AkimboSideSelect");
 			}
 			
 			
-			if ((invoker.GPIM & BT_ATTACK) && !(invoker.GPIO & BT_ATTACK))
+			if ((invoker.InputCur & BT_ATTACK) && !(invoker.InputOld & BT_ATTACK))
 			{
 				
 				uint size = invoker.WeaponList.Size();
@@ -185,64 +244,173 @@ Class AkimboWeapon : Weapon
 	Fire:
 		M666 A 1;
 		Goto Ready;
+
+	//--------------------------------------------------------------------------
+	D4Pistol.Select:
+		TNT1 A 0 { Invoker.UpdateStates(OverlayID(), ID_D4Pistol); }
+		WEP1 A 1 { Invoker.AkRaiseGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
+	D4Pistol.Deselect:
+		---- A 1 { Invoker.AkLowerGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
 	D4Pistol.Ready:
-		WEP1 A 1;
+		WEP1 A 1 { Invoker.AkWeaponReady(OverlayID(), 0, invoker.InputCur); }
 		Loop;
-	//D4Pistol.Fire:
-	//D4Pistol.AltFire:
+	
+	//--------------------------------------------------------------------------
+	D4Shotgun.Select:
+		DW3A A 0 { Invoker.UpdateStates(OverlayID(), ID_D4Shotgun); }
+		DW3A A 1 { Invoker.AkRaiseGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
+	D4Shotgun.Deselect:
+		---- A 1 { Invoker.AkLowerGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
 	D4Shotgun.Ready:
-		DW3A A 1;
+		DW3A A 1 { Invoker.AkWeaponReady(OverlayID(), 0, invoker.InputCur); }
 		Loop;
-	//D4Shotgun.Fire:
-	//D4Shotgun.AltFire:
-	
+		
+	//--------------------------------------------------------------------------
+	D4SuperShotgun.Select:
+		TNT1 A 0 { Invoker.UpdateStates(OverlayID(), ID_D4SuperShotgun); }
+		M665 A 1 { Invoker.AkRaiseGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
+	D4SuperShotgun.Deselect:
+		---- A 1 { Invoker.AkLowerGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
 	D4SuperShotgun.Ready:
-		M665 A 1;
+		M665 A 1 { Invoker.AkWeaponReady(OverlayID(), 0, invoker.InputCur); }
 		Loop;
-	//D4SSG.Fire:
 	
+	//--------------------------------------------------------------------------
+	D4Repeater.Select:
+		TNT1 A 0 { Invoker.UpdateStates(OverlayID(), ID_D4Repeater); }
+		REPG A 1 { Invoker.AkRaiseGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
+	D4Repeater.Deselect:
+		---- A 1 { Invoker.AkLowerGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
 	D4Repeater.Ready:
-		REPG A 1;
+		REPG A 1 { Invoker.AkWeaponReady(OverlayID(), 0, invoker.InputCur); }
 		Loop;
-		
+	
+	//--------------------------------------------------------------------------
+	D4AssaultRifle.Select:
+		TNT1 A 0 { Invoker.UpdateStates(OverlayID(), ID_D4AssaultRifle); }
+		ARNI A 1 { Invoker.AkRaiseGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
+	D4AssaultRifle.Deselect:
+		---- A 1 { Invoker.AkLowerGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
 	D4AssaultRifle.Ready:
-		ARNI A 1;
+		ARNI A 1 { Invoker.AkWeaponReady(OverlayID(), 0, invoker.InputCur); }
 		Loop;
-		
+	
+	//--------------------------------------------------------------------------
+	D4Chaingun.Select:
+		TNT1 A 0 { Invoker.UpdateStates(OverlayID(), ID_D4Chaingun); }
+		CGNS A 1 { Invoker.AkRaiseGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
+	D4Chaingun.Deselect:
+		---- A 1 { Invoker.AkLowerGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
 	D4Chaingun.Ready:
-		CGNS A 1;
+		CGNS A 1 { Invoker.AkWeaponReady(OverlayID(), 0, invoker.InputCur); }
 		Loop;
-		
+	
+	//--------------------------------------------------------------------------
+	D4RocketLauncher.Select:
+		TNT1 A 0 { Invoker.UpdateStates(OverlayID(), ID_D4RocketLauncher); }
+		RLNI A 1 { Invoker.AkRaiseGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
+	D4RocketLauncher.Deselect:
+		---- A 1 { Invoker.AkLowerGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
 	D4RocketLauncher.Ready:
-		RLNI A 1;
+		RLNI A 1 { Invoker.AkWeaponReady(OverlayID(), 0, invoker.InputCur); }
 		Loop;
 		
+	//--------------------------------------------------------------------------
+	D4PlasmaRifle.Select:
+		TNT1 A 0 { Invoker.UpdateStates(OverlayID(), ID_D4PlasmaRifle); }
+		PRNI A 1 { Invoker.AkRaiseGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
+	D4PlasmaRifle.Deselect:
+		---- A 1 { Invoker.AkLowerGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
 	D4PlasmaRifle.Ready:
-		PRNI A 1;
+		PRNI A 1 { Invoker.AkWeaponReady(OverlayID(), 0, invoker.InputCur); }
 		Loop;
 		
+	//--------------------------------------------------------------------------
+	D4LightningGun.Select:
+		TNT1 A 0 { Invoker.UpdateStates(OverlayID(), ID_D4LightningGun); }
+		LGNI A 1 { Invoker.AkRaiseGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
+	D4LightningGun.Deselect:
+		---- A 1 { Invoker.AkLowerGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
 	D4LightningGun.Ready:
-		LGNI AABBCC 1 bright;
+		LGNI AABBCC 1 bright { Invoker.AkWeaponReady(OverlayID(), 0, invoker.InputCur); }
 		Loop;
 		
+	//--------------------------------------------------------------------------
+	D4StaticRifle.Select:
+		TNT1 A 0 { Invoker.UpdateStates(OverlayID(), ID_D4StaticRifle); }
+		STRF A 1 { Invoker.AkRaiseGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
+	D4StaticRifle.Deselect:
+		---- A 1 { Invoker.AkLowerGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
 	D4StaticRifle.Ready:
-		STRF A 1;
+		STRF A 1 { Invoker.AkWeaponReady(OverlayID(), 0, invoker.InputCur); }
 		Loop;
 		
+	//--------------------------------------------------------------------------
+	D4VortexRifle.Select:
+		TNT1 A 0 { Invoker.UpdateStates(OverlayID(), ID_D4VortexRifle); }
+		VTXG A 1 { Invoker.AkRaiseGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
+	D4VortexRifle.Deselect:
+		---- A 1 { Invoker.AkLowerGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
 	D4VortexRifle.Ready:
-		VTXG A 1;
+		VTXG A 1 { Invoker.AkWeaponReady(OverlayID(), 0, invoker.InputCur); }
 		Loop;
 		
+	//--------------------------------------------------------------------------
+	D4GaussCannon.Select:
+		TNT1 A 0 { Invoker.UpdateStates(OverlayID(), ID_D4GaussCannon); }
+		GCNI A 1 { Invoker.AkRaiseGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
+	D4GaussCannon.Deselect:
+		---- A 1 { Invoker.AkLowerGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
 	D4GaussCannon.Ready:
-		GCNI A 1;
+		GCNI A 1 { Invoker.AkWeaponReady(OverlayID(), 0, invoker.InputCur); }
 		Loop;
 		
+	//--------------------------------------------------------------------------
+	D4CarrionCannon.Select:
+		TNT1 A 0 { Invoker.UpdateStates(OverlayID(), ID_D4CarrionCannon); }
+		HELG A 1 { Invoker.AkRaiseGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
+	D4CarrionCannon.Deselect:
+		---- A 1 { Invoker.AkLowerGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
 	D4CarrionCannon.Ready:
-		HELG H 1;
+		HELG H 1 { Invoker.AkWeaponReady(OverlayID(), 0, invoker.InputCur); }
 		Loop;
 		
+	//--------------------------------------------------------------------------
+	D4BFG.Select:
+		TNT1 A 0 { Invoker.UpdateStates(OverlayID(), ID_D4BFG); }
+		WE27 A 1 { Invoker.AkRaiseGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
+	D4BFG.Deselect:
+		---- A 1 { Invoker.AkLowerGun(OverlayID(), WeaponSwitchSpeed); }
+		Wait;
 	D4BFG.Ready:
-		WE27 A 1;
+		WE27 A 1 { Invoker.AkWeaponReady(OverlayID(), 0, invoker.InputCur); }
 		Loop;
 	}
 }
@@ -257,6 +425,285 @@ Class RightWeaponCount : Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.
 // Separated to keep things clean.
 extend Class AkimboWeapon
 {
+	//==========================================================================
+	// State/Status Management
+	//==========================================================================
+	
+	//--------------------------------------------------------------------------
+	// AKWeaponReady
+	
+	// Translations are as follows:
+	// Primary - Fire Left
+	// Secondary - Fire Right
+	// Reload - AltFire Left
+	// User1 - AltFire Right
+	//--------------------------------------------------------------------------
+	
+	action void AkRaiseGun(int id, int RaiseSpeed = 6, bool instaraise = false)
+	{
+		let player = invoker.owner.player;
+		if (!player)
+		{	Console.Printf("ERROR -10");
+			return;// ResolveState(null);
+		}
+		if (!player.ReadyWeapon)
+		{
+			Console.Printf("ERROR -11");
+			return;
+		}
+		if (id != OV_LeftWeapon && id != OV_RightWeapon)
+		{	Console.Printf("%d",id);
+			return;// ResolveState(null);
+		}
+		let psp = player.FindPSprite(id);
+		if (psp)
+		{
+			psp.oldy = psp.y;
+			psp.y -= RaiseSpeed;
+			if (psp.y <= WEAPONTOP || instaraise)
+			{
+				psp.y = WEAPONTOP;
+				
+				
+				psp.SetState(player.ReadyWeapon.FindState((id == OV_RightWeapon) ? invoker.RightStates.ReadyState : invoker.LeftStates.ReadyState, true));
+				invoker.Status[(id == OV_RightWeapon ? Right : Left)] = Ready;
+				return;// ResolveState((id == OV_RightWeapon) ? invoker.RightStates.ReadyState : invoker.LeftStates.ReadyState);
+			}
+		}
+		return;// ResolveState(null);
+	}
+	
+	action void AkLowerGun(int id, int LowerSpeed = 6, bool instalower = false)
+	{
+		let player = invoker.owner.player;
+		if (!player || !player.ReadyWeapon)
+		{
+			Console.Printf("ERROR -2");
+			return;// ResolveState(null);
+		}
+		if (id != OV_LeftWeapon && id != OV_RightWeapon)
+		{
+			Console.Printf("ERROR -3");
+			return;// ResolveState(null);
+		}	
+		let psp = player.FindPSprite(id);
+		if (psp)
+		{
+			invoker.Status[(id == OV_RightWeapon ? Right : Left)] = ChangeWeapon;
+			psp.oldy = psp.y;
+			psp.y += LowerSpeed;
+			if (psp.y >= WEAPONBOTTOM || instalower)
+			{
+				psp.y = WEAPONBOTTOM;
+				psp.SetState(player.ReadyWeapon.FindState((id == OV_RightWeapon) ? invoker.RightNext : invoker.LeftNext, true));
+				if (id == OV_RightWeapon)
+				{
+					invoker.RightGun = invoker.RightPend;
+					invoker.RightPend = null;
+					invoker.RightNext = null;
+				}
+				else
+				{
+					invoker.LeftGun = invoker.LeftPend;
+					invoker.LeftPend = null;
+					invoker.LeftNext = null;
+				}
+				return;// ResolveState((id == OV_RightWeapon) ? invoker.RightNext : invoker.LeftNext);
+			}
+		}
+		else
+		{
+			Console.Printf("ERROR -1");
+		}
+		return;// ResolveState(null);
+	}
+	
+	action void AkWeaponReady(int id, int flags = 0, int input = 0)
+	{
+		let player = invoker.owner.player;
+		if (!player || !player.ReadyWeapon)
+		{
+			Console.Printf("ERROR -4");
+			return;// ResolveState(null);
+		}
+		if (id != OV_LeftWeapon && id != OV_RightWeapon)
+		{
+			Console.Printf("ERROR -5");
+			return;// ResolveState(null);
+		}
+		bool DoFire, DoAltFire;
+		let psp = player.FindPSprite(id);
+		
+		if (id == OV_LeftWeapon)
+		{
+			DoFire = (input & BT_ATTACK);
+			DoAltFire = (input & BT_RELOAD);
+		}
+		else
+		{
+			DoFire = (input & BT_ALTATTACK);
+			DoAltFire = (input & BT_USER1);
+		}
+
+		if (flags & WRF_DISABLESWITCH)
+		{
+			if (id == OV_LeftWeapon)
+			{
+				invoker.LeftNext = null;
+				invoker.LeftPend = null;
+			}
+			else
+			{
+				invoker.RightNext = null;
+				invoker.RightPend = null;
+			}
+		}
+		if (!(flags & WRF_NOSWITCH) && (invoker.LeftPend || invoker.RightPend))
+		{
+			Console.Printf("reached");
+			if (id == OV_LeftWeapon)
+			{
+				invoker.Status[Left] = ChangeWeapon;
+				if (psp)	psp.SetState(player.ReadyWeapon.FindState(invoker.LeftStates.DeselectState, true));
+			}
+			if (id == OV_RightWeapon)
+			{
+				invoker.Status[Right] = ChangeWeapon;
+				if (psp)	psp.SetState(player.ReadyWeapon.FindState(invoker.RightStates.DeselectState, true));
+			}
+		}
+		
+		
+		if (psp)
+		{
+			psp.bAddBob = (!(flags & WRF_NOBOB));
+		}
+		
+		/*
+		if (!(flags & WRF_NOFIRE))
+		{
+			if (!(flags & WRF_NOPRIMARY) && DoFire)
+			{
+				
+			}
+		}
+		*/
+	
+		return;// ResolveState(null);
+	}
+	
+	// When Graf makes string to state labels a thing, I can dump this shit.
+	action void PrepareStates()
+	{
+		invoker.as[ID_D4Pistol].ReadyState = 		"D4Pistol.Ready";
+		invoker.as[ID_D4Pistol].FireState = 		"D4Pistol.Fire";
+		invoker.as[ID_D4Pistol].AltFireState = 		"D4Pistol.AltFire";
+		invoker.as[ID_D4Pistol].SelectState = 		"D4Pistol.Select";
+		invoker.as[ID_D4Pistol].DeselectState = 	"D4Pistol.Deselect";
+		
+		invoker.as[ID_D4Shotgun].ReadyState = 		"D4Shotgun.Ready";
+		invoker.as[ID_D4Shotgun].FireState = 		"D4Shotgun.Fire";
+		invoker.as[ID_D4Shotgun].AltFireState = 	"D4Shotgun.AltFire";
+		invoker.as[ID_D4Shotgun].SelectState = 		"D4Shotgun.Select";
+		invoker.as[ID_D4Shotgun].DeselectState = 	"D4Shotgun.Deselect";
+		
+		invoker.as[ID_D4SuperShotgun].ReadyState = 		"D4SuperShotgun.Ready";
+		invoker.as[ID_D4SuperShotgun].FireState = 		"D4SuperShotgun.Fire";
+		invoker.as[ID_D4SuperShotgun].AltFireState = 	"D4SuperShotgun.AltFire";
+		invoker.as[ID_D4SuperShotgun].SelectState = 	"D4SuperShotgun.Select";
+		invoker.as[ID_D4SuperShotgun].DeselectState = 	"D4SuperShotgun.Deselect";
+		
+		invoker.as[ID_D4Repeater].ReadyState = 		"D4Repeater.Ready";
+		invoker.as[ID_D4Repeater].FireState = 		"D4Repeater.Fire";
+		invoker.as[ID_D4Repeater].AltFireState = 	"D4Repeater.AltFire";
+		invoker.as[ID_D4Repeater].SelectState = 	"D4Repeater.Select";
+		invoker.as[ID_D4Repeater].DeselectState = 	"D4Repeater.Deselect";
+		
+		invoker.as[ID_D4AssaultRifle].ReadyState = 		"D4AssaultRifle.Ready";
+		invoker.as[ID_D4AssaultRifle].FireState = 		"D4AssaultRifle.Fire";
+		invoker.as[ID_D4AssaultRifle].AltFireState = 	"D4AssaultRifle.AltFire";
+		invoker.as[ID_D4AssaultRifle].SelectState = 	"D4AssaultRifle.Select";
+		invoker.as[ID_D4AssaultRifle].DeselectState = 	"D4AssaultRifle.Deselect";
+		
+		invoker.as[ID_D4Chaingun].ReadyState = 		"D4Chaingun.Ready";
+		invoker.as[ID_D4Chaingun].FireState = 		"D4Chaingun.Fire";
+		invoker.as[ID_D4Chaingun].AltFireState = 	"D4Chaingun.AltFire";
+		invoker.as[ID_D4Chaingun].SelectState = 	"D4Chaingun.Select";
+		invoker.as[ID_D4Chaingun].DeselectState = 	"D4Chaingun.Deselect";
+		
+		invoker.as[ID_D4RocketLauncher].ReadyState = 		"D4RocketLauncher.Ready";
+		invoker.as[ID_D4RocketLauncher].FireState = 		"D4RocketLauncher.Fire";
+		invoker.as[ID_D4RocketLauncher].AltFireState = 		"D4RocketLauncher.AltFire";
+		invoker.as[ID_D4RocketLauncher].SelectState = 		"D4RocketLauncher.Select";
+		invoker.as[ID_D4RocketLauncher].DeselectState = 	"D4RocketLauncher.Deselect";
+		
+		invoker.as[ID_D4PlasmaRifle].ReadyState = 		"D4PlasmaRifle.Ready";
+		invoker.as[ID_D4PlasmaRifle].FireState = 		"D4PlasmaRifle.Fire";
+		invoker.as[ID_D4PlasmaRifle].AltFireState = 	"D4PlasmaRifle.AltFire";
+		invoker.as[ID_D4PlasmaRifle].SelectState = 		"D4PlasmaRifle.Select";
+		invoker.as[ID_D4PlasmaRifle].DeselectState = 	"D4PlasmaRifle.Deselect";
+		
+		invoker.as[ID_D4LightningGun].ReadyState = 		"D4LightningGun.Ready";
+		invoker.as[ID_D4LightningGun].FireState = 		"D4LightningGun.Fire";
+		invoker.as[ID_D4LightningGun].AltFireState = 	"D4LightningGun.AltFire";
+		invoker.as[ID_D4LightningGun].SelectState = 	"D4LightningGun.Select";
+		invoker.as[ID_D4LightningGun].DeselectState = 	"D4LightningGun.Deselect";
+		
+		invoker.as[ID_D4StaticRifle].ReadyState = 		"D4StaticRifle.Ready";
+		invoker.as[ID_D4StaticRifle].FireState = 		"D4StaticRifle.Fire";
+		invoker.as[ID_D4StaticRifle].AltFireState = 	"D4StaticRifle.AltFire";
+		invoker.as[ID_D4StaticRifle].SelectState =		"D4StaticRifle.Select";
+		invoker.as[ID_D4StaticRifle].DeselectState = 	"D4StaticRifle.Deselect";
+		
+		invoker.as[ID_D4VortexRifle].ReadyState = 		"D4VortexRifle.Ready";
+		invoker.as[ID_D4VortexRifle].FireState = 		"D4VortexRifle.Fire";
+		invoker.as[ID_D4VortexRifle].AltFireState = 	"D4VortexRifle.AltFire";
+		invoker.as[ID_D4VortexRifle].SelectState = 		"D4VortexRifle.Select";
+		invoker.as[ID_D4VortexRifle].DeselectState = 	"D4VortexRifle.Deselect";
+		
+		invoker.as[ID_D4GaussCannon].ReadyState = 		"D4GaussCannon.Ready";
+		invoker.as[ID_D4GaussCannon].FireState = 		"D4GaussCannon.Fire";
+		invoker.as[ID_D4GaussCannon].AltFireState = 	"D4GaussCannon.AltFire";
+		invoker.as[ID_D4GaussCannon].SelectState = 		"D4GaussCannon.Select";
+		invoker.as[ID_D4GaussCannon].DeselectState = 	"D4GaussCannon.Deselect";
+		
+		invoker.as[ID_D4CarrionCannon].ReadyState = 	"D4CarrionCannon.Ready";
+		invoker.as[ID_D4CarrionCannon].FireState = 		"D4CarrionCannon.Fire";
+		invoker.as[ID_D4CarrionCannon].AltFireState = 	"D4CarrionCannon.AltFire";
+		invoker.as[ID_D4CarrionCannon].SelectState = 	"D4CarrionCannon.Select";
+		invoker.as[ID_D4CarrionCannon].DeselectState = 	"D4CarrionCannon.Deselect";
+		
+		invoker.as[ID_D4BFG].ReadyState = 		"D4BFG.Ready";
+		invoker.as[ID_D4BFG].FireState = 		"D4BFG.Fire";
+		invoker.as[ID_D4BFG].AltFireState = 	"D4BFG.AltFire";
+		invoker.as[ID_D4BFG].SelectState = 		"D4BFG.Select";
+		invoker.as[ID_D4BFG].DeselectState = 	"D4BFG.Deselect";
+	}
+	
+	action void UpdateStates(int id, int index)
+	{
+		index = Clamp(index, ID_D4Pistol, ID_D4BFG);
+		if (id == OV_LeftWeapon)
+		{
+			invoker.LeftStates.ReadyState =		invoker.as[index].ReadyState;
+			invoker.LeftStates.FireState =		invoker.as[index].FireState;
+			invoker.LeftStates.AltFireState =	invoker.as[index].AltFireState;
+			invoker.LeftStates.SelectState =	invoker.as[index].SelectState;
+			invoker.LeftStates.DeselectState =	invoker.as[index].DeselectState;
+		}
+		else
+		{
+			invoker.RightStates.ReadyState =	invoker.as[index].ReadyState;
+			invoker.RightStates.FireState =		invoker.as[index].FireState;
+			invoker.RightStates.AltFireState =	invoker.as[index].AltFireState;
+			invoker.RightStates.SelectState =	invoker.as[index].SelectState;
+			invoker.RightStates.DeselectState =	invoker.as[index].DeselectState;
+		}
+	}
+
+	//==========================================================================
+	// Checks and switchers
+	//==========================================================================
 	enum AkimboStuff
 	{
 		TotalWeapons = 14,
@@ -327,20 +774,20 @@ extend Class AkimboWeapon
 	static const StateLabel WeaponReadyStates[] =
 	{
 		null,
-		"D4Pistol.Ready",
-		"D4Shotgun.Ready",
-		"D4SuperShotgun.Ready",
-		"D4Repeater.Ready",
-		"D4AssaultRifle.Ready",
-		"D4Chaingun.Ready",
-		"D4RocketLauncher.Ready",
-		"D4PlasmaRifle.Ready",
-		"D4LightningGun.Ready",
-		"D4GaussCannon.Ready",
-		"D4VortexRifle.Ready",
-		"D4StaticRifle.Ready",
-		"D4CarrionCannon.Ready",
-		"D4BFG.Ready"
+		"D4Pistol.Select",
+		"D4Shotgun.Select",
+		"D4SuperShotgun.Select",
+		"D4Repeater.Select",
+		"D4AssaultRifle.Select",
+		"D4Chaingun.Select",
+		"D4RocketLauncher.Select",
+		"D4PlasmaRifle.Select",
+		"D4LightningGun.Select",
+		"D4GaussCannon.Select",
+		"D4VortexRifle.Select",
+		"D4StaticRifle.Select",
+		"D4CarrionCannon.Select",
+		"D4BFG.Select"
 	};
 	
 	bool AkimboCheckWeapons(bool CheckOnly = false)
@@ -432,8 +879,10 @@ extend Class AkimboWeapon
 			LeftGun == id || LeftPend == id ||
 			RightGun == id || RightPend == id ||
 			!Owner.CountInv(id))
+		{
+			Console.Printf("FAIL");
 			return false;
-			
+		}	
 		int size = WeaponList.Size();
 		for (int i = 0; i < size; i++)
 		{
@@ -441,6 +890,7 @@ extend Class AkimboWeapon
 			{
 				if (right)		{	RightPend = id; RightNext = WeaponReadyStates[i];	}
 				else			{	LeftPend = id; 	LeftNext = WeaponReadyStates[i];	}
+				Console.Printf(WeapID.." command received successfully.");
 				return true;
 			}
 		}
