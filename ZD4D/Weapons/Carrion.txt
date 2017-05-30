@@ -245,8 +245,52 @@ Class D4CarrionCannon : Doom4Weapon
 			// Also, yo dawg...
 			// I heard you like functions in your functions.
 			// So I put functions inside your functions. D'OH SNAPTARTS.
-			if (A_RadiusGive("DummyPickup",1024,RGF_CORPSES|RGF_CUBE,1))
-			{	A_GiveInventory("D4Carrion",(A_RadiusGive("CarrionAbsorbant",1024,RGF_CORPSES,1)* 30 * (CountInv("CarrionUpgradePickup") ? 2 : 1)));	}
+			// if (A_RadiusGive("DummyPickup",1024,RGF_CORPSES|RGF_CUBE,1))
+			// {	A_GiveInventory("D4Carrion",(A_RadiusGive("CarrionAbsorbant",1024,RGF_CORPSES,1)* 30 * (CountInv("CarrionUpgradePickup") ? 2 : 1)));	}
+			
+			let it = ThinkerIterator.Create("Actor");
+			Actor mo;
+			int total = 0;
+			while (mo = Actor(it.Next()))
+			{
+				if (Distance3D(mo) > 1024) continue;
+				if (mo.bNOINTERACTION) continue;
+				if (mo.bSPECIAL) continue;
+				if (mo.bMISSILE) continue;
+				static const Class<Actor> id[] =
+				{
+					"BrainStem",
+					"ColonGibs",
+					"DeadCacodemon",
+					"DeadDoomImp",
+					"DeadMarine",
+					"DeadShotgunGuy",
+					"DeadZombieman",
+					"GibbedMarine",
+					"GibbedMarineExtra",
+					"Gibs",
+					"SmallBloodPool"
+				};
+				bool CanDo = (mo.bCORPSE);
+				if (!CanDo)
+				{
+					int size = id.Size();
+					for (int i = 0; i < size; i++)
+					{
+						Class<Actor> t1 = mo.GetReplacee(mo.GetClass());
+						CanDo = (t1 == id[i]);
+						if (CanDo) break;
+					}
+				}
+				
+				if (CanDo)
+				{
+					mo.A_GiveInventory("CarrionAbsorbant");
+					total++;
+				}
+			}
+			if (total > 0)
+				A_GiveInventory("D4Carrion", 30 * (CountInv("CarrionUpgradePickup") ? 2 : 1));
 		}
 		HELG BCDE 2 bright;
 		Goto Ready;

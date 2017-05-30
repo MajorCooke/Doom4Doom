@@ -1,0 +1,605 @@
+// AkimboWeapon's Functions
+// Separated to keep things clean.
+extend Class AkimboWeapon
+{
+	enum InputTrans
+	{
+		PLeft = 	BT_ATTACK,
+		PRight = 	BT_ALTATTACK,
+		ALeft =		BT_RELOAD,
+		ARight =	BT_USER1
+	};
+	//==========================================================================
+	// State/Status Management
+	//==========================================================================
+	
+	//--------------------------------------------------------------------------
+	// 
+	void AdjustHaste()
+	{
+		if (owner.CountInv("PowerD4Haste"))
+			A_SetTics(0);
+	}
+	
+	
+	//--------------------------------------------------------------------------
+	// Similar to A_Refire but can take alts too.
+	action state AkRefire(int id, StateLabel Next, bool alt = false)
+	{
+		if (!Next) return null;
+		if (id == OV_LeftWeapon)
+		{
+			if (invoker.InputCur & (alt ? PLeft : ALeft))
+				return ResolveState(Next);
+		}
+		else if (id == OV_RightWeapon)
+		{
+			if (invoker.InputCur & (alt ? PRight : ARight))
+				return ResolveState(Next);
+		}
+		return null;
+	}
+	
+	//--------------------------------------------------------------------------
+	action bool AkCheckFire(int id, bool alt = false)
+	{
+		if (id == OV_LeftWeapon)
+		{
+			return (invoker.InputCur & (alt ? ALeft : PLeft));
+		}
+		else if (id == OV_RightWeapon)
+		{
+			return (invoker.InputCur & (alt ? ARight : PRight));
+		}
+		return false;
+	}
+	
+	//--------------------------------------------------------------------------
+	// Determines which side to orient things like projectile spawning.
+	double Side(int id, double val = 1.0)
+	{
+		return val * (id == OV_LeftWeapon ? -1 : 1);
+	}
+	//--------------------------------------------------------------------------
+	// AKWeaponReady
+	
+	// Translations are as follows:
+	// Primary - Fire Left
+	// Secondary - Fire Right
+	// Reload - AltFire Left
+	// User1 - AltFire Right
+	//--------------------------------------------------------------------------
+	
+	action void AkWeaponReady(int id, int flags = 0, bool AdjustReady = false)
+	{
+		let player = invoker.owner.player;
+		if (!player || !player.ReadyWeapon)
+		{
+			//Console.Printf("ERROR -4");
+			return;// ResolveState(null);
+		}
+		if (id != OV_LeftWeapon && id != OV_RightWeapon)
+		{
+			//Console.Printf("ERROR -5");
+			return;// ResolveState(null);
+		}
+		
+		bool DoFire[2], DoAltFire[2];
+		let psp = player.FindPSprite(id);
+
+		//----------------------------------------------------------------------
+		// Weapon Switch Checks
+		//----------------------------------------------------------------------
+		// Disable switching will eliminate the pending weapon to switch to.
+		if (flags & WRF_DISABLESWITCH)
+		{
+			if (id == OV_LeftWeapon)
+			{
+				invoker.LeftNext = null;
+				invoker.LeftPend = null;
+			}
+			else
+			{
+				invoker.RightNext = null;
+				invoker.RightPend = null;
+			}
+		}
+		else if (!(flags & (WRF_NOSWITCH)) && (invoker.LeftPend || invoker.RightPend))
+		{
+			if (id == OV_LeftWeapon && invoker.LeftPend)
+			{
+				invoker.Status[Left] = ChangeWeapon;
+				if (psp)	{ psp.SetState(player.ReadyWeapon.FindState(invoker.LeftStates.DeselectState, true));	}
+			}
+			if (id == OV_RightWeapon && invoker.RightPend)
+			{
+				invoker.Status[Right] = ChangeWeapon;
+				if (psp)	{ psp.SetState(player.ReadyWeapon.FindState(invoker.RightStates.DeselectState, true));	}
+			}
+			//if (doReturn) return;
+		}
+		
+		//----------------------------------------------------------------------
+		// Fire States
+		// See above for translations.
+		//----------------------------------------------------------------------
+		
+		int input = invoker.InputCur;
+		int inold = invoker.InputOld;
+		
+		DoFire[Left] = (!(flags & WRF_NOPRIMARY)) && (input & PLeft) && !(player.ReadyWeapon.bNOAUTOFIRE && (inold & PLeft));
+		//DoAltFire[Left] = (input & ALeft);
+		DoFire[Right] = (!(flags & WRF_NOPRIMARY)) && (input & PRight) && !(player.ReadyWeapon.bNOAUTOFIRE && (inold & PRight));
+		//DoAltFire[Right] = (input & ARight);
+
+		if (DoFire[Left] || DoFire[Right])
+		{
+			if (id == OV_LeftWeapon && DoFire[Left])
+			{
+				invoker.Status[Left] = Fire;
+				if (psp)	
+					player.SetPSprite(id, player.ReadyWeapon.FindState(invoker.LeftStates.FireState, true));
+					//psp.SetState(player.ReadyWeapon.FindState(invoker.LeftStates.FireState, true));
+			}
+			if (id == OV_RightWeapon && DoFire[Right])
+			{
+				invoker.Status[Right] = Fire;
+				if (psp)	
+					player.SetPSprite(id, player.ReadyWeapon.FindState(invoker.RightStates.FireState, true));
+					//psp.SetState(player.ReadyWeapon.FindState(invoker.RightStates.FireState, true));
+			}
+		}
+		
+		if (psp)
+			psp.bAddBob = (!(flags & WRF_NOBOB));
+		
+		if (AdjustReady)
+		{
+			if (id == OV_LeftWeapon)	invoker.Status[Left] = Ready;
+			else						invoker.Status[Right] = Ready;
+		}
+		return;
+	}
+	
+	
+	//--------------------------------------------------------------------------
+	//
+	//
+	//
+	//--------------------------------------------------------------------------
+	action void AkRaiseGun(int id, int RaiseSpeed = 6, bool instaraise = false)
+	{
+		let player = invoker.owner.player;
+		if (!player)
+		{	//Console.Printf("ERROR -10");
+			return;
+		}
+		if (!player.ReadyWeapon)
+		{
+			//Console.Printf("ERROR -11");
+			return;
+		}
+		if (id != OV_LeftWeapon && id != OV_RightWeapon)
+		{	//Console.Printf("%d",id);
+			return;
+		}
+		let psp = (id == OV_LeftWeapon) ? invoker.Gun[Left] : invoker.Gun[Right];
+		if (psp)
+		{
+			psp.oldy = psp.y;
+			psp.y -= RaiseSpeed;
+			if (psp.y <= WEAPONTOP || instaraise)
+			{
+				psp.y = WEAPONTOP;
+				
+				psp.SetState(player.ReadyWeapon.FindState((id == OV_RightWeapon) ? invoker.RightStates.ReadyState : invoker.LeftStates.ReadyState, true));
+				invoker.Status[(id == OV_RightWeapon ? Right : Left)] = Ready;
+				return;
+			}
+		}
+		return;
+	}
+	
+	//--------------------------------------------------------------------------
+	//
+	//
+	//
+	//--------------------------------------------------------------------------
+	action void AkLowerGun(int id, int LowerSpeed = 6, bool instalower = false)
+	{
+		let player = invoker.owner.player;
+		if (!player || !player.ReadyWeapon)
+		{
+			//Console.Printf("ERROR -2");
+			return;
+		}
+		if (id != OV_LeftWeapon && id != OV_RightWeapon)
+		{
+			//Console.Printf("ERROR -3");
+			return;
+		}
+		let psp = (id == OV_LeftWeapon) ? invoker.Gun[Left] : invoker.Gun[Right];
+		if (psp)
+		{
+			invoker.Status[(id == OV_RightWeapon ? Right : Left)] = ChangeWeapon;
+			psp.oldy = psp.y;
+			psp.y += LowerSpeed;
+			if (psp.y >= WEAPONBOTTOM || instalower)
+			{
+				psp.y = psp.oldy = WEAPONBOTTOM;
+				psp.SetState(player.ReadyWeapon.FindState((id == OV_RightWeapon) ? invoker.RightNext : invoker.LeftNext, true));
+				if (id == OV_RightWeapon)
+				{
+					invoker.RightGun = invoker.RightPend;
+					invoker.RightPend = null;
+					invoker.RightNext = null;
+				}
+				else
+				{
+					invoker.LeftGun = invoker.LeftPend;
+					invoker.LeftPend = null;
+					invoker.LeftNext = null;
+				}
+				return;
+			}
+		}
+		//else Console.Printf("ERROR -1");
+		
+		return;
+	}
+	
+	// When Graf makes string to state labels a thing, I can dump this shit.
+	action void PrepareStates()
+	{
+		invoker.as[ID_D4Pistol].ReadyState = 			"D4Pistol.Ready";
+		invoker.as[ID_D4Pistol].FireState = 			"D4Pistol.Fire";
+		invoker.as[ID_D4Pistol].AltFireState = 			"D4Pistol.AltFire";
+		invoker.as[ID_D4Pistol].SelectState = 			"D4Pistol.Select";
+		invoker.as[ID_D4Pistol].DeselectState = 		"D4Pistol.Deselect";
+		
+		invoker.as[ID_D4Shotgun].ReadyState = 			"D4Shotgun.Ready";
+		invoker.as[ID_D4Shotgun].FireState = 			"D4Shotgun.Fire";
+		invoker.as[ID_D4Shotgun].AltFireState = 		"D4Shotgun.AltFire";
+		invoker.as[ID_D4Shotgun].SelectState = 			"D4Shotgun.Select";
+		invoker.as[ID_D4Shotgun].DeselectState = 		"D4Shotgun.Deselect";
+		
+		invoker.as[ID_D4SuperShotgun].ReadyState = 		"D4SuperShotgun.Ready";
+		invoker.as[ID_D4SuperShotgun].FireState = 		"D4SuperShotgun.Fire";
+		invoker.as[ID_D4SuperShotgun].AltFireState = 	"D4SuperShotgun.AltFire";
+		invoker.as[ID_D4SuperShotgun].SelectState = 	"D4SuperShotgun.Select";
+		invoker.as[ID_D4SuperShotgun].DeselectState = 	"D4SuperShotgun.Deselect";
+		
+		invoker.as[ID_D4Repeater].ReadyState = 			"D4Repeater.Ready";
+		invoker.as[ID_D4Repeater].FireState = 			"D4Repeater.Fire";
+		invoker.as[ID_D4Repeater].AltFireState = 		"D4Repeater.AltFire";
+		invoker.as[ID_D4Repeater].SelectState = 		"D4Repeater.Select";
+		invoker.as[ID_D4Repeater].DeselectState = 		"D4Repeater.Deselect";
+		
+		invoker.as[ID_D4AssaultRifle].ReadyState = 		"D4AssaultRifle.Ready";
+		invoker.as[ID_D4AssaultRifle].FireState = 		"D4AssaultRifle.Fire";
+		invoker.as[ID_D4AssaultRifle].AltFireState = 	"D4AssaultRifle.AltFire";
+		invoker.as[ID_D4AssaultRifle].SelectState = 	"D4AssaultRifle.Select";
+		invoker.as[ID_D4AssaultRifle].DeselectState = 	"D4AssaultRifle.Deselect";
+		
+		invoker.as[ID_D4Chaingun].ReadyState = 			"D4Chaingun.Ready";
+		invoker.as[ID_D4Chaingun].FireState = 			"D4Chaingun.Fire";
+		invoker.as[ID_D4Chaingun].AltFireState = 		"D4Chaingun.AltFire";
+		invoker.as[ID_D4Chaingun].SelectState = 		"D4Chaingun.Select";
+		invoker.as[ID_D4Chaingun].DeselectState = 		"D4Chaingun.Deselect";
+		
+		invoker.as[ID_D4RocketLauncher].ReadyState = 	"D4RocketLauncher.Ready";
+		invoker.as[ID_D4RocketLauncher].FireState = 	"D4RocketLauncher.Fire";
+		invoker.as[ID_D4RocketLauncher].AltFireState = 	"D4RocketLauncher.AltFire";
+		invoker.as[ID_D4RocketLauncher].SelectState = 	"D4RocketLauncher.Select";
+		invoker.as[ID_D4RocketLauncher].DeselectState = "D4RocketLauncher.Deselect";
+		
+		invoker.as[ID_D4PlasmaRifle].ReadyState = 		"D4PlasmaRifle.Ready";
+		invoker.as[ID_D4PlasmaRifle].FireState = 		"D4PlasmaRifle.Fire";
+		invoker.as[ID_D4PlasmaRifle].AltFireState = 	"D4PlasmaRifle.AltFire";
+		invoker.as[ID_D4PlasmaRifle].SelectState = 		"D4PlasmaRifle.Select";
+		invoker.as[ID_D4PlasmaRifle].DeselectState = 	"D4PlasmaRifle.Deselect";
+		
+		invoker.as[ID_D4LightningGun].ReadyState = 		"D4LightningGun.Ready";
+		invoker.as[ID_D4LightningGun].FireState = 		"D4LightningGun.Fire";
+		invoker.as[ID_D4LightningGun].AltFireState = 	"D4LightningGun.AltFire";
+		invoker.as[ID_D4LightningGun].SelectState = 	"D4LightningGun.Select";
+		invoker.as[ID_D4LightningGun].DeselectState = 	"D4LightningGun.Deselect";
+		
+		invoker.as[ID_D4StaticRifle].ReadyState = 		"D4StaticRifle.Ready";
+		invoker.as[ID_D4StaticRifle].FireState = 		"D4StaticRifle.Fire";
+		invoker.as[ID_D4StaticRifle].AltFireState = 	"D4StaticRifle.AltFire";
+		invoker.as[ID_D4StaticRifle].SelectState =		"D4StaticRifle.Select";
+		invoker.as[ID_D4StaticRifle].DeselectState = 	"D4StaticRifle.Deselect";
+		
+		invoker.as[ID_D4VortexRifle].ReadyState = 		"D4VortexRifle.Ready";
+		invoker.as[ID_D4VortexRifle].FireState = 		"D4VortexRifle.Fire";
+		invoker.as[ID_D4VortexRifle].AltFireState = 	"D4VortexRifle.AltFire";
+		invoker.as[ID_D4VortexRifle].SelectState = 		"D4VortexRifle.Select";
+		invoker.as[ID_D4VortexRifle].DeselectState = 	"D4VortexRifle.Deselect";
+		
+		invoker.as[ID_D4GaussCannon].ReadyState = 		"D4GaussCannon.Ready";
+		invoker.as[ID_D4GaussCannon].FireState = 		"D4GaussCannon.Fire";
+		invoker.as[ID_D4GaussCannon].AltFireState = 	"D4GaussCannon.AltFire";
+		invoker.as[ID_D4GaussCannon].SelectState = 		"D4GaussCannon.Select";
+		invoker.as[ID_D4GaussCannon].DeselectState = 	"D4GaussCannon.Deselect";
+		
+		invoker.as[ID_D4CarrionCannon].ReadyState = 	"D4CarrionCannon.Ready";
+		invoker.as[ID_D4CarrionCannon].FireState = 		"D4CarrionCannon.Fire";
+		invoker.as[ID_D4CarrionCannon].AltFireState = 	"D4CarrionCannon.AltFire";
+		invoker.as[ID_D4CarrionCannon].SelectState = 	"D4CarrionCannon.Select";
+		invoker.as[ID_D4CarrionCannon].DeselectState = 	"D4CarrionCannon.Deselect";
+		
+		invoker.as[ID_D4BFG].ReadyState = 				"D4BFG.Ready";
+		invoker.as[ID_D4BFG].FireState = 				"D4BFG.Fire";
+		invoker.as[ID_D4BFG].AltFireState = 			"D4BFG.AltFire";
+		invoker.as[ID_D4BFG].SelectState = 				"D4BFG.Select";
+		invoker.as[ID_D4BFG].DeselectState = 			"D4BFG.Deselect";
+	}
+	
+	action void UpdateStates(int id, int index)
+	{
+		index = Clamp(index, ID_D4Pistol, ID_D4BFG);
+		if (id == OV_LeftWeapon)
+		{
+			invoker.owner.A_SetInventory("LeftWeaponCount",index);
+			invoker.LeftStates.ReadyState =		invoker.as[index].ReadyState;
+			invoker.LeftStates.FireState =		invoker.as[index].FireState;
+			invoker.LeftStates.AltFireState =	invoker.as[index].AltFireState;
+			invoker.LeftStates.SelectState =	invoker.as[index].SelectState;
+			invoker.LeftStates.DeselectState =	invoker.as[index].DeselectState;
+		}
+		if (id == OV_RightWeapon)
+		{
+			invoker.owner.A_SetInventory("RightWeaponCount",index);
+			invoker.RightStates.ReadyState =	invoker.as[index].ReadyState;
+			invoker.RightStates.FireState =		invoker.as[index].FireState;
+			invoker.RightStates.AltFireState =	invoker.as[index].AltFireState;
+			invoker.RightStates.SelectState =	invoker.as[index].SelectState;
+			invoker.RightStates.DeselectState =	invoker.as[index].DeselectState;
+		}
+	}
+
+	//==========================================================================
+	// Checks and switchers
+	//==========================================================================
+	enum AkimboStuff
+	{
+		TotalWeapons = 14,
+		WEAP_NEXT = 1,
+		WEAP_PREV = -1,
+		
+		StartIndex = 1
+	};
+	
+	static const int RightOffset[] =
+	{
+		0,			0,		// Leave 0,0 always!
+		0,			0,		// Pistol
+		0,			0,		// Shotgun
+		0,			0,		// SSG
+		20,			20,		// Repeater
+		20,			20,		// HAR HAR HAR!
+		40,			40,		// Chaingun
+		0,			0,		// Rocket Launcher
+		0,			0,		// Plasma Rifle
+		5,			5,		// Lightning Gun
+		30,			20,		// Gauss Cannon
+		0,			0,		// Vortex Rifle
+		0,			0,		// Static Rifle
+		0,			0,		// Carrion Cannon
+		60,			-33		// Bee Eff Gee
+	};
+	/*
+	static const int LeftOffset[] =
+	{
+		0,			0,		// Leave 0,0 always!
+		-200 - 0,	0,		// Pistol
+		-200 - 0,	0,		// Shotgun
+		-170 - 0,	0,		// SSG
+		-160 - 20,	20,		// Repeater
+		-262 - 20,	20,		// HAR HAR HAR!
+		-70  - 40,	40,		// Chaingun
+		-293 - 0,	0,		// Rocket Launcher
+		-140 - 0,	0,		// Plasma Rifle
+		-165 - 5,	5,		// Lightning Gun
+		-90  - 30,	20,		// Gauss Cannon
+		-150 - 0,	0,		// Vortex Rifle
+		-220 - 0,	0,		// Static Rifle
+		-198 - 0,	0,		// Carrion Cannon
+		-340  - 0,	-33		// Bee Eff Gee I Gots 2 Pee
+	};
+	*/
+	
+	static const int LeftOffset[] =
+	{
+		0,			0,		// Leave 0,0 always!
+		-200,		0,		// Pistol
+		-200,		0,		// Shotgun
+		-170,		0,		// SSG
+		-180,		20,		// Repeater
+		-282,		20,		// HAR HAR HAR!
+		-110,		40,		// Chaingun
+		-293,		0,		// Rocket Launcher
+		-140,		0,		// Plasma Rifle
+		-170,		5,		// Lightning Gun
+		-90,		20,		// Gauss Cannon
+		-150,		0,		// Vortex Rifle
+		-220,		0,		// Static Rifle
+		-198,		0,		// Carrion Cannon
+		-340,		-33		// Bee Eff Gee I Gots 2 Pee
+	};
+	
+	
+	static const Class<Weapon> WeaponList[] =
+	{
+		null,
+		"D4Pistol",
+		"D4Shotgun",
+		"D4SuperShotgun",
+		"D4Repeater",
+		"D4AssaultRifle",
+		"D4Chaingun",
+		"D4RocketLauncher",
+		"D4PlasmaRifle",
+		"D4LightningGun",
+		"D4GaussCannon",
+		"D4VortexRifle",
+		"D4StaticRifle",
+		"D4CarrionCannon",
+		"D4BFG"
+	};
+	
+	static const StateLabel WeaponReadyStates[] =
+	{
+		null,
+		"D4Pistol.Select",
+		"D4Shotgun.Select",
+		"D4SuperShotgun.Select",
+		"D4Repeater.Select",
+		"D4AssaultRifle.Select",
+		"D4Chaingun.Select",
+		"D4RocketLauncher.Select",
+		"D4PlasmaRifle.Select",
+		"D4LightningGun.Select",
+		"D4GaussCannon.Select",
+		"D4VortexRifle.Select",
+		"D4StaticRifle.Select",
+		"D4CarrionCannon.Select",
+		"D4BFG.Select"
+	};
+	
+	bool AkimboCheckWeapons(bool CheckOnly = false)
+	{
+		bool LeftFound = true, RightFound = true;
+		int WeaponCount;
+		
+		if (!Owner) return false;
+		
+		int size = WeaponList.Size();
+		for (int i = 0; i < size; i++)
+		{
+			if (Owner && Owner.CountInv(WeaponList[i]))
+				WeaponCount++;
+		}
+		
+		// Not enough guns to switch to this.
+		if (WeaponCount < 2)
+			return false;
+		
+		if (!RightGun && !RightPend)
+		{
+			RightFound = false;
+			for (int i = StartIndex; i < size; i++)
+			{
+				if (Owner && Owner.CountInv(WeaponList[i]) && (LeftGun != WeaponList[i]) && (LeftPend != WeaponList[i]))
+				{
+					RightFound = true;
+					if (!CheckOnly)
+					{
+						Owner.A_SetInventory("LeftWeaponCount", i);
+						RightPend = WeaponList[i];
+						RightNext = WeaponReadyStates[i];
+						break;
+					}
+				}
+			}
+		}
+		
+		if (!LeftGun && !LeftPend)
+		{
+			LeftFound = false;
+			for (int i = StartIndex; i < size; i++)
+			{
+				if (Owner && Owner.CountInv(WeaponList[i]) && (RightGun != WeaponList[i]) && (RightPend != WeaponList[i]))
+				{
+					LeftFound = true;
+					if (!CheckOnly)
+					{
+						Owner.A_SetInventory("RightWeaponCount", i);
+						LeftPend = WeaponList[i];
+						LeftNext = WeaponReadyStates[i];
+						break;
+					}
+				}
+			}
+		}
+		return LeftFound && RightFound;
+	}
+	
+	//--------------------------------------------------------------------------
+	// For external use outside of the weapon itself.
+	bool SetWeaponSide (Name WeapID, bool right, bool forced)
+	{
+		Class<Weapon> id = WeapID;
+		if (!id || 
+			//LeftGun == id || LeftPend == id ||
+			//RightGun == id || RightPend == id ||
+			!Owner.CountInv(id))
+		{
+			//Console.Printf("FAIL");
+			return false;
+		}
+		
+		// Reject if the weapon is already raised in the same hand.
+		if (forced)
+		{
+			if (right)
+			{	if (id == RightPend || id == RightGun)	return false; }
+			else
+			{	if (id == LeftPend || id == LeftGun)	return false; }
+		}
+		// Reject if in either already.	
+		else if (id == RightPend || id == RightGun || id == LeftPend || id == LeftGun)
+			return false;
+		
+		int size = WeaponList.Size();
+		for (int i = 0; i < size; i++)
+		{
+			if (id == WeaponList[i])
+			{
+				if (right)		{	RightPend = id; RightNext = WeaponReadyStates[i]; 	}
+				else			{	LeftPend = id; 	LeftNext = WeaponReadyStates[i];	}
+				//Console.Printf(WeapID.." command received successfully.");
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	bool SetWeaponSideClass (Class<Weapon> id, bool right, bool forced)
+	{
+		if (!id || 
+			//LeftGun == id || LeftPend == id ||
+			//RightGun == id || RightPend == id ||
+			!Owner.CountInv(id))
+		{
+			//Console.Printf("FAIL");
+			return false;
+		}
+		
+		// Reject if the weapon is already raised in the same hand.
+		if (forced)
+		{
+			if (right)
+			{	if (id == RightPend || id == RightGun)	return false; }
+			else
+			{	if (id == LeftPend || id == LeftGun)	return false; }
+		}
+		// Reject if in either already.	
+		else if (id == RightPend || id == RightGun || id == LeftPend || id == LeftGun)
+			return false;
+		
+		int size = WeaponList.Size();
+		for (int i = 0; i < size; i++)
+		{
+			if (id == WeaponList[i])
+			{
+				if (right)		{	RightPend = id; RightNext = WeaponReadyStates[i]; 	}
+				else			{	LeftPend = id; 	LeftNext = WeaponReadyStates[i];	}
+				//Console.Printf(WeapID.." command received successfully.");
+				return true;
+			}
+		}
+		return false;
+	}
+}

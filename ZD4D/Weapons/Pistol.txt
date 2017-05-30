@@ -113,6 +113,7 @@ Class D4Pistol : Doom4Weapon
 		// auto fire section
 		"####" "#" 1 Bright  
 		{
+			
 			if (CountInv("PistolUpgradeDamage"))
 			{
 				A_PlaySound("Doom4/Weapon/Pistol2/Fire",CHAN_WEAPON,1);

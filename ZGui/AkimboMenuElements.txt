@@ -100,13 +100,14 @@ Struct ButtonState
 	{
 		//if (tex.Length() > 0)
 		mTex = TexMan.CheckForTexture(tex, TexMan.Type_Any);
+		text = tx;
 		if (ta >= 0.0) mAlpha = ta;
 		if (a >= 0) mColor.a = a;
 		if (r >= 0) mColor.r = Clamp(r, 0, 255);
 		if (g >= 0) mColor.g = Clamp(g, 0, 255);
 		if (b >= 0) mColor.b = Clamp(b, 0, 255);
 		if (style >= 0)	mRenderStyle = style;
-		text = tx;
+		
 	}
 	
 	String, int, double GetTextColorAlpha()
@@ -166,11 +167,11 @@ class AkimboMenuButton : Element
 		mFont = "BIGFONT";
 	}
 	
-	void PostCreate()
+	void PostCreate(String HText = "")
 	{
 		mButtonUp.SetProperties(gfx, "", STYLE_None, 0.0);
 		mButtonDown.SetProperties(gfx, "", STYLE_Translucent, 0.5, 64, 0, 0, 0);
-		mButtonHover.SetProperties(gfx, "", STYLE_Add, 0.5);
+		mButtonHover.SetProperties(gfx, HText, STYLE_Add, 0.5); mButtonHover.fontColor = Font.CR_GOLD;
 		mButtonDisabled.SetProperties(gfx, "", STYLE_Translucent, 0.5, 128, 255, 0, 0);
 	}
 	
@@ -198,6 +199,7 @@ class AkimboMenuButton : Element
 				if (mHoverAlpha > 0)
 				{
 					d.DrawAkimboWeaponButton(mButtonHover, false, 0, 0);
+					[Text, tColor, tAlpha] = mButtonHover.GetTextColorAlpha();
 				}
 			}
 			else
@@ -276,7 +278,18 @@ class AkimboMenuButton : Element
 					if (ak)
 					{
 						IsEnabled = (!(ak.LeftGun == WeaponID || ak.RightGun == WeaponID || ak.LeftPend == WeaponID || ak.RightPend == WeaponID));
-						mButtonDisabled.text = (WeaponID == ak.LeftPend || WeaponID == ak.RightPend) ? "Selected" : "Active";
+						
+						if (!IsEnabled)
+						{
+							if (IsRight)
+							{
+								if (ak.RightGun == WeaponID || ak.RightPend == WeaponID)
+									mButtonDisabled.text = (WeaponID == ak.RightPend) ? "Selected" : "Active";
+							}
+							else if (ak.LeftGun == WeaponID || ak.LeftPend == WeaponID)
+								mButtonDisabled.text = (WeaponID == ak.LeftPend) ? "Selected" : "Active";
+							
+						}
 					}
 					else { IsEnabled = false; mButtonDisabled.text = "Akimbo System unavailable"; }
 				}
@@ -290,7 +303,8 @@ class AkimboMenuButton : Element
 			IsEnabled = false;
 		}
 		
-		double hoverDelta = IsHovered ? 0.08 : -0.08;
+		//double hoverDelta = IsHovered ? 0.08 : -0.08;
+		double hoverDelta = IsHovered ? 1.0 : -1.0;
 		mHoverAlpha += hoverDelta;
 		mHoverAlpha = clamp(mHoverAlpha, 0.0, 1.0);
 	}
@@ -346,7 +360,7 @@ class AkimboMenuElement : Element
 	int mButton;
 	
 	private double mbPosX, mbPosY;
-	private AkimboMenuButton AddButton(Class<Weapon> WeaponID, String texName, bool right, bool mod = false)
+	private AkimboMenuButton AddButton(Class<Weapon> WeaponID, String texName, bool right, String HText = "", bool mod = false)
 	{
 		// button size varies based on the texture.
 		Rect r = GetClientRect();
@@ -367,7 +381,7 @@ class AkimboMenuElement : Element
 		button.WeaponID = WeaponID;
 		button.IsRight = right;
 		button.IsMod = mod;
-		button.PostCreate();
+		button.PostCreate(HText);
 		
 		//if (left) mButtonsLeft.Push(button);	else	mButtonsRight.Push(button);
 		mButtons.Push(button);
@@ -401,20 +415,20 @@ class AkimboMenuElement : Element
 		{
 			mbPosY = (ScreenSpacingY / 2.0);
 			if (i == 1) mbPosX *= 3.0;
-			mbPistol[i] =			AddButton("D4Pistol", 			"Graphics/akPistol.png",		i);
-			mbShotgun[i] =			AddButton("D4Shotgun",			"Graphics/akShotgun.png",		i);
-			mbSuperShotgun[i] =		AddButton("D4SuperShotgun",		"Graphics/akSuperShotgun.png",	i);
-			mbRepeater[i] =			AddButton("D4Repeater",			"Graphics/akRepeater.png",		i);
-			mbAssaultRifle[i] =		AddButton("D4AssaultRifle",		"Graphics/akAssaultRifle.png",	i);
-			mbChaingun[i] =			AddButton("D4Chaingun",			"Graphics/akChaingun.png",		i);
-			mbRocketLauncher[i] =	AddButton("D4RocketLauncher",	"Graphics/akRocketLauncher.png",i);
-			mbLightningGun[i] =		AddButton("D4LightningGun",		"Graphics/akLightningGun.png",	i);
-			mbPlasmaRifle[i] = 		AddButton("D4PlasmaRifle",		"Graphics/akPlasmaRifle.png",	i);
-			mbStaticRifle[i] =		AddButton("D4StaticRifle",		"Graphics/akStaticRifle.png",	i);
-			mbVortexRifle[i] =		AddButton("D4VortexRifle",		"Graphics/akVortexRifle.png",	i);
-			mbGaussCannon[i] =		AddButton("D4GaussCannon",		"Graphics/akGaussCannon.png",	i);
-			mbCarrionCannon[i] =	AddButton("D4CarrionCannon",	"Graphics/akCarrionCannon.png",	i);
-			mbBFG[i] =				AddButton("D4BFG",				"Graphics/akBFG.png",			i);
+			mbPistol[i] =			AddButton("D4Pistol", 			"Graphics/akPistol.png",		i, "Pistol");
+			mbShotgun[i] =			AddButton("D4Shotgun",			"Graphics/akShotgun.png",		i, "Shotgun");
+			mbSuperShotgun[i] =		AddButton("D4SuperShotgun",		"Graphics/akSuperShotgun.png",	i, "Super Shotgun");
+			mbRepeater[i] =			AddButton("D4Repeater",			"Graphics/akRepeater.png",		i, "Repeater");
+			mbAssaultRifle[i] =		AddButton("D4AssaultRifle",		"Graphics/akAssaultRifle.png",	i, "Assault Rifle");
+			mbChaingun[i] =			AddButton("D4Chaingun",			"Graphics/akChaingun.png",		i, "Chaingun");
+			mbRocketLauncher[i] =	AddButton("D4RocketLauncher",	"Graphics/akRocketLauncher.png",i, "Rocket Launcher");
+			mbLightningGun[i] =		AddButton("D4LightningGun",		"Graphics/akLightningGun.png",	i, "Lightning Gun");
+			mbPlasmaRifle[i] = 		AddButton("D4PlasmaRifle",		"Graphics/akPlasmaRifle.png",	i, "Plasma Rifle");
+			mbStaticRifle[i] =		AddButton("D4StaticRifle",		"Graphics/akStaticRifle.png",	i, "Static Rifle");
+			mbVortexRifle[i] =		AddButton("D4VortexRifle",		"Graphics/akVortexRifle.png",	i, "Vortex Rifle");
+			mbGaussCannon[i] =		AddButton("D4GaussCannon",		"Graphics/akGaussCannon.png",	i, "Gauss Cannon");
+			mbCarrionCannon[i] =	AddButton("D4CarrionCannon",	"Graphics/akCarrionCannon.png",	i, "Carrion Cannon");
+			mbBFG[i] =				AddButton("D4BFG",				"Graphics/akBFG.png",			i, "BFG");
 			
 		}
 		
