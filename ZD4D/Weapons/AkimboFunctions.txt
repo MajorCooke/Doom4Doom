@@ -332,7 +332,7 @@ extend Class AkimboWeapon
 	{
 		int id = OverlayID();
 		let player = invoker.owner.player;
-		if (!player || !player.ReadyWeapon || (id != OV_LeftWeapon && id != OV_RightWeapon))
+		if (!player || !player.ReadyWeapon || invoker.IsLowering || (id != OV_LeftWeapon && id != OV_RightWeapon))
 			return;
 		
 		let psp = player.FindPSprite(id);
@@ -462,6 +462,7 @@ extend Class AkimboWeapon
 		index = Clamp(index, ID_D4Pistol, ID_D4BFG);
 		if (id == OV_LeftWeapon)
 		{
+			invoker.WeaponID[Left] = index;
 			invoker.owner.A_SetInventory("LeftWeaponCount",index);
 			invoker.LeftStates.ReadyState =		invoker.as[index].ReadyState;
 			invoker.LeftStates.FireState =		invoker.as[index].FireState;
@@ -469,8 +470,9 @@ extend Class AkimboWeapon
 			invoker.LeftStates.SelectState =	invoker.as[index].SelectState;
 			invoker.LeftStates.DeselectState =	invoker.as[index].DeselectState;
 		}
-		if (id == OV_RightWeapon)
+		else if (id == OV_RightWeapon)
 		{
+			invoker.WeaponID[Right] = index;
 			invoker.owner.A_SetInventory("RightWeaponCount",index);
 			invoker.RightStates.ReadyState =	invoker.as[index].ReadyState;
 			invoker.RightStates.FireState =		invoker.as[index].FireState;
@@ -523,28 +525,26 @@ extend Class AkimboWeapon
 		"D4BFG.Select"
 	};
 	
-	bool AkimboCheckWeapons(bool CheckOnly = false)
+	action bool AkimboCheckWeapons(bool CheckOnly = false)
 	{
 		bool LeftFound = true, RightFound = true;
 		int WeaponCount;
 		
-		if (!Owner) return false;
-		
-		int a = Owner.CountInv("LeftWeaponCount");
-		int b = Owner.CountInv("RightWeaponCount");
+		int a = invoker.Owner.CountInv("LeftWeaponCount");
+		int b = invoker.Owner.CountInv("RightWeaponCount");
 		if (a && b)
 		{
-			LeftPend = WeaponList[a];
-			LeftNext = WeaponReadyStates[a];
-			RightPend = WeaponList[b];
-			RightNext = WeaponReadyStates[b];
+			invoker.LeftPend = invoker.WeaponList[a];
+			invoker.LeftNext = invoker.WeaponReadyStates[a];
+			invoker.RightPend = invoker.WeaponList[b];
+			invoker.RightNext = invoker.WeaponReadyStates[b];
 			return true;
 		}
 		
-		int size = WeaponList.Size();
+		int size = invoker.WeaponList.Size();
 		for (int i = 0; i < size; i++)
 		{
-			if (Owner && Owner.CountInv(WeaponList[i]))
+			if (invoker.Owner.CountInv(invoker.WeaponList[i]))
 				WeaponCount++;
 		}
 		
@@ -552,38 +552,44 @@ extend Class AkimboWeapon
 		if (WeaponCount < 2)
 			return false;
 		
-		if (!RightGun && !RightPend)
+		if (!invoker.RightGun && !invoker.RightPend)
 		{
 			RightFound = false;
 			for (int i = StartIndex; i < size; i++)
 			{
-				if (Owner && Owner.CountInv(WeaponList[i]) && (LeftGun != WeaponList[i]) && (LeftPend != WeaponList[i]))
+				if (invoker.Owner.CountInv(invoker.WeaponList[i]) && 
+					(invoker.LeftGun != invoker.WeaponList[i]) && 
+					(invoker.LeftPend != invoker.WeaponList[i]))
 				{
 					RightFound = true;
 					if (!CheckOnly)
 					{
-						Owner.A_SetInventory("LeftWeaponCount", i);
-						RightPend = WeaponList[i];
-						RightNext = WeaponReadyStates[i];
+						invoker.WeaponID[Right] = i;
+						invoker.Owner.A_SetInventory("RightWeaponCount", i);
+						invoker.RightPend = invoker.WeaponList[i];
+						invoker.RightNext = invoker.WeaponReadyStates[i];
 						break;
 					}
 				}
 			}
 		}
 		
-		if (!LeftGun && !LeftPend)
+		if (!invoker.LeftGun && !invoker.LeftPend)
 		{
 			LeftFound = false;
 			for (int i = StartIndex; i < size; i++)
 			{
-				if (Owner && Owner.CountInv(WeaponList[i]) && (RightGun != WeaponList[i]) && (RightPend != WeaponList[i]))
+				if (invoker.Owner.CountInv(invoker.WeaponList[i]) && 
+					(invoker.RightGun != invoker.WeaponList[i]) && 
+					(invoker.RightPend != invoker.WeaponList[i]))
 				{
 					LeftFound = true;
 					if (!CheckOnly)
 					{
-						Owner.A_SetInventory("RightWeaponCount", i);
-						LeftPend = WeaponList[i];
-						LeftNext = WeaponReadyStates[i];
+						invoker.WeaponID[Left] = i;
+						invoker.Owner.A_SetInventory("LeftWeaponCount", i);
+						invoker.LeftPend = invoker.WeaponList[i];
+						invoker.LeftNext = invoker.WeaponReadyStates[i];
 						break;
 					}
 				}
@@ -602,7 +608,6 @@ extend Class AkimboWeapon
 			//RightGun == id || RightPend == id ||
 			!Owner.CountInv(id))
 		{
-			//Console.Printf("Something's wrong.");
 			return false;
 		}
 		
