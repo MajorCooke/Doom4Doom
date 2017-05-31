@@ -9,18 +9,131 @@ extend Class AkimboWeapon
 		ALeft =		BT_RELOAD,
 		ARight =	BT_USER1
 	};
+	enum AkimboStuff
+	{
+		TotalWeapons = 14,
+		WEAP_NEXT = 1,
+		WEAP_PREV = -1,
+		
+		StartIndex = 1
+	};
+	
+	static const int RightOffset[] =
+	{
+		0,			0,		// Leave 0,0 always!
+		0,			0,		// Pistol
+		0,			0,		// Shotgun
+		0,			0,		// SSG
+		20,			20,		// Repeater
+		20,			20,		// HAR HAR HAR!
+		40,			40,		// Chaingun
+		0,			0,		// Rocket Launcher
+		0,			0,		// Plasma Rifle
+		5,			5,		// Lightning Gun
+		30,			20,		// Gauss Cannon
+		0,			0,		// Vortex Rifle
+		0,			0,		// Static Rifle
+		0,			0,		// Carrion Cannon
+		60,			-33		// Bee Eff Gee
+	};
+	/*
+	static const int LeftOffset[] =
+	{
+		0,			0,		// Leave 0,0 always!
+		-200 - 0,	0,		// Pistol
+		-200 - 0,	0,		// Shotgun
+		-170 - 0,	0,		// SSG
+		-160 - 20,	20,		// Repeater
+		-262 - 20,	20,		// HAR HAR HAR!
+		-70  - 40,	40,		// Chaingun
+		-293 - 0,	0,		// Rocket Launcher
+		-140 - 0,	0,		// Plasma Rifle
+		-165 - 5,	5,		// Lightning Gun
+		-90  - 30,	20,		// Gauss Cannon
+		-150 - 0,	0,		// Vortex Rifle
+		-220 - 0,	0,		// Static Rifle
+		-198 - 0,	0,		// Carrion Cannon
+		-340  - 0,	-33		// Bee Eff Gee I Gots 2 Pee
+	};
+	*/
+	
+	static const int LeftOffset[] =
+	{
+		0,			0,		// Leave 0,0 always!
+		-200,		0,		// Pistol
+		-200,		0,		// Shotgun
+		-170,		0,		// SSG
+		-180,		20,		// Repeater
+		-282,		20,		// HAR HAR HAR!
+		-110,		40,		// Chaingun
+		-293,		0,		// Rocket Launcher
+		-140,		0,		// Plasma Rifle
+		-170,		5,		// Lightning Gun
+		-90,		20,		// Gauss Cannon
+		-150,		0,		// Vortex Rifle
+		-220,		0,		// Static Rifle
+		-198,		0,		// Carrion Cannon
+		-340,		-33		// Bee Eff Gee I Gots 2 Pee
+	};
 	//==========================================================================
 	// State/Status Management
 	//==========================================================================
 	
 	//--------------------------------------------------------------------------
 	// 
-	void AdjustHaste()
+	action void AdjustHaste()
 	{
-		if (owner.CountInv("PowerD4Haste"))
-			A_SetTics(0);
+		if (CountInv("PowerD4Haste"))
+		{
+			let plr = invoker.owner.player;
+			if (!plr) return;
+			
+			let psp = plr.FindPSprite(OverlayID());
+			if (psp)
+			{
+				if (psp.Tics == 1)	psp.Tics = 0;
+				else				psp.Tics /= 2;
+			}
+		}
 	}
 	
+	//--------------------------------------------------------------------------
+	// Offsets the overlays based upon which side is doing it, allowing for
+	// easy mirroring without getting into heavy intrinsic bullshit.
+	action void AkOffset(Vector2 offs = (0.0, 0.0), int flags = 0, bool update = false)
+	{
+		int id = OverlayID();
+		if (id == OV_LeftWeapon)
+		{
+			if (flags & WOF_KEEPX) offs.x = invoker.LO.x;
+			if (flags & WOF_KEEPY) offs.y = invoker.LO.y;
+			// Inverse the X coordinates here so it acts like mirroring. Saves a fuckton of time.
+			invoker.LO = (flags & WOF_ADD) ? (invoker.LO + (-offs.x, offs.y)) : (-offs.x, offs.y);
+			
+			if (update)
+			{
+				invoker.LOff = (invoker.LeftOffset[(invoker.WeaponID[Left] * 2)] + LOfx, 
+								invoker.LeftOffset[(invoker.WeaponID[Left] * 2) + 1] + LOfy) + invoker.LO;
+				invoker.owner.A_OverlayOffset(OV_LeftWeapon, Invoker.LOff.x, Invoker.LOff.y, 
+					((flags & WOF_INTERPOLATE) ? WOF_INTERPOLATE : 0));
+			}
+		}
+		else if (id == OV_RightWeapon)
+		{
+			if (flags & WOF_KEEPX) offs.x = invoker.RO.x;
+			if (flags & WOF_KEEPY) offs.y = invoker.RO.y;
+			invoker.RO = (flags & WOF_ADD) ? (invoker.RO + offs) : offs;
+			
+			if (update)
+			{
+				invoker.ROff = (invoker.RightOffset[(invoker.WeaponID[Right] * 2)] + ROfx, 
+								invoker.RightOffset[(invoker.WeaponID[Right] * 2) + 1] + ROfy) + invoker.RO;
+				invoker.owner.A_OverlayOffset(OV_RightWeapon, Invoker.ROff.x, Invoker.ROff.y, 
+					((flags & WOF_INTERPOLATE) ? WOF_INTERPOLATE : 0));
+			}
+		}
+		else Console.printf("%d", id);
+	}
 	
 	//--------------------------------------------------------------------------
 	// Similar to A_Refire but can take alts too.
@@ -70,8 +183,9 @@ extend Class AkimboWeapon
 	// User1 - AltFire Right
 	//--------------------------------------------------------------------------
 	
-	action void AkWeaponReady(int id, int flags = 0, bool AdjustReady = false)
+	action void AkWeaponReady(int flags = 0, bool AdjustReady = false)
 	{
+		int id = OverlayID();
 		let player = invoker.owner.player;
 		if (!player || !player.ReadyWeapon)
 		{
@@ -109,12 +223,15 @@ extend Class AkimboWeapon
 			if (id == OV_LeftWeapon && invoker.LeftPend)
 			{
 				invoker.Status[Left] = ChangeWeapon;
+				//player.Set
 				if (psp)	{ psp.SetState(player.ReadyWeapon.FindState(invoker.LeftStates.DeselectState, true));	}
+				return;
 			}
 			if (id == OV_RightWeapon && invoker.RightPend)
 			{
 				invoker.Status[Right] = ChangeWeapon;
 				if (psp)	{ psp.SetState(player.ReadyWeapon.FindState(invoker.RightStates.DeselectState, true));	}
+				return;
 			}
 			//if (doReturn) return;
 		}
@@ -138,60 +255,66 @@ extend Class AkimboWeapon
 			{
 				invoker.Status[Left] = Fire;
 				if (psp)	
-					player.SetPSprite(id, player.ReadyWeapon.FindState(invoker.LeftStates.FireState, true));
-					//psp.SetState(player.ReadyWeapon.FindState(invoker.LeftStates.FireState, true));
+					//player.SetPSprite(id, player.ReadyWeapon.FindState(invoker.LeftStates.FireState, true));
+					psp.SetState(player.ReadyWeapon.FindState(invoker.LeftStates.FireState, true));
+					
 			}
 			if (id == OV_RightWeapon && DoFire[Right])
 			{
 				invoker.Status[Right] = Fire;
 				if (psp)	
-					player.SetPSprite(id, player.ReadyWeapon.FindState(invoker.RightStates.FireState, true));
-					//psp.SetState(player.ReadyWeapon.FindState(invoker.RightStates.FireState, true));
+					//player.SetPSprite(id, player.ReadyWeapon.FindState(invoker.RightStates.FireState, true));
+					psp.SetState(player.ReadyWeapon.FindState(invoker.RightStates.FireState, true));
 			}
 		}
-		
-		if (psp)
-			psp.bAddBob = (!(flags & WRF_NOBOB));
-		
-		if (AdjustReady)
-		{
-			if (id == OV_LeftWeapon)	invoker.Status[Left] = Ready;
-			else						invoker.Status[Right] = Ready;
+		else
+		{		
+			if (psp)
+				psp.bAddBob = (!(flags & WRF_NOBOB));
+			
+			if (AdjustReady)
+			{
+				if (id == OV_LeftWeapon)
+				{	invoker.Status[Left] = Ready;	invoker.LO = (0,0);	}
+				if (id == OV_RightWeapon)						
+				{	invoker.Status[Right] = Ready;	invoker.RO = (0,0);	}
+			}
 		}
 		return;
 	}
-	
-	
-	//--------------------------------------------------------------------------
-	//
-	//
-	//
-	//--------------------------------------------------------------------------
-	action void AkRaiseGun(int id, int RaiseSpeed = 6, bool instaraise = false)
+	/*
+	action double GetGunOffset(bool getY = false)
 	{
+		int id = OverlayID();
+		if (id == OV_LeftWeapon)	return (getY) ? invoker.LOF.y : invoker.LOF.x;
+		if (id == OV_RightWeapon)	return (getY) ? invoker.ROF.y : invoker.ROF.x;
+		return 0.0;
+	}
+	*/
+	
+	//--------------------------------------------------------------------------
+	//
+	//
+	//
+	//--------------------------------------------------------------------------
+	action void AkRaiseGun(int RaiseSpeed = 6, bool instaraise = false)
+	{
+		int id = OverlayID();
 		let player = invoker.owner.player;
-		if (!player)
-		{	//Console.Printf("ERROR -10");
+		if (!player || !player.ReadyWeapon || (id != OV_LeftWeapon && id != OV_RightWeapon))
 			return;
-		}
-		if (!player.ReadyWeapon)
-		{
-			//Console.Printf("ERROR -11");
-			return;
-		}
-		if (id != OV_LeftWeapon && id != OV_RightWeapon)
-		{	//Console.Printf("%d",id);
-			return;
-		}
-		let psp = (id == OV_LeftWeapon) ? invoker.Gun[Left] : invoker.Gun[Right];
+		
+		let psp = player.FindPSprite(id);
 		if (psp)
 		{
 			psp.oldy = psp.y;
-			psp.y -= RaiseSpeed;
-			if (psp.y <= WEAPONTOP || instaraise)
+			AkOffset((0,-RaiseSpeed),WOF_ADD);
+			//psp.y -= RaiseSpeed;
+			double CurrentY = (id == OV_LeftWeapon) ? invoker.LO.y : invoker.RO.y;
+			if (CurrentY <= 0 || instaraise)
 			{
-				psp.y = WEAPONTOP;
-				
+				//psp.y = WEAPONTOP;
+				AkOffset();
 				psp.SetState(player.ReadyWeapon.FindState((id == OV_RightWeapon) ? invoker.RightStates.ReadyState : invoker.LeftStates.ReadyState, true));
 				invoker.Status[(id == OV_RightWeapon ? Right : Left)] = Ready;
 				return;
@@ -205,28 +328,25 @@ extend Class AkimboWeapon
 	//
 	//
 	//--------------------------------------------------------------------------
-	action void AkLowerGun(int id, int LowerSpeed = 6, bool instalower = false)
+	action void AkLowerGun(int LowerSpeed = 6, bool instalower = false)
 	{
+		int id = OverlayID();
 		let player = invoker.owner.player;
-		if (!player || !player.ReadyWeapon)
-		{
-			//Console.Printf("ERROR -2");
+		if (!player || !player.ReadyWeapon || (id != OV_LeftWeapon && id != OV_RightWeapon))
 			return;
-		}
-		if (id != OV_LeftWeapon && id != OV_RightWeapon)
-		{
-			//Console.Printf("ERROR -3");
-			return;
-		}
-		let psp = (id == OV_LeftWeapon) ? invoker.Gun[Left] : invoker.Gun[Right];
+		
+		let psp = player.FindPSprite(id);
 		if (psp)
 		{
 			invoker.Status[(id == OV_RightWeapon ? Right : Left)] = ChangeWeapon;
 			psp.oldy = psp.y;
-			psp.y += LowerSpeed;
-			if (psp.y >= WEAPONBOTTOM || instalower)
+			//psp.y += LowerSpeed;
+			AkOffset((0,LowerSpeed),WOF_ADD);
+			double CurrentY = (id == OV_LeftWeapon) ? invoker.LO.y : invoker.RO.y;
+			if (CurrentY >= WEAPONBOTTOM || instalower)
 			{
-				psp.y = psp.oldy = WEAPONBOTTOM;
+				//psp.y = psp.oldy = WEAPONBOTTOM;
+				AkOffset((0,WEAPONBOTTOM));
 				psp.SetState(player.ReadyWeapon.FindState((id == OV_RightWeapon) ? invoker.RightNext : invoker.LeftNext, true));
 				if (id == OV_RightWeapon)
 				{
@@ -336,8 +456,9 @@ extend Class AkimboWeapon
 		invoker.as[ID_D4BFG].DeselectState = 			"D4BFG.Deselect";
 	}
 	
-	action void UpdateStates(int id, int index)
+	action void UpdateStates(int index)
 	{
+		int id = OverlayID();
 		index = Clamp(index, ID_D4Pistol, ID_D4BFG);
 		if (id == OV_LeftWeapon)
 		{
@@ -362,72 +483,6 @@ extend Class AkimboWeapon
 	//==========================================================================
 	// Checks and switchers
 	//==========================================================================
-	enum AkimboStuff
-	{
-		TotalWeapons = 14,
-		WEAP_NEXT = 1,
-		WEAP_PREV = -1,
-		
-		StartIndex = 1
-	};
-	
-	static const int RightOffset[] =
-	{
-		0,			0,		// Leave 0,0 always!
-		0,			0,		// Pistol
-		0,			0,		// Shotgun
-		0,			0,		// SSG
-		20,			20,		// Repeater
-		20,			20,		// HAR HAR HAR!
-		40,			40,		// Chaingun
-		0,			0,		// Rocket Launcher
-		0,			0,		// Plasma Rifle
-		5,			5,		// Lightning Gun
-		30,			20,		// Gauss Cannon
-		0,			0,		// Vortex Rifle
-		0,			0,		// Static Rifle
-		0,			0,		// Carrion Cannon
-		60,			-33		// Bee Eff Gee
-	};
-	/*
-	static const int LeftOffset[] =
-	{
-		0,			0,		// Leave 0,0 always!
-		-200 - 0,	0,		// Pistol
-		-200 - 0,	0,		// Shotgun
-		-170 - 0,	0,		// SSG
-		-160 - 20,	20,		// Repeater
-		-262 - 20,	20,		// HAR HAR HAR!
-		-70  - 40,	40,		// Chaingun
-		-293 - 0,	0,		// Rocket Launcher
-		-140 - 0,	0,		// Plasma Rifle
-		-165 - 5,	5,		// Lightning Gun
-		-90  - 30,	20,		// Gauss Cannon
-		-150 - 0,	0,		// Vortex Rifle
-		-220 - 0,	0,		// Static Rifle
-		-198 - 0,	0,		// Carrion Cannon
-		-340  - 0,	-33		// Bee Eff Gee I Gots 2 Pee
-	};
-	*/
-	
-	static const int LeftOffset[] =
-	{
-		0,			0,		// Leave 0,0 always!
-		-200,		0,		// Pistol
-		-200,		0,		// Shotgun
-		-170,		0,		// SSG
-		-180,		20,		// Repeater
-		-282,		20,		// HAR HAR HAR!
-		-110,		40,		// Chaingun
-		-293,		0,		// Rocket Launcher
-		-140,		0,		// Plasma Rifle
-		-170,		5,		// Lightning Gun
-		-90,		20,		// Gauss Cannon
-		-150,		0,		// Vortex Rifle
-		-220,		0,		// Static Rifle
-		-198,		0,		// Carrion Cannon
-		-340,		-33		// Bee Eff Gee I Gots 2 Pee
-	};
 	
 	
 	static const Class<Weapon> WeaponList[] =
@@ -474,6 +529,17 @@ extend Class AkimboWeapon
 		int WeaponCount;
 		
 		if (!Owner) return false;
+		
+		int a = Owner.CountInv("LeftWeaponCount");
+		int b = Owner.CountInv("RightWeaponCount");
+		if (a && b)
+		{
+			LeftPend = WeaponList[a];
+			LeftNext = WeaponReadyStates[a];
+			RightPend = WeaponList[b];
+			RightNext = WeaponReadyStates[b];
+			return true;
+		}
 		
 		int size = WeaponList.Size();
 		for (int i = 0; i < size; i++)
@@ -528,7 +594,7 @@ extend Class AkimboWeapon
 	
 	//--------------------------------------------------------------------------
 	// For external use outside of the weapon itself.
-	bool SetWeaponSide (Name WeapID, bool right, bool forced)
+	bool SetWeaponSide (Name WeapID, bool right, bool forced = false)
 	{
 		Class<Weapon> id = WeapID;
 		if (!id || 
@@ -536,7 +602,7 @@ extend Class AkimboWeapon
 			//RightGun == id || RightPend == id ||
 			!Owner.CountInv(id))
 		{
-			//Console.Printf("FAIL");
+			//Console.Printf("Something's wrong.");
 			return false;
 		}
 		
@@ -544,9 +610,16 @@ extend Class AkimboWeapon
 		if (forced)
 		{
 			if (right)
-			{	if (id == RightPend || id == RightGun)	return false; }
+			{	
+				if (id == RightPend || id == RightGun)
+					return false; 
+				
+			}
 			else
-			{	if (id == LeftPend || id == LeftGun)	return false; }
+			{	
+				if (id == LeftPend || id == LeftGun)
+					return false;
+			}
 		}
 		// Reject if in either already.	
 		else if (id == RightPend || id == RightGun || id == LeftPend || id == LeftGun)
@@ -557,12 +630,14 @@ extend Class AkimboWeapon
 		{
 			if (id == WeaponList[i])
 			{
+				
 				if (right)		{	RightPend = id; RightNext = WeaponReadyStates[i]; 	}
 				else			{	LeftPend = id; 	LeftNext = WeaponReadyStates[i];	}
 				//Console.Printf(WeapID.." command received successfully.");
 				return true;
 			}
 		}
+		//Console.Printf("Something's wrong.");
 		return false;
 	}
 	
@@ -573,7 +648,6 @@ extend Class AkimboWeapon
 			//RightGun == id || RightPend == id ||
 			!Owner.CountInv(id))
 		{
-			//Console.Printf("FAIL");
 			return false;
 		}
 		
@@ -581,9 +655,16 @@ extend Class AkimboWeapon
 		if (forced)
 		{
 			if (right)
-			{	if (id == RightPend || id == RightGun)	return false; }
+			{	
+				if (id == RightPend || id == RightGun)
+					return false; 
+				
+			}
 			else
-			{	if (id == LeftPend || id == LeftGun)	return false; }
+			{	
+				if (id == LeftPend || id == LeftGun)
+					return false;
+			}
 		}
 		// Reject if in either already.	
 		else if (id == RightPend || id == RightGun || id == LeftPend || id == LeftGun)
@@ -596,10 +677,11 @@ extend Class AkimboWeapon
 			{
 				if (right)		{	RightPend = id; RightNext = WeaponReadyStates[i]; 	}
 				else			{	LeftPend = id; 	LeftNext = WeaponReadyStates[i];	}
-				//Console.Printf(WeapID.." command received successfully.");
+				//Console.Printf("Command received successfully.");
 				return true;
 			}
 		}
+		//Console.Printf("Something's wrong.");
 		return false;
 	}
 }

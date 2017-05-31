@@ -293,7 +293,13 @@ class AkimboMenuButton : Element
 					}
 					else { IsEnabled = false; mButtonDisabled.text = "Akimbo System unavailable"; }
 				}
-				else { IsEnabled = false; mButtonDisabled.text = "Weapon Not Found"; }
+				else { IsEnabled = false; mButtonDisabled.text = "-----"; 
+						mButtonDisabled.mColor.r = 32;
+						mButtonDisabled.mColor.g = 32;
+						mButtonDisabled.mColor.b = 32;
+						mButtonDisabled.mColor.a = 255;
+						mButtonDisabled.mAlpha = 0.9;
+						mButtonDisabled.fontColor = Font.CR_ORANGE; }
 			}
 			else { IsEnabled = false; mButtonDisabled.text = "Player Non-Existant"; }
 				

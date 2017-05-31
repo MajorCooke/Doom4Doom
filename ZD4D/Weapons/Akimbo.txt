@@ -68,14 +68,11 @@ Class AkimboWeapon : Weapon
 	StateLabel LeftNext, RightNext;
 	Class<Weapon> LeftPend, RightPend;
 	Class<Weapon> LeftGun, RightGun;
-	int UpdateLeft, UpdateRight;
-	int LFlag, RFlag;
 	int InputCur, InputOld;
 	int WeaponFlags;
-	Vector2 LOff, ROff;
+	Vector2 LOff, ROff, LO, RO;
 	uint8 WeaponID[2];
-	PSprite Gun[2];
-	bool NoHaste;
+	bool interpolate[2];
 	enum StatusState
 	{
 		Left = 0,
@@ -114,38 +111,32 @@ Class AkimboWeapon : Weapon
 		Tag "Akimbo Guns";
 	}
 	States
-	{
-	//==========================================================================
-	// Technical
-	//==========================================================================
+	{	
 	Overlay.OffsetManager:
 		TNT1 A 1
 		{
-			
 			invoker.WeaponID[Left] = invoker.owner.CountInv("LeftWeaponCount");
 			invoker.WeaponID[Right] = invoker.owner.CountInv("RightWeaponCount");
-			
-			if (invoker.Status[Left] <= Ready)
-			{
+			//if (invoker.Status[Left] <= Ready)
+			//{
 				invoker.LOff = (invoker.LeftOffset[(invoker.WeaponID[Left] * 2)] + LOfx, 
-								invoker.LeftOffset[(invoker.WeaponID[Left] * 2) + 1] + LOfy);
+								invoker.LeftOffset[(invoker.WeaponID[Left] * 2) + 1] + LOfy) + invoker.LO;
 								//invoker.LeftOffset[(invoker.WeaponID[Left] * 2) + 1] + LOfy);
-				invoker.owner.A_OverlayOffset(OV_LeftWeapon, Invoker.LOff.x, Invoker.LOff.y, WOF_INTERPOLATE);
+				invoker.owner.A_OverlayOffset(OV_LeftWeapon, Invoker.LOff.x, Invoker.LOff.y, 
+					(invoker.interpolate[Left] ? WOF_INTERPOLATE : 0));
 				//A_OverlayOffset(OV_LeftWeapon, Invoker.ROff.x, Invoker.ROff.y, WOF_INTERPOLATE);
 				//Console.Printf("%d", invoker.WeaponID[Left]);
-			}
+			//}
 			
-			if (invoker.Status[Right] <= Ready)
-			{
+			//if (invoker.Status[Right] <= Ready)
+			//{
 				invoker.ROff = (invoker.RightOffset[(invoker.WeaponID[Right] * 2)] + ROfx, 
-								invoker.RightOffset[(invoker.WeaponID[Right] * 2) + 1] + ROfy);
-				invoker.owner.A_OverlayOffset(OV_RightWeapon, Invoker.ROff.x, Invoker.ROff.y, WOF_INTERPOLATE);
-			}
-			
-			
+								invoker.RightOffset[(invoker.WeaponID[Right] * 2) + 1] + ROfy) + invoker.RO;
+				invoker.owner.A_OverlayOffset(OV_RightWeapon, Invoker.ROff.x, Invoker.ROff.y, 
+					(invoker.interpolate[Right] ? WOF_INTERPOLATE : 0));
+			//}
 		}
 		Wait;
-	
 	//==========================================================================
 	// Main States
 	//==========================================================================
@@ -161,9 +152,10 @@ Class AkimboWeapon : Weapon
 				A_PlaySound("Doom4/Player/Nope",CHAN_AUTO);
 				return ResolveState("Deselect");
 			}
-			
+			invoker.interpolate[Left] = invoker.interpolate[Right] = true;
 			invoker.PrepareStates();
 			int ci = invoker.owner.CountInv("LeftWeaponCount");
+			invoker.WeaponID[Left] = ci;
 			invoker.LeftStates.ReadyState = 	invoker.as[ci].ReadyState;
 			invoker.LeftStates.FireState = 		invoker.as[ci].FireState;
 			invoker.LeftStates.AltFireState = 	invoker.as[ci].AltFireState;
@@ -171,6 +163,7 @@ Class AkimboWeapon : Weapon
 			invoker.LeftStates.DeselectState = 	invoker.as[ci].DeselectState;
 			
 			ci = invoker.owner.CountInv("RightWeaponCount");
+			invoker.WeaponID[Right] = ci;
 			invoker.RightStates.ReadyState = 		invoker.as[ci].ReadyState;
 			invoker.RightStates.FireState = 		invoker.as[ci].FireState;
 			invoker.RightStates.AltFireState = 		invoker.as[ci].AltFireState;
@@ -186,6 +179,24 @@ Class AkimboWeapon : Weapon
 			A_OverlayFlags(OV_RightWeapon, PSPF_ADDWEAPON, true);
 			A_Overlay(OV_Custom + 1, "Overlay.OffsetManager");
 			
+			
+			
+			if (invoker.Status[Left] <= Ready)
+			{
+				invoker.LOff = (invoker.LeftOffset[(invoker.WeaponID[Left] * 2)] + LOfx, 
+								invoker.LeftOffset[(invoker.WeaponID[Left] * 2) + 1] + LOfy) + invoker.LO;
+								//invoker.LeftOffset[(invoker.WeaponID[Left] * 2) + 1] + LOfy);
+				invoker.owner.A_OverlayOffset(OV_LeftWeapon, Invoker.LOff.x, Invoker.LOff.y, WOF_INTERPOLATE);
+				//A_OverlayOffset(OV_LeftWeapon, Invoker.ROff.x, Invoker.ROff.y, WOF_INTERPOLATE);
+			}
+			
+			if (invoker.Status[Right] <= Ready)
+			{
+				invoker.ROff = (invoker.RightOffset[(invoker.WeaponID[Right] * 2)] + ROfx, 
+								invoker.RightOffset[(invoker.WeaponID[Right] * 2) + 1] + ROfy) + invoker.RO;
+				invoker.owner.A_OverlayOffset(OV_RightWeapon, Invoker.ROff.x, Invoker.ROff.y, WOF_INTERPOLATE);
+			}
+			
 			return ResolveState("SelLoop");
 		}
 	SelLoop:
@@ -195,15 +206,13 @@ Class AkimboWeapon : Weapon
 	Deselect:
 		M666 A 0 
 		{
+			invoker.LeftPend = null;
+			invoker.RightPend = null;
+			invoker.LeftNext = null;
+			invoker.RightNext = null;
+			//invoker.UpdateStates(OverlayID());
 			A_OverlayFlags(OV_LeftWeapon, PSPF_ADDWEAPON, true);
 			A_OverlayFlags(OV_RightWeapon, PSPF_ADDWEAPON, true);
-			
-			int size = invoker.WeaponList.Size();
-			for (int i = 0; i < size; i++)
-			{
-				if (invoker.LeftGun == invoker.WeaponList[i]) 	{	invoker.owner.A_SetInventory("LeftWeaponCount", i); continue; }
-				if (invoker.RightGun == invoker.WeaponList[i]) 	{	invoker.owner.A_SetInventory("RightWeaponCount", i); }
-			}
 		}
 	DesLoop:
 		M666 A 1 A_Lower();
@@ -212,21 +221,7 @@ Class AkimboWeapon : Weapon
 	Ready:
 		M666 A 1 
 		{
-			if (!invoker.Gun[Left] || !invoker.Gun[Right])
-			{
-				//String t = ((!invoker.Gun[left]) ? "Left" : "")..((!invoker.Gun[right]) ? "Right" : "");
-				//Console.Printf(t);
-				let player = invoker.owner.player;
-				if (player)
-				{
-					let weap = player.ReadyWeapon;
-					if (weap)
-					{
-						invoker.Gun[Left] = player.FindPSprite(OV_LeftWeapon);
-						invoker.Gun[Right] = player.FindPSprite(OV_RightWeapon);
-					}
-				}
-			}
+			
 			A_OverlayFlags(OV_LeftWeapon, PSPF_ADDWEAPON, true);
 			A_OverlayFlags(OV_RightWeapon, PSPF_ADDWEAPON, true);
 			for (int i = 0; i < invoker.Status.Size(); i++)
@@ -244,11 +239,17 @@ Class AkimboWeapon : Weapon
 			}
 			if ((invoker.InputCur & BT_USER2) && !(invoker.InputOld & BT_USER2))
 			{
-				if (invoker.Status[Left] == Ready && invoker.Status[Right] == Ready)
+				//Console.Printf("Attempting switch 1");
+				if (invoker.Status[Left] <= Ready && invoker.Status[Right] <= Ready)
 				{
-					//Class<Weapon> temp = RightGun;
+					//Console.Printf("Attempting switch 2");
 					invoker.SetWeaponSideClass(invoker.LeftGun, true, true);
 					invoker.SetWeaponSideClass(invoker.RightGun, false, true);
+				}
+				else
+				{
+					if (invoker.Status[Left] > Ready)	Console.Printf("Left is %d", invoker.Status[Left]);
+					if (invoker.Status[Right] > Ready)	Console.Printf("Right is %d", invoker.Status[Right]);
 				}
 			}
 			
@@ -278,10 +279,10 @@ Class AkimboWeapon : Weapon
 
 	//--------------------------------------------------------------------------
 	D4Pistol.Select:
-		WEP1 A 0 { Invoker.UpdateStates(OverlayID(), ID_D4Pistol); }
+		WEP1 A 0 { UpdateStates(ID_D4Pistol); }
 		Goto CommonSelect;
 	D4Pistol.Ready:
-		WEP1 A 1 { Invoker.AkWeaponReady(OverlayID(), 0, true); }
+		WEP1 A 1 { AkWeaponReady( 0, true); }
 		Loop;
 	D4Pistol.Fire:
 		"####" "#" 1 Bright  
@@ -310,17 +311,18 @@ Class AkimboWeapon : Weapon
 					break;
 			}
 			*/
+			AkOffset();
 		}
 	D4Pistol.ContinueFire:
-		"####" B 1 Bright {	Invoker.AkWeaponReady(OverlayID(),WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); invoker.AdjustHaste();	}
-		"####" C 1 { /*A_WeaponOffset(3,30);*/ Invoker.AkWeaponReady(OverlayID(),WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); }
-		"####" C 1 { /*A_WeaponOffset(6,27);*/ Invoker.AkWeaponReady(OverlayID(),WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); invoker.AdjustHaste(); }
-		"####" C 1 { /*A_WeaponOffset(8,30);*/ Invoker.AkWeaponReady(OverlayID(),WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); }
-		"####" A 1 { /*A_WeaponOffset(2,33);*/ Invoker.AkWeaponReady(OverlayID(),WRF_NOSECONDARY|WRF_ALLOWRELOAD|WRF_NOSWITCH|WRF_NOBOB); invoker.AdjustHaste(); }
-		"####" A 1 { /*A_WeaponOffset(0,32);*/ Invoker.AkWeaponReady(OverlayID(),WRF_NOSECONDARY|WRF_ALLOWRELOAD|WRF_NOSWITCH|WRF_NOBOB); }
+		"####" B 1 Bright {	AkWeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); AdjustHaste();	}
+		"####" C 1 { AkOffset((3, -2), WOF_ADD); AkWeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); }
+		"####" C 1 { AkOffset((3, -3), WOF_ADD); AkWeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); AdjustHaste(); }
+		"####" C 1 { AkOffset((2, 3), WOF_ADD); AkWeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); }
+		"####" A 1 { AkOffset((-6, 3), WOF_ADD); AkWeaponReady(WRF_NOSECONDARY|WRF_ALLOWRELOAD|WRF_NOSWITCH|WRF_NOBOB); AdjustHaste(); }
+		"####" A 1 { AkOffset((-2, -2), WOF_ADD);AkWeaponReady(WRF_NOSECONDARY|WRF_ALLOWRELOAD|WRF_NOSWITCH|WRF_NOBOB); }
 		"####" A 1 
 		{
-			//A_WeaponOffset(0,32);
+			AkOffset();
 			if (invoker.owner.CountInv("PistolUpgradeAutomatic"))		
 			{	invoker.AkRefire(OverlayID(), "D4Pistol.Fire");	}
 			//A_WeaponReady(WRF_ALLOWRELOAD|WRF_NOSWITCH|WRF_NOBOB);
@@ -332,113 +334,143 @@ Class AkimboWeapon : Weapon
 	
 	//--------------------------------------------------------------------------
 	D4Shotgun.Select:
-		DW3A A 0 { Invoker.UpdateStates(OverlayID(), ID_D4Shotgun); }
+		DW3A A 0 { UpdateStates(ID_D4Shotgun); }
 		Goto CommonSelect;
 	D4Shotgun.Ready:
-		DW3A A 1 { Invoker.AkWeaponReady(OverlayID(),0, true); }
-		Loop;
+		DW3A A 1 { AkWeaponReady(0, true); }
+		Wait;
 	D4Shotgun.Fire:
 		---- A 1;
 		Goto D4Shotgun.Ready;
 		
 	//--------------------------------------------------------------------------
 	D4SuperShotgun.Select:
-		M665 A 0 { Invoker.UpdateStates(OverlayID(), ID_D4SuperShotgun); }
+		M665 A 0 { UpdateStates(ID_D4SuperShotgun); }
 		Goto CommonSelect;
 	D4SuperShotgun.Ready:
-		M665 A 1 { Invoker.AkWeaponReady(OverlayID(),WRF_NOFIRE, true); }
+		M665 A 1 { AkWeaponReady(WRF_NOFIRE, true); }
 		Loop;
 	D4SuperShotgun.Fire:
 		---- A 1;
 		Goto D4SuperShotgun.Ready;
 	//--------------------------------------------------------------------------
 	D4Repeater.Select:
-		REPG A 0 { Invoker.UpdateStates(OverlayID(), ID_D4Repeater); }
+		REPG A 0 { UpdateStates(ID_D4Repeater); }
 		Goto CommonSelect;
 	D4Repeater.Ready:
-		REPG A 1 { Invoker.AkWeaponReady(OverlayID(),WRF_NOFIRE, true); }
+		REPG A 1 { AkWeaponReady(WRF_NOFIRE, true); }
 		Loop;
 	
 	//--------------------------------------------------------------------------
 	D4AssaultRifle.Select:
-		ARNI A 0 { Invoker.UpdateStates(OverlayID(), ID_D4AssaultRifle); }
+		ARNI A 0 { UpdateStates(ID_D4AssaultRifle); }
 		Goto CommonSelect;
 	D4AssaultRifle.Ready:
-		ARNI A 1 { Invoker.AkWeaponReady(OverlayID(),WRF_NOFIRE, true); }
+		ARNI A 1 { AkWeaponReady(WRF_NOFIRE, true); }
 		Loop;
 	
 	//--------------------------------------------------------------------------
 	D4Chaingun.Select:
-		CGNS A 0 { Invoker.UpdateStates(OverlayID(), ID_D4Chaingun); }
+		CGNS A 0 { UpdateStates(ID_D4Chaingun); }
 		Goto CommonSelect;
 	D4Chaingun.Ready:
-		CGNS A 1 { Invoker.AkWeaponReady(OverlayID(),WRF_NOFIRE, true); }
+		CGNS A 1 { AkWeaponReady(WRF_NOFIRE, true); }
 		Loop;
 	
 	//--------------------------------------------------------------------------
 	D4RocketLauncher.Select:
-		RLNI A 0 { Invoker.UpdateStates(OverlayID(), ID_D4RocketLauncher); }
+		RLNI A 0 { UpdateStates(ID_D4RocketLauncher); }
 		Goto CommonSelect;
 	D4RocketLauncher.Ready:
-		RLNI A 1 { Invoker.AkWeaponReady(OverlayID(),WRF_NOFIRE, true); }
+		RLNI A 1 { AkWeaponReady(WRF_NOFIRE, true); }
 		Loop;
 		
 	//--------------------------------------------------------------------------
 	D4PlasmaRifle.Select:
-		PRNI A 0 { Invoker.UpdateStates(OverlayID(), ID_D4PlasmaRifle); }
+		PRNI A 0 { UpdateStates(ID_D4PlasmaRifle); }
 		Goto CommonSelect;
 	D4PlasmaRifle.Ready:
-		PRNI A 1 { Invoker.AkWeaponReady(OverlayID(),WRF_NOFIRE, true); }
+		PRNI A 1 { AkWeaponReady(WRF_NOFIRE, true); }
 		Loop;
 		
 	//--------------------------------------------------------------------------
 	D4LightningGun.Select:
-		LGNI A 0 { Invoker.UpdateStates(OverlayID(), ID_D4LightningGun); }
+		LGNI A 0 { UpdateStates(ID_D4LightningGun); }
 		Goto CommonSelect;
 	D4LightningGun.Ready:
-		LGNI AABBCC 1 bright { Invoker.AkWeaponReady(OverlayID(),WRF_NOFIRE, true); }
+		LGNI AABBCC 1 bright { AkWeaponReady(WRF_NOFIRE, true); }
 		Loop;
 		
 	//--------------------------------------------------------------------------
 	D4StaticRifle.Select:
-		STRF A 0 { Invoker.UpdateStates(OverlayID(), ID_D4StaticRifle); }
+		STRF A 0 { UpdateStates(ID_D4StaticRifle); }
 		Goto CommonSelect;
 	D4StaticRifle.Ready:
-		STRF A 1 { Invoker.AkWeaponReady(OverlayID(),WRF_NOFIRE, true); }
+		STRF A 1 { AkWeaponReady(WRF_NOFIRE, true); }
 		Loop;
 		
 	//--------------------------------------------------------------------------
 	D4VortexRifle.Select:
-		VTXG A 0 { Invoker.UpdateStates(OverlayID(), ID_D4VortexRifle); }
+		VTXG A 0 { UpdateStates(ID_D4VortexRifle); }
 		Goto CommonSelect;
 	D4VortexRifle.Ready:
-		VTXG A 1 { Invoker.AkWeaponReady(OverlayID(),WRF_NOFIRE, true); }
+		VTXG A 1 { AkWeaponReady(WRF_NOFIRE, true); }
 		Loop;
 		
 	//--------------------------------------------------------------------------
 	D4GaussCannon.Select:
-		GCNI A 0 { Invoker.UpdateStates(OverlayID(), ID_D4GaussCannon); }
+		GCNI A 0 { UpdateStates(ID_D4GaussCannon); }
 		Goto CommonSelect;
 	D4GaussCannon.Ready:
-		GCNI A 1 { Invoker.AkWeaponReady(OverlayID(),WRF_NOFIRE, true); }
+		GCNI A 1 { AkWeaponReady(WRF_NOFIRE, true); }
 		Loop;
 		
 	//--------------------------------------------------------------------------
 	D4CarrionCannon.Select:
-		HELG A 0 { Invoker.UpdateStates(OverlayID(), ID_D4CarrionCannon); }
+		HELG A 0 { UpdateStates(ID_D4CarrionCannon); }
 		Goto CommonSelect;
 
 	D4CarrionCannon.Ready:
-		HELG H 1 { Invoker.AkWeaponReady(OverlayID(),WRF_NOFIRE, true); }
+		HELG H 1 { AkWeaponReady(WRF_NOFIRE, true); }
 		Loop;
 		
 	//--------------------------------------------------------------------------
 	D4BFG.Select:
-		WE27 A 0 { Invoker.UpdateStates(OverlayID(), ID_D4BFG); }
-		Goto CommonSelect;
-	
+		TNT1 A 1 
+		{
+			UpdateStates(ID_D4BFG);
+			AkOffset((128,0),0,true);
+		}
+		WE27 A 1
+		{
+			int id = OverlayID();
+			AkOffset((-(WeaponSwitchSpeed + 6) / 2, 0), WOF_ADD);
+			if ((id == OV_LeftWeapon && invoker.LO.x >= 0) || (id == OV_RightWeapon && invoker.RO.x <= 0)) 
+			{
+				AkOffset((0,0));
+				AkRaiseGun(512,true); // Force it immediately.
+			}
+			else invoker.interpolate[(id == OV_RightWeapon) ? Right : Left] = true;
+		}
+		Wait;
+	D4BFG.Deselect:
+		---- A 1
+		{
+			int id = OverlayID();
+			if ((id == OV_LeftWeapon && invoker.LO.x < -128) || (id == OV_RightWeapon && invoker.RO.x > 128)) 
+			{
+				AkOffset((0,WEAPONBOTTOM),0,true);
+				AkLowerGun(512,true); // Force it immediately.
+				invoker.interpolate[(id == OV_RightWeapon) ? Right : Left] = true;
+			}
+			else 
+			{
+				AkOffset(((WeaponSwitchSpeed + 6) / 2, 0), WOF_ADD);
+			}
+		}
+		Wait;
 	D4BFG.Ready:
-		WE27 A 1 { Invoker.AkWeaponReady(OverlayID(),WRF_NOFIRE, true); }
+		WE27 A 1 { AkWeaponReady(WRF_NOFIRE, true); }
 		Loop;
 	
 	D4Pistol.Deselect:
@@ -454,12 +486,12 @@ Class AkimboWeapon : Weapon
 	D4VortexRifle.Deselect:
 	D4GaussCannon.Deselect:
 	D4CarrionCannon.Deselect:
-	D4BFG.Deselect:
+	
 	CommonDeselect:
-		---- A 1 { Invoker.AkLowerGun(OverlayID(), WeaponSwitchSpeed); }
+		---- A 1 { AkLowerGun(WeaponSwitchSpeed + 6); }
 		Wait;
 	CommonSelect:
-		---- A 1 { Invoker.AkRaiseGun(OverlayID(), WeaponSwitchSpeed); }
+		---- A 1 { AkRaiseGun(WeaponSwitchSpeed + 6); }
 		Wait;
 	}
 }
