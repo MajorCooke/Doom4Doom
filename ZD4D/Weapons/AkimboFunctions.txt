@@ -73,15 +73,30 @@ extend Class AkimboWeapon
 		-150,		0,		// Vortex Rifle
 		-220,		0,		// Static Rifle
 		-198,		0,		// Carrion Cannon
-		-340,		-33		// Bee Eff Gee I Gots 2 Pee
+		-340,		-33		// Bee Eff Gee
 	};
+	
+	//==========================================================================
+	// Sound Management
+	//==========================================================================
+	
+	action void AkPlaySound(Sound snd, int slot = CHAN_BODY, double volume = 1.0, bool looping = false, int attenuation = ATTN_NORM, bool local = false)
+	{
+		int id = OverlayID();
+		
+		if (id == OV_LeftWeapon && invoker.SoundMaker[Left])
+			invoker.SoundMaker[Left].A_PlaySound(snd,slot,volume,looping,attenuation,local);
+		else if (id == OV_RightWeapon && invoker.SoundMaker[Right])
+			invoker.SoundMaker[Right].A_PlaySound(snd,slot,volume,looping,attenuation,local);
+	}
+	
 	//==========================================================================
 	// State/Status Management
 	//==========================================================================
 	
 	//--------------------------------------------------------------------------
 	// 
-	action void AdjustHaste()
+	action void AdjustHaste(int newtic = -1)
 	{
 		if (CountInv("PowerD4Haste"))
 		{
@@ -91,8 +106,12 @@ extend Class AkimboWeapon
 			let psp = plr.FindPSprite(OverlayID());
 			if (psp)
 			{
-				if (psp.Tics == 1)	psp.Tics = 0;
-				else				psp.Tics /= 2;
+				//
+				if (newtic > -1)				psp.Tics = newtic;
+				else if (psp.Tics == 1)			psp.Tics = 0;
+				else if (psp.Tics < 0)			return;
+				//else if ((psp.Tics % 2) == 1)	psp.Tics = Max(0,((psp.Tics / 2) - 1));
+				else							psp.Tics /= 2;
 			}
 		}
 	}
@@ -135,22 +154,64 @@ extend Class AkimboWeapon
 		else Console.printf("%d", id);
 	}
 	
-	//--------------------------------------------------------------------------
-	// Similar to A_Refire but can take alts too.
-	action state AkRefire(int id, StateLabel Next, bool alt = false)
+	// Basically a copy of the above function.
+	action void AkOffsetD(double offsx = 0.0, double offsy = 0.0, int flags = 0, bool update = false)
 	{
-		if (!Next) return null;
+		int id = OverlayID();
 		if (id == OV_LeftWeapon)
 		{
-			if (invoker.InputCur & (alt ? PLeft : ALeft))
-				return ResolveState(Next);
+			if (flags & WOF_KEEPX) offsx = invoker.LO.x;
+			if (flags & WOF_KEEPY) offsy = invoker.LO.y;
+			// Inverse the X coordinates here so it acts like mirroring. Saves a fuckton of time.
+			invoker.LO = (flags & WOF_ADD) ? (invoker.LO + (-offsx, offsy)) : (-offsx, offsy);
+			
+			if (update)
+			{
+				invoker.LOff = (invoker.LeftOffset[(invoker.WeaponID[Left] * 2)] + LOfx, 
+								invoker.LeftOffset[(invoker.WeaponID[Left] * 2) + 1] + LOfy) + invoker.LO;
+				invoker.owner.A_OverlayOffset(OV_LeftWeapon, Invoker.LOff.x, Invoker.LOff.y, 
+					((flags & WOF_INTERPOLATE) ? WOF_INTERPOLATE : 0));
+			}
 		}
 		else if (id == OV_RightWeapon)
 		{
-			if (invoker.InputCur & (alt ? PRight : ARight))
-				return ResolveState(Next);
+			if (flags & WOF_KEEPX) offsx = invoker.RO.x;
+			if (flags & WOF_KEEPY) offsy = invoker.RO.y;
+			invoker.RO = (flags & WOF_ADD) ? (invoker.RO + (offsx, offsy)) : (offsx, offsy);
+			
+			if (update)
+			{
+				invoker.ROff = (invoker.RightOffset[(invoker.WeaponID[Right] * 2)] + ROfx, 
+								invoker.RightOffset[(invoker.WeaponID[Right] * 2) + 1] + ROfy) + invoker.RO;
+				invoker.owner.A_OverlayOffset(OV_RightWeapon, Invoker.ROff.x, Invoker.ROff.y, 
+					((flags & WOF_INTERPOLATE) ? WOF_INTERPOLATE : 0));
+			}
 		}
-		return null;
+		else Console.printf("%d", id);
+	}
+	
+	//--------------------------------------------------------------------------
+	// Similar to A_Refire but can take alts too.
+	action void AkRefire(StateLabel Next, bool alt = false)
+	{
+		int id = OverlayID();
+		if (!Next) 		return;
+		
+		let player = invoker.owner.player;
+		if (!player || !player.ReadyWeapon) 	return;
+		
+		if (id == OV_LeftWeapon)
+		{
+			if (invoker.InputCur & (alt ? ALeft : PLeft))
+				player.SetPSprite(id, player.ReadyWeapon.FindState(Next));
+		}
+		else if (id == OV_RightWeapon)
+		{
+			if (invoker.InputCur & (alt ? ARight : PRight))
+				player.SetPSprite(id, player.ReadyWeapon.FindState(Next));
+		}
+		
+		return;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -169,8 +230,9 @@ extend Class AkimboWeapon
 	
 	//--------------------------------------------------------------------------
 	// Determines which side to orient things like projectile spawning.
-	double Side(int id, double val = 1.0)
+	action double Side(double val = 1.0)
 	{
+		int id = OverlayID();
 		return val * (id == OV_LeftWeapon ? -1 : 1);
 	}
 	//--------------------------------------------------------------------------
@@ -223,7 +285,6 @@ extend Class AkimboWeapon
 			if (id == OV_LeftWeapon && invoker.LeftPend)
 			{
 				invoker.Status[Left] = ChangeWeapon;
-				//player.Set
 				if (psp)	{ psp.SetState(player.ReadyWeapon.FindState(invoker.LeftStates.DeselectState, true));	}
 				return;
 			}

@@ -74,6 +74,7 @@ Class AkimboWeapon : Weapon
 	uint8 WeaponID[2];
 	bool IsLowering;
 	bool interpolate[2];
+	Actor SoundMaker[2];
 	enum StatusState
 	{
 		Left = 0,
@@ -116,6 +117,16 @@ Class AkimboWeapon : Weapon
 	Overlay.OffsetManager:
 		TNT1 A 1
 		{
+			//if (invoker.SoundMaker[Left])	invoker.SoundMaker[Left].A_Warp(MasterPtr, 5, -5,
+			let io = PlayerPawn(invoker.owner);
+			for (int i = 0; i < 2; i++)
+			{
+				if (invoker.SoundMaker[i])
+				{
+					invoker.SoundMaker[i].SetOrigin(io.pos + (0, 0, io.ViewHeight),false);
+					invoker.SoundMaker[i].vel = io.vel;
+				}
+			}
 			//invoker.WeaponID[Left] = invoker.owner.CountInv("LeftWeaponCount");
 			//invoker.WeaponID[Right] = invoker.owner.CountInv("RightWeaponCount");
 			
@@ -142,6 +153,7 @@ Class AkimboWeapon : Weapon
 	Select:
 		M666 A 1 
 		{
+			
 			invoker.IsLowering = false;
 			if (!AkimboCheckWeapons())
 			{
@@ -149,6 +161,10 @@ Class AkimboWeapon : Weapon
 				A_PlaySound("Doom4/Player/Nope",CHAN_AUTO);
 				return ResolveState("Deselect");
 			}
+			let isl = invoker.SoundMaker[Left];
+			let isr = invoker.SoundMaker[Right];
+			if (!isl)	invoker.SoundMaker[Left] = Spawn("AkimboSoundMaker",pos);
+			if (!isr)	invoker.SoundMaker[Right] = Spawn("AkimboSoundMaker",pos);
 			invoker.interpolate[Left] = invoker.interpolate[Right] = true;
 			invoker.PrepareStates();
 			int ci = invoker.owner.CountInv("LeftWeaponCount");
@@ -197,6 +213,8 @@ Class AkimboWeapon : Weapon
 	Deselect:
 		M666 A 0 
 		{
+			for (int i = 0; i < 2; i++)
+				if (invoker.SoundMaker[i])	invoker.SoundMaker[i].Destroy();
 			invoker.IsLowering = true;
 			invoker.LeftPend = null;
 			invoker.RightPend = null;
@@ -268,7 +286,11 @@ Class AkimboWeapon : Weapon
 		M666 A 1;
 		Goto Ready;
 
-	//--------------------------------------------------------------------------
+	//==========================================================================
+	//==========================================================================
+	// Pistol
+	//==========================================================================
+	//==========================================================================
 	D4Pistol.Select:
 		WEP1 A 0 { UpdateStates(ID_D4Pistol); }
 		Goto CommonSelect;
@@ -278,17 +300,17 @@ Class AkimboWeapon : Weapon
 	D4Pistol.Fire:
 		"####" "#" 1 Bright  
 		{
-			int s = invoker.Side(OverlayID());
+			int s = Side(); // Use Side to automatically determine which weapon to come out of.
 			if (CountInv("PistolUpgradeDamage"))
 			{
-				A_PlaySound("Doom4/Weapon/Pistol2/Fire",CHAN_WEAPON,1);
+				AkPlaySound("Doom4/Weapon/Pistol2/Fire",CHAN_WEAPON,1);
 				A_FireBullets(0,0,1,random(6,14),"D4PistolPuffRed",FBF_NORANDOMPUFFZ|FBF_NORANDOM); // from 6 to 14
 				A_FireProjectile("PistolTracerRed",0,0,6 * s);
 			}
 			
 			else
 			{
-				A_PlaySound("Doom4/Weapon/Pistol/Fire",CHAN_WEAPON,1);
+				AkPlaySound("Doom4/Weapon/Pistol/Fire",CHAN_WEAPON,1);
 				A_FireBullets(0,0,1,3,"D4PistolPuffNormal",FBF_NORANDOMPUFFZ); //either 3, 6 or 9 dmg	
 				A_FireProjectile("PistolTracerNormal",0,0,6 * s);
 			}
@@ -304,7 +326,6 @@ Class AkimboWeapon : Weapon
 			*/
 			AkOffset();
 		}
-	D4Pistol.ContinueFire:
 		"####" B 1 Bright {	AkWeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); AdjustHaste();	}
 		"####" C 1 { AkOffset((3, -2), WOF_ADD); AkWeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); }
 		"####" C 1 { AkOffset((3, -3), WOF_ADD); AkWeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); AdjustHaste(); }
@@ -315,13 +336,16 @@ Class AkimboWeapon : Weapon
 		{
 			AkOffset();
 			if (invoker.owner.CountInv("PistolUpgradeAutomatic"))		
-			{	invoker.AkRefire(OverlayID(), "D4Pistol.Fire");	}
+			{	invoker.AkRefire("D4Pistol.Fire");	}
 			AdjustHaste();
 			
 		}
 		Goto D4Pistol.Ready;
-	
-	//--------------------------------------------------------------------------
+	//==========================================================================
+	//==========================================================================
+	// Shotgun
+	//==========================================================================
+	//==========================================================================
 	D4Shotgun.Select:
 		DW3A A 0 { UpdateStates(ID_D4Shotgun); }
 		Goto CommonSelect;
@@ -329,7 +353,63 @@ Class AkimboWeapon : Weapon
 		DW3A A 1 { AkWeaponReady(0, true); }
 		Wait;
 	D4Shotgun.Fire:
-		---- A 1;
+		"####" B 1 Bright 
+		{
+			int s = Side();
+			
+			if (GetCvar("user_TracerFX") > 0.0) //Remember, it's a SERVER cvar. Can't be a client.
+			{
+				for (int i = 0; i < 4; i++)
+					A_FireProjectile("BulletTracerFX",frandom(4.5,-4.5),0,7 * s,0,0,frandom(1.1,-1.1));
+			}
+			if(GetCvar("HQEffectsWeapons"))
+			{
+				for (int i = 0; i < 2; i++)
+					A_FireProjectile("SGSmokeSpawner",0,0,6 * s,2);
+			}
+			A_FireBullets(4.5,1.1,7,5);	//original SG is spread h5.6 v0.0. Here it adds to the same 5.6 total
+			A_AlertMonsters();
+			A_GunFlash("Null");
+			A_ZoomFactor(0.99,ZOOM_NOSCALETURNING);
+			AkPlaySound("Doom4/Weapon/Shotgun/Fire",CHAN_WEAPON,1);
+			A_SetBlend("orange",0.05,6);
+			AkOffsetD(6,36 - 32);
+			//A_Overlay(2,"Overlay.PitchSetter");
+		}
+		"####" C 1 Bright AkOffsetD(8,38 - 32);
+		"####" A 1 
+		{ 
+			A_ZoomFactor(1,ZOOM_NOSCALETURNING);
+			AkOffsetD(12,41);
+		}
+		"####" A 3 { AkOffsetD(18,44 - 32); AkWeaponReady(WRF_NOFIRE|WRF_NOBOB); AdjustHaste(1); }
+		"####" A 1 { AkOffsetD(15,41 - 32); AkWeaponReady(WRF_NOFIRE|WRF_NOBOB); }
+		"####" A 1 { AkOffsetD(12,38 - 32); AkWeaponReady(WRF_NOFIRE|WRF_NOBOB); AdjustHaste(); }
+		"####" A 1 { AkOffsetD(10,37 - 32); AkWeaponReady(WRF_NOFIRE|WRF_NOBOB); }
+		"####" A 1 { AkOffsetD( 8,36 - 32); AkWeaponReady(WRF_NOFIRE|WRF_NOBOB); AdjustHaste(); }
+		"####" A 1 { AkOffsetD( 6,35 - 32); AkWeaponReady(WRF_NOFIRE|WRF_NOBOB); }
+		"####" A 1 { AkOffsetD( 4,34 - 32); AkWeaponReady(WRF_NOFIRE|WRF_NOBOB); AdjustHaste(); }
+		"####" A 1 { AkOffsetD( 2,33 - 32); AkWeaponReady(WRF_NOFIRE|WRF_NOBOB); }
+		"####" A 1 { AkOffsetD( 0,32.01 - 32); AkWeaponReady(WRF_NOFIRE|WRF_NOBOB); AdjustHaste(); }
+		//pump start
+		"####" DFHI 1 
+		{
+			AkWeaponReady(WRF_NOFIRE|WRF_NOBOB);
+			AkOffsetD(3,2,WOF_ADD); //+12 + 8 
+		}
+		"####" H 2 
+		{
+			if (GetCvar("user_Casings"))	{ A_SpawnItemEx("ShotgunCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER); }
+			AdjustHaste(0);
+			AkWeaponReady(WRF_NOFIRE|WRF_NOBOB);
+		}
+		"####" HHHHGFED 1 
+		{
+			AkOffsetD(-1.5,-1,WOF_ADD); //-9 -6
+			AkWeaponReady(WRF_NOFIRE|WRF_NOBOB);
+		}
+		"####" "#" 0 { AkRefire("D4Shotgun.Fire"); }
+		"####" "#" 0 { AkWeaponReady(WRF_NOBOB); }
 		Goto D4Shotgun.Ready;
 		
 	//--------------------------------------------------------------------------
@@ -491,3 +571,12 @@ Class LeftWeaponCount : Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.M
 Class RightWeaponCount : Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.MaxAmount 14; Inventory.InterhubAmount 14; +INVENTORY.UNTOSSABLE } }
 
 
+Class AkimboSoundMaker : Actor 
+{
+	Default
+	{
+		+NOINTERACTION
+		+NOTONAUTOMAP
+		RenderStyle "None";
+	}
+}

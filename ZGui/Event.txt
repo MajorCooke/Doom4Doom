@@ -163,14 +163,6 @@ Class D4DHandler : EventHandler
 						bool IsRight = (i == 2);
 						let ak = AkimboWeapon(plr.FindInventory("AkimboWeapon",true));
 						if (ak)	ak.SetWeaponSide (suffix, IsRight);
-						/*
-						if (ak)
-						{
-							String str = (ak.SetWeaponSide (suffix, IsRight)) ? ("Passed "..suffix.." onto command") : (suffix.." is not a weapon for akimbo!");
-							Console.Printf("%s", str);
-						}	
-						else	Console.Printf("No akimbo found!");
-						*/
 						return;
 					}
 				}
