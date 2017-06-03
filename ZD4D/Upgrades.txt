@@ -520,7 +520,8 @@ Class D4CrateUpgrade : UpgradeItem
 		int amt = Owner.CountInv("D4CrateUpgrade");
 			 if (amt <= 0) 		Desc = Desc1;
 		else if (amt <= 1)		Desc = Desc2;
-		else					Desc = Desc3;
+		else if (amt <= 2)		Desc = Desc3;
+		else					Desc = "This shouldn't have happened...";
 		
 		Super.PrintDesc();
 	}

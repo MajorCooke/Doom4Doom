@@ -309,6 +309,7 @@ class OptionMenuItemPurchase : OptionMenuItem
 			{
 				if (!m)	Console.Printf("Item list is missing!");
 				Menu.MenuSound("Doom4/Player/Nope");
+				if (!bought) return true;
 			}
 			else
 			{

@@ -73,12 +73,11 @@ Class D4Pistol : Doom4Weapon
 	ContinueReady:
 		"####" "#" 1 
 		{
-			PSprite pspr = player.FindPSprite(PSP_WEAPON);
-			
-			if (pspr)	
+			PSprite psp = player.FindPSprite(PSP_WEAPON);
+			if (psp)	
 			{
 				Name spr = (CountInv("PistolUpgradeDamage") ? "PIS2" : "WEP1");
-				pspr.Sprite = GetSpriteIndex(spr);
+				psp.Sprite = GetSpriteIndex(spr);
 			}
 			
 			A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER1|WRF_ALLOWUSER2|WRF_ALLOWUSER4);
@@ -111,23 +110,28 @@ Class D4Pistol : Doom4Weapon
 			
 	ContinuePrimaryFire:*/
 		// auto fire section
-		"####" "#" 1 Bright  
+		"####" "#" 0 Bright  
 		{
 			
 			if (CountInv("PistolUpgradeDamage"))
+				A_FireBullets(0,0,1,random(6,14),"D4PistolPuffRed",FBF_NORANDOMPUFFZ|FBF_NORANDOM); // from 6 to 14
+			else
+				A_FireBullets(0,0,1,3,"D4PistolPuffNormal",FBF_NORANDOMPUFFZ); //either 3, 6 or 9 dmg	
+			
+		}
+	FireCont:
+		#### B 1
+		{
+			if (CountInv("PistolUpgradeDamage"))
 			{
 				A_PlaySound("Doom4/Weapon/Pistol2/Fire",CHAN_WEAPON,1);
-				A_FireBullets(0,0,1,random(6,14),"D4PistolPuffRed",FBF_NORANDOMPUFFZ|FBF_NORANDOM); // from 6 to 14
 				A_FireProjectile("PistolTracerRed",0,0,6);
 			}
-			
 			else
 			{
 				A_PlaySound("Doom4/Weapon/Pistol/Fire",CHAN_WEAPON,1);
-				A_FireBullets(0,0,1,3,"D4PistolPuffNormal",FBF_NORANDOMPUFFZ); //either 3, 6 or 9 dmg	
 				A_FireProjectile("PistolTracerNormal",0,0,6);
 			}
-			
 			A_AlertMonsters();
 			
 			for (int i = 0; i < P1 + 50; i++)
@@ -159,7 +163,7 @@ Class D4Pistol : Doom4Weapon
 				Sound snd = CountInv("PistolUpgradeAltCharge") ? "Doom4/Weapon/Pistol2/Charge" : "Doom4/Weapon/Pistol/Charge";
 				A_PlaySound(snd,5,1,1);
 				
-				PSprite psp = player.FindPSprite(PSP_WEAPON);
+				PSprite psp = player.FindPSprite(OverlayID());
 				if (psp) psp.Sprite = GetSpriteIndex(CountInv("PistolUpgradeAltDamage") ? "PIS2" : "WEP1");
 			}
 		SecondaryCharging:
@@ -171,6 +175,7 @@ Class D4Pistol : Doom4Weapon
 				counter[1] = CountInv("PistolLanceCounter");
 				//------------
 				//charge speed upgrade check
+				
 				A_GiveInventory("PistolAltFireCounter",1 + CountInv("PistolUpgradeAltCharge") + (CountInv("PowerD4DFS") * 1));
 								
 				if (counter[1] >= 52)
@@ -183,83 +188,51 @@ Class D4Pistol : Doom4Weapon
 				}				
 				if (counter[0] >= 50)
 				{
-					A_WeaponOffset(0+random(2,-2),32+random(0,4));
+					A_WeaponOffset(frandom(-2.0,-2),32+frandom(-2.0,2.0));
 					if (CountInv("PistolLanceActive"))
 				    {
 					    A_GiveInventory("PistolLanceCounter",4 + (CountInv("PowerD4DFS") * 2)); 
 			     	}
 				}
 				else if ((counter[0] >= 35) || (counter[0] >= 20 && random(0,1))) 
-					A_WeaponOffset(0+random(1,-1),32+random(0,2));
+					A_WeaponOffset(frandom(-1.0,1.0),32+frandom(-1.0,1.0));
 			}
-			"####" A 1 A_Refire("SecondaryCharging");
-			Goto ReleaseCharge;
+			"####" A 0
+			{
+				StateLabel Next = "SecondaryCharging";
+				if ((GetPlayerInput(MODINPUT_BUTTONS) & BT_ALTATTACK) &&
+					!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_ALTATTACK))
+					Next = "ReleaseCharge";
+				return ResolveState(Next);
+			}
+			Goto SecondaryCharging;
 			
 	ReleaseCharge:
 		"####" A 0
 		{
 		    if (CountInv("PistolLanceReadyToken"))		{	return ResolveState("ReleaseLance"); }
-			if (CountInv("PistolAltFireCounter")>=48)	{	return ResolveState("Release4"); }
-			if (CountInv("PistolAltFireCounter")>=32)	{	return ResolveState("Release3"); }
-			if (CountInv("PistolAltFireCounter")>=16)	{	return ResolveState("Release2"); }
-			return ResolveState("Release1");
-		}
-		
-	Release1:	//goes to the regular fire, but shuts up any other sound
-		"####" B 0 Bright
-		{
+			int count = CountInv("PistolAltFireCounter");
+			int dmg = 6;
+			Sound snd;
+			Class<Actor> puff;
+			let inv = invoker.owner.FindInventory("PistolAltFireCounter");
+			if (inv)
+			{
+				dmg = Clamp(inv.Amount, 1, inv.MaxAmount);
+				if (CountInv("PistolUpgradeAltDamage"))
+					dmg = random(6 * dmg, 14 * dmg);
+				else
+					dmg = random(3 * dmg, 9 * dmg);
+			}
+				 if (count >= 48) 	puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffBig1Red" : "D4PistolPuffBig1");
+			else if (count >= 32) 	puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffBig1Red" : "D4PistolPuffBig1");
+			else if (count >= 16) 	puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffBig1Red" : "D4PistolPuffBig1");
+			else					puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffRed" : "D4PistolPuffNormal");
+			A_FireBullets(0,0,1,dmg,puff,FBF_NORANDOMPUFFZ);
 			A_TakeInventory("PistolAltFireCounter",100);
-			A_StopSound(5);
-			
-			if (CountInv("PistolUpgradeAltDamage")) //if damage upgrade, fires weak red shot
-			{
-				A_PlaySound("Doom4/Weapon/Pistol2/Fire",CHAN_WEAPON,1);
-				A_FireBullets(0,0,1,6,"D4PistolPuffRed",FBF_NORANDOMPUFFZ);
-				A_FireProjectile("PistolTracerRed",0,0,6);
-				A_SetPitch(pitch-0.7);
-				A_AlertMonsters();
-				return ResolveState(null);
-			}
-			else	//otherwise, it didnt have damage upgrade, it goes to "fire", even weaker shot, but with blue sprite
-			{
-				return ResolveState("Fire");
-			}
+			StateLabel next = 'EndRelease'; if (count < 16)	next = 'FireCont';
+			return ResolveState(next);
 		}
-		"####" B 1 Bright { A_SetPitch(pitch+0.35); }
-		"####" C 1 { A_WeaponOffset(3,30); A_SetPitch(pitch+0.35); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
-		"####" C 1 { A_WeaponOffset(6,27); A_WeaponReady(WRF_NOSWITCH|WRF_NOBOB); }
-		"####" C 1 { A_WeaponOffset(8,30); A_WeaponReady(WRF_NOSWITCH|WRF_NOBOB); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
-		"####" A 1 { A_WeaponOffset(2,33); A_WeaponReady(WRF_NOSWITCH|WRF_NOBOB); }
-		"####" A 1 { A_WeaponOffset(0,32); A_WeaponReady(WRF_NOSWITCH|WRF_NOBOB); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
-		Goto Ready;
-	Release2: 
-		"####" B 0 Bright 
-		{
-			if (CountInv("PistolUpgradeAltDamage"))
-			{	A_FireBullets(0,0,1,22,"D4PistolPuffBig1Red",FBF_NORANDOMPUFFZ); } //upgrade, 22,44,66
-			else
-			{	A_FireBullets(0,0,1,15,"D4PistolPuffBig1",FBF_NORANDOMPUFFZ); } //15,30,45
-		}
-		Goto EndRelease;
-	Release3:
-		"####" B 0 Bright 
-		{
-			if (CountInv("PistolUpgradeAltDamage"))
-			{	A_FireBullets(0,0,1,45,"D4PistolPuffBig2Red",FBF_NORANDOMPUFFZ); } //upgrade, 45,90,135
-			else
-			{	A_FireBullets(0,0,1,30,"D4PistolPuffBig2",FBF_NORANDOMPUFFZ);  } //30,60,90
-		}
-		Goto EndRelease;
-	Release4:
-		"####" B 0 Bright	
-		{
-			if (CountInv("PistolUpgradeAltDamage"))
-			{	A_FireBullets(0,0,1,90+random(0,170),"D4PistolPuffBig3Red",FBF_NORANDOMPUFFZ|FBF_NORANDOM); } //any from 90 to 260
-			else
-			{	A_FireBullets(0,0,1,60+random(0,115),"D4PistolPuffBig3",FBF_NORANDOMPUFFZ|FBF_NORANDOM); } //any from 60 to 175
-		}
-		Goto EndRelease;
-		
 	EndRelease:
 		"####" B 2 Bright
 		{
@@ -274,20 +247,25 @@ Class D4Pistol : Doom4Weapon
 				A_PlaySound("Doom4/Weapon/Pistol/ChargedFire",CHAN_WEAPON,1);
 			}
 			A_AlertMonsters();
-			A_SetPitch(pitch-2.8);
+			
 			A_TakeInventory("PistolAltFireCounter",200);
 			A_TakeInventory("PistolLanceCounter",200);
 			A_StopSound(5);
 			A_StopSound(6);
+			for (int i = 0; i < P1 + 50; i++)
+			{
+				if (A_Overlay(i,"Overlay.PitchAlt",true))
+					break;
+			}
 		}
 		"####" C 1 { A_WeaponOffset(3,30); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
 		"####" C 1 { A_WeaponOffset(6,27); }
 		"####" D 1 { A_WeaponOffset(6,27); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
 		"####" D 1 { A_WeaponOffset(8,25); }
-		"####" D 1 { A_WeaponOffset(6,27); A_SetPitch(pitch+0.7); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
-		"####" D 1 { A_WeaponOffset(3,30); A_SetPitch(pitch+0.7); }
-		"####" C 1 { A_WeaponOffset(2,32); A_SetPitch(pitch+0.7); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
-		"####" C 1 { A_WeaponOffset(1,33); A_SetPitch(pitch+0.7); }
+		"####" D 1 { A_WeaponOffset(6,27); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+		"####" D 1 { A_WeaponOffset(3,30); }
+		"####" C 1 { A_WeaponOffset(2,32); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+		"####" C 1 { A_WeaponOffset(1,33); }
 		"####" A 1 { A_WeaponOffset(1,32); A_WeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_ALLOWRELOAD|WRF_NOSWITCH);	A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
 		"####" A 1 { A_Refire("AltFire"); A_WeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_ALLOWRELOAD|WRF_NOSWITCH);	}
 		Goto Ready;				

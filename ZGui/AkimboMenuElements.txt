@@ -14,17 +14,7 @@ extend class Drawer
 			DTA_ClipTop, int(ClipTop),
 			DTA_ClipLeft, int(ClipLeft),
 			DTA_ClipBottom, int(ClipBottom),
-			DTA_ClipRight, int(ClipRight)
-			
-			/*
-			DTA_ClipTop, int(ClipTop),
-			DTA_ClipLeft, int(ClipLeft),
-			DTA_ClipBottom, int(ClipBottom),
-			DTA_ClipRight, int(ClipRight)
-			*/
-			
-			
-			//,
+			DTA_ClipRight, int(ClipRight)//,
 			//DTA_Alpha, b.mAlpha,
 		);
 		
@@ -45,6 +35,7 @@ extend class Drawer
 				DTA_RenderStyle, b.mRenderStyle,
 				DTA_ColorOverlay, b.mColor,
 				DTA_AlphaChannel, true
+				//DTA_FillColor, b.mColor
 				
 			);
 	}
@@ -102,7 +93,7 @@ Struct ButtonState
 		mTex = TexMan.CheckForTexture(tex, TexMan.Type_Any);
 		text = tx;
 		if (ta >= 0.0) mAlpha = ta;
-		if (a >= 0) mColor.a = a;
+		if (a >= 0) mColor.a = Clamp(a, 0, 255);
 		if (r >= 0) mColor.r = Clamp(r, 0, 255);
 		if (g >= 0) mColor.g = Clamp(g, 0, 255);
 		if (b >= 0) mColor.b = Clamp(b, 0, 255);
@@ -115,14 +106,16 @@ Struct ButtonState
 		return text, fontColor, textAlpha;
 	}
 }
+
+
 class AkimboMenuButton : Element
 {
 	protected bool IsDown;
 	protected bool IsClicked;
 	protected bool IsHovered, wasHovered;
 	String gfx;
-	Weapon PlrWeapon;
-	Class<Weapon> WeaponID;
+	Inventory PlrItem;
+	Class<Inventory> ItemID;
 	PlayerPawn plr;
 	AkimboWeapon ak;
 	
@@ -266,40 +259,54 @@ class AkimboMenuButton : Element
 		wasHovered = isHovered;
 		IsClicked = false;
 		
-		if (WeaponID)
+		if (ItemID)
 		{
 			if (!plr)	plr = PlayerPawn(players[consoleplayer].mo);
 			if (plr)
 			{
-				if (!PlrWeapon)		PlrWeapon = Weapon(plr.FindInventory(WeaponID,true));	
-				if (PlrWeapon)
+				if (!ak)		ak = AkimboWeapon(plr.FindInventory("AkimboWeapon"));
+				if (ak)
 				{
-					if (!ak)		ak = AkimboWeapon(plr.FindInventory("AkimboWeapon"));
-					if (ak)
+					if (!PlrItem)		PlrItem = Weapon(plr.FindInventory(ItemID,true));	
+					if (PlrItem)
 					{
-						IsEnabled = (!(ak.LeftGun == WeaponID || ak.RightGun == WeaponID || ak.LeftPend == WeaponID || ak.RightPend == WeaponID));
+						
+						IsEnabled = (!(ak.LeftGun == ItemID || ak.RightGun == ItemID || ak.LeftPend == ItemID || ak.RightPend == ItemID));
 						
 						if (!IsEnabled)
 						{
 							if (IsRight)
 							{
-								if (ak.RightGun == WeaponID || ak.RightPend == WeaponID)
-									mButtonDisabled.text = (WeaponID == ak.RightPend) ? "Selected" : "Active";
+								if (ak.RightGun == ItemID || ak.RightPend == ItemID)
+									mButtonDisabled.text = (ItemID == ak.RightPend) ? "Selected" : "Active";
 							}
-							else if (ak.LeftGun == WeaponID || ak.LeftPend == WeaponID)
-								mButtonDisabled.text = (WeaponID == ak.LeftPend) ? "Selected" : "Active";
+							else if (ak.LeftGun == ItemID || ak.LeftPend == ItemID)
+								mButtonDisabled.text = (ItemID == ak.LeftPend) ? "Selected" : "Active";
 							
 						}
 					}
-					else { IsEnabled = false; mButtonDisabled.text = "Akimbo System unavailable"; }
-				}
-				else { IsEnabled = false; mButtonDisabled.text = "-----"; 
+					else 
+					{	
+						IsEnabled = false;
+						if (IsMod)
+						{
+							mButtonDisabled.text = "X";
+							mButtonDisabled.fontColor = Font.CR_RED;
+						}
+						else
+						{
+							mButtonDisabled.text = "-----";
+							mButtonDisabled.fontColor = Font.CR_ORANGE;
+						}
 						mButtonDisabled.mColor.r = 32;
 						mButtonDisabled.mColor.g = 32;
 						mButtonDisabled.mColor.b = 32;
 						mButtonDisabled.mColor.a = 255;
 						mButtonDisabled.mAlpha = 0.9;
-						mButtonDisabled.fontColor = Font.CR_ORANGE; }
+					}
+					
+				}
+				else { IsEnabled = false; mButtonDisabled.text = "Akimbo System unavailable"; }
 			}
 			else { IsEnabled = false; mButtonDisabled.text = "Player Non-Existant"; }
 				
@@ -359,6 +366,8 @@ class AkimboMenuElement : Element
 	AkimboMenuButton mbCarrionCannon[2];
 	AkimboMenuButton mbBFG[2];
 	
+	TextInfo MenuDesc[10];
+	
 	// this is used for navigating with arrows
 	//Array<AkimboMenuButton> mButtonsLeft;
 	//Array<AkimboMenuButton> mButtonsRight;
@@ -366,7 +375,7 @@ class AkimboMenuElement : Element
 	int mButton;
 	
 	private double mbPosX, mbPosY;
-	private AkimboMenuButton AddButton(Class<Weapon> WeaponID, String texName, bool right, String HText = "", bool mod = false)
+	private AkimboMenuButton AddButton(Class<Weapon> ItemID, String texName, bool right, String HText = "", bool mod = false)
 	{
 		// button size varies based on the texture.
 		Rect r = GetClientRect();
@@ -384,7 +393,7 @@ class AkimboMenuElement : Element
 		button.mRect = Rect.FromXYWH(mbPosX - (Tex.X / 2.0), mbPosY - Tex.Y, Tex.X, Tex.Y);
 		mbPosY += ScreenSpacingY;
 		button.plr = plr;
-		button.WeaponID = WeaponID;
+		button.ItemID = ItemID;
 		button.IsRight = right;
 		button.IsMod = mod;
 		button.PostCreate(HText);
@@ -443,6 +452,38 @@ class AkimboMenuElement : Element
 		AddChild(mMouse);
 		mMouse.mRect = GetClientRect().Clone();
 		
+		Rect r = GetClientRect();
+		Drawer d = GetDrawer();
+		
+		//SetText(String t, Font m, int col, double xpos, double ypos, int al = 0)
+		Font mf = "BIGFONT";
+		int fh = mf.GetHeight() + 5;
+		double TopStart = 			(r.Height / 10);
+		double LeftAlign = 			(r.Width / 4);
+		double AlignOffset = 	80;
+		double RightAlign = 		(r.Width * 3 / 4);
+		double CenterAlign = 		(r.Width / 2);
+		
+		String Text = "Select Weapons";
+		MenuDesc[0].SetText(Text, mf, Font.CR_RED, 		CenterAlign, TopStart, Drawer.Align_Center);
+		Text = "The following keybinds are different while akimbo is active:";
+		MenuDesc[1].SetText(Text, mf, Font.CR_ORANGE, 	CenterAlign, TopStart + (fh * 2), Drawer.Align_Center);
+		Text = "-->";
+		MenuDesc[2].SetText(Text, mf, Font.CR_GOLD, 	CenterAlign, TopStart + (fh * 3), Drawer.Align_Center);
+		Text = "Cycle Grenade (Next)";
+		MenuDesc[3].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 3), Drawer.Align_Left);
+		Text = "Cycle Grenade (Prev)";
+		MenuDesc[4].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 4), Drawer.Align_Left);
+		Text = "Switch Right Mod";
+		MenuDesc[5].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 3), Drawer.Align_Right);
+		Text = "Switch Left Mod";
+		MenuDesc[6].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 4), Drawer.Align_Right);
+		Text = "Cannot Use Grenades";
+		MenuDesc[7].SetText(Text, mf, Font.CR_RED, 		CenterAlign, TopStart + (fh * 6), Drawer.Align_Center);
+		Text = "Cannot Melee";
+		MenuDesc[8].SetText(Text, mf, Font.CR_RED, 		CenterAlign, TopStart + (fh * 7), Drawer.Align_Center);
+		Text = "Faster weapon + Mod Switching";
+		MenuDesc[9].SetText(Text, mf, Font.CR_GREEN, 	CenterAlign, TopStart + (fh * 8), Drawer.Align_Center);
 	}
 
 	override void Draw()
@@ -453,6 +494,16 @@ class AkimboMenuElement : Element
 		// this is very important.
 		d.Dim(0x000000, 0.5, 0, 0, r.Width, r.Height);
 		//d.DrawTexture(mDoom, false, r.Width/2-64, 48);
+		int size = MenuDesc.Size();
+		for (int i = 0; i < size; i++)
+			d.DrawText(
+				MenuDesc[i].mFont,
+				MenuDesc[i].FontColor,
+				MenuDesc[i].X,
+				MenuDesc[i].Y,
+				MenuDesc[i].Text,
+				1.0,
+				MenuDesc[i].Align);
 	}
 	
 	override bool Process(ElementEvent e)
@@ -478,7 +529,7 @@ class AkimboMenuElement : Element
 			{
 				if (mButtons[i].CheckClicked())
 				{
-					let Weap = plr.FindInventory(mButtons[i].WeaponID,true);
+					let Weap = plr.FindInventory(mButtons[i].ItemID,true);
 					if (Weap)
 					{
 						String WeapName = Weap.GetClassName();
@@ -552,5 +603,24 @@ class AkimboMenuElement : Element
 		}
 	
 		return false;
+	}
+}
+
+Struct TextInfo
+{
+	String Text;
+	Font mFont;
+	int FontColor;
+	double X, Y;
+	int Align;
+	
+	void SetText(String t, Font m, int col, double xpos, double ypos, int al = 0)
+	{
+		Text = t;
+		mFont = m;
+		FontColor = col;
+		X = xpos;
+		Y = ypos;
+		Align = al;
 	}
 }
