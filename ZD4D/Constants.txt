@@ -54,6 +54,7 @@ enum D4cns
 	PrepLayer,
 	FireLayer,
 	NoiseLayer,
+	ChaingunFlash,
 	SovietsaurusSpinopatimus,
 	// SSG Layers
 	RGun,
@@ -105,6 +106,10 @@ enum D4cns
 	WeapBob = PSPF_ADDBOB,
 	WeapMove = PSPF_ADDWEAPON,
 	Channels = CHAN_NOPAUSE|CHAN_AUTO,
+	SovietDmg = 800,
+	SpinMax = 48,
+	ZSpin = 666,
+	
 };
 const BloodDistanceLimit = 2048.0;
 

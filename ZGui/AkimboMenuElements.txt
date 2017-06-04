@@ -366,7 +366,7 @@ class AkimboMenuElement : Element
 	AkimboMenuButton mbCarrionCannon[2];
 	AkimboMenuButton mbBFG[2];
 	
-	TextInfo MenuDesc[10];
+	TextInfo MenuDesc[16];
 	
 	// this is used for navigating with arrows
 	//Array<AkimboMenuButton> mButtonsLeft;
@@ -479,11 +479,25 @@ class AkimboMenuElement : Element
 		Text = "Switch Left Mod";
 		MenuDesc[6].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 4), Drawer.Align_Right);
 		Text = "Cannot Use Grenades";
-		MenuDesc[7].SetText(Text, mf, Font.CR_RED, 		CenterAlign, TopStart + (fh * 6), Drawer.Align_Center);
+		MenuDesc[7].SetText(Text, mf, Font.CR_RED, 		CenterAlign, TopStart + (fh * 9), Drawer.Align_Center);
 		Text = "Cannot Melee";
-		MenuDesc[8].SetText(Text, mf, Font.CR_RED, 		CenterAlign, TopStart + (fh * 7), Drawer.Align_Center);
+		MenuDesc[8].SetText(Text, mf, Font.CR_RED, 		CenterAlign, TopStart + (fh * 10), Drawer.Align_Center);
 		Text = "Faster weapon + Mod Switching";
-		MenuDesc[9].SetText(Text, mf, Font.CR_GREEN, 	CenterAlign, TopStart + (fh * 8), Drawer.Align_Center);
+		MenuDesc[9].SetText(Text, mf, Font.CR_GREEN, 	CenterAlign, TopStart + (fh * 11), Drawer.Align_Center);
+		
+		
+		Text = "Quick Melee";
+		MenuDesc[10].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 5), Drawer.Align_Left);
+		Text = "Switch Active Weapons";
+		MenuDesc[11].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 5), Drawer.Align_Right);
+		Text = "Switch Mod";
+		MenuDesc[12].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 6), Drawer.Align_Left);
+		Text = "Fire Right Secondary";
+		MenuDesc[13].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 6), Drawer.Align_Right);
+		Text = "Throw Grenade";
+		MenuDesc[14].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 7), Drawer.Align_Left);
+		Text = "Fire Left Secondary";
+		MenuDesc[15].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 7), Drawer.Align_Right);
 	}
 
 	override void Draw()

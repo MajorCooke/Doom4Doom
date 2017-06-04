@@ -94,7 +94,7 @@ extend Class AkimboWeapon
 	action void AkPlaySound(Sound snd, int slot = CHAN_BODY, double volume = 1.0, bool looping = false, int attenuation = ATTN_NORM, bool local = false, int id = 0)
 	{
 		if (!id) id = OverlayID();
-		int who = id - AKBase;
+		int who = (id < 0) ? Left : Right;
 		
 		if (who < 0 || who > invoker.SoundMaker.Size())	return;
 		invoker.SoundMaker[who].A_PlaySound(snd,slot,volume,looping,attenuation,local);
@@ -147,6 +147,69 @@ extend Class AkimboWeapon
 				else							psp.Tics /= 2;
 			}
 		}
+	}
+	
+	action void AkSpriteFrame(String spr = '', int fr = -1, int id = 0)
+	{
+		int len = spr.Length();
+		if (len != 4 && fr < 0)	
+		{
+			if (len > 0)
+				Console.Printf("Sprite must be 4 characters long!");
+			return;
+		}
+		
+		if (!id) id = OverlayID();
+		
+		// Don't do anything if invalid player or psprite.
+		let plr = invoker.owner.player;
+		if (!plr) return;
+		
+		let psp = plr.FindPSprite(id);
+		if (!psp) return;
+		
+		// Make sure the length is correct.
+		if (len > 0)
+		{
+			if (len == 4)
+			{
+				psp.Sprite = GetSpriteIndex(spr);
+			}
+			else
+			{
+				Console.Printf("Sprite must be 4 characters long!");
+			}
+		}
+		
+		if (fr > 0)
+		{
+			psp.Frame = fr;
+		}
+		return;
+	}
+	
+	//--------------------------------------------------------------------------
+	action bool AkOverlay(int layer, statelabel start = null, bool nooverride = false, int id = 0)
+	{
+		if (!id) id = OverlayID();
+		
+		bool ret = A_Overlay(layer, start, nooverride);
+		if (!ret)	return false;
+		
+		if (id < 0)
+		{
+			A_OverlayFlags(layer,PSPF_FLIP|PSPF_ADDWEAPON,true);
+		}
+		let plr = invoker.owner.player;
+		if (!plr) return ret;
+		
+		let psr = plr.FindPSprite(id);
+		let psp = plr.FindPSprite(layer);
+		if (!psp || !psr)	return ret;
+		
+		psp.oldx = psp.x = psr.x;
+		psp.oldy = psp.y = psr.y;
+		return ret;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -279,14 +342,13 @@ extend Class AkimboWeapon
 	
 	//--------------------------------------------------------------------------
 	// Checks for fire buttons being pressed, with an option to allow refire.
+	// alt - Check the secondary fire (A[side]) instead of the primary (P[side]).
 	action bool AkCheckFire(bool alt = false, bool refire = true, int id = 0)
 	{
 		if (!id)	id = OverlayID();
 		if (id == OV_LeftWeapon)
 		{
-			//if (refire)
 			return (invoker.InputCur & (alt ? ALeft : PLeft)) && (refire || !(invoker.InputOld & (alt ? ALeft : PLeft)));
-			//return (invoker.InputCur & (alt ? ALeft : PLeft)) && (!refire || !(invoker.InputOld & (alt ? ALeft : PLeft)));
 		}
 		else if (id == OV_RightWeapon)
 		{
@@ -295,12 +357,14 @@ extend Class AkimboWeapon
 		return false;
 	}
 	
+	
+	
 	//--------------------------------------------------------------------------
 	// Determines which side to orient things like projectile spawning.
 	action double Side(double val = 1.0)
 	{
 		int id = OverlayID();
-		return val * (id == OV_LeftWeapon ? -1 : 1);
+		return val * ((id <= 0) ? -1 : 1);
 	}
 	//--------------------------------------------------------------------------
 	// AKWeaponReady
@@ -484,6 +548,8 @@ extend Class AkimboWeapon
 					invoker.RightNext = null;
 					for (int i = 0; i < 8; i++)
 						invoker.SoundMaker[Left].A_StopSound(i);
+					//A_ClearOverlays(OV_RightWeapon + 1, OV_RightWeapon + 10000);
+					//A_ClearOverlays(OV_RightWeapon - 10000, OV_RightWeapon - 1);
 				}
 				else
 				{
@@ -492,6 +558,8 @@ extend Class AkimboWeapon
 					invoker.LeftNext = null;
 					for (int i = 0; i < 8; i++)
 						invoker.SoundMaker[Right].A_StopSound(i);
+					//A_ClearOverlays(OV_LeftWeapon + 1, OV_LeftWeapon + 10000);
+					//A_ClearOverlays(OV_LeftWeapon - 10000, OV_LeftWeapon - 1);
 				}
 				return;
 			}

@@ -286,13 +286,13 @@ Class D4BulletPuff : Actor replaces BulletPuff
 		+PUFFONACTORS
 		+FORCEXYBILLBOARD
 		+HITTRACER
+		+ALWAYSPUFF
 		Scale 0.25;
 		Decal "BulletChip";
 	}
 	States
 	{
 	Spawn:	//non bleeder
-	Crash:
 		TNT1 A 0 NODELAY
 		{
 			if(random(1,2)==3)
