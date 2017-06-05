@@ -470,13 +470,13 @@ class AkimboMenuElement : Element
 		MenuDesc[1].SetText(Text, mf, Font.CR_ORANGE, 	CenterAlign, TopStart + (fh * 2), Drawer.Align_Center);
 		Text = "-->";
 		MenuDesc[2].SetText(Text, mf, Font.CR_GOLD, 	CenterAlign, TopStart + (fh * 3), Drawer.Align_Center);
-		Text = "(NYI)Cycle Grenade (Next)";
+		Text = "(NYI) Cycle Grenade (Next)";
 		MenuDesc[3].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 3), Drawer.Align_Left);
-		Text = "(NYI)Cycle Grenade (Prev)";
+		Text = "(NYI) Cycle Grenade (Prev)";
 		MenuDesc[4].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 4), Drawer.Align_Left);
-		Text = "(NYI)Switch Right Mod";
+		Text = "(NYI) Switch Right Mod";
 		MenuDesc[5].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 3), Drawer.Align_Right);
-		Text = "(NYI)Switch Left Mod";
+		Text = "(NYI) Switch Left Mod";
 		MenuDesc[6].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 4), Drawer.Align_Right);
 		Text = "Cannot Use Grenades";
 		MenuDesc[7].SetText(Text, mf, Font.CR_RED, 		CenterAlign, TopStart + (fh * 9), Drawer.Align_Center);
@@ -485,7 +485,7 @@ class AkimboMenuElement : Element
 		Text = "Faster weapon + Mod Switching";
 		MenuDesc[9].SetText(Text, mf, Font.CR_GREEN, 	CenterAlign, TopStart + (fh * 11), Drawer.Align_Center);
 		Text = "Press-to-hold becomes toggle or instant activation";
-		MenuDesc[16].SetText(Text, mf, Font.CR_GREEN, 	CenterAlign, TopStart + (fh * 11), Drawer.Align_Center);
+		MenuDesc[16].SetText(Text, mf, Font.CR_GREEN, 	CenterAlign, TopStart + (fh * 12), Drawer.Align_Center);
 		
 		
 		Text = "Quick Melee";
@@ -494,9 +494,9 @@ class AkimboMenuElement : Element
 		MenuDesc[11].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 5), Drawer.Align_Right);
 		Text = "(P)Switch Mod";
 		MenuDesc[12].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 6), Drawer.Align_Left);
-		Text = "(NYI)Fire Right Secondary";
+		Text = "(NYI) Fire Right Secondary";
 		MenuDesc[13].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 6), Drawer.Align_Right);
-		Text = "(P)Throw Grenade";
+		Text = "(P) Throw Grenade";
 		MenuDesc[14].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 7), Drawer.Align_Left);
 		Text = "Fire Left Secondary";
 		MenuDesc[15].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 7), Drawer.Align_Right);
