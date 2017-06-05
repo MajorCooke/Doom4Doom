@@ -9,15 +9,13 @@ const LGChainDmgMinUpgrade = 4;
 const LGChainDmgMaxUpgrade = 8;
 
 const AltTrailLength = 256; //Indicates how far a beam can zap others with secondary.
+const SHeight = -12;
+const FBFlags = FBF_USEAMMO|FBF_PUFFTRACER|FBF_NORANDOMPUFFZ;
+const FBFlagsNoAmmo = FBF_PUFFTRACER|FBF_NORANDOMPUFFZ;
+
 
 Class D4LightningGun : Doom4Weapon
 {
-	enum LightningGun
-	{
-		SHeight = -12,
-		FBFlags = FBF_USEAMMO|FBF_PUFFTRACER|FBF_NORANDOMPUFFZ,
-		FBFlagsNoAmmo = FBF_PUFFTRACER|FBF_NORANDOMPUFFZ,
-	};
 	Default 
 	{
 		+FLOORCLIP
@@ -75,8 +73,8 @@ Class D4LightningGun : Doom4Weapon
 	Ready:
 		LGNI A 0 
 		{
-			A_TakeInventory("AltFireToken",32767);
-			if(countinv("LGUpgradeAltFire"))
+			A_SetInventory("AltFireToken",0);
+			if (countinv("LGUpgradeAltFire"))
 			{ return ResolveState("ReadyWithAltFire"); }
 			else
 			{ return ResolveState("ReadyNoAltFire"); }

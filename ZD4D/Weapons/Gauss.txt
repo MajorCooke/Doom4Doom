@@ -17,10 +17,10 @@
 //   but not when hitting a wall/plane
 // - Siege mode, basically explodes everywhere around the beam and the puff. DOES pierce monsters.
 //===================================================================================================
-
+const SparsitySmall = 10.415;
 Class D4GaussCannon : Doom4Weapon
 {
-	const SparsitySmall = 10.415;
+	
 	Default 
 	{
 		+WEAPON.NOALERT

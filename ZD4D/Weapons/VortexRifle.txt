@@ -18,15 +18,19 @@
 // ->VortexUpgradeAltSpeed: Removes the player slowdown while aiming with the scope
 // ->VortexUpgradeAltPierce: Allows alt fire to pierce monsters
 //===================================================================================================
-
+const Sparsity = 10.415;
+const FlagsNoPierce = 	RGF_NORANDOMPUFFZ|RGF_SILENT|RGF_FULLBRIGHT|RGF_NOPIERCING;
+const FlagsPierce = 	RGF_NORANDOMPUFFZ|RGF_SILENT|RGF_FULLBRIGHT;
 Class D4VortexRifle : Doom4Weapon
 {
+	/*
 	enum VortexRifle
 	{
 		FlagsNoPierce = 	RGF_NORANDOMPUFFZ|RGF_SILENT|RGF_FULLBRIGHT|RGF_NOPIERCING,
 		FlagsPierce = 		RGF_NORANDOMPUFFZ|RGF_SILENT|RGF_FULLBRIGHT,
 	};
 	const Sparsity = 10.415;
+	*/
 	Default 
 	{
 		+FLOORCLIP

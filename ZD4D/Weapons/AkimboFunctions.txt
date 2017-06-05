@@ -267,12 +267,14 @@ extend Class AkimboWeapon
 	action void AkOffsetD(double offsx = 0.0, double offsy = 0.0, int flags = 0, bool update = false, int id = 0, int newtic = -1)
 	{
 		if (!id) id = OverlayID();
-		if (id == OV_LeftWeapon)
+		if (id < 0)
 		{
-			if (flags & WOF_KEEPX) offsx = invoker.LO.x;
-			if (flags & WOF_KEEPY) offsy = invoker.LO.y;
 			// Inverse the X coordinates here so it acts like mirroring. Saves a fuckton of time.
-			invoker.LO = (flags & WOF_ADD) ? (invoker.LO + (-offsx, offsy)) : (-offsx, offsy);
+			//invoker.LO = (flags & WOF_ADD) ? (invoker.LO + (-offsx, offsy)) : (-offsx, offsy);
+			offsx *= -1;
+			if (!(flags & WOF_KEEPX)) invoker.LO.X = (flags & WOF_ADD) ? (invoker.LO.X + offsx) : offsx;
+			if (!(flags & WOF_KEEPY)) invoker.LO.Y = (flags & WOF_ADD) ? (invoker.LO.Y + offsy) : offsy;
+			
 			
 			if (update)
 			{
@@ -282,11 +284,10 @@ extend Class AkimboWeapon
 					((flags & WOF_INTERPOLATE) ? WOF_INTERPOLATE : 0));
 			}
 		}
-		else if (id == OV_RightWeapon)
+		else if (id > 0)
 		{
-			if (flags & WOF_KEEPX) offsx = invoker.RO.x;
-			if (flags & WOF_KEEPY) offsy = invoker.RO.y;
-			invoker.RO = (flags & WOF_ADD) ? (invoker.RO + (offsx, offsy)) : (offsx, offsy);
+			if (!(flags & WOF_KEEPX)) invoker.RO.X = (flags & WOF_ADD) ? (invoker.RO.X + offsx) : offsx;
+			if (!(flags & WOF_KEEPY)) invoker.RO.Y = (flags & WOF_ADD) ? (invoker.RO.Y + offsy) : offsy;
 			
 			if (update)
 			{
@@ -532,14 +533,14 @@ extend Class AkimboWeapon
 		if (psp)
 		{
 			invoker.Status[(id == OV_RightWeapon ? Right : Left)] = ChangeWeapon;
-			psp.oldy = psp.y;
+			//psp.oldy = psp.y;
 			//psp.y += LowerSpeed;
-			AkOffset((0,LowerSpeed),WOF_ADD);
+			AkOffset((0,LowerSpeed),WOF_ADD|WOF_INTERPOLATE,true);
 			double CurrentY = (id == OV_LeftWeapon) ? invoker.LO.y : invoker.RO.y;
 			if (CurrentY >= WEAPONBOTTOM || instalower)
 			{
 				//psp.y = psp.oldy = WEAPONBOTTOM;
-				AkOffset((0,WEAPONBOTTOM));
+				AkOffset((0,WEAPONBOTTOM),WOF_INTERPOLATE,true);
 				psp.SetState(player.ReadyWeapon.FindState((id == OV_RightWeapon) ? invoker.RightNext : invoker.LeftNext, true));
 				if (id == OV_RightWeapon)
 				{
@@ -901,6 +902,18 @@ extend Class AkimboWeapon
 			}
 		}
 		return false;
+	}
+	
+	//==========================================================================
+	// Needed for the carrion cannon.
+	Array<Actor> Enemies;
+	Array<Double> EnemyDistance;
+	action void OpeningPortals(int count, int ammoConsume)
+	{
+		invoker.owner.A_SetInventory("CarrionPortalsOpened",count);
+		invoker.owner.A_AlertMonsters();
+		invoker.owner.A_PlaySound("Doom4/Monsters/ArgentCharge",CHAN_AUTO,1,0,ATTN_NONE);
+		invoker.owner.A_TakeInventory("D4Carrion",ammoConsume,TIF_NOTAKEINFINITE);
 	}
 	
 	//==========================================================================
