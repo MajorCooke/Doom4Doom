@@ -103,7 +103,7 @@ extend Class AkimboWeapon
 	action void AkStopSound(int chmin, int chmax = -1, int id = 0)
 	{
 		if (!id) id = OverlayID();
-		int who = Clamp(id - AKBase, 0, 1);
+		int who = id < 0 ? 0 : 1;
 		
 		if (invoker.SoundMaker[who])
 		{
