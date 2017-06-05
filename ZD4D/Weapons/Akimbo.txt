@@ -5,317 +5,3418 @@
 	
 ================================================================================
 
-The idea is simple: Hold one weapon in the left, and the other one in the right.
-This is not the same as dual wielding, since the only weapon dual wieldable is
-the Super Shotgun.
+	The idea is simple: Hold one weapon in the left, and the other one in the 
+	right. This is not the same as dual wielding, since the only weapon dual 
+	wieldable is the Super Shotgun.
 
-Keys to assign:
+	The code is, unfortunately, far more complex. Ye be warned, all you
+	code sp'lunkers, your in for some nasty surprises and headaches.
 
-- user1: Change right mod
-- user2: Change left mod
-- user3: Fire left secondary
-- user4: Fire right secondary
-
-Will be changed to help accommodate if needed.
-
-To keep the code clean, see the bottom for all the functions.
+	To keep the code clean, see AkimboFunctions for all the functions and base
+	states (Select, Deselect, Ready, Fire).
 ==============================================================================*/
+
+Struct AkimboStates
+{
+	StateLabel ReadyState;
+	StateLabel FireState;
+	StateLabel AltFireState;
+	StateLabel SelectState;
+	StateLabel DeselectState;
+	StateLabel ModState;
+	
+	void Init()
+	{
+		ReadyState = FireState = AltFireState = SelectState = DeselectState = null;
+	}
+}
+
+Struct AkimboStateFlags
+{
+	bool bAddWeapon;
+	bool bAddBob;
+	bool bPowDouble;
+	bool bCVarFast;
+	bool bFlip;	
+}
 
 Class AkimboWeapon : Weapon
 {
-	int LeftStatus, RightStatus;
-	Name LeftName, RightName;
-	int UpdateLeft, UpdateRight;
-	
-	double OLX, OLY, ORX, ORY;		// Stands for Overlay <Left/Right> <X/Y>
-	enum Status
+	enum StatesNum
 	{
-		Ready,			// Ready to fire
+		ID_D4Pistol = 1,
+		ID_D4Shotgun,
+		ID_D4SuperShotgun,
+		ID_D4Repeater,
+		ID_D4AssaultRifle,
+		ID_D4Chaingun,
+		ID_D4RocketLauncher,
+		ID_D4PlasmaRifle,
+		ID_D4LightningGun,
+		ID_D4GaussCannon,
+		ID_D4VortexRifle,
+		ID_D4StaticRifle,
+		ID_D4CarrionCannon,
+		ID_D4BFG
+	};
+	AkimboStates as[15], LeftStates, RightStates;
+	int Status[2];
+	StateLabel LeftNext, RightNext;
+	Class<Weapon> LeftPend, RightPend;
+	Class<Weapon> LeftGun, RightGun;
+	int InputCur, InputOld;
+	int WeaponFlags;
+	Vector2 LOff, ROff, LO, RO;
+	uint8 WeaponID[2];
+	bool IsLowering;
+	bool interpolate[2];
+	Actor SoundMaker[2];
+	enum StatusState
+	{
+		Left = 0,
+		Right = 1,
+		Nurr = 0,
+		Ready = 1,		// Ready to fire
 		Fire,			// Firing primary
 		AltFire,		// Firing secondary
 		ChangeMod,		// Changing mods
 		ChangeWeapon,	// Changing weapons
+		Raise,			// Raising
+		Lower,			// Lowering
 	};
 	enum AKOverlays
 	{
-		AKRLow = 30002,
+		AKBase = 30000,
+		AKRLow = 30001,
 		AKRHigh = 39999,
-		OV_LeftWeapon = 30000,
-		OV_RightWeapon = 30001,
-		OV_CheckWeapons = 30002,
+		OV_RightWeapon = 30000,
+		OV_LeftWeapon = -30000,
 		OV_SwitchLeft,
 		OV_SwitchRight,
+		OV_Custom
 	};
 	Default
 	{
+		Weapon.BobStyle "Alpha";
+		Weapon.BobSpeed 2.0;
+		Weapon.BobRangeX 0.7;
+		Weapon.BobRangeY 0.5;
 		+WEAPON.AMMO_OPTIONAL
 		+WEAPON.ALT_AMMO_OPTIONAL
 		+INVENTORY.UNDROPPABLE
 		+INVENTORY.UNTOSSABLE
+		+WEAPON.NOALERT
+		+WEAPON.NOAUTOFIRE
 		Weapon.UpSound "Doom4/Weapons/WeaponSwitch";
 		Tag "Akimbo Guns";
 	}
 	States
-	{
-	Spawn:
-		M666 A -1;
-		Stop;
-	Select:
-		M666 A 1 A_Overlay(OV_CheckWeapons,"OV.CheckWeapons");
-	SelLoop:
-		M666 A 1 A_Raise();
-		M666 AAAA 0 A_Raise();
-		Loop;
-	Deselect:
-		M666 A 0 
+	{	
+	
+	// Main states are in AkimboFunctions.txt
+	
+
+	//==========================================================================
+	//==========================================================================
+	// Pistol
+	//==========================================================================
+	//==========================================================================
+	D4Pistol.Select:
+		WEP1 A 0 
 		{
-			// 
-			A_OverlayFlags(OV_LeftWeapon, PSPF_ADDWEAPON, true);
-			A_OverlayFlags(OV_RightWeapon, PSPF_ADDWEAPON, true);
-			A_ClearOverlays(AKRLow, AKRHigh);
+			PSprite psp = player.FindPSprite(OverlayID());
+				if (psp) psp.Sprite = GetSpriteIndex(CountInv("PistolUpgradeDamage") ? "PIS2" : "WEP1");
+			UpdateStates(ID_D4Pistol); 
 		}
-	DesLoop:
-		M666 A 1 A_Lower();
-		M666 AAAA 0 A_Lower();
-		Loop;
-	Ready:
-		M666 A 1 
+		Goto CommonSelect;
+	D4Pistol.Ready:
+		---- A 1 
 		{
-			A_Overlay(OV_CheckWeapons,"OV.CheckWeapons",true);
-			A_WeaponReady(WRF_NOFIRE|WRF_ALLOWUSER1|WRF_ALLOWUSER2|WRF_ALLOWUSER3|WRF_ALLOWUSER4);
+			PSprite psp = player.FindPSprite(OverlayID());
+			if (psp) psp.Sprite = GetSpriteIndex(CountInv("PistolUpgradeDamage") ? "PIS2" : "WEP1");
+			AkWeaponReady(0, true); 
 		}
 		Loop;
-	Fire:
-		M666 A 1;
-		Goto Ready;
+	D4Pistol.Fire:
+		"####" "#" 0 Bright  
+		{
+			AkOffset();
+			if (CountInv("PistolUpgradeDamage"))
+				A_FireBullets(0,0,1,random(6,14),"D4PistolPuffRed",FBF_NORANDOMPUFFZ|FBF_NORANDOM); // from 6 to 14
+			else
+				A_FireBullets(0,0,1,3,"D4PistolPuffNormal",FBF_NORANDOMPUFFZ); //either 3, 6 or 9 dmg	
+		}
+	D4Pistol.FireCont:
+		#### B 1
+		{
+			int s = Side();
+			if (CountInv("PistolUpgradeDamage"))
+			{
+				AkPlaySound("Doom4/Weapon/Pistol2/Fire",CHAN_WEAPON,1);
+				A_FireProjectile("PistolTracerRed",0,0,6*s);
+			}
+			else
+			{
+				AkPlaySound("Doom4/Weapon/Pistol/Fire",CHAN_WEAPON,1);
+				A_FireProjectile("PistolTracerNormal",0,0,6*s);
+			}
+			A_AlertMonsters();
+			/*
+			for (int i = 0; i < P1 + 50; i++)
+			{
+				if (A_Overlay(i,"Overlay.Pitch",true))
+					break;
+			}
+			*/
+		}
+		"####" B 1 Bright {	AkWeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); AdjustHaste();	}
+		"####" C 1 { AkOffsetD( 3,-2, WOF_ADD); AkWeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); }
+		"####" C 1 { AkOffsetD( 3,-3, WOF_ADD, false, OverlayID(), 0); AkWeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); }
+		"####" C 1 { AkOffsetD( 2, 3, WOF_ADD); AkWeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); }
+		"####" A 1 { AkOffsetD(-6, 3, WOF_ADD, false, OverlayID(), 0); AkWeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); }
+		"####" A 1 { AkOffsetD(-2,-2, WOF_ADD);	AkWeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); }
+		"####" A 1 
+		{
+			AkOffsetD(0, 0, 0, false, OverlayID(), 0);
+			if (invoker.owner.CountInv("PistolUpgradeAutomatic"))		
+			{	AkRefire("D4Pistol.Fire");	}
+			
+			
+		}
+		Goto D4Pistol.Ready;
+	D4Pistol.AltFire:
+		ChargeStart:
+			TNT1 A 1 
+			{
+				Sound snd = CountInv("PistolUpgradeAltCharge") ? "Doom4/Weapon/Pistol2/Charge" : "Doom4/Weapon/Pistol/Charge";
+				AkPlaySound(snd,5,1,1);
+				
+				PSprite psp = player.FindPSprite(OverlayID());
+				if (psp) psp.Sprite = GetSpriteIndex(CountInv("PistolUpgradeAltDamage") ? "PIS2" : "WEP1");
+			}
+		D4Pistol.SecondaryCharging:
+			#### A 1
+			{
+				int counter[2];
+				counter[0] = CountInv("PistolAltFireCounter");
+				counter[1] = CountInv("PistolLanceCounter");
+				//------------
+				//charge speed upgrade check
+				
+				A_GiveInventory("PistolAltFireCounter",1 + CountInv("PistolUpgradeAltCharge") + (CountInv("PowerD4DFS") * 1));
+								
+				if (counter[1] >= 52)
+				{
+					if (!CountInv("PistolLanceReadyToken"))
+					{
+						A_SetInventory("PistolLanceReadyToken",1);
+						AkPlaySound("Doom4/Weapon/Shotgun/TripleShotAim",CHAN_WEAPON,1);
+					}
+				}				
+				if (counter[0] >= 50)
+				{
+					AkOffsetD(frandom(-2.0,2.0),frandom(-2.0,2.0));
+					if (CountInv("PistolLanceActive"))
+				    {
+					    A_GiveInventory("PistolLanceCounter",4 + (CountInv("PowerD4DFS") * 2)); 
+			     	}
+				}
+				else if ((counter[0] >= 35) || (counter[0] >= 20 && random(0,1))) 
+					AkOffsetD(frandom(-1.0,1.0),frandom(-1.0,1.0));
+				
+				AkRefire("D4Pistol.ReleaseCharge", true, false);
+				AkRefire("D4Pistol.ReleaseCharge", false, false);
+				AkWeaponReady(WRF_NOFIRE);
+			}
+			#### A 0 // Allow either to release the charge.
+			{
+				AkRefire("D4Pistol.ReleaseCharge", true, false);
+				AkRefire("D4Pistol.ReleaseCharge", false, false);
+				AkWeaponReady(WRF_NOFIRE);
+			}
+			Goto D4Pistol.SecondaryCharging;
+			
+	D4Pistol.ReleaseCharge:
+		"####" A 0
+		{
+			AkOffset();
+		    if (CountInv("PistolLanceReadyToken"))		{	return ResolveState("D4Pistol.ReleaseLance"); }
+			int count = CountInv("PistolAltFireCounter");
+			int dmg = 6;
+			Sound snd;
+			Class<Actor> puff;
+			let inv = invoker.owner.FindInventory("PistolAltFireCounter");
+			if (inv)
+			{
+				dmg = Clamp(inv.Amount, 1, inv.MaxAmount);
+				if (CountInv("PistolUpgradeAltDamage"))
+					dmg = random(6 * dmg, 14 * dmg);
+				else
+					dmg = random(3 * dmg, 9 * dmg);
+			}
+				 if (count >= 48) 	puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffBig1Red" : "D4PistolPuffBig1");
+			else if (count >= 32) 	puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffBig1Red" : "D4PistolPuffBig1");
+			else if (count >= 16) 	puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffBig1Red" : "D4PistolPuffBig1");
+			else					puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffRed" : 	 "D4PistolPuffNormal");
+			A_FireBullets(0,0,1,dmg,puff,FBF_NORANDOMPUFFZ);
+			A_TakeInventory("PistolAltFireCounter",100);
+			StateLabel next = 'D4Pistol.EndRelease'; if (count < 16)	next = 'D4Pistol.FireCont';
+			return ResolveState(next);
+		}
+	D4Pistol.EndRelease:
+		"####" B 2 Bright
+		{
+			int s = Side();
+			if (CountInv("PistolUpgradeAltDamage"))
+			{
+				A_FireProjectile("PistolTracerRed",0,0,6*s);
+				AkPlaySound("Doom4/Weapon/Pistol2/ChargedFire",CHAN_WEAPON,1);
+			}
+			else
+			{
+				A_FireProjectile("PistolTracerNormal",0,0,6*s);
+				AkPlaySound("Doom4/Weapon/Pistol/ChargedFire",CHAN_WEAPON,1);
+			}
+			A_AlertMonsters();
+			
+			A_TakeInventory("PistolAltFireCounter",200);
+			A_TakeInventory("PistolLanceCounter",200);
+			AkStopSound(5,6);
+			/*
+			for (int i = 0; i < P1 + 50; i++)
+			{
+				if (A_Overlay(i,"Overlay.PitchAlt",true))
+					break;
+			}
+			*/
+		}
+		"####" C 1 { AkOffsetD(3,-2, 0, false, OverlayID(), 0); }
+		"####" C 1 { AkOffsetD(6,-5); }
+		"####" D 1 { AkOffsetD(6,-5, 0, false, OverlayID(), 0); }
+		"####" D 1 { AkOffsetD(8,-7); }
+		"####" D 1 { AkOffsetD(6,-5, 0, false, OverlayID(), 0); }
+		"####" D 1 { AkOffsetD(3,-2); }
+		"####" C 1 { AkOffsetD(2, 0, 0, false, OverlayID(), 0); }
+		"####" C 1 { AkOffsetD(1, 1); }
+		"####" A 1 { AkOffsetD(1, 0, 0, false, OverlayID(), 0); AkWeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_ALLOWRELOAD|WRF_NOSWITCH); }
+		"####" A 1 { AkRefire("D4Pistol.AltFire"); AkWeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_ALLOWRELOAD|WRF_NOSWITCH);	}
+		Goto D4Pistol.Ready;				
+	D4Pistol.ReleaseLance:
+		"####" B 2 Bright
+		{
+			AkPlaySound("Doom4/Weapon/PistolL/Fire",CHAN_WEAPON,1);
+			A_RailAttack(100+random(1,180),2,1,"Green","Green",RGF_SILENT|RGF_FULLBRIGHT|RGF_NOPIERCING,0,"LanceShockwave",0,0,0,0,5,1.0,"LanceTrail",5);
+			A_AlertMonsters();
+			A_TakeInventory("PistolAltFireCounter",200);
+			A_TakeInventory("PistolLanceCounter",200);
+			A_TakeInventory("PistolLanceReadyToken",1);
+			AkStopSound(5);
+			AkStopSound(6);
+			/*
+			for (int i = P1; i < P4 + 1; i++)
+			{
+				if (A_Overlay(i, "Overlay.PitchAlt", true))
+					break;
+			}
+			*/
+		}
+		"####" BBBBB 2 Bright;
+		"####" C 1 { AkOffsetD(3,-2); }
+		"####" C 1 { AkOffsetD(6,-5, 0, false, OverlayID(), 0); }
+		"####" D 1 { AkOffsetD(6,-5); }
+		"####" D 1 { AkOffsetD(8,-7, 0, false, OverlayID(), 0); }
+		"####" D 1 { AkOffsetD(6,-7); }
+		"####" D 1 { AkOffsetD(3,-2, 0, false, OverlayID(), 0); }
+		"####" D 1 AkPlaySound("Doom4/Weapon/PistolL/Smoke",CHAN_WEAPON,1);
+		"####" DDDDDDDD 3 A_FireProjectile("SGSmokeSpawner",0,0,Side(6),2);
+		"####" C 1 { AkOffsetD(2, 0, 0, false, OverlayID(), 0); }
+		"####" C 1 { AkOffsetD(1, 1); }
+		"####" A 1 { AkOffsetD(1, 0, 0, false, OverlayID(), 0); AkWeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_ALLOWRELOAD|WRF_NOSWITCH); }
+		"####" A 1 { AkWeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_ALLOWRELOAD|WRF_NOSWITCH);	}
+		Goto D4Pistol.Ready;
+	//==========================================================================
+	//==========================================================================
+	// Shotgun
+	//==========================================================================
+	//==========================================================================
+	D4Shotgun.Select:
+		DW3A A 0 { UpdateStates(ID_D4Shotgun); }
+		Goto CommonSelect;
+	D4Shotgun.Ready:
+		DW3A A 1 
+		{
+			AkWeaponReady(WRF_NOSECONDARY, true);
+		}
+		Wait;
+	D4Shotgun.Fire:
+		"####" B 1 Bright 
+		{
+			int s = Side();
+			
+			if (GetCvar("user_TracerFX") > 0.0) //Remember, it's a SERVER cvar. Can't be a client.
+			{
+				for (int i = 0; i < 4; i++)
+					A_FireProjectile("BulletTracerFX",frandom(4.5,-4.5),0,7 * s,0,0,frandom(1.1,-1.1));
+			}
+			if(GetCvar("HQEffectsWeapons"))
+			{
+				for (int i = 0; i < 2; i++)
+					A_FireProjectile("SGSmokeSpawner",0,0,6 * s,2);
+			}
+			A_FireBullets(4.5,1.1,7,5);	//original SG is spread h5.6 v0.0. Here it adds to the same 5.6 total
+			A_AlertMonsters();
+			A_GunFlash("Null");
+			A_ZoomFactor(0.99,ZOOM_NOSCALETURNING);
+			AkPlaySound("Doom4/Weapon/Shotgun/Fire",CHAN_WEAPON,1);
+			A_SetBlend("orange",0.05,6);
+			AkOffsetD(6,4, WOF_INTERPOLATE, true);
+			//A_Overlay(2,"Overlay.PitchSetter");
+		}
+		"####" C 1 Bright AkOffsetD(8,6, WOF_INTERPOLATE, true);
+		"####" A 1 
+		{ 
+			A_ZoomFactor(1,ZOOM_NOSCALETURNING);
+			AkOffsetD(12,9, WOF_INTERPOLATE, true);
+		}
+		//AkWeaponReady(WRF_NOFIRE|WRF_NOBOB); 
+		"####" A 3 { AkOffsetD(16,12, WOF_INTERPOLATE, true, OverlayID(), 1); }
+		"####" A 1 { AkOffsetD(15, 9, WOF_INTERPOLATE, true); }
+		"####" A 1 { AkOffsetD(12, 6, WOF_INTERPOLATE, true, OverlayID(), 0); }
+		"####" A 1 { AkOffsetD(10, 5, WOF_INTERPOLATE, true); }
+		"####" A 1 { AkOffsetD( 8, 4, WOF_INTERPOLATE, true, OverlayID(), 0); }
+		"####" A 1 { AkOffsetD( 6, 3, WOF_INTERPOLATE, true); }
+		"####" A 1 { AkOffsetD( 4, 2, WOF_INTERPOLATE, true, OverlayID(), 0); }
+		"####" A 1 { AkOffsetD( 2, 1, WOF_INTERPOLATE, true); }
+		"####" A 1 { AkOffsetD( 0, 0, WOF_INTERPOLATE, true, OverlayID(), 0); }
+		//pump start
+		"####" DFHI 1 
+		{
+			AkWeaponReady(WRF_NOFIRE|WRF_NOBOB);
+			AkOffsetD(3,2,WOF_ADD|WOF_INTERPOLATE, true); //+12 + 8 
+		}
+		"####" H 2 
+		{
+			if (GetCvar("user_Casings"))	{ A_SpawnItemEx("ShotgunCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER); }
+			AdjustHaste(0);
+			AkWeaponReady(WRF_NOFIRE|WRF_NOBOB);
+		}
+		"####" HHHHGFED 1 
+		{
+			AkOffsetD(-1.5,-1.0,WOF_ADD|WOF_INTERPOLATE, true); //-9 -6
+			AkWeaponReady(WRF_NOFIRE|WRF_NOBOB);
+		}
+		"####" "#" 0 { AkRefire("D4Shotgun.Fire"); }
+		"####" "#" 0 { AkWeaponReady(WRF_NOBOB); }
+		Goto D4Shotgun.Ready;
 		
-	//==========================================================================
-	// Technical overlays
-	//==========================================================================
-	OV.CheckWeapons:
+	//--------------------------------------------------------------------------
+	D4SuperShotgun.Select:
+		M665 A 0 { UpdateStates(ID_D4SuperShotgun); A_SetInventory("SSRSecondShotToken", 0); A_SetInventory("SSLSecondShotToken", 0);}
+		Goto CommonSelect;
+	D4SuperShotgun.Ready:
+		M665 A 1 
+		{
+			AkWeaponReady(WRF_NOSECONDARY, true);
+			A_Overlay(OverlayID() + 10,"D4SuperShotgun.Watch", true);
+			/*
+			if (AkCheckFire(true, false))
+			{
+				ACS_NamedExecute("ToggleDoubleTrouble",0,0,0,0);
+			}
+			*/
+		}
+		Loop;
+	D4SuperShotgun.Watch:
 		M666 A 1
 		{
-			// Future note to self:
-			// class myclass = (class)(GetClass());
+			int id = OverlayID();
+			if (AkCheckFire(true, false, id - 10))
+			{
+				ACS_NamedExecute("ToggleDoubleTrouble",0,0,0,0);
+			}
+			if (invoker.LeftGun != "D4SuperShotgun" && invoker.RightGun != "D4SuperShotgun" && id != PSP_WEAPON)
+				return Destroy();
+		}
+		Wait;
+	D4SuperShotgun.Fire:
+		M665 B 1 Bright 
+		{
+			//AkOffsetD();
+			//AkOffsetD(12,5,WOF_ADD);
+			AkOffsetD(12,5);
 			
-			if (invoker.RightName == '')
+			int s = Side();
+			double newspread = (CountInv("SSGUpgrade3") ? 7.1 : 11.2);
+			//-----------------------------------------------------
+			// Double trouble section
+			//A_TakeInventory("D4Shells",1,TIF_NOTAKEINFINITE);
+			A_GunFlash("Null");
+			class<Actor> PuffRail = null;
+			int gibbing = GetCVar("user_SSGGib");
+			
+				 if (gibbing == 0)	PuffRail = "D4BulletPuffForRails";
+			else if (gibbing == 1)	PuffRail = random(0,1) ? "D4BulletPuffForRails" : "D4BulletPuffForRailsExtreme";
+			else					PuffRail = "D4BulletPuffForRailsExtreme";
+			
+			int repeat = (!GetCvar("D4D_DTMode") && !CountInv("SSRSecondShotToken")) ? 2 : 1;
+			
+			for (int i = 0; i < repeat; i++)
 			{
-					 if (CountInv("D4Pistol") && 			!(invoker.LeftName == 'D4Pistol'))			{	invoker.RightName = 'D4Pistol'; }
-				else if (CountInv("D4Shotgun") && 			!(invoker.LeftName == 'D4Shotgun'))			{	invoker.RightName = 'D4Shotgun'; }
-				else if (CountInv("D4SuperShotgun") && 		!(invoker.LeftName == 'D4SuperShotgun'))	{	invoker.RightName = 'D4SuperShotgun'; }
-				else if (CountInv("D4Repeater") && 			!(invoker.LeftName == 'D4Repeater'))		{	invoker.RightName = 'D4Repeater'; }
-				else if (CountInv("D4AssaultRifle") && 		!(invoker.LeftName == 'D4AssaultRifle'))	{	invoker.RightName = 'D4AssaultRifle'; }
-				else if (CountInv("D4Chaingun") && 			!(invoker.LeftName == 'D4Chaingun'))		{	invoker.RightName = 'D4Chaingun'; }
-				else if (CountInv("D4RocketLauncher") && 	!(invoker.LeftName == 'D4RocketLauncher'))	{	invoker.RightName = 'D4RocketLauncher'; }
-				else if (CountInv("D4PlasmaRifle") && 		!(invoker.LeftName == 'D4PlasmaRifle'))		{	invoker.RightName = 'D4PlasmaRifle'; }
-				else if (CountInv("D4LightningGun") && 		!(invoker.LeftName == 'D4LightningGun'))	{	invoker.RightName = 'D4LightningGun'; }
-				else if (CountInv("D4GaussCannon") && 		!(invoker.LeftName == 'D4GaussCannon'))		{	invoker.RightName = 'D4GaussCannon'; }
-				else if (CountInv("D4VortexRifle") && 		!(invoker.LeftName == 'D4VortexRifle'))		{	invoker.RightName = 'D4VortexRifle'; }
-				else if (CountInv("D4StaticRifle") && 		!(invoker.LeftName == 'D4StaticRifle'))		{	invoker.RightName = 'D4StaticRifle'; }
-				else if (CountInv("D4BFG") && 				!(invoker.LeftName == 'D4BFG'))				{	invoker.RightName = 'D4BFG'; }
-				else if (CountInv("D4CarrionCannon") && 	!(invoker.LeftName == 'D4CarrionCannon'))	{	invoker.RightName = 'D4CarrionCannon'; }
-				else 
-				{	
-					A_SelectWeapon("D4Pistol");	// Fallback.
+				if (CountInv("SSGUpgrade2"))	//if you have piercing shots
+				{
+					
+					for (int i = 0; i < 10; i++)
+					{
+						double sprs = 10.415 * 4.0;
+						if (i < 7)	{	A_RailAttack(DmgBase*random(DmgMulMin,DmgMulMax),5*s,0,-1,-1,RGF_SILENT|RGF_EXPLICITANGLE,0,PuffRail,frandom(-newspread,newspread),frandom(-SpreadZ,SpreadZ),0,0,sprs,0,"BulletTrailBeam");	}
+						else		{	A_RailAttack(DmgBase*random(DmgMulMin,DmgMulMax),0,0,-1,-1,RGF_SILENT|RGF_EXPLICITANGLE,0,PuffRail,frandom(-newspread,newspread),frandom(-SpreadZ,SpreadZ));	}
+					}
+					
+				}
+				else //if you dont have piercing shots, then you're in normal state
+				{
+					A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,7,DmgBase,PuffRail,0,0,"BulletTracerFX",0,5*s);
+					A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,3,DmgBase,PuffRail,0,0);
 				}
 			}
-			if (invoker.LeftName == '')
+			
+			if (GetCvar("HQEffectsWeapons"))
 			{
-					 if (CountInv("D4Pistol") && 			!(invoker.RightName == 'D4Pistol'))				{	invoker.LeftName = 'D4Pistol'; }
-				else if (CountInv("D4Shotgun") && 			!(invoker.RightName == 'D4Shotgun'))			{	invoker.LeftName = 'D4Shotgun'; }
-				else if (CountInv("D4SuperShotgun") && 		!(invoker.RightName == 'D4SuperShotgun'))		{	invoker.LeftName = 'D4SuperShotgun'; }
-				else if (CountInv("D4Repeater") && 			!(invoker.RightName == 'D4Repeater'))			{	invoker.LeftName = 'D4Repeater'; }
-				else if (CountInv("D4AssaultRifle") && 		!(invoker.RightName == 'D4AssaultRifle'))		{	invoker.LeftName = 'D4AssaultRifle'; }
-				else if (CountInv("D4Chaingun") && 			!(invoker.RightName == 'D4Chaingun'))			{	invoker.LeftName = 'D4Chaingun'; }
-				else if (CountInv("D4RocketLauncher") && 	!(invoker.RightName == 'D4RocketLauncher'))		{	invoker.LeftName = 'D4RocketLauncher'; }
-				else if (CountInv("D4PlasmaRifle") && 		!(invoker.RightName == 'D4PlasmaRifle'))		{	invoker.LeftName = 'D4PlasmaRifle'; }
-				else if (CountInv("D4LightningGun") && 		!(invoker.RightName == 'D4LightningGun'))		{	invoker.LeftName = 'D4LightningGun'; }
-				else if (CountInv("D4GaussCannon") && 		!(invoker.RightName == 'D4GaussCannon'))		{	invoker.LeftName = 'D4GaussCannon'; }
-				else if (CountInv("D4VortexRifle") && 		!(invoker.RightName == 'D4VortexRifle'))		{	invoker.LeftName = 'D4VortexRifle'; }
-				else if (CountInv("D4StaticRifle") && 		!(invoker.RightName == 'D4StaticRifle'))		{	invoker.LeftName = 'D4StaticRifle'; }
-				else if (CountInv("D4BFG") && 				!(invoker.RightName == 'D4BFG'))				{	invoker.LeftName = 'D4BFG'; }
-				else if (CountInv("D4CarrionCannon") && 	!(invoker.RightName == 'D4CarrionCannon'))		{	invoker.LeftName = 'D4CarrionCannon'; }
-				else 
-				{	
-					A_SelectWeapon("D4Pistol");	// Fallback.
+				A_FireProjectile("SGSmokeSpawner",0,0,4*s,2);
+				A_FireProjectile("SGSmokeSpawner",0,0,5*s,2);
+				A_FireProjectile("SGSmokeSpawner",0,0,6*s,2);
+			}
+			
+			A_GiveInventory("SSRSecondShotToken",Clamp(repeat,1,2));
+			A_AlertMonsters();
+			
+			if (CountInv("SSRSecondShotToken") < 2)
+			{	AkPlaySound("Doom4/Weapon/SuperShotgun/FireSingle",5,1);	}
+			else
+			{	
+				Sound snd = (CountInv("SSGUpgrade1")) ? "Doom4/Weapon/SuperShotgun/FireFast" : "Doom4/Weapon/SuperShotgun/Fire";
+				AkPlaySound(snd,6,1);	
+			}
+			
+			//-----------------------------------------------------
+			// Rest of the animation
+		}
+		M665 B 1 bright
+		{
+			//AkOffsetD(24,39-32);
+			AkOffsetD(12, 5,WOF_ADD);
+			if (CountInv("SSRSecondShotToken") < 2)
+				AkRefire("D4SuperShotgun.Fire", false, false);
+			else
+				return ResolveState("SSR.Reload");
+			
+			return ResolveState(null);
+		}
+		M665 C 1 { AkOffsetD( 6, 3,WOF_ADD); AkRefire("D4SuperShotgun.Fire", false, false);}	//30 13
+		M665 C 1 { AkOffsetD(-8,-5,WOF_ADD); AkRefire("D4SuperShotgun.Fire", false, false);}
+		M665 C 1 { AkOffsetD(-7,-3,WOF_ADD); AkRefire("D4SuperShotgun.Fire", false, false);}
+		M665 C 1 { AkOffsetD(-6,-2,WOF_ADD); AkRefire("D4SuperShotgun.Fire", false, false);}
+		M665 C 1 { AkOffsetD(-5,-2,WOF_ADD); AkRefire("D4SuperShotgun.Fire", false, false);}
+		M665 A 1 { AkOffsetD(-4,-1,WOF_ADD); AkRefire("D4SuperShotgun.Fire", false, false);}
+		M665 A 0 AkOffsetD();
+		Goto D4SuperShotgun.Ready;
+	SSR.Reload:
+		M665 C 1
+		{
+			if (CountInv("PowerD4DFS"))
+				return ResolveState("SSR.ReloadFast");
+			
+			AkOffsetD(-6, 3,WOF_ADD);
+			return ResolveState(null);
+		}
+		M665 C 1 AkOffsetD(-8,-5,WOF_ADD);
+		M665 C 1 AkOffsetD(-7,-3,WOF_ADD);
+		M665 C 1 AkOffsetD(-6,-2,WOF_ADD);
+		M665 C 1 AkOffsetD(-5,-2,WOF_ADD);
+		M665 D 1 AkOffsetD(-4,-1,WOF_ADD); //6
+		
+		M665 DDDDE 1 AkOffsetD(2,6,WOF_ADD); //6
+		"####" "#" 1
+		{
+			AkOffsetD(2,6,WOF_ADD);
+			if (GetCvar("user_Casings"))
+			{
+				if (OverlayID() == OV_RightWeapon)
+					for (int i = 0; i < 2; i++)
+						A_SpawnItemEx("SSGCasingSpawnerRight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+				
+				else
+					for (int i = 0; i < 2; i++)
+						A_SpawnItemEx("SSGCasingSpawnerLeft",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+			}
+		}
+		M665 FFFF 1 AkOffsetD(2, 3,WOF_ADD);
+		M665 FFFF 1 AkOffsetD(2, 2,WOF_ADD);	//8
+		M665 G 20 	//5
+		{
+			if (CountInv("SSGUpgrade1"))
+				A_SetTics(5);
+		}
+		
+		M665 HHII 1 AkOffsetD(-4,-9,WOF_ADD);
+		M665 JJJJ 1 AkOffsetD( 1,-2,WOF_ADD);	//8
+		M665 A 0 
+		{
+			AkOffsetD();
+			A_SetInventory("SSRSecondShotToken",0);
+			A_SetInventory("SSLSecondShotToken",0);
+		}
+		Goto D4SuperShotgun.Ready;
+		
+	SSR.ReloadFast:
+		M665 C 1 AkOffsetD(  6,  3,WOF_ADD);
+		M665 C 1 AkOffsetD(-15, -8,WOF_ADD);
+		M665 C 1 AkOffsetD(-11, -4,WOF_ADD);
+		M665 C 0 AkOffsetD( -4, -1,WOF_ADD); //6
+		M665 DD 1 AkOffsetD( 4, 12,WOF_ADD); //6
+		#### E 1
+		{
+			AkOffsetD(4,12,WOF_ADD);
+			if (OverlayID() == OV_RightWeapon)
+				for (int i = 0; i < 2; i++)
+					A_SpawnItemEx("SSGCasingSpawnerRight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+				
+			else
+				for (int i = 0; i < 2; i++)
+					A_SpawnItemEx("SSGCasingSpawnerLeft",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+		}
+		M665 FF 1 AkOffsetD(-4, 4,WOF_ADD);
+		M665 FF 1 AkOffsetD( 4,-4,WOF_ADD);	//8
+		M665 GG 1 ;	//5
+
+		
+		M665 HI 1 AkOffsetD(4,-16,WOF_ADD);
+		M665 JJ 1 AkOffsetD(2,  6,WOF_ADD);	//8
+		M665 A 0 
+		{
+			AkOffsetD();
+			A_SetInventory("SSRSecondShotToken",0);
+			A_SetInventory("SSLSecondShotToken",0);
+		}
+		Goto D4SuperShotgun.Ready;
+	
+	//==========================================================================
+	//==========================================================================
+	// Repeater
+	//==========================================================================
+	//==========================================================================
+	D4Repeater.Select:
+		REPG A 0 { UpdateStates(ID_D4Repeater); }
+		Goto CommonSelect;
+	D4Repeater.Ready:
+		REPG A 1 { AkWeaponReady(0, true); }
+		Loop;
+	D4Repeater.Fire:
+		REPG B 0 
+		{
+			/*
+			invoker.AmmoUse1 = CountInv("RepeaterUpgradeDamage") ? 3 : 2;
+			
+			if (A_JumpIfNoAmmo("NotEnoughAmmo"))
+				return ResolveState("NotEnoughAmmo");
+			*/
+			Sound snd = (CountInv("D4Bullets") >= invoker.AmmoUse1 && !D4D_RepeaterMode)
+						? "Doom4/Weapon/Repeater/FireTriple" : "Doom4/Weapon/Repeater/FireSingle";
+			AkPlaySound(snd,CHAN_WEAPON);
+			return ResolveState("D4Repeater.FireLoop");
+		}
+	D4Repeater.FireLoop:
+		#### B 1
+		{
+			int s = Side();
+			if (CountInv("RepeaterCounter") >= 3)// || A_JumpIfNoAmmo("Null"))
+			{
+				A_SetInventory("RepeaterCounter", 0);
+				return ResolveState("D4Repeater.EndFire");
+			}
+			
+			//checks for upgrades
+			if(CountInv("RepeaterUpgradePiercing"))	// if piercing upgrade
+			{
+				if (GetCvar("user_TracerFX") > 0)	{	A_FireProjectile("BulletTracerFX",0,0,6 * s,0,0,0); }
+				A_RailAttack(((CountInv("RepeaterUpgradeDamage") ? 22 : 14)*random(1,3)),0,1,-1,-1,RGF_SILENT|RGF_NORANDOMPUFFZ,0,"D4BulletPuffForRails",0,0,0,10,0,0,null,0,0,2); 
+			}
+			
+			else //didnt have piercing upgrade
+			{
+				if (GetCvar("user_TracerFX") > 0)	{	A_FireBullets(0,0,-1,(CountInv("RepeaterUpgradeDamage") ? 22 : 14),"D4BulletPuff",PuffTracer|FBF_USEAMMO,0,"BulletTracerFX",-1,7 * s); 	}
+				else								{	A_FireBullets(0,0,-1,(CountInv("RepeaterUpgradeDamage") ? 22 : 14)); 	}
+			}
+			
+			//casings on?
+			if (GetCvar("user_Casings"))
+				A_SpawnItemEx("HARCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+
+			//weapon HQ on?
+			if (GetCvar("HQEffectsWeapons"))
+				A_FireProjectile("MGSmokeSpawner",0,0,4 * s,2);
+			
+			A_GiveInventory("RepeaterCounter",1 + (D4D_RepeaterMode * 2));
+			A_GunFlash("Null");
+			//A_SetPitch(pitch-0.8);
+			AkOffsetD(8,8,WOF_ADD);
+			A_AlertMonsters();
+			return ResolveState(null);
+			
+		}
+		REPG C 1 
+		{
+			//A_SetPitch(pitch+0.4);
+			AkOffsetD(-3,-3,WOF_ADD);
+			A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); 
+		}
+		REPG D 1 
+		{
+			//A_SetPitch(pitch+0.4);
+			AkOffsetD(-3,-3,WOF_ADD);
+		}
+		Loop;
+		
+	D4Repeater.EndFire:
+		REPG C 1 { AkOffsetD(6,6); }
+		REPG C 1 { AkOffsetD(5,5,0,false,OverlayID(),0); }
+		REPG A 1 { AkOffsetD(4,4); }
+		REPG A 1 { AkOffsetD(3,3,0,false,OverlayID(),0); }
+		REPG A 1 { AkOffsetD(2,2); }
+		REPG A 1 { AkOffsetD(1,1,0,false,OverlayID(),0); }
+		REPG A 0 { AkOffsetD(0.5,0.5); }
+		
+		REPG AAAAAAAAAAAAAAAAAA 1 AkWeaponReady(WRF_NOBOB,true); // half a second without bob, to avoid jerkiness when running and firing
+		Goto D4Repeater.Ready;
+		
+	D4Repeater.Flash:
+		TNT1 A 0 A_SetBlend("Orange",0.05,2);
+		ZZZZ C 1 A_Light1();
+		ZZZZ C 0 A_Light0();
+		Stop;
+		
+	D4Repeater.AltFire:
+		REPG B 2 Bright
+		{
+			int s = Side();
+			AkPlaySound("Doom4/Weapon/Repeater/FireSingle",CHAN_WEAPON);
+			AkPlaySound("Doom4/Weapon/HellShot/AltFire",5);
+			
+			//Ammo upgrade?
+			//A_TakeInventory("D4Bullets",CountInv("RepeaterUpgradeAltAmmo") ? 5 : 8,TIF_NOTAKEINFINITE);
+			
+			A_GunFlash("Null");
+			//Alt damage upgrade?
+			if(CountInv("RepeaterUpgradeAltDamage"))
+			{	A_FireProjectile("IncendiaryBulletDMG",0,0,6 * s);	}
+			else
+			{	A_FireProjectile("IncendiaryBullet",0,0,6 * s);	}
+			
+			//casings on?
+			if (GetCvar("user_Casings"))
+			{ 
+				A_SpawnItemEx("HARCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER); 
+				A_SpawnItemEx("HARCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER); 
+				A_SpawnItemEx("HARCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER); 
+			}
+
+			//weapon HQ on?
+			if(GetCvar("HQEffectsWeapons"))
+			{ 
+				A_FireProjectile("MGSmokeSpawner",0,0,4 * s,2); 
+				A_FireProjectile("MGSmokeSpawner",0,0,4 * s,2); 
+				A_FireProjectile("MGSmokeSpawner",0,0,4 * s,2); 
+			}
+			
+			//A_SetPitch(pitch-1.8);
+			AkOffsetD(20,20,WOF_ADD);
+			A_SetBlend("Orange",0.05,5);
+			A_Light2();
+			A_AlertMonsters();
+		}
+		REPG C 0 
+		{
+			A_Light0();
+			return A_JumpIf(CountInv("PowerD4DFS"),"D4Repeater.AltFast");
+		}
+		REPG CCDDCC 1 
+		{
+			//A_SetPitch(pitch+0.3);
+			AkOffsetD(-2,-2,WOF_ADD);
+		}
+		REPG AAAAAAAA 1 AkOffsetD(-1,-1,WOF_ADD);
+		Goto D4Repeater.Ready;
+	D4Repeater.AltFast:
+		REPG CDC 1 
+		{
+			//A_SetPitch(pitch+0.6);
+			AkOffsetD(-4,-4,WOF_ADD);
+		}
+		REPG AAAA 1 AkOffsetD(-2,-2,WOF_ADD);
+		Goto D4Repeater.Ready;
+		
+	NotEnoughAmmo:
+		---- A 5 ACS_NamedExecute("NotEnoughAmmo",0,0,0);
+		Goto D4Repeater.Ready;
+	
+	//==========================================================================
+	//==========================================================================
+	// Heavy Assault Rifle
+	//==========================================================================
+	//==========================================================================
+	
+	D4AssaultRifle.Mod:
+		---- A 1 
+		{
+			if (!CountInv("AssaultRifleMod1") && !CountInv("AssaultRifleMod2"))
+			{
+				ACS_NamedExecute("NoModsAvailable",0,0,0,0);
+				return ResolveState("D4AssaultRifle.Ready");
+			}
+			AkOffsetD(0, AkimboSwitchSpeed / 2, WOF_ADD);
+			return ResolveState(null);
+		}
+		---- A 1
+		{
+			if (OverlayY() < 128)
+				AkOffsetD(0, AkimboSwitchSpeed, WOF_ADD);
+			else
+			{
+				if (countinv("AssaultRifleMod1")) //if has TacticalScope
+				{
+					if (countinv("MicroMissilesActive")) //but MicroMissiles was active
+					{
+						//return ResolveState("FromMicroMissilesToTacticalScope");
+						A_SetInventory("MicroMissilesActive",0);
+						A_SetInventory("TacticalScopeActive",1);
+						AkPlaySound("Doom4/Weapon/Machinegun/SwitchToScope",5,1);
+					}
+					else if (!countinv("TacticalScopeActive"))
+					{
+						//return ResolveState("FromNormalToTacticalScope"); //but if it didnt have MicroMissiles active, then it was in "normal"
+						A_SetInventory("MicroMissilesActive",0);
+						A_SetInventory("TacticalScopeActive",1);
+						AkPlaySound("Doom4/Weapon/Machinegun/SwitchToScope",5,1);
+					}
+				}
+				if (countinv("AssaultRifleMod2")>=1) //if it has MicroMissiles
+				{
+					if (countinv("TacticalScopeActive")>=1) //but TacticalScope was active
+					{
+						//return ResolveState("FromTacticalScopeToMicroMissiles");
+						A_SetInventory("MicroMissilesActive",1);
+						A_SetInventory("TacticalScopeActive",0);
+						AkPlaySound("Doom4/Weapon/Machinegun/SwitchToMissiles",5,1);
+					}
+					else if (countinv("MicroMissilesActive")==0)	//if nothing was active,
+					{
+						//return ResolveState("FromNormalToMicroMissiles"); //then it was in "normal" SG
+						A_SetInventory("MicroMissilesActive",1);
+						A_SetInventory("TacticalScopeActive",0);
+						AkPlaySound("Doom4/Weapon/Machinegun/SwitchToMissiles",5,1);
+					}
+				}
+				else
+				{
+					ACS_NamedExecute("NoModsAvailable",0,0,0,0);
+				}
+				return ResolveState(1);
+			}
+			
+			let plr = invoker.owner.player;
+			if (plr)
+			{
+				let psp = plr.FindPSprite(OverlayID());
+				if (psp)
+				{
+					Name spr = "ARNI";
+					if (CountInv("MicroMissilesActive"))
+						spr = "ARMI";
+					else if (CountInv("TacticalScopeActive"))
+						spr = "ARSI";
+					
+					psp.Sprite = GetSpriteIndex(spr);
 				}
 			}
-			if (CountInv("UpdateLeftWeapon"))
+			
+			return ResolveState(null);
+		}
+		Wait;
+		
+		// Now grab the state.
+		---- A 0
+		{
+			if (CountInv("MicroMissilesActive"))
+			{	return ResolveState("D4AssaultRifle.RaiseMicroMissile");	}
+			if (CountInv("TacticalScopeActive"))
+			{	return ResolveState("D4AssaultRifle.RaiseTacticalScope");	}
+			return ResolveState("D4AssaultRifle.RaiseNormal");
+		}
+		
+		D4AssaultRifle.RaiseNormal:
+			ARNI A 0 A_Jump(256,"D4AssaultRifle.ModUp");
+		D4AssaultRifle.RaiseMicroMissile:
+			ARMI A 0 A_Jump(256,"D4AssaultRifle.ModUp");
+		D4AssaultRifle.RaiseTacticalScope:
+			ARSI A 0 A_Jump(256,"D4AssaultRifle.ModUp");
+			
+		// Now raise it.
+		D4AssaultRifle.ModUp:
+			---- A 1
 			{
-				A_SetInventory("UpdateLeftWeapon",0);
-				A_Overlay(OV_SwitchLeft,"OV.SwitchLeft",true);
+				if (OverlayY() > 32)
+				{
+					AkOffsetD(0, -AkimboSwitchSpeed, WOF_ADD);
+					return ResolveState(null);
+				}
+				AkOffsetD();
+				return ResolveState("D4AssaultRifle.Ready");
 			}
-			if (CountInv("UpdateRightWeapon"))
+		
+	
+	
+		
+	D4AssaultRifle.Ready:
+		ARSI A 0
+		{
+			if (CountInv("TacticalScopeActive"))
 			{
-				A_SetInventory("UpdateRightWeapon",0);
-				A_Overlay(OV_SwitchRight,"OV.SwitchRight",true);
+				return ResolveState("D4AssaultRifle.TacticalScopeReady");
+			}
+			else if (CountInv("MicroMissilesActive"))
+			{
+				return ResolveState("D4AssaultRifle.MicroMissilesReady");
+			}
+			return ResolveState("D4AssaultRifle.NormalSpriteReady");	
+		}
+		
+		D4AssaultRifle.MicroMissilesReady:
+			ARMI A 0 A_Jump(256,"D4AssaultRifle.ResumeReadySequence"); //I just know someone's going to abuse fast weapons.
+		
+		D4AssaultRifle.TacticalScopeReady:
+			ARSI A 0 A_Jump(256,"D4AssaultRifle.ResumeReadySequence");
+		
+		D4AssaultRifle.NormalSpriteReady:
+			ARNI A 0 A_Jump(256,"D4AssaultRifle.ResumeReadySequence");
+			
+	D4AssaultRifle.ResumeReadySequence:
+		"####" "#" 0
+		{
+			if(countinv("TacticalScopeActive"))
+			{	ACS_NamedExecute("ModSelectedText",0,1,0,0); }	//print Tactical scope
+			if(countinv("MicroMissilesActive"))
+			{	ACS_NamedExecute("ModSelectedText",0,2,0,0); }	//print Micro missiles
+			
+			return ResolveState("D4AssaultRifle.VeryReady");
+		}
+	D4AssaultRifle.VeryReady:
+		"####" "#####" 1 AkWeaponReady(0, true);
+		Loop;
+	//-------------------------------------------------------
+	// Select sequence
+	//-------------------------------------------------------
+	D4AssaultRifle.Select:
+		M666 A 0 // Be safer about sprite selection.
+		{
+			UpdateStates(ID_D4AssaultRifle);
+			ACS_NamedExecute("RemoveModText",0,0,0,0);
+			if (CountInv("MicroMissilesActive"))
+			{	return ResolveState("D4AssaultRifle.PrepareMicroMissilesSpriteSelect");	}
+			if (CountInv("TacticalScopeActive"))
+			{	return ResolveState("D4AssaultRifle.PrepareTacticalScopeSpriteSelect");	}
+			return ResolveState("D4AssaultRifle.PrepareNormalSpriteSelect");
+		}
+		
+		D4AssaultRifle.PrepareNormalSpriteSelect:
+			ARNI A 0 A_Jump(256,"CommonSelect");
+		D4AssaultRifle.PrepareMicroMissilesSpriteSelect:
+			ARMI A 0 A_Jump(256,"CommonSelect");
+		D4AssaultRifle.PrepareTacticalScopeSpriteSelect:
+			ARSI A 0 A_Jump(256,"CommonSelect");
+
+	D4AssaultRifle.Fire:
+		M666 A 0
+		{
+			if (CountInv("MicroMissilesActive"))
+			{	return ResolveState("D4AssaultRifle.MicroMissilesSprite");	}
+			if (CountInv("TacticalScopeActive"))
+			{	return ResolveState("D4AssaultRifle.TacticalScopeSprite");	}
+			return ResolveState("D4AssaultRifle.NormalSprite");
+		}
+	
+		D4AssaultRifle.NormalSprite:
+			ARNF A 0 A_Jump(256,"D4AssaultRifle.FireNormalLooper");
+		D4AssaultRifle.MicroMissilesSprite:
+			ARMF A 0 A_Jump(256,"D4AssaultRifle.FireNormalLooper");
+		D4AssaultRifle.TacticalScopeSprite:
+			ARSF A 0 A_Jump(256,"D4AssaultRifle.FireNormalLooper");
+	D4AssaultRifle.FireNormalLooper:
+		"####" A 1 Bright
+		{
+			int s = Side();
+			if (!CountInv("MachinegunFireToken"))
+			{
+				AkPlaySound("Doom4/Weapon/Machinegun/Fire",5,1);
+				A_GiveInventory("MachinegunFireToken",1);
+			}
+			else
+			{
+				AkPlaySound("Doom4/Weapon/Machinegun/Fire",6,1);	//it plays in another channel
+				A_TakeInventory("MachinegunFireToken",1);
+			}
+			if (GetCvar("user_Casings"))
+			{	A_SpawnItemEx("HARCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);	}
+			
+			if (GetCvar("user_TracerFX") > 0)	{	A_FireBullets(1,1,1,6,"D4BulletPuff",PuffTracer|FBF_USEAMMO,0,"BulletTracerFX",-1,7*s); 	}
+			else								{	A_FireBullets(1,1,1,6); 	}
+			
+			A_AlertMonsters();
+			A_GunFlash("Null");
+			if(GetCvar("HQEffectsWeapons"))
+			{
+				A_FireProjectile("MGSmokeSpawner",0,0,5*s,2);
+			}
+			//A_SetPitch(pitch-0.5);
+			A_ZoomFactor(0.995,ZOOM_NOSCALETURNING);
+			A_SetBlend("orange",0.03,6);
+			A_SetTics(CountInv("PowerD4DFS") ? 0 : 1);
+		}
+		"####" B 1 Bright 
+		{	
+			AkOffsetD(4,4,WOF_ADD);
+			A_ZoomFactor(1,ZOOM_NOSCALETURNING);
+		}
+		"####" C 1 Bright 
+		{
+			AkOffsetD(-2,-2,WOF_ADD);
+			//A_SetPitch(pitch+0.25);
+		}
+		"####" D 1 Bright
+		{
+			AkOffsetD(-2,-2,WOF_ADD);
+			//A_SetPitch(pitch+0.25);
+		}
+		"####" D 1
+		{
+			A_SetTics(CountInv("PowerD4DFS") ? 0 : 1);
+			return ResolveState(null);
+		}
+		"####" D 0 AkRefire("D4AssaultRifle.FireNormalLooper");
+		Goto D4AssaultRifle.Ready;
+		
+		
+	//-------------------------------------------------------
+	// No ammo, used for the alt fires
+	//-------------------------------------------------------
+	D4AssaultRifle.NotEnoughAmmo:
+		"####" "#" 5 
+		{
+			ACS_NamedExecute("NotEnoughAmmo",0,0,0);
+			A_SetInventory("MGMissileToken",0);
+			A_SetInventory("AltFireToken",0);
+		}
+		Goto D4AssaultRifle.Ready;
+		
+		D4AssaultRifle.StartScope:
+			//Zoom In
+			ARSI A 3
+			{
+				A_ZoomFactor(2.5);
+				AkPlaySound("Doom4/Weapon/Machinegun/ZoomIn", 8, 1.0, 0);
+				A_GiveInventory("MGZoomToken",1);
+			}
+		D4AssaultRifle.HoldScope:
+			R016 N 1  
+			{
+				AkWeaponReady(WRF_NOFIRE|WRF_NOBOB,true);
+				AkRefire("D4AssaultRifle.ZoomOut",true,false);
+				AkRefire("D4AssaultRifle.FireZoomed",false,false);
+				return ResolveState(null);
+			}
+			Loop;
+		D4AssaultRifle.ZoomOut:
+			//Zoom Out
+			ARSI A 3
+			{
+				A_ZoomFactor(1.0);
+				AkStopSound(6);
+				AkPlaySound("Doom4/Weapon/Machinegun/ZoomOut", 8, 1.0, 0);
+				A_SetInventory("MGZoomToken",0);
+				A_SetInventory("AltFireToken",0);
+			}
+			Goto D4AssaultRifle.Ready;
+			
+		D4AssaultRifle.FireZoomed:
+			R016 N 1 Bright
+			{
+				if (!CountInv("MachinegunFireToken"))
+				{
+					AkPlaySound("Doom4/Weapon/Machinegun/FireZoomed",5,1);
+					A_GiveInventory("MachinegunFireToken",1);
+				}
+				else
+				{
+					AkPlaySound("Doom4/Weapon/Machinegun/FireZoomed",6,1);	//it plays in another channel
+					A_TakeInventory("MachinegunFireToken",1);
+				}
+				A_AlertMonsters();
+				A_GunFlash("Null");
+				A_FireBullets(0,0,1,2);	//while this is there for the puff, it also deals 2*random(1,3) extra damage to first target hit
+				A_RailAttack(6*random(1,3),0,0,-1,-1,RGF_SILENT);
+				//casings check
+				if (GetCvar("user_Casings"))
+				{	
+					A_SpawnItemEx("HARCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);	
+				}
+				//tracer check
+				if (GetCvar("user_TracerFX") > 0)
+				{	
+					A_FireBullets(0,0,1,0,"D4BulletPuff",PuffTracer,0,"BulletTracerFX",-1,0); 	
+				}
+				else							
+				{	A_FireBullets(0,0,1,0); 	}
+				
+				//A_SetPitch(pitch-0.4);
+				A_SetBlend("orange",0.03,6);
+			}
+			"####" N 1 Bright A_SetTics(CountInv("PowerD4DFS") ? 0 : 1);
+			"####" NN 1 Bright; //A_SetPitch(pitch+0.2);
+			"####" N 1
+			{
+				A_SetTics(CountInv("PowerD4DFS") ? 0 : 1);
+			}
+			"####" N 0 AkRefire("D4AssaultRifle.FireZoomed");
+			Goto D4AssaultRifle.HoldScope;
+		
+		//-------------------------------------------------------
+		// MiniMissiles
+		D4AssaultRifle.FireMod2:
+		D4AssaultRifle.StartMicro:
+			ARMI A 0 
+			{
+				//if (CountInv("D4Bullets") >= 2 || GetCvar("sv_infiniteammo") > 0)
+					return ResolveState("D4AssaultRifle.MissilesOpen");	
+				
+				return ResolveState("D4AssaultRifle.NotEnoughAmmo");
+			}			
+		D4AssaultRifle.MissilesOpen:
+			ARMR A 0 
+			{
+				A_GiveInventory("MGMissileToken",1);
+				return A_JumpIf(CountInv("PowerD4DFS"),"D4AssaultRifle.MissilesOpenFast");
+			}
+			ARMR ABCDEF 1;
+			Goto D4AssaultRifle.MissilesReady;
+		D4AssaultRifle.MissilesOpenFast:
+			ARMR ACE 1;
+			Goto D4AssaultRifle.MissilesReady;
+		D4AssaultRifle.MissilesReady:
+			ARMR F 1 
+			{
+				AkWeaponReady(WRF_NOFIRE);
+				AkRefire("D4AssaultRifle.MissilesClose",true,false);
+				AkRefire("D4AssaultRifle.MissilesFire",false,false);
+			}
+			Loop;
+		D4AssaultRifle.MissilesClose:
+			ARMR A 0 
+			{
+				A_SetInventory("MGMissileToken",0);
+				A_SetInventory("AltFireToken",0);
+				AkPlaySound("Doom4/Weapon/Machinegun/MinMissileRelease",6);
+			}
+			ARMR E 1 { A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMR D 1;
+			ARMR C 1 { A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMR B 1;
+			ARMR A 1 { A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			Goto D4AssaultRifle.Ready;
+		
+		
+		D4AssaultRifle.MissilesFire:
+			ARMR F 0
+			{
+				int s = Side();
+				//if (CountInv("D4Bullets") < 2 && !GetCvar("sv_infiniteammo"))
+				//{	return ResolveState("D4AssaultRifle.MissilesClose");	}
+				A_AlertMonsters();
+				A_GunFlash("Null");
+				if(GetCvar("HQEffectsWeapons"))
+				{
+					A_FireProjectile("MGSmokeSpawner",0,0,5*s,2);
+					A_FireProjectile("MGMiniMissile",0,0,5*s,2);	//fires the regular micro missiles
+				}
+				else
+				{
+					A_FireProjectile("MGMiniMissileNoTrail",0,0,5*s,2);	//micro missiles without trail
+				}
+				
+				//A_TakeInventory("D4Bullets",2,TIF_NOTAKEINFINITE);
+				//A_SetPitch(pitch-0.5);
+				AkPlaySound("Doom4/Weapon/Machinegun/MiniMissileFire",5,1);
+				A_SetBlend("orange",0.03,6);
+				
+				// Go by n-1 here. 
+					 if (CountInv("MicroMissilesCounter") <= 0)	{	A_GiveInventory("MicroMissilesCounter",1); 			return ResolveState("D4AssaultRifle.MissilesFire1"); }
+				else if (CountInv("MicroMissilesCounter") == 1)	{	A_GiveInventory("MicroMissilesCounter",1); 			return ResolveState("D4AssaultRifle.MissilesFire2"); }
+				else if (CountInv("MicroMissilesCounter") == 2)	{	A_GiveInventory("MicroMissilesCounter",1); 			return ResolveState("D4AssaultRifle.MissilesFire3"); }
+				else if (CountInv("MicroMissilesCounter") == 3)	{	A_GiveInventory("MicroMissilesCounter",1); 			return ResolveState("D4AssaultRifle.MissilesFire4"); }
+				else if (CountInv("MicroMissilesCounter") == 4)	{	A_GiveInventory("MicroMissilesCounter",1); 			return ResolveState("D4AssaultRifle.MissilesFire5"); }
+				else 											{	A_SetInventory("MicroMissilesCounter",0);			return ResolveState("D4AssaultRifle.MissilesFire6");	}
+			}
+		
+		D4AssaultRifle.MissilesFire1:
+			ARMA B 1 Bright AkOffsetD(1.0, 33.0);
+			ARMA C 1      { AkOffsetD(3.0, 35.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA D 1      { AkOffsetD(1.5, 33.5); /*A_SetPitch(pitch+0.25);*/ }
+			ARMA D 1      { AkOffsetD(0.0, 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA D 1;
+			ARMA D 0 AkRefire("D4AssaultRifle.MissilesFire");
+			"####" "#" 0 AkWeaponReady(WRF_NOPRIMARY);
+			Goto D4AssaultRifle.MissilesReady;
+		D4AssaultRifle.MissilesFire2:
+			ARMA E 1 Bright  AkOffsetD(1.0, 33.0);
+			ARMA F 1      { AkOffsetD(3.0, 35.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA G 1      { AkOffsetD(1.5, 33.5); /*A_SetPitch(pitch+0.25);*/ }
+			ARMA G 1      { AkOffsetD(0.0, 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA G 1;
+			ARMA G 0 AkRefire("D4AssaultRifle.MissilesFire");
+			"####" "#" 0 AkWeaponReady(WRF_NOPRIMARY);
+			Goto D4AssaultRifle.MissilesReady;
+		D4AssaultRifle.MissilesFire3:
+			ARMA H 1 Bright AkOffsetD(1.0, 33.0);
+			ARMA I 1      { AkOffsetD(3.0, 35.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA J 1      { AkOffsetD(1.5, 33.5); /*A_SetPitch(pitch+0.25);*/ }
+			ARMA J 1      { AkOffsetD(0.0, 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA J 1;
+			ARMA J 0 AkRefire("D4AssaultRifle.MissilesFire");
+			"####" "#" 0 AkWeaponReady(WRF_NOPRIMARY);
+			Goto D4AssaultRifle.MissilesReady;
+		D4AssaultRifle.MissilesFire4:
+			ARMA K 1 Bright AkOffsetD(1.0, 33.0);
+			ARMA L 1	{	AkOffsetD(3.0, 35.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA M 1	{	AkOffsetD(1.5, 33.5); /*A_SetPitch(pitch+0.25);*/ }
+			ARMA M 1	{	AkOffsetD(0.0, 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA M 1;
+			ARMA M 0 AkRefire("D4AssaultRifle.MissilesFire");
+			"####" "#" 0 AkWeaponReady(WRF_NOPRIMARY);
+			Goto D4AssaultRifle.MissilesReady;
+		D4AssaultRifle.MissilesFire5:
+			ARMA N 1 Bright AkOffsetD(1.0, 33.0);
+			ARMA O 1	{ 	AkOffsetD(3.0, 35.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA P 1	{	AkOffsetD(1.5, 33.5); /*A_SetPitch(pitch+0.25);*/ }
+			ARMA P 1 	{	AkOffsetD(0.0, 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA P 1	;
+			ARMA P 0 AkRefire("D4AssaultRifle.MissilesFire");
+			"####" "#" 0 AkWeaponReady(WRF_NOPRIMARY);
+			Goto D4AssaultRifle.MissilesReady;
+		D4AssaultRifle.MissilesFire6:
+			ARMA Q 1 Bright AkOffsetD(1.0, 33.0);
+			ARMA R 1      { AkOffsetD(3.0, 35.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA F 1      { AkOffsetD(1.5, 33.5); /*A_SetPitch(pitch+0.25);*/ }
+			ARMA F 1      { AkOffsetD(0.0, 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMR F 1;
+			ARMR F 0 AkRefire("D4AssaultRifle.MissilesFire");
+			"####" "#" 0 AkWeaponReady(WRF_NOPRIMARY);
+			Goto D4AssaultRifle.MissilesReady;
+
+	//==========================================================================
+	//==========================================================================
+	// Chaingun
+	//==========================================================================
+	//==========================================================================
+		
+	D4Chaingun.Select:
+		CGNS A 0
+		{
+			UpdateStates(ID_D4Chaingun);
+			A_SetInventory("BusyToken",0);
+			if (CountInv("MobileTurretActive"))		{	return ResolveState(1);	}
+			if (CountInv("GatlingRotatorActive"))	{	return ResolveState(2);	}
+			return ResolveState("Sel2");
+		}
+		CGRS A 0 {	return ResolveState("CommonSelect");	}
+		CT2S A 0 {	return ResolveState("CommonSelect");	}
+		
+	//-------------------------------------------------------
+	// Ready sequence
+	//-------------------------------------------------------
+	D4Chaingun.Ready:
+		M666 A 1
+		{
+			if (!CountInv("SpinUpCount")) { return ResolveState("D4Chaingun.ReadySpriteSetup"); }
+			
+			AkWeaponReady(0, true);
+			return ResolveState(null);
+		}
+		Loop;
+	D4Chaingun.ReadySpriteSetup:
+		CGNS A 0
+		{
+			if (CountInv("MobileTurretActive"))
+			{	
+				//ACS_NamedExecute("ModSelectedText",0,10,0,0); 	//print Turret
+				return ResolveState("D4Chaingun.ReadyTurret"); 
+			}
+			else if (CountInv("GatlingRotatorActive"))
+			{
+				//ACS_NamedExecute("ModSelectedText",0,9,0,0); 	//print rotator
+				return ResolveState("D4Chaingun.ReadyRotator"); 
+			}
+			return ResolveState("D4Chaingun.ReadyLoop"); 
+		}
+	D4Chaingun.ReadyTurret:		CT2S A 0 { return ResolveState("D4Chaingun.ReadyLoop");	}
+	D4Chaingun.ReadyRotator:	CGRS A 0 { return ResolveState("D4Chaingun.ReadyLoop");	}
+	
+	D4Chaingun.ReadyLoop:
+		"####" A 0
+		{
+			if (CountInv("MobileTurretArmed"))
+			{	return ResolveState("D4Chaingun.MobileTurretReady");	}
+			A_SetSpeed(1);
+			
+			AkOverlay(OverlayID() + NoiseLayer,"Null");
+
+			/*
+				 if (CountInv("SpinLoopFrame") == 0)	{ return ResolveState(1); }
+			else if (CountInv("SpinLoopFrame") == 1)	{ return ResolveState(2); }
+			else if (CountInv("SpinLoopFrame") == 2)	{ return ResolveState(3); }
+			else 										{ return ResolveState(4); }
+			*/
+			
+			AkSpriteFrame('',CountInv("SpinLoopFrame"));
+			return ResolveState("D4Chaingun.ReadyPostFire");
+			
+		}
+		"####" ABCD 0 { return ResolveState("D4Chaingun.ReadyPostFire"); }
+	D4Chaingun.ReadyPostFire:
+		"####" "#" 1
+		{
+			if (CountInv("MobileTurretActive") && CountInv("MobileTurretArmed"))
+			{	return ResolveState("D4Chaingun.MobileTurretReady");	}
+			return ResolveState(null);
+		}
+	D4Chaingun.RPF:
+		"####" "#" 1 AkWeaponReady(0, true);
+		Loop;
+	//-------------------------------------------------------
+	// Regular fire
+	//-------------------------------------------------------
+	
+	D4Chaingun.Fire:
+		CGNF A 0
+		{
+			let plr = invoker.owner.player;
+			if (plr)
+			{
+				let psp = plr.FindPSprite(OverlayID());
+				if (psp)
+				{
+						 if (CountInv("MobileTurretActive"))	psp.Sprite = GetSpriteIndex("CT2F");
+					else if (CountInv("GatlingRotatorActive"))	psp.Sprite = GetSpriteIndex("CGRF");
+					psp.Frame = CountInv("SpinLoopFrame");
+					AkOverlay(OverlayID() + NoiseLayer,"D4Chaingun.Overlay.Noise");
+					A_SetInventory("SpinUpCount",SpinMax);
+				}
+			}
+		}
+	D4Chaingun.Firing:
+		#### # 1
+		{
+			let plr = invoker.owner.player;
+			if (plr)
+			{
+				let psp = plr.FindPSprite(OverlayID());
+				if (psp)
+				{
+					int frm = CountInv("SpinLoopFrame");
+					if (frm < 3) 	A_GiveInventory("SpinLoopFrame",1);
+					else			A_SetInventory("SpinLoopFrame",0);
+					
+						 if (CountInv("MobileTurretActive"))	psp.Sprite = GetSpriteIndex("CT2F");
+					else if (CountInv("GatlingRotatorActive"))	psp.Sprite = GetSpriteIndex("CGRF");
+					else										psp.Sprite = GetSpriteIndex("CGNF");
+					psp.Frame = CountInv("SpinLoopFrame");
+					
+					int tr = CountInv("ChaingunFireTracker");
+					if (tr == 1 || tr == 4 || tr == 7)
+						A_Overlay(OverlayID() + ChaingunFlash, "D4Chaingun.Overlay.Flash");
+				}
+			}
+			
+		}
+		---- A 0 AkRefire("D4Chaingun.Firing");
+		---- A 0
+		{
+			AkOverlay(OverlayID() + NoiseLayer,"Null");
+			A_SetInventory("ChaingunFireTracker",0);
+			
+		}
+		
+	D4Chaingun.SpinDown:
+		---- A 1
+		{
+			AkWeaponReady(0,true);
+			
+			
+			if (CountInv("FrameTimeLeft") < 1)
+			{	
+				int frm = 		CountInv("SpinLoopFrame");
+				if (frm < 3) 	A_GiveInventory("SpinLoopFrame",1);
+				else			A_SetInventory("SpinLoopFrame",0);
+				int spin = CountInv("SpinUpCount");
+					 if (spin <= 10)	{ A_GiveInventory("FrameTimeLeft",4);	}
+				else if (spin <= 21)	{ A_GiveInventory("FrameTimeLeft",3);	}
+				else if (spin <= 43)	{ A_GiveInventory("FrameTimeLeft",2);	}
+				else 					{ A_GiveInventory("FrameTimeLeft",1);	}
+			}
+			else A_TakeInventory("FrameTimeLeft",1,0);
+			A_TakeInventory("SpinUpCount",1,0);
+			
+			let plr = invoker.owner.player;
+			if (plr)
+			{
+				let psp = plr.FindPSprite(OverlayID());
+				if (psp)
+				{
+					
+						 if (CountInv("MobileTurretActive"))	psp.Sprite = GetSpriteIndex("CT2S");
+					else if (CountInv("GatlingRotatorActive"))	psp.Sprite = GetSpriteIndex("CGRS");
+					else										psp.Sprite = GetSpriteIndex("CGNS");
+					psp.Frame = CountInv("SpinLoopFrame");
+				}
+			}
+			
+			if (CountInv("SpinUpCount") < 1)	return ResolveState("D4Chaingun.Ready");
+			return ResolveState(null);
+		}
+		Wait;
+		
+	D4Chaingun.Overlay.Flash:
+		TNT1 A 1
+		{
+			int s = Side();
+			A_QuakeEx(0,1,1,3,0,48,"",QF_Relative|QF_ScaleDown,0,0,0,0,0,1);
+			if (GetCvar("vid_renderer") && CountInv("SovietToken") && CountInv("SovietActive"))
+			{	
+				if (GetCvar("user_TracerFX") > 0)	{	A_FireBullets(8,8,-1,SovietDmg,"D4BulletPuff",PuffTracer|FBF_USEAMMO,0,"BulletTracerFX",-1,5*s); 	}
+				else								{	A_FireBullets(8,8,-1,SovietDmg); 	}
+			}
+			else
+			{	
+				if (GetCvar("user_TracerFX") > 0)	{	A_FireBullets(8,8,-1,7,"D4BulletPuff",PuffTracer|FBF_USEAMMO,0,"BulletTracerFX",-1,5*s); 	}
+				else								{	A_FireBullets(8,8,-1,7); 	}
+			}
+			A_AlertMonsters();
+			if (GetCvar("user_Casings") > 0)		{	A_SpawnItemEx("ChaingunCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);	}
+			if (GetCvar("HQEffectsWeapons"))	
+			{	
+				A_FireProjectile("CGSmokeSpawner",0,0,3*s,2);
+			}
+			A_SetBlend("orange",0.03,6);
+			
+			if (CountInv("PowerD4DFS"))
+			{	return ResolveState("Null");	}
+			//A_SetPitch(pitch-0.8);
+			return ResolveState(null);
+		}
+		//TNT1 A 0 A_SetPitch(pitch+0.8);
+		Stop;	
+	D4Chaingun.FlashRotator:
+		TNT1 A 1
+		{
+			int s = Side();
+			A_QuakeEx(0,1,1,3,0,48,"",QF_Relative|QF_ScaleDown,0,0,0,0,0,1);
+			if (GetCvar("user_TracerFX") > 0)	{	A_FireBullets(2,2,-1,8,"GatlingRotatorExplosivePuff",PuffTracer,0,"BulletTracerFX",-1,5*s); 	}
+			else								{	A_FireBullets(2,2,-1,8,"GatlingRotatorExplosivePuff",0); 	}
+			if (GetCvar("user_Casings") > 0)	{	A_SpawnItemEx("ChaingunCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);	}
+			if (GetCvar("HQEffectsWeapons"))	{	A_FireProjectile("CGSmokeSpawner",0,0,3*s,2);	}
+			//A_TakeInventory("D4Bullets",2,TIF_NOTAKEINFINITE);
+			A_AlertMonsters();
+			A_SetBlend("orange",0.03,6);
+			//A_SetPitch(pitch-1);
+		}
+		TNT1 A 0
+		{
+			if (CountInv("PowerD4DFS"))
+			{	A_SetPitch(pitch + 1);	return ResolveState("Null");	}
+			return ResolveState(null);
+		}
+		//TNT1 AA 1 A_SetPitch(pitch+0.5);
+		Stop;
+	
+	/*
+	D4Chaingun.Fire:
+		M666 A 0
+		{
+			//A_CheckReload();
+			int id = OverlayID();
+			int which = (id < 0) ? OV_LeftWeapon : OV_RightWeapon;
+			if (CountInv("MobileTurretActive") && AkCheckFire(true))
+			{	return ResolveState("D4Chaingun.MobileTurretFire");	}
+			
+			if (GetCvar("vid_renderer") && CountInv("SovietToken") && CountInv("SovietActive"))
+			{	AkOverlay(SovietsaurusSpinopatimus,"D4Chaingun.SovietSpin");	}
+			else
+			{	AkOverlay(SovietsaurusSpinopatimus,"Null"); A_SetRoll(0);	}
+			
+			A_SetInventory("SpinUpCount", SpinMax);
+			A_SetInventory("FireToken",1);
+			
+			AkOverlay(which + PrepLayer,"D4Chaingun.Overlay.FirePrimary");
+			A_OverlayFlags(which + PrepLayer,PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE,true);
+			
+			AkOverlay(which + SpinLayer,"D4Chaingun.Overlay.SpinFrame",true);
+			A_OverlayFlags(which + SpinLayer,PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE,true);
+			
+			return ResolveState("D4Chaingun.NewHold");
+		}
+	D4Chaingun.NewHold:
+		M666 A 1 ;//A_CheckReload();
+		M666 A 0 
+		{ 
+			int id = OverlayID();
+			int which = (id < 0) ? OV_LeftWeapon : OV_RightWeapon;
+			AkRefire("D4Chaingun.NewHold", false, true, which); 
+		}
+		//AkRefire(StateLabel Next, bool alt = false, bool refire = true, int id = 0)
+		M666 A 0 
+		{
+			AkPlaySound("Doom4/Weapon/Chaingun/WindDown",5,0.6);
+			A_SetInventory("FireToken",0);
+		}
+		Goto D4Chaingun.Ready;
+
+	//-------------------------------------------------------
+	// Alt fire
+	//-------------------------------------------------------
+	D4Chaingun.NoMods:
+		"####" "#" 1 ACS_NamedExecute("NoModsAvailable",0,0,0,0);
+		Goto D4Chaingun.Ready;
+		
+	D4Chaingun.AltFire:
+		"####" "#" 0
+		{
+			if (CountInv("GatlingRotatorActive"))
+			{
+				int which = (OverlayID() < 0) ? OV_LeftWeapon : OV_RightWeapon;
+				if (AkOverlay(which + SpinLayer,"D4Chaingun.Overlay.SpinFrame",true))
+				{						
+					A_OverlayFlags(which + SpinLayer,WeapMoveBob|PSPF_POWDOUBLE,true); 
+				}
+				return ResolveState("D4Chaingun.AltHold");
+			}
+			else if (CountInv("MobileTurretActive"))
+			{
+				if (CountInv("AltFireToken"))
+				{	return ResolveState("D4Chaingun.MobileTurretReady");	}
+				return ResolveState("D4Chaingun.MobileTurretArm");
+			}
+			return ResolveState("D4Chaingun.NoMods");
+		}
+	D4Chaingun.AltHold:
+		M666 "#" 1
+		{
+			if (CountInv("MobileTurretActive") && CountInv("AltFireToken"))
+			{	return ResolveState("D4Chaingun.MobileTurretReady");	}
+			return ResolveState(null);
+		}
+		M666 "#" 0 
+		{
+			int which = (OverlayID() < 0) ? OV_LeftWeapon : OV_RightWeapon;
+			AkRefire("D4Chaingun.AltHold",true,true,which);
+		}
+		M666 "#" 0 
+		{
+			AkPlaySound("Doom4/Weapon/Chaingun/WindDown",5,0.6);
+			A_SetInventory("AltFireToken",0);
+		}
+		Goto D4Chaingun.Ready;
+	*/
+	//==========================================================================
+	// Overlays
+	//==========================================================================
+	// ...WEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee...
+	D4Chaingun.SovietSpin:
+		M666 A 1
+		{
+			if (AkCheckFire(false))
+			{
+				if (CountInv("Sovietsaurus") < 90)
+				{
+					A_GiveInventory("Sovietsaurus",2);
+					A_SetRoll(roll + CountInv("Sovietsaurus"),SPF_INTERPOLATE);
+				}
+				else if (roll % 90 != 0)
+				{
+						 if (roll >= 0 && roll < 90)	{ A_SetRoll(0,SPF_INTERPOLATE); }
+					else if (roll >= 90 && roll < 180)	{ A_SetRoll(90,SPF_INTERPOLATE); }
+					else if (roll >= 180 && roll < 270)	{ A_SetRoll(180,SPF_INTERPOLATE); }
+					else if (roll >= 270 && roll < 360)	{ A_SetRoll(270,SPF_INTERPOLATE); }
+					else								{ A_SetRoll(0,SPF_INTERPOLATE); }
+				}
+				else
+				{
+					A_SetRoll((roll + 90) % 360);
+				}
+			}
+			else
+			{
+				if (CountInv("Sovietsaurus") > 10)
+				{
+					A_TakeInventory("Sovietsaurus",2);
+					A_SetRoll(roll + CountInv("Sovietsaurus"),SPF_INTERPOLATE);
+				}
+				else
+				{
+					A_TakeInventory("Sovietsaurus",32767);
+					if ((roll % 360) >= 355 || (roll % 360) <= 5)
+					{	
+						A_SetRoll(0,SPF_INTERPOLATE);	
+						return ResolveState("Null");
+					}
+					else
+					{	A_SetRoll(roll + 5,SPF_INTERPOLATE);	}
+				}
+			}
+			return ResolveState(null);
+		}
+		Loop;
+	
+	//==========================================================================
+	// Spinning Animation
+	// This takes care of the frame acquisition and timer setting.
+	
+	D4Chaingun.Overlay.SpinFrame:
+		CGNS A 0 
+		{	
+			if (CountInv("GatlingRotatorActive"))	{	return ResolveState(1);	}
+			if (CountInv("MobileTurretActive"))		{	return ResolveState(2);	}
+			return ResolveState("D4Chaingun.OverlaySpinFrame"); 
+		}
+		CGRS A 0 A_Jump(256,"D4Chaingun.OverlaySpinFrame");
+		CT2S A 0 A_Jump(256,"D4Chaingun.OverlaySpinFrame");
+	D4Chaingun.OverlaySpinFrame:
+		"####" "#" 0
+		{
+			if (health < 1)	{ return ResolveState("Null");	}
+			if (CountInv("SpinLoopFrame") >= 3)	{ A_SetInventory("SpinLoopFrame",0); }
+			else								{ A_GiveInventory("SpinLoopFrame",1); }
+				 
+				 
+				 if (CountInv("SpinUpCount") <= 10)	{ A_GiveInventory("FrameTimeLeft",4);	}
+			else if (CountInv("SpinUpCount") <= 21) { A_GiveInventory("FrameTimeLeft",3);	}
+			else if (CountInv("SpinUpCount") <= 43) { A_GiveInventory("FrameTimeLeft",2);	}
+			else 									{ A_GiveInventory("FrameTimeLeft",1);	}
+			
+				 if (CountInv("SpinLoopFrame") == 0)	{ return ResolveState(1); }
+			else if (CountInv("SpinLoopFrame") == 1)	{ return ResolveState(2); }
+			else if (CountInv("SpinLoopFrame") == 2)	{ return ResolveState(3); }
+			else 										{ return ResolveState(4); }
+		}
+		"####" ABCD 0 {	return ResolveState("D4Chaingun.OverlaySpinWait");	}
+		
+	//==========================================================================
+	// Spinning
+	
+		
+	//==========================================================================
+	// Gatling
+	D4Chaingun.Overlay.FireGatling:
+		M666 A 3
+		{
+			if (health < 1)	{ return ResolveState("Null");	}
+			int which = (OverlayID() < 0) ? OV_LeftWeapon : OV_RightWeapon;
+			if (CountInv("D4Bullets") > 1 || GetCvar("sv_infiniteammo"))
+			{	
+				AkOverlay(which + FireLayer,	"D4Chaingun.Overlay.FireGatlingBullet");	
+				AkOverlay(which + NoiseLayer,	"D4Chaingun.Overlay.Noise");
+			}
+			else
+			{	AkOverlay(which + NoiseLayer,"Null");	}
+			return ResolveState(null);
+		}
+		Loop;
+	D4Chaingun.Overlay.FireGatlingBullet:
+		M666 A 0
+		{
+				 if (CountInv("SpinLoopFrame") == 0)	{ return ResolveState(1); }
+			else if (CountInv("SpinLoopFrame") == 1)	{ return ResolveState(2); }
+			else if (CountInv("SpinLoopFrame") == 2)	{ return ResolveState(3); }
+			else 										{ return ResolveState(4); }
+		}
+		CGRF ABCD 0 {	return ResolveState("D4Chaingun.Overlay.FireGatlingBulletFrame");		}
+	D4Chaingun.Overlay.FireGatlingBulletFrame:
+		CGRF "#" 1 bright
+		{			
+			AkOverlay(OV_Custom+2,"D4Chaingun.FlashRotator");
+			//AkOffsetD(frandom(1,2.5),frandom(33,34.5));
+		}
+		Stop;
+	
+	D4Chaingun.Overlay.Noise:
+		M666 A 1
+		{
+			if (health < 1)	{ return ResolveState("Null");	}
+			A_GiveInventory("ChaingunFireTracker",1);
+			if (CountInv("ChaingunFireTracker") == 1)
+			{	AkPlaySound("Doom4/Weapon/Chaingun/Fire",5,0.8);	}
+			else if (CountInv("ChaingunFireTracker") == (4 - CountInv("PowerD4DFS")))
+			{	AkPlaySound("Doom4/Weapon/Chaingun/Fire",6,0.8);	}
+			else if (CountInv("ChaingunFireTracker") == (7 - CountInv("PowerD4DFS") * 2))
+			{	AkPlaySound("Doom4/Weapon/Chaingun/Fire",7,0.8);	}
+			
+			if (CountInv("ChaingunFireTracker") >= (CountInv("PowerD4DFS") ? 6 : 10))
+				A_SetInventory("ChaingunFireTracker",0);	
+			return ResolveState(null);
+		}
+		Loop;
+	
+	//-------------------------------------------------------
+	// Mobile turret
+				
+	D4Chaingun.MobileTurretArm:
+		CT2S "#" 1
+		{
+			int id = OverlayID();
+			int which = (id < 0) ? OV_LeftWeapon : OV_RightWeapon;
+			// Make sure the other overlays are gone.
+			AkOverlay(SovietsaurusSpinopatimus,"Null");
+			A_SetRoll(0,SPF_INTERPOLATE);
+			AkOverlay(which + PrepLayer,"Null");
+			AkOverlay(which + SpinLayer,"Null");
+			AkOverlay(which + FireLayer,"Null");
+			AkOverlay(which + NoiseLayer,"Null");
+			A_SetInventory("SpinUpCount",0);
+			A_SetInventory("FrameTimeLeft",0);				
+			A_SetSpeed(0.5);
+			AkPlaySound("Doom4/Weapon/Chaingun/ReadyTurret",5,1);
+			//AkOffsetD(4,20,WOF_ADD);
+			return ResolveState(null);
+		}
+		//CGNS "###" 1 AkOffsetD(4,20,WOF_ADD) //+16 +80
+		//CGTS AAAAAAAA 1 AkOffsetD(-2,-10,WOF_ADD)
+		CT2M ABCDE 1;
+		
+	D4Chaingun.MobileTurretReady:
+		CGTS A 1 
+		{
+			AkWeaponReady(WRF_NOFIRE|WRF_NOBOB,true);
+			AkRefire("MobileTurretDisarm",true,false);
+			AkRefire("MobileTurretFire",false,true);
+		}
+		Loop;
+		
+	D4Chaingun.MobileTurretDisarm:
+		CGTS A 1 
+		{
+			A_SetInventory("AltFireToken",0);
+			A_SetSpeed(1);
+			AkPlaySound("Doom4/Weapon/Chaingun/UnreadyTurret",5,1);
+			//AkOffsetD(4,20,WOF_ADD);
+		}
+		/*CGTS AAA 1 AkOffsetD(4,20,WOF_ADD) //+16 +80
+		CGNS AAAAAAAA 1 AkOffsetD(-2,-10,WOF_ADD)*/
+		CT2M EDCBA 1;
+		Goto D4Chaingun.Ready;
+	
+	//-------------------------------------------------------
+	// MobileTurret fire
+	//-------------------------------------------------------
+	D4Chaingun.MobileTurretFire:
+		CGTF A 0 A_SetInventory("ChaingunFireTracker",0);
+	D4Chaingun.MobileTurretFireContinue:
+		CGTF A 1 Bright 
+		{
+			A_QuakeEx(0,1,1,5,0,48,"",QF_Relative,0,0,0,0,0,1);
+			if (!CountInv("ChaingunFireTracker"))	//the first time fired, will play "start sound"
+			{	
+				AkPlaySound("Doom4/Weapon/Chaingun/TurretStart",CHAN_WEAPON,1,1);
+			}
+			else if (CountInv("ChaingunFireTracker")==7)	//at some point later it will play the looping sounds
+			{	AkPlaySound("Doom4/Weapon/Chaingun/TurretLoop",CHAN_WEAPON,1,1);	}
+			if (CountInv("ChaingunFireTracker") < 8)
+			{	A_GiveInventory("ChaingunFireTracker",1);	}
+			
+			if (CountInv("PowerD4DFS"))
+			{
+				if (GetCvar("user_TracerFX"))	{	A_FireBullets(3,3,-1,9,"D4BulletPuff",PuffTracer|FBF_USEAMMO,0,"BulletTracerFX",-1,7*random(-1,1)); 	}
+				else							{	A_FireBullets(3,3,-1,9); 	}
+			}
+			if (GetCvar("user_Casings") > 0) 	{	A_SpawnItemEx("TurretCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER); }
+			if (GetCvar("user_TracerFX") > 0)	{	A_FireBullets(3,3,-1,9,"D4BulletPuff",PuffTracer|FBF_USEAMMO,0,"BulletTracerFX",-1,7*random(-1,1)); 	}
+			else								{	A_FireBullets(3,3,-1,9); 	}
+			
+			if (GetCvar("user_TracerFX") > 0)
+			{	A_FireProjectile("BulletTracerFx",frandom(3,-3),0,7*random(1,-1),-1,0,frandom(3,-3));	}
+			if (GetCvar("HQEffectsWeapons"))	
+			{	
+				A_FireProjectile("CGSmokeSpawner",0,0,-3,2);
+				A_FireProjectile("CGSmokeSpawner",0,0,3,2);
+			}
+			
+			A_AlertMonsters();
+			A_GunFlash("Null");
+			AkOffsetD(frandom(-1, 1), frandom(1, 3));
+		}
+		CGTF BCD 1 Bright 
+		{
+			if (CountInv("PowerD4DFS"))
+			{
+				if (GetCvar("user_TracerFX") > 0)	{	A_FireBullets(3,3,-1,9,"D4BulletPuff",PuffTracer|FBF_USEAMMO,0,"BulletTracerFX",-1,7*random(-1,1)); 	}
+				else								{	A_FireBullets(3,3,-1,9); 	}
+			}
+			if (GetCvar("user_Casings") > 0)	{	A_SpawnItemEx("TurretCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);	}
+			if (GetCvar("user_TracerFX") > 0)	{	A_FireBullets(3,3,-1,9,"D4BulletPuff",PuffTracer|FBF_USEAMMO,0,"BulletTracerFX",-1,7*random(-1,1)); 	}
+			else								{	A_FireBullets(3,3,-1,9); 	}
+			A_AlertMonsters();
+			A_GunFlash("Null");
+			A_SetBlend("orange",0.03,6);
+			AkOffsetD(frandom(-1, 1), frandom(1, 3));
+		}
+		CGTS A 0 AkRefire("D4Chaingun.MobileTurretFireContinue");
+	D4Chaingun.EndTurretLoop:
+		CGTS A 1 
+		{
+			A_QuakeEx(0,1,1,5,0,48,"",QF_Relative|QF_ScaleDown,0,0,0,0,0,1);
+			A_SetInventory("ChaingunFireTracker",0);
+			AkPlaySound("Doom4/Weapon/Chaingun/TurretEnd",CHAN_WEAPON);
+			AkStopSound(6);
+			AkOffsetD(0, 1);
+		}
+		CGTS A 1 AkOffsetD(0, 0.5);
+		CGTS B 2 AkOffsetD();
+		CGTS AB 2;
+		CGTS ABAB 3;
+		Goto D4Chaingun.MobileTurretReady;
+		
+	//-------------------------------------------------------
+	// Alt fire switcheroo
+	//-------------------------------------------------------
+	D4Chaingun.Mod:
+		"####" "#" 0 
+		{
+			A_TakeInventory("AltFireToken",0);
+			if (CountInv("ChaingunMod1")) //if has GatlingRotator
+			{
+				if (CountInv("MobileTurretActive")) //but MobileTurret was active
+				{
+					return ResolveState("D4Chaingun.FromMobileTurretToGatlingRotator");
+				}
+				else if (!CountInv("GatlingRotatorActive"))
+				{
+					return ResolveState("D4Chaingun.FromNormalToGatlingRotator"); //but if it didnt have MobileTurret active, then it was in "normal"
+				}
+			}
+			if (CountInv("ChaingunMod2")) //if it has MobileTurret
+			{
+				if (CountInv("GatlingRotatorActive")) //but GatlingRotator was active
+				{
+					return ResolveState("D4Chaingun.FromGatlingRotatorToMobileTurret");
+				}
+				else if (!CountInv("MobileTurretActive"))	//if nothing was active,
+				{
+					return ResolveState("D4Chaingun.FromNormalToMobileTurret"); //then it was in "normal" SG
+				}
+			}
+			else
+			{
+				ACS_NamedExecute("NoModsAvailable",0,0,0,0);
+			}
+			return ResolveState(null);
+		}
+		"####" "#" 5;
+		Goto D4Chaingun.Ready;
+
+
+		D4Chaingun.FromNormalToMobileTurret:
+			//CGNS A 0 A_PrintBold("From normal to MobileTurret")
+			//hide normal fire
+			CGNS "#####" 1 AkOffsetD(8,16,WOF_ADD); //+24 +64
+			CT2S A 25 
+			{
+				int which = (OverlayID() < 0) ? OV_LeftWeapon : OV_RightWeapon;
+				AkOverlay(which + SpinLayer,"Null");
+				A_SetInventory("SpinLoopFrame",0);
+				A_SetInventory("SpinUpCount",0);
+				A_SetInventory("FrameTimeLeft",0);
+				AkPlaySound("Doom4/Weapon/Chaingun/SwitchToTurret",5,1);
+				A_GiveInventory("MobileTurretActive",1);
+			}
+			//pull of and arm MobileTurret mod
+			CT2S AAAAAAAAAA 1 AkOffsetD(-3,-8,WOF_ADD);
+			Goto D4Chaingun.Ready;
+		D4Chaingun.FromMobileTurretToNormal:	
+			//"####" "#" 0 A_PrintBold("From MobileTurret to normal")
+			//hide normal fire
+			CT2S "#####" 1 AkOffsetD(4,20,WOF_ADD); //+16 +80
+			//pull up normal weapon
+			CGNS A 2 
+			{
+				int which = (OverlayID() < 0) ? OV_LeftWeapon : OV_RightWeapon;
+				AkOverlay(which + SpinLayer,"Null");
+				A_SetInventory("SpinLoopFrame",0);
+				A_SetInventory("SpinUpCount",0);
+				A_SetInventory("FrameTimeLeft",0);
+				AkPlaySound("Doom4/Weapon/Chaingun/UnreadyTurret",5,1);
+				A_TakeInventory("MobileTurretActive",1);
+				AkOffsetD(4,20,WOF_ADD);
+			}
+			CGNS AAA 2 AkOffsetD(4,20,WOF_ADD);
+			Goto D4Chaingun.Ready;
+			
+			
+		D4Chaingun.FromNormalToGatlingRotator:	
+			//CGNS A 0 A_PrintBold("From normal to GatlingRotator")
+			//pull down
+			CGNS "#####" 1 AkOffsetD(8,16,WOF_ADD); //+24 +64
+			CGRS A 25 
+			{
+				int which = (OverlayID() < 0) ? OV_LeftWeapon : OV_RightWeapon;
+				AkOverlay(which + SpinLayer,"Null");
+				A_SetInventory("SpinLoopFrame",0);
+				A_SetInventory("SpinUpCount",0);
+				A_SetInventory("FrameTimeLeft",0);
+				AkPlaySound("Doom4/Weapon/Chaingun/SwitchToRotator",5,1);
+				A_GiveInventory("GatlingRotatorActive",1);
+			}
+			//pull up
+			CGRS AAAAAAAAAA 1 AkOffsetD(-4,-8,WOF_ADD);
+			Goto D4Chaingun.Ready;
+			
+		D4Chaingun.FromGatlingRotatorToMobileTurret:	
+			//CGNS A 0 A_PrintBold("From GatlingRotator to turret ")
+			//pull down
+			CGRS AAAAA 1 AkOffsetD(8,16,WOF_ADD); //+24 +64
+			CT2S A 25 
+			{
+				int which = (OverlayID() < 0) ? OV_LeftWeapon : OV_RightWeapon;
+				AkOverlay(which + SpinLayer,"Null");
+				A_SetInventory("SpinLoopFrame",0);
+				A_SetInventory("SpinUpCount",0);
+				A_SetInventory("FrameTimeLeft",0);
+				AkPlaySound("Doom4/Weapon/Chaingun/SwitchToTurret",5,1);
+				A_TakeInventory("GatlingRotatorActive",1);
+				A_GiveInventory("MobileTurretActive",1);
+			}
+			//pull up
+			CT2S AAAAAAAAAA 1 AkOffsetD(-4,-8,WOF_ADD);
+			Goto D4Chaingun.Ready;
+		D4Chaingun.FromMobileTurretToGatlingRotator:
+			//CGNS A 0 A_PrintBold("From turret to GatlingRotator")
+			//pull down
+			CT2S AAAAA 1 AkOffsetD(8,16,WOF_ADD); //+24 +64
+			CGSS A 25 
+			{
+				int which = (OverlayID() < 0) ? OV_LeftWeapon : OV_RightWeapon;
+				AkOverlay(which + SpinLayer,"Null");
+				A_SetInventory("SpinLoopFrame",0);
+				A_SetInventory("SpinUpCount",0);
+				A_SetInventory("FrameTimeLeft",0);
+				AkPlaySound("Doom4/Weapon/Chaingun/SwitchToRotator",5,1);
+				A_SetInventory("MobileTurretActive",0);
+				A_GiveInventory("GatlingRotatorActive",1);
+			}
+			//pull up
+			CGRS AAAAAAAAAA 1 AkOffsetD(-4,-8,WOF_ADD);
+			Goto D4Chaingun.Ready;
+	
+	//==========================================================================
+	//==========================================================================
+	// Rocket Launcher
+	//==========================================================================
+	//==========================================================================
+	D4RocketLauncher.Select:
+		RLNI A 0 
+		{
+			UpdateStates(ID_D4RocketLauncher);
+			A_SetInventory("RLLockToken",0);
+			A_SetInventory("RLTargetToken",0);
+			A_SetInventory("RocketFired",0);
+			A_SetInventory("TripleShot",0);
+			ACS_NamedExecute("RemoveModText",0,0,0,0); //clears previous wep text
+			if (CountInv("DetonateActive"))			{	return ResolveState("D4RocketLauncher.DetonateSpriteSelect");	}
+			if (CountInv("LockOnActive"))			{	return ResolveState("D4RocketLauncher.LockOnSpriteSelect");		}
+			return ResolveState("CommonSelect");
+		}
+	D4RocketLauncher.DetonateSpriteSelect:
+		RLDI A 0 A_Jump(256,"CommonSelect");
+	D4RocketLauncher.LockOnSpriteSelect:
+		RLLI A 0 A_Jump(256,"CommonSelect");
+	//------
+	// Ready
+	D4RocketLauncher.Ready:
+		"----" A 0 
+		{
+			if (CountInv("DetonateActive"))			{	return ResolveState("D4RocketLauncher.DetonateSpriteReady");	}
+			if (CountInv("LockOnActive"))			{	return ResolveState("D4RocketLauncher.LockOnSpriteReady");		}
+			return ResolveState("D4RocketLauncher.NormalSpriteReady");
+		}	
+	
+	D4RocketLauncher.NormalSpriteReady:
+		RLNI A 0 A_Jump(256,"D4RocketLauncher.ResumeReadySequence");
+	D4RocketLauncher.DetonateSpriteReady:
+		RLDI A 0 A_Jump(256,"D4RocketLauncher.ResumeReadySequence");//ACS_NamedExecute("ModSelectedText",0,7,0,0);	//print detonate
+	D4RocketLauncher.LockOnSpriteReady:
+		RLLI A 0 A_Jump(256,"D4RocketLauncher.ResumeReadySequence");//ACS_NamedExecute("ModSelectedText",0,8,0,0);	//print Lockon
+				
+	D4RocketLauncher.ResumeReadySequence:
+		"####" A 1 AkWeaponReady(WRF_NOSECONDARY, true);
+		Loop;
+		
+	D4RocketLauncher.Fire:
+	//-------------------------------------------------------
+	// Flash sequence, used by all three firemodes and alt fires
+	//-------------------------------------------------------
+	
+	D4RocketLauncher.FireAnimation:	//all "Start preparing" are to assign what sprite to display in the "####" instances
+		RLNF A 0
+		{
+			if (CountInv("DetonateActive"))			{	return ResolveState("D4RocketLauncher.DetonateSpriteFlash");	}
+			if (CountInv("LockOnActive"))			{	return ResolveState("D4RocketLauncher.LockOnSpriteFlash");	}
+			return ResolveState ("D4RocketLauncher.ResumeFlashSequence");
+		}
+		D4RocketLauncher.DetonateSpriteFlash:
+			RLDF A 0 { return ResolveState("D4RocketLauncher.ResumeFlashSequence"); }
+		D4RocketLauncher.LockOnSpriteFlash:
+			RLLF A 0 { return ResolveState("D4RocketLauncher.ResumeFlashSequence"); }
+			
+	D4RocketLauncher.ResumeFlashSequence:
+		"####" B 1 Bright 
+		{
+			A_GunFlash("Null");
+			A_FireProjectile("D4Rocket",0,1,Side(7));
+			AkPlaySound("Doom4/Weapon/RocketLauncher/Fire",5,1);
+			//A_Overlay(P1,"NormalPitchHandler");
+			A_ZoomFactor(0.99,ZOOM_NOSCALETURNING);
+			A_GiveInventory("RocketFired",1);
+			AkOffsetD(10,7,WOF_ADD);
+		}
+	D4RocketLauncher.Res2:
+		"####" C 1 Bright   AkOffsetD(10.0, 7.0,WOF_ADD);
+		"####" D 1 Bright { AkOffsetD( 5.0, 3.0,WOF_ADD); A_ZoomFactor(1,ZOOM_NOSCALETURNING); }
+		"####" E 1 Bright   AkOffsetD( 3.0, 2.0,WOF_ADD);
+		"####" F 2          AkOffsetD( 2.0, 1.0,WOF_ADD); //total +30 + 20
+	
+			D4RocketLauncher.StartPreparingIdleSprites:	//all "Start preparing" are to assign what sprite to display in the "####" instances
+				RLNI A 0
+				{
+					if (CountInv("DetonateActive"))			{	return ResolveState("D4RocketLauncher.DetonateSpriteFlashIdle");	}
+					if (CountInv("LockOnActive"))			{	return ResolveState("D4RocketLauncher.LockOnSpriteFlashIdle");	}
+					return ResolveState ("D4RocketLauncher.ResumeFlashSequenceIdle");
+				}
+				
+			D4RocketLauncher.DetonateSpriteFlashIdle:
+				RLDI A 0 A_Jump(256,"D4RocketLauncher.ResumeFlashSequenceIdle");
+			D4RocketLauncher.LockOnSpriteFlashIdle:
+				RLLI A 0 A_Jump(256,"D4RocketLauncher.ResumeFlashSequenceIdle");
+			
+	D4RocketLauncher.ResumeFlashSequenceIdle:
+		"####" A 2 ;
+		"####" AA 1; //A_SetPitch(pitch+0.8)
+		"####" AA 1 ;//A_SetPitch(pitch+0.8)
+	
+			D4RocketLauncher.StartPreparingReloadSprites:	//all "Start preparing" are to assign what sprite to display in the "####" instances
+				RLNR A 0
+				{
+					if (CountInv("DetonateActive"))			{	return ResolveState("D4RocketLauncher.DetonateSpriteFlashReload");	}
+					if (CountInv("LockOnActive"))			{	return ResolveState("D4RocketLauncher.LockOnSpriteFlashReload");	}
+					return ResolveState ("D4RocketLauncher.ResumeFlashSequenceReload");
+				}
+				
+			DetonateSpriteFlashReload:
+				RLDR A 0 A_Jump(256,"D4RocketLauncher.ResumeFlashSequenceReload");
+			LockOnSpriteFlashReload:
+				RLLR A 0 A_Jump(256,"D4RocketLauncher.ResumeFlashSequenceReload");
+			//A_SetTics(CountInv("PowerD4DFS") ? 0 : 1);
+	D4RocketLauncher.ResumeFlashSequenceReload:
+		"####" "#" 0 A_JumpIf(CountInv("PowerD4DFS"),"RFSFast");
+		"####" AA 1 AkOffsetD(-2,-1,WOF_ADD); //-4 -2
+		"####" AA 1 AkOffsetD(-2,-1,WOF_ADD);							//-8 -4
+		"####" CC 1 AkOffsetD(-2,-1,WOF_ADD);							//-12 -6 
+		"####" DD 1 AkOffsetD(-2,-1,WOF_ADD);							//-16 -8 
+		"####" EE 1 AkOffsetD(-2,-1,WOF_ADD);							//-20 -10 
+		"####" FF 1 AkOffsetD(-2,-1,WOF_ADD);							//-24 -12
+		"####" G 1 AkOffsetD(-2,-3,WOF_ADD);							//-26 -15
+		"####" H 1 AkOffsetD(-2,-2,WOF_ADD);							//-28 -18
+		"####" I 1 AkOffsetD(-2,-2,WOF_ADD);							//-30 -20
+		"####" JKLMNOPQRS 1;
+		"####" T 1 
+		{
+			A_SetInventory("RocketFired",0);
+			A_SetInventory("TripleShot",0);
+		}
+		---- A 0 AkRefire("D4RocketLauncher.Fire");
+		Goto D4RocketLauncher.Ready;
+		
+	D4RocketLauncher.RFSFast:
+		"####" A 1 AkOffsetD(-4,-2,WOF_ADD); 							//+26 +18
+		"####" A 1 AkOffsetD(-4,-2,WOF_ADD);							//+22 +16
+		"####" C 1 AkOffsetD(-4,-2,WOF_ADD);							//+18 +14 
+		"####" D 1 AkOffsetD(-4,-2,WOF_ADD);							//+14 +12
+		"####" E 1 AkOffsetD(-4,-2,WOF_ADD);							//+10 +10 
+		"####" F 1 AkOffsetD(-4,-2,WOF_ADD);							//+6 +8
+		"####" G 1 AkOffsetD(-4,-6,WOF_ADD);							//+2 +2
+		"####" I 1 AkOffsetD(-2,-2,WOF_ADD);							//+0 +0
+		"####" JLMPR 1;
+		"####" T 1 
+		{
+			A_SetInventory("RocketFired",0);
+			A_SetInventory("TripleShot",0);
+		}
+		---- A 0 AkRefire("D4RocketLauncher.Fire");
+		Goto D4RocketLauncher.Ready;
+		
+	//==========================================================================
+	//==========================================================================
+	// Plasma Rifle
+	//==========================================================================
+	//==========================================================================
+	D4PlasmaRifle.Select:
+		PRNI A 0 
+		{ 
+			UpdateStates(ID_D4PlasmaRifle); 
+			if(countinv("HeatBlastActive")>=1 && countinv("PlasmaMuzzlePresent")==0)
+			{
+				A_SpawnItemEx("PlasmaHeatMuzzle",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+				A_GiveInventory("PlasmaMuzzlePresent",1);
+			}
+		}
+		Goto CommonSelect;		
+	D4PlasmaRifle.Ready:
+		D4PlasmaRifle.PrepareSpritesReady:
+			PRNI A 0 
+			{
+				if (CountInv("StunBombActive"))	{ return ResolveState("D4PlasmaRifle.StunBombReady"); }
+				if (CountInv("HeatBlastActive")) { return ResolveState("D4PlasmaRifle.HeatBlastReady"); }
+				return ResolveState("D4PlasmaRifle.ContinueReady");
+			}
+		D4PlasmaRifle.StunBombReady:
+			PRSI A 0; //ACS_NamedExecute("ModSelectedText",0,6,0,0);	//print stun bomb
+			Goto ContinueReady;
+		D4PlasmaRifle.HeatBlastReady:
+			PRHI A 0 
+			{
+				A_Overlay(2,"D4PlasmaRifle.Overlay.HeatGeneration",true);
+				//ACS_NamedExecute("ModSelectedText",0,5,0,0);	//print heat
+			}
+			Goto ContinueReady;
+			
+	D4PlasmaRifle.ContinueReady:
+		"####" AAAAAAAAA 1 AkWeaponReady(0, true);
+		Loop;
+	
+	D4PlasmaRifle.Overlay.HeatGeneration:
+		M666 A 60
+		{
+			if (CountInv("PlasmaHeatBlastCounter") < 30)
+			{	A_GiveInventory("PlasmaHeatBlastCounter",1);	}
+		}
+		Loop;
+		
+	//-------------------------------------------------------
+	// Primary fire
+	//-------------------------------------------------------
+	D4PlasmaRifle.Fire:
+		"####" "#" 0 
+		{
+			if (countinv("HeatBlastActive")>=1)	//if it has the "heat shot" mod
+			{
+				return ResolveState("D4PlasmaRifle.HeatBuilderFire");
+			}
+			return ResolveState(null); //does nothing, but this line is needed because "not all paths return a value"
+		}
+		Goto D4PlasmaRifle.PrepareSpritesPrimaryFire;
+		
+		//-------------------------------------------------------
+		// Regular primary fire
+		
+		D4PlasmaRifle.PrepareSpritesPrimaryFire:
+			---- A 0 A_JumpIfInventory("StunBombActive",1,"D4PlasmaRifle.PrepareSpritesStunBombFire");
+			Goto D4PlasmaRifle.PrepareSpritesNoModsFire;
+		
+		D4PlasmaRifle.PrepareSpritesNoModsFire:
+			PRNF A 0 A_Jump(256,"D4PlasmaRifle.FireNormal");
+		D4PlasmaRifle.PrepareSpritesStunBombFire:
+			PRSF A 0 A_Jump(256,"D4PlasmaRifle.FireNormal");
+		
+		D4PlasmaRifle.FireNormal:
+			"####" A 1 Bright 
+			{
+				if(countinv("PlasmaShotCounter")>=1)
+				{
+					AkPlaySound("Doom4/Weapon/PlasmaGun/PlasmaLoop",5,1,2);
+				}
+				else if(countinv("PlasmaShotCounter")==0)
+				{
+					AkPlaySound("Doom4/Weapon/PlasmaGun/Fire",CHAN_WEAPON,1);
+				}
+				A_SetBlend("skyblue",0.03,3);
+				A_AlertMonsters();
+				A_GunFlash("Null");
+				A_FireProjectile("D4DPlasmaBall",0,1,Side(3),1.5);
+				//A_SetPitch(pitch-0.8);
+				A_ZoomFactor(0.995,ZOOM_NOSCALETURNING);
+				A_GiveInventory("PlasmaShotCounter",1);
+				AkOffsetD(4,5,WOF_ADD);
+			}
+			"####" B 1 Bright 
+			{
+				A_ZoomFactor(1,ZOOM_NOSCALETURNING);
+				//A_SetPitch(pitch+0.8);
+				AkOffsetD(-2,-3,WOF_ADD);
+			}
+			"####" D 1 {	AkOffsetD(-2,-2,WOF_ADD);	A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			"####" D 0 AkRefire("D4PlasmaRifle.FireNormal");
+			Goto D4PlasmaRifle.EndFire;
+			
+		D4PlasmaRifle.EndFire:
+			"####" A 0
+			{
+				if(countinv("PlasmaShotCounter")>=2) //if player fired more than 2 shots, the looping sound was active, and needs to end with an echoey sound
+				{ AkPlaySound("Doom4/Weapon/PlasmaGun/Fire",CHAN_WEAPON,1); }
+				A_SetInventory("PlasmaShotCounter",0);
+				AkStopSound(5);
+			}
+			Goto D4PlasmaRifle.Ready;
+		
+		//-------------------------------------------------------
+		// heat builder primary fire
+		D4PlasmaRifle.HeatBuilderFire:
+			PRHF A 1 Bright
+			{
+				if(countinv("PlasmaShotCounter")>=1)
+				{
+					AkPlaySound("Doom4/Weapon/PlasmaGun/PlasmaHeatLoop",5,1,2);
+				}
+				else if(countinv("PlasmaShotCounter")==0)
+				{
+					AkPlaySound("Doom4/Weapon/PlasmaGun/PlasmaHeatFire",CHAN_WEAPON,1);
+				}
+				A_SetBlend("skyblue",0.03,3);
+				A_AlertMonsters();
+				A_GunFlash("Null");
+				A_FireProjectile("D4DPlasmaBall",0,1,Side(3),1.5);
+				//A_SetPitch(pitch-0.8);
+				A_ZoomFactor(0.995,ZOOM_NOSCALETURNING);
+				A_GiveInventory("PlasmaShotCounter",1);
+				//A_PrintBold("Firing and heating up",0.5);
+				A_GiveInventory("PlasmaHeatBlastCounter",1);
+				AkOffsetD(4,5,WOF_ADD);
+			}
+			PRHF B 1 Bright 
+			{
+				A_ZoomFactor(1,ZOOM_NOSCALETURNING);
+				//A_SetPitch(pitch+0.8);
+				AkOffsetD(-2,-3,WOF_ADD);
+			}
+			PRHI A 1 {	AkOffsetD(-2,-2,WOF_ADD);	A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			PRHI A 0 AkRefire("D4PlasmaRifle.HeatBuilderFire");
+			Goto D4PlasmaRifle.EndHeatBuilderFire;
+			
+		D4PlasmaRifle.EndHeatBuilderFire:
+			"----" A 0
+			{
+				if(countinv("PlasmaShotCounter")>=2) //if player fired more than 2 shots, the looping sound was active, and needs to end with an echoey sound
+				{ AkPlaySound("Doom4/Weapon/PlasmaGun/PlasmaHeatFire",CHAN_WEAPON,1); }
+				A_SetInventory("PlasmaShotCounter",0);
+				AkStopSound(5);
+			}
+			Goto D4PlasmaRifle.Ready;
+		
+	//==========================================================================
+	//==========================================================================
+	// Lightning Gun
+	//==========================================================================
+	//==========================================================================
+	D4LightningGun.Select:
+		LGNI A 0 { UpdateStates(ID_D4LightningGun); }
+		Goto CommonSelect;
+		
+	D4LightningGun.Ready:
+		LGNI A 0 
+		{
+			if (countinv("LGUpgradeAltFire"))
+			{ return ResolveState("ReadyWithAltFire"); }
+			else
+			{ return ResolveState("ReadyNoAltFire"); }
+		}
+	D4LightningGun.ReadyWithAltFire:
+		LGNI AABBCC 1 AkWeaponReady(0, true);
+		Goto D4LightningGun.Ready;
+	D4LightningGun.ReadyNoAltFire:
+		LGNI AABBCC 1 AkWeaponReady(WRF_NOSECONDARY, true);
+		Goto D4LightningGun.Ready;
+		
+	//===========================================================================	
+	// Primary fire
+	D4LightningGun.Fire:
+		TNT1 A 0 
+		{
+			AkPlaySound("Doom4/Weapon/LightningGun/LightningGunFire", CHAN_WEAPON, 1, 1);
+			AkPlaySound("Doom4/Weapon/LightningGun/LG2Loop", 5, 0.5, 1);
+		}
+		
+	D4LightningGun.HoldPt1:
+		LGNF B 1 Bright 
+		{ 
+			AkOffsetD(frandom(-1.0,1.0),frandom(-1.0,1.0));
+			A_GunFlash("Null");
+			//--------
+			//gzdoom
+			if (GetCvar("vid_renderer"))
+			{
+				A_FireBullets(0,0,1,countinv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax),"LightningPuffV2",((CountInv("LGUpgradeAmmo") && random(1,3)==1) ? FBFlagsNoAmmo : FBFlags),CountInv("LGUpgradeRange") ? 1024 : 768,"LightningBeamV2",SHeight,Side(2));
+				if (CountInv("PowerD4DFS"))
+				{	A_FireBullets(0,0,1,countinv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax),"LightningPuffV2",((CountInv("LGUpgradeAmmo") && random(1,3)==1) ? FBFlagsNoAmmo : FBFlags),CountInv("LGUpgradeRange") ? 1024 : 768,"LightningBeamV2",SHeight,Side(2));	}
+			}
+			//--------
+			//zdoom
+			else
+			{
+				if (CountInv("PowerD4DFS"))
+				{	A_RailAttack(countinv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax),8,(CountInv("LGUpgradeAmmo") && random(1,3)==1) ? 0 : 1,"","",RGF_SILENT|RGF_NOPIERCING,0,"LGPuff",0,0,CountInv("LGUpgradeRange") ? 1024 : 768,0,Side(10),0,"D4LGTrail"); 	}
+				A_RailAttack(countinv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax),8,(CountInv("LGUpgradeAmmo") && random(1,3)==1) ? 0 : 1,"","",RGF_SILENT|RGF_NOPIERCING,0,"LGPuff",0,0,CountInv("LGUpgradeRange") ? 1024 : 768,0,Side(10),0,"D4LGTrail"); 
+			}
+		}
+		//the second frame never uses ammo anyway, so no need to add those checks
+		LGNF C 1 Bright 
+		{
+			A_GunFlash("Null");
+			AkOffsetD(frandom(-1.2,1.2),frandom(-1.2, 1.2)); 
+			//--------
+			//gzdoom
+			if (GetCvar("vid_renderer"))
+			{
+				A_FireBullets(0,0,1,countinv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax),"LightningPuffV2",((CountInv("LGUpgradeAmmo") && random(1,3)==1) ? FBFlagsNoAmmo : FBFlags),CountInv("LGUpgradeRange") ? 1024 : 768,"LightningBeamV2",SHeight,Side(2));
+				if (CountInv("PowerD4DFS"))
+				{	A_FireBullets(0,0,1,countinv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax),"LightningPuffV2",((CountInv("LGUpgradeAmmo") && random(1,3)==1) ? FBFlagsNoAmmo : FBFlags),CountInv("LGUpgradeRange") ? 1024 : 768,"LightningBeamV2",SHeight,Side(2));	}
+			}
+			//--------
+			//zdoom
+			else
+			{
+				if (CountInv("PowerD4DFS"))
+				{	A_RailAttack(countinv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax),8,(CountInv("LGUpgradeAmmo") && random(1,3)==1) ? 0 : 1,"","",RGF_SILENT|RGF_NOPIERCING,0,"LGPuff",0,0,CountInv("LGUpgradeRange") ? 1024 : 768,0,Side(10),0,"D4LGTrail"); 	}
+				A_RailAttack(countinv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax),8,(CountInv("LGUpgradeAmmo") && random(1,3)==1) ? 0 : 1,"","",RGF_SILENT|RGF_NOPIERCING,0,"LGPuff",0,0,CountInv("LGUpgradeRange") ? 1024 : 768,0,Side(10),0,"D4LGTrail"); 
+			}
+		}
+
+		LGNF A 2 AkReFire("D4LightningGun.HoldPt1");
+		Goto D4LightningGun.EndHold;
+	D4LightningGun.EndHold:
+		LGNI A 1 
+		{
+			AkPlaySound("Doom4/Weapon/LightningGun/LightningGunEnd", CHAN_WEAPON);
+			AkStopSound(5);
+		}
+		Goto D4LightningGun.Ready;		
+	D4LightningGun.Flash:
+		TNT1 A 0 A_SetBlend("LightBlue1",0.1,3);
+		ZZZZ C 1 A_Light2();
+		ZZZZ C 0 A_Light0();
+		Stop;
+		
+	//===========================================================================	
+	// Alt Fire
+	D4LightningGun.AltFire:
+		LGNG A 3 AkPlaySound("Doom4/Weapon/LightningGun/LightningGunFire", CHAN_WEAPON, 1, 1);
+		LGNG B 3; //A_GiveInventory("AltFireToken",1);
+		Goto D4LightningGun.AltHold;
+		
+	D4LightningGun.AltHold:
+		LGNG CD 1 Bright 
+		{
+			A_GunFlash("Null");
+			AkOffsetD(frandom(1,3),frandom(1,3)); 
+			
+			//--------
+			//gzdoom
+			if (GetCvar("vid_renderer"))
+			{
+				if (CountInv("PowerD4DFS"))
+				{	A_FireBullets(0,0,1,countinv("LGUpgradeDamage") ? random(LGChainDmgMinUpgrade,LGChainDmgMaxUpgrade) : random(LGChainDmgMin,LGChainDmgMax),"LightningPuffV3",((CountInv("LGUpgradeAmmo") && random(1,3)==1) ? FBFlagsNoAmmo : FBFlags),CountInv("LGUpgradeRange") ? 1024 : 768,"LightningBeamV3",SHeight,Side(2));	}
+				A_FireBullets(0,0,1,countinv("LGUpgradeDamage") ? random(LGChainDmgMinUpgrade,LGChainDmgMaxUpgrade) : random(LGChainDmgMin,LGChainDmgMax),"LightningPuffV3",((CountInv("LGUpgradeAmmo") && random(1,3)==1) ? FBFlagsNoAmmo : FBFlags),CountInv("LGUpgradeRange") ? 1024 : 768,"LightningBeamV3",SHeight,Side(2));
+			}
+			//--------
+			//zdoom
+			else
+			{
+				if (CountInv("PowerD4DFS"))
+				{	A_RailAttack(countinv("LGUpgradeDamage") ? random(LGChainDmgMinUpgrade,LGChainDmgMaxUpgrade) : random(LGChainDmgMin,LGChainDmgMax),8,(CountInv("LGUpgradeAmmo") && random(1,3)==1) ? 0 : 1,"","",RGF_SILENT|RGF_NOPIERCING,0,"LGAltPuff",0,0,CountInv("LGUpgradeRange") ? 1024 : 768,0,Side(10),0,"D4LGTrailAltFire"); 	}
+				A_RailAttack(countinv("LGUpgradeDamage") ? random(LGChainDmgMinUpgrade,LGChainDmgMaxUpgrade) : random(LGChainDmgMin,LGChainDmgMax),8,(CountInv("LGUpgradeAmmo") && random(1,3)==1) ? 0 : 1,"","",RGF_SILENT|RGF_NOPIERCING,0,"LGAltPuff",0,0,CountInv("LGUpgradeRange") ? 1024 : 768,0,Side(10),0,"D4LGTrailAltFire"); 
+			}
+		}
+		LGNG B 1 AkReFire("D4LightningGun.AltHold");	
+		Goto D4LightningGun.AltEndHold;
+	D4LightningGun.AltEndHold:
+		LGNI A 0 
+		{
+			AkPlaySound("Doom4/Weapon/LightningGun/LightningGunEnd", CHAN_WEAPON);
+			AkStopSound(5);
+		}
+		LGNG B 3;
+		LGNG A 3;
+		Goto D4LightningGun.Ready;	
+		
+	//==========================================================================
+	//==========================================================================
+	// Static Rifle
+	//==========================================================================
+	//==========================================================================
+	D4StaticRifle.Select:
+		STRF A 0 
+		{
+			UpdateStates(ID_D4StaticRifle);
+			A_SpawnItemEx("ChargeSoundPlayer",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+			A_GiveInventory("StaticRifleActive",1);
+			ACS_NamedExecute("RemoveModText",0,0,0,0);
+		}
+		Goto CommonSelect;
+		
+	D4StaticRifle.ReadyNoHolding:
+		STRF A 1;
+		STRF A 0 A_Refire("D4StaticRifle.ReadyNoHolding");
+	D4StaticRifle.Ready:
+		STRF A 0 
+		{	
+			if (CountInv("StaticRifleChargingToken")>=40)
+			{	return ResolveState("D4StaticRifle.ReadyCharging");	}
+			else
+			{	return ResolveState("D4StaticRifle.ReadyDischarged");	}
+
+		}
+	D4StaticRifle.ReadyDischarged:
+		STRF A 1
+		{
+			if (CountInv("StaticUpgrade4"))
+			{	AkWeaponReady(0, true);	}
+			else
+			{	AkWeaponReady(WRF_NOSECONDARY, true);	}
+		}
+		Goto D4StaticRifle.Ready;
+	D4StaticRifle.ReadyCharging:
+		STRF BBBCCC 1 
+		{
+			if (CountInv("StaticUpgrade4"))
+			{	AkWeaponReady(0, true);	}
+			else
+			{	AkWeaponReady(WRF_NOSECONDARY, true);	}
+		}
+		Goto D4StaticRifle.Ready;
+	//===========================================================================	
+	// Primary fire
+	D4StaticRifle.Fire:
+	D4StaticRifle.AltFire:
+		STRF A 0
+		{
+			if (CountInv("StaticRifleChargingToken") >= 20)
+			{
+				if (CountInv("StaticUpgrade4"))
+				{
+					AkOverlay(SR_Fire,"D4StaticRifle.Overlay.Fire");
+					AkOverlay(SR_Anim,"D4StaticRifle.Overlay.Anim");
+					if (!CountInv("StaticChargeDrain"))
+					{	A_GiveInventory("StaticChargeDrain",1);		}
+					return ResolveState("D4StaticRifle.FireWatcher");
+				}
+				else
+				{	
+					AkOverlay(SR_Fire,"D4StaticRifle.Overlay.Fire");
+					AkOverlay(SR_Anim,"D4StaticRifle.Overlay.Anim");
+					
+					// It's important that the tics be updated if the animation 
+					// under (Overlay.)Anim state is changed at all.
+					// AnimLoop1 and 2 don't count.
+					A_SetTics(10); 
+					return ResolveState(null);
+				}
+			}
+			else
+			{
+				ACS_NamedExecute("ChargeTooLow",0,0,0);
+			}
+			return ResolveState(null);
+		}
+		STRF A 1;
+		STRF A 0 AkRefire("D4StaticRifle.ReadyNoHolding");
+		Goto D4StaticRifle.Ready;
+	D4StaticRifle.FireWatcher:
+		M666 A 1;
+		M666 A 1
+		{
+			if (CountInv("StaticChargeDrain"))
+			{
+				if (AkCheckFire(true, false) || AkCheckFire(false, false)
+					/*
+					((GetPlayerInput(MODINPUT_BUTTONS) & BT_ATTACK) &&
+					!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_ATTACK))
+					||
+					((GetPlayerInput(MODINPUT_BUTTONS) & BT_ALTATTACK) &&
+					!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_ALTATTACK))
+					*/
+					)
+				{
+					int id = OverlayID() < 0 ? OV_LeftWeapon : OV_RightWeapon;
+					AkOverlay(id + SR_Fire,"D4StaticRifle.Overlay.Fire");
+					AkOverlay(id + SR_Anim,"D4StaticRifle.Overlay.Anim");
+				}
+				return ResolveState(null);
+			}
+			//Don't allow spamalamadingdongs.
+			
+			AkRefire("D4StaticRifle.ReadyNoHolding",true,false);
+			AkRefire("D4StaticRifle.ReadyNoHolding",false,false);
+			
+			/*
+			else if ((GetPlayerInput(MODINPUT_BUTTONS) & BT_ATTACK) || 
+					(GetPlayerInput(MODINPUT_BUTTONS) & BT_ALTATTACK))
+			{
+				return ResolveState("D4StaticRifle.ReadyNoHolding"); 
+			}
+			*/
+			return ResolveState("D4StaticRifle.Ready");
+		}
+		Wait;
+	D4StaticRifle.Overlay.Fire:
+		STRF A 0
+		{
+			//A_GiveInventory("ShowStaticRifleCharge",1); //	debug
+			int s = Side();
+			//----------------------
+			//Main fire attack
+			//it has to attack before the pitches are applied, otherwise it fucks with your aim
+			if (CountInv("StaticRifleChargingToken")>=20)
+			{
+				A_GunFlash("Null");
+				if (CountInv("StaticRifleChargingToken")>=520)	//if at max
+				{
+					if (GetCvar("vid_renderer"))	//gzdoom
+					{
+						A_RailAttack(0,1*s,0,"","",RGF_SILENT|RGF_FULLBRIGHT,0,null,0,0,32765,0,Sparsity,0.0,"StaticTrailBig");
+					}
+					A_RailAttack(random(100,200),0,1,"Red","",RGF_SILENT|RGF_FULLBRIGHT,0,null,0,0,32765,0,2.0,1.0);
+				}
+				
+				
+				//normal attacks
+				if (GetCvar("vid_renderer"))	//gzdoom
+				{	
+					A_RailAttack(0,1*s,0,"","",(CountInv("StaticUpgrade3") ? RailFlags3 : RailFlags),0,null,0,0,32765,0,Sparsity,0.0,"StaticTrail"); 
+				}
+				else		//zdoom
+				{	A_RailAttack(0,1*s,0,"","Orange",(CountInv("StaticUpgrade3") ? RailFlags3 : RailFlags),0,null,0,0,32765,0,2,0.0,"StaticRifleTrailSoftware"); }
+				
+				
+				A_RailAttack(int(CountInv("StaticRifleChargingToken")*0.85),0,1,"","",(CountInv("StaticUpgrade3") ? RailFlags3 : RailFlags),0,"StaticPuff",0,0,32765,0,2.0,1.0);
+				
+				
+			}
+			//refuses to fire if the charge was too low
+			else
+			{	
+				A_SetTics(10);
+				ACS_NamedExecute("ChargeTooLow",0,0,0);
+				//return ResolveState("NotEnoughCharge");
+			}
+			//----------------------
+			//effects and sounds depend on the charge level
+			if(CountInv("StaticRifleChargingToken")>=500)	//if max, it has a 20 tokens chance to deal max damage
+			{	
+				A_PlaySound("Doom4/Weapon/StaticRifle/FireMax",CHAN_Weapon); 
+				A_ZoomFactor(0.65,ZOOM_INSTANT|ZOOM_NOSCALETURNING);
+				A_ZoomFactor(1,ZOOM_NOSCALETURNING);
+			}
+			else if(CountInv("StaticRifleChargingToken")<=40)	//if very low
+			{		
+				A_PlaySound("Doom4/Weapon/StaticRifle/FireMin",CHAN_Weapon,0.5); 	//otherwise, will play super low sound
+				A_ZoomFactor(0.95,ZOOM_INSTANT|ZOOM_NOSCALETURNING);
+				A_ZoomFactor(1,ZOOM_NOSCALETURNING);
+			}
+			else 		//if anything in between
+			{	
+				A_PlaySound("Doom4/Weapon/StaticRifle/Fire",CHAN_Weapon,0.8);
+				A_ZoomFactor(0.9,ZOOM_INSTANT|ZOOM_NOSCALETURNING);
+				A_ZoomFactor(1,ZOOM_NOSCALETURNING);
+			}
+			A_PlaySound("Doom4/Weapon/StaticRifle/FireContinuation",5,0.7);
+			
+			if (CountInv("StaticUpgrade4"))
+			{	A_GiveInventory("StaticChargeDrain",1);	}
+			else
+			{	A_TakeInventory("StaticRifleChargingToken",100000);	}
+			return ResolveState(null);
+		}
+		Stop;
+	D4StaticRifle.Overlay.Anim:
+	D4StaticRifle.Anim:
+		STRF D 1 Bright AkOffsetD( 3.0, 35.0);
+		STRF D 1 Bright AkOffsetD(12.0, 38.0);
+		STRF D 1 Bright AkOffsetD(15.0, 42.0);
+		STRF A 1 AkOffsetD(14.0, 41.0);
+		STRF A 1 AkOffsetD(12.0, 39.0);
+		STRF A 1 AkOffsetD(10.0, 37.0);
+		STRF A 1 AkOffsetD( 7.0, 35.0);
+		STRF A 1 AkOffsetD( 4.0, 34.0);
+		STRF A 1 AkOffsetD( 2.0, 33.0);
+		STRF A 1 AkOffsetD( 0.0, 32.0);
+	D4StaticRifle.AnimLoop1:
+		STRF BBBCCC 1
+		{
+			if (!CountInv("StaticChargeDrain"))
+			{	return ResolveState("Null");	}
+			if (CountInv("StaticRifleChargingToken") < 19)
+			{	return ResolveState("D4StaticRifle.AnimLoop2");	}
+			return ResolveState(null);
+		}
+		Loop;
+	D4StaticRifle.AnimLoop2:
+		STRF A 1
+		{
+			if (!CountInv("StaticChargeDrain"))
+			{	return ResolveState("Null");	}
+			return ResolveState(null);
+		}
+		Loop;
+		
+	//==========================================================================
+	//==========================================================================
+	// 
+	//==========================================================================
+	//==========================================================================
+	D4VortexRifle.Select:
+		VTXG A 0 { UpdateStates(ID_D4VortexRifle); }
+		Goto CommonSelect;
+	D4VortexRifle.Ready:
+		VTXG A 1 { AkWeaponReady(WRF_NOSECONDARY, true); }
+		Loop;
+	D4VortexRifle.Fire:
+		"####" "#" 0 
+		{
+			if (countinv("VortexUpgradeAmmo"))
+			{
+				// Alpha 7: Disable ammo requirements for the moment so testers
+				// can focus on trying to break it.
+				if (countinv("D4Cells") >= 0 /*8*/ || GetCvar("sv_infiniteammo"))
+				//{	return ResolveState( countinv("VortexZoomed") ? "FireZoomed" : "FireNormal");	} // didnt work
+				{
+					if (countinv("VortexZoomed"))
+					{
+						return ResolveState("D4VortexRifle.FireZoomed");
+					}
+					else
+					{
+						return ResolveState("D4VortexRifle.FireNormal");
+					}
+				}
+				else
+				{	return ResolveState("D4VortexRifle.NotEnoughAmmo");	}
+			}
+			else
+			{
+				if(countinv("D4Cells") >= 0 /*12*/ || GetCvar("sv_infiniteammo"))
+				//{	return ResolveState( countinv("VortexZoomed") ? "FireZoomed" : "FireNormal");	} // didnt work
+				{
+					if(countinv("VortexZoomed"))
+					{
+						return ResolveState("D4VortexRifle.FireZoomed");
+					}
+					else
+					{
+						return ResolveState("D4VortexRifle.FireNormal");
+					}
+				}
+				else
+				{	return ResolveState("D4VortexRifle.NotEnoughAmmo");	}
+			}
+		}
+	D4VortexRifle.NotEnoughAmmo:
+		"####" "#" 5 ACS_NamedExecute("NotEnoughAmmo",0,0,0);
+		"####" "#" 0
+		{
+			if(countinv("VortexZoomed"))
+			{	return ResolveState("D4VortexRifle.AltFireHolding");	}
+			else
+			{	return ResolveState("D4VortexRifle.Ready");	}
+		}
+		Goto D4VortexRifle.Ready;
+		
+		
+	D4VortexRifle.FireNormal:
+		VTXG B 2 Bright
+		{
+			AkPlaySound("Doom4/Weapon/Vortex/Fire",CHAN_WEAPON);
+			
+			//normal, min 100, max 300, avg 200
+			//upgraded, min 200, max 400, avg 300
+			A_GunFlash("Null");
+			if (GetCvar("vid_renderer"))	//gzdoom
+			{
+				A_RailAttack(countinv("VortexUpgradeDamage") ? 25*random(8,16) : 20*random(5,15),Side(4),0,"","",RGF_SILENT|RGF_FULLBRIGHT|RGF_NORANDOMPUFFZ,0,null,0,0,0,0,Sparsity,0.0,"VortexTrail"); 
+			}
+			else	//zdoom
+			{ 
+				A_RailAttack(countinv("VortexUpgradeDamage") ? 25*random(8,16) : 20*random(5,15),SIde(4),0,"","",RGF_SILENT|RGF_FULLBRIGHT|RGF_NORANDOMPUFFZ,0,null,0,0,0,0,1.5 ,0.0,"VortexTrailSoftware");
+			}
+			
+			//Ammo, checks for upgrade, takes either 12 or 8
+			//A_TakeInventory("D4Cells",countinv("VortexUpgradeAmmo") ? 8 : 12,TIF_NOTAKEINFINITE);
+			
+			A_AlertMonsters();
+			//A_SetPitch(pitch-3);
+			AkOffsetD(24,18,WOF_Add);
+		}
+		VTXG AAAAAA 1 
+		{
+			//A_SetPitch(pitch+0.5);
+			AkOffsetD(-4,-3,WOF_Add);
+			//AkOffsetD(-4,-3,WOF_Add);
+		}
+		VTXG A 27 { AkWeaponReady(WRF_NOFIRE|WRF_NOSWITCH); A_SetTics(CountInv("PowerD4DFS") ? 15 : 27); }	//it's a one second delay
+		Goto D4VortexRifle.Ready;
+		
+	D4VortexRifle.FireZoomed:
+		R016 N 2 Bright
+		{
+			AkStopSound(5);
+			AkPlaySound("Doom4/Weapon/Vortex/Fire",CHAN_WEAPON);
+			//when normal, 
+			// min charge -> min 100+(1charges*2)=102, max 300+(1charges*2)=302, avg 202
+			// max charge -> min 100+(52charges*2)=204, max 300+(52charges*2)=404, avg 304
+			
+			//when upgraded,
+			// min charge -> min 200+(1charge*2)=202, max 400+(1charges*2)=402, avg 302
+			// max charge -> min 200+(52charge*2)=304, max 400+(52charges*2)=504, avg 404
+			A_GunFlash("Null");
+			if (GetCvar("vid_renderer"))	//gzdoom
+			{
+				A_RailAttack((countinv("VortexUpgradeDamage") ? (25*random(8,16)) + (countinv("VortexCharges")*2) : (20*random(5,15)) + (countinv("VortexCharges")*2)),
+				0,0,0,0, countinv("VortexUpgradeAltPierce")? FlagsPierce : FlagsNoPierce ,0,null,0,0,0,0,Sparsity,0.0,"VortexTrail"); 
+			}
+			else	//zdoom
+			{
+				A_RailAttack( 
+				(countinv("VortexUpgradeDamage") ? (25*random(8,16)) + (countinv("VortexCharges")*2) : (20*random(5,15)) + (countinv("VortexCharges")*2)),
+				0,0,0,0,(countinv("VortexUpgradeAltPierce")? FlagsPierce : FlagsNoPierce),0,null,0,0,0,0,1.5,0.0,"VortexTrailSoftware"); 
+			}
+			
+			//Ammo, checks for upgrade, takes either 15 or 10
+			//A_TakeInventory("D4Cells",countinv("VortexUpgradeAmmo") ? 8 : 12,TIF_NOTAKEINFINITE);
+			
+			A_AlertMonsters();
+			//A_SetPitch(pitch-1.5);
+			A_TakeInventory("VortexCharges",32768);
+			A_TakeInventory("VortexEnoughAmmo",32768); //given during the charge-up
+			return A_JumpIf(CountInv("PowerD4DFS"),"D4VortexRifle.FireZoomedFast");
+		}
+		R016 NNNNNN 1 
+		{
+			//A_SetPitch(pitch+0.25);	//restores pitch
+		}
+		R016 NNNNNNNNNNNNNNNNNNNNNNNNNNN 1	//27 tics, tracks position via token
+		{
+			A_GiveInventory("VortexReloadPositionTracker",1);
+			/*
+			if (GetPlayerInput(MODINPUT_BUTTONS|MODINPUT_OLDBUTTONS) & BT_ALTATTACK) //if holding alt fire
+			{
+				return ResolveState(null);	//does nothing
+			}
+			else //if alt fire released
+			{	return ResolveState("D4VortexRifle.UnzoomWhileReloading"); } //goes to unzoom where it tracks the reload position
+			*/
+		}
+		Goto D4VortexRifle.ZoomInSounds;
+		
+	D4VortexRifle.FireZoomedFast:
+		R016 NNN 1 
+		{
+			//A_SetPitch(pitch+0.5);	//restores pitch
+		}
+		R016 NNNNNNNNNNNNN 1
+		{
+			A_GiveInventory("VortexReloadPositionTracker",1);
+			/*
+			if (GetPlayerInput(MODINPUT_BUTTONS|MODINPUT_OLDBUTTONS) & BT_ALTATTACK) //if holding alt fire
+			{
+				return ResolveState(null);	//does nothing
+			}
+			else //if alt fire released
+			{	return ResolveState("D4VortexRifle.UnzoomWhileReloading"); } //goes to unzoom where it tracks the reload position
+			*/
+		}
+		Goto D4VortexRifle.ZoomInSounds;
+			
+	D4VortexRifle.UnzoomWhileReloading:
+		R016 A 0
+		{
+			AkStopSound(5);
+			A_TakeInventory("VortexZoomed",32768);
+			A_ZoomFactor(1.00);
+			A_SetSpeed(1.0);
+			AkPlaySound("Doom4/Weapon/Shotgun/CancelAim",6);
+		}
+		VTXG AAAAAAAAAAAAAAAAAAAAAAAAAAA 1;	//27 tics
+		VTXG A 0 A_TakeInventory("VortexReloadPositionTracker",32768);
+		Goto D4VortexRifle.Ready;
+		
+	//===========================================================================	
+	// Alt fire
+	D4VortexRifle.AltFire:
+		D4VortexRifle.ZoomIn:
+			R016 N 0
+			{
+				A_GiveInventory("VortexZoomed",1);
+				if(countinv("VortexUpgradeAltSpeed"))
+				{
+					A_ZoomFactor(3.0);
+				}
+				else
+				{
+					A_SetSpeed(0.35);
+					A_ZoomFactor(2.0);
+				}
+			}
+	D4VortexRifle.ZoomInSounds:
+		R016 N 0
+		{
+			//checks for ammo, to play or not the charging sound
+			if(countinv("VortexUpgradeAmmo"))
+			{
+				if(countinv("D4Cells")>= 0 /*8*/ || GetCvar("sv_infiniteammo")) //if enough ammo for 1 shot
+				{ AkPlaySound("Doom4/Weapon/Vortex/ZoomIn",5,1,1); A_GiveInventory("VortexEnoughAmmo",1); }
+				else		//no ammo, but will still zoom
+				{ AkPlaySound("Doom4/Weapon/Machinegun/ZoomIn",5);}
+			}
+			else //doesnt have ammo upgrade
+			{
+				if(countinv("D4Cells") >= 0 /*12*/ || GetCvar("sv_infiniteammo"))	//if enough ammo for 1 shot
+				{ AkPlaySound("Doom4/Weapon/Vortex/ZoomIn",5,1,1); A_GiveInventory("VortexEnoughAmmo",1); }
+				else	//no ammo, but will still zoom
+				{ AkPlaySound("Doom4/Weapon/Machinegun/ZoomIn",5);}
+			}
+		}
+		Goto D4VortexRifle.AltFireHolding;
+				
+	D4VortexRifle.AltFireHolding:
+		R016 N 1 Bright
+		{
+			//charges alt fire
+			//it has to check if there was ammo, if not, doesnt "charge" the shot
+			//I made it this way to not have to check 4 or so "if"s every tic in this sequence
+			if (countinv("VortexEnoughAmmo"))	
+				A_GiveInventory("VortexCharges",2);	
+			
+			//Weapon ready
+			AkWeaponReady(WRF_NOFIRE|WRF_NOBOB|WRF_NOSWITCH);
+		}	
+		R016 N 0
+		{
+			//checks if alt fire is being held
+			AkRefire("D4VortexRifle.Unzoom",true,false);
+		}
+		Loop;
+			
+	D4VortexRifle.AltFireReleaseButton:
+	D4VortexRifle.Unzoom:
+		VTXG A 5
+		{
+			AkStopSound(5);
+			A_SetInventory("VortexZoomed",0);
+			A_SetInventory("VortexEnoughAmmo",0); //given during the charge-up
+			A_ZoomFactor(1.00);
+			A_SetSpeed(1.0);
+			A_SetInventory("VortexCharges",0);
+			AkPlaySound("Doom4/Weapon/Shotgun/CancelAim",6);
+		}
+		Goto D4VortexRifle.Ready;
+		
+	//==========================================================================
+	//==========================================================================
+	// Gauss Cannon
+	//==========================================================================
+	//==========================================================================
+	D4GaussCannon.Select:
+		GCNI A 0 { UpdateStates(ID_D4GaussCannon); }
+		Goto CommonSelect;
+	D4GaussCannon.Ready:
+		GCNI A 0 
+		{
+			if (CountInv("PrecisionActive"))	{ return ResolveState("D4GaussCannon.PrecisionSpriteReady"); }
+			if (CountInv("SiegeActive"))		{ return ResolveState("D4GaussCannon.SiegeSpriteReady");	}
+			return ResolveState("D4GaussCannon.ResumeReadySequence");
+		}
+		D4GaussCannon.PrecisionSpriteReady:
+			GCPI A 0 A_Jump(256,"D4GaussCannon.ResumeReadySequence");
+		D4GaussCannon.SiegeSpriteReady:
+			GCSI A 0 A_Jump(256,"D4GaussCannon.ResumeReadySequence");
+		
+	D4GaussCannon.ResumeReadySequence:
+		"####" "#" 0
+		{
+			// Don't even bother allowing secondary. There's no point doing the
+			// checks further down there, just do it here instead.
+			if (!CountInv("GaussCannonMod1") && !CountInv("GaussCannonMod2"))
+			{	return ResolveState("D4GaussCannon.ReadyNoAlt");	}
+
+			if (CountInv("PrecisionActive"))
+			{
+				ACS_NamedExecute("ModSelectedText",0,11,0,0);	//print precision
+			}
+			else if (CountInv("SiegeActive"))
+			{
+				ACS_NamedExecute("ModSelectedText",0,12,0,0);	//print siege
+			}
+			
+			// No leftovers.
+			A_TakeInventory("PrecisionShotChargesCounter",32767,0);
+			A_TakeInventory("SiegeModeChargesCounter",32767,0);
+			AkStopSound(6);
+			return ResolveState(null);
+		}
+	D4GaussCannon.ReadyNormal:
+		"####" "##########" 1 AkWeaponReady(0, true);
+		Loop;
+	D4GaussCannon.ReadyNoAlt:
+		"####" "##########" 1 AkWeaponReady(WRF_NOSECONDARY, true);
+		Goto D4GaussCannon.Ready;
+	//-------------------------------------------------------
+	// Regular fire
+	//-------------------------------------------------------
+	D4GaussCannon.Fire:
+		GCNF A 0
+		{
+			if (CountInv("PrecisionActive"))	{ return ResolveState("D4GaussCannon.PrecisionSpriteFire"); }
+			if (CountInv("SiegeActive"))		{ return ResolveState("D4GaussCannon.SiegeSpriteFire");	}
+			return ResolveState("D4GaussCannon.Firing");
+		}
+	D4GaussCannon.PrecisionSpriteFire:
+		GCPF A 0 A_Jump(256,"D4GaussCannon.Firing");
+	D4GaussCannon.SiegeSpriteFire:
+		GCSF A 0 A_Jump(256,"D4GaussCannon.Firing");
+	D4GaussCannon.Firing:
+		"####" "#" 1 bright
+		{
+			/*
+			if (CountInv("PrecisionActive") && CountInv("AltFireToken"))
+			{	return ResolveState("D4GaussCannon.PrecisionRelease");	}
+			if (CountInv("SiegeActive") && CountInv("AltFireToken"))
+			{	return ResolveState("D4GaussCannon.SiegeRelease");	}
+			*/
+			AkOffsetD(15,10,WOF_ADD);
+			
+			if (vel.z != 0.0 && pitch > 0.0)
+			{	
+				if (vel.z > 0)
+				{	A_ChangeVelocity(-cos(-pitch)*14,0,sin(pitch)*14,CVF_RELATIVE);	}
+				else
+				{	A_ChangeVelocity(-cos(-pitch)*14,0,sin(pitch)*14,CVF_RELATIVE|CVF_REPLACE);	}
+			}
+			
+			A_AlertMonsters();
+			A_GunFlash("Null");
+			if (GetCvar("vid_renderer"))	//gzdoom
+			{
+				A_RailAttack(400+random(1,150),Side(5),1,"Green","Green",RGF_SILENT|RGF_FULLBRIGHT|RGF_NOPIERCING,0,"GaussShockwave",0,0,0,0,SparsitySmall,1.0,"GaussTrail");
+			}
+			else		//zdoom
+			{
+				A_RailAttack(400+random(1,150),Side(5),1,"Green","Cyan",RGF_SILENT|RGF_FULLBRIGHT|RGF_NOPIERCING,0,"GaussShockwave",0,0,0,0,5,1.0,"GaussTrailSiege");
+			}
+			A_ZoomFactor(0.99,ZOOM_NOSCALETURNING);
+			//A_SetPitch(pitch-5.0);
+			AkPlaySound("Doom4/Weapon/GaussGun/Fire",CHAN_WEAPON,1);
+			return ResolveState(null);
+		}
+		"####" B 2 Bright { AkOffsetD(12,8,WOF_ADD); A_ZoomFactor(1,ZOOM_NOSCALETURNING); }
+		"####" CD 2 Bright;
+		"####" EEEFF 1 { AkOffsetD(-3,-2,WOF_ADD); /*A_SetPitch(pitch+1.0);*/ }
+		"####" FGGG 1 { AkOffsetD(-3,-2,WOF_ADD); }
+		"####" HI 4;
+		"####" J 30 { A_SetTics(CountInv("PowerD4DFS") ? 11 : 30); } //9 above. Take off 4 here instead, much easier and less code bloat.
+		"####" K 1;
+		"####" L 1 { A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+		"####" M 1;
+		"####" N 1 { A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+		"####" O 1;
+		Goto D4GaussCannon.Ready;
+		
+	//==========================================================================
+	//==========================================================================
+	// Carrion Cannon
+	//==========================================================================
+	//==========================================================================
+
+	D4CarrionCannon.Ready:
+		HELG H 1 { AkWeaponReady(0, true); }
+		Loop;
+		
+	D4CarrionCannon.Select:
+		HELG H 0 
+		{
+			UpdateStates(ID_D4CarrionCannon);
+			invoker.Enemies.Clear();
+			invoker.EnemyDistance.Clear();
+			A_SetInventory("CarrionShotOut",0);
+			
+			if (CountInv("D4CarrionToken") < BuildRequirement)
+				A_SetInventory("D4CarrionToken",BuildRequirement);
+				
+			return ResolveState("CommonSelect");
+		}
+	/*==========================================================================
+	 Primary Fire
+	 ------------
+	 Shoots an argent Projectile; which seeks after the enemy the player aims
+	 for, or hits one in particular that's in the way. Upon contact, attaches
+	 enemy and charges up, so long as the player can maintain FOV with it. Will
+	 detonate if sight is lost, or if carrion is depleted. The greater the
+	 charge, the more powerful the explosion. At higher levels, splits into 
+	 Argent-seeking spheres that chain attack all enemies infinitely until none
+	 are left. Very powerful, and can be used as a nuke when fully upgraded.
+	==========================================================================*/
+	D4CarrionCannon.Fire:
+		
+		HELG F 2 bright
+		{
+			if (!CountInv("CarrionShotOut"))
+			{
+				A_GunFlash("Null");
+				A_AlertMonsters();
+				A_GiveInventory("CarrionShotOut",1);
+				A_FireProjectile("CarrionPrimary",0,0,Side(4));
+				A_PlaySound("CarrionCannon/Unleash",CHAN_WEAPON,1);
+			}
+		}
+		HELG G 2 bright;
+	D4CarrionCannon.Hold:
+		HELG AABBCCDDEE 1 bright
+		{
+			A_GunFlash("Null");
+			if (!(AkCheckFire(false,true)) || !CountInv("CarrionShotOut"))
+			{
+				A_SetInventory("CarrionShotOut",0);
+				return ResolveState("D4CarrionCannon.HoldEnd");
+			}
+			return ResolveState(null);
+		}
+		Loop;
+	D4CarrionCannon.HoldEnd:
+		HELG H 1;
+		Goto D4CarrionCannon.Ready;
+	/*==========================================================================
+	 Secondary Fire
+	 ------------
+	 Opens argent portals and rains down argent fire pillars upon a maximum
+	 of five enemies at once.
+	==========================================================================*/
+	D4CarrionCannon.AltFire:
+		HELG H 1
+		{
+			A_SetInventory("CarrionPortalsOpened",0);
+			int ammoConsume = 0; //500 / (CountInv("CarrionUpgradeAmmo") ? 2 : 1);
+			//if (GetCvar("sv_infiniteammo") || CountInv("D4Carrion") >= ammoConsume)
+			if (1)
+			{
+				// Set up the arrays, make sure they're zero.
+				invoker.Enemies.Clear();
+				invoker.EnemyDistance.Clear();
+				
+				// The iterator responsible for finding the monsters. Searches
+				// for visible monsters that aren't friendly, dead or already
+				// alight.
+				ThinkerIterator it = ThinkerIterator.Create();
+				Actor mo;
+				while (mo = Actor(it.Next()))
+				{
+					if ((!mo.bVULNERABLE && !mo.bSHOOTABLE) || mo.bFRIENDLY || 
+						mo.health < 1 || mo.CountInv("CarrionBombard") || mo is "BossBrain")
+						continue;
+						
+					if (!mo.bISMONSTER)
+						continue;
+										
+					if (absangle(AngleTo(mo),angle) > 50)
+						continue;
+						
+					if (!CheckSight(mo, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
+						continue;
+					
+					invoker.Enemies.Push(mo);
+					invoker.EnemyDistance.Push(Distance2D(mo));
+				}
+				
+				// We now have our list of actors -- or do we? Do nothing if not.
+				if (invoker.Enemies.Size() < 1)
+					return ResolveState(null);
+				
+				int count = 0;
+				double increment = 64;
+				
+				// Now search through this list of actors we've accumulated and
+				// afflict them appropriately from closest to farthest.
+				for (double i = 0; i <= 4096; i += increment)
+				{
+					int size = invoker.EnemyDistance.Size();
+					
+					for (int j = 0; j < size; j++)
+					{
+						if (size <= j)
+							break;
+						
+						Actor enemy = invoker.Enemies[j];
+						
+						if (enemy == null || enemy.CountInv("CarrionBombard"))
+							continue;
+							
+						double ed = invoker.EnemyDistance[j];
+						if ((ed >= i) && (ed < i + increment))
+						{
+							let ptl = CarrionPortal(Spawn("CarrionPortal",enemy.pos));
+							if (ptl)
+							{
+								ptl.master = //master and target = owner. This is not a bug.
+								ptl.target = invoker.Owner;
+								ptl.tracer = enemy;
+								enemy.A_GiveInventory("CarrionBombard");
+								count++;
+							}
+							if (count > 4)
+							{
+								invoker.OpeningPortals(count, ammoConsume);
+								return ResolveState(1);
+							}
+						}
+					}
+				}
+				
+				if (count)
+				{
+					invoker.OpeningPortals(count, ammoConsume);
+					return ResolveState(1);
+				}
+			}
+			else
+			{
+				A_PlaySound("Doom4/Player/Nope",CHAN_AUTO);
+				ACS_NamedExecute("NotEnoughAmmo",0,0,0,0);
+			}
+			return ResolveState(null);
+		}
+		Goto D4CarrionCannon.Ready;
+		HELG A 0
+		{
+			invoker.Enemies.Clear();
+			invoker.EnemyDistance.Clear();
+		}
+		HELG ABCDEABCDEABCDEABCDEABCDE 2 bright A_GunFlash("Null");
+		Goto D4CarrionCannon.Ready;
+	D4CarrionCannon.Mod:
+		HELG A 2 bright
+		{	
+			// A_GiveInventory always gives at least one item, even if 0.
+			// Make sure not to give anything if A_RadiusGive returns none given.
+			// Also, yo dawg...
+			// I heard you like functions in your functions.
+			// So I put functions inside your functions. D'OH SNAPTARTS.
+			// if (A_RadiusGive("DummyPickup",1024,RGF_CORPSES|RGF_CUBE,1))
+			// {	A_GiveInventory("D4Carrion",(A_RadiusGive("CarrionAbsorbant",1024,RGF_CORPSES,1)* 30 * (CountInv("CarrionUpgradePickup") ? 2 : 1)));	}
+			
+			let it = ThinkerIterator.Create("Actor");
+			Actor mo;
+			int total = 0;
+			while (mo = Actor(it.Next()))
+			{
+				if (Distance3D(mo) > 1024) continue;
+				if (mo.bNOINTERACTION) continue;
+				if (mo.bSPECIAL) continue;
+				if (mo.bMISSILE) continue;
+				static const Class<Actor> id[] =
+				{
+					"BrainStem",
+					"ColonGibs",
+					"DeadCacodemon",
+					"DeadDoomImp",
+					"DeadMarine",
+					"DeadShotgunGuy",
+					"DeadZombieman",
+					"GibbedMarine",
+					"GibbedMarineExtra",
+					"Gibs",
+					"SmallBloodPool"
+				};
+				bool CanDo = (mo.bCORPSE);
+				if (!CanDo)
+				{
+					int size = id.Size();
+					for (int i = 0; i < size; i++)
+					{
+						Class<Actor> t1 = mo.GetReplacee(mo.GetClass());
+						CanDo = (t1 == id[i]);
+						if (CanDo) break;
+					}
+				}
+				
+				if (CanDo)
+				{
+					mo.A_GiveInventory("CarrionAbsorbant");
+					total++;
+				}
+			}
+			if (total > 0)
+				A_GiveInventory("D4Carrion", 30 * (CountInv("CarrionUpgradePickup") ? 2 : 1));
+		}
+		HELG BCDE 2 bright;
+		Goto D4CarrionCannon.Ready;
+		
+	//==========================================================================
+	//==========================================================================
+	// Big Bio Force Fucking Gun (of Guns) 
+	//==========================================================================
+	//==========================================================================
+	D4BFG.Select:
+		TNT1 A 1 
+		{
+			UpdateStates(ID_D4BFG);
+			AkOffset((128,0),0,true);
+		}
+		WE27 A 1
+		{
+			int id = OverlayID();
+			AkOffset((-(WeaponSwitchSpeed + 6) / 2, 0), WOF_ADD);
+			if ((id == OV_LeftWeapon && invoker.LO.x >= 0) || (id == OV_RightWeapon && invoker.RO.x <= 0)) 
+			{
+				AkOffset((0,0));
+				AkRaiseGun(512,true); // Force it immediately.
+			}
+			else invoker.interpolate[(id == OV_RightWeapon) ? Right : Left] = true;
+		}
+		Wait;
+	D4BFG.Deselect:
+		---- A 1
+		{
+			int id = OverlayID();
+			if ((id == OV_LeftWeapon && invoker.LO.x < -128) || (id == OV_RightWeapon && invoker.RO.x > 128)) 
+			{
+				AkOffset((0,WEAPONBOTTOM),0,true);
+				AkLowerGun(512,true); // Force it immediately.
+				invoker.interpolate[(id == OV_RightWeapon) ? Right : Left] = true;
+			}
+			else 
+			{
+				AkOffset(((WeaponSwitchSpeed + 6) / 2, 0), WOF_ADD);
 			}
 		}
 		Wait;
 	
-	OV.SwitchLeft:
+	D4BFG.Ready:
+		WE27 A 0 
+		{
+			//A_Overlay(GunWatcher,"BFG.Redirector",true);
+			A_SetInventory("SineZoom",0);
+		}
+	D4BFG.ReadyLoop:
+		WE27 A 1 AkWeaponReady((CountInv("BFGUpgrade2") ? 0 : WRF_NOSECONDARY), true);
+		Loop;
+	D4BFG.Fire:
+		WE27 A 0 
+		{
+			A_SetInventory("SineZoom",0,0);
+			AkPlaySound("Doom4/Weapon/BFG/Fire",CHAN_WEAPON,1);
+		}
+		WE27 BBCCDDEEFFGGHHIIJJKKLLMMNN 1 Bright
+		{
+			A_GiveInventory("SineZoom",16);
+			A_ZoomFactor(sin(90-(CountInv("SineZoom")*0.1)),ZOOM_NOSCALETURNING);
+		}
+		WE27 O 1 Bright { AkOffsetD(2,5); A_GiveInventory("SineZoom",18);	A_ZoomFactor(sin(90-(CountInv("SineZoom")*0.1)),ZOOM_NOSCALETURNING); }
+		WE27 O 1 Bright { AkOffsetD(4,42-32);A_GiveInventory("SineZoom",18);	A_ZoomFactor(sin(90-(CountInv("SineZoom")*0.1)),ZOOM_NOSCALETURNING); }
+		WE27 O 1 Bright  
+		{
+			AkOffsetD(7,47-32);
+			A_GunFlash("Null");
+			A_FireProjectile("BFG9000Shot",0,1,Side(3));
+			A_ZoomFactor(1,ZOOM_NOSCALETURNING);
+			//A_SetPitch(pitch-6.0);
+		}
+		WE27 P 1 Bright { AkOffsetD(10,52-32); }
+		WE27 P 2 Bright { AkOffsetD(); }
+		WE27 QQQ 1 Bright { AkOffsetD(); }//A_SetPitch(pitch+0.5);
+		WE27 RR 1 Bright { AkOffsetD(9,50-32); }//offset(9,50) //A_SetPitch(pitch+0.5);
+		WE27 RR 1 Bright { AkOffsetD(8,48-32); }//offset(8,48) //A_SetPitch(pitch+0.5);
+		WE27 SS 1 Bright { AkOffsetD(7,46-32); }//offset(7,46) //A_SetPitch(pitch+0.5);
+		WE27 SS 1 Bright { AkOffsetD(6,44-32); }//offset(6,44) //A_SetPitch(pitch+0.5);
+		WE27 T 2 Bright { AkOffsetD(5,42-32); }//offset(5,42) //A_SetPitch(pitch+0.5);
+		WE27 T 2 Bright { AkOffsetD(4,40-32); }//offset(4,40);
+		WE27 U 2 Bright { AkOffsetD(3,38-32); }//offset(3,38);
+		WE27 U 2 Bright { AkOffsetD(2,36-32); }//offset(2,36);
+		WE27 V 2 Bright { AkOffsetD(1,34-32); }//offset(1,34);
+		WE27 V 2 Bright { AkOffsetD(1,33-32); }//offset(1,33);
+		WE27 WXYZ 2 Bright AkOffsetD();
+		---- A 0 AkRefire("D4BFG.Fire");
+		Goto D4BFG.Ready;
+	D4BFG.AltFire:
+		WE27 A 0 
+		{
+			A_SetInventory("SineZoom",0);
+			AkPlaySound("Doom4/Weapon/BFG/Fire",CHAN_WEAPON,1);
+		}
+		WE27 BBCCDDEEFFGGHHIIJJKKLLMMNN 1 Bright
+		{
+			A_GiveInventory("SineZoom",16);
+			A_ZoomFactor(sin(90-(CountInv("SineZoom")*0.1)),ZOOM_NOSCALETURNING);
+		}
+		WE27 O 1 Bright { AkOffsetD(2,5); A_GiveInventory("SineZoom",18);	A_ZoomFactor(sin(90-(CountInv("SineZoom")*0.1)),ZOOM_NOSCALETURNING); }
+		WE27 O 1 Bright { AkOffsetD(4,42-32);A_GiveInventory("SineZoom",18);	A_ZoomFactor(sin(90-(CountInv("SineZoom")*0.1)),ZOOM_NOSCALETURNING); }
+		WE27 O 1 Bright
+		{
+			AkOffsetD(7,47-32);
+			A_GunFlash("Null");
+			if (CountInv("OrbiterActive"))
+			{
+				A_GiveInventory("OrbiterExtender",16);
+			}
+			else
+			{
+				A_SpawnItemEx("BFG9000Orbiter",0,0,32,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
+				//A_FireProjectile("AmmoWaster",0,1);
+				A_GiveInventory("OrbiterActive");
+			}
+			A_ZoomFactor(1,ZOOM_NOSCALETURNING);
+			//A_SetPitch(pitch-6.0);
+		}
+		WE27 P 1 Bright { AkOffsetD(10,52-32); }
+		WE27 P 2 Bright { AkOffsetD(); }
+		WE27 QQQ 1 Bright { AkOffsetD(); }//A_SetPitch(pitch+0.5);
+		WE27 RR 1 Bright { AkOffsetD(9,50-32); }//offset(9,50) //A_SetPitch(pitch+0.5);
+		WE27 RR 1 Bright { AkOffsetD(8,48-32); }//offset(8,48) //A_SetPitch(pitch+0.5);
+		WE27 SS 1 Bright { AkOffsetD(7,46-32); }//offset(7,46) //A_SetPitch(pitch+0.5);
+		WE27 SS 1 Bright { AkOffsetD(6,44-32); }//offset(6,44) //A_SetPitch(pitch+0.5);
+		WE27 T 2 Bright { AkOffsetD(5,42-32); }//offset(5,42) //A_SetPitch(pitch+0.5);
+		WE27 T 2 Bright { AkOffsetD(4,40-32); }//offset(4,40);
+		WE27 U 2 Bright { AkOffsetD(3,38-32); }//offset(3,38);
+		WE27 U 2 Bright { AkOffsetD(2,36-32); }//offset(2,36);
+		WE27 V 2 Bright { AkOffsetD(1,34-32); }//offset(1,34);
+		WE27 V 2 Bright { AkOffsetD(1,33-32); }//offset(1,33);
+		WE27 WXYZ 2 Bright AkOffsetD();
+		---- A 0 AkRefire("D4BFG.AltFire");
+		Goto D4BFG.Ready;
+		
+	// I'll need to figure something out for this...	
+	D4BFG.Redirector:
 		M666 A 1
 		{
-			
-			return ResolveState(null);
+			if (CountInv("BFGUpgrade4"))
+			{
+				if ((GetPlayerInput(MODINPUT_BUTTONS) & BT_USER1) &&
+					!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_USER1))
+				{
+					A_FireBullets(0,0,1,0,"BFGRedirectPuff",FBF_NORANDOMPUFFZ|FBF_NOFLASH,32766);
+					A_GiveToChildren("BFGRedirector",1);
+				}
+			}
 		}
+		Loop;
+		
+	//==========================================================================
+	//==========================================================================
+	// Deselection States
+	//==========================================================================
+	//==========================================================================
+	D4Pistol.Deselect:
+		---- A 0 { A_SetInventory("PistolAltFireCounter",0);	return ResolveState("CommonDeselect"); }
+	D4Chaingun.Deselect:
+		---- A 0
+		{
+			int which = (OverlayID() < 0) ? OV_LeftWeapon : OV_RightWeapon;
+			AkOverlay(SovietsaurusSpinopatimus,"Null");
+			AkOverlay(which + NoiseLayer,"Null");
+			AkOverlay(which + ChaingunFlash,"Null");
+			AkOverlay(which + PrepLayer,"Null");
+			AkStopSound(5);
+			AkStopSound(6);
+			A_SetInventory("SpinUpCount",0);
+			A_SetInventory("FrameTimeLeft",0);
+			A_SetSpeed(1);
+			A_SetRoll(0);
+			AkStopSound(CHAN_WEAPON);
+			A_SetInventory("BusyToken",0);
+			return ResolveState("CommonDeselect");
+		}
+	D4PlasmaRifle.Deselect:
+		---- A 0
+		{
+			A_RemoveChildren(true,RMVF_EVERYTHING,"PlasmaHeatMuzzle");
+			A_TakeInventory("PlasmaMuzzlePresent",1);
+			AkStopSound(5);
+			A_Overlay(2,"Null");
+			return ResolveState("CommonDeselect");
+		}
+	D4GaussCannon.Deselect:
+		---- A 0
+		{
+			A_Overlay(OverlayID() + SpeedWatcher,"Null");
+			AkStopSound(6);
+			A_ZoomFactor(1);
+			A_SetSpeed(1);
+			return ResolveState("CommonDeselect");
+		}
+	D4StaticRifle.Deselect:
+		---- A 0
+		{
+			ACS_NamedExecute("RemoveModText",0,0,0,0);
+			A_RemoveChildren(true,RMVF_EVERYTHING,"ChargeSoundPlayer");
+			A_SetInventory("StaticRifleActive",0);
+			return ResolveState("CommonDeselect");
+		}
+	D4VortexRifle.Deselect:
+		---- A 0
+		{
+			AkStopSound(5);
+			A_TakeInventory("VortexZoomed",32768);
+			A_TakeInventory("VortexReloadPositionTracker",32768);
+			A_TakeInventory("VortexEnoughAmmo",32768);
+			A_TakeInventory("VortexCharges",32768);
+			A_ZoomFactor(1.00);
+			A_SetSpeed(1.0);
+			return ResolveState("CommonDeselect");
+		}
+	D4CarrionCannon.Deselect:
+		---- A 0
+		{
+			invoker.Enemies.Clear();
+			invoker.EnemyDistance.Clear();
+			A_SetInventory("CarrionShotOut",0);
+			return ResolveState("CommonDeselect");
+		}
+	D4Shotgun.Deselect:
+	D4SuperShotgun.Deselect:
+	D4Repeater.Deselect:
+	D4AssaultRifle.Deselect:
+	D4RocketLauncher.Deselect:
+	D4LightningGun.Deselect:
+	
+	
+	CommonDeselect:
+		---- A 1 { AkLowerGun(AkimboSwitchSpeed + 6); }
+		Wait;
+	CommonSelect:
+		---- A 1 { AkRaiseGun(AkimboSwitchSpeed + 6); }
 		Wait;
 	}
 }
 
 Class UpdateLeftWeapon : Inventory { }
 Class UpdateRightWeapon : Inventory { }
-Class LeftWeaponCount : Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.MaxAmount 13; Inventory.InterhubAmount 13; } }
-Class RightWeaponCount : Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.MaxAmount 13; Inventory.InterhubAmount 13; } }
+Class LeftWeaponCount : Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.MaxAmount 14; Inventory.InterhubAmount 14; +INVENTORY.UNTOSSABLE } }
+Class RightWeaponCount : Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.MaxAmount 14; Inventory.InterhubAmount 14; +INVENTORY.UNTOSSABLE } }
 
-// AkimboWeapon's Functions
-// Separated to keep things clean.
-extend Class AkimboWeapon
+
+Class AkimboSoundMaker : Actor 
 {
-	enum AkimboStuff
+	Default
 	{
-		TotalWeapons = 14,
-		WEAP_NEXT = 1,
-		WEAP_PREV = -1,
-	};
-	
-	void SetSpecificWeapon(Class<Inventory> id, int right = 0)
-	{
-		static const Class<Inventory> WeaponList[] =
-		{
-			null,
-			"D4Pistol",
-			"D4Shotgun",
-			"D4Supershotgun",
-			"D4Repeater",
-			"D4AssaultRifle",
-			"D4Chaingun",
-			"D4RocketLauncher",
-			"D4PlasmaRifle",
-			"D4LightningGun",
-			"D4GaussCannon",
-			"D4VortexRifle",
-			"D4StaticRifle",
-			"D4BFG",
-			"D4CarrionCannon" 	// 14
-		};
-		
-		static const String WeaponNameList[] =
-		{
-			"",
-			"D4Pistol",
-			"D4Shotgun",
-			"D4Supershotgun",
-			"D4Repeater",
-			"D4AssaultRifle",
-			"D4Chaingun",
-			"D4RocketLauncher",
-			"D4PlasmaRifle",
-			"D4LightningGun",
-			"D4GaussCannon",
-			"D4VortexRifle",
-			"D4StaticRifle",
-			"D4BFG",
-			"D4CarrionCannon" 	// 14
-		};
-		
-		Class<Inventory> side = (right ? "RightWeaponCount" : "LeftWeaponCount");
-		
-		if ((id == (Class<Inventory>)(RightName)) || 
-			(id == (Class<Inventory>)(LeftName)) || 
-			!CountInv(id))	{ return; }
-		
-		for (int index = 1; index <= TotalWeapons; index++)
-		{
-			if (id == WeaponList[index])
-			{
-				A_SetInventory(side, index);
-				if (right)	{	RightName = WeaponNameList[index];	UpdateRight = 1;	}
-				else		{	LeftName = WeaponNameList[index];	UpdateLeft = 1;		}
-				return;
-			}
-		}
-		return;
-	}
-	
-	void SetNextWeapon(int right = 0, int direction = 1)
-	{
-		if (direction != WEAP_NEXT || direction != WEAP_PREV)
-		{
-			A_Log("ERROR: Direction must be WEAP_NEXT or WEAP_PREV");
-			return;
-		}
-	
-		int LeftWeapCount = CountInv("LeftWeaponCount");
-		int RightWeapCount = CountInv("RightWeaponCount");
-		
-		static const Class<Inventory> WeaponList[] =
-		{
-			null,
-			"D4Pistol",
-			"D4Shotgun",
-			"D4Supershotgun",
-			"D4Repeater",
-			"D4AssaultRifle",
-			"D4Chaingun",
-			"D4RocketLauncher",
-			"D4PlasmaRifle",
-			"D4LightningGun",
-			"D4GaussCannon",
-			"D4VortexRifle",
-			"D4StaticRifle",
-			"D4BFG",
-			"D4CarrionCannon" 	// 14
-		};
-		
-		static const Name WeaponNameList[] =
-		{
-			"",
-			"D4Pistol",
-			"D4Shotgun",
-			"D4Supershotgun",
-			"D4Repeater",
-			"D4AssaultRifle",
-			"D4Chaingun",
-			"D4RocketLauncher",
-			"D4PlasmaRifle",
-			"D4LightningGun",
-			"D4GaussCannon",
-			"D4VortexRifle",
-			"D4StaticRifle",
-			"D4BFG",
-			"D4CarrionCannon" 	// 14
-		};
-		
-		Class<Inventory> side = (right ? "RightWeaponToken" : "LeftWeaponToken"),
-						other = (!right ? "RightWeaponToken" : "LeftWeaponToken");
-
-		int CurrentWeaponSlot = CountInv(side),
-			OtherWeaponSlot = CountInv(other),
-			LoopCount = 0;
-		
-		while (LoopCount < TotalWeapons)
-		{
-			LoopCount++;
-			CurrentWeaponSlot += direction;
-			
-			if (CurrentWeaponSlot > TotalWeapons)	{	CurrentWeaponSlot = 1;	}
-			else if (CurrentWeaponSlot < 1)			{	CurrentWeaponSlot = TotalWeapons;	}
-			
-			// Can't hold two of the same weapon at once.
-			if (CurrentWeaponSlot == OtherWeaponSlot)
-			{	continue;	}
-			
-			// Don't have the weapon.
-			if (!CountInv(WeaponList[CurrentWeaponSlot]))
-			{	continue;	}
-			
-			if (right)	{	UpdateRight = 1; 	RightName = WeaponNameList[CurrentWeaponSlot];	}
-			else		{	UpdateLeft = 1;		LeftName = WeaponNameList[CurrentWeaponSlot];	}
-			A_SetInventory(side, CurrentWeaponSlot);
-			A_SetInventory(other, OtherWeaponSlot);
-			return;
-		}
-		return;
+		+NOINTERACTION
+		+NOTONAUTOMAP
+		RenderStyle "None";
 	}
 }

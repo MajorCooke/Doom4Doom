@@ -1,0 +1,1109 @@
+// AkimboWeapon's Functions
+// Separated to keep things clean.
+extend Class AkimboWeapon
+{
+	// For the Super Shotgun.
+	enum SuperShotgun
+	{
+		DmgBase = 		5,
+		DmgMulMin = 	1,
+		DmgMulMax = 	3,
+		FCMFlags =		FPF_NOAUTOAIM,
+	};
+	const SpreadXY = 11.2;
+	const SpreadZ = 7.1;
+	//--------------------------------------------------------------------------
+	enum InputTrans
+	{
+		PLeft = 	BT_ATTACK,
+		PRight = 	BT_ALTATTACK,
+		ALeft =		BT_RELOAD,
+		ARight =	BT_USER1
+	};
+	enum AkimboStuff
+	{
+		TotalWeapons = 14,
+		WEAP_NEXT = 1,
+		WEAP_PREV = -1,
+		
+		StartIndex = 1
+	};
+	
+	static const int RightOffset[] =
+	{
+		0,			0,		// Leave 0,0 always!
+		0,			0,		// Pistol
+		0,			0,		// Shotgun
+		0,			0,		// SSG
+		20,			20,		// Repeater
+		20,			20,		// HAR HAR HAR!
+		40,			40,		// Chaingun
+		0,			0,		// Rocket Launcher
+		0,			0,		// Plasma Rifle
+		5,			5,		// Lightning Gun
+		30,			20,		// Gauss Cannon
+		0,			0,		// Vortex Rifle
+		0,			0,		// Static Rifle
+		0,			0,		// Carrion Cannon
+		60,			-33		// Bee Eff Gee
+	};
+	/*
+	static const int LeftOffset[] =
+	{
+		0,			0,		// Leave 0,0 always!
+		-200 - 0,	0,		// Pistol
+		-200 - 0,	0,		// Shotgun
+		-170 - 0,	0,		// SSG
+		-160 - 20,	20,		// Repeater
+		-262 - 20,	20,		// HAR HAR HAR!
+		-70  - 40,	40,		// Chaingun
+		-293 - 0,	0,		// Rocket Launcher
+		-140 - 0,	0,		// Plasma Rifle
+		-165 - 5,	5,		// Lightning Gun
+		-90  - 30,	20,		// Gauss Cannon
+		-150 - 0,	0,		// Vortex Rifle
+		-220 - 0,	0,		// Static Rifle
+		-198 - 0,	0,		// Carrion Cannon
+		-340  - 0,	-33		// Bee Eff Gee I Gots 2 Pee
+	};
+	*/
+	
+	static const int LeftOffset[] =
+	{
+		0,			0,		// Leave 0,0 always!
+		-200,		0,		// Pistol
+		-200,		0,		// Shotgun
+		-170,		0,		// SSG
+		-180,		20,		// Repeater
+		-282,		20,		// HAR HAR HAR!
+		-110,		40,		// Chaingun
+		-293,		0,		// Rocket Launcher
+		-140,		0,		// Plasma Rifle
+		-170,		5,		// Lightning Gun
+		-90,		20,		// Gauss Cannon
+		-150,		0,		// Vortex Rifle
+		-220,		0,		// Static Rifle
+		-198,		0,		// Carrion Cannon
+		-340,		-33		// Bee Eff Gee
+	};
+	
+	//==========================================================================
+	// Sound Management
+	//==========================================================================
+	
+	action void AkPlaySound(Sound snd, int slot = CHAN_BODY, double volume = 1.0, bool looping = false, int attenuation = ATTN_NORM, bool local = false, int id = 0)
+	{
+		if (!id) id = OverlayID();
+		int who = (id < 0) ? Left : Right;
+		
+		if (who < 0 || who > invoker.SoundMaker.Size())	return;
+		invoker.SoundMaker[who].A_PlaySound(snd,slot,volume,looping,attenuation,local);
+	}
+	
+	action void AkStopSound(int chmin, int chmax = -1, int id = 0)
+	{
+		if (!id) id = OverlayID();
+		int who = Clamp(id - AKBase, 0, 1);
+		
+		if (invoker.SoundMaker[who])
+		{
+			if (chmax > 0 && (chmin > chmax))
+			{
+				int temp = chmin;
+				chmin = chmax;
+				chmax = temp;
+			}
+			
+			if (chmax < 0)
+				invoker.SoundMaker[who].A_StopSound(chmin);
+			
+			else
+				for (int i = chmin; i <= chmax; i++)
+					invoker.SoundMaker[who].A_StopSound(chmin);		
+		}
+	}
+	
+	//==========================================================================
+	// State/Status Management
+	//==========================================================================
+	
+	//--------------------------------------------------------------------------
+	// 
+	action void AdjustHaste(int newtic = -1)
+	{
+		if (CountInv("PowerD4Haste"))
+		{
+			let plr = invoker.owner.player;
+			if (!plr) return;
+			
+			let psp = plr.FindPSprite(OverlayID());
+			if (psp)
+			{
+				//
+				if (newtic > -1)				psp.Tics = newtic;
+				else if (psp.Tics == 1)			psp.Tics = 0;
+				else if (psp.Tics < 0)			return;
+				//else if ((psp.Tics % 2) == 1)	psp.Tics = Max(0,((psp.Tics / 2) - 1));
+				else							psp.Tics /= 2;
+			}
+		}
+	}
+	
+	action void AkSpriteFrame(String spr = '', int fr = -1, int id = 0)
+	{
+		int len = spr.Length();
+		if (len != 4 && fr < 0)	
+		{
+			if (len > 0)
+				Console.Printf("Sprite must be 4 characters long!");
+			return;
+		}
+		
+		if (!id) id = OverlayID();
+		
+		// Don't do anything if invalid player or psprite.
+		let plr = invoker.owner.player;
+		if (!plr) return;
+		
+		let psp = plr.FindPSprite(id);
+		if (!psp) return;
+		
+		// Make sure the length is correct.
+		if (len > 0)
+		{
+			if (len == 4)
+			{
+				psp.Sprite = GetSpriteIndex(spr);
+			}
+			else
+			{
+				Console.Printf("Sprite must be 4 characters long!");
+			}
+		}
+		
+		if (fr > 0)
+		{
+			psp.Frame = fr;
+		}
+		return;
+	}
+	
+	//--------------------------------------------------------------------------
+	action bool AkOverlay(int layer, statelabel start = null, bool nooverride = false, int id = 0)
+	{
+		if (!id) id = OverlayID();
+		
+		bool ret = A_Overlay(layer, start, nooverride);
+		if (!ret)	return false;
+		
+		if (id < 0)
+		{
+			A_OverlayFlags(layer,PSPF_FLIP|PSPF_ADDWEAPON,true);
+		}
+		let plr = invoker.owner.player;
+		if (!plr) return ret;
+		
+		let psr = plr.FindPSprite(id);
+		let psp = plr.FindPSprite(layer);
+		if (!psp || !psr)	return ret;
+		
+		psp.oldx = psp.x = psr.x;
+		psp.oldy = psp.y = psr.y;
+		return ret;
+	}
+	
+	//--------------------------------------------------------------------------
+	// Offsets the overlays based upon which side is doing it, allowing for
+	// easy mirroring without getting into heavy intrinsic bullshit.
+	action void AkOffset(Vector2 offs = (0.0, 0.0), int flags = 0, bool update = false, int id = 0, int newtic = -1)
+	{
+		if (!id) id = OverlayID();
+		if (id == OV_LeftWeapon)
+		{
+			if (flags & WOF_KEEPX) offs.x = invoker.LO.x;
+			if (flags & WOF_KEEPY) offs.y = invoker.LO.y;
+			// Inverse the X coordinates here so it acts like mirroring. Saves a fuckton of time.
+			invoker.LO = (flags & WOF_ADD) ? (invoker.LO + (-offs.x, offs.y)) : (-offs.x, offs.y);
+			
+			if (update)
+			{
+				invoker.LOff = (invoker.LeftOffset[(invoker.WeaponID[Left] * 2)] + LOfx, 
+								invoker.LeftOffset[(invoker.WeaponID[Left] * 2) + 1] + LOfy) + invoker.LO;
+				invoker.owner.A_OverlayOffset(OV_LeftWeapon, Invoker.LOff.x, Invoker.LOff.y, 
+					((flags & WOF_INTERPOLATE) ? WOF_INTERPOLATE : 0));
+			}
+		}
+		else if (id == OV_RightWeapon)
+		{
+			if (flags & WOF_KEEPX) offs.x = invoker.RO.x;
+			if (flags & WOF_KEEPY) offs.y = invoker.RO.y;
+			invoker.RO = (flags & WOF_ADD) ? (invoker.RO + offs) : offs;
+			
+			if (update)
+			{
+				invoker.ROff = (invoker.RightOffset[(invoker.WeaponID[Right] * 2)] + ROfx, 
+								invoker.RightOffset[(invoker.WeaponID[Right] * 2) + 1] + ROfy) + invoker.RO;
+				invoker.owner.A_OverlayOffset(OV_RightWeapon, Invoker.ROff.x, Invoker.ROff.y, 
+					((flags & WOF_INTERPOLATE) ? WOF_INTERPOLATE : 0));
+			}
+		}
+		else { Console.printf("%d", id); return; }
+		
+		if (newtic > -1)
+		{
+			if (CountInv("PowerD4Haste"))
+			{
+				let plr = invoker.owner.player;
+				if (!plr) return;
+				
+				let psp = plr.FindPSprite(id);
+				if (psp)	psp.Tics = newtic;
+				
+			}
+		}
+	}
+	
+	// Basically a copy of the above function.
+	action void AkOffsetD(double offsx = 0.0, double offsy = 0.0, int flags = 0, bool update = false, int id = 0, int newtic = -1)
+	{
+		if (!id) id = OverlayID();
+		if (id < 0)
+		{
+			// Inverse the X coordinates here so it acts like mirroring. Saves a fuckton of time.
+			//invoker.LO = (flags & WOF_ADD) ? (invoker.LO + (-offsx, offsy)) : (-offsx, offsy);
+			offsx *= -1;
+			if (!(flags & WOF_KEEPX)) invoker.LO.X = (flags & WOF_ADD) ? (invoker.LO.X + offsx) : offsx;
+			if (!(flags & WOF_KEEPY)) invoker.LO.Y = (flags & WOF_ADD) ? (invoker.LO.Y + offsy) : offsy;
+			
+			
+			if (update)
+			{
+				invoker.LOff = (invoker.LeftOffset[(invoker.WeaponID[Left] * 2)] + LOfx, 
+								invoker.LeftOffset[(invoker.WeaponID[Left] * 2) + 1] + LOfy) + invoker.LO;
+				invoker.owner.A_OverlayOffset(OV_LeftWeapon, Invoker.LOff.x, Invoker.LOff.y, 
+					((flags & WOF_INTERPOLATE) ? WOF_INTERPOLATE : 0));
+			}
+		}
+		else if (id > 0)
+		{
+			if (!(flags & WOF_KEEPX)) invoker.RO.X = (flags & WOF_ADD) ? (invoker.RO.X + offsx) : offsx;
+			if (!(flags & WOF_KEEPY)) invoker.RO.Y = (flags & WOF_ADD) ? (invoker.RO.Y + offsy) : offsy;
+			
+			if (update)
+			{
+				invoker.ROff = (invoker.RightOffset[(invoker.WeaponID[Right] * 2)] + ROfx, 
+								invoker.RightOffset[(invoker.WeaponID[Right] * 2) + 1] + ROfy) + invoker.RO;
+				invoker.owner.A_OverlayOffset(OV_RightWeapon, Invoker.ROff.x, Invoker.ROff.y, 
+					((flags & WOF_INTERPOLATE) ? WOF_INTERPOLATE : 0));
+			}
+		}
+		else { Console.printf("%d", id); return; }
+		
+		if (newtic > -1)
+		{
+			if (CountInv("PowerD4Haste"))
+			{
+				let plr = invoker.owner.player;
+				if (!plr) return;
+				
+				let psp = plr.FindPSprite(id);
+				if (psp)	psp.Tics = newtic;
+			}
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+	// Similar to A_Refire but can take alts too.
+	action void AkRefire(StateLabel Next, bool alt = false, bool refire = true, int id = 0)
+	{
+		if (!id) id = OverlayID();
+		if (!Next) 		return;
+		
+		let player = invoker.owner.player;
+		if (!player || !player.ReadyWeapon) 	return;
+		
+		//let plr = invoker.owner;
+		
+		//invoker.InputCur = plr.GetPlayerInput(MODINPUT_BUTTONS);
+		//if (!refire) invoker.InputOld = plr.GetPlayerInput(MODINPUT_OLDBUTTONS);
+		
+		if (id == OV_LeftWeapon)
+		{
+			if ((invoker.InputCur & (alt ? ALeft : PLeft)) && (refire || !(invoker.InputOld & (alt ? ALeft : PLeft))))
+				player.SetPSprite(id, player.ReadyWeapon.FindState(Next));
+		}
+		else if (id == OV_RightWeapon)
+		{
+			if ((invoker.InputCur & (alt ? ARight : PRight)) && (refire || !(invoker.InputOld & (alt ? ARight : PRight))))
+				player.SetPSprite(id, player.ReadyWeapon.FindState(Next));
+		}
+		
+		return;
+	}
+	
+	//--------------------------------------------------------------------------
+	// Checks for fire buttons being pressed, with an option to allow refire.
+	// alt - Check the secondary fire (A[side]) instead of the primary (P[side]).
+	action bool AkCheckFire(bool alt = false, bool refire = true, int id = 0)
+	{
+		if (!id)	id = OverlayID();
+		if (id == OV_LeftWeapon)
+		{
+			return (invoker.InputCur & (alt ? ALeft : PLeft)) && (refire || !(invoker.InputOld & (alt ? ALeft : PLeft)));
+		}
+		else if (id == OV_RightWeapon)
+		{
+			return (invoker.InputCur & (alt ? ARight : PRight)) && (refire || !(invoker.InputOld & (alt ? ARight : PRight)));
+		}
+		return false;
+	}
+	
+	
+	
+	//--------------------------------------------------------------------------
+	// Determines which side to orient things like projectile spawning.
+	action double Side(double val = 1.0)
+	{
+		int id = OverlayID();
+		return val * ((id <= 0) ? -1 : 1);
+	}
+	//--------------------------------------------------------------------------
+	// AKWeaponReady
+	
+	// Translations are as follows:
+	// Primary - Fire Left
+	// Secondary - Fire Right
+	// Reload - AltFire Left
+	// User1 - AltFire Right
+	//--------------------------------------------------------------------------
+	
+	action void AkWeaponReady(int flags = 0, bool AdjustReady = false, int id = 0)
+	{
+		if (!id) id = OverlayID();
+		let player = invoker.owner.player;
+		if (!player || !player.ReadyWeapon)
+		{
+			//Console.Printf("ERROR -4");
+			return;// ResolveState(null);
+		}
+		if (id != OV_LeftWeapon && id != OV_RightWeapon)
+		{
+			//Console.Printf("ERROR -5");
+			return;// ResolveState(null);
+		}
+		
+		bool DoFire[2], DoAltFire[2];
+		let psp = player.FindPSprite(id);
+
+		//----------------------------------------------------------------------
+		// Weapon Switch Checks
+		//----------------------------------------------------------------------
+		// Disable switching will eliminate the pending weapon to switch to.
+		if (flags & WRF_DISABLESWITCH)
+		{
+			if (id == OV_LeftWeapon)
+			{
+				invoker.LeftNext = null;
+				invoker.LeftPend = null;
+			}
+			else
+			{
+				invoker.RightNext = null;
+				invoker.RightPend = null;
+			}
+		}
+		else if (!(flags & (WRF_NOSWITCH)) && (invoker.LeftPend || invoker.RightPend))
+		{
+			if (id == OV_LeftWeapon && invoker.LeftPend)
+			{
+				invoker.Status[Left] = ChangeWeapon;
+				if (psp)	{ psp.SetState(player.ReadyWeapon.FindState(invoker.LeftStates.DeselectState, true));	}
+				return;
+			}
+			if (id == OV_RightWeapon && invoker.RightPend)
+			{
+				invoker.Status[Right] = ChangeWeapon;
+				if (psp)	{ psp.SetState(player.ReadyWeapon.FindState(invoker.RightStates.DeselectState, true));	}
+				return;
+			}
+			//if (doReturn) return;
+		}
+		
+		//----------------------------------------------------------------------
+		// Fire States
+		// See above for translations.
+		//----------------------------------------------------------------------
+		
+		int input = invoker.InputCur;
+		int inold = invoker.InputOld;
+		
+		DoFire[Left] = (!(flags & WRF_NOPRIMARY)) && (input & PLeft) && !(player.ReadyWeapon.bNOAUTOFIRE && (inold & PLeft));
+		DoAltFire[Left] = (!(flags & WRF_NOSECONDARY)) && (input & ALeft) && !(player.ReadyWeapon.bNOAUTOFIRE && (inold & ALeft));
+		DoFire[Right] = (!(flags & WRF_NOPRIMARY)) && (input & PRight) && !(player.ReadyWeapon.bNOAUTOFIRE && (inold & PRight));
+		DoAltFire[Right] = (!(flags & WRF_NOSECONDARY)) && (input & ARight) && !(player.ReadyWeapon.bNOAUTOFIRE && (inold & ARight));
+
+		if (DoFire[Left] || DoFire[Right])
+		{
+			if (id == OV_LeftWeapon && DoFire[Left])
+			{
+				invoker.Status[Left] = Fire;
+				player.SetPSprite(id, player.ReadyWeapon.FindState(invoker.LeftStates.FireState, true));
+					
+			}
+			if (id == OV_RightWeapon && DoFire[Right])
+			{
+				invoker.Status[Right] = Fire;
+				player.SetPSprite(id, player.ReadyWeapon.FindState(invoker.RightStates.FireState, true));
+			}
+		}
+		else if (DoAltFire[Left] || DoAltFire[Right])
+		{
+			if (id == OV_LeftWeapon && DoAltFire[Left])
+			{
+				invoker.Status[Left] = AltFire;
+				player.SetPSprite(id, player.ReadyWeapon.FindState(invoker.LeftStates.AltFireState, true));
+					
+			}
+			if (id == OV_RightWeapon && DoAltFire[Right])
+			{
+				invoker.Status[Right] = AltFire;
+				player.SetPSprite(id, player.ReadyWeapon.FindState(invoker.RightStates.AltFireState, true));
+			}
+		}
+		else
+		{		
+			if (psp)
+				psp.bAddBob = (!(flags & WRF_NOBOB));
+			
+			if (AdjustReady)
+			{
+				if (id == OV_LeftWeapon)
+				{	invoker.Status[Left] = Ready;	invoker.LO = (0,0);	}
+				if (id == OV_RightWeapon)						
+				{	invoker.Status[Right] = Ready;	invoker.RO = (0,0);	}
+			}
+		}
+		return;
+	}
+	
+	//--------------------------------------------------------------------------
+	//
+	//
+	//
+	//--------------------------------------------------------------------------
+	action void AkRaiseGun(int RaiseSpeed = 6, bool instaraise = false)
+	{
+		int id = OverlayID();
+		let player = invoker.owner.player;
+		if (!player || !player.ReadyWeapon || (id != OV_LeftWeapon && id != OV_RightWeapon))
+			return;
+		
+		let psp = player.FindPSprite(id);
+		if (psp)
+		{
+			psp.oldy = psp.y;
+			AkOffset((0,-RaiseSpeed),WOF_ADD);
+			//psp.y -= RaiseSpeed;
+			double CurrentY = (id == OV_LeftWeapon) ? invoker.LO.y : invoker.RO.y;
+			if (CurrentY <= 0 || instaraise)
+			{
+				//psp.y = WEAPONTOP;
+				AkOffset();
+				psp.SetState(player.ReadyWeapon.FindState((id == OV_RightWeapon) ? invoker.RightStates.ReadyState : invoker.LeftStates.ReadyState, true));
+				invoker.Status[(id == OV_RightWeapon ? Right : Left)] = Ready;
+				return;
+			}
+		}
+		return;
+	}
+	
+	//--------------------------------------------------------------------------
+	//
+	//
+	//
+	//--------------------------------------------------------------------------
+	action void AkLowerGun(int LowerSpeed = 6, bool instalower = false)
+	{
+		int id = OverlayID();
+		let player = invoker.owner.player;
+		if (!player || !player.ReadyWeapon || invoker.IsLowering || (id != OV_LeftWeapon && id != OV_RightWeapon))
+			return;
+		
+		let psp = player.FindPSprite(id);
+		if (psp)
+		{
+			invoker.Status[(id == OV_RightWeapon ? Right : Left)] = ChangeWeapon;
+			//psp.oldy = psp.y;
+			//psp.y += LowerSpeed;
+			AkOffset((0,LowerSpeed),WOF_ADD|WOF_INTERPOLATE,true);
+			double CurrentY = (id == OV_LeftWeapon) ? invoker.LO.y : invoker.RO.y;
+			if (CurrentY >= WEAPONBOTTOM || instalower)
+			{
+				//psp.y = psp.oldy = WEAPONBOTTOM;
+				AkOffset((0,WEAPONBOTTOM),WOF_INTERPOLATE,true);
+				psp.SetState(player.ReadyWeapon.FindState((id == OV_RightWeapon) ? invoker.RightNext : invoker.LeftNext, true));
+				if (id == OV_RightWeapon)
+				{
+					invoker.RightGun = invoker.RightPend;
+					invoker.RightPend = null;
+					invoker.RightNext = null;
+					for (int i = 0; i < 8; i++)
+						invoker.SoundMaker[Left].A_StopSound(i);
+					//A_ClearOverlays(OV_RightWeapon + 1, OV_RightWeapon + 10000);
+					//A_ClearOverlays(OV_RightWeapon - 10000, OV_RightWeapon - 1);
+				}
+				else
+				{
+					invoker.LeftGun = invoker.LeftPend;
+					invoker.LeftPend = null;
+					invoker.LeftNext = null;
+					for (int i = 0; i < 8; i++)
+						invoker.SoundMaker[Right].A_StopSound(i);
+					//A_ClearOverlays(OV_LeftWeapon + 1, OV_LeftWeapon + 10000);
+					//A_ClearOverlays(OV_LeftWeapon - 10000, OV_LeftWeapon - 1);
+				}
+				return;
+			}
+		}
+		//else Console.Printf("ERROR -1");
+		
+		return;
+	}
+	
+	// When Graf makes string to state labels a thing, I can dump this shit.
+	action void PrepareStates()
+	{
+		invoker.as[ID_D4Pistol].ReadyState = 			"D4Pistol.Ready";
+		invoker.as[ID_D4Pistol].FireState = 			"D4Pistol.Fire";
+		invoker.as[ID_D4Pistol].AltFireState = 			"D4Pistol.AltFire";
+		invoker.as[ID_D4Pistol].SelectState = 			"D4Pistol.Select";
+		invoker.as[ID_D4Pistol].DeselectState = 		"D4Pistol.Deselect";
+		invoker.as[ID_D4Pistol].ModState = 				"D4Pistol.Mod";
+		
+		invoker.as[ID_D4Shotgun].ReadyState = 			"D4Shotgun.Ready";
+		invoker.as[ID_D4Shotgun].FireState = 			"D4Shotgun.Fire";
+		invoker.as[ID_D4Shotgun].AltFireState = 		"D4Shotgun.AltFire";
+		invoker.as[ID_D4Shotgun].SelectState = 			"D4Shotgun.Select";
+		invoker.as[ID_D4Shotgun].DeselectState = 		"D4Shotgun.Deselect";
+		invoker.as[ID_D4Shotgun].ModState = 			"D4Shotgun.Mod";
+		
+		invoker.as[ID_D4SuperShotgun].ReadyState = 		"D4SuperShotgun.Ready";
+		invoker.as[ID_D4SuperShotgun].FireState = 		"D4SuperShotgun.Fire";
+		invoker.as[ID_D4SuperShotgun].AltFireState = 	"D4SuperShotgun.AltFire";
+		invoker.as[ID_D4SuperShotgun].SelectState = 	"D4SuperShotgun.Select";
+		invoker.as[ID_D4SuperShotgun].DeselectState = 	"D4SuperShotgun.Deselect";
+		invoker.as[ID_D4SuperShotgun].ModState = 		"D4SuperShotgun.Mod";
+		
+		invoker.as[ID_D4Repeater].ReadyState = 			"D4Repeater.Ready";
+		invoker.as[ID_D4Repeater].FireState = 			"D4Repeater.Fire";
+		invoker.as[ID_D4Repeater].AltFireState = 		"D4Repeater.AltFire";
+		invoker.as[ID_D4Repeater].SelectState = 		"D4Repeater.Select";
+		invoker.as[ID_D4Repeater].DeselectState = 		"D4Repeater.Deselect";
+		invoker.as[ID_D4Repeater].ModState = 			"D4Repeater.Mod";
+		
+		invoker.as[ID_D4AssaultRifle].ReadyState = 		"D4AssaultRifle.Ready";
+		invoker.as[ID_D4AssaultRifle].FireState = 		"D4AssaultRifle.Fire";
+		invoker.as[ID_D4AssaultRifle].AltFireState = 	"D4AssaultRifle.AltFire";
+		invoker.as[ID_D4AssaultRifle].SelectState = 	"D4AssaultRifle.Select";
+		invoker.as[ID_D4AssaultRifle].DeselectState = 	"D4AssaultRifle.Deselect";
+		invoker.as[ID_D4AssaultRifle].ModState = 		"D4AssaultRifle.Mod";
+		
+		invoker.as[ID_D4Chaingun].ReadyState = 			"D4Chaingun.Ready";
+		invoker.as[ID_D4Chaingun].FireState = 			"D4Chaingun.Fire";
+		invoker.as[ID_D4Chaingun].AltFireState = 		"D4Chaingun.AltFire";
+		invoker.as[ID_D4Chaingun].SelectState = 		"D4Chaingun.Select";
+		invoker.as[ID_D4Chaingun].DeselectState = 		"D4Chaingun.Deselect";
+		invoker.as[ID_D4Chaingun].ModState = 			"D4Chaingun.Mod";
+		
+		invoker.as[ID_D4RocketLauncher].ReadyState = 	"D4RocketLauncher.Ready";
+		invoker.as[ID_D4RocketLauncher].FireState = 	"D4RocketLauncher.Fire";
+		invoker.as[ID_D4RocketLauncher].AltFireState = 	"D4RocketLauncher.AltFire";
+		invoker.as[ID_D4RocketLauncher].SelectState = 	"D4RocketLauncher.Select";
+		invoker.as[ID_D4RocketLauncher].DeselectState = "D4RocketLauncher.Deselect";
+		invoker.as[ID_D4RocketLauncher].ModState = 		"D4RocketLauncher.Mod";
+		
+		invoker.as[ID_D4PlasmaRifle].ReadyState = 		"D4PlasmaRifle.Ready";
+		invoker.as[ID_D4PlasmaRifle].FireState = 		"D4PlasmaRifle.Fire";
+		invoker.as[ID_D4PlasmaRifle].AltFireState = 	"D4PlasmaRifle.AltFire";
+		invoker.as[ID_D4PlasmaRifle].SelectState = 		"D4PlasmaRifle.Select";
+		invoker.as[ID_D4PlasmaRifle].DeselectState = 	"D4PlasmaRifle.Deselect";
+		invoker.as[ID_D4PlasmaRifle].ModState = 		"D4PlasmaRifle.Mod";
+		
+		invoker.as[ID_D4LightningGun].ReadyState = 		"D4LightningGun.Ready";
+		invoker.as[ID_D4LightningGun].FireState = 		"D4LightningGun.Fire";
+		invoker.as[ID_D4LightningGun].AltFireState = 	"D4LightningGun.AltFire";
+		invoker.as[ID_D4LightningGun].SelectState = 	"D4LightningGun.Select";
+		invoker.as[ID_D4LightningGun].DeselectState = 	"D4LightningGun.Deselect";
+		invoker.as[ID_D4LightningGun].ModState = 		"D4LightningGun.Mod";
+		
+		invoker.as[ID_D4StaticRifle].ReadyState = 		"D4StaticRifle.Ready";
+		invoker.as[ID_D4StaticRifle].FireState = 		"D4StaticRifle.Fire";
+		invoker.as[ID_D4StaticRifle].AltFireState = 	"D4StaticRifle.AltFire";
+		invoker.as[ID_D4StaticRifle].SelectState =		"D4StaticRifle.Select";
+		invoker.as[ID_D4StaticRifle].DeselectState = 	"D4StaticRifle.Deselect";
+		invoker.as[ID_D4StaticRifle].ModState = 		"D4StaticRifle.Mod";
+		
+		invoker.as[ID_D4VortexRifle].ReadyState = 		"D4VortexRifle.Ready";
+		invoker.as[ID_D4VortexRifle].FireState = 		"D4VortexRifle.Fire";
+		invoker.as[ID_D4VortexRifle].AltFireState = 	"D4VortexRifle.AltFire";
+		invoker.as[ID_D4VortexRifle].SelectState = 		"D4VortexRifle.Select";
+		invoker.as[ID_D4VortexRifle].DeselectState = 	"D4VortexRifle.Deselect";
+		invoker.as[ID_D4VortexRifle].ModState = 		"D4VortexRifle.Mod";
+		
+		invoker.as[ID_D4GaussCannon].ReadyState = 		"D4GaussCannon.Ready";
+		invoker.as[ID_D4GaussCannon].FireState = 		"D4GaussCannon.Fire";
+		invoker.as[ID_D4GaussCannon].AltFireState = 	"D4GaussCannon.AltFire";
+		invoker.as[ID_D4GaussCannon].SelectState = 		"D4GaussCannon.Select";
+		invoker.as[ID_D4GaussCannon].DeselectState = 	"D4GaussCannon.Deselect";
+		invoker.as[ID_D4GaussCannon].ModState = 		"D4GaussCannon.Mod";
+		
+		invoker.as[ID_D4CarrionCannon].ReadyState = 	"D4CarrionCannon.Ready";
+		invoker.as[ID_D4CarrionCannon].FireState = 		"D4CarrionCannon.Fire";
+		invoker.as[ID_D4CarrionCannon].AltFireState = 	"D4CarrionCannon.AltFire";
+		invoker.as[ID_D4CarrionCannon].SelectState = 	"D4CarrionCannon.Select";
+		invoker.as[ID_D4CarrionCannon].DeselectState = 	"D4CarrionCannon.Deselect";
+		invoker.as[ID_D4CarrionCannon].ModState = 		"D4CarrionCannon.Mod";
+		
+		invoker.as[ID_D4BFG].ReadyState = 				"D4BFG.Ready";
+		invoker.as[ID_D4BFG].FireState = 				"D4BFG.Fire";
+		invoker.as[ID_D4BFG].AltFireState = 			"D4BFG.AltFire";
+		invoker.as[ID_D4BFG].SelectState = 				"D4BFG.Select";
+		invoker.as[ID_D4BFG].DeselectState = 			"D4BFG.Deselect";
+		invoker.as[ID_D4BFG].ModState = 				"D4BFG.Mod";
+	}
+	
+	action void UpdateStates(int index)
+	{
+		int id = OverlayID();
+		index = Clamp(index, ID_D4Pistol, ID_D4BFG);
+		if (id == OV_LeftWeapon)
+		{
+			invoker.WeaponID[Left] = index;
+			invoker.owner.A_SetInventory("LeftWeaponCount",index);
+			invoker.LeftStates.ReadyState =		invoker.as[index].ReadyState;
+			invoker.LeftStates.FireState =		invoker.as[index].FireState;
+			invoker.LeftStates.AltFireState =	invoker.as[index].AltFireState;
+			invoker.LeftStates.SelectState =	invoker.as[index].SelectState;
+			invoker.LeftStates.DeselectState =	invoker.as[index].DeselectState;
+		}
+		else if (id == OV_RightWeapon)
+		{
+			invoker.WeaponID[Right] = index;
+			invoker.owner.A_SetInventory("RightWeaponCount",index);
+			invoker.RightStates.ReadyState =	invoker.as[index].ReadyState;
+			invoker.RightStates.FireState =		invoker.as[index].FireState;
+			invoker.RightStates.AltFireState =	invoker.as[index].AltFireState;
+			invoker.RightStates.SelectState =	invoker.as[index].SelectState;
+			invoker.RightStates.DeselectState =	invoker.as[index].DeselectState;
+		}
+	}
+
+	//==========================================================================
+	// Checks and switchers
+	//==========================================================================
+	
+	
+	static const Class<Weapon> WeaponList[] =
+	{
+		null,
+		"D4Pistol",
+		"D4Shotgun",
+		"D4SuperShotgun",
+		"D4Repeater",
+		"D4AssaultRifle",
+		"D4Chaingun",
+		"D4RocketLauncher",
+		"D4PlasmaRifle",
+		"D4LightningGun",
+		"D4GaussCannon",
+		"D4VortexRifle",
+		"D4StaticRifle",
+		"D4CarrionCannon",
+		"D4BFG"
+	};
+	
+	static const StateLabel WeaponReadyStates[] =
+	{
+		null,
+		"D4Pistol.Select",
+		"D4Shotgun.Select",
+		"D4SuperShotgun.Select",
+		"D4Repeater.Select",
+		"D4AssaultRifle.Select",
+		"D4Chaingun.Select",
+		"D4RocketLauncher.Select",
+		"D4PlasmaRifle.Select",
+		"D4LightningGun.Select",
+		"D4GaussCannon.Select",
+		"D4VortexRifle.Select",
+		"D4StaticRifle.Select",
+		"D4CarrionCannon.Select",
+		"D4BFG.Select"
+	};
+	
+	action bool AkimboCheckWeapons(bool CheckOnly = false)
+	{
+		bool LeftFound = true, RightFound = true;
+		int WeaponCount;
+		
+		int a = invoker.Owner.CountInv("LeftWeaponCount");
+		int b = invoker.Owner.CountInv("RightWeaponCount");
+		if (a && b)
+		{
+			invoker.LeftPend = invoker.WeaponList[a];
+			invoker.LeftNext = invoker.WeaponReadyStates[a];
+			invoker.RightPend = invoker.WeaponList[b];
+			invoker.RightNext = invoker.WeaponReadyStates[b];
+			return true;
+		}
+		
+		int size = invoker.WeaponList.Size();
+		for (int i = 0; i < size; i++)
+		{
+			if (invoker.Owner.CountInv(invoker.WeaponList[i]))
+				WeaponCount++;
+		}
+		
+		// Not enough guns to switch to this.
+		if (WeaponCount < 2)
+			return false;
+		
+		if (!invoker.RightGun && !invoker.RightPend)
+		{
+			RightFound = false;
+			for (int i = StartIndex; i < size; i++)
+			{
+				if (invoker.Owner.CountInv(invoker.WeaponList[i]) && 
+					(invoker.LeftGun != invoker.WeaponList[i]) && 
+					(invoker.LeftPend != invoker.WeaponList[i]))
+				{
+					RightFound = true;
+					if (!CheckOnly)
+					{
+						invoker.WeaponID[Right] = i;
+						invoker.Owner.A_SetInventory("RightWeaponCount", i);
+						invoker.RightPend = invoker.WeaponList[i];
+						invoker.RightNext = invoker.WeaponReadyStates[i];
+						break;
+					}
+				}
+			}
+		}
+		
+		if (!invoker.LeftGun && !invoker.LeftPend)
+		{
+			LeftFound = false;
+			for (int i = StartIndex; i < size; i++)
+			{
+				if (invoker.Owner.CountInv(invoker.WeaponList[i]) && 
+					(invoker.RightGun != invoker.WeaponList[i]) && 
+					(invoker.RightPend != invoker.WeaponList[i]))
+				{
+					LeftFound = true;
+					if (!CheckOnly)
+					{
+						invoker.WeaponID[Left] = i;
+						invoker.Owner.A_SetInventory("LeftWeaponCount", i);
+						invoker.LeftPend = invoker.WeaponList[i];
+						invoker.LeftNext = invoker.WeaponReadyStates[i];
+						break;
+					}
+				}
+			}
+		}
+		return LeftFound && RightFound;
+	}
+	
+	//--------------------------------------------------------------------------
+	// For external use outside of the weapon itself.
+	bool SetWeaponSide (Name WeapID, bool right, bool forced = false)
+	{
+		Class<Weapon> id = WeapID;
+		if (!id || 
+			//LeftGun == id || LeftPend == id ||
+			//RightGun == id || RightPend == id ||
+			!Owner.CountInv(id))
+		{
+			return false;
+		}
+		
+		// Reject if the weapon is already raised in the same hand.
+		if (forced)
+		{
+			if (right)
+			{	
+				if (id == RightPend || id == RightGun)
+					return false; 
+				
+			}
+			else
+			{	
+				if (id == LeftPend || id == LeftGun)
+					return false;
+			}
+		}
+		// Reject if in either already.	
+		else if (id == RightPend || id == RightGun || id == LeftPend || id == LeftGun)
+			return false;
+		
+		int size = WeaponList.Size();
+		for (int i = 0; i < size; i++)
+		{
+			if (id == WeaponList[i])
+			{
+				
+				if (right)		{	RightPend = id; RightNext = WeaponReadyStates[i]; 	}
+				else			{	LeftPend = id; 	LeftNext = WeaponReadyStates[i];	}
+				//Console.Printf(WeapID.." command received successfully.");
+				return true;
+			}
+		}
+		//Console.Printf("Something's wrong.");
+		return false;
+	}
+	
+	bool SetWeaponSideClass (Class<Weapon> id, bool right, bool forced)
+	{
+		if (!id || 
+			//LeftGun == id || LeftPend == id ||
+			//RightGun == id || RightPend == id ||
+			!Owner.CountInv(id))
+		{
+			return false;
+		}
+		
+		// Reject if the weapon is already raised in the same hand.
+		if (forced)
+		{
+			if (right)
+			{	
+				if (id == RightPend || id == RightGun)
+					return false; 
+				
+			}
+			else
+			{	
+				if (id == LeftPend || id == LeftGun)
+					return false;
+			}
+		}
+		// Reject if in either already.	
+		else if (id == RightPend || id == RightGun || id == LeftPend || id == LeftGun)
+			return false;
+		
+		int size = WeaponList.Size();
+		for (int i = 0; i < size; i++)
+		{
+			if (id == WeaponList[i])
+			{
+				if (right)		{	RightPend = id; RightNext = WeaponReadyStates[i]; 	}
+				else			{	LeftPend = id; 	LeftNext = WeaponReadyStates[i];	}
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	//==========================================================================
+	// Needed for the carrion cannon.
+	Array<Actor> Enemies;
+	Array<Double> EnemyDistance;
+	action void OpeningPortals(int count, int ammoConsume)
+	{
+		invoker.owner.A_SetInventory("CarrionPortalsOpened",count);
+		invoker.owner.A_AlertMonsters();
+		invoker.owner.A_PlaySound("Doom4/Monsters/ArgentCharge",CHAN_AUTO,1,0,ATTN_NONE);
+		invoker.owner.A_TakeInventory("D4Carrion",ammoConsume,TIF_NOTAKEINFINITE);
+	}
+	
+	//==========================================================================
+	//==========================================================================
+	// Main states
+	// These had a bad habit of getting in the way of my find + replacing, so
+	// this should help prevent future fuck-ups from occurring.
+	//==========================================================================
+	//==========================================================================
+	
+	States
+	{
+	Overlay.OffsetManager:
+		TNT1 A 1
+		{
+			//if (invoker.SoundMaker[Left])	invoker.SoundMaker[Left].A_Warp(MasterPtr, 5, -5,
+			let io = PlayerPawn(invoker.owner);
+			for (int i = 0; i < 2; i++)
+			{
+				if (invoker.SoundMaker[i])
+				{
+					invoker.SoundMaker[i].SetOrigin(io.pos + (0, 0, io.ViewHeight),false);
+					invoker.SoundMaker[i].vel = io.vel;
+				}
+			}
+			//invoker.WeaponID[Left] = invoker.owner.CountInv("LeftWeaponCount");
+			//invoker.WeaponID[Right] = invoker.owner.CountInv("RightWeaponCount");
+			
+			// Set the left weapon's offsets.
+			invoker.LOff = (invoker.LeftOffset[(invoker.WeaponID[Left] * 2)] + LOfx, 
+							invoker.LeftOffset[(invoker.WeaponID[Left] * 2) + 1] + LOfy) + invoker.LO;
+			invoker.owner.A_OverlayOffset(OV_LeftWeapon, Invoker.LOff.x, Invoker.LOff.y, 
+				(invoker.interpolate[Left] ? WOF_INTERPOLATE : 0));
+			//A_OverlayOffset(OV_LeftWeapon, Invoker.ROff.x, Invoker.ROff.y, WOF_INTERPOLATE);
+			
+			// And the right one.
+			invoker.ROff = (invoker.RightOffset[(invoker.WeaponID[Right] * 2)] + ROfx, 
+							invoker.RightOffset[(invoker.WeaponID[Right] * 2) + 1] + ROfy) + invoker.RO;
+			invoker.owner.A_OverlayOffset(OV_RightWeapon, Invoker.ROff.x, Invoker.ROff.y, 
+				(invoker.interpolate[Right] ? WOF_INTERPOLATE : 0));
+		}
+		Wait;
+	//==========================================================================
+	// Main States
+	//==========================================================================
+	Spawn:
+		M666 A 0;
+		Stop;
+	Select:
+		M666 A 1 
+		{
+			
+			invoker.IsLowering = false;
+			if (!AkimboCheckWeapons())
+			{
+				A_SelectWeapon("D4Pistol");
+				A_PlaySound("Doom4/Player/Nope",CHAN_AUTO);
+				return ResolveState("Deselect");
+			}
+			let isl = invoker.SoundMaker[Left];
+			let isr = invoker.SoundMaker[Right];
+			if (!isl)	invoker.SoundMaker[Left] = Spawn("AkimboSoundMaker",pos);
+			if (!isr)	invoker.SoundMaker[Right] = Spawn("AkimboSoundMaker",pos);
+			invoker.interpolate[Left] = invoker.interpolate[Right] = true;
+			invoker.PrepareStates();
+			int ci = invoker.owner.CountInv("LeftWeaponCount");
+			invoker.WeaponID[Left] = ci;
+			invoker.LeftStates.ReadyState = 	invoker.as[ci].ReadyState;
+			invoker.LeftStates.FireState = 		invoker.as[ci].FireState;
+			invoker.LeftStates.AltFireState = 	invoker.as[ci].AltFireState;
+			invoker.LeftStates.SelectState = 	invoker.as[ci].SelectState;
+			invoker.LeftStates.DeselectState = 	invoker.as[ci].DeselectState;
+			
+			ci = invoker.owner.CountInv("RightWeaponCount");
+			invoker.WeaponID[Right] = ci;
+			invoker.RightStates.ReadyState = 		invoker.as[ci].ReadyState;
+			invoker.RightStates.FireState = 		invoker.as[ci].FireState;
+			invoker.RightStates.AltFireState = 		invoker.as[ci].AltFireState;
+			invoker.RightStates.SelectState = 		invoker.as[ci].SelectState;
+			invoker.RightStates.DeselectState = 	invoker.as[ci].DeselectState;
+			
+			// Skip the offsetting for this situation.
+			if (!invoker.LeftGun)	invoker.LeftGun = 	invoker.LeftPend; 	invoker.LeftPend = null;
+			if (!invoker.RightGun)	invoker.RightGun = 	invoker.RightPend; 	invoker.RightPend = null;
+			A_Overlay(OV_LeftWeapon, 	invoker.LeftNext);
+			A_Overlay(OV_RightWeapon, 	invoker.RightNext);
+			A_OverlayFlags(OV_LeftWeapon, PSPF_ADDWEAPON|PSPF_FLIP, true);
+			A_OverlayFlags(OV_RightWeapon, PSPF_ADDWEAPON, true);
+			A_Overlay(OV_Custom + 1, "Overlay.OffsetManager");
+			
+			
+			
+			invoker.LOff = (invoker.LeftOffset[(invoker.WeaponID[Left] * 2)] + LOfx, 
+							invoker.LeftOffset[(invoker.WeaponID[Left] * 2) + 1] + LOfy) + invoker.LO;
+			invoker.owner.A_OverlayOffset(OV_LeftWeapon, Invoker.LOff.x, Invoker.LOff.y, WOF_INTERPOLATE);
+
+
+			invoker.ROff = (invoker.RightOffset[(invoker.WeaponID[Right] * 2)] + ROfx, 
+							invoker.RightOffset[(invoker.WeaponID[Right] * 2) + 1] + ROfy) + invoker.RO;
+			invoker.owner.A_OverlayOffset(OV_RightWeapon, Invoker.ROff.x, Invoker.ROff.y, WOF_INTERPOLATE);
+			
+			//Console.Printf("%d %d", invoker.WeaponID[Left], invoker.WeaponID[Right]);
+			return ResolveState("SelLoop");
+		}
+	SelLoop:
+		M666 A 1 A_Raise();
+		M666 A 0 A_Raise(WeaponSwitchSpeed);
+		Loop;
+	
+	// Stop all sounds and destroy the sound makers.
+	Deselect:
+		M666 A 0 
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				if (invoker.SoundMaker[i])	
+				{
+					for (int j = 0; j <= 8; j++)
+						invoker.SoundMaker[i].A_StopSound(j);
+					invoker.SoundMaker[i].Destroy();
+				}
+			}
+			invoker.IsLowering = true;
+			invoker.LeftPend = null;
+			invoker.RightPend = null;
+			invoker.LeftNext = null;
+			invoker.RightNext = null;
+			A_OverlayFlags(OV_LeftWeapon, PSPF_ADDWEAPON, true);
+			A_OverlayFlags(OV_RightWeapon, PSPF_ADDWEAPON, true);
+			invoker.owner.A_SetInventory("LeftWeaponCount", invoker.WeaponID[Left]);
+			invoker.owner.A_SetInventory("RightWeaponCount", invoker.WeaponID[Right]);
+		}
+	DesLoop:
+		M666 A 1 A_Lower();
+		M666 A 0 A_Lower(WeaponSwitchSpeed);
+		Loop;
+	Ready:
+		M666 A 1 
+		{
+			
+			A_OverlayFlags(OV_LeftWeapon, PSPF_ADDWEAPON, true);
+			A_OverlayFlags(OV_RightWeapon, PSPF_ADDWEAPON, true);
+			for (int i = 0; i < invoker.Status.Size(); i++)
+				if (invoker.Status[i] <= invoker.Nurr)
+					invoker.Status[i] = Ready;
+			invoker.InputCur = GetPlayerInput(MODINPUT_BUTTONS);
+			invoker.InputOld = GetPlayerInput(MODINPUT_OLDBUTTONS);
+			
+			A_WeaponReady(WRF_NOFIRE|invoker.WeaponFlags);
+			
+			
+			if ((invoker.InputCur & BT_USER3) && !(invoker.InputOld & BT_USER3))
+			{
+				Menu.SetMenu("AkimboSideSelect");
+			}
+			if ((invoker.InputCur & BT_USER2) && !(invoker.InputOld & BT_USER2))
+			{
+				if (invoker.Status[Left] <= Ready && invoker.Status[Right] <= Ready)
+				{
+					invoker.SetWeaponSideClass(invoker.LeftGun, true, true);
+					invoker.SetWeaponSideClass(invoker.RightGun, false, true);
+				}
+				else
+				{
+					Console.Printf("Can't switch weapons while firing");
+				}
+			}
+			
+			/*
+			if ((invoker.InputCur & BT_ATTACK) && !(invoker.InputOld & BT_ATTACK))
+			{
+				
+				uint size = invoker.WeaponList.Size();
+				A_SetInventory("LeftWeaponCount", Clamp(((CountInv("LeftWeaponCount") + 1) % size), 1, size - 1));
+				
+				A_SetInventory("RightWeaponCount", Clamp(((CountInv("RightWeaponCount") + 1) % size), 1, size - 1));
+				uint cnt = CountInv("LeftWeaponCount");
+				A_SetInventory("RightWeaponCount",cnt);
+				invoker.LeftGun = invoker.WeaponList[cnt];
+				
+				A_Overlay(OV_LeftWeapon, invoker.WeaponReadyStates[cnt]);
+				A_OverlayFlags(OV_LeftWeapon, PSPF_ADDWEAPON|PSPF_FLIP, true);
+				A_Overlay(OV_RightWeapon, invoker.WeaponReadyStates[cnt]);
+				A_OverlayFlags(OV_RightWeapon, PSPF_ADDWEAPON, true);
+			}
+			*/
+		}
+		Loop;
+	Fire:
+		M666 A 1;
+		Goto Ready;
+	}
+}

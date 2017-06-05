@@ -1,0 +1,642 @@
+extend class Drawer
+{
+	void DrawAkimboWeaponButton(ButtonState b, bool animated, double x, double y)
+	{
+		Vector2 TexSize = TexMan.GetScaledSize(b.mTex);
+		//Screen.DrawTexture(b.mTex, animated, x, y,
+		Screen.DrawTexture(b.mTex, animated, VirtualX+x, VirtualY+y,
+		//Screen.DrawTexture(b.mTex, animated, VirtualX, VirtualY,
+			//DTA_KeepRatio, true,
+			//DTA_CenterOffset, true,
+			DTA_VirtualWidthF, VirtualWidth,
+			DTA_VirtualHeightF, VirtualHeight,
+			
+			DTA_ClipTop, int(ClipTop),
+			DTA_ClipLeft, int(ClipLeft),
+			DTA_ClipBottom, int(ClipBottom),
+			DTA_ClipRight, int(ClipRight)//,
+			//DTA_Alpha, b.mAlpha,
+		);
+		
+		if (b.mAlpha > 0.0)
+			Screen.DrawTexture(b.mTex, animated, VirtualX+x, VirtualY+y,
+			
+				DTA_VirtualWidthF, VirtualWidth,
+				DTA_VirtualHeightF, VirtualHeight,
+				//DTA_KeepRatio, true,
+				//DTA_CenterOffset, true,
+				
+				DTA_ClipTop, int(ClipTop),
+				DTA_ClipLeft, int(ClipLeft),
+				DTA_ClipBottom, int(ClipBottom),
+				DTA_ClipRight, int(ClipRight),
+				
+				DTA_Alpha, b.mAlpha,
+				DTA_RenderStyle, b.mRenderStyle,
+				DTA_ColorOverlay, b.mColor,
+				DTA_AlphaChannel, true
+				//DTA_FillColor, b.mColor
+				
+			);
+	}
+}
+
+class AkimboMenuMouse : Element
+{
+	TextureID mMouse;
+	bool IsEnabled;
+	
+	override void OnCreate()
+	{
+		//mMouse = TexMan.CheckForTexture("graphics/D3Mouse.png", TexMan.Type_Any);
+		IsEnabled = false;
+	}
+
+	override void Draw()
+	{
+		// don't draw if not enabled at all
+		if (!IsEnabled) return;
+		
+		// note: don't draw if using mouse...
+		if (m_use_mouse) return;
+	
+		//vector2 mPos = GetMouseXY();
+		//GetDrawer().DrawTexture(mMouse, false, mPos.x, mPos.y);
+	}
+}
+
+// this element is a button's state. The next class is the actual button.
+
+Struct ButtonState
+{
+	int mRenderStyle;
+	Color mColor;
+	double mAlpha;
+	TextureID mTex;
+	String text;
+	int fontColor;
+	double textAlpha;
+	
+	void Init()
+	{
+		mRenderStyle = 1;
+		mColor = Color(64, 255, 255, 255);
+		mAlpha = 1.0;
+		text = "";
+		fontColor = Font.CR_RED;
+		textAlpha = 1.0;
+	}
+	
+	void SetProperties(String tex, String tx = "", int style = -1, double ta = -1.0, int a = -1, int r = -1, int g = -1, int b = -1)
+	{
+		//if (tex.Length() > 0)
+		mTex = TexMan.CheckForTexture(tex, TexMan.Type_Any);
+		text = tx;
+		if (ta >= 0.0) mAlpha = ta;
+		if (a >= 0) mColor.a = Clamp(a, 0, 255);
+		if (r >= 0) mColor.r = Clamp(r, 0, 255);
+		if (g >= 0) mColor.g = Clamp(g, 0, 255);
+		if (b >= 0) mColor.b = Clamp(b, 0, 255);
+		if (style >= 0)	mRenderStyle = style;
+		
+	}
+	
+	String, int, double GetTextColorAlpha()
+	{
+		return text, fontColor, textAlpha;
+	}
+}
+
+
+class AkimboMenuButton : Element
+{
+	protected bool IsDown;
+	protected bool IsClicked;
+	protected bool IsHovered, wasHovered;
+	String gfx;
+	Inventory PlrItem;
+	Class<Inventory> ItemID;
+	PlayerPawn plr;
+	AkimboWeapon ak;
+	
+	protected Font mFont;
+	private double mHoverAlpha; // these are for hover animation
+	
+	//--------------------------------------------------------------------------
+	// public properties
+	String Text;
+	int tColor;
+	double tAlpha;
+	bool IsEnabled;
+	bool IsFocused;
+	
+	// Specifics for weapons
+	bool IsMod, IsRight;
+	
+	//--------------------------------------------------------------------------
+	// images
+	ButtonState mButtonUp;
+	ButtonState mButtonDown;
+	ButtonState mButtonHover;
+	ButtonState mButtonDisabled;
+
+	override void OnCreate()
+	{
+		IsDown = false;
+		IsEnabled = true;
+		IsFocused = false;
+		
+		mButtonUp.Init();
+		mButtonDown.Init();
+		mButtonHover.Init();
+		mButtonDisabled.Init();
+		/*
+		mButtonUp = TexMan.CheckForTexture("graphics/button1Up.png", TexMan.Type_Any);
+		mButtonDown = TexMan.CheckForTexture("graphics/button1Down.png", TexMan.Type_Any);
+		mButtonHover = TexMan.CheckForTexture("graphics/button1Hover.png", TexMan.Type_Any);
+		mButtonDisabled = TexMan.CheckForTexture("graphics/button1Disabled.png", TexMan.Type_Any);
+		mFont = Font.GetFont('tah09.bmf');
+		*/
+		mFont = "BIGFONT";
+	}
+	
+	void PostCreate(String HText = "")
+	{
+		mButtonUp.SetProperties(gfx, "", STYLE_None, 0.0);
+		mButtonDown.SetProperties(gfx, "", STYLE_Translucent, 0.5, 64, 0, 0, 0);
+		mButtonHover.SetProperties(gfx, HText, STYLE_Add, 0.5); mButtonHover.fontColor = Font.CR_GOLD;
+		mButtonDisabled.SetProperties(gfx, "", STYLE_Translucent, 0.5, 128, 255, 0, 0);
+	}
+	
+	override void Draw()
+	{
+		//
+		Rect r = GetClientRect();
+		Drawer d = GetDrawer();
+		if (!IsEnabled)
+		{
+			d.DrawAkimboWeaponButton(mButtonDisabled, false, 0, 0);
+			[Text, tColor, tAlpha] = mButtonDisabled.GetTextColorAlpha();
+		}
+		else
+		{
+			if (IsFocused && !IsDown)
+			{
+				d.DrawAkimboWeaponButton(mButtonHover, false, 0, 0);
+				[Text, tColor, tAlpha] = mButtonHover.GetTextColorAlpha();
+			}
+			else if (!IsDown)
+			{
+				d.DrawAkimboWeaponButton(mButtonUp, false, 0, 0);
+				[Text, tColor, tAlpha] = mButtonUp.GetTextColorAlpha();
+				if (mHoverAlpha > 0)
+				{
+					d.DrawAkimboWeaponButton(mButtonHover, false, 0, 0);
+					[Text, tColor, tAlpha] = mButtonHover.GetTextColorAlpha();
+				}
+			}
+			else
+			{
+				d.DrawAkimboWeaponButton(mButtonDown, false, 0, 0);
+				[Text, tColor, tAlpha] = mButtonDown.GetTextColorAlpha();
+			}
+		}
+		
+		double alpha = 1.0;
+		double xOffset = 0;
+		double yOffset = 0;
+		if (!IsEnabled)
+		{
+			alpha = 0.6;
+		}
+		else if (IsDown)
+		{
+			alpha = 0.6;
+			xOffset+=1;
+			yOffset+=1;
+		}
+		
+		if (Text.Length() > 0)
+			d.DrawText(mFont, tColor, r.Width/2+xOffset, 4+yOffset, Text, tAlpha, Drawer.Align_Center);
+	}
+	
+	override bool Process(ElementEvent e)
+	{
+		if (!IsEnabled) return false;
+	
+		Rect r = GetClientRect();
+		r.X = 0;
+		r.Y = 0;
+		
+		if (e.Type >= UiEvent.Type_FirstMouseEvent && e.Type <= UiEvent.Type_LastMouseEvent)
+		{
+			vector2 m = GetMouseXY();
+			bool mouseInRect = (m.x >= r.X && m.x < r.X+r.Width &&
+								m.y >= r.Y && m.y < r.Y+r.Height);
+			IsHovered = mouseInRect;
+			
+			if (mouseInRect && e.Type == UiEvent.Type_LButtonDown)
+			{
+				IsDown = true;
+				AkimboMenuElement(mParent).SetFocus(self);
+				return true;
+			}
+			else if (e.Type == UiEvent.Type_LButtonUp)
+			{
+				IsClicked = IsDown && IsHovered; // you can click, move mouse away and release, and it wont click - just like windows
+				IsDown = false;
+				return false;
+			}
+		}
+		
+		return false;
+	}
+	
+	override void Tick()
+	{
+		if (!wasHovered && wasHovered != isHovered)
+			Menu.MenuSound("Menu/Cursor");
+		wasHovered = isHovered;
+		IsClicked = false;
+		
+		if (ItemID)
+		{
+			if (!plr)	plr = PlayerPawn(players[consoleplayer].mo);
+			if (plr)
+			{
+				if (!ak)		ak = AkimboWeapon(plr.FindInventory("AkimboWeapon"));
+				if (ak)
+				{
+					if (!PlrItem)		PlrItem = Weapon(plr.FindInventory(ItemID,true));	
+					if (PlrItem)
+					{
+						
+						IsEnabled = (!(ak.LeftGun == ItemID || ak.RightGun == ItemID || ak.LeftPend == ItemID || ak.RightPend == ItemID));
+						
+						if (!IsEnabled)
+						{
+							if (IsRight)
+							{
+								if (ak.RightGun == ItemID || ak.RightPend == ItemID)
+									mButtonDisabled.text = (ItemID == ak.RightPend) ? "Selected" : "Active";
+							}
+							else if (ak.LeftGun == ItemID || ak.LeftPend == ItemID)
+								mButtonDisabled.text = (ItemID == ak.LeftPend) ? "Selected" : "Active";
+							
+						}
+					}
+					else 
+					{	
+						IsEnabled = false;
+						if (IsMod)
+						{
+							mButtonDisabled.text = "X";
+							mButtonDisabled.fontColor = Font.CR_RED;
+						}
+						else
+						{
+							mButtonDisabled.text = "-----";
+							mButtonDisabled.fontColor = Font.CR_ORANGE;
+						}
+						mButtonDisabled.mColor.r = 32;
+						mButtonDisabled.mColor.g = 32;
+						mButtonDisabled.mColor.b = 32;
+						mButtonDisabled.mColor.a = 255;
+						mButtonDisabled.mAlpha = 0.9;
+					}
+					
+				}
+				else { IsEnabled = false; mButtonDisabled.text = "Akimbo System unavailable"; }
+			}
+			else { IsEnabled = false; mButtonDisabled.text = "Player Non-Existant"; }
+				
+		}
+		else 
+		{
+			IsEnabled = false;
+		}
+		
+		//double hoverDelta = IsHovered ? 0.08 : -0.08;
+		double hoverDelta = IsHovered ? 1.0 : -1.0;
+		mHoverAlpha += hoverDelta;
+		mHoverAlpha = clamp(mHoverAlpha, 0.0, 1.0);
+	}
+	
+	void Click()
+	{
+		IsClicked = true;
+	}
+	void UnClick()
+	{
+		Menu.MenuSound("Menu/Activate");
+		IsClicked = false;
+	}
+	
+	// get methods
+	// returns true if this button was clicked in this or previous tick
+	bool CheckClicked()
+	{
+		return IsClicked;
+	}
+}
+
+class AkimboMenuElement : Element
+{
+	//
+	String CmdToSend;
+	const WeaponCount = 13;
+	double ScreenSpacingY;
+	
+	PlayerPawn plr;
+	AkimboMenuMouse mMouse;
+	AkimboWeapon ak;
+	
+	AkimboMenuButton mbPistol[2];
+	AkimboMenuButton mbShotgun[2];
+	AkimboMenuButton mbSuperShotgun[2];
+	AkimboMenuButton mbRepeater[2];
+	AkimboMenuButton mbAssaultRifle[2];
+	AkimboMenuButton mbChaingun[2];
+	AkimboMenuButton mbRocketLauncher[2];
+	AkimboMenuButton mbLightningGun[2];
+	AkimboMenuButton mbPlasmaRifle[2];
+	AkimboMenuButton mbStaticRifle[2];
+	AkimboMenuButton mbVortexRifle[2];
+	AkimboMenuButton mbGaussCannon[2];
+	AkimboMenuButton mbCarrionCannon[2];
+	AkimboMenuButton mbBFG[2];
+	
+	TextInfo MenuDesc[17];
+	
+	// this is used for navigating with arrows
+	//Array<AkimboMenuButton> mButtonsLeft;
+	//Array<AkimboMenuButton> mButtonsRight;
+	Array<AkimboMenuButton> mButtons;
+	int mButton;
+	
+	private double mbPosX, mbPosY;
+	private AkimboMenuButton AddButton(Class<Weapon> ItemID, String texName, bool right, String HText = "", bool mod = false)
+	{
+		// button size varies based on the texture.
+		Rect r = GetClientRect();
+		
+		AkimboMenuButton button = new('AkimboMenuButton');
+		button.Init();
+		button.gfx = texName;
+		
+		TextureID texture = TexMan.CheckForTexture(texName, TexMan.Type_Any);
+		Vector2 Tex = TexMan.GetScaledSize(texture);
+		//int TexX, TexY;
+		//[TexX, TexY] = TexMan.GetSize(texture);
+		
+		AddChild(button);
+		button.mRect = Rect.FromXYWH(mbPosX - (Tex.X / 2.0), mbPosY - Tex.Y, Tex.X, Tex.Y);
+		mbPosY += ScreenSpacingY;
+		button.plr = plr;
+		button.ItemID = ItemID;
+		button.IsRight = right;
+		button.IsMod = mod;
+		button.PostCreate(HText);
+		
+		//if (left) mButtonsLeft.Push(button);	else	mButtonsRight.Push(button);
+		mButtons.Push(button);
+		
+		return button;
+	}
+
+	override void OnDestroy()
+	{
+		Menu.MenuSound("Menu/clear");
+		if (CmdToSend.Length() > 0)
+			D4DHandler.SendNetworkEvent(CmdToSend);
+	}
+
+	override void OnCreate()
+	{
+		Menu.MenuSound("Menu/activate");
+		ScreenSpacingY = (Screen.GetHeight() * 0.9) / 13.0;
+		//mButtonsLeft.Clear();
+		//mButtonsRight.Clear();
+		plr = PlayerPawn(players[consoleplayer].mo);
+		mRect = Rect.FromXYWH(0, 0, Screen.GetWidth(), Screen.GetHeight());
+		
+		// approximately tries to scale to 4:3 800x600, if the resolution is larger.
+		// otherwise at least try to make it readable (don't try to scale smaller than 1x1 px)
+		mScale = 1.0; //max(1.0, double(int(double(Screen.GetHeight())/600.0+1)));
+		mbPosX = (Screen.GetWidth() / 4.0);
+		mbPosY = ScreenSpacingY / 2.0;
+		
+		for (int i = 0; i < 2; i++)
+		{
+			mbPosY = (ScreenSpacingY / 2.0);
+			if (i == 1) mbPosX *= 3.0;
+			mbPistol[i] =			AddButton("D4Pistol", 			"Graphics/akPistol.png",		i, "Pistol");
+			mbShotgun[i] =			AddButton("D4Shotgun",			"Graphics/akShotgun.png",		i, "Shotgun");
+			mbSuperShotgun[i] =		AddButton("D4SuperShotgun",		"Graphics/akSuperShotgun.png",	i, "Super Shotgun");
+			mbRepeater[i] =			AddButton("D4Repeater",			"Graphics/akRepeater.png",		i, "Repeater");
+			mbAssaultRifle[i] =		AddButton("D4AssaultRifle",		"Graphics/akAssaultRifle.png",	i, "Assault Rifle");
+			mbChaingun[i] =			AddButton("D4Chaingun",			"Graphics/akChaingun.png",		i, "Chaingun");
+			mbRocketLauncher[i] =	AddButton("D4RocketLauncher",	"Graphics/akRocketLauncher.png",i, "Rocket Launcher");
+			mbLightningGun[i] =		AddButton("D4LightningGun",		"Graphics/akLightningGun.png",	i, "Lightning Gun");
+			mbPlasmaRifle[i] = 		AddButton("D4PlasmaRifle",		"Graphics/akPlasmaRifle.png",	i, "Plasma Rifle");
+			mbStaticRifle[i] =		AddButton("D4StaticRifle",		"Graphics/akStaticRifle.png",	i, "Static Rifle");
+			mbVortexRifle[i] =		AddButton("D4VortexRifle",		"Graphics/akVortexRifle.png",	i, "Vortex Rifle");
+			mbGaussCannon[i] =		AddButton("D4GaussCannon",		"Graphics/akGaussCannon.png",	i, "Gauss Cannon");
+			mbCarrionCannon[i] =	AddButton("D4CarrionCannon",	"Graphics/akCarrionCannon.png",	i, "Carrion Cannon");
+			mbBFG[i] =				AddButton("D4BFG",				"Graphics/akBFG.png",			i, "BFG");
+			
+		}
+		
+		// init buttons		
+		mMouse = AkimboMenuMouse(new('AkimboMenuMouse').Init());
+		AddChild(mMouse);
+		mMouse.mRect = GetClientRect().Clone();
+		
+		Rect r = GetClientRect();
+		Drawer d = GetDrawer();
+		
+		//SetText(String t, Font m, int col, double xpos, double ypos, int al = 0)
+		Font mf = "BIGFONT";
+		int fh = mf.GetHeight() + 5;
+		double TopStart = 			(r.Height / 10);
+		double LeftAlign = 			(r.Width / 4);
+		double AlignOffset = 	80;
+		double RightAlign = 		(r.Width * 3 / 4);
+		double CenterAlign = 		(r.Width / 2);
+		
+		String Text = "Select Weapons";
+		MenuDesc[0].SetText(Text, mf, Font.CR_RED, 		CenterAlign, TopStart, Drawer.Align_Center);
+		Text = "The following keybinds are different while akimbo is active:";
+		MenuDesc[1].SetText(Text, mf, Font.CR_ORANGE, 	CenterAlign, TopStart + (fh * 2), Drawer.Align_Center);
+		Text = "-->";
+		MenuDesc[2].SetText(Text, mf, Font.CR_GOLD, 	CenterAlign, TopStart + (fh * 3), Drawer.Align_Center);
+		Text = "(NYI)Cycle Grenade (Next)";
+		MenuDesc[3].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 3), Drawer.Align_Left);
+		Text = "(NYI)Cycle Grenade (Prev)";
+		MenuDesc[4].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 4), Drawer.Align_Left);
+		Text = "(NYI)Switch Right Mod";
+		MenuDesc[5].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 3), Drawer.Align_Right);
+		Text = "(NYI)Switch Left Mod";
+		MenuDesc[6].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 4), Drawer.Align_Right);
+		Text = "Cannot Use Grenades";
+		MenuDesc[7].SetText(Text, mf, Font.CR_RED, 		CenterAlign, TopStart + (fh * 9), Drawer.Align_Center);
+		Text = "Cannot Melee";
+		MenuDesc[8].SetText(Text, mf, Font.CR_RED, 		CenterAlign, TopStart + (fh * 10), Drawer.Align_Center);
+		Text = "Faster weapon + Mod Switching";
+		MenuDesc[9].SetText(Text, mf, Font.CR_GREEN, 	CenterAlign, TopStart + (fh * 11), Drawer.Align_Center);
+		Text = "Press-to-hold becomes toggle or instant activation";
+		MenuDesc[16].SetText(Text, mf, Font.CR_GREEN, 	CenterAlign, TopStart + (fh * 11), Drawer.Align_Center);
+		
+		
+		Text = "Quick Melee";
+		MenuDesc[10].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 5), Drawer.Align_Left);
+		Text = "Switch Active Weapons";
+		MenuDesc[11].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 5), Drawer.Align_Right);
+		Text = "(P)Switch Mod";
+		MenuDesc[12].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 6), Drawer.Align_Left);
+		Text = "(NYI)Fire Right Secondary";
+		MenuDesc[13].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 6), Drawer.Align_Right);
+		Text = "(P)Throw Grenade";
+		MenuDesc[14].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 7), Drawer.Align_Left);
+		Text = "Fire Left Secondary";
+		MenuDesc[15].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 7), Drawer.Align_Right);
+	}
+
+	override void Draw()
+	{
+		Rect r = GetClientRect();
+		Drawer d = GetDrawer();
+		
+		// this is very important.
+		d.Dim(0x000000, 0.5, 0, 0, r.Width, r.Height);
+		//d.DrawTexture(mDoom, false, r.Width/2-64, 48);
+		int size = MenuDesc.Size();
+		for (int i = 0; i < size; i++)
+			d.DrawText(
+				MenuDesc[i].mFont,
+				MenuDesc[i].FontColor,
+				MenuDesc[i].X,
+				MenuDesc[i].Y,
+				MenuDesc[i].Text,
+				1.0,
+				MenuDesc[i].Align);
+	}
+	
+	override bool Process(ElementEvent e)
+	{
+		
+		if (e.Type >= UiEvent.Type_FirstMouseEvent &&
+			e.Type <= UiEvent.Type_LastMouseEvent)
+		{
+			mMouse.IsEnabled = true;
+		}
+		
+		
+		return false;
+	}
+	
+	override void Tick()
+	{	
+		CmdToSend = "";
+		int size = mButtons.Size();
+		if (size > 0)
+		{
+			for (int i = 0; i < size; i++)
+			{
+				if (mButtons[i].CheckClicked())
+				{
+					let Weap = plr.FindInventory(mButtons[i].ItemID,true);
+					if (Weap)
+					{
+						String WeapName = Weap.GetClassName();
+						CmdToSend = "Akimbo_Set"..(mButtons[i].IsRight ? "Right" : "Left").."_"..WeapName;
+					
+						D4DHandler.SendNetworkEvent(CmdToSend);
+						Menu.MenuSound("Menu/Activate");
+					}
+					else
+					{
+						Console.Printf("ERROR: Weapon not found!");
+						Menu.MenuSound("Doom4/Player/Nope");
+					}
+					mButtons[i].UnClick();
+					//Menu m = Menu.GetCurrentMenu();
+					//if (m) m.Close();
+					return;
+				}
+			}
+		}
+	}
+	
+	void SetFocus(AkimboMenuButton button)
+	{
+		for (int i = 0; i < mButtons.Size(); i++)
+		{
+			bool theButton = (mButtons[i] == button);
+			mButtons[i].IsFocused = theButton;
+			if (theButton) mButton = i;
+		}
+	}
+	
+	// sadly we also need to handle menu events directly because menus are retarded..........
+	bool MenuEvent(int mkey, bool fromcontroller)
+	{
+		switch (mkey)
+		{
+			case Menu.MKEY_Up:
+				mMouse.IsEnabled = false;
+				
+				if (mButton > 0)
+				{
+					do
+					{
+						mButton--;
+					}
+					while (mButton > 0 && !mButtons[mButton].IsEnabled);
+				}
+				
+				SetFocus(mButtons[mButton]);
+				return true;
+				
+			case Menu.MKEY_Down:
+				mMouse.IsEnabled = false;
+				
+				if (mButton < mButtons.Size()-1)
+				{
+					do
+					{
+						mButton++;
+					}
+					while (mButton < mButtons.Size() && !mButtons[mButton].IsEnabled)
+				}
+				
+				SetFocus(mButtons[mButton]);
+				return true;
+				
+			case Menu.MKEY_Enter:
+				mButtons[mButton].Click();
+				return true;
+		}
+	
+		return false;
+	}
+}
+
+Struct TextInfo
+{
+	String Text;
+	Font mFont;
+	int FontColor;
+	double X, Y;
+	int Align;
+	
+	void SetText(String t, Font m, int col, double xpos, double ypos, int al = 0)
+	{
+		Text = t;
+		mFont = m;
+		FontColor = col;
+		X = xpos;
+		Y = ypos;
+		Align = al;
+	}
+}

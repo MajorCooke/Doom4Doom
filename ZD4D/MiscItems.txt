@@ -6,7 +6,7 @@ Class DebugFarMonstersToken : Inventory { Default { Inventory.MaxAmount 0x7FFFFF
 Class DebugFarBiggiesToken  : Inventory { Default { Inventory.MaxAmount 0x7FFFFFFF; }}
 Class DebugFarBossesToken   : Inventory { Default { Inventory.MaxAmount 0x7FFFFFFF; }}
 Class DebugFarMissilesToken : Inventory { Default { Inventory.MaxAmount 0x7FFFFFFF; }}
-
+//Class Nothing : Inventory { Default { Inventory.MaxAmount 0; } }
 Class NoD4DHudToken : Inventory { Default { Inventory.InterhubAmount 0; }}
 
 Class FireToken :    Inventory { Default { Inventory.InterhubAmount 0; }}

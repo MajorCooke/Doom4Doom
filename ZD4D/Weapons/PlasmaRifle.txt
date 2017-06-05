@@ -117,8 +117,8 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 		// Regular primary fire
 		
 		PrepareSpritesPrimaryFire:
-			TNT1 A 0 A_JumpIfInventory("StunBombActive",1,"PrepareSpritesStunBombFire");
-			Goto PrepareSpritesNoModsFire;
+			PRNF A 0 A_JumpIfInventory("StunBombActive",1,"PrepareSpritesStunBombFire");
+			Goto FireNormal;
 		
 		PrepareSpritesNoModsFire:
 			PRNF A 0;
