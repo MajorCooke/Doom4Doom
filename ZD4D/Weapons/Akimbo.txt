@@ -435,7 +435,8 @@ Class AkimboWeapon : Weapon
 				ACS_NamedExecute("ToggleDoubleTrouble",0,0,0,0);
 			}
 			if (invoker.LeftGun != "D4SuperShotgun" && invoker.RightGun != "D4SuperShotgun" && id != PSP_WEAPON)
-				return Destroy();
+				return ResolveState("Null");
+			return ResolveState(null);
 		}
 		Wait;
 	D4SuperShotgun.Fire:
