@@ -1,0 +1,348 @@
+// this element just draws the mouse cursor.
+class MMenuMouse : Element
+{
+	TextureID mMouse;
+	bool IsEnabled;
+	
+	override void OnCreate()
+	{
+		mMouse = TexMan.CheckForTexture("graphics/D3Mouse.png", TexMan.Type_Any);
+		IsEnabled = false;
+	}
+
+	override void Draw()
+	{
+		// don't draw if not enabled at all
+		if (!IsEnabled) return;
+		
+		// note: don't draw if using mouse...
+		if (m_use_mouse) return;
+	
+		vector2 mPos = GetMouseXY();
+		GetDrawer().DrawTexture(mMouse, false, mPos.x, mPos.y);
+	}
+}
+
+// this element is a button.
+class MMenuButton : Element
+{
+	protected bool IsDown;
+	protected bool IsClicked;
+	protected bool IsHovered;
+	
+	//
+	protected TextureID mNormal;
+	protected TextureID mHover;
+	protected TextureID mDisabled;
+	protected Font mFont;
+	
+	// these are for hover animation
+	private double mHoverAlpha;
+	
+	// public properties
+	String Text;
+	bool IsEnabled;
+	bool IsFocused;
+	
+	// get methods
+	// returns true if this button was clicked in this or previous tick
+	bool CheckClicked()
+	{
+		return IsClicked;
+	}
+	
+	// images
+	TextureID mButtonUp;
+	TextureID mButtonDown;
+	TextureID mButtonHover;
+	TextureID mButtonDisabled;
+
+	override void OnCreate()
+	{
+		IsDown = false;
+		IsEnabled = true;
+		IsFocused = false;
+		Text = "button";
+		
+		//
+		mButtonUp = TexMan.CheckForTexture("graphics/button1Up.png", TexMan.Type_Any);
+		mButtonDown = TexMan.CheckForTexture("graphics/button1Down.png", TexMan.Type_Any);
+		mButtonHover = TexMan.CheckForTexture("graphics/button1Hover.png", TexMan.Type_Any);
+		mButtonDisabled = TexMan.CheckForTexture("graphics/button1Disabled.png", TexMan.Type_Any);
+		mFont = Font.GetFont('tah09.bmf');
+	}
+	
+	override void Draw()
+	{
+		//
+		Rect r = GetClientRect();
+		Drawer d = GetDrawer();
+		if (!IsEnabled)
+		{
+			d.DrawTexture(mButtonDisabled, false, 0, 0);
+		}
+		else if (IsFocused && !IsDown)
+		{
+			d.DrawTexture(mButtonHover, false, 0, 0);
+		}
+		else if (!IsDown)
+		{
+			d.DrawTexture(mButtonUp, false, 0, 0);
+			if (mHoverAlpha > 0)
+				d.DrawTexture(mButtonHover, false, 0, 0, mHoverAlpha);
+		}
+		else
+		{
+			d.DrawTexture(mButtonDown, false, 0, 0);
+		}
+		
+		double alpha = 1.0;
+		double xOffset = 0;
+		double yOffset = 0;
+		if (!IsEnabled)
+		{
+			alpha = 0.6;
+		}
+		else if (IsDown)
+		{
+			alpha = 0.6;
+			xOffset+=1;
+			yOffset+=1;
+		}
+		d.DrawText(mFont, Font.CR_UNTRANSLATED, r.Width/2+xOffset, 4+yOffset, Text, alpha, Drawer.Align_Center);
+	}
+	
+	override bool Process(ElementEvent e)
+	{
+		if (!IsEnabled) return false;
+	
+		Rect r = GetClientRect();
+		r.X = 0;
+		r.Y = 0;
+		
+		if (e.Type >= UiEvent.Type_FirstMouseEvent && e.Type <= UiEvent.Type_LastMouseEvent)
+		{
+			vector2 m = GetMouseXY();
+			bool mouseInRect = (m.x >= r.X && m.x < r.X+r.Width &&
+								m.y >= r.Y && m.y < r.Y+r.Height);
+			IsHovered = mouseInRect;
+			
+			if (mouseInRect && e.Type == UiEvent.Type_LButtonDown)
+			{
+				IsDown = true;
+				MMenuElement(mParent).SetFocus(self);
+				return true;
+			}
+			else if (e.Type == UiEvent.Type_LButtonUp)
+			{
+				IsClicked = IsDown && IsHovered; // you can click, move mouse away and release, and it wont click - just like windows
+				IsDown = false;
+				return false;
+			}
+		}
+		
+		return false;
+	}
+	
+	override void Tick()
+	{
+		IsClicked = false;
+		
+		double hoverDelta = IsHovered ? 0.08 : -0.08;
+		mHoverAlpha += hoverDelta;
+		mHoverAlpha = clamp(mHoverAlpha, 0.0, 1.0);
+	}
+	
+	void Click()
+	{
+		IsClicked = true;
+	}
+}
+
+class MMenuElement : Element
+{
+	//
+	TextureID mDoom;
+	
+	//
+	MMenuButton mbResume;
+	MMenuButton mbNew;
+	MMenuButton mbLoad;
+	MMenuButton mbSave;
+	MMenuButton mbOptions;
+	MMenuButton mbQuit;
+	
+	//
+	MMenuMouse mMouse;
+	
+	// this is used for navigating with arrows
+	Array<MMenuButton> mButtons;
+	int mButton;
+	
+	private double mbPosY;
+	private MMenuButton AddButton(string text)
+	{
+		// button size = 138x21.
+		
+		Rect r = GetClientRect();
+		
+		MMenuButton button = new('MMenuButton');
+		button.Init();
+		AddChild(button);
+		button.mRect = Rect.FromXYWH(r.Width/2-138/2, mbPosY, 137, 20);
+		mbPosY += 26;
+		button.Text = text;
+		mButtons.Push(button);
+		
+		return button;
+	}
+	
+	// this makes save button disabled when you can't save
+	private void CheckCanSave()
+	{
+		bool canSave = true;
+		if (gamestate != GS_LEVEL)
+			canSave = false;
+		else if (consoleplayer < 0)
+			canSave = false;
+		else if (!players[consoleplayer].mo)
+			canSave = false;
+		else if (players[consoleplayer].mo.health <= 0)
+			canSave = false;
+		mbSave.IsEnabled = canSave;
+	}
+
+	override void OnCreate()
+	{
+		mRect = Rect.FromXYWH(0, 0, Screen.GetWidth(), Screen.GetHeight());
+		
+		// approximately tries to scale to 4:3 800x600, if the resolution is larger.
+		// otherwise at least try to make it readable (don't try to scale smaller than 1x1 px)
+		mScale = max(1.0, double(int(double(Screen.GetHeight())/600.0+1)));
+		
+		// load textures
+		mDoom = TexMan.CheckForTexture("M_DOOM", TexMan.Type_Any);
+		
+		// init buttons
+		mbPosY = 150;
+		mbNew = AddButton("New game");
+		mbLoad = AddButton("Load game");
+		mbSave = AddButton("Save game");
+		mbOptions = AddButton("Options");
+		if (gamestate == GS_LEVEL) mbResume = AddButton("Resume game");
+		mbQuit = AddButton("Quit");
+		
+		SetFocus((gamestate==GS_LEVEL)?mbResume:mbNew);
+		
+		//
+		mMouse = MMenuMouse(new('MMenuMouse').Init());
+		AddChild(mMouse);
+		mMouse.mRect = GetClientRect().Clone();
+		
+		CheckCanSave();
+	}
+
+	override void Draw()
+	{
+		Rect r = GetClientRect();
+		Drawer d = GetDrawer();
+		
+		// this is very important.
+		d.Dim(0x000000, 0.5, 0, 0, r.Width, r.Height);
+		d.DrawTexture(mDoom, false, r.Width/2-64, 48);
+	}
+	
+	override bool Process(ElementEvent e)
+	{
+		if (e.Type >= UiEvent.Type_FirstMouseEvent &&
+			e.Type <= UiEvent.Type_LastMouseEvent)
+		{
+			mMouse.IsEnabled = true;
+		}
+		
+		return false;
+	}
+	
+	override void Tick()
+	{
+		CheckCanSave();
+	
+		if (mbNew.CheckClicked())
+		{
+			Menu.SetMenu('PlayerclassMenu');
+		}
+		else if (mbLoad.CheckClicked())
+		{
+			Menu.SetMenu('LoadGameMenu');
+		}
+		else if (mbSave.CheckClicked())
+		{
+			Menu.SetMenu('SaveGameMenu');
+		}
+		else if (mbOptions.CheckClicked())
+		{
+			Menu.SetMenu('OptionsMenu');
+		}
+		else if (mbQuit.CheckClicked())
+		{
+			Menu.SetMenu('QuitMenu');
+		}
+		else if (mbResume && mbResume.CheckClicked())
+		{
+			Menu.GetCurrentMenu().Close();
+		}
+	}
+	
+	void SetFocus(MMenuButton button)
+	{
+		for (int i = 0; i < mButtons.Size(); i++)
+		{
+			bool theButton = (mButtons[i] == button);
+			mButtons[i].IsFocused = theButton;
+			if (theButton) mButton = i;
+		}
+	}
+	
+	// sadly we also need to handle menu events directly because menus are retarded..........
+	bool MenuEvent(int mkey, bool fromcontroller)
+	{
+		switch (mkey)
+		{
+			case Menu.MKEY_Up:
+				mMouse.IsEnabled = false;
+				
+				if (mButton > 0)
+				{
+					do
+					{
+						mButton--;
+					}
+					while (mButton > 0 && !mButtons[mButton].IsEnabled);
+				}
+				
+				SetFocus(mButtons[mButton]);
+				return true;
+				
+			case Menu.MKEY_Down:
+				mMouse.IsEnabled = false;
+				
+				if (mButton < mButtons.Size()-1)
+				{
+					do
+					{
+						mButton++;
+					}
+					while (mButton < mButtons.Size() && !mButtons[mButton].IsEnabled)
+				}
+				
+				SetFocus(mButtons[mButton]);
+				return true;
+				
+			case Menu.MKEY_Enter:
+				mButtons[mButton].Click();
+				return true;
+		}
+	
+		return false;
+	}
+}

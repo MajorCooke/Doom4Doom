@@ -112,10 +112,10 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	ReadyNoAmmo:
 		"####" A 1
 		{
-			A_TakeInventory("RLLockToken",32767,0);
-			A_TakeInventory("RLTargetToken",32767,0);
-			A_TakeInventory("RocketFired",32767,0);
-			A_TakeInventory("TripleShot",32767,0);
+			A_SetInventory("RLLockToken",0);
+			A_SetInventory("RLTargetToken",0);
+			A_SetInventory("RocketFired",0);
+			A_SetInventory("TripleShot",0);
 		}
 		Goto Ready;
 	ReadyNoSprite:

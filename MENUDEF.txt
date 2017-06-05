@@ -36,6 +36,14 @@ LISTMENU "MainMenu"
 }
 
 //==============================================================================
+
+ListMenu "AkimboSideSelect"
+{
+	Class "AkimboMenu"
+}
+
+
+//==============================================================================
 //==============================================================================
 // Options
 //==============================================================================
@@ -149,12 +157,13 @@ OptionMenu "D4DKeybinds"
 	StaticText ""
 	Control "Switch Weapon Mods",			"+user1"
 	Control "Melee Attack",					"+user2"
-	Control "Select next grenade type",		"Give GrenadeSwitchNext"
-	Control "Select previous grenade type",	"Give GrenadeSwitchPrev"
+	Control "Cycle Grenade (Next)",		"Give GrenadeSwitchNext"
+	Control "Cycle Grenade (Prev)",	"Give GrenadeSwitchPrev"
 	Control "Throw Grenade",				"+reload"
 	Control "Cancel Demon Rune",			"+user4"
 	StaticText ""
 	StaticText "Special Use", 1
+	Control "Akimbo Menu (Slot 9)",			"+user3"
 	Control "Buy Crate (500cr)",		"give BuyCrate"
 	Control "Brofist (when available)",		"pukename D4DoomDoll"
 	Control "Chaingun Special Mode", 		"pukename D4ToggleSoviet"
@@ -176,6 +185,7 @@ OptionMenu "D4DWeaponsMenu"
 	Control		"Slot 6 (Plasma, LightningGun)",			"slot 6"
 	Control		"Slot 7 (Static, Vortex, Gauss)",			"slot 7"
 	Control		"Slot 8 (BFG, Carrion)",					"slot 8"
+	Control		"Slot 9 (Akimbo)",							"slot 9"
 	StaticText ""
 	StaticText "By Specific Weapon",1
 	Control		"Fist",						"use D4DFist"
@@ -194,6 +204,7 @@ OptionMenu "D4DWeaponsMenu"
 	Control		"BFG",						"use D4BFG"
 	Control		"Carrion Cannon",			"use D4CarrionCannon"
 	Control		"Chainsaw",					"use D4Chainsaw"
+	Control		"Akimbo (requires 2 guns)", "use AkimboWeapon"
 }
 
 OptionMenu "D4DPerformanceOptions"
@@ -233,7 +244,6 @@ OptionMenu "D4DDisplayOptions"
 	StaticText "EFFECTS OPTIONS", "Gold"
 	StaticText "Weapons", "White"
 	Option "Electrical Texture",			"D4D_BeamTexture",		"BeamTexture"
-	Option "Extra Turret Gun Noise",		"ExtraTurretSound",		"OnOff"
 	Option "Spawn Casings",					"user_Casings",				"OnOff"
 	Option "Short Casing Lives",			"user_ShortCasingLives", 	"YesNo"
 	Option "Silent Casings",				"user_SilentCasings", 		"YesNo"
@@ -387,52 +397,6 @@ OptionValue "LootType"
 {
 	0, "Only Chainsaw"
 	1, "All"
-}
-
-OptionMenu "VideoOptions"
-{
-	Title "$DSPLYMNU_TITLE"
-	
-	Submenu "$DSPLYMNU_GLOPT", 					"OpenGLOptions"
-	Submenu "$DSPLYMNU_SCOREBOARD", 			"ScoreboardOptions"
-	StaticText " "
-	Slider "$DSPLYMNU_SCREENSIZE",				"screenblocks", 				3.0, 12.0, 1.0, 0
-
-	Slider "$DSPLYMNU_GAMMA",					"Gamma",						0.75, 3.0, 0.05, 2
-	Slider "$DSPLYMNU_BRIGHTNESS",				"vid_brightness",				-0.8,0.8, 0.05
-	Slider "$DSPLYMNU_CONTRAST",				"vid_contrast",	   				0.1, 3.0, 0.1
-
-	Option "$DSPLYMNU_VSYNC",					"vid_vsync", "OnOff"
-	Option "$DSPLYMNU_CAPFPS",					"cl_capfps", "OffOn"
-
-	StaticText " "
-	Option "$DSPLYMNU_WIPETYPE",				"wipetype", "Wipes"
-
-	IfOption(Windows)
-	{
-		Option	"$DSPLYMNU_SHOWENDOOM",			"showendoom", "Endoom"
-		//Option "$DSPLYMNU_PALLETEHACK", 		"vid_palettehack", "OnOff"
-		//Option "$DSPLYMNU_ATTACHEDSURFACES", 	"vid_attachedsurfaces", "OnOff"
-	}
-	
-	Option "$DSPLYMNU_STRETCHSKY",				"r_stretchsky", "OnOff"
-	Option "$DSPLYMNU_DRAWFUZZ",				"r_drawfuzz", "Fuzziness"
-	Slider "$DSPLYMNU_TRANSSOUL",				"transsouls", 0.25, 1.0, 0.05, 2
-	Option "$DSPLYMNU_FAKECONTRAST",			"r_fakecontrast", "Contrast"
-	Option "$DSPLYMNU_ROCKETTRAILS",			"cl_rockettrails", "RocketTrailTypes"
-	Option "Set To Sprites-See D4D options",	"cl_bloodtype", "BloodTypesLocked"
-	Option "Set To Sprites-See D4D options",	"cl_pufftype", "PuffTypesLocked"
-	Slider "$DSPLYMNU_MAXPARTICLES",			"r_maxparticles", 100, 20000, 100, 0
-	Slider "$DSPLYMNU_MAXDECALS",				"cl_maxdecals", 0, 10000, 100, 0
-	Option "$DSPLYMNU_PLAYERSPRITES",			"r_drawplayersprites", "OnOff"
-	Option "$DSPLYMNU_DEATHCAM",				"r_deathcamera", "OnOff"
-	Option "$DSPLYMNU_TELEZOOM",				"telezoom", "OnOff"
-	Slider "$DSPLYMNU_QUAKEINTENSITY",			"r_quakeintensity", 0.0, 1.0, 0.05, 2
-	Option "$DSPLYMNU_NOMONSTERINTERPOLATION",	"nomonsterinterpolation", "NoYes"
-	Slider "$DSPLYMNU_MENUDIM",					"dimamount", 0, 1.0, 0.05, 2
-	ColorPicker "$DSPLYMNU_DIMCOLOR",			"dimcolor"
-	Slider "$DSPLYMNU_MOVEBOB",			"movebob", 0, 1.0, 0.05, 2
-	Slider "$DSPLYMNU_STILLBOB",		"stillbob", 0, 1.0, 0.05, 2
 }
 
 OptionValue BloodTypesLocked

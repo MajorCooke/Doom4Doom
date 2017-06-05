@@ -43,6 +43,9 @@ Class D4BFG : Doom4Weapon
 	
 	States
 	{
+	Spawn:
+		WPPK I -1;
+		Stop;
 	Ready:
 		WEP7 A 0 
 		{
@@ -161,9 +164,6 @@ Class D4BFG : Doom4Weapon
 			}
 		}
 		Loop;
-	Spawn:
-		WPPK I -1;
-		Stop;
 	}
 }
 

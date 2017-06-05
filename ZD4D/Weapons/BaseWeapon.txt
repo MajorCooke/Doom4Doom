@@ -12,6 +12,8 @@ Class Doom4Weapon : Weapon
 	const PunchOverlay = 52;
 	const PunchSway = 53;
 	
+	Inventory Modules[2];
+	Inventory ActiveMod;
 	
 	Default 
 	{
@@ -908,7 +910,8 @@ Class BulletTracerFX : Actor
 	
 	virtual void FaceMoveDir()
 	{
-		A_FaceMovementDirection();
+		A_FaceTracer();
+		//A_FaceMovementDirection();
 		//pitch *= -1;
 		A_ChangeVelocity(cos(pitch), 0, sin(pitch), CVF_RELATIVE|CVF_REPLACE);
 	}
@@ -930,10 +933,11 @@ Class BulletTracerFX : Actor
 			if (A_CheckSight("Null") || !user_inv)
 			{	return ResolveState("Null");	}
 			
-			//if (tracer) A_FaceTracer(0,0);
+			if (tracer) A_FaceTracer(0,0);
 			//else FaceMoveDir();
 			//FaceMoveDir();
-			A_FaceMovementDirection();
+			
+			else A_FaceMovementDirection();
 			if (user_inv == ModelOnly)
 			{	
 				A_SpawnItemEx("BulletSmallTracer",0,0,0,vel.x*200,vel.y*200,vel.z*200,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_ABSOLUTEVELOCITY|SXF_TRANSFERPITCH);

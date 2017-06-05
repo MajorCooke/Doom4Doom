@@ -98,23 +98,27 @@ The mod has quite a few custom keys to use. Make sure to go under
      game, this key is gonna throw one.
 
      * Special Use *
+	 
+1.6	 Akimbo Menu: Only available when using the Akimbo system.
+	 Opens up a menu with two rows of the weapons, signifying which weapon
+	 can be changed. Only one of each weapon can be equipped at any time.
 
-1.6  Buy Crate (500cr): At any point in game, you can press this key and 
+1.7  Buy Crate (500cr): At any point in game, you can press this key and 
      it will spawn a random item for the price of 500 credits. Good for when 
      you just don't have anything else to buy in the upgrade store. This
      crate can be upgraded (through upgrade menu) to contain better items.
 
-1.7  Brofist (when available): Because you know you want to do it again.
+1.8  Brofist (when available): Because you know you want to do it again.
 
-1.8  Chaingun Special Mode: Triggers the "special mode" of the chaingun if
+1.9  Chaingun Special Mode: Triggers the "special mode" of the chaingun if
      the required criteria is met.
 
-1.9  Panic Button (clear gibs): As it says, by pressing this key, all gibs in 
+1.10 Panic Button (clear gibs): As it says, by pressing this key, all gibs in 
      the current map will disappear. Good for if you went too overboard with the
      gore settings and it's lagging on you.
 
-1.10  Weapon Keybinds: In this sub menu, you can bind weapons to keys per slot
-      or per weapon.
+1.11 Weapon Keybinds: In this sub menu, you can bind weapons to keys per slot
+     or per weapon.
 
 
 
@@ -525,13 +529,13 @@ Plasma Rifle: Projectile based, rapid fire weapon.
    paralyzing any monster near the explosion. Cyberdemons and Masterminds are 
    unaffected.
 
-Lightning Gun: Your highly damaging, ammo eater, beam lightning gun.
+Lightning Gun: Your highly damaging, ammo eating beam lightning gun.
  - Upgrade 1, Ammo Saving: Allows the weapon to use less ammo randomly.
  - Upgrade 2, Range: Increases the maximum range for the weapon.
  - Upgrade 3, Damage: Increases damage of the weapon all around.
  - Upgrade 4, Chain Lightning: Allows to use the chain lightning alt fire.
  
- Vortex Rifle: Basically a railgun, with a scope. Scope also increases damage
+Vortex Rifle: Basically a railgun, with a scope. Scope also increases damage
   ever so slightly. Primary fire pierces targes while unzoomed.
   - Upgrade 1, Extra Base Damage: Increases the non-scoped damage.
   - Upgrade 2, Ammo Saving: Allows the weapon to use less ammo per shot.
@@ -587,6 +591,8 @@ BFG: Ammo is very scarce, but for good reason. The energy ball fired from this
         aimed location. This can only be done once per projectile.
    
 Carrion Cannon: See below.
+
+Akimbo System: See below
    
 Grenades: The following 3 types of grenades are unlimited, but they have a
           regenerating time of about 10 seconds, is said time, you cannot use any 
@@ -602,6 +608,7 @@ Grenades: The following 3 types of grenades are unlimited, but they have a
 - d4d_JumpExploit - 
 Grants disproportionate jumping height when multi jump is tapped fast, by stacking z-speed.
 This allows players to go flying sky high. Set this to true if you enjoy flying sky high. 
+To do so, press the ~ (tilde) key and type in "d4d_JumpExploit true" without the "".
 Not all the developers agree it was an exploit so we left it as a toggle, and this is your
 reward for getting through this. Congratulations!
 
@@ -656,6 +663,63 @@ reward for getting through this. Congratulations!
 - Upgrade 3, Vorpal Stinger: Primary pains the target every 7 tics.
 - Upgrade 4, Argent Accumulator: Alt fire portals last longer.
 
+================================================================================
+                                  Akimbo
+================================================================================
+
+- What is it?
+	
+	Akimbo gun, inspired by Goldeneye 007 on the Nintendo 64, is a system 
+	that allows you to wield two different guns at once. You 'have' the
+	system at the very start no matter what, but you can't akimbo without
+	at least two guns from this mod only.
+	
+	See last question for exceptions.
+	
+- How do I get it?
+	
+	When you have more than one gun available, you can activate the (default:
+	slot 9) key and you'll bring up the akimbo weapon.
+	
+- Do purchased mods and upgrades work with the weapons?
+
+	Yes.
+
+- What are the mechanics I should know?
+
+		New keybinds:
+	
+			Akimbo Menu
+	
+		Changed keybind FUNCTIONALITY:
+	
+			Cycle Grenade (Next)	-->		Switch Right Mod
+			Cycle Grenade (Prev)	-->		Switch Left Mod
+			Quick Melee				-->		Switch Weapon Hands
+			Switch Mod				-->		Right Weapon Secondary Fire
+			Throw Grenade			-->		Left Weapon Secondary Fire
+			Secondary Fire			-->		Right Weapon Primary Fire
+			Primary Fire			-->		Left Weapon Primary Fire
+			
+	By functionality, this means that keybind will perform something different
+	to accomodate two weapons at once.
+	
+	This also mean you have no grenades or quick melee available to you.
+	
+	All hold-to-secondary mechanics are now toggles instead of holding since
+	some keyboards tend to choke on more than 4 keypresses at once, and not
+	everyone has the luxury of affording a gaming keyboard.
+	
+	Some of said toggles are instant activation of the secondary attacks, like
+	the shotgun's grenade and triple burst mods. 
+			
+- What about dual wielding two guns?
+
+	Not planned, but this may change at any time.
+	
+- Why no grenades, quick melee, fist or chainsaw?
+
+	Technical limitations. Their future is uncertain.
 
 
 //------------------------------------------------------------------------------

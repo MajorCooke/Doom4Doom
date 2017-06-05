@@ -14,6 +14,7 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 	{
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 2;
+		D4AbstractMonster.CashAmount 1;
 		Health 50;
 		Radius 16;
 		Height 56;
@@ -366,6 +367,7 @@ Class D4OldLostSoulNoCash : D4AbstractMonster
 	{
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 2;
+		D4AbstractMonster.CashAmount 1;
 		Health 100;
 		Radius 16;
 		Height 56;
@@ -489,6 +491,7 @@ Class D4LostSoul : D4LostSoulNoCash
 	{
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 4;
+		D4AbstractMonster.CashAmount 10;
 		Health 50;
 		+DONTCORPSE
 		//Cash drops = 10
@@ -502,6 +505,7 @@ Class D4OldLostSoul : D4OldLostSoulNoCash
 	{
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 4;
+		D4AbstractMonster.CashAmount 10;
 		//Cash drops = 10
 		DropItem "C10";
 		+DONTCORPSE

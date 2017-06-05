@@ -844,8 +844,10 @@ Class PowerD4Haste : PowerSpeed
 		if (!Owner || Owner.Health < 1)
 			return EndEffect();
 			
+		// Ensure the owner has the double firing speed at all times when haste
+		// is active.
 		let inv = PowerD4DFS(Owner.FindInventory("PowerD4DFS"));
-		if (!inv) Owner.A_GiveInventory("PowerD4DFS");
+		if (!inv) 	Owner.A_GiveInventory("PowerD4DFS");
 		else		inv.EffectTics = EffectTics;
 		
 		if (globalfreeze || level.Frozen)

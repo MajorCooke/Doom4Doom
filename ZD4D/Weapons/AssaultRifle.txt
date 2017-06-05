@@ -130,9 +130,9 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 	ResumeReadySequence:
 		"####" "#" 0
 		{
-			if(countinv("TacticalScopeActive")>=1)
+			if(countinv("TacticalScopeActive"))
 			{	ACS_NamedExecute("ModSelectedText",0,1,0,0); }	//print Tactical scope
-			if(countinv("MicroMissilesActive")>=1)
+			if(countinv("MicroMissilesActive"))
 			{	ACS_NamedExecute("ModSelectedText",0,2,0,0); }	//print Micro missiles
 			
 			if (CountInv("MGZoomToken"))

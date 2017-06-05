@@ -39,6 +39,7 @@ version "2.5"
 #include "ZD4D/Weapons/VortexRifle.txt"
 #include "ZD4D/Weapons/Carrion.txt"
 #include "ZD4D/Weapons/Akimbo.txt"
+#include "ZD4D/Weapons/AkimboFunctions.txt"
 
 
 
@@ -76,8 +77,10 @@ version "2.5"
 #include "ZD4D/Rune/PlayerRevenant.txt"
 #include "ZD4D/Rune/PlayerSummoner.txt"
 
+
 // Misc
-#include "ZD4D/Event.txt"
-#include "ZD4D/Menu.txt"
-#include "ZD4D/MenuItems.txt"
+#include "ZGui/ZGui.txt"
+#include "ZGui/Event.txt"
+#include "ZGui/Menu.txt"
+#include "ZGui/MenuItems.txt"
 #include "ZStatusBars.txt"

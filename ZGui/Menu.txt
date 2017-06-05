@@ -1,0 +1,354 @@
+//==============================================================================
+//
+// MenuItemList 
+//
+// This is responsible for storing all information such as the custom menus,
+// items, and quantity counts for updating the player once purchases are made.
+//==============================================================================
+Class MenuItemList : Object ui
+{
+	Array<String> ItemNames;
+	Array<UInt> Count;
+	bool req;
+	Actor plr;
+	
+	void Init()
+	{
+		plr = null;
+		ItemNames.Clear();
+		Count.Clear();
+	}
+	//==========================================================================
+	void Reset()
+	{
+		plr = null;
+		ItemNames.Clear();
+		Count.Clear();
+	}
+	
+	//==========================================================================
+	// The 'find' function never returns where the entity actually is so pairing
+	// it with the Count array couldn't possibly work.
+	int FindItem (String item = "", bool getCount = false, bool autoadd = false, bool silent = true)
+	{
+		// Handle errors first.
+		if (item.Length() < 1)
+		{
+			if (!silent)
+			{
+				Console.Printf("Item field was empty.");
+			}
+			return -1;
+		}
+		
+		if (item == 'null')	return -1;
+		
+		if (ItemNames.Size() < 1)
+		{
+			Console.Printf("ItemNames is empty.");
+			return -1;
+		}
+		
+		Class<Inventory> ch = item;
+		if (!ch)
+		{
+			Console.Printf(item.." is not a valid item.");
+			return -1;
+		}
+		
+		if (!plr)
+		{
+			plr = players[consoleplayer].mo;
+			if (!plr)
+			{
+				Console.Printf("Player doesn't exist.");
+				return -1;
+			}
+		}
+		int i = 0;
+		// Error check passed -- find the item.
+		for (i = 0; i < ItemNames.Size(); i++)
+		{
+			// Check for case sensitivity.
+			if (item ~== ItemNames[i])
+			{
+				// If the count is desired, return that instead of the index.
+				if (getCount)
+				{
+					return Count[i];
+				}
+				return i;
+			}
+		}
+		
+		// If desired, auto-add the item to the list and get the count or index.
+		if (autoadd)
+		{
+			int am = plr.CountInv(ch);
+			if (am > 0)
+			{
+				ItemNames.Push(item);
+				Count.Push(am);
+			}
+			return (getCount ? am : i);
+		}
+		
+		
+		// Wasn't found.
+		return -1;
+	}
+	
+	//==========================================================================
+	// Finds the required inventory amount of an item, via a subitem.
+	int FindRequirementCount(String item, int which = 0)
+	{
+		if (item.Length() > 0)
+		{
+			Class<Inventory> check = item;
+			if (!check)
+			{
+				Console.printf(item.." is not a valid item.");
+				return 0;
+			}
+			if (plr)
+			{
+				let ins = UpgradeItem(plr.FindInventory(check,true));
+				if (ins)
+				{
+					String names[4];
+					int quan[4];
+					
+					names[0] = ins.Req1;
+					names[1] = ins.Req2;
+					names[2] = ins.Req3;
+					names[3] = ins.Req4;
+					
+					quan[0] = ins.ReqQ1;
+					quan[1] = ins.ReqQ2;
+					quan[2] = ins.ReqQ3;
+					quan[3] = ins.ReqQ4;
+					
+					which = Clamp(which,0,names.Size() - 1);
+					Class<Inventory> c2 = names[which];
+					if (c2)
+					{
+						return quan[which];
+					}
+				}
+			}
+		}
+		return 0;
+	}
+	
+	//==========================================================================
+	// Adds/Updates an item depending on if it's already in or not. First checks
+	// to make sure it's valid. Returns the index of where it was positioned
+	// should it be needed.
+	int SetItem (String item, int amount, bool add = false)
+	{
+		Class<Inventory> check = item;
+		if (check)
+		{
+			if (ItemNames.Size() > 0)
+			{
+				// If the item already exists, update the count.
+				for (int i = 0; i < ItemNames.Size(); i++)
+				{
+					if (check == ItemNames[i])
+					{
+						Count[i] = (add ? (Count[i] + amount) : amount);
+						return i;	// Return the index, just in case if needed.
+					}
+				}
+				
+				// Otherwise make a new slot for it.
+			}
+			ItemNames.Push(item);
+			Count.Push(amount);
+			return ItemNames.Size();
+		}
+		
+		// Item isn't real.
+		Console.Printf(item.." is not a valid item!");
+		return -1;
+	}
+	/*
+	override void OnDestroy()
+	{
+		Console.Printf("MenuItemList was destroyed.");
+		Super.OnDestroy();
+	}
+	*/
+}
+
+
+//==============================================================================
+//
+//
+//
+//==============================================================================
+
+Class D4DListMenu : ListMenu
+{
+	bool started, UpgradeMenu, OneValidItem;
+	MenuItemList m;
+	
+	//==========================================================================
+	override void Init(Menu parent = NULL, ListMenuDescriptor desc = NULL)
+	{
+		Super.Init(parent, desc);
+		
+		let p1 = D4DListMenu(parent);
+		if (p1)	
+		{
+			m = p1.m;
+			return;
+		}
+		
+		let p2 = D4DOptionMenuUpgrades(parent);
+		if (p2)	
+		{
+			m = p2.m;
+			return;
+		}
+		
+		m = new("MenuItemList");
+		m.Reset();
+		m.plr = players[consoleplayer].mo;
+		
+		if (m.plr)
+		{
+			int cashamt = m.plr.CountInv("D4DCash");
+			m.SetItem("D4DCash", cashamt);
+			//Console.Printf("Cash pushed.");
+		}
+	}
+	
+	//==========================================================================
+	override bool MenuEvent (int mkey, bool fromcontroller)
+	{
+		if (mkey == MKEY_Back)
+		{
+			Close();
+			let cur = GetCurrentMenu();
+			MenuSound (cur != null ? "menu/backup" : "menu/clear");
+			if (cur == null)
+			{
+				if (m && m.ItemNames.Size() > 0)
+				{
+					D4DHandler.SendNetworkEvent("EnableReception",0,0,0);
+						
+					for (int i = 0; i < m.ItemNames.Size(); i++)
+					{
+						D4DHandler.SendNetworkEvent(m.ItemNames[i],m.Count[i],0,0);
+					}
+					D4DHandler.SendNetworkEvent("DisableReception",0,0,0);
+					D4DHandler.SendNetworkEvent("UpdateItems",0,0,0);
+				}
+				else
+				{
+					Console.Printf("ItemSize is zero or MenuItemList doesn't exist.");
+				}
+				if (m) m.Destroy();
+			}
+			return true;
+		}
+		return Super.MenuEvent(mkey, fromcontroller);
+	}
+}
+
+//==============================================================================
+Class D4DOptionMenuUpgrades : OptionMenu
+{
+	bool started, full, anything;
+	MenuItemList m;
+	
+	void NotifyItems()
+	{
+		if (m)
+		{
+			int itemsize = mDesc.mItems.Size();
+			// notify all items that the menu was just created.
+			for (int i = 0; i < itemsize; i++)
+			{
+				let i1 = OptionMenuItemPurchase(mDesc.mItems[i]);
+				if (i1)
+				{
+					if (!i1.m)
+						i1.m = m;
+					i1.OnMenuCreatedOld();
+					continue;
+				}
+				
+				let i2 = OptionMenuItemDisplayInt(mDesc.mItems[i]);
+				if (i2)
+				{
+					if (!i2.m)
+						i2.m = m;
+					i2.OnMenuCreatedOld();
+					continue;
+				}
+				
+				let i3 = OptionMenuItemSubmenuReqs(mDesc.mItems[i]);
+				if (i3)
+				{
+					if (!i3.m)
+						i3.m = m;
+					i3.OnMenuCreatedOld();
+					continue;
+				}
+				
+				let i4 = OptionMenuItemSubmenuWeapon(mDesc.mItems[i]);
+				if (i4)
+				{
+					if (!i4.m)
+						i4.m = m;
+					i4.OnMenuCreatedOld();
+					continue;
+				}
+			}
+		}
+		else
+		{
+			Console.Printf("This menu must be opened via the keybinding.");
+		}
+	}
+	
+	//==========================================================================
+	override void Init(Menu parent, OptionMenuDescriptor desc)
+	{
+		Super.Init(parent, desc);
+		
+		let p1 = D4DListMenu(parent);
+		if (p1)	
+		{
+			m = p1.m;
+		}
+		
+		let p2 = D4DOptionMenuUpgrades(parent);
+		if (p2)	
+		{
+			m = p2.m;
+		}
+		NotifyItems();
+	}
+	
+	//==========================================================================
+	override bool MenuEvent (int mkey, bool fromcontroller)
+	{
+		// Using a custom int here so I can easily have different behaviors
+		// while preserving the core functionality.
+		if (mkey == -1)
+		{
+			Close();
+			let cur = D4DOptionMenuUpgrades(GetCurrentMenu());
+			if (cur)
+			{
+				cur.NotifyItems();
+			}
+			return true;
+		}
+		return Super.MenuEvent(mkey, fromcontroller);
+	}	
+}
+

@@ -1,0 +1,41 @@
+class MMenu : ListMenu
+{
+	MMenuElement e;
+
+	override void Init(Menu parent, ListMenuDescriptor desc)
+	{
+		Super.Init(parent, desc);
+		DontDim = true;
+		e = MMenuElement(new('MMenuElement').Init());
+	}
+
+	override bool OnUIEvent(UiEvent ev)
+	{
+		if (e) return e.OnProcessUi(ev);
+		return false;
+	}
+	
+	override bool OnInputEvent(InputEvent ev)
+	{
+		if (e) return e.OnProcessInput(ev);
+		return false;
+	}
+
+	override void Drawer()
+	{
+		if (e) e.OnDraw();
+	}
+
+	override void Ticker()
+	{
+		if (e) e.OnTick();
+	}
+	
+	// this is magic and I have no idea where it runs from, just null it here
+	override bool MenuEvent(int mkey, bool fromcontroller)
+	{
+		if (e && e.MenuEvent(mkey, fromcontroller))
+			return true;
+		return Menu.MenuEvent(mkey, fromcontroller);
+	}
+}

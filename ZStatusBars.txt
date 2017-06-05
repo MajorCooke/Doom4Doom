@@ -422,7 +422,7 @@ Class Doom4StatusBar : BaseStatusBar
 			if (ammo1)
 			{
 				DrawBar("AMMOBAR1", "AMMOBAR0", ammo1.Amount, ammo1.Default.MaxAmount, (881, 693), 0, SHADER_REVERSE, imageAlignment);
-				DrawBar("AMMOBAR2", "AMMOBAR0", ammo1.Amount - ammo1.MaxAmount, ammo1.BackpackMaxAmount - ammo1.Default.MaxAmount, (881, 693), 0, SHADER_REVERSE, imageAlignment);
+				DrawBar("AMMOBAR2", "AMMOBAR0", ammo1.Amount - ammo1.Default.MaxAmount, ammo1.BackpackMaxAmount - ammo1.Default.MaxAmount, (881, 693), 0, SHADER_REVERSE, imageAlignment);
 				DrawString(mQ4SmallHudFont, FormatNumber(ammo1.Amount, 1, 6), (983,676), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
 			}			
 			
