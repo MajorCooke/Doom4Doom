@@ -911,7 +911,7 @@ Class AkimboWeapon : Weapon
 			return ResolveState("D4AssaultRifle.VeryReady");
 		}
 	D4AssaultRifle.VeryReady:
-		"####" "#####" 1 AkWeaponReady(0, true);
+		"####" "#####" 1 AkWeaponReady(WRF_NOSECONDARY, true);
 		Loop;
 	//-------------------------------------------------------
 	// Select sequence
@@ -1173,7 +1173,7 @@ Class AkimboWeapon : Weapon
 			ARMA D 1      { AkOffsetD(0.0, 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
 			ARMA D 1;
 			ARMA D 0 AkRefire("D4AssaultRifle.MissilesFire");
-			"####" "#" 0 AkWeaponReady(WRF_NOPRIMARY);
+			"####" "#" 0 AkWeaponReady(WRF_NOFIRE);
 			Goto D4AssaultRifle.MissilesReady;
 		D4AssaultRifle.MissilesFire2:
 			ARMA E 1 Bright  AkOffsetD(1.0, 33.0);
@@ -1182,7 +1182,7 @@ Class AkimboWeapon : Weapon
 			ARMA G 1      { AkOffsetD(0.0, 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
 			ARMA G 1;
 			ARMA G 0 AkRefire("D4AssaultRifle.MissilesFire");
-			"####" "#" 0 AkWeaponReady(WRF_NOPRIMARY);
+			"####" "#" 0 AkWeaponReady(WRF_NOFIRE);
 			Goto D4AssaultRifle.MissilesReady;
 		D4AssaultRifle.MissilesFire3:
 			ARMA H 1 Bright AkOffsetD(1.0, 33.0);
@@ -1191,7 +1191,7 @@ Class AkimboWeapon : Weapon
 			ARMA J 1      { AkOffsetD(0.0, 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
 			ARMA J 1;
 			ARMA J 0 AkRefire("D4AssaultRifle.MissilesFire");
-			"####" "#" 0 AkWeaponReady(WRF_NOPRIMARY);
+			"####" "#" 0 AkWeaponReady(WRF_NOFIRE);
 			Goto D4AssaultRifle.MissilesReady;
 		D4AssaultRifle.MissilesFire4:
 			ARMA K 1 Bright AkOffsetD(1.0, 33.0);
@@ -1200,7 +1200,7 @@ Class AkimboWeapon : Weapon
 			ARMA M 1	{	AkOffsetD(0.0, 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
 			ARMA M 1;
 			ARMA M 0 AkRefire("D4AssaultRifle.MissilesFire");
-			"####" "#" 0 AkWeaponReady(WRF_NOPRIMARY);
+			"####" "#" 0 AkWeaponReady(WRF_NOFIRE);
 			Goto D4AssaultRifle.MissilesReady;
 		D4AssaultRifle.MissilesFire5:
 			ARMA N 1 Bright AkOffsetD(1.0, 33.0);
@@ -1209,7 +1209,7 @@ Class AkimboWeapon : Weapon
 			ARMA P 1 	{	AkOffsetD(0.0, 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
 			ARMA P 1	;
 			ARMA P 0 AkRefire("D4AssaultRifle.MissilesFire");
-			"####" "#" 0 AkWeaponReady(WRF_NOPRIMARY);
+			"####" "#" 0 AkWeaponReady(WRF_NOFIRE);
 			Goto D4AssaultRifle.MissilesReady;
 		D4AssaultRifle.MissilesFire6:
 			ARMA Q 1 Bright AkOffsetD(1.0, 33.0);
@@ -1218,7 +1218,7 @@ Class AkimboWeapon : Weapon
 			ARMA F 1      { AkOffsetD(0.0, 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
 			ARMR F 1;
 			ARMR F 0 AkRefire("D4AssaultRifle.MissilesFire");
-			"####" "#" 0 AkWeaponReady(WRF_NOPRIMARY);
+			"####" "#" 0 AkWeaponReady(WRF_NOFIRE);
 			Goto D4AssaultRifle.MissilesReady;
 
 	//==========================================================================
@@ -1247,7 +1247,7 @@ Class AkimboWeapon : Weapon
 		{
 			if (!CountInv("SpinUpCount")) { return ResolveState("D4Chaingun.ReadySpriteSetup"); }
 			
-			AkWeaponReady(0, true);
+			AkWeaponReady(WRF_NOSECONDARY, true);
 			return ResolveState(null);
 		}
 		Loop;
@@ -1298,7 +1298,7 @@ Class AkimboWeapon : Weapon
 			return ResolveState(null);
 		}
 	D4Chaingun.RPF:
-		"####" "#" 1 AkWeaponReady(0, true);
+		"####" "#" 1 AkWeaponReady(WRF_NOSECONDARY, true);
 		Loop;
 	//-------------------------------------------------------
 	// Regular fire
@@ -1357,7 +1357,7 @@ Class AkimboWeapon : Weapon
 	D4Chaingun.SpinDown:
 		---- A 1
 		{
-			AkWeaponReady(0,true);
+			AkWeaponReady(WRF_NOSECONDARY,true);
 			
 			
 			if (CountInv("FrameTimeLeft") < 1)
@@ -2104,7 +2104,7 @@ Class AkimboWeapon : Weapon
 			Goto ContinueReady;
 			
 	D4PlasmaRifle.ContinueReady:
-		"####" AAAAAAAAA 1 AkWeaponReady(0, true);
+		"####" AAAAAAAAA 1 AkWeaponReady(WRF_NOSECONDARY, true);
 		Loop;
 	
 	D4PlasmaRifle.Overlay.HeatGeneration:
@@ -2377,7 +2377,12 @@ Class AkimboWeapon : Weapon
 		
 	D4StaticRifle.ReadyNoHolding:
 		STRF A 1;
-		STRF A 0 A_Refire("D4StaticRifle.ReadyNoHolding");
+		STRF A 0 
+		{
+			AkWeaponReady(WRF_NOFIRE);
+			AkRefire("D4StaticRifle.ReadyNoHolding");
+			AkRefire("D4StaticRifle.ReadyNoHolding",true);
+		}
 	D4StaticRifle.Ready:
 		STRF A 0 
 		{	
@@ -2413,18 +2418,20 @@ Class AkimboWeapon : Weapon
 		{
 			if (CountInv("StaticRifleChargingToken") >= 20)
 			{
+				int id = OverlayID() < 0 ? OV_LeftWeapon : OV_RightWeapon;
 				if (CountInv("StaticUpgrade4"))
 				{
-					AkOverlay(SR_Fire,"D4StaticRifle.Overlay.Fire");
-					AkOverlay(SR_Anim,"D4StaticRifle.Overlay.Anim");
+					
+					AkOverlay(id + SR_Fire,"D4StaticRifle.Overlay.Fire");
+					AkOverlay(id + SR_Anim,"D4StaticRifle.Overlay.Anim");
 					if (!CountInv("StaticChargeDrain"))
 					{	A_GiveInventory("StaticChargeDrain",1);		}
 					return ResolveState("D4StaticRifle.FireWatcher");
 				}
 				else
 				{	
-					AkOverlay(SR_Fire,"D4StaticRifle.Overlay.Fire");
-					AkOverlay(SR_Anim,"D4StaticRifle.Overlay.Anim");
+					AkOverlay(id + SR_Fire,"D4StaticRifle.Overlay.Fire");
+					AkOverlay(id + SR_Anim,"D4StaticRifle.Overlay.Anim");
 					
 					// It's important that the tics be updated if the animation 
 					// under (Overlay.)Anim state is changed at all.
@@ -2440,7 +2447,11 @@ Class AkimboWeapon : Weapon
 			return ResolveState(null);
 		}
 		STRF A 1;
-		STRF A 0 AkRefire("D4StaticRifle.ReadyNoHolding");
+		STRF A 0 
+		{
+			AkRefire("D4StaticRifle.ReadyNoHolding");
+			AkRefire("D4StaticRifle.ReadyNoHolding",true);
+		}
 		Goto D4StaticRifle.Ready;
 	D4StaticRifle.FireWatcher:
 		M666 A 1;
@@ -2459,15 +2470,15 @@ Class AkimboWeapon : Weapon
 					)
 				{
 					int id = OverlayID() < 0 ? OV_LeftWeapon : OV_RightWeapon;
-					AkOverlay(id + SR_Fire,"D4StaticRifle.Overlay.Fire");
-					AkOverlay(id + SR_Anim,"D4StaticRifle.Overlay.Anim");
+					AkOverlay(id + SR_Fire,"D4StaticRifle.Overlay.Fire", id);
+					AkOverlay(id + SR_Anim,"D4StaticRifle.Overlay.Anim", id);
 				}
 				return ResolveState(null);
 			}
 			//Don't allow spamalamadingdongs.
 			
-			AkRefire("D4StaticRifle.ReadyNoHolding",true,false);
-			AkRefire("D4StaticRifle.ReadyNoHolding",false,false);
+			AkRefire("D4StaticRifle.ReadyNoHolding",true);
+			AkRefire("D4StaticRifle.ReadyNoHolding",false);
 			
 			/*
 			else if ((GetPlayerInput(MODINPUT_BUTTONS) & BT_ATTACK) || 
@@ -2551,16 +2562,28 @@ Class AkimboWeapon : Weapon
 		Stop;
 	D4StaticRifle.Overlay.Anim:
 	D4StaticRifle.Anim:
-		STRF D 1 Bright AkOffsetD( 3.0, 35.0);
-		STRF D 1 Bright AkOffsetD(12.0, 38.0);
-		STRF D 1 Bright AkOffsetD(15.0, 42.0);
-		STRF A 1 AkOffsetD(14.0, 41.0);
-		STRF A 1 AkOffsetD(12.0, 39.0);
-		STRF A 1 AkOffsetD(10.0, 37.0);
-		STRF A 1 AkOffsetD( 7.0, 35.0);
-		STRF A 1 AkOffsetD( 4.0, 34.0);
-		STRF A 1 AkOffsetD( 2.0, 33.0);
-		STRF A 1 AkOffsetD( 0.0, 32.0);
+		STRF D 1 Bright AkOffsetD( 3.0, 35.0 - 32.0);
+		STRF D 1 Bright AkOffsetD(12.0, 38.0 - 32.0);
+		STRF D 1 Bright AkOffsetD(15.0, 42.0 - 32.0);
+		STRF A 1 AkOffsetD(14.0, 41.0 - 32.0);
+		STRF A 1 AkOffsetD(12.0, 39.0 - 32.0);
+		STRF A 1 AkOffsetD(10.0, 37.0 - 32.0);
+		STRF A 1 AkOffsetD( 7.0, 35.0 - 32.0);
+		STRF A 1 AkOffsetD( 4.0, 34.0 - 32.0);
+		STRF A 1 AkOffsetD( 2.0, 33.0 - 32.0);
+		STRF A 1 AkOffsetD( 0.0, 32.0 - 32.0);
+		/*
+		STRF D 1 Bright AkOffsetD( 3.0, 35.0 - 32.0);
+		STRF D 1 Bright AkOffsetD(12.0, 38.0 - 32.0);
+		STRF D 1 Bright AkOffsetD(15.0, 42.0 - 32.0);
+		STRF A 1 AkOffsetD(14.0, 41.0 - 32.0);
+		STRF A 1 AkOffsetD(12.0, 39.0 - 32.0);
+		STRF A 1 AkOffsetD(10.0, 37.0 - 32.0);
+		STRF A 1 AkOffsetD( 7.0, 35.0 - 32.0);
+		STRF A 1 AkOffsetD( 4.0, 34.0 - 32.0);
+		STRF A 1 AkOffsetD( 2.0, 33.0 - 32.0);
+		STRF A 1 AkOffsetD( 0.0, 32.0 - 32.0);
+		*/
 	D4StaticRifle.AnimLoop1:
 		STRF BBBCCC 1
 		{
