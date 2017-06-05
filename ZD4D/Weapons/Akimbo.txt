@@ -224,15 +224,17 @@ Class AkimboWeapon : Weapon
 				else if ((counter[0] >= 35) || (counter[0] >= 20 && random(0,1))) 
 					AkOffsetD(frandom(-1.0,1.0),frandom(-1.0,1.0));
 				
+				AkWeaponReady(WRF_NOFIRE);
 				AkRefire("D4Pistol.ReleaseCharge", true, false);
 				AkRefire("D4Pistol.ReleaseCharge", false, false);
-				AkWeaponReady(WRF_NOFIRE);
+				
 			}
 			#### A 0 // Allow either to release the charge.
 			{
+				AkWeaponReady(WRF_NOFIRE);
 				AkRefire("D4Pistol.ReleaseCharge", true, false);
 				AkRefire("D4Pistol.ReleaseCharge", false, false);
-				AkWeaponReady(WRF_NOFIRE);
+				
 			}
 			Goto D4Pistol.SecondaryCharging;
 			
