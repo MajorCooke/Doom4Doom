@@ -80,7 +80,8 @@ Class D4Pistol : Doom4Weapon
 				psp.Sprite = GetSpriteIndex(spr);
 			}
 			
-			A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER1|WRF_ALLOWUSER2|WRF_ALLOWUSER4);
+			int wflag = CountInv("PistolUpgradeLance") ? WRF_ALLOWUSER1 : 0;
+			A_WeaponReady(WRF_ALLOWRELOAD|wflag|WRF_ALLOWUSER2|WRF_ALLOWUSER4);
 		}
 		Loop;
 		
@@ -196,16 +197,12 @@ Class D4Pistol : Doom4Weapon
 				}
 				else if ((counter[0] >= 35) || (counter[0] >= 20 && random(0,1))) 
 					A_WeaponOffset(frandom(-1.0,1.0),32+frandom(-1.0,1.0));
-			}
-			"####" A 0
-			{
-				StateLabel Next = "SecondaryCharging";
-				if ((GetPlayerInput(MODINPUT_BUTTONS) & BT_ALTATTACK) &&
-					!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_ALTATTACK))
-					Next = "ReleaseCharge";
+					
+				StateLabel Next = "ReleaseCharge";
+				if ((GetPlayerInput(MODINPUT_BUTTONS) & BT_ALTATTACK))
+					Next = "SecondaryCharging";
 				return ResolveState(Next);
 			}
-			Goto SecondaryCharging;
 			
 	ReleaseCharge:
 		"####" A 0
@@ -303,12 +300,15 @@ Class D4Pistol : Doom4Weapon
 	User1:
 		"####" "#" 10 
 		{
-			if (CountInv("PistolLanceActive"))
-				A_SetInventory("PistolLanceActive", 0);
-			else
+			if (CountInv("PistolUpgradeLance"))
 			{
-				A_SetInventory("PistolLanceActive",1);
-				A_PlaySound("Doom4/Weapon/GaussGun/PrecisionDown",CHAN_WEAPON,1);	
+				if (CountInv("PistolLanceActive"))
+					A_SetInventory("PistolLanceActive", 0);
+				else
+				{
+					A_SetInventory("PistolLanceActive",1);
+					A_PlaySound("Doom4/Weapon/GaussGun/PrecisionDown",CHAN_WEAPON,1);	
+				}
 			}
 		}
 		Goto Ready;
