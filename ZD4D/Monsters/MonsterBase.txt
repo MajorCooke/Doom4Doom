@@ -131,7 +131,7 @@ Struct D4DropList play
 				if (it)
 				{
 					it.VelFromAngle(frandom(3,6),random(0,359));
-					it.Z += frandom(1,5);
+					it.vel.Z += frandom(1,5);
 				}
 			}
 			ItemName.Clear();
