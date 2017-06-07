@@ -9,11 +9,6 @@
 
 Class D4FatsoTech : D4AbstractBiggie 
 {
-	override void BeginPlay()
-	{
-		CashDropper = "FatsoCashGiver";
-		Super.BeginPlay();
-	}
 	
 	int user_staggertimer;
 	
@@ -154,9 +149,9 @@ Class D4FatsoTech : D4AbstractBiggie
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4SetupLoot();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"FatsoCashGiver");
+			//D4SetupLoot();
+			//D4DropItems();
+			//"FatsoCashGiver");
 			if (RuneChance(RuneChance_Fatso))
 			{	A_SpawnItemEx("FatsoRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}
@@ -180,7 +175,7 @@ Class D4FatsoTech : D4AbstractBiggie
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot(true);
+			//D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -189,8 +184,8 @@ Class D4FatsoTech : D4AbstractBiggie
 		{
 			bThruActors = true;
 			XDeathGush();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"FatsoCashGiver");
+			//D4DropItems();
+			//"FatsoCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_NoBlocking();	//just in case
 			
@@ -588,12 +583,6 @@ Class PoisonAcidGas : Actor
 //===========================================================================
 Class D4FatsoHell : D4AbstractBiggie
 {
-	override void BeginPlay()
-	{
-		CashDropper = "FatsoCashGiver";
-		Super.BeginPlay();
-	}
-	
 	int user_staggertimer;
 	Default 
 	{
@@ -764,9 +753,9 @@ Class D4FatsoHell : D4AbstractBiggie
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4SetupLoot();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"FatsoCashGiver");
+			//D4SetupLoot();
+			//D4DropItems();
+			//"FatsoCashGiver");
 			
 			if (RuneChance(RuneChance_Fatso))
 			{	A_SpawnItemEx("FatsoRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
@@ -791,7 +780,7 @@ Class D4FatsoHell : D4AbstractBiggie
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot(true);
+			//D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -800,8 +789,8 @@ Class D4FatsoHell : D4AbstractBiggie
 		{
 			bThruActors = true;
 			XDeathGush();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"FatsoCashGiver");
+			//D4DropItems();
+			//"FatsoCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_XScream();
 			A_NoBlocking();	//just in case
@@ -1081,12 +1070,6 @@ Class FatsoFireTrail : Actor
 
 Class D4OldFatso : D4AbstractBiggie // : Fatso //replaces Fatso
 {
-	override void BeginPlay()
-	{
-		CashDropper = "FatsoCashGiver";
-		Super.BeginPlay();
-	}
-	
 	int user_staggertimer;
 	Default 
 	{
@@ -1149,9 +1132,9 @@ Class D4OldFatso : D4AbstractBiggie // : Fatso //replaces Fatso
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4SetupLoot();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"FatsoCashGiver");
+			//D4SetupLoot();
+			//D4DropItems();
+			//"FatsoCashGiver");
 			if (RuneChance(RuneChance_Fatso))
 			{	A_SpawnItemEx("FatsoRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}
@@ -1173,7 +1156,7 @@ Class D4OldFatso : D4AbstractBiggie // : Fatso //replaces Fatso
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot(true);
+			//D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -1182,8 +1165,8 @@ Class D4OldFatso : D4AbstractBiggie // : Fatso //replaces Fatso
 		{
 			bThruActors = true;
 			XDeathGush();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"FatsoCashGiver");
+			//D4DropItems();
+			//"FatsoCashGiver");
 		}
 		FATT L 4 A_Scream();
 		FATT M 4 A_NoBlocking();

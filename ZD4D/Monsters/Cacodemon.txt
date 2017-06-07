@@ -7,11 +7,6 @@
 //================================================================================================================
 Class D4Cacodemon : D4AbstractBiggie 
 {
-	override void BeginPlay()
-	{
-		CashDropper = "CacodemonCashGiver";
-		Super.BeginPlay();
-	}
 	int user_staggertimer;
 	
 	Default 
@@ -88,9 +83,9 @@ Class D4Cacodemon : D4AbstractBiggie
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4SetupLoot();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"CacoCashGiver");
+			//D4SetupLoot();
+			//D4DropItems();
+			//"CacoCashGiver");
 			
 			if (RuneChance(RuneChance_Caco))
 			{	A_SpawnItemEx("CacodemonRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
@@ -115,7 +110,7 @@ Class D4Cacodemon : D4AbstractBiggie
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot(true);
+			//D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -124,8 +119,8 @@ Class D4Cacodemon : D4AbstractBiggie
 		{
 			bThruActors = true;
 			XDeathGush(Color_Blue);
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"CacoCashGiver");
+			//D4DropItems();
+			//"CacoCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_NoBlocking();	//just in case
 			if (RuneChance(RuneChance_Caco))
@@ -419,11 +414,6 @@ Class D4CacoBallTrailMini : Actor
 
 Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon //replaces Cacodemon
 {
-	override void BeginPlay()
-	{
-		CashDropper = "CacodemonCashGiver";
-		Super.BeginPlay();
-	}
 	
 	int user_staggertimer;
 	Default 
@@ -485,9 +475,9 @@ Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon //replaces Cacodemon
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4SetupLoot();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"CacoCashGiver");
+			//D4SetupLoot();
+			//D4DropItems();
+			//"CacoCashGiver");
 			
 			if (RuneChance(RuneChance_Caco))
 			{	A_SpawnItemEx("CacodemonRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
@@ -512,7 +502,7 @@ Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon //replaces Cacodemon
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot(true);
+			//D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -521,8 +511,8 @@ Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon //replaces Cacodemon
 		{
 			bThruActors = true;
 			XDeathGush(Color_Blue);
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"CacoCashGiver");
+			//D4DropItems();
+			//"CacoCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			if (RuneChance(RuneChance_Caco))
 			{	A_SpawnItemEx("CacodemonRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }

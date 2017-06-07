@@ -7,11 +7,6 @@
 //================================================================================================================
 Class D4DoomImp : D4AbstractMonster 
 {
-	override void BeginPlay()
-	{
-		CashDropper = "DoomImpCashGiver";
-		Super.BeginPlay();
-	}
 	
 	int user_staggertimer;
 	Default 
@@ -101,9 +96,9 @@ Class D4DoomImp : D4AbstractMonster
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4SetupLoot();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ImpCashGiver");
+			//D4SetupLoot();
+			//D4DropItems();
+			//"ImpCashGiver");
 		}
 		ROAC I 4 ;
 		ROAC J 4 A_Scream();
@@ -120,7 +115,7 @@ Class D4DoomImp : D4AbstractMonster
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot(true);
+			//D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -129,8 +124,8 @@ Class D4DoomImp : D4AbstractMonster
 		{
 			bThruActors = true;
 			XDeathGush();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ImpCashGiver");
+			//D4DropItems();
+			//"ImpCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_NoBlocking();	//just in case
 		}
@@ -659,12 +654,6 @@ Class FireballDebrisTrail : Actor
 
 Class D4OldDoomImp : D4AbstractMonster // : DoomImp //replaces DoomImp
 {
-	override void BeginPlay()
-	{
-		CashDropper = "DoomImpCashGiver";
-		Super.BeginPlay();
-	}
-	
 	int user_staggertimer;
 	Default 
 	{
@@ -722,9 +711,9 @@ Class D4OldDoomImp : D4AbstractMonster // : DoomImp //replaces DoomImp
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4SetupLoot();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ImpCashGiver");
+			//D4SetupLoot();
+			//D4DropItems();
+			//"ImpCashGiver");
 		}
 		TROO I 4 ;
 		TROO J 4 A_Scream();
@@ -741,7 +730,7 @@ Class D4OldDoomImp : D4AbstractMonster // : DoomImp //replaces DoomImp
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot(true);
+			//D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -750,8 +739,8 @@ Class D4OldDoomImp : D4AbstractMonster // : DoomImp //replaces DoomImp
 		{
 			bThruActors = true;
 			XDeathGush();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ImpCashGiver");
+			//D4DropItems();
+			//"ImpCashGiver");
 		}
 		TROO O 4 A_XScream();
 		TROO P 4;

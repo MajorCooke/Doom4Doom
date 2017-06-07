@@ -16,7 +16,7 @@ Class D4DMonsterSpawner : Actor
 	{
 		D4DMonsterSpawner.isBoss false;
 		Monster;
-		Health 1000;
+		Health 1000000;
 		+DONTCORPSE
 		+NORADIUSDMG
 		+NONSHOOTABLE
@@ -160,13 +160,14 @@ Class D4DMonsterSpawner : Actor
 	Spawn:
 		TNT1 A 70 NODELAY
 		{
-			/*
+			
 			if (!MyLittleMonster || !isBoss)
 			{
 				if (isBoss) A_BossDeath();
-				//return Destroy();
+				bVULNERABLE = true;
+				A_Die();
 			}
-			*/
+			
 		}
 		Loop;
 	Death:
@@ -398,6 +399,8 @@ Class FatsoReplacer : D4DMonsterSpawner replaces Fatso
 	
 	// Use the NewMonList.Push for D4D regular, and OldMonList.Push for classic.
 	// Make sure to call the Super.PostBeginPlay() at the end of it.
+	// However, if you wish to eliminate previous listings, then call
+	// D4DMonsterSpawner.PostBeginPlay(); instead.
 	override void PostBeginPlay()
 	{
 		NewMonList.Push("D4FatsoHell");

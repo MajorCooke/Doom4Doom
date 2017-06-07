@@ -8,12 +8,6 @@
 
 Class D4Arachnotron : D4AbstractBiggie // : Arachnotron	//to be edited
 {
-	override void BeginPlay()
-	{
-		CashDropper = "ArachnotronCashGiver";
-		Super.BeginPlay();
-	}
-	
 	int user_staggertimer;
 	Default 
 	{
@@ -77,9 +71,8 @@ Class D4Arachnotron : D4AbstractBiggie // : Arachnotron	//to be edited
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4SetupLoot();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ArachnoCashGiver");
+			//D4SetupLoot();
+			//D4DropItems();
 			
 			A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50), vel.x+random(4,-4), vel.y+ random(4,-4), random(3,4+4), 0,SXF_NOCHECKPOSITION|SXF_ABSOLUTEVELOCITY);
 			A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50), vel.x+random(4,-4), vel.y+ random(4,-4), random(3,4+4), 0,SXF_NOCHECKPOSITION|SXF_ABSOLUTEVELOCITY);
@@ -102,7 +95,7 @@ Class D4Arachnotron : D4AbstractBiggie // : Arachnotron	//to be edited
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot(true);
+			//D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -111,8 +104,7 @@ Class D4Arachnotron : D4AbstractBiggie // : Arachnotron	//to be edited
 		{
 			bThruActors = true;
 			XDeathGush();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ArachnoCashGiver");
+			//D4DropItems();
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_NoBlocking();	//just in case
 			
@@ -289,13 +281,7 @@ Class D4ArachnoPuffBig1 : D4PistolPuffBig1
 //================================================================================================================
 //================================================================================================================
 Class D4OldArachnotron : D4AbstractBiggie //  : Arachnotron
-{
-	override void BeginPlay()
-	{
-		CashDropper = "ArachnotronCashGiver";
-		Super.BeginPlay();
-	}
-	
+{	
 	int user_staggertimer;
 	Default 
 	{
@@ -360,9 +346,6 @@ Class D4OldArachnotron : D4AbstractBiggie //  : Arachnotron
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4SetupLoot();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ArachnoCashGiver");
 			
 			if (RuneChance(RuneChance_Arach))
 			{	A_SpawnItemEx("ArachnotronRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
@@ -383,18 +366,14 @@ Class D4OldArachnotron : D4AbstractBiggie //  : Arachnotron
 	Death.ChainsawPinata:
 	XDeath:
 		"####" "#" 0  //loot drop
-		{
-			D4SetupLoot(true);
-		}
+		{		}
 		Goto XDeathNoDrops;
 		
 	XDeathNoDrops:	
-		TNT1 A 0
+		TNT1 A 1
 		{
 			bThruActors = true;
 			XDeathGush();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ArachnoCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 		}
 		BSPI J 10 A_Scream();

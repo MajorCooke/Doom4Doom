@@ -7,12 +7,6 @@
 //-----------------------------------------------------------------
 Class D4Zombieman : D4AbstractMonster // : Zombieman //replaces Zombieman
 {
-	override void BeginPlay()
-	{
-		CashDropper = "ZombiemanCashGiver";
-		Super.BeginPlay();
-	}
-	
 	int user_staggertimer;
 	Default 
 	{
@@ -146,9 +140,9 @@ Class D4Zombieman : D4AbstractMonster // : Zombieman //replaces Zombieman
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4SetupLoot();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ZombieCashGiver");
+			//D4SetupLoot();
+			//D4DropItems();
+			//"ZombieCashGiver");
 		}
 		RFTR H 4 ;
 		RFTR I 4 A_Scream();
@@ -164,7 +158,7 @@ Class D4Zombieman : D4AbstractMonster // : Zombieman //replaces Zombieman
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot(true);
+			//D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -173,8 +167,8 @@ Class D4Zombieman : D4AbstractMonster // : Zombieman //replaces Zombieman
 		{
 			bThruActors = true;
 			XDeathGush();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ZombieCashGiver");
+			//D4DropItems();
+			//"ZombieCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_NoBlocking();	//just in case;
 		}
@@ -662,12 +656,6 @@ Class ZombiePlasmaBallPuff : Actor
 
 Class D4OldZombieman : D4AbstractMonster // : Zombieman //replaces Zombieman
 {
-	override void BeginPlay()
-	{
-		CashDropper = "ZombiemanCashGiver";
-		Super.BeginPlay();
-	}
-	
 	int user_staggertimer;
 	
 	Default 
@@ -726,9 +714,9 @@ Class D4OldZombieman : D4AbstractMonster // : Zombieman //replaces Zombieman
 		POSS H 4
 		{
 			bThruActors = true;
-			D4SetupLoot();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ZombieCashGiver");
+			//D4SetupLoot();
+			//D4DropItems();
+			//"ZombieCashGiver");
 		}
 		POSS I 4 A_Scream();
 		POSS J 4 A_NoBlocking();
@@ -744,7 +732,7 @@ Class D4OldZombieman : D4AbstractMonster // : Zombieman //replaces Zombieman
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot(true);
+			//D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -753,8 +741,8 @@ Class D4OldZombieman : D4AbstractMonster // : Zombieman //replaces Zombieman
 		{
 			bThruActors = true;
 			XDeathGush();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ZombieCashGiver");
+			//D4DropItems();
+			//"ZombieCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 		}
 		

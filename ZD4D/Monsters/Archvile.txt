@@ -8,11 +8,6 @@
 Class ArchAttacking : Inventory {}
 Class D4Archvile : D4AbstractBiggie
 {
-	override void BeginPlay()
-	{
-		CashDropper = "ArchvileCashGiver";
-		Super.BeginPlay();
-	}
 	
 	int user_flee;	
 	int user_staggertimer;
@@ -177,9 +172,9 @@ Class D4Archvile : D4AbstractBiggie
 		DIAB Q 7 
 		{
 			bThruActors = true;
-			D4SetupLoot();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ArchieCashGiver");
+			//D4SetupLoot();
+			//D4DropItems();
+			//"ArchieCashGiver");
 			
 			A_SetInventory("ArchAttacking",0);
 			
@@ -200,7 +195,7 @@ Class D4Archvile : D4AbstractBiggie
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot(true);
+			//D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -209,8 +204,8 @@ Class D4Archvile : D4AbstractBiggie
 		{
 			bThruActors = true;
 			XDeathGush(Color_Black);
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ArchieCashGiver");
+			//D4DropItems();
+			//"ArchieCashGiver");
 			
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_SetInventory("ArchAttacking",0);
@@ -588,13 +583,7 @@ Class SummonerHandSparks : Actor //spawned in the hands of the archvile
 //================================================================================================================
 //================================================================================================================
 Class D4OldArchVile : D4AbstractBiggie // ArchVile replaces ArchVile
-{
-	override void BeginPlay()
-	{
-		CashDropper = "ArchvileCashGiver";
-		Super.BeginPlay();
-	}
-	
+{	
 	int user_staggertimer;
 	Default 
 	{
@@ -659,8 +648,8 @@ Class D4OldArchVile : D4AbstractBiggie // ArchVile replaces ArchVile
 		{
 			bThruActors = true;
 			XDeathGush(Color_Green);
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ArchieCashGiver");
+			//D4DropItems();
+			//"ArchieCashGiver");
 			
 			if (RuneChance(RuneChance_Archie))
 			{	A_SpawnItemEx("ArchvileRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
@@ -678,7 +667,7 @@ Class D4OldArchVile : D4AbstractBiggie // ArchVile replaces ArchVile
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot(true);
+			//D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -687,8 +676,8 @@ Class D4OldArchVile : D4AbstractBiggie // ArchVile replaces ArchVile
 		{
 			bThruActors = true;
 			XDeathGush(Color_Green);
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ArchieCashGiver");
+			//D4DropItems();
+			//"ArchieCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			if (RuneChance(RuneChance_Archie))
 			{	A_SpawnItemEx("ArchvileRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }

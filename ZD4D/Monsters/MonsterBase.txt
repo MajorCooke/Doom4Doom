@@ -30,10 +30,18 @@ enum RuneChances
 
 // Defines how many pinatas to drop.
 
+/*
+D4DropList
+
+Functions:
+- ResetList()
+- AddItem(String newthing, int count = 1, bool adding = true)
+- DropItems(Actor dropper)
+- 
+*/
+
 Struct D4DropList play
 {
-	int Credits;
-	
 	Array<String> ItemName;
 	Array<Int> ItemCount;
 	
@@ -89,7 +97,10 @@ Struct D4DropList play
 	
 	void DropItems(Actor dropper)
 	{
-		if (!dropper)	return;
+		if (!dropper)	
+		{
+			return;
+		}
 		
 		int size = ItemName.Size();
 		if (size > 0)
@@ -97,28 +108,50 @@ Struct D4DropList play
 			for (int i = 0; i < size; i++)
 			{
 				Class<Inventory> check = ItemName[i];
-				if (check == null || ItemCount[i] < 1)	continue;
+				if (check == null)	continue;
 				
-				for (; ItemCount[i] > 0; ItemCount[i]--)
+				if (dropper) dropper.A_SpawnItemEx(check,0,0,32,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+			}
+			ItemName.Clear();
+			ItemCount.Clear();
+		}
+	}
+	
+	void DropItemsPos(Vector3 mpos)
+	{
+		int size = ItemName.Size();
+		if (size > 0)
+		{
+			for (int i = 0; i < size; i++)
+			{
+				Class<Inventory> check = ItemName[i];
+				if (check == null)	continue;
+				
+				Actor it = Actor.Spawn(check, mpos + (0, 0, 32.0));
+				if (it)
 				{
-					int ZHeight = 32;
-					dropper.A_SpawnItemEx(check,0,0,ZHeight,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+					it.VelFromAngle(frandom(3,6),random(0,359));
+					it.Z += frandom(1,5);
 				}
 			}
+			ItemName.Clear();
+			ItemCount.Clear();
 		}
 	}
 }
 
 Class D4AbstractMonster : Actor 
 {
+	int UpgradeDropChance, UpgradeDropAlways;
 	uint CrateDropChance, CrateDropAmount, CrateDropAlways;
 	uint CashAmount, CashChainsawPinata;
-	Class<Actor> CashDropper;
 	int CashMultiplier;
 	Name MOD;
 	D4DropList Pinatas;
 	Actor Spawner;
 	
+	property UpgradeDropChance: UpgradeDropChance;
+	property UpgradeDropAlways: UpgradeDropAlways;
 	property CrateDropChance: CrateDropChance;
 	property CrateDropAmount: CrateDropAmount;
 	property CrateDropAlways: CrateDropAlways;
@@ -126,6 +159,8 @@ Class D4AbstractMonster : Actor
 	property CashChainsawFinisher: CashChainsawPinata;
 	Default
 	{
+		D4AbstractMonster.UpgradeDropChance -1;
+		D4AbstractMonster.UpgradeDropAlways 0;
 		D4AbstractMonster.CrateDropAmount 0;
 		D4AbstractMonster.CrateDropChance 0;
 		D4AbstractMonster.CrateDropAlways 0;
@@ -165,10 +200,23 @@ Class D4AbstractMonster : Actor
 				Spawner.A_Die();
 			}
 		}
-		
 		Super.OnDestroy();
 	}
 	
+	override void Die(Actor source, Actor inflictor, int dmgflags = 0)
+	{
+		if (Spawner && Spawner.health > 0)
+		{
+			Spawner.bVULNERABLE = true;
+			Spawner.A_Die();
+		}
+		else if (master && (master is "D4DMonsterSpawner" || master is master.GetReplacee("D4DMonsterSpawner")))
+		{
+			master.bVULNERABLE = true;
+			master.A_Die();
+		}
+		Super.Die(source, inflictor, dmgflags = 0);
+	}
 	
 	//--------------------------------------------------------------------------
 	//
@@ -248,262 +296,6 @@ Class D4AbstractMonster : Actor
 		}
 		return 0;
 	}
-	
-	//==========================================================================
-	//
-	// D4SetupLoot(carrion, upgradeChance)
-	//
-	// Sets up which pinatas to drop based on damage type. Carrion set to true
-	// drops carrion. UpgradeChance is 1/upgradeChance to spawn a given upgrade.
-	//==========================================================================
-	
-	void D4SetupLoot(bool carrion = false)
-	{	
-		bool chainsawed = false;
-		bool LootDrop = GetCvar("user_LootDrop");
-		MOD = DamagetypeReceived;
-		CashMultiplier = 1;
-		
-		if (carrion && GetCvar("MPWeapons"))	Pinatas.AddItem("D4PinataCarrion",1);
-		if (MOD == 'ChainsawPinata')
-		{
-			CashMultiplier = 4;
-			chainsawed = true;
-		}
-		else if (MOD == 'BerserkKill' || 
-				MOD == 'ChainsawKill' || 
-				MOD == 'MeleePunch' ||
-				MOD == 'GloryKill')
-		{
-			CashMultiplier = 2;
-			if (LootDrop)  Pinatas.AddItem("D4PinataHealth", 5); 
-		}
-		
-		
-		
-		if (chainsawed)
-		{
-			Pinatas.AddItem("D4PinataBulletsBig", 	LootDrop ? 4 : 1);
-			Pinatas.AddItem("D4PinataShellsBig", 	LootDrop ? 4 : 1);
-			Pinatas.AddItem("D4PinataCellsBig", 	LootDrop ? 5 : 1);
-			Pinatas.AddItem("D4PinataRocketsBig", 	LootDrop ? 3 : 1);
-		}
-			
-		if (LootDrop)
-		{			
-			if (chainsawed)
-			{
-				//armor giver
-				if (CountInv("D4ArmorCapRaiser",Player1) >= 25)
-				{
-					int rng[2];
-					rng[0] = random(1,256) > 128 ? 1 : 0;
-					rng[1] = random(1,256) > 128 ? 1 : 0;
-					Pinatas.AddItem("D4PinataArmor", rng[0] + rng[1]);
-				}
-				if (CountInv("D4ArmorCapRaiser",Player1) >= 50)
-				{
-					int rng[2];
-					rng[0] = random(1,256) > 128 ? 1 : 0;
-					rng[1] = random(1,256) > 128 ? 1 : 0;
-					Pinatas.AddItem("D4PinataArmor", rng[0] + rng[1]);
-				}
-				if (CountInv("D4ArmorCapRaiser",Player1) >= 100)
-				{
-					Pinatas.AddItem("D4PinataArmor", 2);
-				}
-			}
-			// Armor giver
-			else if (CountInv("BasicArmor",AAPTR_PLAYER1) < 200 && CountInv("D4ArmorCapRaiser",AAPTR_PLAYER1)>=25)	//only if player isnt at full armor and has upgraded his armor
-			{	
-				int rng = random(1,256) > 192 ? 1 : 0;
-				Pinatas.AddItem("D4PinataArmor", rng); //very rarely they will drop armor
-			}
-		
-			//health giver
-			if (A_JumpIfHealthLower(60,"Null",AAPTR_PLAYER1))
-			{
-				int rng = random(1,256) > 192 ? 1 : 0;
-				Pinatas.AddItem("D4PinataHealth", 1 + rng);
-			}
-			
-			//bullets giver
-			if ((CountInv("D4AssaultRifle",AAPTR_PLAYER1) || 
-				CountInv("D4Chaingun",AAPTR_PLAYER1) ||
-				CountInv("D4Repeater",AAPTR_PLAYER1)) && 
-				CountInv("D4Bullets",AAPTR_PLAYER1) < 10)
-			{
-				int rng[2];
-				rng[0] = random(1,256) > 128 ? 1 : 0;
-				rng[1] = random(1,256) > 240 ? 1 : 0;
-				Pinatas.AddItem("D4PinataBullets", rng[0] + rng[1]);
-			}
-			
-			//Shells giver
-			if ((CountInv("D4Shotgun",AAPTR_PLAYER1) || 
-				CountInv("D4SuperShotgun",AAPTR_PLAYER1)) && 
-				CountInv("D4Shells",AAPTR_PLAYER1) < 5)
-			{
-				int rng[2];
-				rng[0] = random(1,256) > 128 ? 1 : 0;
-				rng[1] = random(1,256) > 128 ? 1 : 0;
-				Pinatas.AddItem("D4PinataShells", rng[0] + rng[1]);
-			}
-			
-			//Cells giver
-			if ((CountInv("D4PlasmaRifle",AAPTR_PLAYER1) ||
-				CountInv("D4GaussCannon",AAPTR_PLAYER1) ||
-				CountInv("D4LightningGun",AAPTR_PLAYER1)) && 
-				CountInv("D4Cells",AAPTR_PLAYER1) < 16)
-			{
-				int rng[2];
-				rng[0] = random(1,256) > 128 ? 1 : 0;
-				rng[1] = random(1,256) > 128 ? 1 : 0;
-				Pinatas.AddItem("D4PinataCells", rng[0] + rng[1]);
-			}
-			//Rockets giver
-			if(CountInv("D4RocketLauncher",AAPTR_PLAYER1) && CountInv("D4Rockets",AAPTR_PLAYER1) < 5)
-			{
-				int rng = random(1,256) > 196 ? 1 : 0;
-				Pinatas.AddItem("D4PinataRockets", rng);
-			}
-			
-			//BFG ammo giver, this one doesnt check for ammo low, but it does check for the weapon
-			if (CountInv("D4BFG",AAPTR_PLAYER1))
-			{
-				if (random(1,512) < 16)	Pinatas.AddItem("D4PinataBFG", 1);
-			}
-		}
-	}
-	
-	//==========================================================================
-	//
-	// D4DropCash(int multiplier, name of cash giver actor)
-	//
-	// Spawns the monster related credit giver with a multiplier.
-	//==========================================================================
-	void D4DropCash(uint CashMul, Class<Actor> CashGiver)
-	{
-		if (GetCvar("D4D_CurrentUpgradeMode"))
-		{
-			if (CrateDropChance && CrateDropAmount)
-			{
-				int crateamt = CrateDropAlways;
-				int cratedrops = CrateDropAmount * Clamp(CashMul,1,4);
-				if (cratedrops > 0)
-				{
-					for (int i = 0; i < cratedrops; i++)
-					{
-						if (random(1,256) <= CrateDropChance)
-							crateamt++;
-					}
-				}
-				if (crateamt > 0)
-				{
-					A_GiveInventory("D4DCash",crateamt,Player1);
-					A_GiveInventory("D4DCashFake",crateamt,Player1);
-					A_GiveInventory("CashUpdater",1,Player1);
-				}
-			}
-			return;
-		}
-		else
-		{
-			if (CashAmount >= 0)
-			{
-				
-				int CashAmountPercent = 0;
-				int CPB1 = 0, CPB2 = 0;
-				if (CashChainsawPinata > 0 && MOD == 'ChainsawPinata')
-				{
-					CashAmount = CashChainsawPinata;
-					CashMul = 1;
-				}
-				
-				CPB1 = CountInv("CashPercentBonus", Player1);
-				CPB2 = CountInv("CashPercentBonusTemp", Player1);
-				
-				if (CPB1 > 0 || CPB2 > 0)
-				{
-					CashAmountPercent = CashAmount * (CPB1 + CPB2);
-					CashAmount += (CashAmountPercent / 100);
-				}
-				
-				if (CashMul > 1)	CashAmount *= CashMul;
-				if (CashAmount < 1)	return;
-				A_GiveInventory("D4DCash",		CashAmount, Player1);
-				A_GiveInventory("D4DCashFake",	CashAmount, Player1);
-				A_GiveInventory("CashUpdater",1,Player1);
-			}
-			else
-			{
-				if (CashGiver == null)
-				{	return;		}
-				
-				let cashboy = CashGiverBase(Spawn(CashGiver,pos));
-				if (cashboy)	cashboy.Multiplier = CashMul;
-			}
-		}
-	}
-	
-	//==========================================================================
-	//
-	// D4DropItems
-	//
-	// Drops the pinatas list as-is, at the time of calling.
-	//==========================================================================
-	void D4DropItems()
-	{
-		if (Spawner && Spawner.health > 0)
-		{
-			Spawner.bVULNERABLE = true;
-			Spawner.A_Die();
-		}
-		else if (master && (master is "D4DMonsterSpawner" || master is master.GetReplacee("D4DMonsterSpawner")))
-		{
-			master.bVULNERABLE = true;
-			master.A_Die();
-		}
-		Pinatas.DropItems(self);
-		if (GetCvar("D4D_CurrentUpgradeMode"))
-		{
-			let plr = players[0].mo;
-			int QuadChance = (plr && plr.CountInv("PowerD4Money")) ? 4 : 1;
-			QuadChance *= Max(1,CashMultiplier);
-			if (random(1, (GetCvar("D4D_PickupDropChance") / QuadChance)) == 1)
-				A_DropItem("D4UpgradePickupSpawner");
-				
-			if (CountInv("AssaultRifleMod1",Player1) &&
-				CountInv("AssaultRifleMod2",Player1) &&
-				CountInv("ChaingunMod1",Player1) &&
-				CountInv("ChaingunMod2",Player1) &&
-				CountInv("GaussCannonMod1",Player1) &&
-				CountInv("GaussCannonMod2",Player1) &&
-				CountInv("PlasmaRifleMod1",Player1) &&
-				CountInv("PlasmaRifleMod2",Player1) &&
-				CountInv("RocketLauncherMod1",Player1) &&
-				CountInv("RocketLauncherMod2",Player1) &&
-				CountInv("ShotgunMod1",Player1) &&
-				CountInv("ShotgunMod2",Player1) &&
-				CountInv("SSGUpgrade1",Player1) &&
-				CountInv("SSGUpgrade2",Player1) &&
-				CountInv("SSGUpgrade3",Player1) &&
-				CountInv("SSGUpgrade4",Player1) &&
-				CountInv("PistolUpgradeAutomatic",Player1) &&
-				CountInv("PistolUpgradeAltDamage",Player1) &&
-				CountInv("PistolUpgradeAltCharge",Player1) &&
-				CountInv("PistolUpgradeDamage",Player1) &&
-				CountInv("PistolUpgradeLance",Player1) &&
-				CountInv("BFGUpgrade1",Player1) &&
-				CountInv("BFGUpgrade2",Player1) &&
-				CountInv("BFGUpgrade3",Player1) &&
-				CountInv("BFGUpgrade4",Player1) &&
-				!CountInv("SovietToken",Player1))
-			{
-				A_DropItem("SovietChaingunUpgradePickup");
-			}
-		}
-	}	
 	
 	//==========================================================================
 	//

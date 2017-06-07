@@ -8,11 +8,6 @@
 
 Class D4PainElemental : D4AbstractBiggie
 {
-	override void BeginPlay()
-	{
-		CashDropper = "PainElementalCashGiver";
-		Super.BeginPlay();
-	}
 	
 	int user_staggertimer;
 	Default 
@@ -89,9 +84,9 @@ Class D4PainElemental : D4AbstractBiggie
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4SetupLoot();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"PainElemCashGiver");
+			//D4SetupLoot();
+			//D4DropItems();
+			//"PainElemCashGiver");
 			A_Stop();
 			if (RuneChance(RuneChance_PainEl))
 			{	A_SpawnItemEx("PainElementalRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
@@ -136,7 +131,7 @@ Class D4PainElemental : D4AbstractBiggie
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot(true);
+			//D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -144,8 +139,8 @@ Class D4PainElemental : D4AbstractBiggie
 		INFR L 2 bright 
 		{
 			bThruActors = true;
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"PainElemCashGiver");
+			//D4DropItems();
+			//"PainElemCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");	
 		
 			A_Stop();
@@ -380,12 +375,6 @@ Class PainBreath : Actor
 //================================================================================================================
 Class D4OldPainElemental : D4AbstractBiggie // : PainElemental
 {
-	override void BeginPlay()
-	{
-		CashDropper = "PainElementalCashGiver";
-		Super.BeginPlay();
-	}
-	
 	int user_staggertimer;
 	Default 
 	{
@@ -451,9 +440,9 @@ Class D4OldPainElemental : D4AbstractBiggie // : PainElemental
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4SetupLoot();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"PainElemCashGiver");
+			//D4SetupLoot();
+			//D4DropItems();
+			//"PainElemCashGiver");
 			if (RuneChance(RuneChance_PainEl))
 			{	A_SpawnItemEx("PainElementalRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}
@@ -491,7 +480,7 @@ Class D4OldPainElemental : D4AbstractBiggie // : PainElemental
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot(true);
+			//D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -500,8 +489,8 @@ Class D4OldPainElemental : D4AbstractBiggie // : PainElemental
 		{
 			bThruActors = true;
 			XDeathGush();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"PainElemCashGiver");
+			//D4DropItems();
+			//"PainElemCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			if (RuneChance(RuneChance_PainEl))
 			{	A_SpawnItemEx("PainElementalRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }

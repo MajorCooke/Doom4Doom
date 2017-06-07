@@ -327,6 +327,8 @@ extend Class AkimboWeapon
 		//invoker.InputCur = plr.GetPlayerInput(MODINPUT_BUTTONS);
 		//if (!refire) invoker.InputOld = plr.GetPlayerInput(MODINPUT_OLDBUTTONS);
 		
+		if (!player.ReadyWeapon.FindState(Next))	return;
+		
 		if (id == OV_LeftWeapon)
 		{
 			if ((invoker.InputCur & (alt ? ALeft : PLeft)) && (refire || !(invoker.InputOld & (alt ? ALeft : PLeft))))
@@ -394,6 +396,8 @@ extend Class AkimboWeapon
 		
 		bool DoFire[2], DoAltFire[2];
 		let psp = player.FindPSprite(id);
+		
+		if (!psp) return;
 
 		//----------------------------------------------------------------------
 		// Weapon Switch Checks
@@ -403,11 +407,13 @@ extend Class AkimboWeapon
 		{
 			if (id == OV_LeftWeapon)
 			{
+				invoker.SwitchMod[Left] = false;
 				invoker.LeftNext = null;
 				invoker.LeftPend = null;
 			}
 			else
 			{
+				invoker.SwitchMod[Right] = false;
 				invoker.RightNext = null;
 				invoker.RightPend = null;
 			}
@@ -426,7 +432,48 @@ extend Class AkimboWeapon
 				if (psp)	{ psp.SetState(player.ReadyWeapon.FindState(invoker.RightStates.DeselectState, true));	}
 				return;
 			}
-			//if (doReturn) return;
+		}
+		
+		//======================================================================
+		// Check for mod switching if available.
+		if (invoker.SwitchMod[Left] || invoker.SwitchMod[Right])
+		{
+			static const Class<Weapon> List[] =
+			{
+				"D4Shotgun",
+				"D4AssaultRifle",
+				"D4Chaingun",
+				"D4RocketLauncher",
+				"D4PlasmaRifle",
+				"D4GaussCannon"
+			};
+			
+			
+			for (int i = 0; i < List.Size(); i++)
+			{
+				if (invoker.SwitchMod[Left] && invoker.LeftGun == List[i] && invoker.Status[Left] <= Ready)
+				{
+					invoker.SwitchMod[Left] = false;
+					State check = player.ReadyWeapon.FindState(invoker.LeftStates.ModState, true);
+					if (check)
+					{
+						invoker.Status[Left] = ChangeMod;
+						player.SetPSprite(id, check);
+						return;
+					}
+				}
+				
+				if (invoker.SwitchMod[Right] && invoker.RightGun == List[i] && invoker.Status[Right] <= Ready)
+				{
+					invoker.SwitchMod[Right] = false;
+					State check = player.ReadyWeapon.FindState(invoker.LeftStates.ModState, true);
+					if (check)
+					{
+						invoker.Status[Right] = ChangeMod;
+						player.SetPSprite(id, check);
+					}
+				}
+			}
 		}
 		
 		//----------------------------------------------------------------------
@@ -488,7 +535,7 @@ extend Class AkimboWeapon
 	
 	//--------------------------------------------------------------------------
 	//
-	//
+	// AkRaiseGun
 	//
 	//--------------------------------------------------------------------------
 	action void AkRaiseGun(int RaiseSpeed = 6, bool instaraise = false)
@@ -519,7 +566,7 @@ extend Class AkimboWeapon
 	
 	//--------------------------------------------------------------------------
 	//
-	//
+	// AkLowerGun
 	//
 	//--------------------------------------------------------------------------
 	action void AkLowerGun(int LowerSpeed = 6, bool instalower = false)
@@ -549,8 +596,6 @@ extend Class AkimboWeapon
 					invoker.RightNext = null;
 					for (int i = 0; i < 8; i++)
 						invoker.SoundMaker[Left].A_StopSound(i);
-					//A_ClearOverlays(OV_RightWeapon + 1, OV_RightWeapon + 10000);
-					//A_ClearOverlays(OV_RightWeapon - 10000, OV_RightWeapon - 1);
 				}
 				else
 				{
@@ -559,13 +604,10 @@ extend Class AkimboWeapon
 					invoker.LeftNext = null;
 					for (int i = 0; i < 8; i++)
 						invoker.SoundMaker[Right].A_StopSound(i);
-					//A_ClearOverlays(OV_LeftWeapon + 1, OV_LeftWeapon + 10000);
-					//A_ClearOverlays(OV_LeftWeapon - 10000, OV_LeftWeapon - 1);
 				}
 				return;
 			}
 		}
-		//else Console.Printf("ERROR -1");
 		
 		return;
 	}
@@ -819,13 +861,9 @@ extend Class AkimboWeapon
 	bool SetWeaponSide (Name WeapID, bool right, bool forced = false)
 	{
 		Class<Weapon> id = WeapID;
-		if (!id || 
-			//LeftGun == id || LeftPend == id ||
-			//RightGun == id || RightPend == id ||
-			!Owner.CountInv(id))
-		{
+		if (!id || !Owner.CountInv(id))
 			return false;
-		}
+		
 		
 		// Reject if the weapon is already raised in the same hand.
 		if (forced)
@@ -861,6 +899,9 @@ extend Class AkimboWeapon
 		//Console.Printf("Something's wrong.");
 		return false;
 	}
+	
+	//--------------------------------------------------------------------------
+	// Class edition of the above.
 	
 	bool SetWeaponSideClass (Class<Weapon> id, bool right, bool forced)
 	{
@@ -902,6 +943,25 @@ extend Class AkimboWeapon
 			}
 		}
 		return false;
+	}
+	
+	//==========================================================================
+	
+	action void ChangeMods(int id = 0)
+	{
+		/*
+		if (!id) id = OverlayID();
+		int who = (id < 0) ? OV_LeftWeapon : OV_RightWeapon;
+		
+		if (id == OV_LeftWeapon && invoker.SwitchMod[Left])
+		{
+			if (
+		}
+		if ((id == OV_RightWeapon && invoker.SwitchMod[Right]))
+		{
+			
+		}
+		*/
 	}
 	
 	//==========================================================================

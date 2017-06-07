@@ -79,13 +79,10 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 		
 		PrepareNormalSpriteSelect:
 			ARNI A 0 A_Jump(256,"ResumeSelectSequence");
-			Goto ResumeSelectSequence;
 		PrepareMicroMissilesSpriteSelect:
 			ARMI A 0 A_Jump(256,"ResumeSelectSequence");
-			Goto ResumeSelectSequence;
 		PrepareTacticalScopeSpriteSelect:
 			ARSI A 0 A_Jump(256,"ResumeSelectSequence");
-			Goto ResumeSelectSequence;
 			
 	ResumeSelectSequence:
 		"####" "#" 1 A_Raise;

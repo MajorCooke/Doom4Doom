@@ -8,11 +8,6 @@
 // summon D4ChaingunGuy
 Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 {
-	override void BeginPlay()
-	{
-		CashDropper = "ChaingunGuyCashGiver";
-		Super.BeginPlay();
-	}
 	
 	const CBAFlags = CBAF_AIMFACING|CBAF_PUFFTRACER|CBAF_NORANDOMPUFFZ|CBAF_NORANDOM;
 	double user_vangle;
@@ -144,9 +139,9 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 		{
 			A_KillChildren("None",KILS_KILLMISSILES,null,"LaserKillable");
 			bThruActors = true;
-			D4SetupLoot();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ChainguyCashGiver");
+			//D4SetupLoot();
+			//D4DropItems();
+			//"ChainguyCashGiver");
 		}
 		HRZR I 5 ;
 		HRZR J 5 A_Scream();
@@ -163,7 +158,7 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot(true);
+			//D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -172,8 +167,8 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 		{
 			bThruActors = true;
 			XDeathGush();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ChainguyCashGiver");
+			//D4DropItems();
+			//"ChainguyCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_NoBlocking();	//just in case
 			A_KillChildren("None",KILS_KILLMISSILES,null,"LaserKillable");
@@ -505,12 +500,6 @@ Class ElectricRailTrail : Actor
 
 Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy //replaces ChaingunGuy
 {
-	override void BeginPlay()
-	{
-		CashDropper = "ChaingunGuyCashGiver";
-		Super.BeginPlay();
-	}
-	
 	int user_staggertimer;
 	Default 
 	{
@@ -570,9 +559,9 @@ Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy //replaces ChaingunG
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			D4SetupLoot();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ChainguyCashGiver");
+			//D4SetupLoot();
+			//D4DropItems();
+			//"ChainguyCashGiver");
 		}
 		CPOS H 4 ;
 		CPOS I 4 A_Scream();
@@ -589,7 +578,7 @@ Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy //replaces ChaingunG
 	XDeath:
 		"####" "#" 0  //loot drop
 		{
-			D4SetupLoot(true);
+			//D4SetupLoot(true);
 		}
 		Goto XDeathNoDrops;
 		
@@ -598,8 +587,8 @@ Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy //replaces ChaingunG
 		{
 			bThruActors = true;
 			XDeathGush();
-			D4DropItems();
-			D4DropCash(CashMultiplier,CashDropper); //"ChainguyCashGiver");
+			//D4DropItems();
+			//"ChainguyCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 		}
 		CPOS O 4;

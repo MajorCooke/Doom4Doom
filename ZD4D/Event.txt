@@ -1,0 +1,401 @@
+
+
+extend class D4DHandler
+{
+	D4BlackList BlackList;
+	
+	override void OnRegister()
+	{
+		BlackList = D4BlackList.Get();
+		Super.OnRegister();
+	}
+	
+	override void WorldThingDied(WorldEvent e)
+	{
+		let mo = e.Thing;
+		if (!mo || !mo.bISMONSTER || mo.bNOINTERACTION) return;
+		
+		// Check the global blacklist and do nothing if found on it.
+		if (!BlackList) BlackList = D4BlackList.Get();
+		if (BlackList.Check(mo.GetClassName()))	return;
+		
+		// Keeps track if these have already been checked or not. Only check it
+		// once and discard all further attempts if it's going to spawn already.
+		D4DropList Pinatas;
+		bool Armor[4];
+		bool HPPin;
+		bool Bullets;
+		bool Shells;
+		bool Cells;
+		bool Rockets;
+		bool BFG;
+		
+		int UpgradeDropChance, UpgradeDropAlways;
+		int CrateDropChance, CrateDropAmount, CrateDropAlways;
+		int CashChainsawPinata;
+		int CashAmount, CashMul = 1;
+		int CrateAmt, CrateDrops;
+		int LootDrop = user_LootDrop;
+		
+		Vector3 pos = 	mo.pos;
+		//int hp = 		mo.health;
+		int spawnhp = 	mo.GetSpawnHealth();
+		Name mod = 		mo.DamageTypeReceived;
+		
+		
+		if (LootDrop && (!(mo.InStateSequence(mo.CurState, mo.FindState("Death"))) ||
+						mo.health < mo.GetGibHealth()))
+			Pinatas.AddItem("D4PinataCarrion", 1);
+		
+		// First set up the base multiplier upon damage type when killed.
+		if (mod == 'ChainsawPinata')
+		{
+			CashMul *= 4;
+			Pinatas.AddItem("D4PinataBulletsBig", 	LootDrop ? 4 : 1);
+			Pinatas.AddItem("D4PinataShellsBig", 	LootDrop ? 4 : 1);
+			Pinatas.AddItem("D4PinataCellsBig", 	LootDrop ? 5 : 1);
+			Pinatas.AddItem("D4PinataRocketsBig", 	LootDrop ? 3 : 1);
+		}
+		else if (MOD == 'BerserkKill' || 
+				MOD == 'ChainsawKill' || 
+				MOD == 'MeleePunch' ||
+				MOD == 'GloryKill')
+		{
+			CashMul *= 2;
+			if (LootDrop)  Pinatas.AddItem("D4PinataHealth", 5); 
+		}
+		
+		
+		
+		// Now check to see if it's a D4D monster. If so, just use what's given.
+		// Otherwise, establish a formula based on health.
+		// TO DO: Add overrideable inventory token to replace it.
+		let d4m = D4AbstractMonster(mo);
+		
+		if (d4m)
+		{
+			CrateDropChance = 		d4m.CrateDropChance;
+			CrateDropAmount = 		d4m.CrateDropAmount;
+			CrateDropAlways = 		d4m.CrateDropAlways;
+			CashChainsawPinata = 	d4m.CashChainsawPinata;
+			CashAmount = 			d4m.CashAmount;
+			UpgradeDropChance =		d4m.UpgradeDropChance;
+			UpgradeDropAlways =		d4m.UpgradeDropAlways;
+			
+		}
+		else
+		{
+			if (D4D_CurrentUpgradeMode)
+			{
+				// For every 1000 health, guarantee a crate credit.
+				// Otherwise, dvide the HP by 20 and use that as a base chance.
+				CrateDropAlways = spawnhp / 1000;
+				CrateDropChance = Max(1,spawnhp / 20) * (mo.bBOSS ? 2 : 1);
+				if (CrateDropChance > 256)
+				{
+					CrateDropAmount = CrateDropChance / 256;
+				}
+			}
+			else
+			{
+				CashAmount = spawnhp / (mo.bBoss ? 12 : 15);
+				if (CashChainsawPinata > 0 && mod == 'ChainsawPinata')
+				{
+					CashAmount = CashChainsawPinata;
+					CashMul = 1;
+				}
+			}
+		}
+		
+		if (D4D_CurrentUpgradeMode)
+		{
+			// Cycle through the drop chances of each, excluding the always
+			// dropping. If the chance is within valid ranges, just add to
+			// amount that will always be given.
+			CrateDrops = CrateDropAmount * CashMul;
+			if (CrateDrops > 0)
+			{
+				for (int i = 0; i < CrateDrops; i++)
+				{
+					if (random(1,256) <= CrateDropChance)
+						CrateDropAlways++;
+				}
+			}
+			
+			// Drop some upgrades based on chance. UpgradeDropChance is the divisor,
+			// inverse of how the crates work. 
+			// 0 means no chance. 
+			// 1 means guaranteed.
+			// 2 means 1/2 chance, etc.
+			let plr = players[0].mo;
+			int Chance = (plr && plr.CountInv("PowerD4Money")) ? 4 : 1;
+			Chance *= Max(1,CashMul);
+			
+			if (UpgradeDropChance == -1)	UpgradeDropChance = D4D_PickupDropChance;
+			
+			if (random(1, ((UpgradeDropChance - (mo.bBoss ? 10 : 0)) / Chance)) == 1)
+				UpgradeDropAlways++;
+				
+			if (UpgradeDropAlways > 0)
+			{
+				for (int i = 0; i < UpgradeDropAlways; i++)
+					mo.A_DropItem("D4UpgradePickupSpawner");
+			}
+				
+			if (!plr.CountInv("SovietToken") &&
+				plr.CountInv("AssaultRifleMod1") &&
+				plr.CountInv("AssaultRifleMod2") &&
+				plr.CountInv("ChaingunMod1") &&
+				plr.CountInv("ChaingunMod2") &&
+				plr.CountInv("GaussCannonMod1") &&
+				plr.CountInv("GaussCannonMod2") &&
+				plr.CountInv("PlasmaRifleMod1") &&
+				plr.CountInv("PlasmaRifleMod2") &&
+				plr.CountInv("RocketLauncherMod1") &&
+				plr.CountInv("RocketLauncherMod2") &&
+				plr.CountInv("ShotgunMod1") &&
+				plr.CountInv("ShotgunMod2") &&
+				plr.CountInv("SSGUpgrade1") &&
+				plr.CountInv("SSGUpgrade2") &&
+				plr.CountInv("SSGUpgrade3") &&
+				plr.CountInv("SSGUpgrade4") &&
+				plr.CountInv("PistolUpgradeAutomatic") &&
+				plr.CountInv("PistolUpgradeAltDamage") &&
+				plr.CountInv("PistolUpgradeAltCharge") &&
+				plr.CountInv("PistolUpgradeDamage") &&
+				plr.CountInv("PistolUpgradeLance") &&
+				plr.CountInv("BFGUpgrade1") &&
+				plr.CountInv("BFGUpgrade2") &&
+				plr.CountInv("BFGUpgrade3") &&
+				plr.CountInv("BFGUpgrade4"))
+			{
+				mo.A_DropItem("SovietChaingunUpgradePickup");
+			}
+		}
+		
+		// 
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			
+			let p = players[i].mo;
+			if (playeringame[i] && p)
+			{
+				// Drop items first.
+				if (mod != 'Massacre')
+				{
+					if (LootDrop)
+					{
+						if (mod == 'ChainsawPinata')
+						{
+							// armor
+							if (!Armor[0] && p.CountInv("D4ArmorCapRaiser") >= 25)
+							{
+								Armor[0] = true;
+								int rng[2];
+								rng[0] = random(1,256) > 128 ? 1 : 0;
+								rng[1] = random(1,256) > 128 ? 1 : 0;
+								Pinatas.AddItem("D4PinataArmor", rng[0] + rng[1]);
+							}
+							if (!Armor[1] && p.CountInv("D4ArmorCapRaiser") >= 50)
+							{
+								Armor[1] = true;
+								int rng[2];
+								rng[0] = random(1,256) > 128 ? 1 : 0;
+								rng[1] = random(1,256) > 128 ? 1 : 0;
+								Pinatas.AddItem("D4PinataArmor", rng[0] + rng[1]);
+							}
+							if (!Armor[2] && p.CountInv("D4ArmorCapRaiser") >= 100)
+							{
+								Armor[2] = true;
+								Pinatas.AddItem("D4PinataArmor", 2);
+							}
+						}
+						else if (!Armor[3] && p.CountInv("BasicArmor") < 200 && p.CountInv("D4ArmorCapRaiser") >= 25)	//only if player isnt at full armor and has upgraded his armor
+						{
+							Armor[3] = true;
+							int rng = random(1,256) > 192 ? 1 : 0;
+							Pinatas.AddItem("D4PinataArmor", rng); //very rarely they will drop armor
+						}
+						//health giver
+						if (!HPPin && p.health < 60)
+						{
+							HPPin = true;
+							int rng = random(1,256) > 192 ? 1 : 0;
+							Pinatas.AddItem("D4PinataHealth", 1 + rng);
+						}
+						//bullets giver
+						if (!Bullets && (p.CountInv("D4AssaultRifle") || 
+							p.CountInv("D4Chaingun") ||
+							p.CountInv("D4Repeater")) && 
+							p.CountInv("D4Bullets") < 10)
+						{
+							Bullets = true;
+							int rng[2];
+							rng[0] = random(1,256) > 128 ? 1 : 0;
+							rng[1] = random(1,256) > 240 ? 1 : 0;
+							Pinatas.AddItem("D4PinataBullets", rng[0] + rng[1]);
+						}
+						
+						//Shells giver
+						if (!Shells && (p.CountInv("D4Shotgun") || 
+							p.CountInv("D4SuperShotgun")) && 
+							p.CountInv("D4Shells") < 5)
+						{
+							Shells = true;
+							int rng[2];
+							rng[0] = random(1,256) > 128 ? 1 : 0;
+							rng[1] = random(1,256) > 128 ? 1 : 0;
+							Pinatas.AddItem("D4PinataShells", rng[0] + rng[1]);
+						}
+						
+						//Cells giver
+						if (!Cells && (p.CountInv("D4PlasmaRifle") ||
+							p.CountInv("D4GaussCannon") ||
+							p.CountInv("D4LightningGun")) && 
+							p.CountInv("D4Cells") < 16)
+						{
+							Cells = true;
+							int rng[2];
+							rng[0] = random(1,256) > 128 ? 1 : 0;
+							rng[1] = random(1,256) > 128 ? 1 : 0;
+							Pinatas.AddItem("D4PinataCells", rng[0] + rng[1]);
+						}
+						//Rockets giver
+						if (!Rockets && p.CountInv("D4RocketLauncher") && p.CountInv("D4Rockets") < 5)
+						{
+							Rockets = true;
+							int rng = random(1,256) > 196 ? 1 : 0;
+							Pinatas.AddItem("D4PinataRockets", rng);
+						}
+						
+						//BFG ammo giver, this one doesnt check for ammo low, but it does check for the weapon
+						if (!BFG && p.CountInv("D4BFG"))
+						{
+							BFG = true;
+							if (random(1,512) < 16)	Pinatas.AddItem("D4PinataBFG", 1);
+						}
+					}
+				}
+				// -------------------------------------------------------------
+				// Drop Cash.
+				// -------------------------------------------------------------
+				CashMul *= (p.CountInv("PowerD4Money") ? 4 : 1);
+				if (D4D_CurrentUpgradeMode)
+				{
+					if (CrateDropAlways > 0)
+					{
+						p.A_GiveInventory("D4DCash",		CrateDropAlways);
+						p.A_GiveInventory("D4DCashFake",	CrateDropAlways);
+						p.A_GiveInventory("CashUpdater",	1);
+					}
+				}
+				else
+				{
+					if (CashAmount > 0)
+					{
+						p.A_GiveInventory("D4DCash",		CashAmount);
+						p.A_GiveInventory("D4DCashFake",	CashAmount);
+						p.A_GiveInventory("CashUpdater",	1);
+					}
+				}
+			}
+		}
+		Pinatas.DropItemsPos(pos);
+	}
+	
+		/*
+		if (mo && mo.bCOUNTKILL && mo.bISMONSTER)
+		{
+			if (!mo.bFRIENDLY || mo is "D4AbstractMonster")
+			{
+				Monsters[0]++;
+			}
+		}
+		*/
+}
+
+// List of monsters not allowed to drop pinatas or credits at all.
+Class D4BlackList : Thinker
+{
+	Array<String> List;
+
+	D4BlackList Init()
+	{
+		List.Clear();
+		ChangeStatNum(STAT_STATIC);
+		return self;
+	}
+
+	//--------------------------------------------------------------------------
+	// Used to grab an existing blacklilst, or create one if not already. 
+	static D4BlackList Get()
+	{
+		ThinkerIterator it = ThinkerIterator.Create("D4BlackList",STAT_STATIC);
+		let p = D4BlackList(it.Next());
+		if (p == null)
+		{
+			p = new("D4BlackList").Init();
+		}
+		return p;
+	}
+	
+	//--------------------------------------------------------------------------
+	// Adds a monster to the black list
+	void Add(String mon)
+	{
+		Class<Actor> check = mon;
+		if (!check)	return;
+		
+		int size = List.Size();
+		if (size > 0)
+		{
+			for (int i = 0; i < List.Size(); i++)
+			{
+				// ~== is a non-case sensitive comparison, while == is case sensitive.
+				// We don't care for case sensitivity -- just that they match.
+				// Makes the lives of addon devs a little easier.
+				if (List[i] ~== mon)	return;
+			}
+		}
+		List.Push(mon);
+	}
+	
+	//--------------------------------------------------------------------------
+	// Removes a monster from the black list
+	void Remove(String mon)
+	{
+		Class<Actor> check = mon;
+		if (!check)	return;
+		
+		int size = List.Size();
+		if (size > 0)
+		{
+			for (int i = 0; i < List.Size(); i++)
+			{
+				if (List[i] ~== mon)	
+				{
+					List.Delete(i);
+					return;
+				}
+			}
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+	// Checks and returns based on if the monster is on the black list.
+	bool Check(String mon)
+	{
+		Class<Actor> check = mon;
+		if (!check)	return false;
+		
+		if (List.Size() > 0)
+		{
+			for (int i = 0; i < List.Size(); i++)
+			{
+				if (List[i] ~== mon)
+					return true;
+			}
+		}
+		return false;
+	}
+}

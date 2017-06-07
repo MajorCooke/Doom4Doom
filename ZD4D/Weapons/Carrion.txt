@@ -1152,7 +1152,7 @@ Class CarrionShotTrackingLaser : Actor
 	int user_t;
 	int user_count;
 	int user_render;
-	
+	PlayerPawn plr;
 	Default 
 	{
 		+NOCLIP
@@ -1174,6 +1174,10 @@ Class CarrionShotTrackingLaser : Actor
 			user_y = pos.y;
 			user_z = pos.z;
 			user_render = int(GetCvar("vid_renderer"));
+			if (master) 
+			{
+				plr = PlayerPawn(master);
+			}
 		}
 		TNT1 A 1
 		{
@@ -1181,6 +1185,9 @@ Class CarrionShotTrackingLaser : Actor
 			{	return ResolveState("Null");	}
 			
 			if (master) { pitch = master.pitch; }
+			
+			
+			
 			A_Warp(MasterPtr,0,7.5,0,0,WARPF_NOCHECKPOSITION|WARPF_STOP,"Null",0.6 + sin(pitch) * 0.2, -0.6 + cos(pitch) * 0.4);
 			user_count = 0;
 			user_angdiff = abs(GetAngle(GAF_RELATIVE,TracerPtr));
