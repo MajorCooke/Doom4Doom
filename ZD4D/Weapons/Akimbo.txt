@@ -64,6 +64,7 @@ Class AkimboWeapon : Weapon
 	StateLabel LeftNext, RightNext;
 	Class<Weapon> LeftPend, RightPend;
 	Class<Weapon> LeftGun, RightGun;
+	bool SwitchMod[2];
 	int InputCur, InputOld;
 	int WeaponFlags;
 	Vector2 LOff, ROff, LO, RO;
@@ -2022,14 +2023,14 @@ Class AkimboWeapon : Weapon
 			D4RocketLauncher.StartPreparingReloadSprites:	//all "Start preparing" are to assign what sprite to display in the "####" instances
 				RLNR A 0
 				{
-					if (CountInv("DetonateActive"))			{	return ResolveState("D4RocketLauncher.DetonateSpriteFlashReload");	}
-					if (CountInv("LockOnActive"))			{	return ResolveState("D4RocketLauncher.LockOnSpriteFlashReload");	}
+					if (CountInv("DetonateActive"))			{	return ResolveState("D4RocketLauncher.DetonateReload");	}
+					if (CountInv("LockOnActive"))			{	return ResolveState("D4RocketLauncher.LockOnReload");	}
 					return ResolveState ("D4RocketLauncher.ResumeFlashSequenceReload");
 				}
 				
-			DetonateSpriteFlashReload:
+			D4RocketLauncher.DetonateReload:
 				RLDR A 0 A_Jump(256,"D4RocketLauncher.ResumeFlashSequenceReload");
-			LockOnSpriteFlashReload:
+			D4RocketLauncher.LockOnReload:
 				RLLR A 0 A_Jump(256,"D4RocketLauncher.ResumeFlashSequenceReload");
 			//A_SetTics(CountInv("PowerD4DFS") ? 0 : 1);
 	D4RocketLauncher.ResumeFlashSequenceReload:
@@ -2096,14 +2097,14 @@ Class AkimboWeapon : Weapon
 			}
 		D4PlasmaRifle.StunBombReady:
 			PRSI A 0; //ACS_NamedExecute("ModSelectedText",0,6,0,0);	//print stun bomb
-			Goto ContinueReady;
+			Goto D4PlasmaRifle.ContinueReady;
 		D4PlasmaRifle.HeatBlastReady:
 			PRHI A 0 
 			{
 				A_Overlay(2,"D4PlasmaRifle.Overlay.HeatGeneration",true);
 				//ACS_NamedExecute("ModSelectedText",0,5,0,0);	//print heat
 			}
-			Goto ContinueReady;
+			Goto D4PlasmaRifle.ContinueReady;
 			
 	D4PlasmaRifle.ContinueReady:
 		"####" AAAAAAAAA 1 AkWeaponReady(WRF_NOSECONDARY, true);
@@ -2963,7 +2964,7 @@ Class AkimboWeapon : Weapon
 		"####" L 1 { A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
 		"####" M 1;
 		"####" N 1 { A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
-		"####" O 1;
+		"####" O 1 AkRefire("D4GaussCannon.Fire");
 		Goto D4GaussCannon.Ready;
 		
 	//==========================================================================
@@ -2992,13 +2993,9 @@ Class AkimboWeapon : Weapon
 	/*==========================================================================
 	 Primary Fire
 	 ------------
-	 Shoots an argent Projectile; which seeks after the enemy the player aims
-	 for, or hits one in particular that's in the way. Upon contact, attaches
-	 enemy and charges up, so long as the player can maintain FOV with it. Will
-	 detonate if sight is lost, or if carrion is depleted. The greater the
-	 charge, the more powerful the explosion. At higher levels, splits into 
-	 Argent-seeking spheres that chain attack all enemies infinitely until none
-	 are left. Very powerful, and can be used as a nuke when fully upgraded.
+	 Shoots an argent projectile that attaches itself to the nearest enemy in
+	 sight, charges for two seconds and explodes based on how long it charged.
+	 Maximum 2 seconds.
 	==========================================================================*/
 	D4CarrionCannon.Fire:
 		
