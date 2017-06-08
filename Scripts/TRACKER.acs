@@ -59,7 +59,7 @@ script "WhichWeapon" (void)
 		}
 }
 
-script "Tracker" OPEN
+script "Tracker" (void)
 {
 	int plrptr, plr, buttons;
 	int health, armor, ammo, ammo2, i;

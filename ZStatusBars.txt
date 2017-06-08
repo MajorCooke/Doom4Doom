@@ -396,21 +396,23 @@ Class Doom4StatusBar : BaseStatusBar
 				DrawImage(MedalImage[i], MedalPos, imageAlignment);
 			}
 			
-			int GrenCD, GrenCDMax;
-			String GrenadeImageBar = (GrenCD > 0) ? "KEYSLOT0" : "KEYSLOT1";
-			
-			[GrenCD, GrenCDMax] = GetAmount("GrenadeCooldown");
-			if (GetAmountOnly("FragGrenadeSelected"))
-				DrawImage((GrenCD > 0) ? "FragGre0" : "FragGren", (828, 682), imageAlignment);
-			else if (GetAmountOnly("SyphonGrenadeSelected"))
-				DrawImage((GrenCD > 0) ? "SyphGre0" : "SyphGren", (827, 679), imageAlignment);
-			else if (GetAmountOnly("MarineHoloSelected"))
-				DrawImage((GrenCD > 0) ? "HoloGre0" : "HoloGren", (827, 681), imageAlignment);
-			
-			
-			DrawBar("KEYSLOTR", "KEYSLOT0", GrenCD, GrenCDMax, (825, 680), 0, SHADER_VERT|SHADER_REVERSE, imageAlignment);
-			DrawImage((GrenCD > 0) ? "KEYSLOT0" : "KEYSLOT1", (825, 860), imageAlignment);
-			
+			if (!CheckWeaponSelected("AkimboWeapon"))
+			{
+				int GrenCD, GrenCDMax;
+				String GrenadeImageBar = (GrenCD > 0) ? "KEYSLOT0" : "KEYSLOT1";
+				
+				[GrenCD, GrenCDMax] = GetAmount("GrenadeCooldown");
+				if (GetAmountOnly("FragGrenadeSelected"))
+					DrawImage((GrenCD > 0) ? "FragGre0" : "FragGren", (828, 682), imageAlignment);
+				else if (GetAmountOnly("SyphonGrenadeSelected"))
+					DrawImage((GrenCD > 0) ? "SyphGre0" : "SyphGren", (827, 679), imageAlignment);
+				else if (GetAmountOnly("MarineHoloSelected"))
+					DrawImage((GrenCD > 0) ? "HoloGre0" : "HoloGren", (827, 681), imageAlignment);
+				
+				
+				DrawBar("KEYSLOTR", "KEYSLOT0", GrenCD, GrenCDMax, (825, 680), 0, SHADER_VERT|SHADER_REVERSE, imageAlignment);
+				DrawImage((GrenCD > 0) ? "KEYSLOT0" : "KEYSLOT1", (825, 860), imageAlignment);
+			}
 			//======================================================================
 			// Ammo Pane + Chainsaw + BFG Ammo Counters
 			
