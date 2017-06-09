@@ -747,7 +747,25 @@ extend class Doom4Player
 			ITS.Init();
 			
 			// Because of KEEPDEPLETED, that's all we'll need. I am so happy this
-			// flag exists.
+			// flag exists. Now, what is the point behind this? Simple. It gives
+			// and takes an inventory item so that it's technically 'present'
+			// yet at the same time acts as if it's not there, preventing it from
+			// being of use.
+			
+			// Why is it necessary? Because the upgrade menu cannot work without
+			// them. Each upgrade has a price attached to it (see Upgrades.txt)
+			// along with pre-requisites. This absolutely must be done or else
+			// the menu won't work.
+			
+			// But this is only necessary for items that are not already present
+			// in the player's inventory. If they already are, it's obviously not
+			// in need of depleting. We just need to make sure they have the
+			// item available for the menu to read it, as it calls FindInventory
+			// which won't return null thanks to KEEPDEPLETED -- even if the 
+			// quantity is 0. Which is perfect.
+			
+			// tl;dr the item's there for the menu while not being active until
+			// the player has 1+, nuff sed
 			for (int i = 1; i < ITS.ItemList.Size(); i++)
 			{
 				Class<Inventory> check = ITS.ItemList[i];
@@ -788,7 +806,7 @@ extend class Doom4Player
 		// Handle Pentagram of Protection effects here. Pretty much a copy/pasta
 		// of the internal damage, including thrusting since it's needless to call
 		// P_DamageMobj.
-		if (bINVULNERABLE || bNODAMAGE || FindInventory("PowerInvulnerable",true))
+		if (bINVULNERABLE || bNODAMAGE || FindInventory("PowerInvulnerable",true) || CountInv("CantTouchThis"))
 		{
 			if (CountInv("D4PentagramUpgrade3") && mod != 'Reflection')
 			{
@@ -846,8 +864,14 @@ extend class Doom4Player
 			return -1;
 		}
 		
+		// Can't touch dis.
+		if (CountInv("CantTouchThis"))
+		{
+			bNODAMAGE = true;
+			damage = Clamp(damage, 0, TELEFRAG_DAMAGE - 1);
+		}
 		// Don't negate stuff if it's telefrag damage.
-		if (damage < TELEFRAG_DAMAGE)
+		else if (damage < TELEFRAG_DAMAGE)
 		{
 			// Reduce by 1% for every megasphere we've picked up.
 			// DoomDoll does not give this bonus.
@@ -1142,10 +1166,32 @@ extend class Doom4Player
 		}
 	}
 	
+	override void CheatTake (String name, int amount)
+	{
+		bool takeall;
+		Class<Inventory> type;
+		let player = self.player;
+
+
+		if (player.mo == NULL || player.health <= 0)
+		{
+			return;
+		}
+		
+		if (takeall || name ~== "armor")
+		{
+			A_GiveInventory("ArmorStripper",1);
+			//CheatTakeType("Armor");
+			if (!takeall)
+				return;
+		}
+		
+		return Super.CheatTake(name, amount);
+	}
+	
 	//--------------------------------------------------------------------------
 	//
 	//--------------------------------------------------------------------------
-	
 	override void Die(Actor source, Actor inflictor, int dmgflags = 0)
 	{
 		if (!player || !player.mo || player.mo != self)

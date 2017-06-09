@@ -80,7 +80,7 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 			A_PlaySound("Doom4/Monsters/LostSoul/Attack",CHAN_AUTO,0.6);
 			return ResolveState(null);
 		}
-		PSUL AAAAAAAAAA 2 BRIGHT Light("OrangeMediumFlicker3")
+		PSUL AAAAAAAAAA 2 BRIGHT Light("RedMediumFlicker3")
 		{ 
 			A_FaceTarget();
 			if(GetCvar("HQEffects"))
@@ -96,7 +96,7 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 		}
 	SkipWarning:
 		PSUL B 0 BRIGHT A_SkullAttack;	//attack frame
-		PSUL B 2 BRIGHT Light("OrangeMediumFlicker3")
+		PSUL B 2 BRIGHT Light("RedMediumFlicker3")
 		{
 			if (bFRIENDLY)
 			{
@@ -257,18 +257,19 @@ Class LostSoulRedFlame : Actor
 	{
 		+NOINTERACTION
 		+FORCEXYBILLBOARD
+		+BRIGHT
 		RenderStyle "Add";
 		Alpha 0.8;
 		XScale 0.6;
 		YScale 0.4;
-		Translation "0:255=%[0,0,0]:[2,0.2,0]";
+		Translation "0:255=%[0,0,0]:[2.0,0.5,0.5]";
 	}
 	States
 	{
 	Spawn:
 		TNT1 A 1 NODELAY A_Jump(256,"Type1","Type2","Type3","Type4","Type5");
 	Type1:
-		TNT1 A 0 A_Jump(220,5,6,7,8,9,10);
+		TNT1 A 0 A_Jump(220,random(2,5));
 		X052 ABCDEFGHIJKLMNOPRS 1 Bright 
 		{
 			A_SetScale(Scale.X-0.03,Scale.Y-0.03);
@@ -276,7 +277,7 @@ Class LostSoulRedFlame : Actor
 		}
 		Stop;
 	Type2:
-		TNT1 A 0 A_Jump(220,5,6,7,8,9,10);
+		TNT1 A 0 A_Jump(220,random(2,5));
 		X053 ABCDEFGHIJKLMNOPRSTU 1 Bright 
 		{
 			A_SetScale(Scale.X-0.03,Scale.Y-0.03);
@@ -284,7 +285,7 @@ Class LostSoulRedFlame : Actor
 		}
 		Stop;
 	Type3:
-		TNT1 A 0 A_Jump(220,5,6,7,8,9,10);
+		TNT1 A 0 A_Jump(220,random(2,5));
 		X054 ABCDEFGHIJKLMNOPRS 1 Bright 
 		{
 			A_SetScale(Scale.X-0.03,Scale.Y-0.03);
@@ -292,7 +293,7 @@ Class LostSoulRedFlame : Actor
 		}
 		Stop;
 	Type4:
-		TNT1 A 0 A_Jump(220,5,6,7,8,9,10);
+		TNT1 A 0 A_Jump(220,random(2,5));
 		X055 ABCDEFGHIJKLMNOPRS 1 Bright 
 		{
 			A_SetScale(Scale.X-0.03,Scale.Y-0.03);
@@ -300,7 +301,7 @@ Class LostSoulRedFlame : Actor
 		}
 		Stop;
 	Type5:
-		TNT1 A 0 A_Jump(220,5,6,7,8,9,10);
+		TNT1 A 0 A_Jump(220,random(2,5));
 		X056 ABCDEFGHIJKLMNOPR 1 Bright 
 		{
 			A_SetScale(Scale.X-0.03,Scale.Y-0.03);
@@ -328,8 +329,16 @@ Class LostSoulRedFlare : Actor
 		Alpha 0.8;
 		Scale 0.9;
 		Alpha 0.7;
-		//Translation "0:255=%[0,0,0]:[2,0.5,0]"
+		Translation "0:255=%[0,0,0]:[2.0,0.5,0.5]";
 	}
+	
+	override void PostBeginPlay()
+	{
+		roll = random(0,359);
+		Scale.X *= randompick(-1,1);
+		Super.PostBeginPlay();
+	}
+	
 	States
 	{
 	Spawn:
@@ -433,11 +442,11 @@ Class D4OldLostSoulNoCash : D4AbstractMonster
 			{ bThruActors = true; }
 			if(GetCvar("HQEffects"))
 			{
-				A_SpawnItemEx("LostSoulExploParticleOrange",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("LostSoulExploParticleOrange",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("LostSoulExploParticleOrange",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("LostSoulExploParticleOrange",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("LostSoulExploParticleOrange",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("LostSoulExploParticleRed",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("LostSoulExploParticleRed",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("LostSoulExploParticleRed",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("LostSoulExploParticleRed",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("LostSoulExploParticleRed",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
 			}
 		}
 		SKUL I 3 Bright A_NoBlocking();
@@ -448,7 +457,7 @@ Class D4OldLostSoulNoCash : D4AbstractMonster
 }
 
 
-Class LostSoulExploParticleOrange : Actor 
+Class LostSoulExploParticleRed : Actor 
 {
 	int user_counter;
 	Default 
@@ -458,7 +467,7 @@ Class LostSoulExploParticleOrange : Actor
 		Scale 0.4;
 		RenderStyle "Add";
 		Alpha 0.7;
-		Translation "0:255=%[0,0,0]:[1.4,0.4,0]";
+		Translation "0:255=%[0,0,0]:[1.5,0.0,0]";
 		+FORCEXYBILLBOARD
 	}
 	States

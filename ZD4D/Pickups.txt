@@ -141,7 +141,7 @@ Class D4ArmorBonus : ArmorBonus replaces ArmorBonus
 		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
 		Armor.SaveAmount 3;
 		Scale 0.55;
-		+ALLOWPAIN 
+		+ALLOWPAIN
 	}
 	States
 	{
@@ -162,18 +162,18 @@ Class ArmorStripper : CustomInventory
 	Pickup:
 		TNT1 A 0
 		{
-			A_TakeInventory("Armor",32767);
-			A_TakeInventory("ArmorBonus",32767);
-			A_TakeInventory("BasicArmor",32767);
-			A_TakeInventory("BasicArmorBonus",32767);
-			A_TakeInventory("BasicArmorPickup",32767);
-			A_TakeInventory("D4ArmorBonus",32767);
-			A_TakeInventory("D4GreenArmor",32767);
-			A_TakeInventory("D4BlueArmor",32767);
-			A_TakeInventory("D4BasicArmorBonus",32767);
-			A_TakeInventory("D4ArmorBonus",32767);
-			A_TakeInventory("D4ArmorPickup",32767);
-			A_TakeInventory("D4BlueArmorMegasphere",32767);
+			A_SetInventory("Armor",0);
+			A_SetInventory("ArmorBonus",0);
+			A_SetInventory("BasicArmor",0);
+			A_SetInventory("BasicArmorBonus",0);
+			A_SetInventory("BasicArmorPickup",0);
+			A_SetInventory("D4ArmorBonus",0);
+			A_SetInventory("D4GreenArmor",0);
+			A_SetInventory("D4BlueArmor",0);
+			A_SetInventory("D4BasicArmorBonus",0);
+			A_SetInventory("D4ArmorBonus",0);
+			A_SetInventory("D4ArmorPickup",0);
+			A_SetInventory("D4BlueArmorMegasphere",0);
 			return true;
 		}
 		Stop;
@@ -189,6 +189,7 @@ Class D4GreenArmorGiver : ArmorBonus
 		Armor.SaveAmount 100;
 		Armor.MaxAbsorb 200;
 		Armor.MaxFullAbsorb 200;
+		
 	}
 }
 
@@ -242,34 +243,24 @@ Class D4GreenArmor : CustomInventory replaces GreenArmor
 	Pickup:
 		TNT1 A 0
 		{ // See top of file for armor cap definitions.
-			if (CountInv("BasicArmor") < ArmorCapGreen + CountInv("D4ArmorCapRaiser"))
+			
+			let inv = BasicArmor(FindInventory("BasicArmor"));
+			
+			if (!inv || inv.ArmorType == 'None' || inv.ArmorType == '' || inv.Amount < 1)
 			{
-				A_TakeInventory("ArmorCount",32767);
-				if (CountInv("BasicArmor"))
-				{	A_GiveInventory("ArmorCount",CountInv("BasicArmor"));	}
 				if (A_GiveInventory("ArmorStripper",1))
-				{
-					while (CountInv("ArmorCount"))
-					{
-						A_GiveInventory("ArmorSinglePoint",1);
-						A_TakeInventory("ArmorCount",1,0);
-					}
-					A_GiveInventory("D4GreenArmorGiver",1);	
-					
-					if (CountInv("BasicArmor") > ArmorCapGreen + CountInv("D4ArmorCapRaiser"))
-					{
-						A_GiveInventory("ArmorStripper");
-						A_GiveInventory("D4GreenArmor100");
-						
-						while (CountInv("BasicArmor") < ArmorCapGreen + CountInv("D4ArmorCapRaiser"))
-						{
-							A_GiveInventory("ArmorSinglePoint",1);
-						}
-					}
-					
-				}
+					A_GiveInventory("D4GreenArmorGiver",1);
 				return true;
 			}
+			inv.SavePercent = 100; //Always ensure each armor picked up grants full damage protection.
+			inv.MaxAbsorb = Max(inv.MaxAbsorb, 200);
+			inv.MaxFullAbsorb = Max(inv.MaxFullAbsorb, 200);
+			int Cap = ArmorCapGreen + CountInv("D4ArmorCapRaiser");
+			if (inv.Amount < Cap)
+			{
+				inv.Amount = Min(inv.Amount + int(ArmorCapGreen * G_SkillPropertyFloat(SKILLP_ArmorFactor)), Cap);
+				return true;
+			}		
 			return false;
 		}
 		Stop;
@@ -293,21 +284,21 @@ Class D4BlueArmor : CustomInventory replaces BlueArmor
 	Pickup:
 		TNT1 A 0
 		{
-			if (CountInv("BasicArmor") < ArmorCapBlue)
+			let inv = BasicArmor(FindInventory("BasicArmor"));
+			
+			if (!inv || inv.ArmorType == 'None' || inv.ArmorType == '' || inv.Amount < 1)
 			{
-				A_TakeInventory("ArmorCount",32767);
-				if (CountInv("BasicArmor"))
-				{	A_GiveInventory("ArmorCount",CountInv("BasicArmor"));	}
 				if (A_GiveInventory("ArmorStripper",1))
-				{
-					while (CountInv("ArmorCount"))
-					{
-						A_GiveInventory("ArmorSinglePoint",1);
-						A_TakeInventory("ArmorCount",1,0);
-					}
 					A_GiveInventory("D4BlueArmorGiver",1);
-					
-				}
+				return true;
+			}
+			inv.SavePercent = 100; //Always ensure each armor picked up grants full damage protection.
+			inv.MaxAbsorb = Max(inv.MaxAbsorb, 200);
+			inv.MaxFullAbsorb = Max(inv.MaxFullAbsorb, 200);
+			int Cap = ArmorCapBlue;
+			if (inv.Amount < Cap)
+			{
+				inv.Amount = Min(inv.Amount + int(ArmorCapBlue * G_SkillPropertyFloat(SKILLP_ArmorFactor)), Cap);
 				return true;
 			}
 			return false;

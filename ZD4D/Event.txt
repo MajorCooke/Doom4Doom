@@ -4,12 +4,38 @@ extend class D4DHandler
 {
 	D4BlackList BlackList;
 	
+	//--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	
 	override void OnRegister()
 	{
 		BlackList = D4BlackList.Get();
+		if (BlackList)
+		{
+			BlackList.Add("D4LostSoulNoCash", true);
+			BlackList.Add("D4OldLostSoulNoCash", true);
+			
+		}
 		Super.OnRegister();
 	}
 	
+	/*
+	override void WorldLoaded(WorldEvent e)
+	{
+		BlackList = D4BlackList.Get();
+		if (BlackList)
+		{
+			BlackList.Add("D4LostSoulNoCash", true);
+			BlackList.Add("D4OldLostSoulNoCash", true);
+			Console.Printf("Black list loaded.");
+		}
+		else
+			Console.Printf("Black list was unable to load!");
+	}
+	*/
+	
+	//--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
 	override void WorldThingDied(WorldEvent e)
 	{
 		let mo = e.Thing;
@@ -17,7 +43,7 @@ extend class D4DHandler
 		
 		// Check the global blacklist and do nothing if found on it.
 		if (!BlackList) BlackList = D4BlackList.Get();
-		if (BlackList.Check(mo.GetClassName()))	return;
+		if (BlackList.Check(mo))	return;
 		
 		// Keeps track if these have already been checked or not. Only check it
 		// once and discard all further attempts if it's going to spawn already.
@@ -317,7 +343,8 @@ extend class D4DHandler
 // List of monsters not allowed to drop pinatas or credits at all.
 Class D4BlackList : Thinker
 {
-	Array<String> List;
+	Array<String> List;		// Non-parent list
+	Array<String> PList;	// Parent list
 
 	D4BlackList Init()
 	{
@@ -341,61 +368,268 @@ Class D4BlackList : Thinker
 	
 	//--------------------------------------------------------------------------
 	// Adds a monster to the black list
-	void Add(String mon)
+	void Add(Name mon, bool parent = false)
 	{
+		// Make sure it's an actual thing that can be added, as in an actual class
+		// that's an actor.
 		Class<Actor> check = mon;
-		if (!check)	return;
-		
-		int size = List.Size();
-		if (size > 0)
+		if (!check)	
 		{
-			for (int i = 0; i < List.Size(); i++)
+			String thing = mon;
+			Console.Printf("Bad actor %s", thing);
+			return;
+		}
+		
+		Array<String> Test;
+		if (parent)		Test.Copy(PList);
+		else			Test.Copy(List);
+		
+		String thing = mon;
+		
+		if (Test.Size() > 0)
+		{
+			//If it's already in, do nothing.
+			int po = Test.Find(mon);
+			if (po < Test.Size())
 			{
-				// ~== is a non-case sensitive comparison, while == is case sensitive.
-				// We don't care for case sensitivity -- just that they match.
-				// Makes the lives of addon devs a little easier.
-				if (List[i] ~== mon)	return;
+				Console.Printf("%s already in", thing);
+				return;
 			}
 		}
-		List.Push(mon);
+		
+		Test.Push(mon);
+		//Console.Printf("Added %s", thing);
+		
+		if (parent)		PList.Move(Test);
+		else			List.Move(Test);
+		
 	}
+	
+	/*
+	//--------------------------------------------------------------------------
+	// Adds a monster to the black list
+	void Add(Name mon, bool parent = false)
+	{
+		// Make sure it's an actual thing that can be added, as in an actual class
+		// that's an actor.
+		Class<Actor> check = mon;
+		if (!check)	
+		{
+			String thing = mon;
+			Console.Printf("Bad actor %s", thing);
+			return;
+		}
+		
+		String thing = mon;
+		if (parent)
+		{
+			if (PList.Size() > 0)
+			{
+				//If it's already in, do nothing.
+				for (int i = 0; i < PList.Size(); i++)
+				{
+					if (mon == PList[i])
+					{
+						Console.Printf("%s already in", thing);
+						return;
+					}
+				}
+			}
+			PList.Push(mon);
+		}
+		else
+		{
+			if (List.Size() > 0)
+			{
+				//If it's already in, do nothing.
+				for (int i = 0; i < List.Size(); i++)
+				{
+					if (mon == List[i])
+					{
+						Console.Printf("%s already in", thing);
+						return;
+					}
+				}
+			}
+			List.Push(mon);
+		}
+	}
+	*/
 	
 	//--------------------------------------------------------------------------
 	// Removes a monster from the black list
-	void Remove(String mon)
+	void Remove(Name mon)
 	{
 		Class<Actor> check = mon;
 		if (!check)	return;
 		
-		int size = List.Size();
-		if (size > 0)
+		// Check the base list.
+		if (List.Size() > 0)
 		{
-			for (int i = 0; i < List.Size(); i++)
+			int po = List.Find(mon);
+			if (po < List.Size())
 			{
-				if (List[i] ~== mon)	
-				{
-					List.Delete(i);
-					return;
-				}
+				List.Delete(po);
+			}
+		}
+		
+		// Now check the parent list.
+		if (PList.Size() > 0)
+		{
+			int po = PList.Find(mon);
+			if (po < PList.Size())
+			{
+				PList.Delete(po);
 			}
 		}
 	}
 	
 	//--------------------------------------------------------------------------
 	// Checks and returns based on if the monster is on the black list.
-	bool Check(String mon)
+	bool Check(Actor mon)
 	{
-		Class<Actor> check = mon;
-		if (!check)	return false;
-		
-		if (List.Size() > 0)
+		if (!mon)	return false;
+		if (List.Size() + PList.Size() < 1)	
 		{
-			for (int i = 0; i < List.Size(); i++)
+			return false;
+		}
+		
+		if (PList.Size() > 0)
+		{
+			for (int i = 0; i < PList.Size(); i++)
 			{
-				if (List[i] ~== mon)
+				Class<Actor> other = PList[i];
+				if (other && (mon.GetClass() is other))
+				{
 					return true;
+				}			
 			}
 		}
+		if (List.Size() > 0)
+		{
+			int po = List.Find(mon.GetClassName());
+			if (po < List.Size())
+				return true;
+		}
 		return false;
+	}
+}
+
+//==============================================================================
+//==============================================================================
+//
+//	Base items
+//
+//==============================================================================
+//==============================================================================
+
+// Defines how many pinatas to drop.
+
+/*
+D4DropList
+
+Functions:
+- ResetList()
+- AddItem(String newthing, int count = 1, bool adding = true)
+- DropItems(Actor dropper)
+*/
+
+Struct D4DropList play
+{
+	Array<String> ItemName;
+	Array<Int> ItemCount;
+	
+	//--------------------------------------------------------------------------
+	// ResetList()
+	//
+	// Wipes out all items on the drop list and sets all counts to 0.
+	//--------------------------------------------------------------------------
+	
+	void ResetList()
+	{
+		ItemName.Clear();
+		ItemCount.Clear();
+	}
+	
+	//--------------------------------------------------------------------------
+	// AddItem(actor, count)
+	//
+	// Adds an item to the list and how many to spawn.
+	//--------------------------------------------------------------------------
+	
+	void AddItem(String newthing, int count = 1, bool adding = true)
+	{
+		// Make sure the item's valid first.
+		
+		Class<Inventory> newitem = newthing;
+		if (newitem == null)	return;
+		
+		// Search the array first for something, if its size is > 0. Otherwise,
+		// add it in if not found.
+		
+		int size = ItemName.Size();
+		if (size > 0)
+		{
+			for (int i = 0; i < size; i++)
+			{
+				if (newthing ~== ItemName[i])
+				{
+					ItemCount[i] = adding ? ItemCount[i] + count : count;
+					return;
+				}
+			}
+		}
+		ItemName.Push(newthing);
+		ItemCount.Push(count);
+	}
+	
+	//--------------------------------------------------------------------------
+	// DropItems(actor)
+	//
+	// Causes an actor to spawn its entire list of items.
+	//--------------------------------------------------------------------------
+	
+	void DropItems(Actor dropper)
+	{
+		if (!dropper)	
+		{
+			return;
+		}
+		
+		int size = ItemName.Size();
+		if (size > 0)
+		{
+			for (int i = 0; i < size; i++)
+			{
+				Class<Inventory> check = ItemName[i];
+				if (check == null)	continue;
+				
+				if (dropper) dropper.A_SpawnItemEx(check,0,0,32,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+			}
+			ItemName.Clear();
+			ItemCount.Clear();
+		}
+	}
+	
+	void DropItemsPos(Vector3 mpos)
+	{
+		int size = ItemName.Size();
+		if (size > 0)
+		{
+			for (int i = 0; i < size; i++)
+			{
+				Class<Inventory> check = ItemName[i];
+				if (check == null)	continue;
+				
+				Actor it = Actor.Spawn(check, mpos + (0, 0, 32.0));
+				if (it)
+				{
+					it.VelFromAngle(frandom(3,6),random(0,359));
+					it.vel.Z += frandom(1,5);
+				}
+			}
+			ItemName.Clear();
+			ItemCount.Clear();
+		}
 	}
 }
