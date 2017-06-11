@@ -525,11 +525,11 @@ Class PowerD4Regen : PowerRegeneration
 		{
 			if (Owner.CountInv("D4RegenUpgrade2"))
 			{
-				Owner.A_GiveInventory("D4ArmorBonus");
+				Owner.A_GiveInventory("D4ArmorBonusPickup");
 				GiveHealth();
 			}
 			else if (Owner.CountInv("D4RegenUpgrade1") && Owner.health >= (100 + Owner.stamina))
-				Owner.A_GiveInventory("D4ArmorBonus");
+				Owner.A_GiveInventory("D4ArmorBonusPickup");
 			else
 				GiveHealth();
 		}

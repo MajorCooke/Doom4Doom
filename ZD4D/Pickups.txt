@@ -108,49 +108,6 @@ Class D4HealthBonusUpgraded : D4HealthBonus
 //=======================================================================
 //=======================================================================
 
-Class D4ArmorPickup : BasicArmorPickup replaces BasicArmorPickup
-{	
-	Default 
-	{
-		DistanceCheck "user_MaxDrawDistance";
-		Armor.SavePercent 100;
-		Armor.MaxAbsorb 200;
-		Armor.MaxFullAbsorb 200;
-	}
-}
-
-Class D4BasicArmorBonus : BasicArmorBonus replaces BasicArmorBonus
-{
-	Default 
-	{
-		DistanceCheck "user_MaxDrawDistance";
-		Armor.SavePercent 100;
-		Armor.MaxAbsorb 200;
-		Armor.MaxFullAbsorb 200;
-	}
-}
-
-Class D4ArmorBonus : ArmorBonus replaces ArmorBonus
-{
-	Default 
-	{
-		Armor.SavePercent 100;
-		Armor.MaxAbsorb 200;
-		Armor.MaxFullAbsorb 200;
-		DistanceCheck "user_MaxDrawDistance";
-		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
-		Armor.SaveAmount 3;
-		Scale 0.55;
-		+ALLOWPAIN
-	}
-	States
-	{
-	Spawn:
-		D4AR B -1 NODELAY A_SetAngle(random(0,359));
-		Stop;
-	}
-}
-
 Class ArmorStripper : CustomInventory
 {
 	Default 
@@ -176,6 +133,161 @@ Class ArmorStripper : CustomInventory
 			A_SetInventory("D4BlueArmorMegasphere",0);
 			return true;
 		}
+		Stop;
+	}
+}
+
+Class D4ArmorBasePickup : CustomInventory
+{
+	int BaseLimit;		// The soft limit without upgrades.
+	int MaxSaveAmount;	// The hard limit.
+	int SavePercent;
+	int SaveAmount;
+	int MaxAbsorb;
+	int MaxFullAbsorb;
+	bool IgnoreSkill;
+	
+	property BaseLimit: BaseLimit;
+	property SavePercent: SavePercent;
+	property SaveAmount: SaveAmount;
+	property MaxSaveAmount: MaxSaveAmount;
+	property MaxAbsorb: MaxAbsorb;
+	property MaxFullAbsorb: MaxFullAbsorb;
+	property IgnoreSkill: IgnoreSkill;
+	Default
+	{
+		D4ArmorBasePickup.SavePercent 100;
+		D4ArmorBasePickup.SaveAmount 3;
+		D4ArmorBasePickup.BaseLimit 200;
+		D4ArmorBasePickup.MaxSaveAmount 200;
+		D4ArmorBasePickup.MaxAbsorb 200;
+		D4ArmorBasePickup.MaxFullAbsorb 200;
+		D4ArmorBasePickup.IgnoreSkill false;
+		Inventory.PickUpSound "Doom4/Pickups/ArmorMed";
+		Inventory.PickUpMessage "Big Armor Chunk";
+		DistanceCheck "user_MaxDrawDistance";
+		Scale 0.5;
+	}
+	States
+	{
+	Spawn:
+		D4AR C -1 NODELAY A_SetAngle(random(0,359));
+		Stop;
+	Pickup:
+		TNT1 A 0
+		{ // See top of file for armor cap definitions.
+			
+			let inv = BasicArmor(FindInventory("BasicArmor"));
+			
+			if (!inv)// || inv.ArmorType == 'None' || inv.ArmorType == '' || inv.Amount < 1)
+			{
+				if (A_GiveInventory("ArmorStripper",1))
+				{
+					A_GiveInventory("D4GreenArmorGiver",1);
+					/*
+					let inv = BasicArmor(FindInventory("BasicArmor"));
+					if (inv)
+					{
+						double SkillFactor = 1.0;
+						if (!IgnoreSkill)
+						{
+								 if (skill == 3) SkillFactor = 0.75;
+							else if (skill >= 4) SkillFactor = 0.5;
+						}
+						inv.Amount = int(ArmorCapGreen * SkillFactor);
+						inv.SavePercent = SavePercent;
+						inv.ArmorType = inv.GetClassName();
+						inv.MaxFullAbsorb = MaxFullAbsorb;
+						inv.MaxAbsorb = MaxAbsorb;
+					}
+					*/
+				}
+				return true;
+			}
+			int Cap = Min(invoker.BaseLimit + CountInv("D4ArmorCapRaiser"), invoker.MaxSaveAmount);
+			inv.SavePercent = invoker.SavePercent;
+			if (inv.Amount < Cap)
+			{
+				double SkillFactor = 1.0;
+				if (!invoker.IgnoreSkill)
+				{
+						 if (skill == 3) SkillFactor = 0.75;
+					else if (skill >= 4) SkillFactor = 0.5;
+				}
+				inv.Amount = Min(inv.Amount + int(invoker.SaveAmount * SkillFactor), Cap);
+				inv.ArmorType = inv.GetClassName();
+				inv.MaxFullAbsorb = invoker.MaxFullAbsorb;
+				inv.MaxAbsorb = invoker.MaxAbsorb;
+				return true;
+			}
+			return false;
+		}
+		Stop;
+	}
+}
+
+Class D4ArmorPickup : BasicArmorPickup replaces BasicArmorPickup
+{	
+	Default 
+	{
+		DistanceCheck "user_MaxDrawDistance";
+		Armor.SavePercent 100;
+		Armor.MaxAbsorb 200;
+		Armor.MaxFullAbsorb 200;
+	}
+}
+
+Class D4BasicArmorBonus : BasicArmorBonus replaces BasicArmorBonus
+{
+	Default 
+	{
+		DistanceCheck "user_MaxDrawDistance";
+		Armor.SavePercent 100;
+		Armor.MaxAbsorb 200;
+		Armor.MaxFullAbsorb 200;
+	}
+}
+
+Class D4ArmorBonus : ArmorBonus
+{
+	Default
+	{
+		Armor.SavePercent 100;
+		Armor.MaxAbsorb 200;
+		Armor.MaxFullAbsorb 200;
+		Armor.SaveAmount 3;
+		DistanceCheck "user_MaxDrawDistance";
+		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
+		Scale 0.55;
+		+ALLOWPAIN
+	}
+	States
+	{
+	Spawn:
+		D4AR B -1 NODELAY A_SetAngle(random(0,359));
+		Stop;
+	}
+}
+
+Class D4ArmorBonusPickup : D4ArmorBasePickup replaces ArmorBonus
+{
+	Default 
+	{
+		D4ArmorBasePickup.SavePercent 100;
+		D4ArmorBasePickup.SaveAmount 3;
+		D4ArmorBasePickup.BaseLimit 200;
+		D4ArmorBasePickup.MaxSaveAmount 200;
+		D4ArmorBasePickup.MaxAbsorb 200;
+		D4ArmorBasePickup.MaxFullAbsorb 200;
+		DistanceCheck "user_MaxDrawDistance";
+		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
+		Scale 0.55;
+		+INVENTORY.ALWAYSPICKUP
+	}
+	States
+	{
+	Spawn:
+		D4AR B -1 NODELAY A_SetAngle(random(0,359));
 		Stop;
 	}
 }
@@ -206,6 +318,10 @@ Class D4BlueArmorGiver : ArmorBonus
 		Armor.MaxFullAbsorb 200;
 	}
 }
+Class D4BlueArmor200 : D4BlueArmorGiver
+{
+	Default { +INVENTORY.IGNORESKILL }
+}
 
 // Allow me to explain wtf is going on here...
 // When it comes to syphon armor and the regular armor pickup, the two just
@@ -226,10 +342,16 @@ Class ArmorSinglePoint : D4ArmorBonus
 	}
 }
 
-Class D4GreenArmor : CustomInventory replaces GreenArmor
+Class D4GreenArmor : D4ArmorBasePickup replaces GreenArmor
 {
 	Default 
 	{
+		D4ArmorBasePickup.SavePercent 100;
+		D4ArmorBasePickup.SaveAmount ArmorCapGreen;
+		D4ArmorBasePickup.BaseLimit 100;
+		D4ArmorBasePickup.MaxSaveAmount 200;
+		D4ArmorBasePickup.MaxAbsorb 200;
+		D4ArmorBasePickup.MaxFullAbsorb 200;
 		Inventory.PickUpSound "Doom4/Pickups/ArmorMed";
 		Inventory.PickUpMessage "Big Armor Chunk";
 		DistanceCheck "user_MaxDrawDistance";
@@ -240,37 +362,19 @@ Class D4GreenArmor : CustomInventory replaces GreenArmor
 	Spawn:
 		D4AR C -1 NODELAY A_SetAngle(random(0,359));
 		Stop;
-	Pickup:
-		TNT1 A 0
-		{ // See top of file for armor cap definitions.
-			
-			let inv = BasicArmor(FindInventory("BasicArmor"));
-			
-			if (!inv || inv.ArmorType == 'None' || inv.ArmorType == '' || inv.Amount < 1)
-			{
-				if (A_GiveInventory("ArmorStripper",1))
-					A_GiveInventory("D4GreenArmorGiver",1);
-				return true;
-			}
-			inv.SavePercent = 100; //Always ensure each armor picked up grants full damage protection.
-			inv.MaxAbsorb = Max(inv.MaxAbsorb, 200);
-			inv.MaxFullAbsorb = Max(inv.MaxFullAbsorb, 200);
-			int Cap = ArmorCapGreen + CountInv("D4ArmorCapRaiser");
-			if (inv.Amount < Cap)
-			{
-				inv.Amount = Min(inv.Amount + int(ArmorCapGreen * G_SkillPropertyFloat(SKILLP_ArmorFactor)), Cap);
-				return true;
-			}		
-			return false;
-		}
-		Stop;
 	}
 }
 
-Class D4BlueArmor : CustomInventory replaces BlueArmor
+Class D4BlueArmor : D4ArmorBasePickup replaces BlueArmor
 {
-	Default 
+	Default
 	{
+		D4ArmorBasePickup.SavePercent 100;
+		D4ArmorBasePickup.SaveAmount ArmorCapBlue;
+		D4ArmorBasePickup.BaseLimit 200;
+		D4ArmorBasePickup.MaxSaveAmount 200;
+		D4ArmorBasePickup.MaxAbsorb 200;
+		D4ArmorBasePickup.MaxFullAbsorb 200;
 		Inventory.PickUpSound "Doom4/Pickups/Armor";
 		Inventory.PickUpMessage "Full Armor Casing";
 		DistanceCheck "user_MaxDrawDistance";
@@ -280,29 +384,6 @@ Class D4BlueArmor : CustomInventory replaces BlueArmor
 	{
 	Spawn:
 		D4AR A -1 NODELAY A_SetAngle(random(0,359));
-		Stop;
-	Pickup:
-		TNT1 A 0
-		{
-			let inv = BasicArmor(FindInventory("BasicArmor"));
-			
-			if (!inv || inv.ArmorType == 'None' || inv.ArmorType == '' || inv.Amount < 1)
-			{
-				if (A_GiveInventory("ArmorStripper",1))
-					A_GiveInventory("D4BlueArmorGiver",1);
-				return true;
-			}
-			inv.SavePercent = 100; //Always ensure each armor picked up grants full damage protection.
-			inv.MaxAbsorb = Max(inv.MaxAbsorb, 200);
-			inv.MaxFullAbsorb = Max(inv.MaxFullAbsorb, 200);
-			int Cap = ArmorCapBlue;
-			if (inv.Amount < Cap)
-			{
-				inv.Amount = Min(inv.Amount + int(ArmorCapBlue * G_SkillPropertyFloat(SKILLP_ArmorFactor)), Cap);
-				return true;
-			}
-			return false;
-		}
 		Stop;
 	}
 }
