@@ -72,6 +72,7 @@ Class AkimboWeapon : Weapon
 	bool IsLowering;
 	bool interpolate[2];
 	Actor SoundMaker[2];
+	Name NextSprite[2];
 	enum StatusState
 	{
 		Left = 0,
@@ -343,10 +344,27 @@ Class AkimboWeapon : Weapon
 	//==========================================================================
 	//==========================================================================
 	D4Shotgun.Select:
-		DW3A A 0 { UpdateStates(ID_D4Shotgun); }
-		Goto CommonSelect;
+		DW3A A 0 
+		{
+			UpdateStates(ID_D4Shotgun);
+			ACS_NamedExecute("RemoveModText",0,0,0,0);
+			if (CountInv("GrenadeActive"))		{	return ResolveState("D4Shotgun.GrenadeSpriteSelect");	}
+			if (CountInv("TriShotActive"))		{	return ResolveState("D4Shotgun.TriShotSpriteSelect");	}
+			return ResolveState("ResumeSelectSequence");
+		}
+		
+		D4Shotgun.GrenadeSpriteSelect:
+			DW3F A 0 A_Jump(256,"CommonSelect");
+		D4Shotgun.TriShotSpriteSelect:
+			DW3B A 0 A_Jump(256,"CommonSelect");
 	D4Shotgun.Ready:
-		DW3A A 1 
+		#### A 0
+		{
+				 if (CountInv("GrenadeActive"))	AkSpriteFrame('DW3F');
+			else if (CountInv("TriShotActive")) AkSpriteFrame('DW3B');
+			else								AkSpriteFrame('DW3A');
+		}
+		#### A 1 
 		{
 			AkWeaponReady(WRF_NOSECONDARY, true);
 		}
@@ -786,6 +804,9 @@ Class AkimboWeapon : Weapon
 				AkOffsetD(0, AkimboSwitchSpeed, WOF_ADD);
 			else
 			{
+				Name spr = ChangeMods();
+				
+				/*
 				if (countinv("AssaultRifleMod1")) //if has TacticalScope
 				{
 					if (countinv("MicroMissilesActive")) //but MicroMissiles was active
@@ -825,6 +846,7 @@ Class AkimboWeapon : Weapon
 					ACS_NamedExecute("NoModsAvailable",0,0,0,0);
 				}
 				return ResolveState(1);
+				*/
 			}
 			
 			let plr = invoker.owner.player;
@@ -1361,8 +1383,6 @@ Class AkimboWeapon : Weapon
 		---- A 1
 		{
 			AkWeaponReady(WRF_NOSECONDARY,true);
-			
-			
 			if (CountInv("FrameTimeLeft") < 1)
 			{	
 				int frm = 		CountInv("SpinLoopFrame");
@@ -1449,94 +1469,7 @@ Class AkimboWeapon : Weapon
 		//TNT1 AA 1 A_SetPitch(pitch+0.5);
 		Stop;
 	
-	/*
-	D4Chaingun.Fire:
-		M666 A 0
-		{
-			//A_CheckReload();
-			int id = OverlayID();
-			int which = (id < 0) ? OV_LeftWeapon : OV_RightWeapon;
-			if (CountInv("MobileTurretActive") && AkCheckFire(true))
-			{	return ResolveState("D4Chaingun.MobileTurretFire");	}
-			
-			if (GetCvar("vid_renderer") && CountInv("SovietToken") && CountInv("SovietActive"))
-			{	AkOverlay(SovietsaurusSpinopatimus,"D4Chaingun.SovietSpin");	}
-			else
-			{	AkOverlay(SovietsaurusSpinopatimus,"Null"); A_SetRoll(0);	}
-			
-			A_SetInventory("SpinUpCount", SpinMax);
-			A_SetInventory("FireToken",1);
-			
-			AkOverlay(which + PrepLayer,"D4Chaingun.Overlay.FirePrimary");
-			A_OverlayFlags(which + PrepLayer,PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE,true);
-			
-			AkOverlay(which + SpinLayer,"D4Chaingun.Overlay.SpinFrame",true);
-			A_OverlayFlags(which + SpinLayer,PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE,true);
-			
-			return ResolveState("D4Chaingun.NewHold");
-		}
-	D4Chaingun.NewHold:
-		M666 A 1 ;//A_CheckReload();
-		M666 A 0 
-		{ 
-			int id = OverlayID();
-			int which = (id < 0) ? OV_LeftWeapon : OV_RightWeapon;
-			AkRefire("D4Chaingun.NewHold", false, true, which); 
-		}
-		//AkRefire(StateLabel Next, bool alt = false, bool refire = true, int id = 0)
-		M666 A 0 
-		{
-			AkPlaySound("Doom4/Weapon/Chaingun/WindDown",5,0.6);
-			A_SetInventory("FireToken",0);
-		}
-		Goto D4Chaingun.Ready;
-
-	//-------------------------------------------------------
-	// Alt fire
-	//-------------------------------------------------------
-	D4Chaingun.NoMods:
-		"####" "#" 1 ACS_NamedExecute("NoModsAvailable",0,0,0,0);
-		Goto D4Chaingun.Ready;
-		
-	D4Chaingun.AltFire:
-		"####" "#" 0
-		{
-			if (CountInv("GatlingRotatorActive"))
-			{
-				int which = (OverlayID() < 0) ? OV_LeftWeapon : OV_RightWeapon;
-				if (AkOverlay(which + SpinLayer,"D4Chaingun.Overlay.SpinFrame",true))
-				{						
-					A_OverlayFlags(which + SpinLayer,WeapMoveBob|PSPF_POWDOUBLE,true); 
-				}
-				return ResolveState("D4Chaingun.AltHold");
-			}
-			else if (CountInv("MobileTurretActive"))
-			{
-				if (CountInv("AltFireToken"))
-				{	return ResolveState("D4Chaingun.MobileTurretReady");	}
-				return ResolveState("D4Chaingun.MobileTurretArm");
-			}
-			return ResolveState("D4Chaingun.NoMods");
-		}
-	D4Chaingun.AltHold:
-		M666 "#" 1
-		{
-			if (CountInv("MobileTurretActive") && CountInv("AltFireToken"))
-			{	return ResolveState("D4Chaingun.MobileTurretReady");	}
-			return ResolveState(null);
-		}
-		M666 "#" 0 
-		{
-			int which = (OverlayID() < 0) ? OV_LeftWeapon : OV_RightWeapon;
-			AkRefire("D4Chaingun.AltHold",true,true,which);
-		}
-		M666 "#" 0 
-		{
-			AkPlaySound("Doom4/Weapon/Chaingun/WindDown",5,0.6);
-			A_SetInventory("AltFireToken",0);
-		}
-		Goto D4Chaingun.Ready;
-	*/
+	
 	//==========================================================================
 	// Overlays
 	//==========================================================================
@@ -1800,7 +1733,7 @@ Class AkimboWeapon : Weapon
 	D4Chaingun.Mod:
 		"####" "#" 0 
 		{
-			A_TakeInventory("AltFireToken",0);
+			A_SetInventory("AltFireToken",0);
 			if (CountInv("ChaingunMod1")) //if has GatlingRotator
 			{
 				if (CountInv("MobileTurretActive")) //but MobileTurret was active
@@ -2895,8 +2828,8 @@ Class AkimboWeapon : Weapon
 			}
 			
 			// No leftovers.
-			A_TakeInventory("PrecisionShotChargesCounter",32767,0);
-			A_TakeInventory("SiegeModeChargesCounter",32767,0);
+			A_SetInventory("PrecisionShotChargesCounter",0);
+			A_SetInventory("SiegeModeChargesCounter",0);
 			AkStopSound(6);
 			return ResolveState(null);
 		}
@@ -3340,11 +3273,16 @@ Class AkimboWeapon : Weapon
 		}
 		Loop;
 		
-	//==========================================================================
-	//==========================================================================
-	// Deselection States
-	//==========================================================================
-	//==========================================================================
+	
+	
+//==============================================================================
+//==============================================================================
+//==============================================================================
+// Deselection States
+//==============================================================================
+//==============================================================================
+//==============================================================================
+
 	D4Pistol.Deselect:
 		---- A 0 { A_SetInventory("PistolAltFireCounter",0);	return ResolveState("CommonDeselect"); }
 	D4Chaingun.Deselect:

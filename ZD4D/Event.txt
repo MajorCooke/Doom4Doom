@@ -1,38 +1,78 @@
 
 
+class D4bum : D4Zombieman
+{
+}
+
 extend class D4DHandler
 {
 	D4BlackList BlackList;
-	
+	D4ManualLootList LootList;
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
 	
 	override void OnRegister()
 	{
+		LootList = D4ManualLootList.Get();
+		if (LootList)
+		{
+			D4ManualLootParameters Loot;
+			/*
+			Init function parameters are as follows:
+				
+			Actor Class
+				The name of the class to add.
+				
+			UpgradeDropChance
+				The denominator of the chance to drop an upgrade 
+				(1 / UpgradeDropChance).
+				
+			UpgradeDropAlways
+				The number of upgrades that will drop upon death, guaranteed.
+				
+			CrateDropChance
+				The numerator of 256 (CrateDropChance / 256) for each crate to 
+				drop, individually.
+				
+			CrateDropAmount
+				The number of crates to roll against the RNG CrateDropChance.
+				
+				I.e. 3 crates with a CrateDropChance means the RNG will run three 
+				times for each.
+				
+			CrateDropAlways
+				Guaranteed dropped crate count.
+				
+			CashChainsawPinata
+				-1 by default. Overrides the chainsaw quadrupling bonus 
+				(mastermind & cyberdemon are both 2000).
+				
+			CashAmount
+				The normal amount of cash to drop.
+			*/
+			
+			// This D4bum class (see top of source) will drop a fuckton of crates/cash.
+			// Bear in mind, LootList.Add(Loot); must be performed after the Loot.Init function.
+			Loot.Init("D4bum", -1, 1, 256, 666, 666, 999, 200);	LootList.Add(Loot);
+			
+			
+		}
+		
 		BlackList = D4BlackList.Get();
 		if (BlackList)
 		{
+			// Blacklist functions are as follows:
+			// 	Add(Actor Name, bool CheckParent)
+			// 	Remove(Actor Name)
+			// 	Check(Actor Name)
+			
+			// Should be simple enough.
+			
 			BlackList.Add("D4LostSoulNoCash", true);
 			BlackList.Add("D4OldLostSoulNoCash", true);
-			
 		}
 		Super.OnRegister();
 	}
-	
-	/*
-	override void WorldLoaded(WorldEvent e)
-	{
-		BlackList = D4BlackList.Get();
-		if (BlackList)
-		{
-			BlackList.Add("D4LostSoulNoCash", true);
-			BlackList.Add("D4OldLostSoulNoCash", true);
-			Console.Printf("Black list loaded.");
-		}
-		else
-			Console.Printf("Black list was unable to load!");
-	}
-	*/
 	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
@@ -56,10 +96,12 @@ extend class D4DHandler
 		bool Rockets;
 		bool BFG;
 		
-		int UpgradeDropChance, UpgradeDropAlways;
+		int UpgradeDropChance = -1, UpgradeDropAlways = 0;
 		int CrateDropChance, CrateDropAmount, CrateDropAlways;
 		int CashChainsawPinata;
-		int CashAmount, CashMul = 1;
+		int CashAmount;
+		
+		int CashMul = 1;
 		int CrateAmt, CrateDrops;
 		int LootDrop = user_LootDrop;
 		
@@ -94,11 +136,24 @@ extend class D4DHandler
 		
 		
 		// Now check to see if it's a D4D monster. If so, just use what's given.
+		// If not, see if it's a manual loot table.
 		// Otherwise, establish a formula based on health.
-		// TO DO: Add overrideable inventory token to replace it.
 		let d4m = D4AbstractMonster(mo);
+		Class<Actor> thing = mo.GetClass();
 		
-		if (d4m)
+		if (LootList && LootList.CheckActor(thing)) //Not a D4D monster, is it manual?
+		{
+			D4ManualLootParameters Loot;
+			LootList.Retrieve(thing, Loot);
+			CrateDropChance = 		Loot.CrateDropChance;
+			CrateDropAmount = 		Loot.CrateDropAmount;
+			CrateDropAlways = 		Loot.CrateDropAlways;
+			CashChainsawPinata = 	Loot.CashChainsawPinata;
+			CashAmount = 			Loot.CashAmount;
+			UpgradeDropChance =		Loot.UpgradeDropChance;
+			UpgradeDropAlways =		Loot.UpgradeDropAlways;
+		}
+		else if (d4m)
 		{
 			CrateDropChance = 		d4m.CrateDropChance;
 			CrateDropAmount = 		d4m.CrateDropAmount;
@@ -109,7 +164,7 @@ extend class D4DHandler
 			UpgradeDropAlways =		d4m.UpgradeDropAlways;
 			
 		}
-		else
+		else	// Neither D4D monster nor a manually added one.
 		{
 			if (D4D_CurrentUpgradeMode)
 			{
@@ -158,10 +213,18 @@ extend class D4DHandler
 			Chance *= Max(1,CashMul);
 			
 			if (UpgradeDropChance == -1)	UpgradeDropChance = D4D_PickupDropChance;
-			
-			if (random(1, ((UpgradeDropChance - (mo.bBoss ? 10 : 0)) / Chance)) == 1)
-				UpgradeDropAlways++;
-				
+			if (UpgradeDropChance > 0)
+			{
+				if (mo.bBOSS)
+				{
+					if (UpgradeDropChance <= 10)
+						UpgradeDropChance /= (mo.bBOSS ? 2 : 1);
+					else
+						UpgradeDropChance -= 10;
+				}
+				if (random(1, (UpgradeDropChance / Chance)) == 1)
+					UpgradeDropAlways++;
+			}	
 			if (UpgradeDropAlways > 0)
 			{
 				for (int i = 0; i < UpgradeDropAlways; i++)
@@ -328,19 +391,185 @@ extend class D4DHandler
 		}
 		Pinatas.DropItemsPos(pos);
 	}
-	
-		/*
-		if (mo && mo.bCOUNTKILL && mo.bISMONSTER)
-		{
-			if (!mo.bFRIENDLY || mo is "D4AbstractMonster")
-			{
-				Monsters[0]++;
-			}
-		}
-		*/
 }
 
+//------------------------------------------------------------------------------
+//
+//
+//
+//------------------------------------------------------------------------------
+
+Struct D4ManualLootParameters
+{
+	private bool initialized;
+	Class<Actor> mo;
+	int UpgradeDropChance, UpgradeDropAlways;
+	int CrateDropChance, CrateDropAmount, CrateDropAlways;
+	int CashChainsawPinata, CashAmount;
+
+	void Init(Class<Actor> th = null, int upchance = -1, int updrop = 0, int cdchance = 0, int cdamt = 0, int cddrop = 0, int ccp = 0, int ca = 0)
+	{
+		mo = th;
+		UpgradeDropChance = upchance;
+		UpgradeDropAlways = updrop;
+		CrateDropChance = cdchance;
+		CrateDropAmount = cdamt;
+		CrateDropAlways = cddrop;
+		CashChainsawPinata = ccp;
+		CashAmount = ca;
+		initialized = true;
+	}
+	
+	bool CheckInit()
+	{
+		return initialized;
+	}
+}
+
+//------------------------------------------------------------------------------
+
+Class D4ManualLootList : Thinker
+{
+	Array<Class<Actor> > Actors;
+	Array<Int> CrateDropChance, CrateDropAmount, CrateDropAlways;
+	Array<Int> CashAmount, CashChainsawPinata;
+	Array<Int> UpgradeDropChance, UpgradeDropAlways;
+	
+	bool CheckActor(Class<Actor> mo)
+	{
+		int size = Actors.Size();
+		return (mo && (size > 0) && (Actors.Find(mo) < size));
+	}
+	
+	int GetSize()
+	{
+		return Actors.Size();
+	}
+	
+	//--------------------------------------------------------------------------
+	// Adds an actor to the list of overrides for modders usage.
+	void Add(in D4ManualLootParameters Loot)
+	{
+		if (!Loot.CheckInit())
+		{
+			Console.Printf("Error: D4ManualLootParameters must call Init() function before use!");
+			return;
+		}
+		Class<Actor> check = Loot.mo;
+		if (!check)	
+		{
+			Console.Printf("Error: %s is not a proper actor. Check spelling!", Loot.mo);
+			return;
+		}
+		
+		// If we already have an actor, just update it. No need to be bloating
+		// arrays relentlessly, that'll just cause memory management issues.
+		int size = Actors.Size();
+		if (size > 0)
+		{
+			int i = Actors.Find(Loot.mo);
+			if (i < size)
+			{
+				CrateDropChance[i] = Loot.CrateDropChance;
+				CrateDropAmount[i] = Loot.CrateDropAmount;
+				CrateDropAlways[i] = Loot.CrateDropAlways;
+				CashAmount[i] = Loot.CashAmount;
+				CashChainsawPinata[i] = Loot.CashChainsawPinata;
+				UpgradeDropChance[i] = Loot.UpgradeDropChance;
+				UpgradeDropAlways[i] = Loot.UpgradeDropAlways;
+				return;
+			}
+		}
+		
+		// The actor doesn't exist, so it's all clear to add it to the array.
+		Actors.Push(Loot.mo);
+		CrateDropChance.Push(Loot.CrateDropChance);
+		CrateDropAmount.Push(Loot.CrateDropAmount);
+		CrateDropAlways.Push(Loot.CrateDropAlways);
+		CashAmount.Push(Loot.CashAmount);
+		CashChainsawPinata.Push(Loot.CashChainsawPinata);
+		UpgradeDropChance.Push(Loot.UpgradeDropChance);
+		UpgradeDropAlways.Push(Loot.UpgradeDropAlways);
+	}
+	
+	//--------------------------------------------------------------------------
+	// Removes an actor and associated reservations.
+	bool Remove(Class<Actor> mo)
+	{
+		if (!mo)	return false;
+		
+		int size = Actors.Size();
+		if (size > 0)
+		{
+			int i = Actors.Find(mo);
+			if (i < size)
+			{
+				Actors.Delete(i);
+				CrateDropChance.Delete(i);
+				CrateDropAmount.Delete(i);
+				CrateDropAlways.Delete(i);
+				CashAmount.Delete(i);
+				CashChainsawPinata.Delete(i);
+				UpgradeDropChance.Delete(i);
+				UpgradeDropAlways.Delete(i);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	//--------------------------------------------------------------------------
+	// Retrieves the data.
+	void Retrieve(Class<Actor> mo, in out D4ManualLootParameters Loot)
+	{
+		int size = Actors.Size();
+		if (size > 0)
+		{
+			int i = Actors.Find(mo);
+			if (i < size)
+			{
+				Loot.Init	(Actors[i], 
+							UpgradeDropChance[i], UpgradeDropAlways[i], 
+							CrateDropChance[i], CrateDropAmount[i], CrateDropAlways[i], 
+							CashChainsawPinata[i], CashAmount[i]);
+			}
+		}
+	}
+
+	//--------------------------------------------------------------------------
+	// Initializer stuff. Don't touch.
+	D4ManualLootList Init()
+	{
+		CrateDropChance.Clear();
+		CrateDropAmount.Clear();
+		CrateDropAlways.Clear();
+		CashAmount.Clear();
+		CashChainsawPinata.Clear();
+		UpgradeDropChance.Clear();
+		UpgradeDropAlways.Clear();
+		ChangeStatNum(STAT_STATIC);
+		return self;
+	}
+
+	static D4ManualLootList Get()
+	{
+		ThinkerIterator it = ThinkerIterator.Create("D4ManualLootList",STAT_STATIC);
+		let p = D4ManualLootList(it.Next());
+		if (p == null)
+		{
+			p = new("D4ManualLootList").Init();
+		}
+		return p;
+	}
+}
+
+
+//------------------------------------------------------------------------------
+//
 // List of monsters not allowed to drop pinatas or credits at all.
+//
+//------------------------------------------------------------------------------
+
 Class D4BlackList : Thinker
 {
 	Array<String> List;		// Non-parent list
@@ -349,12 +578,13 @@ Class D4BlackList : Thinker
 	D4BlackList Init()
 	{
 		List.Clear();
+		PList.CLear();
 		ChangeStatNum(STAT_STATIC);
 		return self;
 	}
 
 	//--------------------------------------------------------------------------
-	// Used to grab an existing blacklilst, or create one if not already. 
+	// Used to grab an existing blacklist, or create one if not already. 
 	static D4BlackList Get()
 	{
 		ThinkerIterator it = ThinkerIterator.Create("D4BlackList",STAT_STATIC);
@@ -404,57 +634,6 @@ Class D4BlackList : Thinker
 		else			List.Move(Test);
 		
 	}
-	
-	/*
-	//--------------------------------------------------------------------------
-	// Adds a monster to the black list
-	void Add(Name mon, bool parent = false)
-	{
-		// Make sure it's an actual thing that can be added, as in an actual class
-		// that's an actor.
-		Class<Actor> check = mon;
-		if (!check)	
-		{
-			String thing = mon;
-			Console.Printf("Bad actor %s", thing);
-			return;
-		}
-		
-		String thing = mon;
-		if (parent)
-		{
-			if (PList.Size() > 0)
-			{
-				//If it's already in, do nothing.
-				for (int i = 0; i < PList.Size(); i++)
-				{
-					if (mon == PList[i])
-					{
-						Console.Printf("%s already in", thing);
-						return;
-					}
-				}
-			}
-			PList.Push(mon);
-		}
-		else
-		{
-			if (List.Size() > 0)
-			{
-				//If it's already in, do nothing.
-				for (int i = 0; i < List.Size(); i++)
-				{
-					if (mon == List[i])
-					{
-						Console.Printf("%s already in", thing);
-						return;
-					}
-				}
-			}
-			List.Push(mon);
-		}
-	}
-	*/
 	
 	//--------------------------------------------------------------------------
 	// Removes a monster from the black list
@@ -524,15 +703,6 @@ Class D4BlackList : Thinker
 //==============================================================================
 
 // Defines how many pinatas to drop.
-
-/*
-D4DropList
-
-Functions:
-- ResetList()
-- AddItem(String newthing, int count = 1, bool adding = true)
-- DropItems(Actor dropper)
-*/
 
 Struct D4DropList play
 {

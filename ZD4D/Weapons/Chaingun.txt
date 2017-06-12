@@ -65,8 +65,8 @@ Class D4Chaingun : Doom4Weapon
 		CGNS A 0
 		{
 			A_SetInventory("BusyToken",0);
-			if (CountInv("MobileTurretActive"))		{	return ResolveState(1);	}
-			if (CountInv("GatlingRotatorActive"))	{	return ResolveState(2);	}
+			if (CountInv("MobileTurretActive"))		{	return ResolveState(2);	}
+			if (CountInv("GatlingRotatorActive"))	{	return ResolveState(1);	}
 			return ResolveState("Sel2");
 		}
 		CGRS A 0 {	return ResolveState("Sel2");	}
@@ -81,8 +81,8 @@ Class D4Chaingun : Doom4Weapon
 			return ResolveState("SelLoop");
 		}
 	SelLoop:
-		CGNS A 1 A_Raise;
-		CGNS AAA 0 A_Raise;
+		#### A 1 A_Raise;
+		#### A 0 A_Raise(WeaponSwitchSpeed);
 		Loop;
 		
 	//-------------------------------------------------------
