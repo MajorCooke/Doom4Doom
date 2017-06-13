@@ -88,6 +88,7 @@ extend class D4DHandler
 		// Keeps track if these have already been checked or not. Only check it
 		// once and discard all further attempts if it's going to spawn already.
 		D4DropList Pinatas;
+		
 		bool Armor[4];
 		bool HPPin;
 		bool Bullets;
@@ -95,7 +96,6 @@ extend class D4DHandler
 		bool Cells;
 		bool Rockets;
 		bool BFG;
-		
 		int UpgradeDropChance = -1, UpgradeDropAlways = 0;
 		int CrateDropChance, CrateDropAmount, CrateDropAlways;
 		int CashChainsawPinata;
@@ -215,6 +215,7 @@ extend class D4DHandler
 			if (UpgradeDropChance == -1)	UpgradeDropChance = D4D_PickupDropChance;
 			if (UpgradeDropChance > 0)
 			{
+				// Give a slight boost to enemies that are bosses as they're tougher.
 				if (mo.bBOSS)
 				{
 					if (UpgradeDropChance <= 10)
@@ -224,7 +225,9 @@ extend class D4DHandler
 				}
 				if (random(1, (UpgradeDropChance / Chance)) == 1)
 					UpgradeDropAlways++;
-			}	
+			}
+			
+			// If we have something to drop, do it.
 			if (UpgradeDropAlways > 0)
 			{
 				for (int i = 0; i < UpgradeDropAlways; i++)
@@ -263,11 +266,12 @@ extend class D4DHandler
 		}
 		
 		// 
+		
 		for (int i = 0; i < MAXPLAYERS; i++)
 		{
-			
+			if (!playeringame[i]) continue;
 			let p = players[i].mo;
-			if (playeringame[i] && p)
+			if (p)
 			{
 				// Drop items first.
 				if (mod != 'Massacre')
@@ -299,11 +303,14 @@ extend class D4DHandler
 								Pinatas.AddItem("D4PinataArmor", 2);
 							}
 						}
-						else if (!Armor[3] && p.CountInv("BasicArmor") < 200 && p.CountInv("D4ArmorCapRaiser") >= 25)	//only if player isnt at full armor and has upgraded his armor
+						else 
 						{
-							Armor[3] = true;
-							int rng = random(1,256) > 192 ? 1 : 0;
-							Pinatas.AddItem("D4PinataArmor", rng); //very rarely they will drop armor
+							if (!Armor[3] && p.CountInv("BasicArmor") < 200 && p.CountInv("D4ArmorCapRaiser") >= 25)	//only if player isnt at full armor and has upgraded his armor
+							{
+								Armor[3] = true;
+								int rng = random(1,256) > 192 ? 1 : 0;
+								Pinatas.AddItem("D4PinataArmor", rng); //very rarely they will drop armor
+							}
 						}
 						//health giver
 						if (!HPPin && p.health < 60)
@@ -622,7 +629,7 @@ Class D4BlackList : Thinker
 			int po = Test.Find(mon);
 			if (po < Test.Size())
 			{
-				Console.Printf("%s already in", thing);
+				//Console.Printf("%s already in", thing);
 				return;
 			}
 		}
@@ -673,6 +680,8 @@ Class D4BlackList : Thinker
 			return false;
 		}
 		
+		// For the parent list, we need to manually go through and check
+		// inheritance. The find() function will only give us direct results.
 		if (PList.Size() > 0)
 		{
 			for (int i = 0; i < PList.Size(); i++)
@@ -706,7 +715,7 @@ Class D4BlackList : Thinker
 
 Struct D4DropList play
 {
-	Array<String> ItemName;
+	Array<Class<Inventory> > ItemName;
 	Array<Int> ItemCount;
 	
 	//--------------------------------------------------------------------------
@@ -729,10 +738,17 @@ Struct D4DropList play
 	
 	void AddItem(String newthing, int count = 1, bool adding = true)
 	{
+		// Don't bother if the value is 0. 
+		if (count == 0) 
+			return;
+			
 		// Make sure the item's valid first.
-		
-		Class<Inventory> newitem = newthing;
-		if (newitem == null)	return;
+		Class<Inventory> check = newthing;
+		if (!check)
+		{
+			Console.Printf("Error: %s is not a valid item!", newthing);
+			return;
+		}
 		
 		// Search the array first for something, if its size is > 0. Otherwise,
 		// add it in if not found.
@@ -740,16 +756,14 @@ Struct D4DropList play
 		int size = ItemName.Size();
 		if (size > 0)
 		{
-			for (int i = 0; i < size; i++)
+			int i = ItemName.Find(check);
+			if (i < size)
 			{
-				if (newthing ~== ItemName[i])
-				{
-					ItemCount[i] = adding ? ItemCount[i] + count : count;
-					return;
-				}
+				ItemCount[i] = adding ? ItemCount[i] + count : count;
+				return;
 			}
 		}
-		ItemName.Push(newthing);
+		ItemName.Push(check);
 		ItemCount.Push(count);
 	}
 	

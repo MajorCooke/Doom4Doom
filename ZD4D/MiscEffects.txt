@@ -270,8 +270,8 @@ Class D4RocketExplosionSmokeSmall : Actor
 	}
 }
 // It's funny because Michaelis didn't implement this. I, Major Cooke, did.
-Class SovietToken : Inventory	{ Default { Inventory.InterhubAmount 1; } }
-Class SovietActive : Inventory	{ Default { Inventory.InterhubAmount 1; } }
+Class SovietToken : Inventory	{ Default { Inventory.InterhubAmount 1; +INVENTORY.UNDROPPABLE +INVENTORY.UNTOSSABLE } }
+Class SovietActive : Inventory	{ Default { Inventory.InterhubAmount 1; +INVENTORY.UNDROPPABLE +INVENTORY.UNTOSSABLE } }
 //---------------------------------------------------------------
 //		Puff
 //---------------------------------------------------------------

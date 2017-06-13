@@ -272,7 +272,7 @@ Class UpgradePinataFlier : Thinker
 
 //---------------------------------
 // Pinata Armor
-Class D4PinataArmor : D4ArmorBonus
+Class D4PinataArmor : D4ArmorBasePickup
 {
 	UpgradePinataFlier flier;
 	int count;	
@@ -281,19 +281,21 @@ Class D4PinataArmor : D4ArmorBonus
 	property Lifetime: Lifetime;
 	Default 
 	{
+		D4ArmorBasePickup.SaveAmount 6;
 		D4PinataArmor.Lifetime PinataLifetime;
 		Scale 0.3;
 		Radius 8;
 		Height 16;
 		Gravity 0.4;
-		Armor.SaveAmount 6;
 		+BRIGHT
 		+BOUNCEONFLOORS
 		+BOUNCEONWALLS
 		+BOUNCEONCEILINGS
-		BounceFactor 0.5;
 		+NOBLOCKMONST
+		BounceFactor 0.5;
 		DistanceCheck "user_MaxDrawDistance";
+		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
+		Inventory.PickupMessage "";
 	}
 	
 	States
@@ -303,36 +305,36 @@ Class D4PinataArmor : D4ArmorBonus
 		{
 			A_SpawnItemEx("D4PinataBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER,0,Color_Green);
-			flier = new("UpgradePinataFlier");
-			if (flier)
+			invoker.flier = new("UpgradePinataFlier");
+			if (invoker.flier)
 			{
-				flier.Spawner = self;
-				flier.Item = "Armor";
-				flier.MaxAmt = 200;
+				invoker.flier.Spawner = invoker;
+				invoker.flier.Item = "Armor";
+				invoker.flier.MaxAmt = 200;
 			}
 		}
 	Looping:
 		"----" A 2
 		{
-			if (count < DelayVacuum)	{	count += 2;	return;		}
+			if (invoker.count < DelayVacuum)	{	invoker.count += 2;	return;		}
 			// Tracer should automatically be handled by the thinker.
-			if (tracer)
+			if (invoker.tracer)
 			{
-				count = DelayVacuum;
-				PlrCheck.SetFlying(self, true);
+				invoker.count = DelayVacuum;
+				PlrCheck.SetFlying(invoker, true);
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-				if (Distance3D(tracer) <= 32)
-				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
+				if (Distance3D(invoker.tracer) <= 32)
+				{	SetOrigin(invoker.tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false);	}
 			}
 			else
 			{
-				PlrCheck.SetFlying(self, false);
-				count += 2;
+				PlrCheck.SetFlying(invoker, false);
+				invoker.count += 2;
 			}
 			
-			if (count > Lifetime)	A_FadeOut();
-			else 					Alpha = 1.0;
+			if (invoker.count > invoker.Lifetime)	A_FadeOut();
+			else 							invoker.Alpha = 1.0;
 		}
 		Loop;
 	}

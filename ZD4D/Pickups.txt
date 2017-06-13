@@ -163,8 +163,8 @@ Class D4ArmorBasePickup : CustomInventory
 		D4ArmorBasePickup.MaxAbsorb 200;
 		D4ArmorBasePickup.MaxFullAbsorb 200;
 		D4ArmorBasePickup.IgnoreSkill false;
-		Inventory.PickUpSound "Doom4/Pickups/ArmorMed";
-		Inventory.PickUpMessage "Big Armor Chunk";
+		Inventory.PickupMessage "";
+		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
 		DistanceCheck "user_MaxDrawDistance";
 		Scale 0.5;
 	}
@@ -353,7 +353,7 @@ Class D4GreenArmor : D4ArmorBasePickup replaces GreenArmor
 		D4ArmorBasePickup.MaxAbsorb 200;
 		D4ArmorBasePickup.MaxFullAbsorb 200;
 		Inventory.PickUpSound "Doom4/Pickups/ArmorMed";
-		Inventory.PickUpMessage "Big Armor Chunk";
+		Inventory.PickUpMessage "Medium Armor Chunk";
 		DistanceCheck "user_MaxDrawDistance";
 		Scale 0.5;
 	}
