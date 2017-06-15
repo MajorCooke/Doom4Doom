@@ -470,13 +470,13 @@ class AkimboMenuElement : Element
 		MenuDesc[1].SetText(Text, mf, Font.CR_ORANGE, 	CenterAlign, TopStart + (fh * 2), Drawer.Align_Center);
 		Text = "-->";
 		MenuDesc[2].SetText(Text, mf, Font.CR_GOLD, 	CenterAlign, TopStart + (fh * 3), Drawer.Align_Center);
-		Text = "(NYI) Cycle Grenade (Next)";
+		Text = "Cycle Grenade (Next)";
 		MenuDesc[3].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 3), Drawer.Align_Left);
-		Text = "(NYI) Cycle Grenade (Prev)";
+		Text = "Cycle Grenade (Prev)";
 		MenuDesc[4].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 4), Drawer.Align_Left);
-		Text = "(NYI) Switch Right Mod";
+		Text = "Switch Right Mod";
 		MenuDesc[5].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 3), Drawer.Align_Right);
-		Text = "(NYI) Switch Left Mod";
+		Text = "Switch Left Mod";
 		MenuDesc[6].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 4), Drawer.Align_Right);
 		Text = "Cannot Use Grenades";
 		MenuDesc[7].SetText(Text, mf, Font.CR_RED, 		CenterAlign, TopStart + (fh * 9), Drawer.Align_Center);
@@ -492,13 +492,13 @@ class AkimboMenuElement : Element
 		MenuDesc[10].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 5), Drawer.Align_Left);
 		Text = "Switch Active Weapons";
 		MenuDesc[11].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 5), Drawer.Align_Right);
-		Text = "(P)Switch Mod";
+		Text = "(P) Switch Mod";
 		MenuDesc[12].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 6), Drawer.Align_Left);
-		Text = "(NYI) Fire Right Secondary";
+		Text = "(P) Fire Right Secondary";
 		MenuDesc[13].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 6), Drawer.Align_Right);
 		Text = "(P) Throw Grenade";
 		MenuDesc[14].SetText(Text, mf, Font.CR_GOLD, 	LeftAlign + AlignOffset, TopStart + (fh * 7), Drawer.Align_Left);
-		Text = "Fire Left Secondary";
+		Text = "(P) Fire Left Secondary";
 		MenuDesc[15].SetText(Text, mf, Font.CR_GOLD, 	RightAlign - AlignOffset, TopStart + (fh * 7), Drawer.Align_Right);
 	}
 

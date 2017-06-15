@@ -128,9 +128,9 @@ Class GrenadeSelectedStripper : CustomInventory
 	Pickup:
 		TNT1 A 0
 		{
-			A_TakeInventory("FragGrenadeSelected",32767);
-			A_TakeInventory("SyphonGrenadeSelected",32767);
-			A_TakeInventory("MarineHoloSelected",32767);
+			A_SetInventory("FragGrenadeSelected",0);
+			A_SetInventory("SyphonGrenadeSelected",0);
+			A_SetInventory("MarineHoloSelected",0);
 		}
 		Stop;
 	}
@@ -147,6 +147,16 @@ Class GrenadeSwitchNext : CustomInventory
 	Pickup:
 		TNT1 A 0		//order goes Frag-Syphon-Holo
 		{
+			let plr = player;
+			if (plr && plr.ReadyWeapon && plr.ReadyWeapon.GetClassName() == 'AkimboWeapon')
+			{
+				let ak = AkimboWeapon(plr.ReadyWeapon);
+				if (ak)
+				{
+					ak.CheckMods(ak.Right);
+					return true;
+				}
+			}
 			if (CountInv("FragGrenadeSelected"))	//if you have frag selected
 			{
 				if (CountInv("SyphonGrenadePickup"))	//next in line is syphon
@@ -208,7 +218,9 @@ Class GrenadeSwitchNext : CustomInventory
 					ACS_NamedExecute("GrenadePrint",0,3); //print holo
 				}
 			}
+			return true;
 		}
+		Stop;
 	}
 }
 
@@ -224,6 +236,16 @@ Class GrenadeSwitchPrev : CustomInventory
 	Pickup:
 		TNT1 A 0 //order goes Frag-Holo-Syphon
 		{
+			let plr = player;
+			if (plr && plr.ReadyWeapon && plr.ReadyWeapon.GetClassName() == 'AkimboWeapon')
+			{
+				let ak = AkimboWeapon(plr.ReadyWeapon);
+				if (ak)
+				{
+					ak.CheckMods(ak.Left);
+					return true;
+				}
+			}
 			if (CountInv("FragGrenadeSelected"))	//if you have frag selected
 			{
 				if (CountInv("HoloGrenadePickup")) //next in line is syphon
@@ -283,7 +305,9 @@ Class GrenadeSwitchPrev : CustomInventory
 					ACS_NamedExecute("GrenadePrint",0,3); //print holo
 				}
 			}
+			return true;
 		}
+		Stop;
 	}
 }
 

@@ -2569,6 +2569,8 @@ Graphic "RUNEBARD", 512, 71 { Patch "RUNEBAR1", 0, 0	{ Blend "#FFFFFF", 1.0		Sty
 Graphic "RUNEBARI", 512, 71 { Patch "RUNEBAR1", 0, 0	{ Blend "#FBDD64", 1.0		Style CopyAlpha	}} //Infinite
 Graphic "RUNEBNIL", 512, 71 { Patch "TNT1A0", 0, 0	{ Alpha 0		Style CopyAlpha	}}
 
+// BFG Sideways
+
 Sprite "WE27A0", 72, 278
 {
 	Offset -265, 91
@@ -2826,5 +2828,61 @@ Sprite "WE27Z0", 71, 279
 	{
 		Rotate -90
 		Style CopyAlpha
+	}
+}
+
+// Chaingun Turret sideways
+
+Sprite "CG3SA0", 146, 417
+{
+	Offset -185, 108
+	Patch "CGTSA0", 59, 0
+	{
+		Rotate -90
+	}
+}
+
+Sprite "CG3SB0", 146, 417
+{
+	Offset -185, 108
+	Patch "CGTSB0", 55, 0
+	{
+		Rotate -90
+	}
+}
+
+Sprite "CG3FA0", 146, 417
+{
+	Offset -185, 108
+	Patch "CGTFA0", 0, 0
+	{
+		Rotate -90
+	}
+}
+
+Sprite "CG3FB0", 146, 417
+{
+	Offset -185, 108
+	Patch "CGTFB0", 0, 0
+	{
+		Rotate -90
+	}
+}
+
+Sprite "CG3FC0", 146, 417
+{
+	Offset -185, 108
+	Patch "CGTFC0", 0, 0
+	{
+		Rotate -90
+	}
+}
+
+Sprite "CG3FD0", 146, 417
+{
+	Offset -185, 108
+	Patch "CGTFD0", 0, 0
+	{
+		Rotate -90
 	}
 }

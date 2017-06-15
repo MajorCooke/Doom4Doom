@@ -292,6 +292,7 @@ Class D4PinataArmor : D4ArmorBasePickup
 		+BOUNCEONWALLS
 		+BOUNCEONCEILINGS
 		+NOBLOCKMONST
+		+INVENTORY.ALWAYSPICKUP
 		BounceFactor 0.5;
 		DistanceCheck "user_MaxDrawDistance";
 		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";

@@ -426,12 +426,14 @@ extend Class AkimboWeapon
 		{
 			if (id == OV_LeftWeapon && invoker.LeftPend)
 			{
+				invoker.SwitchMod[Left] = false;
 				invoker.Status[Left] = ChangeWeapon;
 				if (psp)	{ psp.SetState(player.ReadyWeapon.FindState(invoker.LeftStates.DeselectState, true));	}
 				return;
 			}
 			if (id == OV_RightWeapon && invoker.RightPend)
 			{
+				invoker.SwitchMod[Right] = false;
 				invoker.Status[Right] = ChangeWeapon;
 				if (psp)	{ psp.SetState(player.ReadyWeapon.FindState(invoker.RightStates.DeselectState, true));	}
 				return;
@@ -452,33 +454,29 @@ extend Class AkimboWeapon
 				"D4GaussCannon"
 			};
 			
-			bool doReturn = false;
 			for (int i = 0; i < List.Size(); i++)
 			{
 				if (invoker.SwitchMod[Left] && invoker.LeftGun == List[i] && invoker.Status[Left] <= Ready)
 				{
-					invoker.SwitchMod[Left] = false;
 					State check = player.ReadyWeapon.FindState(invoker.LeftStates.ModState, true);
 					if (check)
 					{
 						invoker.Status[Left] = ChangeMod;
 						player.SetPSprite(id, check);
-						doReturn = true;
+						return;
 					}
 				}
 				
 				if (invoker.SwitchMod[Right] && invoker.RightGun == List[i] && invoker.Status[Right] <= Ready)
 				{
-					invoker.SwitchMod[Right] = false;
-					State check = player.ReadyWeapon.FindState(invoker.LeftStates.ModState, true);
+					State check = player.ReadyWeapon.FindState(invoker.RightStates.ModState, true);
 					if (check)
 					{
 						invoker.Status[Right] = ChangeMod;
 						player.SetPSprite(id, check);
-						doReturn = true;
+						return;
 					}
 				}
-				if (doReturn) return;
 			}
 		}
 		
@@ -497,31 +495,50 @@ extend Class AkimboWeapon
 
 		if (DoFire[Left] || DoFire[Right])
 		{
-			if (id == OV_LeftWeapon && DoFire[Left])
+			StateLabel side = (id == OV_LeftWeapon) ? invoker.LeftStates.FireState : invoker.RightStates.FireState;
+			State s = player.ReadyWeapon.FindState(side, true);
+			if (id == OV_LeftWeapon && DoFire[Left] && s)
 			{
 				invoker.Status[Left] = Fire;
-				player.SetPSprite(id, player.ReadyWeapon.FindState(invoker.LeftStates.FireState, true));
+				player.SetPSprite(id, s);
+				return;
 					
 			}
-			if (id == OV_RightWeapon && DoFire[Right])
+			else if (id == OV_RightWeapon && DoFire[Right] && s)
 			{
 				invoker.Status[Right] = Fire;
-				player.SetPSprite(id, player.ReadyWeapon.FindState(invoker.RightStates.FireState, true));
+				player.SetPSprite(id, s);
+				return;
 			}
 		}
 		else if (DoAltFire[Left] || DoAltFire[Right])
 		{
+			StateLabel side = (id == OV_LeftWeapon) ? invoker.LeftStates.AltFireState : invoker.RightStates.AltFireState;
+			State s = player.ReadyWeapon.FindState(side, true);
+			if (id == OV_LeftWeapon && DoAltFire[Left] && s)
+			{
+				invoker.Status[Left] = AltFire;
+				player.SetPSprite(id, s);
+				return;	
+			}
+			else if (id == OV_RightWeapon && DoAltFire[Right] && s)
+			{
+				invoker.Status[Right] = AltFire;
+				player.SetPSprite(id, s);
+				return;
+			}
+			/*
 			if (id == OV_LeftWeapon && DoAltFire[Left])
 			{
 				invoker.Status[Left] = AltFire;
 				player.SetPSprite(id, player.ReadyWeapon.FindState(invoker.LeftStates.AltFireState, true));
-					
 			}
 			if (id == OV_RightWeapon && DoAltFire[Right])
 			{
 				invoker.Status[Right] = AltFire;
 				player.SetPSprite(id, player.ReadyWeapon.FindState(invoker.RightStates.AltFireState, true));
 			}
+			*/
 		}
 		else
 		{		
@@ -537,6 +554,238 @@ extend Class AkimboWeapon
 			}
 		}
 		return;
+	}
+	
+	//==========================================================================
+	//
+	//
+	//
+	//==========================================================================
+	
+	action bool CheckMods(int side, bool checkonly = false)
+	{
+		static const Class<Inventory> Spec[] =
+		{
+			"D4Pistol",
+			"D4Repeater",
+			"D4CarrionCannon",
+			"D4BFG"
+		};
+		side = Clamp(side, Left, Right);
+		Class<Inventory> Gun = (side == Left) ? invoker.LeftGun : invoker.RightGun;
+		
+		if (invoker.Status[side] != Ready)	return false;
+		
+		if (Gun == "D4Pistol")
+		{
+			if (CountInv("PistolUpgradeLance"))
+			{
+				if (checkonly) return true;
+				if (CountInv("PistolLanceActive"))	A_SetInventory("PistolLanceActive",0);
+				else
+				{
+					A_PlaySound("Doom4/Weapon/GaussGun/PrecisionDown",CHAN_WEAPON,1);	
+					A_SetInventory("PistolLanceActive",1);
+				}
+				return true;
+			}
+			return false;
+		}
+		else if (Gun == "D4Repeater")
+		{
+			if (checkonly) return true;
+			ACS_NamedExecute("ToggleRepeaterMode",0,0,0,0);
+			return true;
+		}
+		else if (Gun == "D4CarrionCannon")
+		{
+			if (checkonly) return true;
+			let plr = invoker.owner.player;
+			if (plr)
+			{
+				let psp = plr.FindPSprite(OverlayID());
+				State s = FindState("D4CarrionCannon.Mod", true);
+				if (psp && s)
+				{
+					int oid = (side == Left) ? OV_LeftWeapon : OV_RightWeapon;
+					plr.SetPSprite(oid, s);
+					return true;
+				}
+			}
+			return false;
+		}
+		else if (Gun == "D4BFG")
+		{
+			if (CountInv("BFGUpgrade4"))
+			{
+				if (checkonly) return true;
+				A_FireBullets(0,0,1,0,"BFGRedirectPuff",FBF_NORANDOMPUFFZ|FBF_NOFLASH,32766);
+				A_GiveToChildren("BFGRedirector",1);
+				return true;
+			}
+			return false;			
+		}
+		
+		invoker.SwitchMod[side] = true;
+		return true;
+	}
+	
+	//==========================================================================
+	//
+	//
+	//
+	//==========================================================================
+	
+	action Name ChangeMods(bool checkonly = false, int id = 0)
+	{
+		if (!id) id = OverlayID();
+		if ((id != OV_LeftWeapon && id != OV_RightWeapon) ||
+			(!invoker.SwitchMod[Left] && !invoker.SwitchMod[Right]))	
+		{
+			int side = (id < 0) ? Left : Right;
+			if (!checkonly) invoker.SwitchMod[side] = false;
+			return 'NOPE';
+		}
+	
+		static const Class<Inventory> WeaponModdableList[] =
+		{
+			"D4Shotgun",
+			"D4AssaultRifle",
+			"D4Chaingun",
+			"D4RocketLauncher",
+			"D4PlasmaRifle",
+			"D4GaussCannon"
+		};
+		// Mods are aligned with active for easier tracking.
+		static const Class<Inventory> ModList[] =
+		{
+			"ShotgunMod1",			"ShotgunMod2",
+			"AssaultRifleMod1", 	"AssaultRifleMod2",
+			"ChaingunMod1",			"ChaingunMod2",			
+			"RocketLauncherMod1", 	"RocketLauncherMod2", 	
+			"PlasmaRifleMod1",		"PlasmaRifleMod2", 		
+			"GaussCannonMod1",		"GaussCannonMod2" 		
+		};
+		
+		static const Class<Inventory> ActiveList[] =
+		{
+			"TriShotActive",		"GrenadeActive",
+			"TacticalScopeActive",	"MicroMissilesActive",
+			"GatlingRotatorActive", "MobileTurretActive",
+			"DetonateActive",		"LockOnActive",
+			"HeatBlastActive",		"StunBombActive",
+			"PrecisionActive",		"SiegeActive"
+		};
+		static const Sound SoundList[] =
+		{
+			"Doom4/Weapon/Shotgun/SwitchToTripleShot",		"Doom4/Weapon/Shotgun/SwitchToGrenade",
+			"Doom4/Weapon/Machinegun/SwitchToScope",		"Doom4/Weapon/Machinegun/SwitchToMissiles",
+			"Doom4/Weapon/Chaingun/SwitchToRotator",		"Doom4/Weapon/Chaingun/SwitchToTurret",
+			"Doom4/Weapon/RocketLauncher/SwitchToDetonate",	"Doom4/Weapon/RocketLauncher/SwitchToLock",
+			"Doom4/Weapon/PlasmaGun/SwitchToHeat",			"Doom4/Weapon/PlasmaGun/SwitchToElectro",
+			"Doom4/Weapon/GaussGun/SwitchToPrecision",		"Doom4/Weapon/GaussGun/SwitchToSiege"
+		};
+		static const Name SpriteList[] =
+		{
+			'DW3F', 'DW3B',
+			'ARSI', 'ARMI',
+			'CGRS', 'CT2S',
+			'RLDI', 'RLLI',
+			'PRHI', 'PRSI',
+			'GCPI', 'GCSI'
+		};
+		
+		Class<Inventory> Mod1, Mod2, ActiveMod1, ActiveMod2;
+		Name Spr1, Spr2;
+		Sound snd;
+		bool FoundGun = false;
+		
+		let io = invoker.owner;
+		for (int i = 0; i < WeaponModdableList.Size(); i++)
+		{
+			int PIndex = i * 2;
+			int SIndex = (i * 2) + 1;
+			if ((id == OV_LeftWeapon && invoker.SwitchMod[Left] && invoker.LeftGun == WeaponModdableList[i]) ||
+				(id == OV_RightWeapon && invoker.SwitchMod[Right] && invoker.RightGun == WeaponModdableList[i]))
+			{
+				Mod1 = ModList[PIndex];
+				Mod2 = ModList[SIndex];
+				ActiveMod1 = ActiveList[PIndex];
+				ActiveMod2 = ActiveList[SIndex];
+				Spr1 = SpriteList[PIndex];
+				Spr2 = SpriteList[SIndex];
+				
+				if (io.CountInv(ActiveMod1))	snd = SoundList[SIndex];
+				else							snd = SoundList[PIndex];
+				/*
+				if (checkonly)
+				{
+					int deb[4];
+					deb[0] = io.CountInv(Mod1);
+					deb[1] = io.CountInv(Mod2);
+					deb[2] = io.CountInv(ActiveMod1);
+					deb[3] = io.CountInv(ActiveMod2);
+					Console.Printf("%s - %d\n%s - %d\n%s - %d\n%s - %d", 
+						Mod1.GetClassName(), deb[0],
+						Mod2.GetClassName(), deb[1],
+						ActiveMod1.GetClassName(), deb[2],
+						ActiveMod2.GetClassName(), deb[3]);
+				}
+				*/
+				FoundGun = true;
+				break;
+			}
+		}
+		int side = (id < 0) ? Left : Right;
+		if (!checkonly) invoker.SwitchMod[side] = false;
+		if (!FoundGun) 
+		{
+			//Console.Printf("Gun not found");
+			return (checkonly ? 'NOPE' : '----');
+		}
+		
+		
+		if (io.CountInv(Mod1) && io.CountInv(Mod2))
+		{
+			if (checkonly) return 'OKAY';
+			if (io.CountInv(ActiveMod1))
+			{
+				io.A_SetInventory(ActiveMod1,0);
+				io.A_SetInventory(ActiveMod2,1);
+				AkPlaySound(snd,5,1);
+				return spr2;
+				
+			}
+			else
+			{
+				if (checkonly) return 'OKAY';
+				io.A_SetInventory(ActiveMod1,1);
+				io.A_SetInventory(ActiveMod2,0);
+				AkPlaySound(snd,5,1);
+				return spr1;
+			}
+		}
+		else if (io.CountInv(Mod1) && (!io.CountInv(ActiveMod1) || io.CountInv(ActiveMod2))) //if has TacticalScope (Mod1)
+		{
+			if (checkonly) return 'OKAY';
+			A_SetInventory(ActiveMod1,1);
+			A_SetInventory(ActiveMod2,0);
+			AkPlaySound(snd,5,1);
+			return spr1;
+		}
+		else if (io.CountInv(Mod2) && (!io.CountInv(ActiveMod2) || io.CountInv(ActiveMod1))) //if it has MicroMissiles
+		{
+			if (checkonly) return 'OKAY';
+			io.A_SetInventory(ActiveMod1,0);
+			io.A_SetInventory(ActiveMod2,1);
+			AkPlaySound(snd,5,1);
+			return spr2;
+		}
+		else
+		{
+			ACS_NamedExecute("NoModsAvailable",0,0,0,0);
+		}
+		return (checkonly ? 'NOPE' : '----');
 	}
 	
 	//--------------------------------------------------------------------------
@@ -733,6 +982,7 @@ extend Class AkimboWeapon
 			invoker.LeftStates.AltFireState =	invoker.as[index].AltFireState;
 			invoker.LeftStates.SelectState =	invoker.as[index].SelectState;
 			invoker.LeftStates.DeselectState =	invoker.as[index].DeselectState;
+			invoker.LeftStates.ModState =		invoker.as[index].ModState;
 		}
 		else if (id == OV_RightWeapon)
 		{
@@ -743,6 +993,7 @@ extend Class AkimboWeapon
 			invoker.RightStates.AltFireState =	invoker.as[index].AltFireState;
 			invoker.RightStates.SelectState =	invoker.as[index].SelectState;
 			invoker.RightStates.DeselectState =	invoker.as[index].DeselectState;
+			invoker.RightStates.ModState =		invoker.as[index].ModState;
 		}
 	}
 
@@ -951,117 +1202,7 @@ extend Class AkimboWeapon
 		return false;
 	}
 	
-	//==========================================================================
 	
-	
-	action Name ChangeMods(int id = 0)
-	{
-		static const Class<Inventory> WeapList[] =
-		{
-			"D4Shotgun",		
-			"D4AssaultRifle", 	
-			"D4Chaingun", 		
-			"D4RocketLauncher", 
-			"D4PlasmaRifle", 	
-			"D4GaussCannon"
-		};
-		// Mods are aligned with active for easier tracking.
-		static const Class<Inventory> ModList[] =
-		{
-			"ShotgunMod1",			"ShotgunMod2",			
-			"AssaultRifleMod1", 	"AssaultRifleMod2", 	
-			"ChaingunMod1",			"ChaingunMod2",			
-			"RocketLauncherMod1", 	"RocketLauncherMod2", 	
-			"PlasmaRifleMod1",		"PlasmaRifleMod2", 		
-			"GaussCannonMod1",		"GaussCannonMod2" 		
-		};
-		
-		static const Class<Inventory> ActiveList[] =
-		{
-			"TriShotActive",		"GrenadeActive",
-			"TacticalScopeActive",	"MicroMissilesActive",
-			"GatlingRotatorActive", "MobileTurretActive",
-			"DetonateActive",		"LockOnActive",
-			"HeatBlastActive",		"StunBombActive",
-			"PrecisionActive",		"SiegeActive"
-		};
-		
-		static const Name SpriteList[] =
-		{
-			'DW3F', 'DW3B',
-			'ARSI', 'ARMI',
-			'CGRS', 'CT2S',
-			'RLDI', 'RLLI',
-			'PRHI', 'PRSI',
-			'GCPI', 'GCSI'
-		};
-		
-		
-		if (!id) id = OverlayID();
-		int who = (id < 0) ? OV_LeftWeapon : OV_RightWeapon;
-		
-		
-		Class<Inventory> Mod1, Mod2, ActiveMod1, ActiveMod2;
-		Name Spr1, Spr2;
-		bool FoundGun = false;
-		for (int i = 0; i < WeapList.Size(); i++)
-		{
-			int PIndex = i * 2;
-			int SIndex = (i + 1) * 2;
-			if ((id == OV_LeftWeapon && invoker.SwitchMod[Left] && invoker.LeftGun == WeapList[i]) ||
-				(id == OV_RightWeapon && invoker.SwitchMod[Right] && invoker.RightGun == WeapList[i]))
-			{				
-				Mod1 = ModList[PIndex];
-				Mod2 = ModList[SIndex];
-				ActiveMod1 = ActiveList[PIndex];
-				ActiveMod2 = ActiveList[SIndex];
-				Spr1 = SpriteList[PIndex];
-				Spr2 = SpriteList[SIndex];
-				FoundGun = true;
-				break;
-			}
-		}
-		
-		if (!FoundGun) return '----';
-		
-		if (CountInv(Mod1) && CountInv(Mod2))
-		{
-			if (CountInv(ActiveMod1))
-			{
-				A_SetInventory(ActiveMod1,0);
-				A_SetInventory(ActiveMod2,1);
-				AkPlaySound("Doom4/Weapon/Machinegun/SwitchToMissiles",5,1);
-				return spr2;
-				
-			}
-			else
-			{
-				A_SetInventory(ActiveMod1,1);
-				A_SetInventory(ActiveMod2,0);
-				AkPlaySound("Doom4/Weapon/Machinegun/SwitchToScope",5,1);
-				return spr1;
-			}
-		}
-		else if (CountInv(Mod1) && !CountInv(ActiveMod1)) //if has TacticalScope (Mod1)
-		{
-			A_SetInventory(ActiveMod1,1);
-			A_SetInventory(ActiveMod2,0);
-			AkPlaySound("Doom4/Weapon/Machinegun/SwitchToScope",5,1);
-			return spr1;
-		}
-		else if (CountInv(Mod2) && !CountInv(ActiveMod2)) //if it has MicroMissiles
-		{
-			A_SetInventory(ActiveMod1,0);
-			A_SetInventory(ActiveMod2,1);
-			AkPlaySound("Doom4/Weapon/Machinegun/SwitchToMissiles",5,1);
-			return spr2;
-		}
-		else
-		{
-			ACS_NamedExecute("NoModsAvailable",0,0,0,0);
-		}
-		return '----';
-	}
 	
 	//==========================================================================
 	// Needed for the carrion cannon.
@@ -1104,14 +1245,14 @@ extend Class AkimboWeapon
 			// Set the left weapon's offsets.
 			invoker.LOff = (invoker.LeftOffset[(invoker.WeaponID[Left] * 2)] + LOfx, 
 							invoker.LeftOffset[(invoker.WeaponID[Left] * 2) + 1] + LOfy) + invoker.LO;
-			invoker.owner.A_OverlayOffset(OV_LeftWeapon, Invoker.LOff.x, Invoker.LOff.y, 
+			io.A_OverlayOffset(OV_LeftWeapon, Invoker.LOff.x, Invoker.LOff.y, 
 				(invoker.interpolate[Left] ? WOF_INTERPOLATE : 0));
 			//A_OverlayOffset(OV_LeftWeapon, Invoker.ROff.x, Invoker.ROff.y, WOF_INTERPOLATE);
 			
 			// And the right one.
 			invoker.ROff = (invoker.RightOffset[(invoker.WeaponID[Right] * 2)] + ROfx, 
 							invoker.RightOffset[(invoker.WeaponID[Right] * 2) + 1] + ROfy) + invoker.RO;
-			invoker.owner.A_OverlayOffset(OV_RightWeapon, Invoker.ROff.x, Invoker.ROff.y, 
+			io.A_OverlayOffset(OV_RightWeapon, Invoker.ROff.x, Invoker.ROff.y, 
 				(invoker.interpolate[Right] ? WOF_INTERPOLATE : 0));
 		}
 		Wait;
@@ -1204,6 +1345,7 @@ extend Class AkimboWeapon
 			A_OverlayFlags(OV_RightWeapon, PSPF_ADDWEAPON, true);
 			invoker.owner.A_SetInventory("LeftWeaponCount", invoker.WeaponID[Left]);
 			invoker.owner.A_SetInventory("RightWeaponCount", invoker.WeaponID[Right]);
+			A_ZoomFactor(1.0);
 		}
 	DesLoop:
 		M666 A 1 A_Lower();
@@ -1211,8 +1353,7 @@ extend Class AkimboWeapon
 		Loop;
 	Ready:
 		M666 A 1 
-		{
-			
+		{	
 			A_OverlayFlags(OV_LeftWeapon, PSPF_ADDWEAPON, true);
 			A_OverlayFlags(OV_RightWeapon, PSPF_ADDWEAPON, true);
 			for (int i = 0; i < invoker.Status.Size(); i++)
