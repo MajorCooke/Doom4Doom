@@ -18,11 +18,11 @@ LISTMENU "MainMenu"
 	{
 		PatchItem "M_LOADG", "l", "LoadGameMenu"
 		PatchItem "M_SAVEG", "s", "SaveGameMenu"
-		PatchItem "M_OPTION","o", "OptionsMenu"
+		PatchItem "M_OPTION","o", "D4OptionsMenu"
 	}
 	else
 	{
-		PatchItem "M_OPTION","o", "OptionsMenu"
+		PatchItem "M_OPTION","o", "D4OptionsMenu"
 		PatchItem "M_LOADG", "l", "LoadGameMenu"
 		PatchItem "M_SAVEG", "s", "SaveGameMenu"
 	}
@@ -49,7 +49,7 @@ ListMenu "AkimboSideSelect"
 //==============================================================================
 //==============================================================================
 
-OptionMenu "OptionsMenu"
+OptionMenu "D4OptionsMenu"
 {
 	Title "$OPTMNU_TITLE"
 	Submenu "D4D Mod Options",			"D4DOptions"
@@ -68,6 +68,7 @@ OptionMenu "OptionsMenu"
 	Submenu "$OPTMNU_SOUND",			"SoundOptions"
 	Submenu "$OPTMNU_DISPLAY",			"VideoOptions"
 	Submenu "$OPTMNU_VIDEO",			"VideoModeMenu"
+	Submenu "$OPTMNU_CHANGERENDER",		"RendererMenu"
 	StaticText " "
 	SafeCommand "$OPTMNU_DEFAULTS",		"reset2defaults"
 	SafeCommand	"$OPTMNU_RESETTOSAVED",	"reset2saved"
