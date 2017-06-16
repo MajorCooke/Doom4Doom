@@ -366,8 +366,21 @@ extend Class AkimboWeapon
 	
 	
 	
-	//--------------------------------------------------------------------------
+	//==========================================================================
 	// Determines which side to orient things like projectile spawning.
+	// Usage is like such:
+	// 		A_FireProjectile("Rocket",0,0,Side(7));
+	//--------------------------------------------------------------------------
+	// However, it's MUCH better to save on function calls by introducing a 
+	// simple variable inside of anonymous functions if needed more than once.
+	// This will drastically improve performance due to the way GZDoom handles
+	// VM calls. The fewer, the better. Accessing a variable is much less
+	// costly.
+	//
+	// int s = Side();
+	// for (int i = 0; i < 3; i++)
+	// 	A_FireProjectile("BulletTracerFX",0,0,7*s);
+	//==========================================================================
 	action double Side(double val = 1.0)
 	{
 		int id = OverlayID();
@@ -1345,6 +1358,7 @@ extend Class AkimboWeapon
 			A_OverlayFlags(OV_RightWeapon, PSPF_ADDWEAPON, true);
 			invoker.owner.A_SetInventory("LeftWeaponCount", invoker.WeaponID[Left]);
 			invoker.owner.A_SetInventory("RightWeaponCount", invoker.WeaponID[Right]);
+			A_RemoveChildren(true,RMVF_EVERYTHING,"PlasmaHeatMuzzle");
 			A_ZoomFactor(1.0);
 		}
 	DesLoop:

@@ -366,7 +366,7 @@ Class AkimboWeapon : Weapon
 		}
 		#### A 1 
 		{
-			AkWeaponReady(WRF_NOSECONDARY, true);
+			AkWeaponReady(0, true);
 		}
 		Wait;
 	D4Shotgun.Fire:
@@ -429,8 +429,234 @@ Class AkimboWeapon : Weapon
 		"####" "#" 0 { AkRefire("D4Shotgun.Fire"); }
 		"####" "#" 0 { AkWeaponReady(WRF_NOBOB); }
 		Goto D4Shotgun.Ready;
-		
+	
 	//--------------------------------------------------------------------------
+	D4Shotgun.AltFire:
+		---- A 1
+		{
+			if (CountInv("TriShotActive"))	return ResolveState("D4Shotgun.FireMod1");
+			if (CountInv("GrenadeActive"))	return ResolveState("D4Shotgun.FireMod2");
+			return ResolveState(null);
+		}
+		Goto D4Shotgun.Ready;
+		//-------------------------------------------------------
+		// Triple shot
+		D4Shotgun.FireMod1:
+			"####" "#" 1
+			{
+				return ResolveState("D4Shotgun.TripleShot");
+				
+				// Skip this stuff for now until ammo and what not is established.
+				if (GetCvar("sv_infiniteammo") > 0 || CountInv("D4Shells") >= 3)		//do you have the ammo required?
+				{
+					if (!CountInv("SGTripleShotTimer"))	//is the weapon no longer cooling off?
+					{
+						return ResolveState("D4Shotgun.TripleShot"); // then fire :)
+					}
+					else
+					{
+						//A_PrintBold("Mod not ready"); //Still cooling off.
+						ACS_NamedExecute("ModNotReady",0,0,0);
+						A_PlaySound("Doom4/Player/Nope",Channels);
+						return ResolveState(null);
+					}
+				}
+				else
+				{
+					ACS_NamedExecute("NotEnoughAmmo",0,0,0);
+					return ResolveState(null);
+				}
+			}
+			Goto D4Shotgun.Ready; 
+			
+		D4Shotgun.TripleShot:
+			DW3E A 1 Bright
+			{
+				int s = Side();
+				// 51th counter in Trishot is invisible, then countdown brings it down to 50 which looks full
+				A_SetInventory("SGTripleShotTimer",51);
+				if (GetCvar("user_TracerFX") > 0)
+				{
+					A_FireProjectile("BulletTracerFX",frandom(4,-4),0,7*s,0,0,frandom(4,-4));
+					A_FireProjectile("BulletTracerFX",frandom(4,-4),0,7*s,0,0,frandom(4,-4));
+					A_FireProjectile("BulletTracerFX",frandom(4,-4),0,7*s,0,0,frandom(4,-4));
+				}
+				if(GetCvar("HQEffectsWeapons"))
+				{
+					A_FireProjectile("SGSmokeSpawner",0,0,6*s,2);
+				}
+				A_FireBullets(6,6,7,10);
+				A_AlertMonsters();
+				A_GunFlash("Null");
+				//A_TakeInventory("D4Shells",1,TIF_NOTAKEINFINITE);
+				A_TakeInventory("TrishotClip",1);
+				A_ZoomFactor(0.995,ZOOM_NOSCALETURNING);
+				A_PlaySound("Doom4/Weapon/Shotgun/TripleFireDeeper",CHAN_WEAPON,1);
+				//A_Overlay(3,"Overlay.PitchSetterQuick");
+				A_SetBlend("orange",0.03,3);
+				AkOffsetD(6,36 - 32);
+			}
+			DW3E B 1 Bright AkOffsetD(3,34 - 32);
+			DW3D B 1        AkOffsetD(2,33 - 32);
+			DW3D B 2 A_SetTics(CountInv("PowerD4DFS") ? 0 : 2);
+			DW3E C 1 Bright 
+			{
+				int s = Side();
+				if (GetCvar("user_TracerFX") > 0)
+				{
+					A_FireProjectile("BulletTracerFX",frandom(4,-4),0,7*s,0,0,frandom(4,-4));
+					A_FireProjectile("BulletTracerFX",frandom(4,-4),0,7*s,0,0,frandom(4,-4));
+					A_FireProjectile("BulletTracerFX",frandom(4,-4),0,7*s,0,0,frandom(4,-4));
+				}
+				if(GetCvar("HQEffectsWeapons"))
+				{
+					A_FireProjectile("SGSmokeSpawner",0,0,6*s,2);
+				}
+				A_FireBullets(6,6,7,10);
+				A_AlertMonsters();
+				A_GunFlash("Null");
+				//A_TakeInventory("D4Shells",1,TIF_NOTAKEINFINITE);
+				A_TakeInventory("TrishotClip",1);
+				A_ZoomFactor(0.993,ZOOM_NOSCALETURNING);
+				//A_Overlay(4,"Overlay.PitchSetterQuick");
+				A_SetBlend("orange",0.03,3);
+				AkOffsetD(12,40 - 32);
+			}
+			DW3E D 1 Bright AkOffsetD(9,38 - 32);
+			DW3D A 1        AkOffsetD(7,37 - 32);
+			DW3D A 2 A_SetTics(CountInv("PowerD4DFS") ? 0 : 2);
+			DW3E E 1 Bright
+			{
+				int s = Side();
+				if (GetCvar("user_TracerFX") > 0)
+				{
+					A_FireProjectile("BulletTracerFX",frandom(4,-4),0,7*s,0,0,frandom(4,-4));
+					A_FireProjectile("BulletTracerFX",frandom(4,-4),0,7*s,0,0,frandom(4,-4));
+					A_FireProjectile("BulletTracerFX",frandom(4,-4),0,7*s,0,0,frandom(4,-4));
+				}
+				if(GetCvar("HQEffectsWeapons"))
+				{
+					A_FireProjectile("SGSmokeSpawner",0,0,6*s,2);
+				}
+				A_FireBullets(6,6,7,10);
+				A_AlertMonsters();
+				A_GunFlash("Null");
+				//A_TakeInventory("D4Shells",1,TIF_NOTAKEINFINITE);
+				A_TakeInventory("TrishotClip",1);
+				A_ZoomFactor(0.99,ZOOM_NOSCALETURNING);
+				//A_Overlay(5,"Overlay.PitchSetterQuick");
+				A_SetBlend("orange",0.03,3);
+				AkOffsetD(6,36 - 32); //AkOffsetD(18,44);
+				//Timer starts
+				//ACS_NamedExecute("ShotgunTripleShotTimer",0,0,0,0); //starts decreasing the cool off counter
+			}
+			DW3E F 1 Bright;
+			DW3b A 1 { AkOffsetD(12,40 - 32); A_ZoomFactor(1,ZOOM_NOSCALETURNING); }
+			DW3b A 3 { AkOffsetD(18,44 - 32, WOF_INTERPOLATE, true, OverlayID(), 0);		}
+			DW3b A 1   AkOffsetD(15,41 - 32, WOF_INTERPOLATE, true);
+			DW3b A 1 { AkOffsetD(12,38 - 32, WOF_INTERPOLATE, true, OverlayID(), 0);	 }
+			DW3b A 1   AkOffsetD(10,37 - 32, WOF_INTERPOLATE, true);
+			DW3b A 1 { AkOffsetD( 8,36 - 32, WOF_INTERPOLATE, true, OverlayID(), 0);	 }
+			DW3b A 1   AkOffsetD( 5,34 - 32, WOF_INTERPOLATE, true);
+			DW3b A 2 { AkOffsetD( 1,33 - 32, WOF_INTERPOLATE, true, OverlayID(), 0);	 }
+			
+			DW3c DFHI 1 AkOffsetD(3,2,WOF_ADD); //+12 + 8
+			DW3c H 2
+			{
+				if (GetCvar("user_Casings"))
+				{
+					A_SpawnItemEx("ShotgunCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+					A_SpawnItemEx("ShotgunCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+					A_SpawnItemEx("ShotgunCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+				}
+			}
+			DW3c HHHGFE 1 AkOffsetD(-1.5,-1,WOF_ADD); //-9 -6
+			DW3C D 1 AkOffsetD(-3,-2,WOF_ADD);
+			"####" "#" 1
+			{
+				AkOffsetD(-3,-2,WOF_ADD);
+				return ResolveState(null);
+			}
+			Goto D4Shotgun.Ready;
+			
+		//-------------------------------------------------------
+		// Grenade launcher
+		D4Shotgun.FireMod2:
+			DW3F A 0
+			{
+				return ResolveState("D4Shotgun.GrenadeLauncher");
+				
+				// Skip until ammo is implemented.
+				if (GetCvar("sv_infiniteammo") > 0 || CountInv("D4Shells") >= 2)		//do you have the ammo required?
+				{
+					if (!CountInv("SGGrenadeTimer"))	//is the weapon no longer cooling off?
+					{
+						return ResolveState("GrenadeLauncher"); // then fire :)
+					}
+					else
+					{
+						ACS_NamedExecute("ModNotReady",0,0,0);
+						A_PlaySound("Doom4/Player/Nope",Channels);
+						return ResolveState(null);
+					}
+				}
+				else
+				{
+					ACS_NamedExecute("NotEnoughAmmo",0,0,0);	//if it reaches here, weapon doesnt have enough ammo for this
+					return ResolveState(null);
+				}
+			}
+			DW3F A 1;
+			Goto D4Shotgun.Ready;
+	
+		D4Shotgun.GrenadeLauncher:
+			DW3F B 1 Bright
+			{
+				AkOffsetD(6,36 - 32);
+				A_FireProjectile("D4ShotgunGrenade",0,0,Side(7));
+				A_AlertMonsters();
+				A_GunFlash("Null");
+				//A_TakeInventory("D4Shells",2,TIF_NOTAKEINFINITE);
+				//A_Overlay(10,"Overlay.PitchSetter");
+				A_ZoomFactor(0.99,ZOOM_NOSCALETURNING);
+				A_PlaySound("Doom4/Weapon/Shotgun/GrenadeLaunch",CHAN_WEAPON,1);
+				A_SetBlend("orange",0.05,6);
+				A_SetInventory("SGGrenadeTimer",52); //this is for the cool off
+				//ACS_NamedExecute("ShotgunGrenadeTimer",0,0,0,0); //starts decreasing the cool off counter
+			}
+			DW3F C 1 Bright AkOffsetD(6,36 - 32);
+			DW3F A 1 { AkOffsetD(12,40 - 32); A_ZoomFactor(1,ZOOM_NOSCALETURNING); }
+			DW3F A 3 AkOffsetD(18,44 - 32);
+			DW3F A 1 AkOffsetD(15,41 - 32);
+			DW3F A 1 AkOffsetD(12,38 - 32);
+			DW3F A 1 AkOffsetD(10,37 - 32);
+			DW3F A 1 AkOffsetD( 8,36 - 32);
+			DW3F A 1 AkOffsetD( 5,34 - 32);
+			DW3F A 2 AkOffsetD( 1,33 - 32);
+			
+			DW3F DFHI 1 AkOffsetD(3,2,WOF_ADD); //+12 + 8
+			DW3F H 2
+			{
+				if (GetCvar("user_Casings"))
+				{
+					A_SpawnItemEx("ShotgunCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+					A_SpawnItemEx("ShotgunCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+				}
+			}
+			DW3F HHHGFE 1 AkOffsetD(-1.5,-1,WOF_ADD); //-9 -6
+			DW3F D 1 AkOffsetD(-3,-2,WOF_ADD);
+			"####" "#" 1
+			{
+				AkOffsetD(-3,-2,WOF_ADD);
+				return ResolveState(null);
+			}
+			Goto D4Shotgun.Ready;
+		
+	//==========================================================================
+	//==========================================================================
+	// Super Shotgun
+	//==========================================================================
+	//==========================================================================
 	D4SuperShotgun.Select:
 		M665 A 0 { UpdateStates(ID_D4SuperShotgun); A_SetInventory("SSRSecondShotToken", 0); A_SetInventory("SSLSecondShotToken", 0);}
 		Goto CommonSelect;
