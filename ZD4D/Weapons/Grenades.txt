@@ -153,7 +153,7 @@ Class GrenadeSwitchNext : CustomInventory
 				let ak = AkimboWeapon(plr.ReadyWeapon);
 				if (ak)
 				{
-					ak.CheckMods(ak.Right);
+					ak.CheckMods(1);
 					return true;
 				}
 			}
@@ -242,7 +242,7 @@ Class GrenadeSwitchPrev : CustomInventory
 				let ak = AkimboWeapon(plr.ReadyWeapon);
 				if (ak)
 				{
-					ak.CheckMods(ak.Left);
+					ak.CheckMods(0);
 					return true;
 				}
 			}

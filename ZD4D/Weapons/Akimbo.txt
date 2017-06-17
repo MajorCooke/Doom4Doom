@@ -73,6 +73,7 @@ Class AkimboWeapon : Weapon
 	bool interpolate[2];
 	Actor SoundMaker[2];
 	Name NextSprite[2];
+	bool ForceAbsCoords[2];
 	enum StatusState
 	{
 		Left = 0,
@@ -1024,6 +1025,7 @@ Class AkimboWeapon : Weapon
 				return ResolveState("D4AssaultRifle.MicroMissilesReady");
 			}
 			return ResolveState("D4AssaultRifle.NormalSpriteReady");	
+			
 		}
 		
 		D4AssaultRifle.MicroMissilesReady:
@@ -1046,21 +1048,29 @@ Class AkimboWeapon : Weapon
 			return ResolveState("D4AssaultRifle.VeryReady");
 		}
 	D4AssaultRifle.VeryReady:
-		"####" "#####" 1 AkWeaponReady(WRF_NOSECONDARY, true);
+		"####" "#####" 1 
+		{
+			if (CountInv("TacticalScopeActive") || CountInv("MicroMissilesActive"))
+				AkWeaponReady(0, true);
+			else
+				AkWeaponReady(0, true);
+		}
 		Loop;
 	//-------------------------------------------------------
 	// Select sequence
 	//-------------------------------------------------------
 	D4AssaultRifle.Select:
-		M666 A 0 // Be safer about sprite selection.
+		ARNI A 0 // Be safer about sprite selection.
 		{
 			UpdateStates(ID_D4AssaultRifle);
 			ACS_NamedExecute("RemoveModText",0,0,0,0);
+			
 			if (CountInv("MicroMissilesActive"))
 			{	return ResolveState("D4AssaultRifle.PrepareMicroMissilesSpriteSelect");	}
 			if (CountInv("TacticalScopeActive"))
 			{	return ResolveState("D4AssaultRifle.PrepareTacticalScopeSpriteSelect");	}
 			return ResolveState("D4AssaultRifle.PrepareNormalSpriteSelect");
+			
 		}
 		
 		D4AssaultRifle.PrepareNormalSpriteSelect:
@@ -1071,7 +1081,7 @@ Class AkimboWeapon : Weapon
 			ARSI A 0 A_Jump(256,"CommonSelect");
 
 	D4AssaultRifle.Fire:
-		M666 A 0
+		ARNF A 0
 		{
 			if (CountInv("MicroMissilesActive"))
 			{	return ResolveState("D4AssaultRifle.MicroMissilesSprite");	}
@@ -1140,7 +1150,16 @@ Class AkimboWeapon : Weapon
 		"####" D 0 AkRefire("D4AssaultRifle.FireNormalLooper");
 		Goto D4AssaultRifle.Ready;
 		
-		
+	D4AssaultRifle.AltFire:
+		---- A 1
+		{
+			StateLabel next = null;
+			if (CountInv("TacticalScopeActive"))		next = "D4AssaultRifle.FireMod1";
+			else if (CountInv("MicroMissilesActive"))	next = "D4AssaultRifle.FireMod2";
+			return ResolveState(next);
+		}
+		Goto D4AssaultRifle.Ready;
+	
 	//-------------------------------------------------------
 	// No ammo, used for the alt fires
 	//-------------------------------------------------------
@@ -1152,7 +1171,7 @@ Class AkimboWeapon : Weapon
 			A_SetInventory("AltFireToken",0);
 		}
 		Goto D4AssaultRifle.Ready;
-		
+		D4AssaultRifle.FireMod1:
 		D4AssaultRifle.StartScope:
 			//Zoom In
 			ARSI A 3
@@ -1164,7 +1183,15 @@ Class AkimboWeapon : Weapon
 		D4AssaultRifle.HoldScope:
 			R016 N 1  
 			{
-				AkWeaponReady(WRF_NOFIRE|WRF_NOBOB,true);
+				AkWeaponReady(WRF_NOFIRE|WRF_NOBOB);
+				int id = OverlayID();
+				int side = (id > 0) ? Right : Left;
+				invoker.ForceAbsCoords[side] = true;
+				AkOffsetD(0, 0);
+				if (AkCheckFire(true, false))
+				{
+					return ResolveState("D4AssaultRifle.ZoomOut");
+				}
 				AkRefire("D4AssaultRifle.ZoomOut",true,false);
 				AkRefire("D4AssaultRifle.FireZoomed",false,false);
 				return ResolveState(null);
@@ -1249,7 +1276,7 @@ Class AkimboWeapon : Weapon
 		D4AssaultRifle.MissilesReady:
 			ARMR F 1 
 			{
-				AkWeaponReady(WRF_NOFIRE);
+				AkWeaponReady(WRF_NOFIRE, true);
 				AkRefire("D4AssaultRifle.MissilesClose",true,false);
 				AkRefire("D4AssaultRifle.MissilesFire",false,false);
 			}
@@ -1302,55 +1329,55 @@ Class AkimboWeapon : Weapon
 			}
 		
 		D4AssaultRifle.MissilesFire1:
-			ARMA B 1 Bright AkOffsetD(1.0, 33.0);
-			ARMA C 1      { AkOffsetD(3.0, 35.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
-			ARMA D 1      { AkOffsetD(1.5, 33.5); /*A_SetPitch(pitch+0.25);*/ }
-			ARMA D 1      { AkOffsetD(0.0, 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA B 1 Bright AkOffsetD(1.0, 33.0 - 32.0);
+			ARMA C 1      { AkOffsetD(3.0, 35.0 - 32.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA D 1      { AkOffsetD(1.5, 33.5 - 32.0); /*A_SetPitch(pitch+0.25);*/ }
+			ARMA D 1      { AkOffsetD(0.0, 32.0 - 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
 			ARMA D 1;
 			ARMA D 0 AkRefire("D4AssaultRifle.MissilesFire");
 			"####" "#" 0 AkWeaponReady(WRF_NOFIRE);
 			Goto D4AssaultRifle.MissilesReady;
 		D4AssaultRifle.MissilesFire2:
-			ARMA E 1 Bright  AkOffsetD(1.0, 33.0);
-			ARMA F 1      { AkOffsetD(3.0, 35.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
-			ARMA G 1      { AkOffsetD(1.5, 33.5); /*A_SetPitch(pitch+0.25);*/ }
-			ARMA G 1      { AkOffsetD(0.0, 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA E 1 Bright AkOffsetD(1.0, 33.0 - 32.0);
+			ARMA F 1      { AkOffsetD(3.0, 35.0 - 32.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA G 1      { AkOffsetD(1.5, 33.5 - 32.0); /*A_SetPitch(pitch+0.25);*/ }
+			ARMA G 1      { AkOffsetD(0.0, 32.0 - 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
 			ARMA G 1;
 			ARMA G 0 AkRefire("D4AssaultRifle.MissilesFire");
 			"####" "#" 0 AkWeaponReady(WRF_NOFIRE);
 			Goto D4AssaultRifle.MissilesReady;
 		D4AssaultRifle.MissilesFire3:
-			ARMA H 1 Bright AkOffsetD(1.0, 33.0);
-			ARMA I 1      { AkOffsetD(3.0, 35.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
-			ARMA J 1      { AkOffsetD(1.5, 33.5); /*A_SetPitch(pitch+0.25);*/ }
-			ARMA J 1      { AkOffsetD(0.0, 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA H 1 Bright AkOffsetD(1.0, 33.0 - 32.0);
+			ARMA I 1      { AkOffsetD(3.0, 35.0 - 32.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA J 1      { AkOffsetD(1.5, 33.5 - 32.0); /*A_SetPitch(pitch+0.25);*/ }
+			ARMA J 1      { AkOffsetD(0.0, 32.0 - 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
 			ARMA J 1;
 			ARMA J 0 AkRefire("D4AssaultRifle.MissilesFire");
 			"####" "#" 0 AkWeaponReady(WRF_NOFIRE);
 			Goto D4AssaultRifle.MissilesReady;
 		D4AssaultRifle.MissilesFire4:
-			ARMA K 1 Bright AkOffsetD(1.0, 33.0);
-			ARMA L 1	{	AkOffsetD(3.0, 35.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
-			ARMA M 1	{	AkOffsetD(1.5, 33.5); /*A_SetPitch(pitch+0.25);*/ }
-			ARMA M 1	{	AkOffsetD(0.0, 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA K 1 Bright AkOffsetD(1.0, 33.0 - 32.0);
+			ARMA L 1	{	AkOffsetD(3.0, 35.0 - 32.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA M 1	{	AkOffsetD(1.5, 33.5 - 32.0); /*A_SetPitch(pitch+0.25);*/ }
+			ARMA M 1	{	AkOffsetD(0.0, 32.0 - 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
 			ARMA M 1;
 			ARMA M 0 AkRefire("D4AssaultRifle.MissilesFire");
 			"####" "#" 0 AkWeaponReady(WRF_NOFIRE);
 			Goto D4AssaultRifle.MissilesReady;
 		D4AssaultRifle.MissilesFire5:
-			ARMA N 1 Bright AkOffsetD(1.0, 33.0);
-			ARMA O 1	{ 	AkOffsetD(3.0, 35.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
-			ARMA P 1	{	AkOffsetD(1.5, 33.5); /*A_SetPitch(pitch+0.25);*/ }
-			ARMA P 1 	{	AkOffsetD(0.0, 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA N 1 Bright AkOffsetD(1.0, 33.0 - 32.0);
+			ARMA O 1	{ 	AkOffsetD(3.0, 35.0 - 32.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA P 1	{	AkOffsetD(1.5, 33.5 - 32.0); /*A_SetPitch(pitch+0.25);*/ }
+			ARMA P 1 	{	AkOffsetD(0.0, 32.0 - 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
 			ARMA P 1	;
 			ARMA P 0 AkRefire("D4AssaultRifle.MissilesFire");
 			"####" "#" 0 AkWeaponReady(WRF_NOFIRE);
 			Goto D4AssaultRifle.MissilesReady;
 		D4AssaultRifle.MissilesFire6:
-			ARMA Q 1 Bright AkOffsetD(1.0, 33.0);
-			ARMA R 1      { AkOffsetD(3.0, 35.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
-			ARMA F 1      { AkOffsetD(1.5, 33.5); /*A_SetPitch(pitch+0.25);*/ }
-			ARMA F 1      { AkOffsetD(0.0, 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA Q 1 Bright AkOffsetD(1.0, 33.0 - 32.0);
+			ARMA R 1      { AkOffsetD(3.0, 35.0 - 32.0); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			ARMA F 1      { AkOffsetD(1.5, 33.5 - 32.0); /*A_SetPitch(pitch+0.25);*/ }
+			ARMA F 1      { AkOffsetD(0.0, 32.0 - 32.0); /*A_SetPitch(pitch+0.25);*/ A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
 			ARMR F 1;
 			ARMR F 0 AkRefire("D4AssaultRifle.MissilesFire");
 			"####" "#" 0 AkWeaponReady(WRF_NOFIRE);
@@ -1845,7 +1872,6 @@ Class AkimboWeapon : Weapon
 	D4Chaingun.Mod:
 		"####" "#" 0 
 		{
-			A_SetInventory("AltFireToken",0);
 			if (CountInv("ChaingunMod1")) //if has GatlingRotator
 			{
 				if (CountInv("MobileTurretActive")) //but MobileTurret was active
@@ -3392,24 +3418,37 @@ Class AkimboWeapon : Weapon
 	D4CarrionCannon.Mod:
 	D4BFG.Mod:
 	*/
-	D4Shotgun.Mod:
+	
 	D4AssaultRifle.Mod:
+		---- A 0
+		{
+			StateLabel next = "CommonMod";
+			A_ZoomFactor(1.0);
+			if (CountInv("TacticalScopeActive"))	next = "D4AssaultRifle.ScopeModOut";
+			return ResolveState(next);
+		}
+	D4AssaultRifle.ScopeModOut:
+		ARSI A 0 A_Jump(256,"CommonMod");
+	D4Shotgun.Mod:
 	D4Chaingun.Mod:
 	D4RocketLauncher.Mod:
 	D4PlasmaRifle.Mod:
 	D4GaussCannon.Mod:
 	CommonMod:
-		
 		---- A 0
 		{
-			if (ChangeMods(true) == 'OKAY')
+			int id = OverlayID();
+			if (ChangeMods(true, id) == 'OKAY')
 			{
 				AkOffsetD(0, AkimboSwitchSpeed / 2, WOF_ADD);
 				return ResolveState(1);
 			}
+			int side = (id > 0) ? Right : Left;
+			invoker.SwitchMod[side] = false;
+			//invoker.SwitchMod[Left] = invoker.SwitchMod[Right] = false;
 			ACS_NamedExecute("NoModsAvailable",0,0,0,0);
 			AkWeaponReady(WRF_NOFIRE,true);
-			StateLabel ret = (OverlayID() == OV_LeftWeapon) ? invoker.LeftStates.ReadyState : invoker.RightStates.ReadyState;
+			StateLabel ret = (id < 0) ? invoker.LeftStates.ReadyState : invoker.RightStates.ReadyState;
 			return ResolveState(ret);
 		}
 		
@@ -3517,10 +3556,21 @@ Class AkimboWeapon : Weapon
 			A_SetInventory("CarrionShotOut",0);
 			return ResolveState("CommonDeselect");
 		}
+	D4AssaultRifle.Deselect:
+		---- A 0
+		{
+			StateLabel next = "CommonDeselect";
+			A_ZoomFactor(1.0);
+			if (CountInv("TacticalScopeActive"))	next = "D4AssaultRifle.ScopeDeselect";
+			return ResolveState(next);
+		}
+	D4AssaultRifle.ScopeDeselect:
+		ARSI A 0 A_Jump(256,"CommonDeselect");
+		
 	D4Shotgun.Deselect:
 	D4SuperShotgun.Deselect:
 	D4Repeater.Deselect:
-	D4AssaultRifle.Deselect:
+	
 	D4RocketLauncher.Deselect:
 	D4LightningGun.Deselect:
 	CommonDeselect:
