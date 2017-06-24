@@ -4,8 +4,44 @@ class D4bum : D4Zombieman
 {
 }
 
+/*
+	Array<Actor> Things;
+	override void WorldLoaded(WorldEvent e)
+	{
+		Things.Clear();
+		
+		if (!multiplayer && !deathmatch)
+		{
+			for (int j = 0; j < 100; j++)
+			{
+				Vector3 checkpos = G_PickDeathmatchStart();
+				
+				// Means there is no deathmatch starts.
+				if (checkpos ~== (0,0,0))
+					return;
+				
+				if (Things.Size() > 0)
+				{
+					bool cont = false;
+					for (int i = 0; i < Things.Size(); i++)
+					{
+						if (Things[i].pos == checkpos)
+						{
+							cont = true;
+							break;
+						}
+					}
+					if (cont) continue;
+				}
+				Actor n = Actor.Spawn("Unknown", checkpos);
+				if (n) Things.Push(n);
+			}
+		}
+	}
+	*/
+
 extend class D4DHandler
-{
+{	
 	D4BlackList BlackList;
 	D4ManualLootList LootList;
 	//--------------------------------------------------------------------------
@@ -103,7 +139,17 @@ extend class D4DHandler
 		
 		int CashMul = 1;
 		int CrateAmt, CrateDrops;
-		int LootDrop = user_LootDrop;
+		int LootDrop = mo.GetCvar("user_LootDrop");
+		int TotalMul = mo.CountInv("D4MonsterUpgrader");
+		
+		// Needed because the inventory is based on n + 1 (i.e. uncommon has 1 of the above, rare has 2, etc).
+		if (TotalMul > 0)	
+		{
+			TotalMul++;
+			CashMul *= TotalMul;
+		}
+		else TotalMul = 1;
+		
 		
 		Vector3 pos = 	mo.pos;
 		//int hp = 		mo.health;
@@ -113,7 +159,7 @@ extend class D4DHandler
 		
 		if (LootDrop && (!(mo.InStateSequence(mo.CurState, mo.FindState("Death"))) ||
 						mo.health < mo.GetGibHealth()))
-			Pinatas.AddItem("D4PinataCarrion", 1);
+			Pinatas.AddItem("D4PinataCarrion", 1 * TotalMul);
 		
 		// First set up the base multiplier upon damage type when killed.
 		if (mod == 'ChainsawPinata')
@@ -223,6 +269,7 @@ extend class D4DHandler
 					else
 						UpgradeDropChance -= 10;
 				}
+				
 				if (random(1, (UpgradeDropChance / Chance)) == 1)
 					UpgradeDropAlways++;
 			}
@@ -380,6 +427,7 @@ extend class D4DHandler
 				{
 					if (CrateDropAlways > 0)
 					{
+						CrateDropAlways *= CashMul;
 						p.A_GiveInventory("D4DCash",		CrateDropAlways);
 						p.A_GiveInventory("D4DCashFake",	CrateDropAlways);
 						p.A_GiveInventory("CashUpdater",	1);
@@ -389,6 +437,7 @@ extend class D4DHandler
 				{
 					if (CashAmount > 0)
 					{
+						CashAmount *= CashMul;
 						p.A_GiveInventory("D4DCash",		CashAmount);
 						p.A_GiveInventory("D4DCashFake",	CashAmount);
 						p.A_GiveInventory("CashUpdater",	1);
@@ -396,6 +445,8 @@ extend class D4DHandler
 				}
 			}
 		}
+		if (TotalMul > 0)	
+			Pinatas.Multiply(TotalMul);
 		Pinatas.DropItemsPos(pos);
 	}
 }
@@ -570,6 +621,169 @@ Class D4ManualLootList : Thinker
 	}
 }
 
+//==============================================================================
+//==============================================================================
+//
+//	Base items
+//
+//==============================================================================
+//==============================================================================
+
+// Defines how many pinatas to drop.
+
+Struct D4DropList play
+{
+	Array<Class<Inventory> > ItemName;
+	Array<Int> ItemCount;
+	Array<Double> ItemAmountMul;
+	
+	//--------------------------------------------------------------------------
+	// ResetList()
+	//
+	// Wipes out all items on the drop list and sets all counts to 0.
+	//--------------------------------------------------------------------------
+	
+	void ResetList()
+	{
+		ItemName.Clear();
+		ItemCount.Clear();
+		ItemAmountMul.Clear();
+	}
+	
+	//--------------------------------------------------------------------------
+	// AddItem(actor, count, amount, adding?)
+	//
+	// Adds an item to the list and how many to spawn.
+	//--------------------------------------------------------------------------
+	
+	void AddItem(String newthing, int count = 1, double amountMul = 1.0, bool adding = true)
+	{
+		// Don't bother if the value is 0. 
+		if (count == 0) 
+			return;
+			
+		// Make sure the item's valid first.
+		Class<Inventory> check = newthing;
+		if (!check)
+		{
+			Console.Printf("Error: %s is not a valid item!", newthing);
+			return;
+		}
+		
+		// Search the array first for something, if its size is > 0. Otherwise,
+		// add it in if not found.
+		
+		int size = ItemName.Size();
+		if (size > 0)
+		{
+			int i = ItemName.Find(check);
+			if (i < size)
+			{
+				ItemCount[i] = adding ? ItemCount[i] + count : count;
+				
+				if (amountMul > 0.0)
+					ItemAmountMul[i] = Max(1.0, amountMul);
+				return;
+			}
+		}
+		ItemName.Push(check);
+		ItemCount.Push(count);
+		ItemAmountMul.Push(Max(1.0, amountMul));
+	}
+	
+	//--------------------------------------------------------------------------
+	// MultiplyAmount (amount)
+	// 
+	// Multiplies the amount on all drops.
+	//--------------------------------------------------------------------------
+	
+	void Multiply(double amt)
+	{
+		if (amt <= 0.0)	return;
+		
+		if (ItemAmountMul.Size() > 0)
+		{
+			for (int i = 0; i < ItemAmountMul.Size(); i++)
+				ItemAmountMul[i] *= amt;
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+	// DropItems(actor)
+	//
+	// Causes an actor to spawn its entire list of items.
+	//--------------------------------------------------------------------------
+	
+	void DropItems(Actor dropper)
+	{
+		if (!dropper)	
+		{
+			return;
+		}
+		
+		int size = ItemName.Size();
+		if (size > 0)
+		{
+			for (int i = 0; i < size; i++)
+			{
+				Class<Inventory> check = ItemName[i];
+				if (check == null)	continue;
+				
+				Inventory it = Inventory(Actor.Spawn(check, dropper.pos + (0, 0, 32)));
+				
+				if (it)
+				{
+					it.bTHRUACTORS = true;
+					/*
+					if (it.GetClassName() == 'D4PinataArmor')
+					{
+						D4PinataArmor p = D4PinataArmor(it);
+						if (p)	p.SaveAmount *= ItemAmountMul[i];
+					}
+					else
+					*/
+						it.amount = int(it.amount * ItemAmountMul[i]);
+					it.bTHRUACTORS = false;
+					it.VelFromAngle(frandom(3,6),random(0,359));
+					it.vel.Z += frandom(1,5);
+					it.A_FaceMovementDirection(0,0);
+					
+				}
+				//if (dropper) dropper.A_SpawnItemEx(check,0,0,32,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
+				
+			}
+			ItemName.Clear();
+			ItemCount.Clear();
+		}
+	}
+	
+	void DropItemsPos(Vector3 mpos)
+	{
+		int size = ItemName.Size();
+		if (size > 0)
+		{
+			for (int i = 0; i < size; i++)
+			{
+				Class<Inventory> check = ItemName[i];
+				if (check == null)	continue;
+				
+				Inventory it = Inventory(Actor.Spawn(check, mpos + (0, 0, 32.0)));
+				if (it)
+				{
+					it.bTHRUACTORS = true;
+					it.amount = int(it.amount * ItemAmountMul[i]);
+					it.bTHRUACTORS = false;
+					it.VelFromAngle(frandom(3.0,6.0),random(0,359));
+					it.vel.Z += frandom(1.0,5.0);
+					it.A_FaceMovementDirection(0,0);
+				}
+			}
+			ItemName.Clear();
+			ItemCount.Clear();
+		}
+	}
+}
+
 
 //------------------------------------------------------------------------------
 //
@@ -674,11 +888,9 @@ Class D4BlackList : Thinker
 	// Checks and returns based on if the monster is on the black list.
 	bool Check(Actor mon)
 	{
-		if (!mon)	return false;
-		if (List.Size() + PList.Size() < 1)	
-		{
+		if (!mon || (List.Size() + PList.Size() < 1))
 			return false;
-		}
+		
 		
 		// For the parent list, we need to manually go through and check
 		// inheritance. The find() function will only give us direct results.
@@ -700,120 +912,5 @@ Class D4BlackList : Thinker
 				return true;
 		}
 		return false;
-	}
-}
-
-//==============================================================================
-//==============================================================================
-//
-//	Base items
-//
-//==============================================================================
-//==============================================================================
-
-// Defines how many pinatas to drop.
-
-Struct D4DropList play
-{
-	Array<Class<Inventory> > ItemName;
-	Array<Int> ItemCount;
-	
-	//--------------------------------------------------------------------------
-	// ResetList()
-	//
-	// Wipes out all items on the drop list and sets all counts to 0.
-	//--------------------------------------------------------------------------
-	
-	void ResetList()
-	{
-		ItemName.Clear();
-		ItemCount.Clear();
-	}
-	
-	//--------------------------------------------------------------------------
-	// AddItem(actor, count)
-	//
-	// Adds an item to the list and how many to spawn.
-	//--------------------------------------------------------------------------
-	
-	void AddItem(String newthing, int count = 1, bool adding = true)
-	{
-		// Don't bother if the value is 0. 
-		if (count == 0) 
-			return;
-			
-		// Make sure the item's valid first.
-		Class<Inventory> check = newthing;
-		if (!check)
-		{
-			Console.Printf("Error: %s is not a valid item!", newthing);
-			return;
-		}
-		
-		// Search the array first for something, if its size is > 0. Otherwise,
-		// add it in if not found.
-		
-		int size = ItemName.Size();
-		if (size > 0)
-		{
-			int i = ItemName.Find(check);
-			if (i < size)
-			{
-				ItemCount[i] = adding ? ItemCount[i] + count : count;
-				return;
-			}
-		}
-		ItemName.Push(check);
-		ItemCount.Push(count);
-	}
-	
-	//--------------------------------------------------------------------------
-	// DropItems(actor)
-	//
-	// Causes an actor to spawn its entire list of items.
-	//--------------------------------------------------------------------------
-	
-	void DropItems(Actor dropper)
-	{
-		if (!dropper)	
-		{
-			return;
-		}
-		
-		int size = ItemName.Size();
-		if (size > 0)
-		{
-			for (int i = 0; i < size; i++)
-			{
-				Class<Inventory> check = ItemName[i];
-				if (check == null)	continue;
-				
-				if (dropper) dropper.A_SpawnItemEx(check,0,0,32,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-			}
-			ItemName.Clear();
-			ItemCount.Clear();
-		}
-	}
-	
-	void DropItemsPos(Vector3 mpos)
-	{
-		int size = ItemName.Size();
-		if (size > 0)
-		{
-			for (int i = 0; i < size; i++)
-			{
-				Class<Inventory> check = ItemName[i];
-				if (check == null)	continue;
-				
-				Actor it = Actor.Spawn(check, mpos + (0, 0, 32.0));
-				if (it)
-				{
-					it.VelFromAngle(frandom(3,6),random(0,359));
-					it.vel.Z += frandom(1,5);
-				}
-			}
-			ItemName.Clear();
-			ItemCount.Clear();
-		}
 	}
 }

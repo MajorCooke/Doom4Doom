@@ -179,28 +179,11 @@ Class D4ArmorBasePickup : CustomInventory
 			
 			let inv = BasicArmor(FindInventory("BasicArmor"));
 			
-			if (!inv)// || inv.ArmorType == 'None' || inv.ArmorType == '' || inv.Amount < 1)
+			if (!inv)
 			{
 				if (A_GiveInventory("ArmorStripper",1))
 				{
 					A_GiveInventory("D4GreenArmorGiver",1);
-					/*
-					let inv = BasicArmor(FindInventory("BasicArmor"));
-					if (inv)
-					{
-						double SkillFactor = 1.0;
-						if (!IgnoreSkill)
-						{
-								 if (skill == 3) SkillFactor = 0.75;
-							else if (skill >= 4) SkillFactor = 0.5;
-						}
-						inv.Amount = int(ArmorCapGreen * SkillFactor);
-						inv.SavePercent = SavePercent;
-						inv.ArmorType = inv.GetClassName();
-						inv.MaxFullAbsorb = MaxFullAbsorb;
-						inv.MaxAbsorb = MaxAbsorb;
-					}
-					*/
 				}
 				return true;
 			}
@@ -214,7 +197,8 @@ Class D4ArmorBasePickup : CustomInventory
 						 if (skill == 3) SkillFactor = 0.75;
 					else if (skill >= 4) SkillFactor = 0.5;
 				}
-				inv.Amount = Min(inv.Amount + int(invoker.SaveAmount * SkillFactor), Cap);
+				inv.Amount = Min(inv.Amount + int((invoker.SaveAmount * Max(1,invoker.Amount)) * SkillFactor), Cap);
+				invoker.Amount = 1;
 				inv.ArmorType = inv.GetClassName();
 				inv.MaxFullAbsorb = invoker.MaxFullAbsorb;
 				inv.MaxAbsorb = invoker.MaxAbsorb;

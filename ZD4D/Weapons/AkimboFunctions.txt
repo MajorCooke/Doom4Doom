@@ -3,6 +3,9 @@
 
 extend Class AkimboWeapon
 {
+	const TurretOffXRight = 5;
+	const TurretOffXLeft = 187;
+	const TurretOffY = -72;
 	// For the Super Shotgun.
 	enum SuperShotgun
 	{
@@ -275,17 +278,24 @@ extend Class AkimboWeapon
 		{
 			// Inverse the X coordinates here so it acts like mirroring. Saves a fuckton of time.
 			//invoker.LO = (flags & WOF_ADD) ? (invoker.LO + (-offsx, offsy)) : (-offsx, offsy);
-			offsx *= -1;
+			offsx = -offsx;
 			if (!(flags & WOF_KEEPX)) invoker.LO.X = (flags & WOF_ADD) ? (invoker.LO.X + offsx) : offsx;
 			if (!(flags & WOF_KEEPY)) invoker.LO.Y = (flags & WOF_ADD) ? (invoker.LO.Y + offsy) : offsy;
 			
 			
 			if (update)
 			{
-				invoker.LOff = (invoker.LeftOffset[(invoker.WeaponID[Left] * 2)] + LOfx, 
-								invoker.LeftOffset[(invoker.WeaponID[Left] * 2) + 1] + LOfy) + invoker.LO;
-				invoker.owner.A_OverlayOffset(OV_LeftWeapon, Invoker.LOff.x, Invoker.LOff.y, 
-					((flags & WOF_INTERPOLATE) ? WOF_INTERPOLATE : 0));
+				if (invoker.ForceAbsCoords[Left])
+				{
+					invoker.LOff = (invoker.LO.X + LOfx, invoker.LO.Y + LOfy);
+				}
+				else
+				{
+					invoker.LOff = (invoker.LeftOffset[(invoker.WeaponID[Left] * 2)] + LOfx, 
+									invoker.LeftOffset[(invoker.WeaponID[Left] * 2) + 1] + LOfy) + invoker.LO;
+					invoker.owner.A_OverlayOffset(OV_LeftWeapon, Invoker.LOff.x, Invoker.LOff.y, 
+						((flags & (WOF_ADD|WOF_INTERPOLATE)) ? WOF_INTERPOLATE : 0));
+				}
 			}
 		}
 		else if (id > 0)
@@ -295,10 +305,17 @@ extend Class AkimboWeapon
 			
 			if (update)
 			{
-				invoker.ROff = (invoker.RightOffset[(invoker.WeaponID[Right] * 2)] + ROfx, 
-								invoker.RightOffset[(invoker.WeaponID[Right] * 2) + 1] + ROfy) + invoker.RO;
-				invoker.owner.A_OverlayOffset(OV_RightWeapon, Invoker.ROff.x, Invoker.ROff.y, 
-					((flags & WOF_INTERPOLATE) ? WOF_INTERPOLATE : 0));
+				if (invoker.ForceAbsCoords[Right])
+				{
+					invoker.ROff = (invoker.RO.X + ROfx, invoker.RO.Y + ROfy);
+				}
+				else
+				{
+					invoker.ROff = (invoker.RightOffset[(invoker.WeaponID[Right] * 2)] + ROfx, 
+									invoker.RightOffset[(invoker.WeaponID[Right] * 2) + 1] + ROfy) + invoker.RO;
+					invoker.owner.A_OverlayOffset(OV_RightWeapon, Invoker.ROff.x, Invoker.ROff.y, 
+						((flags & (WOF_ADD|WOF_INTERPOLATE)) ? WOF_INTERPOLATE : 0));
+				}
 			}
 		}
 		else { Console.printf("%d", id); return; }
@@ -364,6 +381,19 @@ extend Class AkimboWeapon
 		return false;
 	}
 	
+	//--------------------------------------------------------------------------
+	// Returns the current PSprite.
+	action PSprite AkFindPSprite(int id = 0)
+	{
+		if (!id)	id = OverlayID();
+		let plr = invoker.owner.player;
+		if (plr)
+		{
+			let psp = plr.FindPSprite(id);
+			return psp;
+		}
+		return null;
+	}
 	
 	
 	//==========================================================================
@@ -823,10 +853,15 @@ extend Class AkimboWeapon
 			AkOffset((0,-RaiseSpeed),WOF_ADD);
 			//psp.y -= RaiseSpeed;
 			double CurrentY = (id == OV_LeftWeapon) ? invoker.LO.y : invoker.RO.y;
+			/*
+			int side = (id > 0) ? Right : Left;
+			int index = (invoker.WeaponID[side] * 2) + 1;
+			double OffBaseY = (id > 0) ? invoker.RightOffset[index] : invoker.LeftOffset[index];
+			*/
 			if (CurrentY <= 0 || instaraise)
 			{
 				//psp.y = WEAPONTOP;
-				AkOffset();
+				AkOffset(); psp.oldy = psp.y;
 				psp.SetState(player.ReadyWeapon.FindState((id == OV_RightWeapon) ? invoker.RightStates.ReadyState : invoker.LeftStates.ReadyState, true));
 				invoker.Status[(id == OV_RightWeapon ? Right : Left)] = Ready;
 				return;
@@ -862,6 +897,7 @@ extend Class AkimboWeapon
 				psp.SetState(player.ReadyWeapon.FindState((id == OV_RightWeapon) ? invoker.RightNext : invoker.LeftNext, true));
 				if (id == OV_RightWeapon)
 				{
+					invoker.ForceAbsCoords[Right] = false;
 					invoker.RightGun = invoker.RightPend;
 					invoker.RightPend = null;
 					invoker.RightNext = null;
@@ -870,6 +906,7 @@ extend Class AkimboWeapon
 				}
 				else
 				{
+					invoker.ForceAbsCoords[Left] = false;
 					invoker.LeftGun = invoker.LeftPend;
 					invoker.LeftPend = null;
 					invoker.LeftNext = null;
@@ -1259,6 +1296,7 @@ extend Class AkimboWeapon
 			//invoker.WeaponID[Right] = invoker.owner.CountInv("RightWeaponCount");
 			
 			// Set the left weapon's offsets.
+			/*
 			invoker.LOff = (invoker.LeftOffset[(invoker.WeaponID[Left] * 2)] + LOfx, 
 							invoker.LeftOffset[(invoker.WeaponID[Left] * 2) + 1] + LOfy) + invoker.LO;
 			io.A_OverlayOffset(OV_LeftWeapon, Invoker.LOff.x, Invoker.LOff.y, 
@@ -1270,6 +1308,30 @@ extend Class AkimboWeapon
 							invoker.RightOffset[(invoker.WeaponID[Right] * 2) + 1] + ROfy) + invoker.RO;
 			io.A_OverlayOffset(OV_RightWeapon, Invoker.ROff.x, Invoker.ROff.y, 
 				(invoker.interpolate[Right] ? WOF_INTERPOLATE : 0));
+			*/
+			// Left side handling.
+			if (invoker.ForceAbsCoords[Left])
+			{
+				invoker.LOff = (invoker.LO.X + LOfx, invoker.LO.Y + LOfy);
+			}
+			else
+			{
+				invoker.LOff = (invoker.LeftOffset[(invoker.WeaponID[Left] * 2)] + LOfx, 
+								invoker.LeftOffset[(invoker.WeaponID[Left] * 2) + 1] + LOfy) + invoker.LO;
+			}
+			io.A_OverlayOffset(OV_LeftWeapon, Invoker.LOff.x, Invoker.LOff.y, WOF_INTERPOLATE);
+			
+			// Right side handling.
+			if (invoker.ForceAbsCoords[Right])
+			{
+				invoker.LOff = (invoker.RO.X + ROfx, invoker.RO.Y + ROfy);
+			}
+			else
+			{
+				invoker.ROff = (invoker.RightOffset[(invoker.WeaponID[Right] * 2)] + ROfx, 
+								invoker.RightOffset[(invoker.WeaponID[Right] * 2) + 1] + ROfy) + invoker.RO;
+			}
+			io.A_OverlayOffset(OV_RightWeapon, Invoker.ROff.x, Invoker.ROff.y, WOF_INTERPOLATE);
 		}
 		Wait;
 	//==========================================================================
@@ -1293,7 +1355,10 @@ extend Class AkimboWeapon
 			let isr = invoker.SoundMaker[Right];
 			if (!isl)	invoker.SoundMaker[Left] = Spawn("AkimboSoundMaker",pos);
 			if (!isr)	invoker.SoundMaker[Right] = Spawn("AkimboSoundMaker",pos);
-			invoker.interpolate[Left] = invoker.interpolate[Right] = true;
+			invoker.ForceAbsCoords[Left] =
+			invoker.ForceAbsCoords[Right] = false;
+			invoker.interpolate[Left] = 
+			invoker.interpolate[Right] = true;
 			invoker.PrepareStates();
 			int ci = invoker.owner.CountInv("LeftWeaponCount");
 			invoker.WeaponID[Left] = ci;
@@ -1318,9 +1383,9 @@ extend Class AkimboWeapon
 			A_Overlay(OV_RightWeapon, 	invoker.RightNext);
 			A_OverlayFlags(OV_LeftWeapon, PSPF_ADDWEAPON|PSPF_FLIP, true);
 			A_OverlayFlags(OV_RightWeapon, PSPF_ADDWEAPON, true);
-			A_Overlay(OV_Custom + 1, "Overlay.OffsetManager");
+			A_Overlay(OV_Custom + 500, "Overlay.OffsetManager");
 			
-			
+			// Left side handling.
 			if (invoker.ForceAbsCoords[Left])
 			{
 				invoker.LOff = (invoker.LO.X + LOfx, invoker.LO.Y + LOfy);
@@ -1332,6 +1397,7 @@ extend Class AkimboWeapon
 			}
 			invoker.owner.A_OverlayOffset(OV_LeftWeapon, Invoker.LOff.x, Invoker.LOff.y, WOF_INTERPOLATE);
 			
+			// Right side handling.
 			if (invoker.ForceAbsCoords[Right])
 			{
 				invoker.LOff = (invoker.RO.X + ROfx, invoker.RO.Y + ROfy);
@@ -1390,7 +1456,7 @@ extend Class AkimboWeapon
 					invoker.Status[i] = Ready;
 			invoker.InputCur = GetPlayerInput(MODINPUT_BUTTONS);
 			invoker.InputOld = GetPlayerInput(MODINPUT_OLDBUTTONS);
-			
+			A_Overlay(OV_Custom + 500, "Overlay.OffsetManager", true);
 			A_WeaponReady(WRF_NOFIRE|invoker.WeaponFlags);
 			
 			

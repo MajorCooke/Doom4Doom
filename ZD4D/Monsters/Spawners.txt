@@ -8,7 +8,7 @@ Class D4DMonsterSpawner : Actor
 	Array<String> NewMonList;		// D4D
 	Class<Actor> OldMonster;		// You get the drift...
 	Class<Actor> NewMonster;
-	Actor MyLittleMonster;
+	Actor mon;
 	property isBoss: isBoss;		// For monsters that trigger E*M8/MAP07 specials.
 	property OldMonster: OldMonster;
 	property NewMonster: NewMonster;
@@ -123,34 +123,68 @@ Class D4DMonsterSpawner : Actor
 		else return Destroy();
 		
 		bool test;
-		[test, MyLittleMonster] = A_SpawnItemEx(toSpawn,0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
+		[test, mon] = A_SpawnItemEx(toSpawn,0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		
-		if (MyLittleMonster)
+		if (mon)
 		{
+			if (monType > 1)
+			{
+				int rng = random(0, 1999);
+				int amt = 0;
+				
+				if (rng > 800)
+				{
+						 if (rng >= 1999)	{	amt = 7;	mon.A_SetTranslation("D4D_White");	}
+					else if (rng >= 1997)	{	amt = 6;	mon.A_SetTranslation("D4D_Black");	}
+					else if (rng >= 1981)	{	amt = 5;	mon.A_SetTranslation("D4D_Red");	}
+					else if (rng >= 1961)	{	amt = 4;	mon.A_SetTranslation("D4D_Orange");	}
+					else if (rng >= 1931)	{	amt = 3;	mon.A_SetTranslation("D4D_Purple");	}
+					else if (rng >= 1901)	{	amt = 2;	mon.A_SetTranslation("D4D_Blue");	}
+					else if (rng >= 1701)	{	amt = 1;	mon.A_SetTranslation("D4D_Green");	}
+				
+					if (amt > 0)
+					{
+						int hp = mon.GetSpawnHealth();
+						int amp = amt + 1;
+						
+						if (hp < 1000)	amp += 1;
+						if (hp <= 500) 	amp += 1;
+						if (hp <= 400) 	amp += 1;
+						if (hp <= 300) 	amp += 1;
+						if (hp <= 200) 	amp += 1;
+						if (hp <= 100) 	amp += 1;
+						
+						mon.A_GiveInventory("D4MonsterUpgrader",amt);
+						mon.A_SetHealth(hp * amp);
+						mon.Mass *= (amt + 1);
+						//mon.WoundHealth *= (amp + 1);
+					}
+				}
+			}
 			if (bBossSpawned)
 			{
-				MyLittleMonster.TeleportMove (MyLittleMonster.pos, true);
-				MyLittleMonster.bBossSpawned = true;
+				mon.TeleportMove (mon.pos, true);
+				mon.bBossSpawned = true;
 			}
 			//if (isBoss)
 			//{
-				let d4mon = D4AbstractMonster(MyLittleMonster);
+				let d4mon = D4AbstractMonster(mon);
 				if (d4mon)
 					d4mon.Spawner = self;
 			//}
 			
 			if (master)	
-				MyLittleMonster.master = master;
+				mon.master = master;
 			
 			if (goDormant) 
 			{	
-				MyLittleMonster.Deactivate(self);	
-				MyLittleMonster.A_ChangeCountFlags(false,0,bCOUNTSECRET);
+				mon.Deactivate(self);	
+				//mon.A_ChangeCountFlags(false,-1,bCOUNTSECRET);
 			}
-			MyLittleMonster.A_ChangeCountFlags(-1,0,bCOUNTSECRET);
+			mon.A_ChangeCountFlags(-1,-1,bCOUNTSECRET);
 			
 			if (health != GetSpawnHealth())	
-				MyLittleMonster.A_SetHealth(health);
+				mon.A_SetHealth(health);
 		}
 		
 	}
@@ -161,7 +195,7 @@ Class D4DMonsterSpawner : Actor
 		TNT1 A 70 NODELAY
 		{
 			
-			if (!MyLittleMonster || !isBoss)
+			if (!mon || !isBoss)
 			{
 				if (isBoss) A_BossDeath();
 				bVULNERABLE = true;

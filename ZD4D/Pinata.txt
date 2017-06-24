@@ -159,6 +159,7 @@ Class D4PinataParticles : Actor
 
 Struct PlrCheck play
 {
+	//--------------------------------------------------------------------------
 	static void SetFlying (Actor who, bool enabled)
 	{
 		if (!who) return;
@@ -166,18 +167,18 @@ Struct PlrCheck play
 		who.bNOINTERACTION = who.bNOCLIP = enabled;
 		who.A_ChangeLinkFlags(enabled);
 	}
-
+	//--------------------------------------------------------------------------
 	// Checks if the freeze cheat or powerup is active.
 	static bool CheckTimeFreeze()
 	{	return (globalfreeze || level.Frozen);	}
 	
+	//-------------------------------------------------------------------------
 	// Checks if the pinata and/or upgrade is near a player that's not morphed 
 	// and alive. 
-	static Actor CheckForPlayers(Actor checkee)
+	static Actor CheckForPlayers(Actor checkee, int distance = -1)
 	{
 		if (!checkee)	return null;
 		Actor trc = checkee.tracer;
-		
 		if (trc)
 		{
 			if (trc is "PlayerPawn" && !trc.FindInventory("PowerMorph",true) &&
@@ -185,13 +186,15 @@ Struct PlrCheck play
 					return trc;
 		}
 		
+		if (distance <= 0) distance = RadiusPull;
+		
 		for (int i = 0; i < MAXPLAYERS; i++)
 		{
 			if (playeringame[i])
 			{
 				Actor plr = players[i].mo;
 				if (plr && !plr.FindInventory("PowerMorph",true) && plr.health > 0 && 
-					checkee.Distance3D(plr) <= RadiusPull)
+					checkee.Distance3D(plr) <= distance)
 				{
 					return plr;
 				}
@@ -216,6 +219,7 @@ Class UpgradePinataFlier : Thinker
 	PlayerPawn			Target;				// The target to fly after.
 	Class<Inventory> 	Item;				// The item to check for < max
 	Class<Inventory>	Condition;			// Other item to check
+	int					Distance;
 	int					Conditional; 		// Amount of the conditional to add on
 	int 				MaxAmt;				// Max Amount
 	bool 				NoUnlimited;		// Ignore unlimited pickup cvar?
@@ -226,6 +230,7 @@ Class UpgradePinataFlier : Thinker
 	
 	override void PostBeginPlay()
 	{
+		if (Distance == 0)	Distance = -1;
 		// Strictly enforce conditions for health.
 		if (Item && Item == 'Health')
 		{
@@ -233,6 +238,7 @@ Class UpgradePinataFlier : Thinker
 			Condition = null;
 			Conditional = 0;
 			NoItem = false;
+			
 		}
 		Super.PostBeginPlay();
 	}
@@ -241,13 +247,17 @@ Class UpgradePinataFlier : Thinker
 	{
 		if (DestroyMe || !Spawner || (!NoItem && !Item))
 			return Destroy();
+			
+		Inventory it = Inventory(Spawner);
+		if (!it || it.Owner)
+			return Destroy();
 		
 		OddTic = (OddTic + 1) % 2;
 		
 		if (PlrCheck.CheckTimeFreeze() || !OddTic)	
 			return Super.Tick();
 		
-		Target = PlayerPawn(PlrCheck.CheckForPlayers(Spawner));
+		Target = PlayerPawn(PlrCheck.CheckForPlayers(Spawner, Distance));
 		int Amt = 0;
 		if (Target && !NoItem)
 		{

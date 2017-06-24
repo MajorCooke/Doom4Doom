@@ -15,6 +15,7 @@
 
 Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 {
+	Array<Actor> Targets;
 	Default 
 	{
 		+WEAPON.NOALERT
@@ -328,6 +329,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 		{
 			if (!CountInv("RLTargetToken"))
 			{
+				invoker.Targets.Clear();
 				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
 				A_GiveInventory("RLTargetToken",1);
 			}
@@ -336,28 +338,125 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	LockOnHold:
 		RLLI A 1 
 		{
+			/*
+			if (invoker.Targets.Size() > 0)
+			{
+				// First, make sure to clear out any unqualifying leftovers.
+				// At any point, a monster can die, naturally. 
+				
+				for (int i = 0; i < invoker.Targets.Size(); i++)
+				{
+					Actor mon = invoker.Targets[i];
+					if (!mon || mon.health < 1 || mon.bKILLED)
+					{
+						// Remove it from our lock-on list.
+						invoker.Targets.Delete(i);
+						continue;
+					}
+				}
+				
+			}
+			
+			invoker.Targets.Clear();
+			if (invoker.Targets.Size() < 3)
+			{
+				
+				//int vh = player.ViewHeight;
+				ThinkerIterator it = ThinkerIterator.Create();
+				Actor mo;
+				while (mo = Actor(it.Next()))
+				{
+					if (invoker.Targets.Size() > 2) break;
+					// Rule out invalid entries first.
+					if (mo.bNOINTERACTION) 						continue;
+					if (mo.health < 1)							continue;
+					if (!mo.bSHOOTABLE || !mo.bISMONSTER) 		continue;
+					if (mo.bFRIENDLY || mo == invoker.owner) 	continue;
+					if (Distance3D(mo) > 8192) 					continue;
+					if (!CheckSight(mo, SF_IGNOREVISIBILITY))	continue;
+					
+					double Limit = 5.0;
+					
+			//		double dir = deltaangle(angle, AngleTo(mo));
+			//		double angdelta = abs(dir);
+			//		if (abs(angdelta) > Limit * 2)	continue;
+					
+			//		Vector2 vect = mo.Vec2To(self);
+			//		double dz = pos.z - mo.pos.z - mo.Height/2;
+			//		double dist = vect.Length();
+			//		double desiredPitch = (dist != 0.0) ? VectorAngle(dist, dz) : 0.;
+			//		double pitdelta = deltaangle(pitch, desiredPitch);
+			//		if (abs(pitdelta) > Limit * 2)	continue;
+					
+					Vector2 curDir = (angle, pitch);
+					A_Face(mo, Limit, Limit);
+					Vector2 tempDir = (angle, pitch);
+					angle = curDir.X;
+					pitch = curDir.Y;
+					
+					
+					
+					
+					
+			//		angdelta = Clamp(angdelta, -Limit, Limit);
+					
+			//		if (dir > 0)
+			//		{
+			//			curAngle += angdelta;
+			//		}
+			//		else
+			//		{
+			//			curAngle -= angdelta;
+			//		}
+					
+			//		Vector2 vect = mo.Vec2To(self);
+			//		double dz = pos.z - mo.pos.z - mo.Height/2;
+			//		double dist = vect.Length();
+			//		double desiredPitch = (dist != 0.0) ? VectorAngle(dist, dz) : 0.;
+			//		double pitdelta = deltaangle(pitch, desiredPitch);
+					
+					
+					//Actor puff = LineAttack(curAngle, 8192, pitch + pitdelta, 0, 'AimingLaser', "RLTargetChecker", 
+					Actor puff = LineAttack(newAngle, 8192, newPitch, 0, 'AimingLaser', "RLTargetChecker", 
+						LAF_NORANDOMPUFFZ | LAF_NOIMPACTDECAL | LAF_NOINTERACT);
+						
+					if (puff)
+					{
+						let check = puff.tracer;
+						if (check == mo)
+						{
+							invoker.Targets.Push(mo);
+						}
+					}
+				}
+			}
+			*/
+			
+			
 			if (CountInv("RLLockToken") == 30)	//only plays once
 			{	A_PlaySound("Doom4/Weapon/RocketLauncher/StartLockOn",6);	}
 			if (CountInv("RLLockToken") >= 200)
 			{
 				if (!CountInv("TripleShot") || CountInv("TripleShot") > 1)
 				{
-					A_TakeInventory("TripleShot",10000);
-					A_GiveInventory("TripleShot",1);
+					A_SetInventory("TripleShot",1);
 					A_PlaySound("Doom4/Weapon/RocketLauncher/TargetLocked",7);
 				}
 				A_WeaponReady(WRF_NOSECONDARY);
 			}
 			else
-			{	A_FireBullets(0,0,1,0,"RLTargetChecker",FBF_NOFLASH|FBF_NORANDOMPUFFZ|FBF_NORANDOM);	}
+			{	
+				A_FireBullets(0,0,1,0,"RLTargetChecker",FBF_NOFLASH|FBF_NORANDOMPUFFZ|FBF_NORANDOM);
+			}
+			
 		}
 		"####" A 0 A_Refire("LockOnHold"); //Leave this out from brackets unless it's last.
 		"####" A 0
 		{
-			A_TakeInventory("RLLockToken",32767,0);
-			A_TakeInventory("RLTargetToken",32767,0);
-			A_TakeInventory("RocketFired",32767,0);
-			A_TakeInventory("TripleShot",32767,0);
+			A_SetInventory("RLLockToken",0);
+			A_SetInventory("RLTargetToken",0);
+			A_SetInventory("RocketFired",0);
+			A_SetInventory("TripleShot",0);
 		}
 		Goto Ready; // failsafe
 	//-----------------------------------------------------
@@ -690,6 +789,7 @@ Class RLTargetChecker : Actor
 			return ResolveState(null);
 		}
 		Loop;
+		
 	}
 }
 

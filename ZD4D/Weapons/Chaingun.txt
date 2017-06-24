@@ -902,7 +902,7 @@ Class Sovietsaurus : Inventory
 
 Class GatlingRotatorActive :	Inventory	{ Default { +INVENTORY.UNDROPPABLE }}
 Class MobileTurretActive : 		Inventory	{ Default { +INVENTORY.UNDROPPABLE }}
-Class MobileTurretArmed : 		Inventory	{ }
+Class MobileTurretArmed : 		Inventory	{ Default { Inventory.InterhubAmount 0; }}
 Class ChaingunFireTracker : 	Inventory	{ Default { Inventory.MaxAmount 10;		Inventory.InterhubAmount 0; }}
 Class SpinUpCount :				Inventory	{ Default { Inventory.MaxAmount 1000;	Inventory.InterhubAmount 0; }}
 Class SpinLoopFrame :			Inventory	{ Default { Inventory.MaxAmount 3;		Inventory.InterhubAmount 0; }}

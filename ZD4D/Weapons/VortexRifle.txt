@@ -19,8 +19,16 @@
 // ->VortexUpgradeAltPierce: Allows alt fire to pierce monsters
 //===================================================================================================
 const Sparsity = 10.415;
-const FlagsNoPierce = 	RGF_NORANDOMPUFFZ|RGF_SILENT|RGF_FULLBRIGHT|RGF_NOPIERCING;
-const FlagsPierce = 	RGF_NORANDOMPUFFZ|RGF_SILENT|RGF_FULLBRIGHT;
+
+enum VortexRifleProps
+{
+	FlagsNoPierce = RGF_NORANDOMPUFFZ|RGF_SILENT|RGF_FULLBRIGHT|RGF_NOPIERCING,
+	FlagsPierce = 	RGF_NORANDOMPUFFZ|RGF_SILENT|RGF_FULLBRIGHT,
+	VortexRifle_AmmoCostN =	12,
+	VortexRifle_AmmoCostU =	8,
+};
+
+
 Class D4VortexRifle : Doom4Weapon
 {
 	/*
@@ -43,13 +51,14 @@ Class D4VortexRifle : Doom4Weapon
 		Weapon.AmmoType1 "D4Cells";
 		Weapon.AmmoType2 "D4Cells";
 		Weapon.AmmoGive1 350;
-		Weapon.AmmoUse1 1;	//doesnt matter, since it's taken manually in the weapon code
+		Weapon.AmmoUse1 12;	//doesnt matter, since it's taken manually in the weapon code
 		Weapon.AmmoUse2 0;
 		
-		Obituary "%k sniper capabilities are too much for %o.";
+		Obituary "%k's mad sniper skills are too much for %o.";
 		Inventory.PickupMessage "Vortex Rifle! A sniper's delight!";
 		Tag "Vortex Rifle";
 	}
+	
 	States
 	{
 	Spawn:
@@ -92,46 +101,21 @@ Class D4VortexRifle : Doom4Weapon
 	Fire:
 		"####" "#" 0 
 		{
-			if(countinv("VortexUpgradeAmmo"))
-			{
-				if(countinv("D4Cells")>=8 || GetCvar("sv_infiniteammo"))
-				//{	return ResolveState( countinv("VortexZoomed") ? "FireZoomed" : "FireNormal");	} // didnt work
-				{
-					if(countinv("VortexZoomed"))
-					{
-						return ResolveState("FireZoomed");
-					}
-					else
-					{
-						return ResolveState("FireNormal");
-					}
-				}
-				else
-				{	return ResolveState("NotEnoughAmmo");	}
-			}
-			else
-			{
-				if(countinv("D4Cells")>=12 || GetCvar("sv_infiniteammo"))
-				//{	return ResolveState( countinv("VortexZoomed") ? "FireZoomed" : "FireNormal");	} // didnt work
-				{
-					if(countinv("VortexZoomed"))
-					{
-						return ResolveState("FireZoomed");
-					}
-					else
-					{
-						return ResolveState("FireNormal");
-					}
-				}
-				else
-				{	return ResolveState("NotEnoughAmmo");	}
-			}
+			invoker.AmmoUse1 = CountInv("VortexUpgradeAmmo") ? VortexRifle_AmmoCostU : VortexRifle_AmmoCostN;
+			A_CheckReload();
+			
+			if (A_JumpIfNoAmmo("Null"))
+				return ResolveState("NotEnoughAmmo");
+				
+			StateLabel next = "FireNormal";
+			if (CountInv("VortexZoomed"))	next = "FireZoomed";
+			return ResolveState(next);
 		}
 	NotEnoughAmmo:
 		"####" "#" 5 ACS_NamedExecute("NotEnoughAmmo",0,0,0);
 		"####" "#" 0
 		{
-			if(countinv("VortexZoomed"))
+			if(CountInv("VortexZoomed"))
 			{	return ResolveState("AltFireHolding");	}
 			else
 			{	return ResolveState("Ready");	}
@@ -149,15 +133,15 @@ Class D4VortexRifle : Doom4Weapon
 			A_GunFlash("Null");
 			if (GetCvar("vid_renderer"))	//gzdoom
 			{
-				A_RailAttack(countinv("VortexUpgradeDamage") ? 25*random(8,16) : 20*random(5,15) ,4,0,"","",RGF_SILENT|RGF_FULLBRIGHT|RGF_NORANDOMPUFFZ,0,null,0,0,0,0,Sparsity,0.0,"VortexTrail"); 
+				A_RailAttack(CountInv("VortexUpgradeDamage") ? 25*random(8,16) : 20*random(5,15) ,4,0,"","",RGF_SILENT|RGF_FULLBRIGHT|RGF_NORANDOMPUFFZ,0,null,0,0,32767,0,Sparsity,0.0,"VortexTrail"); 
 			}
 			else	//zdoom
 			{ 
-				A_RailAttack(countinv("VortexUpgradeDamage") ? 25*random(8,16) : 20*random(5,15) ,4,0,"","",RGF_SILENT|RGF_FULLBRIGHT|RGF_NORANDOMPUFFZ,0,null,0,0,0,0,1.5 ,0.0,"VortexTrailSoftware");
+				A_RailAttack(CountInv("VortexUpgradeDamage") ? 25*random(8,16) : 20*random(5,15) ,4,0,"","",RGF_SILENT|RGF_FULLBRIGHT|RGF_NORANDOMPUFFZ,0,null,0,0,32767,0,1.5 ,0.0,"VortexTrailSoftware");
 			}
 			
 			//Ammo, checks for upgrade, takes either 12 or 8
-			A_TakeInventory("D4Cells",countinv("VortexUpgradeAmmo") ? 8 : 12,TIF_NOTAKEINFINITE);
+			A_TakeInventory("D4Cells",CountInv("VortexUpgradeAmmo") ? 8 : 12,TIF_NOTAKEINFINITE);
 			
 			A_AlertMonsters();
 			A_SetPitch(pitch-3);
@@ -185,20 +169,19 @@ Class D4VortexRifle : Doom4Weapon
 			// min charge -> min 200+(1charge*2)=202, max 400+(1charges*2)=402, avg 302
 			// max charge -> min 200+(52charge*2)=304, max 400+(52charges*2)=504, avg 404
 			A_GunFlash("Null");
+			int dmg = (CountInv("VortexUpgradeDamage") ? (25*random(8,16)) + (CountInv("VortexCharges")*2) : (20*random(5,15)) + (CountInv("VortexCharges")*2));
+			int toPierce = CountInv("VortexUpgradeAltPierce")? FlagsPierce : FlagsNoPierce;
 			if (GetCvar("vid_renderer"))	//gzdoom
 			{
-				A_RailAttack((countinv("VortexUpgradeDamage") ? (25*random(8,16)) + (countinv("VortexCharges")*2) : (20*random(5,15)) + (countinv("VortexCharges")*2)),
-				0,0,0,0, countinv("VortexUpgradeAltPierce")? FlagsPierce : FlagsNoPierce ,0,null,0,0,0,0,Sparsity,0.0,"VortexTrail"); 
+				A_RailAttack(dmg,0,0,0,0,toPierce,0,null,0,0,32767,0,Sparsity,0.0,"VortexTrail"); 
 			}
 			else	//zdoom
 			{
-				A_RailAttack( 
-				(countinv("VortexUpgradeDamage") ? (25*random(8,16)) + (countinv("VortexCharges")*2) : (20*random(5,15)) + (countinv("VortexCharges")*2)),
-				0,0,0,0,(countinv("VortexUpgradeAltPierce")? FlagsPierce : FlagsNoPierce),0,null,0,0,0,0,1.5,0.0,"VortexTrailSoftware"); 
+				A_RailAttack(dmg,0,0,0,0,toPierce,0,null,0,0,32767,0,1.5,0.0,"VortexTrailSoftware"); 
 			}
 			
 			//Ammo, checks for upgrade, takes either 15 or 10
-			A_TakeInventory("D4Cells",countinv("VortexUpgradeAmmo") ? 8 : 12,TIF_NOTAKEINFINITE);
+			A_TakeInventory("D4Cells",CountInv("VortexUpgradeAmmo") ? 8 : 12,TIF_NOTAKEINFINITE);
 			
 			A_AlertMonsters();
 			A_SetPitch(pitch-1.5);
@@ -259,7 +242,7 @@ Class D4VortexRifle : Doom4Weapon
 			R016 N 0
 			{
 				A_GiveInventory("VortexZoomed",1);
-				if(countinv("VortexUpgradeAltSpeed"))
+				if(CountInv("VortexUpgradeAltSpeed"))
 				{
 					A_ZoomFactor(3.0);
 				}
@@ -273,16 +256,16 @@ Class D4VortexRifle : Doom4Weapon
 			R016 N 0
 			{
 				//checks for ammo, to play or not the charging sound
-				if(countinv("VortexUpgradeAmmo"))
+				if(CountInv("VortexUpgradeAmmo"))
 				{
-					if(countinv("D4Cells")>=8 || GetCvar("sv_infiniteammo")) //if enough ammo for 1 shot
+					if(CountInv("D4Cells")>=8 || GetCvar("sv_infiniteammo")) //if enough ammo for 1 shot
 					{ A_PlaySound("Doom4/Weapon/Vortex/ZoomIn",5,1,1); A_GiveInventory("VortexEnoughAmmo",1); }
 					else		//no ammo, but will still zoom
 					{ A_PlaySound("Doom4/Weapon/Machinegun/ZoomIn",5);}
 				}
 				else //doesnt have ammo upgrade
 				{
-					if(countinv("D4Cells")>=12 || GetCvar("sv_infiniteammo"))	//if enough ammo for 1 shot
+					if(CountInv("D4Cells")>=12 || GetCvar("sv_infiniteammo"))	//if enough ammo for 1 shot
 					{ A_PlaySound("Doom4/Weapon/Vortex/ZoomIn",5,1,1); A_GiveInventory("VortexEnoughAmmo",1); }
 					else	//no ammo, but will still zoom
 					{ A_PlaySound("Doom4/Weapon/Machinegun/ZoomIn",5);}
@@ -296,7 +279,7 @@ Class D4VortexRifle : Doom4Weapon
 					//charges alt fire
 					//it has to check if there was ammo, if not, doesnt "charge" the shot
 					//I made it this way to not have to check 4 or so "if"s every tic in this sequence
-					if(countinv("VortexEnoughAmmo"))	
+					if(CountInv("VortexEnoughAmmo"))	
 					{	A_GiveInventory("VortexCharges",2);	}
 					
 					//Weapon ready

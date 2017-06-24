@@ -46,7 +46,7 @@ Class D4CarrionCannon : Doom4Weapon
 		Weapon.SlotNumber 1;
 		Weapon.SelectionOrder 140;
 		Inventory.PickupMessage "Carrion Cannon! Argent energy at your fingertips!";
-		Obituary "%o was KenFuck-U Fried Fishstick'd by %k's Carrion Cannon.";
+		Obituary "%o was KenFunky Fried Fishstick'd by %k's Carrion Cannon.";
 		Tag "Carrion Cannon";
 	}
 	
@@ -96,11 +96,9 @@ Class D4CarrionCannon : Doom4Weapon
 	 ------------
 	 Shoots an argent Projectile; which seeks after the enemy the player aims
 	 for, or hits one in particular that's in the way. Upon contact, attaches
-	 enemy and charges up, so long as the player can maintain FOV with it. Will
-	 detonate if sight is lost, or if carrion is depleted. The greater the
-	 charge, the more powerful the explosion. At higher levels, splits into 
-	 Argent-seeking spheres that chain attack all enemies infinitely until none
-	 are left. Very powerful, and can be used as a nuke when fully upgraded.
+	 enemy and charges up. Will detonate if carrion is depleted or player stops 
+	 holding the fire button. The greater the charge, the more powerful the 
+	 explosion. 
 	==========================================================================*/
 	Fire:
 		
@@ -110,7 +108,7 @@ Class D4CarrionCannon : Doom4Weapon
 			{
 				A_GunFlash("Null");
 				A_AlertMonsters();
-				A_GiveInventory("CarrionShotOut",1);
+				A_SetInventory("CarrionShotOut",1);
 				A_FireProjectile("CarrionPrimary",0,0,4);
 				A_PlaySound("CarrionCannon/Unleash",CHAN_WEAPON,1);
 			}
@@ -120,9 +118,10 @@ Class D4CarrionCannon : Doom4Weapon
 		HELG AABBCCDDEE 1 bright
 		{
 			A_GunFlash("Null");
+			
 			if (!(GetPlayerInput(MODINPUT_BUTTONS) & BT_ATTACK) || !CountInv("CarrionShotOut"))
 			{
-				A_TakeInventory("CarrionShotOut",32767);
+				A_SetInventory("CarrionShotOut",0);
 				return ResolveState("HoldEnd");
 			}
 			return ResolveState(null);
@@ -142,7 +141,8 @@ Class D4CarrionCannon : Doom4Weapon
 		{
 			A_SetInventory("CarrionPortalsOpened",0);
 			int ammoConsume = 500 / (CountInv("CarrionUpgradeAmmo") ? 2 : 1);
-			if (GetCvar("sv_infiniteammo") || CountInv("D4Carrion") >= ammoConsume)
+			if (FindInventory("PowerInfiniteAmmo", true) || GetCvar("sv_infiniteammo") || 
+				CountInv("D4Carrion") >= ammoConsume)
 			{
 				// Set up the arrays, make sure they're zero.
 				invoker.Enemies.Clear();
@@ -908,6 +908,8 @@ Class CarrionPrimary : FastProjectile
 {
 	enum CarrionPrimary
 	{
+		MaxTime = 70,
+		MaxDamage = 5000,
 		MaxAmmo = 5000,
 		MaxLevel = 10,
 	};
@@ -966,10 +968,7 @@ Class CarrionPrimary : FastProjectile
 			// If not actively holding primary fire
 			// or player died / goes out of sight,
 			// kill the Projectile.
-			if (
-			!CountInv("CarrionShotOut",TargetPtr) ||
-			(!GetPlayerInput(MODINPUT_BUTTONS,MasterPtr) & BT_ATTACK) ||
-			A_JumpIfHealthLower(1,"Null",MasterPtr))
+			if (!target || !target.CountInv("CarrionShotOut") || target.health < 1)
 			{	
 				bNOINTERACTION = true;
 				A_Stop();
@@ -1003,39 +1002,58 @@ Class CarrionPrimary : FastProjectile
 	XDeath:
 		X016 ABCDEFGHIJKLMNOPQRSTUVWXY 1 Bright
 		{
-			if (CountInv("CarrionUpgradeStun",TargetPtr) && user_charge % 7 == 0)
-			{	
-				bCausePain = true;
-				bForcePain = true;
-				A_GiveInventory("SmallDeathPrevention",1,TracerPtr);
-				A_DamageTracer(1,"None",DMSS_NOFACTOR,null,"None",TargetPtr);
-			}
-			if (user_charge < 70 &&
-				(GetPlayerInput(MODINPUT_BUTTONS,TargetPtr) & BT_ATTACK) &&
-				tracer && tracer.health > 0 && tracer.bShootable)
+			// See https://zdoom.org/Changelog/a210aaea3/files for details.
+			let targ = target;
+			let trac = tracer;
+			if (targ && trac && targ.health > 0 && trac.health > 0)
 			{
-				user_cut = CountInv("CarrionUpgradeAmmo",TargetPtr) ? 2 : 1;
-				if (GetCvar("sv_infiniteammo") || CountInv("D4Carrion",TargetPtr) >= CarrionAmmoCostPrimary / user_cut)
-				{
-					if (!user_charge)
+				if (targ.CountInv("CarrionUpgradeStun") && user_charge % 7 == 0)
+				{	
+					bCausePain = true;
+					bForcePain = true;
+					// Just to prevent it from dying. It's only meant to 'stun'.
+					if (trac.health > 0) 
 					{
-						user_sizex = Scale.X;
-						user_sizey = Scale.Y;
-						user_neg = randompick(-1,1);
-						A_PlaySound("Doom4/Monsters/ArgentCharge",CHAN_AUTO,1,0,ATTN_NONE);
+						trac.health += 1;
+						trac.DamageMobj(self, targ, 1, DamageType, 
+							DMG_FORCED | DMG_NO_ARMOR | DMG_NO_FACTOR | DMG_NO_PROTECT | DMG_THRUSTLESS);
+						//A_DamageTracer(1,"None",DMSS_NOFACTOR,null,"None",TargetPtr);
+						
 					}
-					A_SetRoll(roll + (360.0/14.0) * user_neg,SPF_INTERPOLATE);
-					A_SetScale(user_sizex + (sin(user_sin) * SizeMul), user_sizey + (sin(user_sin) * SizeMul));
-					user_sin += (90.0/70.0);
-					A_Warp(TracerPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",0.5);
-					A_GiveInventory("CarrionTick",1,TargetPtr);
-					user_charge += 1;
+					
 				}
-				A_TakeInventory("D4Carrion",CarrionAmmoCostPrimary / user_cut,TIF_NOTAKEINFINITE,TargetPtr);
+				if (user_charge < MaxTime &&
+					targ.CountInv("CarrionShotOut") &&
+					//(GetPlayerInput(MODINPUT_BUTTONS,TargetPtr) & (BT_ATTACK)) &&
+					trac.health > 0 && trac.bShootable)
+				{
+					user_cut = CountInv("CarrionUpgradeAmmo",TargetPtr) ? 2 : 1;
+					
+					bool infammo = GetCVar("sv_infiniteammo");
+					if (!infammo)
+						infammo = (targ.FindInventory("PowerInfiniteAmmo",true) != null);
+					
+					if (infammo || CountInv("D4Carrion",TargetPtr) >= CarrionAmmoCostPrimary / user_cut)
+					{
+						if (!user_charge)
+						{
+							user_sizex = Scale.X;
+							user_sizey = Scale.Y;
+							user_neg = randompick(-1,1);
+							A_PlaySound("Doom4/Monsters/ArgentCharge",CHAN_AUTO,1,0,ATTN_NONE);
+						}
+						A_SetRoll(roll + (360.0/14.0) * user_neg,SPF_INTERPOLATE);
+						A_SetScale(user_sizex + (sin(user_sin) * SizeMul), user_sizey + (sin(user_sin) * SizeMul));
+						user_sin += (90.0/70.0);
+						A_Warp(TracerPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",0.5);
+						user_charge += 1;
+						targ.A_GiveInventory("CarrionTick",1);
+						targ.A_TakeInventory("D4Carrion",CarrionAmmoCostPrimary / user_cut,TIF_NOTAKEINFINITE);
+						return ResolveState(null);
+					}
+				}
 			}
-			else
-			{	return ResolveState("Death");	}
-			return ResolveState(null);
+			return ResolveState("Death");
 		}
 		Loop;
 	Death:
@@ -1053,7 +1071,7 @@ Class CarrionPrimary : FastProjectile
 				else
 				{	A_PlaySound("CarrionCannon/ExplosionBig",CHAN_AUTO);	}
 				A_SpawnItemEx("CarrionShockwave",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
-				user_dmg = user_charge * 71.43;
+				user_dmg = user_charge * (MaxDamage / 70.0);
 				
 				// Thrust away from the player.
 				A_FaceTarget(0,0,0,0,FAF_MIDDLE);
@@ -1063,20 +1081,23 @@ Class CarrionPrimary : FastProjectile
 				A_Explode(int(user_dmg), 128 + (2 * user_charge),0,0,128 + (2 * user_charge));
 				A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				
-				
+				if (user_charge >= 50)
+				{
+					let boom = CarrionExplosion(Spawn("CarrionExplosion",pos));
+					if (boom && user_charge >= MaxTime)
+					{
+						boom.ExplosionSize = 5;
+					}
+				}
 			}	
-			else
-			{
-				A_GiveInventory("NoLaser");
-			}
-			A_TakeInventory("CarrionShotOut",32767,0,TargetPtr);
+			else A_GiveInventory("NoLaser");
+			
+			if (target)	target.A_SetInventory("CarrionShotOut",0);
+			
 		}
 		Stop;
 	}
 }
-
-Class SmallDeathPrevention : HealthBonus
-{	Default { +INVENTORY.IGNORESKILL Inventory.MaxAmount 1000000;			} }
 
 Class CarrionPrimaryTrailSpawner : Actor //dummy to spawn muliple trails through fastprojectile's method
 {
@@ -1116,7 +1137,7 @@ Class CarrionShootSound : CustomInventory
 			else if (CountInv("CarrionTick") >= (MaxAmt/4)*2)	{	A_PlaySound("CarrionCannon/Shoot5",CHAN_WEAPON,1);	}
 			else if (CountInv("CarrionTick") >= (MaxAmt/4)*1)	{	A_PlaySound("CarrionCannon/Shoot4",CHAN_WEAPON,1);	}
 			else 												{	A_PlaySound("CarrionCannon/Shoot3",CHAN_WEAPON,1);	}
-			A_TakeInventory("CarrionTick",32767,0);
+			A_SetInventory("CarrionTick",0);
 		}
 		Stop;
 	}
@@ -1125,6 +1146,47 @@ Class CarrionShootSound : CustomInventory
 //==============================================================================
 // Effects
 //==============================================================================
+
+Class CarrionExplosion : Actor
+{
+	int ExplosionSize;
+	Default
+	{
+		+NOINTERACTION
+		+NOBLOCKMAP
+		+BRIGHT
+		RenderStyle "Add";
+		Translation "0:255=%[0,0,0]:[2.0,1.0,0.0]";
+		Alpha 0.0;
+		Scale 1;
+	}
+	
+	States
+	{
+	Spawn:
+		TNT1 A 0;
+		X119 A 1
+		{
+			Vector3 move = (0,0,-24);
+			A_FadeIn(0.33);
+			if (ExplosionSize > 4)
+			{
+				move = (0,0,-48);
+				A_SetScale(1.5);
+				A_PlaySound("Doom4/Other/DollExplode",CHAN_AUTO,1);
+			}
+			SetOrigin(pos + move, false);
+		}
+		X119 BCDEFGHIJKLMNOPQRSTUVWXYZ 1
+		{
+			if (alpha < 0.99)
+				A_FadeIn(0.33, FTF_CLAMP);
+		}
+		X120 ABCDEFGHIJKLMNO 1;
+		X120 PQRSTUVW 1 A_FadeOut(1.0/8.0);
+		Stop;
+	}
+}
 
 Class CarrionShotTrackingLaser : Actor 
 {
@@ -1181,7 +1243,7 @@ Class CarrionShotTrackingLaser : Actor
 		}
 		TNT1 A 1
 		{
-			if (!tracer || CountInv("NoLaser",TracerPtr))
+			if (!tracer || tracer.CountInv("NoLaser"))
 			{	return ResolveState("Null");	}
 			
 			if (master) { pitch = master.pitch; }
@@ -1239,7 +1301,7 @@ Class CarrionShotTrackingLaser : Actor
 				user_count = (user_count + 1) % 8;
 			}
 			
-			if (!IsPointerEqual(TracerPtr,NullPtr))
+			if (tracer)
 			{
 				user_count = 0;
 				user_dista = 0;
