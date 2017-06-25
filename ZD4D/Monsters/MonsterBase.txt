@@ -208,8 +208,6 @@ Class D4AbstractMonster : Actor
 	{
 		Super.PostBeginPlay();
 		
-		if (!bFLOAT && !bNOGRAVITY)
-			bNODROPOFF = true;
 		oldLeap = false;
 	}
 

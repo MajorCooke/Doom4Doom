@@ -256,7 +256,7 @@ extend class D4DHandler
 			// 2 means 1/2 chance, etc.
 			let plr = players[0].mo;
 			int Chance = (plr && plr.CountInv("PowerD4Money")) ? 4 : 1;
-			Chance *= Max(1,CashMul);
+			Chance *= Max(1,CashMul + (TotalMul * 2));
 			
 			if (UpgradeDropChance == -1)	UpgradeDropChance = D4D_PickupDropChance;
 			if (UpgradeDropChance > 0)
@@ -270,7 +270,7 @@ extend class D4DHandler
 						UpgradeDropChance -= 10;
 				}
 				
-				if (random(1, (UpgradeDropChance / Chance)) == 1)
+				if (Max(1,random(1, (UpgradeDropChance / Chance))) == 1)
 					UpgradeDropAlways++;
 			}
 			
