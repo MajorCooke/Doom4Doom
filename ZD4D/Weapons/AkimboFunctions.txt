@@ -337,18 +337,13 @@ extend Class AkimboWeapon
 	// Similar to A_Refire but can take alts too.
 	action void AkRefire(StateLabel Next, bool alt = false, bool refire = true, int id = 0)
 	{
-		if (!id) id = OverlayID();
 		if (!Next) 		return;
+		if (!id) id = OverlayID();
 		
 		let player = invoker.owner.player;
-		if (!player || !player.ReadyWeapon) 	return;
 		
-		//let plr = invoker.owner;
-		
-		//invoker.InputCur = plr.GetPlayerInput(MODINPUT_BUTTONS);
-		//if (!refire) invoker.InputOld = plr.GetPlayerInput(MODINPUT_OLDBUTTONS);
-		
-		if (!player.ReadyWeapon.FindState(Next))	return;
+		if (!player || !player.ReadyWeapon || !player.ReadyWeapon.FindState(Next)) 	
+			return;
 		
 		if (id == OV_LeftWeapon)
 		{
@@ -369,7 +364,7 @@ extend Class AkimboWeapon
 	// alt - Check the secondary fire (A[side]) instead of the primary (P[side]).
 	action bool AkCheckFire(bool alt = false, bool refire = true, int id = 0)
 	{
-		if (!id)	id = OverlayID();
+		if (!id)	id = (OverlayID() > 0) ? OV_RightWeapon : OV_LeftWeapon;
 		if (id == OV_LeftWeapon)
 		{
 			return (invoker.InputCur & (alt ? ALeft : PLeft)) && (refire || !(invoker.InputOld & (alt ? ALeft : PLeft)));

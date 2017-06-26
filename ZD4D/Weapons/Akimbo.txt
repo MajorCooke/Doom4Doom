@@ -458,7 +458,7 @@ Class AkimboWeapon : Weapon
 					{
 						//A_PrintBold("Mod not ready"); //Still cooling off.
 						ACS_NamedExecute("ModNotReady",0,0,0);
-						A_PlaySound("Doom4/Player/Nope",Channels);
+						AkPlaySound("Doom4/Player/Nope",Channels);
 						return ResolveState(null);
 					}
 				}
@@ -492,7 +492,7 @@ Class AkimboWeapon : Weapon
 				//A_TakeInventory("D4Shells",1,TIF_NOTAKEINFINITE);
 				A_TakeInventory("TrishotClip",1);
 				A_ZoomFactor(0.995,ZOOM_NOSCALETURNING);
-				A_PlaySound("Doom4/Weapon/Shotgun/TripleFireDeeper",CHAN_WEAPON,1);
+				AkPlaySound("Doom4/Weapon/Shotgun/TripleFireDeeper",CHAN_WEAPON,1);
 				//A_Overlay(3,"Overlay.PitchSetterQuick");
 				A_SetBlend("orange",0.03,3);
 				AkOffsetD(6,36 - 32);
@@ -597,7 +597,7 @@ Class AkimboWeapon : Weapon
 					else
 					{
 						ACS_NamedExecute("ModNotReady",0,0,0);
-						A_PlaySound("Doom4/Player/Nope",Channels);
+						AkPlaySound("Doom4/Player/Nope",Channels);
 						return ResolveState(null);
 					}
 				}
@@ -620,7 +620,7 @@ Class AkimboWeapon : Weapon
 				//A_TakeInventory("D4Shells",2,TIF_NOTAKEINFINITE);
 				//A_Overlay(10,"Overlay.PitchSetter");
 				A_ZoomFactor(0.99,ZOOM_NOSCALETURNING);
-				A_PlaySound("Doom4/Weapon/Shotgun/GrenadeLaunch",CHAN_WEAPON,1);
+				AkPlaySound("Doom4/Weapon/Shotgun/GrenadeLaunch",CHAN_WEAPON,1);
 				A_SetBlend("orange",0.05,6);
 				A_SetInventory("SGGrenadeTimer",52); //this is for the cool off
 				//ACS_NamedExecute("ShotgunGrenadeTimer",0,0,0,0); //starts decreasing the cool off counter
@@ -1945,6 +1945,7 @@ Class AkimboWeapon : Weapon
 	D4Chaingun.MobileTurretFireContinue:
 		CG3F A 1 Bright 
 		{
+			int s = Side();
 			A_QuakeEx(0,1,1,5,0,48,"",QF_Relative,0,0,0,0,0,1);
 			if (!CountInv("ChaingunFireTracker"))	//the first time fired, will play "start sound"
 			{	
@@ -1957,11 +1958,11 @@ Class AkimboWeapon : Weapon
 			
 			if (CountInv("PowerD4DFS"))
 			{
-				if (GetCvar("user_TracerFX"))	{	A_FireBullets(3,3,-1,9,"D4BulletPuff",PuffTracer|FBF_USEAMMO,0,"BulletTracerFX",-1,7*random(-1,1)); 	}
+				if (GetCvar("user_TracerFX"))	{	A_FireBullets(3,3,-1,9,"D4BulletPuff",PuffTracer/*|FBF_USEAMMO*/,0,"BulletTracerFX",7*random(-1,1),7*s); 	}
 				else							{	A_FireBullets(3,3,-1,9); 	}
 			}
-			if (GetCvar("user_Casings") > 0) 	{	A_SpawnItemEx("TurretCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER); }
-			if (GetCvar("user_TracerFX") > 0)	{	A_FireBullets(3,3,-1,9,"D4BulletPuff",PuffTracer|FBF_USEAMMO,0,"BulletTracerFX",-1,7*random(-1,1)); 	}
+			if (GetCvar("user_Casings")) 		{	A_SpawnItemEx("TurretCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER); }
+			if (GetCvar("user_TracerFX"))		{	A_FireBullets(3,3,-1,9,"D4BulletPuff",PuffTracer/*|FBF_USEAMMO*/,0,"BulletTracerFX",7*random(-1,1),7*s); 	}
 			else								{	A_FireBullets(3,3,-1,9); 	}
 			
 			if (GetCvar("user_TracerFX") > 0)
@@ -1975,23 +1976,24 @@ Class AkimboWeapon : Weapon
 			A_AlertMonsters();
 			A_GunFlash("Null");
 			int toff = (OverlayID() > 0) ? invoker.TurretOffXRight : invoker.TurretOffXLeft;
-			AkOffsetD(toff + frandom(1, 3), invoker.TurretOffY + frandom(-1, 1));
+			AkOffsetD(toff + frandom(-1, 1), invoker.TurretOffY + frandom(-1.5, 1.5));
 		}
 		CG3F BCD 1 Bright 
 		{
+			int s = Side();
 			if (CountInv("PowerD4DFS"))
 			{
-				if (GetCvar("user_TracerFX") > 0)	{	A_FireBullets(3,3,-1,9,"D4BulletPuff",PuffTracer|FBF_USEAMMO,0,"BulletTracerFX",-1,7*random(-1,1)); 	}
-				else								{	A_FireBullets(3,3,-1,9); 	}
+				if (GetCvar("user_TracerFX"))	{	A_FireBullets(3,3,-1,9,"D4BulletPuff",PuffTracer/*|FBF_USEAMMO*/,0,"BulletTracerFX",7*random(-1,1),7*s); 	}
+				else							{	A_FireBullets(3,3,-1,9); 	}
 			}
-			if (GetCvar("user_Casings") > 0)	{	A_SpawnItemEx("TurretCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);	}
-			if (GetCvar("user_TracerFX") > 0)	{	A_FireBullets(3,3,-1,9,"D4BulletPuff",PuffTracer|FBF_USEAMMO,0,"BulletTracerFX",-1,7*random(-1,1)); 	}
+			if (GetCvar("user_Casings"))		{	A_SpawnItemEx("TurretCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);	}
+			if (GetCvar("user_TracerFX"))		{	A_FireBullets(3,3,-1,9,"D4BulletPuff",PuffTracer/*|FBF_USEAMMO*/,0,"BulletTracerFX",7*random(-1,1),7*s); 	}
 			else								{	A_FireBullets(3,3,-1,9); 	}
 			A_AlertMonsters();
 			A_GunFlash("Null");
 			A_SetBlend("orange",0.03,6);
 			int toff = (OverlayID() > 0) ? invoker.TurretOffXRight : invoker.TurretOffXLeft;
-			AkOffsetD(toff + frandom(1, 3), invoker.TurretOffY + frandom(-1, 1));
+			AkOffsetD(toff + frandom(-1, 1), invoker.TurretOffY + frandom(-1.5, 1.5));
 		}
 		CG3S A 0 AkRefire("D4Chaingun.MobileTurretFireContinue");
 	D4Chaingun.EndTurretLoop:
@@ -2045,8 +2047,16 @@ Class AkimboWeapon : Weapon
 	D4RocketLauncher.Ready:
 		"----" A 0 
 		{
-			if (CountInv("DetonateActive"))			{	return ResolveState("D4RocketLauncher.DetonateSpriteReady");	}
-			if (CountInv("LockOnActive"))			{	return ResolveState("D4RocketLauncher.LockOnSpriteReady");		}
+			if (CountInv("DetonateActive"))			
+			{	
+				A_Overlay(OverlayID() + RocketFire, "D4RocketLauncher.Detonator");
+				return ResolveState("D4RocketLauncher.DetonateSpriteReady");	
+			}
+			if (CountInv("LockOnActive"))			
+			{	
+				A_Overlay(OverlayID() + RocketFire, "Null");
+				return ResolveState("D4RocketLauncher.LockOnSpriteReady");
+			}
 			return ResolveState("D4RocketLauncher.NormalSpriteReady");
 		}	
 	
@@ -2058,8 +2068,23 @@ Class AkimboWeapon : Weapon
 		RLLI A 0 A_Jump(256,"D4RocketLauncher.ResumeReadySequence");//ACS_NamedExecute("ModSelectedText",0,8,0,0);	//print Lockon
 				
 	D4RocketLauncher.ResumeReadySequence:
-		"####" A 1 AkWeaponReady(WRF_NOSECONDARY, true);
+		"####" A 1 
+		{
+			// Do not check for the detonator mod. This is being handled already.
+			if (!CountInv("LockOnActive"))
+				AkWeaponReady(WRF_NOSECONDARY, true);
+			else
+				AkWeaponReady(0, true);
+		}
 		Loop;
+		
+	D4RocketLauncher.Detonator:
+		M666 A 1
+		{
+			if (AkCheckFire(true, false))
+				A_GiveToChildren("RLDetonatorSecondary",1);
+		}
+		Wait;
 		
 	D4RocketLauncher.Fire:
 	//-------------------------------------------------------
@@ -2163,6 +2188,140 @@ Class AkimboWeapon : Weapon
 		}
 		---- A 0 AkRefire("D4RocketLauncher.Fire");
 		Goto D4RocketLauncher.Ready;
+		
+	D4RocketLauncher.AltFire:
+		"####" A 1 
+		{
+			if (CountInv("LockOnActive"))
+			{
+				return ResolveState("D4RocketLauncher.LockOn");
+				/*
+				if (CountInv("D4Rockets") || GetCvar("sv_infiniteammo") > 0)	//if it has enough to at least fire one rocket, then it proceeds
+				{
+					return ResolveState("D4RocketLauncher.LockOn");
+				}
+				else
+				{
+					ACS_NamedExecute("NotEnoughAmmo",0,0,0);
+				}
+				*/
+			}
+			ACS_NamedExecute("NoModsAvailable",0,0,0,0);
+			return ResolveState(null);
+		}
+		Goto D4RocketLauncher.Ready;
+	D4RocketLauncher.LockOn:
+		RLLI A 0 
+		{
+			if (!CountInv("RLTargetToken"))
+			{
+				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
+				A_GiveInventory("RLTargetToken",1);
+			}
+			return ResolveState("D4RocketLauncher.LockOnHold");
+		}
+	D4RocketLauncher.LockOnHold:
+		RLLI A 1 
+		{
+				
+			if (CountInv("RLLockToken") == 30)	//only plays once
+			{	AkPlaySound("Doom4/Weapon/RocketLauncher/StartLockOn",6);	}
+			if (CountInv("RLLockToken") >= 200)
+			{
+				if (!CountInv("TripleShot") || CountInv("TripleShot") > 1)
+				{
+					A_SetInventory("TripleShot",1);
+					AkPlaySound("Doom4/Weapon/RocketLauncher/TargetLocked",7);
+				}
+			}
+			else
+			{	
+				A_FireBullets(0,0,1,0,"RLTargetChecker",FBF_NOFLASH|FBF_NORANDOMPUFFZ|FBF_NORANDOM);
+			}
+			
+		}
+		---- A 0
+		{
+			AkRefire("D4RocketLauncher.LockOff",true,false);
+			if (AkCheckFire(false, false))
+			{
+				if (CountInv("RLLockToken") >= 200 && CountInv("TripleShot"))
+					return ResolveState("D4RocketLauncher.TripleFire");
+				else
+				{
+					A_SetInventory("RLLockToken",0);
+					A_SetInventory("RLTargetToken",0);
+					A_SetInventory("RocketFired",0);
+					A_SetInventory("TripleShot",0);
+					return ResolveState("D4RocketLauncher.Fire");
+				}
+			}
+			AkWeaponReady(WRF_NOFIRE,true);
+			return ResolveState(null);
+		}
+		Loop;
+	D4RocketLauncher.LockOff:
+		"####" A 0
+		{
+			A_SetInventory("RLLockToken",0);
+			A_SetInventory("RLTargetToken",0);
+			A_SetInventory("RocketFired",0);
+			A_SetInventory("TripleShot",0);
+		}
+		Goto D4RocketLauncher.Ready; // failsafe
+	//-----------------------------------------------------
+	// 	where it actually fires the 3 rockets.
+	D4RocketLauncher.TripleFire:
+		RLLF B 1 bright
+		{
+			A_GunFlash("Null");
+			A_SetInventory("RLLockToken",0);
+			A_SetInventory("RLTargetToken",0);
+			A_FireProjectile("D4RocketSeeker",0,1,Side(7));
+			//A_Overlay(P2,"TriplePitchHandler");
+			AkPlaySound("Doom4/Weapon/RocketLauncher/Fire",5,1);
+			AkOffsetD(2,0,WOF_ADD); //for recoil effect
+		}
+		"####" CDE 1 bright AkOffsetD(1,1,WOF_ADD);
+		RLLI A 2 A_SetTics(CountInv("PowerD4DFS") ? 0 : 1);
+		RLLF B 1 bright  
+		{
+			if (A_JumpIfNoAmmo("Null"))
+			{
+				A_SetInventory("RLLockToken",0);
+				A_SetInventory("RLTargetToken",0);
+				return ResolveState("FireContFlash");
+			}
+			A_GunFlash("Null");
+			A_FireProjectile("D4RocketSeeker",0,1,Side(7));
+			AkOffsetD(2,0,WOF_ADD);	//for recoil effect
+			//A_Overlay(P3,"TriplePitchHandler");
+			AkPlaySound("Doom4/Weapon/RocketLauncher/Fire",6,1);
+			return ResolveState(null);
+		}
+		"####" CDE 1 bright  AkOffsetD(1,1,WOF_ADD);
+		RLLI A 2 A_SetTics(CountInv("PowerD4DFS") ? 0 : 1);
+		RLLF B 1 bright 
+		{
+			if (A_JumpIfNoAmmo("Null"))
+			{
+				return ResolveState("FireContFlash");
+			}
+			A_GunFlash("Null");
+			A_FireProjectile("D4RocketSeeker",0,1,Side(7));
+			AkPlaySound("Doom4/Weapon/RocketLauncher/Fire",7,1);
+			//A_Overlay(P4,"TriplePitchHandler");
+			AkOffsetD(2,0,WOF_ADD);	//for recoil effect
+			return ResolveState(null);
+		}
+	D4RocketLauncher.FireContFlash:
+		"####" B 1 bright 
+		{
+			A_GunFlash("Null");
+			A_SetInventory("RLLockToken",0);
+			A_SetInventory("RLTargetToken",0);
+		}
+		Goto D4RocketLauncher.Res2;
 		
 	//==========================================================================
 	//==========================================================================
@@ -2631,23 +2790,23 @@ Class AkimboWeapon : Weapon
 			//effects and sounds depend on the charge level
 			if(CountInv("StaticRifleChargingToken")>=500)	//if max, it has a 20 tokens chance to deal max damage
 			{	
-				A_PlaySound("Doom4/Weapon/StaticRifle/FireMax",CHAN_Weapon); 
+				AkPlaySound("Doom4/Weapon/StaticRifle/FireMax",CHAN_Weapon); 
 				A_ZoomFactor(0.65,ZOOM_INSTANT|ZOOM_NOSCALETURNING);
 				A_ZoomFactor(1,ZOOM_NOSCALETURNING);
 			}
 			else if(CountInv("StaticRifleChargingToken")<=40)	//if very low
 			{		
-				A_PlaySound("Doom4/Weapon/StaticRifle/FireMin",CHAN_Weapon,0.5); 	//otherwise, will play super low sound
+				AkPlaySound("Doom4/Weapon/StaticRifle/FireMin",CHAN_Weapon,0.5); 	//otherwise, will play super low sound
 				A_ZoomFactor(0.95,ZOOM_INSTANT|ZOOM_NOSCALETURNING);
 				A_ZoomFactor(1,ZOOM_NOSCALETURNING);
 			}
 			else 		//if anything in between
 			{	
-				A_PlaySound("Doom4/Weapon/StaticRifle/Fire",CHAN_Weapon,0.8);
+				AkPlaySound("Doom4/Weapon/StaticRifle/Fire",CHAN_Weapon,0.8);
 				A_ZoomFactor(0.9,ZOOM_INSTANT|ZOOM_NOSCALETURNING);
 				A_ZoomFactor(1,ZOOM_NOSCALETURNING);
 			}
-			A_PlaySound("Doom4/Weapon/StaticRifle/FireContinuation",5,0.7);
+			AkPlaySound("Doom4/Weapon/StaticRifle/FireContinuation",5,0.7);
 			
 			if (CountInv("StaticUpgrade4"))
 			{	A_GiveInventory("StaticChargeDrain",1);	}
@@ -3100,7 +3259,7 @@ Class AkimboWeapon : Weapon
 				A_AlertMonsters();
 				A_GiveInventory("CarrionShotOut",1);
 				A_FireProjectile("CarrionPrimary",0,0,Side(4));
-				A_PlaySound("CarrionCannon/Unleash",CHAN_WEAPON,1);
+				AkPlaySound("CarrionCannon/Unleash",CHAN_WEAPON,1);
 			}
 		}
 		HELG G 2 bright;
@@ -3213,7 +3372,7 @@ Class AkimboWeapon : Weapon
 			}
 			else
 			{
-				A_PlaySound("Doom4/Player/Nope",CHAN_AUTO);
+				AkPlaySound("Doom4/Player/Nope",CHAN_AUTO);
 				ACS_NamedExecute("NotEnoughAmmo",0,0,0,0);
 			}
 			return ResolveState(null);
@@ -3450,10 +3609,19 @@ Class AkimboWeapon : Weapon
 			return ResolveState(next);
 		}
 	D4AssaultRifle.ScopeModOut:
-		ARSI A 0 A_Jump(256,"CommonMod");
+		ARSI A 0 { return ResolveState("CommonMod"); }
+	D4RocketLauncher.Mod:
+		---- A 0
+		{
+			A_SetInventory("RLLockToken",0);
+			A_SetInventory("RLTargetToken",0);
+			A_SetInventory("RocketFired",0);
+			A_SetInventory("TripleShot",0);
+			A_Overlay(OverlayID() + RocketFire, "Null");
+			return ResolveState("CommonMod");
+		}
 	D4Shotgun.Mod:
 	D4Chaingun.Mod:
-	D4RocketLauncher.Mod:
 	D4PlasmaRifle.Mod:
 	D4GaussCannon.Mod:
 	CommonMod:
@@ -3593,12 +3761,16 @@ Class AkimboWeapon : Weapon
 		}
 	D4AssaultRifle.ScopeDeselect:
 		ARSI A 0 A_Jump(256,"CommonDeselect");
-		
+	
+	D4RocketLauncher.Deselect:
+		---- A 0
+		{
+			A_Overlay(OverlayID() + RocketFire, "Null");
+			return ResolveState("CommonDeselect");
+		}
 	D4Shotgun.Deselect:
 	D4SuperShotgun.Deselect:
 	D4Repeater.Deselect:
-	
-	D4RocketLauncher.Deselect:
 	D4LightningGun.Deselect:
 	CommonDeselect:
 		---- A 1 { AkLowerGun(AkimboSwitchSpeed + 6); }
