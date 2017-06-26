@@ -709,53 +709,10 @@ Struct D4DropList play
 	}
 	
 	//--------------------------------------------------------------------------
-	// DropItems(actor)
+	// DropItemsPos(actor)
 	//
 	// Causes an actor to spawn its entire list of items.
 	//--------------------------------------------------------------------------
-	
-	void DropItems(Actor dropper)
-	{
-		if (!dropper)	
-		{
-			return;
-		}
-		
-		int size = ItemName.Size();
-		if (size > 0)
-		{
-			for (int i = 0; i < size; i++)
-			{
-				Class<Inventory> check = ItemName[i];
-				if (check == null)	continue;
-				
-				Inventory it = Inventory(Actor.Spawn(check, dropper.pos + (0, 0, 32)));
-				
-				if (it)
-				{
-					it.bTHRUACTORS = true;
-					/*
-					if (it.GetClassName() == 'D4PinataArmor')
-					{
-						D4PinataArmor p = D4PinataArmor(it);
-						if (p)	p.SaveAmount *= ItemAmountMul[i];
-					}
-					else
-					*/
-						it.amount = int(it.amount * ItemAmountMul[i]);
-					it.bTHRUACTORS = false;
-					it.VelFromAngle(frandom(3,6),random(0,359));
-					it.vel.Z += frandom(1,5);
-					it.A_FaceMovementDirection(0,0);
-					
-				}
-				//if (dropper) dropper.A_SpawnItemEx(check,0,0,32,frandom(-4,4),frandom(-4,4),frandom(1,5),0,SXF_NOCHECKPOSITION);
-				
-			}
-			ItemName.Clear();
-			ItemCount.Clear();
-		}
-	}
 	
 	void DropItemsPos(Vector3 mpos)
 	{
@@ -766,16 +723,20 @@ Struct D4DropList play
 			{
 				Class<Inventory> check = ItemName[i];
 				if (check == null)	continue;
-				
-				Inventory it = Inventory(Actor.Spawn(check, mpos + (0, 0, 32.0)));
-				if (it)
+				for (int j = 0; j < ItemCount[i]; j++)
 				{
-					it.bTHRUACTORS = true;
-					it.amount = int(it.amount * ItemAmountMul[i]);
-					it.bTHRUACTORS = false;
-					it.VelFromAngle(frandom(3.0,6.0),random(0,359));
-					it.vel.Z += frandom(1.0,5.0);
-					it.A_FaceMovementDirection(0,0);
+					Inventory it = Inventory(Actor.Spawn(check, mpos + (0, 0, 32)));
+					
+					if (it)
+					{
+						it.bTHRUACTORS = true;
+						it.amount = int(it.amount * ItemAmountMul[i]);
+						it.bTHRUACTORS = false;
+						it.VelFromAngle(frandom(3,6),random(0,359));
+						it.vel.Z += frandom(1,5);
+						it.A_FaceMovementDirection(0,0);
+						
+					}
 				}
 			}
 			ItemName.Clear();
