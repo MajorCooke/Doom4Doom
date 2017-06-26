@@ -13,6 +13,7 @@ Class D4Archvile : D4AbstractBiggie
 	int user_staggertimer;
 	Default 
 	{
+		D4AbstractMonster.BC "Black";
 		D4AbstractMonster.CrateDropAmount 3;
 		D4AbstractMonster.CrateDropChance 64;
 		D4AbstractMonster.CashAmount 150;
@@ -28,7 +29,6 @@ Class D4Archvile : D4AbstractBiggie
 		+FLOORCLIP
 		+DONTCORPSE
 		BloodColor "Black";
-		BloodType "D4BloodBlack";
 		SeeSound "Doom4/Monsters/Archvile/Sight";
 		PainSound "Doom4/Monsters/Archvile/Pain";
 		DeathSound "Doom4/Monsters/Archvile/Death";

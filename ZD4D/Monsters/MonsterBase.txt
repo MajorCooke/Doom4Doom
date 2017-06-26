@@ -29,7 +29,9 @@ Class D4AbstractMonster : Actor
 	Name MOD;
 	D4DropList Pinatas;
 	Actor Spawner;
+	Color BC;
 	
+	property BC: BC;
 	property UpgradeDropChance: UpgradeDropChance;
 	property UpgradeDropAlways: UpgradeDropAlways;
 	property CrateDropChance: CrateDropChance;
@@ -46,6 +48,7 @@ Class D4AbstractMonster : Actor
 		D4AbstractMonster.CrateDropAlways 0;
 		D4AbstractMonster.CashAmount -1;
 		D4AbstractMonster.CashChainsawFinisher -1;
+		D4AbstractMonster.BC "Red";
 		BloodColor "Red";
 		DamageFactor "Crush", 15.0;
 	}
@@ -190,12 +193,27 @@ Class D4AbstractMonster : Actor
 		MOD = DamagetypeReceived;
 		if ((MOD != 'Massacre'))
 		{
-			A_SpawnItemEx("BloodGibDropper",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_USEBLOODCOLOR,0,bcolor);
+			//int sflag = (CountInv("D4MonsterUpgrader")) ? SXF_TRANSFERTRANSLATION : SXF_USEBLOODCOLOR;
+			let gibs = BloodGibDropper(Spawn("BloodGibDropper", pos));
+			//[t, gibspawner] = A_SpawnItemEx("BloodGibDropper",0,0,0,vel.x,vel.y,vel.z,0,
+			//	SXF_NOCHECKPOSITION|SXF_ABSOLUTEVELOCITY|SXF_SETTRACER|SXF_ORIGINATOR);//,0,bcolor);
+			
+			if (gibs)
+			{
+				gibs.tracer = self;
+				gibs.vel = vel;
+				int tier = CountInv("D4MonsterUpgrader");
+				int toSend = (tier) ? Translation : BloodTranslation;
+				gibs.BC = BC;
+				gibs.Translation = ((tier) ? Translation : BloodTranslation);
+			}
+			
 			A_XScream();
 			A_PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
 		}
 	}
 	
+	//==========================================================================
 	enum EJumpFlags
 	{
 		JF_FORWARD = (1<<0),

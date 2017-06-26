@@ -11,6 +11,7 @@ Class D4Cacodemon : D4AbstractBiggie
 	
 	Default 
 	{
+		D4AbstractMonster.BC "Blue";
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 28;
 		D4AbstractMonster.CashAmount 40;
@@ -32,7 +33,6 @@ Class D4Cacodemon : D4AbstractBiggie
 		PainChance "GloryKill", 255;
 		WoundHealth 80;
 		BloodColor "Blue";
-		BloodType "D4BloodBlue";
 	}
 	States
 	{

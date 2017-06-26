@@ -15,6 +15,7 @@ Class D4HellKnight : D4AbstractBiggie
 	int user_staggertimer;
 	Default 
 	{
+		D4AbstractMonster.BC "Green";
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 16;
 		D4AbstractMonster.CashAmount 60;
@@ -37,7 +38,6 @@ Class D4HellKnight : D4AbstractBiggie
 		Scale 0.65;
 		Gravity 0.83;
 		BloodColor "Green";
-		BloodType "D4BloodGreen";
 		PainChance "StunBomb", 255;
 		PainChance "GloryKill", 255;
 		WoundHealth 80;
@@ -702,6 +702,7 @@ Class D4OldHellKnight : D4AbstractBiggie // : HellKnight //replaces HellKnight
 	int user_staggertimer;
 	Default 
 	{
+		D4AbstractMonster.BC "Green";
 		Radius 24;
 		Height 64;
 		Mass 1000;

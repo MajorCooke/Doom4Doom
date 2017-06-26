@@ -127,11 +127,10 @@ Class D4DMonsterSpawner : Actor
 		
 		if (mon)
 		{
+			int rng = random(0, 1999);
+			int amt = 0;
 			if (monType > 1)
-			{
-				int rng = random(0, 1999);
-				int amt = 0;
-				
+			{	
 				if (rng > 800)
 				{
 						 if (rng >= 1999)	{	amt = 7;	mon.A_SetTranslation("D4D_White");	}
@@ -170,7 +169,17 @@ Class D4DMonsterSpawner : Actor
 			//{
 				let d4mon = D4AbstractMonster(mon);
 				if (d4mon)
+				{
+						 if (amt < 0 || amt > 7) { }
+					else if (amt == 7)	d4mon.BC = "White";
+					else if (amt == 6)	d4mon.BC = "Black";
+					else if (amt == 5)	d4mon.BC = "Red";
+					else if (amt == 4)	d4mon.BC = "Orange";
+					else if (amt == 3)	d4mon.BC = "Purple";
+					else if (amt == 2)	d4mon.BC = "Blue";
+					else if (amt == 1)	d4mon.BC = "Green";
 					d4mon.Spawner = self;
+				}
 			//}
 			
 			if (master)	

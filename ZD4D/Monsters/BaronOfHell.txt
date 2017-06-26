@@ -15,6 +15,7 @@ Class D4BaronOfHell : D4AbstractBiggie
 	
 	Default 
 	{
+		D4AbstractMonster.BC "Green";
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 32;
 		D4AbstractMonster.CashAmount 100;
@@ -37,7 +38,6 @@ Class D4BaronOfHell : D4AbstractBiggie
 		Scale 0.72;
 		Gravity 0.83;
 		BloodColor "Green";
-		BloodType "D4BloodGreen";
 		PainChance "StunBomb", 255;
 		PainChance "GloryKill", 255;
 		WoundHealth 150;
@@ -1040,6 +1040,7 @@ Class D4OldBaronOfHell : D4AbstractBiggie // : BaronOfHell
 	int user_staggertimer;
 	Default 
 	{
+		D4AbstractMonster.BC "Green";
 		Health 1000;
 		Radius 24;
 		Height 64;
