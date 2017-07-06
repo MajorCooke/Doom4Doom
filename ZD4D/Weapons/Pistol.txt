@@ -217,9 +217,9 @@ Class D4Pistol : Doom4Weapon
 			{
 				dmg = Clamp(inv.Amount, 1, inv.MaxAmount);
 				if (CountInv("PistolUpgradeAltDamage"))
-					dmg = random(6 * dmg, 14 * dmg);
+					dmg = random(5 * dmg, 8 * dmg);
 				else
-					dmg = random(3 * dmg, 9 * dmg);
+					dmg = random(2 * dmg, 4 * dmg);
 			}
 				 if (count >= 48) 	puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffBig1Red" : "D4PistolPuffBig1");
 			else if (count >= 32) 	puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffBig1Red" : "D4PistolPuffBig1");
