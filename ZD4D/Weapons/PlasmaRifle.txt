@@ -18,7 +18,7 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 		+WEAPON.NOALERT
 		+INVENTORY.UNDROPPABLE
 		+INVENTORY.UNTOSSABLE
-		Inventory.PickupMessage "Plasma Rifle! Hotter than the Sun surface!";
+		Inventory.PickupMessage "Plasma Rifle! Hotter than the Sun's surface!";
 		Tag "Plasma Rifle";
 		Weapon.AmmoType1 "D4Cells";
 		Weapon.AmmoGive1 40;
@@ -699,9 +699,9 @@ Class PlasmaHeatMuzzle : Actor
 	const Distance = 17;
 	const YOff = 10;
 	const ZOff = 37;
-	double  user_pos;
+	double user_pos;
 	int user_t;
-	
+	int side;
 	Default 
 	{
 		Projectile;
@@ -713,11 +713,18 @@ Class PlasmaHeatMuzzle : Actor
 		RenderStyle "None";
 		Translation "0:255=%[0,0,0]:[0,1,0]";
 	}
+	
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		if (!side) side = 1;
+	}
 	States
 	{
 	Spawn:
 		TNT1 A 1 NoDelay
 		{
+			if (!master) return Destroy();
 			if (master) 
 			{
 				if (master.GetClass() != "Doom4Player")	return;
@@ -735,9 +742,9 @@ Class PlasmaHeatMuzzle : Actor
 			
 			A_Warp(MasterPtr,
 				(cos(-pitch)*(Distance)) - user_pos,
-				YOff,
+				YOff * side,
 				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
-			if(A_JumpIfInTargetInventory("PlasmaHeatBlastCounter",15,"Nothing"))
+			if (CountInv("PlasmaHeatBlastCounter", MasterPtr) >= 15)
 			{
 				if(GetCvar("HQEffectsWeapons"))
 				{
