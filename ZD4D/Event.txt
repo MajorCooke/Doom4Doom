@@ -88,7 +88,10 @@ extend class D4DHandler
 			*/
 			
 			// This D4bum class (see top of source) will drop a fuckton of crates/cash.
-			// Bear in mind, LootList.Add(Loot); must be performed after the Loot.Init function.
+			// Bear in mind, LootList.Add(Loot); must be performed after the 
+			// Loot.Init function because Loot is a struct, and LootList's Add 
+			// function takes that struct as its parameter. Keeps things clean 
+			// and organized.
 			Loot.Init("D4bum", -1, 1, 256, 666, 666, 999, 200);	LootList.Add(Loot);
 			
 			
@@ -102,7 +105,8 @@ extend class D4DHandler
 			// 	Remove(Actor Name)
 			// 	Check(Actor Name)
 			
-			// Should be simple enough.
+			// [MC] Should be simple enough. Here, I blacklisted the lost souls
+			// that are spawned by pain elementals.
 			
 			BlackList.Add("D4LostSoulNoCash", true);
 			BlackList.Add("D4OldLostSoulNoCash", true);
@@ -117,7 +121,8 @@ extend class D4DHandler
 		let mo = e.Thing;
 		if (!mo || !mo.bISMONSTER || mo.bNOINTERACTION) return;
 		
-		// Check the global blacklist and do nothing if found on it.
+		// Check the global blacklist and do nothing if found on it. This is a
+		// no-holds-barred list -- absolutely nothing will drop, no exceptions.
 		if (!BlackList) BlackList = D4BlackList.Get();
 		if (BlackList.Check(mo))	return;
 		
@@ -187,8 +192,10 @@ extend class D4DHandler
 		let d4m = D4AbstractMonster(mo);
 		Class<Actor> thing = mo.GetClass();
 		
-		if (LootList && LootList.CheckActor(thing)) //Not a D4D monster, is it manual?
+		//Not a D4D monster, is it manual? This is defined above (see D4bum example).
+		if (LootList && LootList.CheckActor(thing)) 
 		{
+			// Find the thing and snag its contents, if it has any.
 			D4ManualLootParameters Loot;
 			LootList.Retrieve(thing, Loot);
 			CrateDropChance = 		Loot.CrateDropChance;
@@ -199,7 +206,7 @@ extend class D4DHandler
 			UpgradeDropChance =		Loot.UpgradeDropChance;
 			UpgradeDropAlways =		Loot.UpgradeDropAlways;
 		}
-		else if (d4m)
+		else if (d4m) // Not manually overridden -- D4D monster.
 		{
 			CrateDropChance = 		d4m.CrateDropChance;
 			CrateDropAmount = 		d4m.CrateDropAmount;
@@ -234,6 +241,7 @@ extend class D4DHandler
 			}
 		}
 		
+		// Pickup/Crate Mode?
 		if (D4D_CurrentUpgradeMode)
 		{
 			// Cycle through the drop chances of each, excluding the always
@@ -503,7 +511,7 @@ Class D4ManualLootList : Thinker
 	{
 		return Actors.Size();
 	}
-	
+		
 	//--------------------------------------------------------------------------
 	// Adds an actor to the list of overrides for modders usage.
 	void Add(in D4ManualLootParameters Loot)

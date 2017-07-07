@@ -15,6 +15,11 @@ Class PistolLanceReadyToken : Inventory
 //==============================================================================
 //==============================================================================
 
+const PistolAltMin =		2.0;
+const PistolAltMax =		3.0;
+const PistolAltUpMin =		4.0;
+const PistolAltUpMax =		6.0;
+
 Class D4Pistol : Doom4Weapon
 {
 	Default 
@@ -217,9 +222,9 @@ Class D4Pistol : Doom4Weapon
 			{
 				dmg = Clamp(inv.Amount, 1, inv.MaxAmount);
 				if (CountInv("PistolUpgradeAltDamage"))
-					dmg = random(5 * dmg, 8 * dmg);
+					dmg = frandom(PistolAltUpMin * dmg, PistolAltUpMax * dmg);
 				else
-					dmg = random(2 * dmg, 4 * dmg);
+					dmg = frandom(PistolAltMin * dmg, PistolAltMax * dmg);
 			}
 				 if (count >= 48) 	puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffBig1Red" : "D4PistolPuffBig1");
 			else if (count >= 32) 	puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffBig1Red" : "D4PistolPuffBig1");

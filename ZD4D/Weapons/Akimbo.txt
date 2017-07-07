@@ -255,9 +255,9 @@ Class AkimboWeapon : Weapon
 			{
 				dmg = Clamp(inv.Amount, 1, inv.MaxAmount);
 				if (CountInv("PistolUpgradeAltDamage"))
-					dmg = random(6 * dmg, 14 * dmg);
+					dmg = frandom(PistolAltMin * dmg, PistolAltMax * dmg);
 				else
-					dmg = random(3 * dmg, 9 * dmg);
+					dmg = frandom(PistolAltUpMin * dmg, PistolAltUpMax * dmg);
 			}
 				 if (count >= 48) 	puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffBig1Red" : "D4PistolPuffBig1");
 			else if (count >= 32) 	puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffBig1Red" : "D4PistolPuffBig1");
