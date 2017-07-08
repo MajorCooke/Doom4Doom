@@ -170,13 +170,14 @@ Class Doom4StatusBar : BaseStatusBar
 	
 	protected void DrawMainBar (double TicFrac)
 	{
+		if (!CPlayer || !CPlayer.mo)	return;
 		// Draw the powerup screens first so they don't overlap the rest of the hud.
 		if (!automap)
 		{
-			if (GetAmountOnly("PowerD4QuadDamage"))	DrawImage("Shade2Ma", (-171, 0), imageAlignment);
-			if (GetAmountOnly("PowerD4Regen"))		DrawImage("Shade2Cy", (-171, 0), imageAlignment);
-			if (GetAmountOnly("PowerD4Haste"))		DrawImage("Shade2Ye", (-171, 0), imageAlignment);
-			if (GetAmountOnly("PowerD4Money"))		DrawImage("Shade2Gr", (-171, 0), imageAlignment);
+			if (GetAmountOnly("PowerD4QuadDamage"))	DrawImage("Shade2Ma", (-171, 0), imageAlignment, GetPowerFadeAlpha("PowerD4QuadDamage"));
+			if (GetAmountOnly("PowerD4Regen"))		DrawImage("Shade2Cy", (-171, 0), imageAlignment, GetPowerFadeAlpha("PowerD4Regen"));
+			if (GetAmountOnly("PowerD4Haste"))		DrawImage("Shade2Ye", (-171, 0), imageAlignment, GetPowerFadeAlpha("PowerD4Haste"));
+			if (GetAmountOnly("PowerD4Money"))		DrawImage("Shade2Gr", (-171, 0), imageAlignment, GetPowerFadeAlpha("PowerD4Money"));
 		}
 		// Demon Runes
 		if (GetAmountOnly("IAmADemonToken"))
@@ -300,18 +301,37 @@ Class Doom4StatusBar : BaseStatusBar
 			{
 				Vector2 ArmorTextPos = (-4, 679);
 				int colArmor = Font.CR_WHITE;
+				int colArmorInvul = Font.CR_RED;
 				int armorAmount = GetArmorAmount();
 				
+				
 				// Armor
+				DrawBar("BODYARM1", "BODYARM0", GetArmorAmount(), 				100, (18, 676), 0, 0, imageAlignment);
+				DrawBar("BODYARM2", "BODYARM0", Max(0, GetArmorAmount() - 100), 100, (18, 676), 0, 0, imageAlignment);
+				
+				
+				let invul = Powerup(CPlayer.mo.FindInventory("PowerInvulnerable",true));
+				if (invul && invul.EffectTics > 0)
+				{
+					double invulalpha = GetPowerFadeAlpha("PowerInvulnerable");
+					DrawString(mQ4SmallHudFont, FormatNumber(armorAmount, 1, 3), 	(-4, 679), DI_TEXT_ALIGN_RIGHT, colArmor, 1.0 - invulalpha);
+					DrawString(mQ4SmallHudFont, FormatNumber(666),					(-4, 679), DI_TEXT_ALIGN_RIGHT, colArmorInvul, invulalpha);
+				}
+				else
+					DrawString(mQ4SmallHudFont, FormatNumber(armorAmount, 1, 3), 	(-4, 679), DI_TEXT_ALIGN_RIGHT, colArmor);
+				
+				
+				/*
 				if (GetAmountOnly("PowerInvulBase"))
 				{
 					colArmor = Font.CR_RED;
 					armorAmount = 666;
 				}
+				*/
 				
-				DrawBar("BODYARM1", "BODYARM0", GetArmorAmount(), 				100, (18, 676), 0, 0, imageAlignment);
-				DrawBar("BODYARM2", "BODYARM0", Max(0, GetArmorAmount() - 100), 100, (18, 676), 0, 0, imageAlignment);
-				DrawString(mQ4SmallHudFont, FormatNumber(armorAmount, 1, 3), 	(-4, 679), DI_TEXT_ALIGN_RIGHT, colArmor);
+				
+				
+				
 				
 				// Health
 				// This variable is the means of doing interpolation with the health bar.
@@ -825,6 +845,21 @@ Class Doom4StatusBar : BaseStatusBar
 
 extend class Doom4StatusBar
 {
+	double GetPowerFadeAlpha(Class<Powerup> item, int expirewarn = 105)
+	{
+		if (!CPlayer || !CPlayer.mo)	return 0.0;
+		if (!expirewarn)				return 1.0;
+		
+		let power = Powerup(CPlayer.mo.FindInventory(item, true));
+		if (!power)	
+			return 0.0;
+			
+		if (power && power.EffectTics >= expirewarn)	
+			return 1.0;
+		
+		return (power.EffectTics / double(expirewarn));
+	}
+
 	// For only getting the current amount instead of both amount and max amounts.
 	int GetAmountOnly(class<Inventory> item)
 	{
