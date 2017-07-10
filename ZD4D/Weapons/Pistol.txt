@@ -15,10 +15,18 @@ Class PistolLanceReadyToken : Inventory
 //==============================================================================
 //==============================================================================
 
+// Base damage for alt charge is 1-52 based on charge...
+// Assuming full charge, the new damage values are:
+// With nothing: 	[104, 156]
+// With upgrade:	[156, 208]
+// Lance:			[191, 280] + 96 splash
 const PistolAltMin =		2.0;
 const PistolAltMax =		3.0;
-const PistolAltUpMin =		4.0;
-const PistolAltUpMax =		6.0;
+const PistolAltUpMin =		3.0;
+const PistolAltUpMax =		4.0;
+const PistolLanceBase =		100;
+const PistolLanceMin =		90;
+const PistolLanceMax =		180;
 
 Class D4Pistol : Doom4Weapon
 {
@@ -194,7 +202,7 @@ Class D4Pistol : Doom4Weapon
 				}				
 				if (counter[0] >= 50)
 				{
-					A_WeaponOffset(frandom(-2.0,-2),32+frandom(-2.0,2.0));
+					A_WeaponOffset(frandom(-2.0,2.0),32+frandom(-2.0,2.0));
 					if (CountInv("PistolLanceActive"))
 				    {
 					    A_GiveInventory("PistolLanceCounter",4 + (CountInv("PowerD4DFS") * 2)); 
@@ -275,7 +283,7 @@ Class D4Pistol : Doom4Weapon
 		"####" B 2 Bright
 		{
 			A_PlaySound("Doom4/Weapon/PistolL/Fire",CHAN_WEAPON,1);
-			A_RailAttack(100+random(1,180),2,1,"Green","Green",RGF_SILENT|RGF_FULLBRIGHT|RGF_NOPIERCING,0,"LanceShockwave",0,0,0,0,5,1.0,"LanceTrail",5);
+			A_RailAttack(PistolLanceBase + random(PistolLanceMin,PistolLanceMax),2,1,"Red","Red",RGF_SILENT|RGF_FULLBRIGHT|RGF_NOPIERCING,0,"LanceShockwave",0,0,0,0,5,1.0,"LanceTrail",5);
 			A_AlertMonsters();
 			A_TakeInventory("PistolAltFireCounter",200);
 			A_TakeInventory("PistolLanceCounter",200);
@@ -679,15 +687,17 @@ Class LanceShockwave : Actor 	//the actual puff
 {
 	Default 
 	{
+		Projectile;
 		+NOINTERACTION
-		RenderStyle "Add";
-		Scale 0.15;
-		Translation "0:255=%[0,0,0]:[1.0,0.2,0.2]";
-		Alpha 0.99;
 		+ALWAYSPUFF
 		+PUFFONACTORS
 		+FORCEXYBILLBOARD
 		+PUFFGETSOWNER
+		+SKYEXPLODE
+		Translation "0:255=%[0,0,0]:[1.0,0.2,0.2]";
+		RenderStyle "Add";
+		Scale 0.15;
+		Alpha 0.99;
 		//Decal "D4GaussDecal"
 	}
 	States
@@ -697,7 +707,7 @@ Class LanceShockwave : Actor 	//the actual puff
 		TNT1 A 0 
 		{
 			A_SpawnItemEx("LanceImpactLightEmitter",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-			A_Explode(64,128,0);
+			A_Explode(96,128,0);
 			if (GetCvar("user_quakexplosions"))
 			{
 				A_QuakeEx(2,2,2,10,0,768,"",QF_SCALEDOWN,0,0,0,1);

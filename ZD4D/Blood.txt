@@ -133,7 +133,7 @@ Class MCBloodFXMain : Actor replaces Blood
 			if (user_inv != 1)
 			{	
 				//A_LogInt(1);
-				//BC.a = 255;
+				BC.a = 255;
 				BloodParticleSpawner.Bleed(self, BC, (frandom(0,2), 0, random(1,4)), tvel);
 				//A_SpawnItemEx("MCBloodParticle",frandom(0,2),0,random(1,4),tvel.x,tvel.y,tvel.z,0,SXF_NOCHECKPOSITION|SXF_SETTRACER|SXF_ORIGINATOR);
 			}

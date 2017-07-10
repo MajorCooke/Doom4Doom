@@ -310,7 +310,7 @@ Class AkimboWeapon : Weapon
 		"####" B 2 Bright
 		{
 			AkPlaySound("Doom4/Weapon/PistolL/Fire",CHAN_WEAPON,1);
-			A_RailAttack(100+random(1,180),2,1,"Green","Green",RGF_SILENT|RGF_FULLBRIGHT|RGF_NOPIERCING,0,"LanceShockwave",0,0,0,0,5,1.0,"LanceTrail",5);
+			A_RailAttack(PistolLanceBase + random(PistolLanceMin,PistolLanceMax),2,1,"Green","Green",RGF_SILENT|RGF_FULLBRIGHT|RGF_NOPIERCING,0,"LanceShockwave",0,0,0,0,5,1.0,"LanceTrail",5);
 			A_AlertMonsters();
 			A_TakeInventory("PistolAltFireCounter",200);
 			A_TakeInventory("PistolLanceCounter",200);
