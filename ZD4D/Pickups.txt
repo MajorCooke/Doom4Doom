@@ -1671,7 +1671,7 @@ Class SovietChaingunUpgradePickup : D4UpgradePickup
 		D4UpgradePickup.Frame 25;
 		+INVENTORY.ALWAYSPICKUP
 		+BRIGHT
-		Inventory.PickupSound "HOLYSHIT";
+		Inventory.PickupSound "Doom4/Other/WeaponPickup";
 		Inventory.PickupMessage "For Mother Russia!";
 		Translation "0:255=%[0.0,0.0,0.0]:[1.0,0.75,0.0]";
 	}
@@ -1682,7 +1682,7 @@ Class SovietChaingunUpgradePickup : D4UpgradePickup
 		{
 			if (!CountInv("SovietToken"))
 			{	
-				A_SpawnItemEx("HolyShitScreamer",flags:SXF_NOCHECKPOSITION);
+				//A_SpawnItemEx("HolyShitScreamer",flags:SXF_NOCHECKPOSITION);
 				A_SetInventory("SovietToken",1);
 				A_SetInventory("SovietActive",1);
 			}
