@@ -35,6 +35,13 @@ Class D4SpiderMastermind : D4AbstractBoss
 		D4AbstractMonster.CrateDropAlways 2;
 		D4AbstractMonster.CashAmount 400;
 		D4AbstractMonster.CashChainsawFinisher 2000;
+		+BOSS
+		+MISSILEMORE
+		+FLOORCLIP
+		+NORADIUSDMG
+		+DONTMORPH
+		+BOSSDEATH
+		+DONTCORPSE
 		Health 3000;
 		Radius 96;
 		Height 100;
@@ -43,19 +50,13 @@ Class D4SpiderMastermind : D4AbstractBoss
 		PainChance 30;
 		Monster;
 		MinMissileChance 160;
-		+BOSS
-		+MISSILEMORE
-		+FLOORCLIP
-		+NORADIUSDMG
-		+DONTMORPH
-		+BOSSDEATH
-		+DONTCORPSE
 		SeeSound "Doom4/SpiderMastermind/Sight";
 		//AttackSound "spider/attack";
 		PainSound "Doom4/SpiderMastermind/Pain";
 		DeathSound "Doom4/SpiderMastermind/Death";
 		ActiveSound "Doom4/SpiderMastermind/Idle";
 		Obituary "$OB_SPIDER";
+		DamageFactor "BFGExploder", 0.0;
 		DamageFactor "CyberdemonFireWave", 0.2;	//for if there's infight, otherwise cyberdemons rape this guy so easily
 		PainChance "GloryKill", 255;
 		WoundHealth 150;
@@ -883,6 +884,13 @@ Class D4OldSpiderMastermind : D4AbstractBoss // : SpiderMastermind
 	{
 		D4AbstractMonster.CashAmount 400;
 		D4AbstractMonster.CashChainsawFinisher 2000;
+		+BOSS
+		+MISSILEMORE
+		+FLOORCLIP
+		+NORADIUSDMG
+		+DONTMORPH
+		+BOSSDEATH
+		+DONTCORPSE
 		Health 3000;
 		Radius 128;
 		Height 100;
@@ -891,22 +899,15 @@ Class D4OldSpiderMastermind : D4AbstractBoss // : SpiderMastermind
 		PainChance 40;
 		Monster;
 		MinMissileChance 160;
-		+BOSS
-		+MISSILEMORE
-		+FLOORCLIP
-		+NORADIUSDMG
-		+DONTMORPH
-		+BOSSDEATH
 		SeeSound "spider/sight";
 		AttackSound "spider/attack";
 		PainSound "spider/pain";
 		DeathSound "spider/death";
 		ActiveSound "spider/active";
 		Obituary "$OB_SPIDER";
-		
+		DamageFactor "BFGExploder", 0.0;
 		PainChance "GloryKill", 255;
 		WoundHealth 150;
-		+DONTCORPSE
 	}
 	States
 	{

@@ -246,14 +246,17 @@ Class OrbiterExtender : Inventory { Default { Inventory.MaxAmount 500;	Inventory
 const BFG_LaserRadius = 1024;
 Class BFGProjectile  : Actor 
 {
+	int drawBeams;
+	int renderer;
 	//==========================================================================
 	// Functions
 	//==========================================================================
 	
-	// Gets the middle of the actor's position on Z.
-	double GetMidriff(Actor mo)
+	override void PostBeginPlay()
 	{
-		return (mo ? (mo.pos.z + (mo.height / 2.0)) : 0.0);
+		Super.PostBeginPlay();
+		drawBeams = GetCvar("D4BFGEffects");
+		renderer = GetCvar("vid_renderer");
 	}
 	
 	//--------------------------------------------------------------------------
@@ -270,50 +273,42 @@ Class BFGProjectile  : Actor
 			{	continue;	}
 			
 			// Don't target things that aren't monsters, or are already dead.
-			if (mo.bFRIENDLY || !mo.bISMONSTER || mo.bKILLED || !mo.bSHOOTABLE ||
-				mo.CheckClass("DemonShield",DefPtr,true) ||
-				mo.CheckClass("PlayerPawn",DefPtr,true))
-			{	continue;	}
+			if (mo.bNOINTERACTION || mo.bNOSECTOR ||
+				mo.bFRIENDLY || !mo.bISMONSTER || mo.health < 1 || 
+				(!mo.bSHOOTABLE && !mo.bVULNERABLE) ||
+				(mo is "DemonShield") ||
+				(mo is "PlayerPawn"))
+				continue;	
 			
-			if (!CheckSight(mo, SF_IGNOREVISIBILITY | SF_IGNOREWATERBOUNDARY))
-			{	continue;	}
 			
-			// Make sure it's in range.
+			// Check sight and range.
 			if (Distance2D(mo) > BFG_LaserRadius || 
-				(abs(GetMidriff(self) - GetMidriff(mo)) > BFG_LaserRadius))
+				!CheckSight(mo, SF_IGNOREVISIBILITY | SF_IGNOREWATERBOUNDARY))
 			{	continue;	}
 			
 			// Passed the validation checks. Give it the bomb token and spawn a beam.
-			
 			count++;
 			
 			if (!mo.CountInv("BFGKillToken"))
 			{
-				if (
-				!mo.CheckClass("PlayerPawn",DefPtr,true) &&
-				!mo.CheckClass("SpiderMastermind",DefPtr,true) &&
-				!mo.CheckClass("D4SpiderMastermind",DefPtr,true) &&
-				!mo.CheckClass("D4OldSpiderMastermind",DefPtr,true) &&
-				!mo.CheckClass("Cyberdemon",DefPtr,true) &&
-				!mo.CheckClass("D4Cyberdemon",DefPtr,true) &&
-				!mo.CheckClass("D4OldCyberdemon",DefPtr,true) &&
-				!(mo is "BossBrain"))
+				if (!(mo is "PlayerPawn") &&
+					!(mo is "BossBrain"))
 				{
 					mo.A_SetInventory("BFGKillToken",1);
 				}
 			}
 			
-			if (GetCvar("D4BFGEffects"))
+			if (drawBeams)
 			{
 				Class<Actor> beamname = null;
-				if (GetCvar("vid_renderer"))
+				if (renderer)
 				{	beamname = "BFGBeamGZ"; }
 				else
 				{	beamname = "BFGBeam"; 	}
 				
 				if (beamname)
 				{
-					Vector3 monpos = ( mo.pos.x, mo.pos.y, GetMidriff(mo) );
+					Vector3 monpos = mo.pos + ( 0, 0, mo.height / 2.0 );
 					Actor beam = Spawn(beamname, monpos);
 					
 					if (beam)
@@ -337,8 +332,8 @@ Class BFGProjectile  : Actor
 			if (!mo.CountInv("BFGKillToken"))
 			{	continue;	}
 			
-			if (mo.bFRIENDLY || !mo.bISMONSTER || mo.bKILLED || 
-				mo.CheckClass("PlayerPawn",DefPtr,true))
+			if (mo.bFRIENDLY || !mo.bISMONSTER || mo.health < 1 || mo.bKILLED || 
+				(mo is "PlayerPawn"))
 			{
 				mo.A_SetInventory("BFGKillToken",0);
 				continue;
@@ -346,7 +341,7 @@ Class BFGProjectile  : Actor
 			Actor src;
 			if (target)	src = target;
 			else		src = self;
-			mo.DamageMobj(self, src, 2000, "BFGBlast.Extreme");
+			mo.DamageMobj(self, src, 2000, "BFGExploder");
 		}
 	}
 }
@@ -373,11 +368,11 @@ Class BFG9000Shot : BFGProjectile
 		Height 12;
 		Speed 20;
 		Damage 300;
+		Scale 0.45;
+		DamageType "BFGBeam";
 		DeathSound "Doom4/Weapon/BFG/Impact";
 		RenderStyle "Add";
-		Scale 0.45;
 		Decal "D4BFGLightning";
-		DamageType "BFGBeam";
 	}
 	
 	//==========================================================================
@@ -419,6 +414,7 @@ Class BFG9000Shot : BFGProjectile
 	Death:
 		BFE1 C 0
 		{
+			bRollSprite = false;
 			A_StopSound(7);
 			if (GetCvar("HQEffectsWeapons"))
 			{
@@ -438,7 +434,6 @@ Class BFG9000Shot : BFGProjectile
 			A_SpawnItemEx("BFGImpactVapor",3,0,0,0,0,0,0,SXF_NOCHECKPOSITION,128);
 			A_SpawnItemEx("BFGImpactLightEmitter",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 			A_SpawnItemEx("BFGShockwave1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-			bRollSprite = false;
 			BFGDetonate();
 			if (GetCvar("user_quakexplosions")==1)
 			{
@@ -517,7 +512,7 @@ Class BFG9000Orbiter : BFGProjectile
 			A_PlaySound("Doom4/Weapon/BFG/Flying",7,0.3,1);
 			user_dir = randompick(-1,1);
 			user_tic = 35 * 15;
-			A_RearrangePointers(DefPtr,TargetPtr,DefPtr,4);
+			if (target) master = target;
 		}
 	Moving:
 		BFE1 B 1 Bright Light("GreenBigFlicker3")
@@ -1048,76 +1043,49 @@ Class BFGBeam : Actor
 }
 
 // -----------------------------------------------------------------------------
-// This spawns the trails and deals the mass damage to all enemies via A_Explode
-// so it can replicate lasering everything around it.
+// This spawns the trails.
 
 Class BFGTrailSpawner : Actor 
 {
-	int user_t;
-	double  user_scalar;
+	double scalar, s, c;
+	bool skip;
+	property Skip: Skip;
 	Default 
 	{
+		BFGTrailSpawner.Skip false;
 		Projectile;
-		+FORCERADIUSDMG
-		+EXTREMEDEATH
 		+NOINTERACTION
-		+NODAMAGETHRUST
 		+NOTONAUTOMAP
 		+ROLLSPRITE
 		+FORCEXYBILLBOARD
 		RenderStyle "Add";
-		DamageType "Plasma";
 	}
+	
 	States
 	{
 	Spawn:
 		BFE1 B 0 NoDelay
 		{
-			A_FaceMovementDirection();
-			A_SpawnItemEx("BFGTrail2",cos(pitch)*10,0,-sin(pitch)*10,0,0,0,0,SXF_TRANSFERALPHA|SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERROLL);
+			if (!Skip)
+			{
+				A_FaceMovementDirection();
+				A_SpawnItemEx("BFGTrail2",cos(pitch)*10,0,-sin(pitch)*10,0,0,0,0,SXF_TRANSFERALPHA|SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERROLL);	
+			}
+			s = sin(roll);
+			c = cos(roll);
 			return ResolveState("Enact");
 		}
 	Enact:
 		BFE1 B 1
 		{
-			user_scalar += frandom(0.005,0.01);
-			A_SetScale(Scale.X,Scale.Y-user_scalar);
-			if (Scale.Y <= 0.0)
-			{	return ResolveState("Null");	}
-			return ResolveState(null);
+			scalar += frandom(0.005,0.01);
+			A_SetScale(Scale.X - abs(s * scalar), Scale.Y - abs(c * scalar));
+			if (Scale.X <= 0.0 || Scale.Y <= 0.0)
+			{	return Destroy();	}
 		}
-		Loop;
+		Wait;
 	}
 }
 
-Class BFGTrail2 : Actor 
-{
-	double user_scalar;
-	Default 
-	{
-		+NOINTERACTION
-		+NOTONAUTOMAP
-		+ROLLSPRITE
-		+FORCEXYBILLBOARD
-		RenderStyle "Add";
-	}
-	States
-	{
-	Spawn:
-		BFE1 B 1;
-	Enact:
-		BFE1 B 1
-		{
-			user_scalar += frandom(0.005,0.01);
-			A_SetScale(Scale.X,Scale.Y-user_scalar);
-			if (Scale.Y <= 0.0)
-			{	return ResolveState("Null");	}
-			return ResolveState(null);
-		}
-		Loop;
-	}
-}
-
-//-------------------------------------------------------
-// The main trail behind the energy ball (shadow trail)
-Class BFGExtraDMG : BFGExtra replaces BFGExtra { Default { DamageType "Plasma"; }}
+Class BFGTrail2 : BFGTrailSpawner
+{	Default {	BFGTrailSpawner.Skip true;	}	}

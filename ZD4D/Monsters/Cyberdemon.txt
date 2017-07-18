@@ -52,7 +52,7 @@ Class D4Cyberdemon : D4AbstractBoss
 		DeathSound "Doom4/Cyberdemon/Death";
 		ActiveSound "Doom4/Monsters/Cyberdemon/Idle";
 		Obituary "$OB_CYBORG";
-		
+		DamageFactor "BFGExploder", 0.0;
 		PainChance "GloryKill", 255;
 		WoundHealth 150;
 	}
@@ -806,13 +806,13 @@ Class D4OldCyberdemon : D4AbstractBoss // : Cyberdemon
 		+NORADIUSDMG
 		+DONTMORPH
 		+BOSSDEATH
+		+DONTCORPSE
 		SeeSound "cyber/sight";
 		PainSound "cyber/pain";
 		DeathSound "cyber/death";
 		ActiveSound "cyber/active";
 		Obituary "$OB_CYBORG";
-		
-		+DONTCORPSE
+		DamageFactor "BFGExploder", 0.0;
 		PainChance "GloryKill", 255;
 		WoundHealth 150;
 	}

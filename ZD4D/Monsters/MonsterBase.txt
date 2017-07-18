@@ -163,11 +163,11 @@ Class D4AbstractMonster : Actor
 			howmany = Clamp(howmany,1,RuneChance_Master);
 			if (rarity == 2)
 			{
-				return (random(1,ceil(howmany / 2)) == 1) ? true : false;
+				return (random(1,howmany) == 1) ? true : false;
 			}
 			else if (rarity == 1)
 			{
-				return (random(1,howmany) == 1) ? true : false;
+				return (random(1,howmany * 2) == 1) ? true : false;
 			}
 		}
 		else if (CheckClass("D4Cyberdemon") || CheckClass("D4OldCyberdemon"))
@@ -228,6 +228,8 @@ Class D4AbstractMonster : Actor
 	}
 	
 	//==========================================================================
+	// Leaping
+	//==========================================================================
 	enum EJumpFlags
 	{
 		JF_FORWARD = (1<<0),
@@ -246,7 +248,7 @@ Class D4AbstractMonster : Actor
 	int oldLeap;
 	double leapDistance;
 
-	void A_Leap()
+	void A_Leap(StateLabel EndState = "See")
 	{
 		// if grounded, go to see.
 		if (CheckOnGround())
@@ -265,7 +267,11 @@ Class D4AbstractMonster : Actor
 			}
 			else
 			{
-				SetState(ResolveState("See"));
+				State next = ResolveState(EndState);
+				if (!next)
+					next = ResolveState("See");
+				if (next)
+					SetState(next);
 				return;
 			}
 		}
@@ -273,12 +279,10 @@ Class D4AbstractMonster : Actor
 		{
 			vector3 newdir = (cos(angle)*2, sin(angle)*2, 0);
 			vel += newdir;
-			frame = oldLeap+1;
+			//frame = oldLeap+1;
 		}
-		else if (vel.z < 0)
-		{
-			frame = oldLeap+2;
-		}
+		//else if (vel.z < 0)	frame = oldLeap+2;
+		
 	}
 	
 	double GetGroundHeight()
@@ -290,10 +294,21 @@ Class D4AbstractMonster : Actor
 		double _actorz = pOnmobj.pos.z+pOnmobj.height;
 		return max(_floorz, _actorz);
 	}
-
+	
+	// [MC] Do not call subfunctions. Graf has made it specifically clear they're
+	// quite speed hindering.
 	bool CheckOnGround()
 	{
-		return (abs(GetGroundHeight()-pos.z) < 1);
+		bool ok; Actor pOnmobj;
+		
+		if (vel.z != 0)	return false;	// Remember, moving up and down lifts is not velocity.
+		double _floorz = GetZAt();
+		
+		[ok, pOnmobj] = TestMobjZ(true);
+		if (pOnmobj) return true;
+		double _actorz = pOnmobj.pos.z + pOnmobj.height;
+		double GroundHeight = max(_floorz, _actorz);
+		return (abs(GroundHeight - pos.z) < 1);
 	}
 
 	virtual double GetJumpDistance()
@@ -303,45 +318,60 @@ Class D4AbstractMonster : Actor
 		return dst;
 	}
 
-	bool CheckPitBeforeTarget()
+	bool CheckPitBeforeTarget(in out double dst = 480)
 	{
-		if (!CheckSight(target)) return false;
+		if (!target || !CheckSight(target)) return false;
 		
-		int step = int(radius/2);
-		vector3 checkdirection = (target.pos-pos).Unit()*step;
-		int steps = min(Distance2D(target), GetJumpDistance())/step;
+		int step = int(Max(1,radius/2));
+		vector3 CheckDirection = (target.pos-pos).Unit()*step;
+		
+		// Get the jump distance.
+		//dst = 480;
+		if (ceilingz-pos.z > 128) dst *= 2;
+		
+		int steps = min(Distance2D(target), dst)/step;
 		double curz = pos.z;
-		SetXYZ((pos.x, pos.y, pos.z+64));
+		SetOrigin((pos.x, pos.y, pos.z+64), false);
 		for (int i = 0; i < steps; i++)
 		{
-			double zat = GetZAt(pos.x+checkdirection.x*i, pos.y+checkdirection.y*i, 0, GZF_ABSOLUTEPOS|GZF_ABSOLUTEANG);
+			double zat = GetZAt(pos.x + CheckDirection.x * i, pos.y + CheckDirection.y * i, 0, GZF_ABSOLUTEPOS|GZF_ABSOLUTEANG);
 			//A_LogFloat(zat);
-			if (curz-zat > MaxStepHeight*2 || zat-curz > MaxStepHeight)
+			if (curz - zat > MaxStepHeight * 2 || zat - curz > MaxStepHeight)
 			{
-				SetXYZ((pos.x, pos.y, curz));
+				SetOrigin((pos.x, pos.y, curz), false);
 				return true;
 			}
 		}
 		
-		SetXYZ((pos.x, pos.y, curz));
+		SetOrigin((pos.x, pos.y, curz), false);
 		return false;
 	}
 
-	bool TryLeap(state leapstate, EJumpFlags flags)
+	bool TryLeap(StateLabel leapstate = null, int flags = 0)
 	{
 		if (!target) return false;
-		//if (CheckShrunk()) return false; // alien didn't need this
-		//
+		
+		double BaseDistance = 480;
+		double PassDistance = BaseDistance;
+		
 		if (CheckOnGround() && // if we are standing
 			// !random(0, 16) && // and we don't do this all the time
 			(((flags & JF_UP) && (abs(target.pos.z-pos.z) > Default.MaxStepHeight)) || // and target has more height difference than maxstepheight
-			 ((flags & JF_FORWARD) && CheckPitBeforeTarget())) && // and there's a deep pit in front of us
-			Distance2D(target) < GetJumpDistance()) // and target is within max jump radius
+			 ((flags & JF_FORWARD) && CheckPitBeforeTarget(PassDistance)))) // and there's a deep pit in front of us
 		{
-			oldLeap = 0;
-			leapDistance = Distance2D(target);
-			SetState(ResolveState("Leap"));
-			return true;
+			if (Distance2D(target) < PassDistance) // and target is within max jump radius
+			{
+				oldLeap = 0;
+				leapDistance = Distance2D(target);
+				
+				// A leapstate is not required -- one can use it for simple checking.
+				if (leapstate)
+				{
+					State next = FindState(leapstate, true);
+					if (next)	SetState(next);
+				}
+				return true;
+			}
 		}
 		
 		return false;
@@ -350,28 +380,18 @@ Class D4AbstractMonster : Actor
 
 
 Class D4AbstractBiggie : D4AbstractMonster {}
-Class D4AbstractBoss : D4AbstractBiggie {}
+Class D4AbstractBoss : D4AbstractBiggie 
+{
+	Default
+	{
+		DamageFactor "BFGBlast", 0.0;
+	}
+}
 Class D4AbstractMissile : Actor {}
 
 Class PainSoundToken : Inventory
 {}
 
-//for previous iteration of the system
-Class MonsterHealer : CustomInventory
-{
-	Default
-	{
-		+INVENTORY.AUTOACTIVATE
-		Inventory.MaxAmount 10000;
-	}
-	
-	States
-	{
-	Use:
-		TNT1 A 0 A_SetHealth(health+1);
-		Stop;
-	}
-}
 // debug actor
 Class DecoTest : Actor
 {
