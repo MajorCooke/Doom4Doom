@@ -241,6 +241,7 @@ Class BFGUpgrade1 : UpgradeItem	// Ammo Capacity
 		UpgradeItem.Cost 10000;
 	}
 	
+	// Up the max amount.
 	override void UpdateItem()
 	{
 		if (Owner)

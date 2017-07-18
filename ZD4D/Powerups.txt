@@ -320,7 +320,10 @@ Class PowerD4QuadDamage : PowerDamage
 			}
 			else DelayTimer--;
 			
-			if (EffectTics > 105)	NoiseMaker.A_StopSound(5);
+			if (EffectTics > 105)	
+			{
+				if (NoiseMaker)		NoiseMaker.A_StopSound(5);
+			}
 			else Switch (EffectTics)
 			{
 				Case 105:

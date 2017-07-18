@@ -2,6 +2,7 @@
 
 Class D4DMonsterSpawner : Actor
 {
+	bool isStealth;
 	bool goDormant;
 	bool isBoss;
 	Array<String> OldMonList;		// Classic
@@ -12,9 +13,11 @@ Class D4DMonsterSpawner : Actor
 	property isBoss: isBoss;		// For monsters that trigger E*M8/MAP07 specials.
 	property OldMonster: OldMonster;
 	property NewMonster: NewMonster;
+	property isStealth: isStealth;
 	Default 
 	{
 		D4DMonsterSpawner.isBoss false;
+		D4DMonsterSpawner.isStealth false;
 		Monster;
 		Health 1000000;
 		+DONTCORPSE
@@ -22,6 +25,7 @@ Class D4DMonsterSpawner : Actor
 		+NONSHOOTABLE
 		-SHOOTABLE
 		-COUNTKILL
+		-VULNERABLE
 		+BOSSDEATH
 		+NOTIMEFREEZE
 		+CANTSEEK
@@ -127,6 +131,7 @@ Class D4DMonsterSpawner : Actor
 		
 		if (mon)
 		{
+			if (isStealth)	mon.bSTEALTH = true;
 			int rng = random(0, 1999);
 			int amt = 0;
 			if (monType > 1)
@@ -194,8 +199,16 @@ Class D4DMonsterSpawner : Actor
 			
 			if (health != GetSpawnHealth())	
 				mon.A_SetHealth(health);
+				
+			A_ChangeLinkFlags(true, true);
+			A_ChangeCountFlags(0);
 		}
 		
+	}
+	
+	override void OnDestroy()
+	{
+		A_BossDeath();
 	}
 	
 	States
@@ -214,7 +227,7 @@ Class D4DMonsterSpawner : Actor
 		}
 		Loop;
 	Death:
-		TNT1 A 3 A_BossDeath();
+		TNT1 A 3;
 		Stop;
 	}
 }
@@ -228,7 +241,7 @@ Class D4DMonsterSpawner : Actor
 //===============================================================================
 //===============================================================================
 
-Class ZombieReplacer : D4DMonsterSpawner replaces Zombieman
+Class ZombiemanReplacer : D4DMonsterSpawner replaces Zombieman
 {
 	Default 
 	{
@@ -240,6 +253,9 @@ Class ZombieReplacer : D4DMonsterSpawner replaces Zombieman
 		Height 56;
 	}
 }
+
+Class StealthZombiemanReplacer : ZombiemanReplacer  replaces StealthZombieman
+{	Default	{	D4DMonsterSpawner.isStealth true;	}	}
 
 //===============================================================================
 //===============================================================================
@@ -257,6 +273,9 @@ Class ShotgunGuyReplacer : D4DMonsterSpawner replaces ShotgunGuy
 		Height 56;
 	}
 }
+
+Class StealthShotgunGuyReplacer : ShotgunGuyReplacer  replaces StealthShotgunGuy
+{ Default	{ D4DMonsterSpawner.isStealth true;	} }
 //===============================================================================
 //===============================================================================
 //	ChaingunGuy
@@ -274,6 +293,9 @@ Class ChaingunGuyReplacer : D4DMonsterSpawner replaces ChaingunGuy
 	}
 }
 
+Class StealthChaingunGuyReplacer : ChaingunGuyReplacer  replaces StealthChaingunGuy
+{ Default	{ D4DMonsterSpawner.isStealth true;	} }
+
 //===============================================================================
 //===============================================================================
 //	Demon
@@ -289,6 +311,9 @@ Class DemonReplacer : D4DMonsterSpawner replaces Demon
 		Height 56;
 	}
 }
+
+Class DemonStealthReplacer : DemonReplacer  replaces StealthDemon
+{ Default	{ D4DMonsterSpawner.isStealth true;	} }
 
 //===============================================================================
 //===============================================================================
@@ -321,6 +346,9 @@ Class DoomImpReplacer : D4DMonsterSpawner replaces DoomImp
 	}
 }
 
+Class StealthDoomImpReplacer : DoomImpReplacer  replaces StealthDoomImp
+{ Default	{ D4DMonsterSpawner.isStealth true;	} }
+
 //===============================================================================
 //===============================================================================
 //	LostSoul
@@ -351,6 +379,9 @@ Class CacodemonReplacer : D4DMonsterSpawner replaces Cacodemon
 		Height 56;
 	}
 }
+
+Class StealthCacodemonReplacer : CacodemonReplacer  replaces StealthCacodemon
+{ Default	{ D4DMonsterSpawner.isStealth true;	} }
 //===============================================================================
 //===============================================================================
 //	PainElemental
@@ -383,6 +414,9 @@ Class RevenantReplacer : D4DMonsterSpawner replaces Revenant
 	}
 }
 
+Class StealthRevenantReplacer : RevenantReplacer  replaces StealthRevenant
+{ Default	{ D4DMonsterSpawner.isStealth true;	} }
+
 
 //===============================================================================
 //===============================================================================
@@ -399,6 +433,9 @@ Class HellKnightReplacer : D4DMonsterSpawner replaces HellKnight
 		Height 64;
 	}
 }
+
+Class StealthHellKnightReplacer : HellKnightReplacer  replaces StealthHellKnight
+{ Default	{ D4DMonsterSpawner.isStealth true;	} }
 
 //===============================================================================
 //===============================================================================
@@ -418,6 +455,9 @@ Class BaronOfHellReplacer : D4DMonsterSpawner replaces BaronOfHell
 		Height 64;
 	}
 }
+
+Class StealthBaronReplacer : BaronOfHellReplacer  replaces StealthBaron
+{ Default	{ D4DMonsterSpawner.isStealth true;	} }
 
 
 //===============================================================================
@@ -452,6 +492,9 @@ Class FatsoReplacer : D4DMonsterSpawner replaces Fatso
 	}
 }
 
+Class StealthFatsoReplacer : FatsoReplacer  replaces StealthFatso
+{ Default	{ D4DMonsterSpawner.isStealth true;	} }
+
 //===============================================================================
 //===============================================================================
 //	Arachnotron
@@ -469,6 +512,9 @@ Class ArachnotronReplacer : D4DMonsterSpawner replaces Arachnotron
 	}
 }
 
+Class StealthArachnotronReplacer : ArachnotronReplacer  replaces StealthArachnotron
+{ Default	{ D4DMonsterSpawner.isStealth true;	} }
+
 
 //===============================================================================
 //===============================================================================
@@ -485,6 +531,9 @@ Class ArchvileReplacer : D4DMonsterSpawner replaces Archvile
 		Height 56;
 	}
 }
+
+Class StealthArchvileReplacer : ArchvileReplacer  replaces StealthArchvile
+{ Default	{ D4DMonsterSpawner.isStealth true;	} }
 
 //===============================================================================
 //===============================================================================
