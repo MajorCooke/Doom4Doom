@@ -51,9 +51,10 @@ Class D4FatsoTech : D4AbstractBiggie
 		FATT G 10 A_FaceTarget();
 		FATT G 1 
 		{	
+			HQ = GetCvar("HQEffects");
 			A_Playsound("Doom4/Monsters/Mancubus/Melee",CHAN_AUTO);
 			A_ChangeVelocity(0,0,10); //jump willy!!
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("FatsoJumpGhost",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
@@ -67,7 +68,7 @@ Class D4FatsoTech : D4AbstractBiggie
 				return ResolveState("ShockWave");
 			}
 			
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("FatsoJumpGhost",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
@@ -77,7 +78,7 @@ Class D4FatsoTech : D4AbstractBiggie
 	ShockWave:
 		FATT G 0
 		{	
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
@@ -101,7 +102,11 @@ Class D4FatsoTech : D4AbstractBiggie
 		
 		
 	Missile:
-		FATT G 0 A_Jump(256,"MissileRightStart","MissileLeftStart");
+		FATT G 0 
+		{
+			HQ = GetCvar("HQEffects");
+			return A_Jump(256,"MissileRightStart","MissileLeftStart");
+		}
 	MissileRightStart:
 		FATT G 6 
 		{
@@ -306,7 +311,7 @@ Class FatsoShockwave : D4AbstractMissile
 		TNT1 A 0 NODELAY
 		{
 			A_PlaySound("Doom4/Monsters/BaronCrash");
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(0.2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
 				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(0.2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
@@ -374,7 +379,7 @@ Class D4FatsoPoison : D4AbstractMissile
 	Spawn:
 		DB11 ABCDEFGHIJKLMNOPQRSTUVWXYZ 1 BRIGHT Light("OliveGreenMediumPoint2")
 		{
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnParticle("C9FF00",SPF_FULLBRIGHT,random(20,50),6,0,0,0,0,frandom(1.5,-1.5),frandom(1.5,-1.5),frandom(-1.4,1.4),0.03,0.03,-0.5);
 				A_SpawnItemEx("PoisonPoolSmokeTrail",0,random(5,-5),random(5,-5),0,0,frandom(0.4,0.8),0,SXF_NOCHECKPOSITION);
@@ -384,7 +389,7 @@ Class D4FatsoPoison : D4AbstractMissile
     Death:
 		TNT1 A 0 
 		{
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("PoisonPoolSplash",random(15,-15),random(15,-15),random(0,15),frandom(0.1,0.8),frandom(0.1,0.8),frandom(0.1,0.8),0,SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("PoisonPoolSplash",random(15,-15),random(15,-15),random(0,15),frandom(0.1,0.8),frandom(0.1,0.8),frandom(0.1,0.8),0,SXF_NOCHECKPOSITION);
@@ -530,7 +535,7 @@ Class PoisonAcidFloor : D4AbstractMissile
 	Spawn:
 		TNT1 A 0 NODELAY
 		{
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("PoisonAcidGas",0,0,5,frandom(0.3,-0.3),frandom(0.3,-0.3),0,0,0);	//spawns the cloud
 			}
@@ -621,14 +626,14 @@ Class D4FatsoHell : D4AbstractBiggie
 		Loop;
 		
 	Melee:
-		TNT1 A 0 A_Jump(128,"Missile");	//half of the time it will try to melee, will actually do a missile attack
+		//half of the time it will try to melee, will actually do a missile attack
 		TNT1 A 0
 		{
-			if(A_JumpIfCloser(128,"Null"))	//if too close, will shockwave
+			if (target && Distance3D(target) <= 128)	//if too close, will shockwave
 			{
 				return ResolveState("WillyJump");
 			}
-			return ResolveState("Flamethrower");	//otherwise, will do flamethrower
+			return A_Jump(256, "Missile", "FlameThrower");	//otherwise, will do flamethrower
 		}
 		//------------------
 		// shockwave
@@ -638,20 +643,20 @@ Class D4FatsoHell : D4AbstractBiggie
 			{	
 				A_Playsound("Doom4/Monsters/Mancubus/Melee",CHAN_AUTO);
 				A_ChangeVelocity(0,0,10); //jump willy!!
-				if(GetCvar("HQEffects"))
+				if (HQ)
 				{
 					A_SpawnItemEx("Fatso2JumpGhost",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				}
-				{ bNoPain = true; }
+				bNoPain = true;
 			}
 			
 			FAT2 G 1 
 			{
-				if(A_CheckFloor("null"))
+				if (bONMOBJ || A_CheckFloor("null"))
 				{
 					return ResolveState("ShockWave");
 				}
-				if(GetCvar("HQEffects"))
+				if (HQ)
 				{
 					A_SpawnItemEx("Fatso2JumpGhost",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				}
@@ -661,7 +666,7 @@ Class D4FatsoHell : D4AbstractBiggie
 		ShockWave:
 			FAT2 G 0
 			{
-				if(GetCvar("HQEffects"))
+				if (HQ)
 				{
 					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
 					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
@@ -810,9 +815,9 @@ Class D4FatsoHell : D4AbstractBiggie
 	Wound:
 		"####" "#" 1
 		{
-			if(GetCvar("D4D_ExecutionsON"))
+			if (GetCvar("D4D_ExecutionsON"))
 			{
-				if(countinv("FinisherToken")==0) //if it isnt healing already
+				if (countinv("FinisherToken")==0) //if it isnt healing already
 				{								//will heal and give the token that indicates it's executable
 					A_SpawnItemEx("D4DFatsoHighlight",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION); //to highlight if ON, and to remove the token after the Monster; heals
 					A_GiveInventory("FinisherToken",1);	//token to allow melee attack to execute
@@ -846,11 +851,11 @@ Class D4FatsoHell : D4AbstractBiggie
 	StagLooper:
 		"####" "#" 1
 		{
-			if(!countinv("FinisherToken"))
+			if (!countinv("FinisherToken"))
 			{
 				return ResolveState("See");
 			}
-			if(GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
+			if (GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
 			{ 
 				A_Pain(); 
 				A_TakeInventory("PainSoundToken");
@@ -983,7 +988,7 @@ Class D4FatsoFire : D4AbstractMissile
 		X029 A 0 NODELAY A_Jump(210,2,4,6,8);
 		X029 ABCDEFGHIJK 1 Bright Light("YellowMediumFlicker2")
 		{
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnParticle("FFB200",SPF_FULLBRIGHT,random(20,50),6,0,0,0,0,frandom(1.5,-1.5),frandom(1.5,-1.5),frandom(-1.4,1.4),0.03,0.03,-0.5);
 				A_SpawnItemEx("FatsoFireTrail",-3,random(2,-2),random(2,-2),0,0,0,0,SXF_NOCHECKPOSITION);
@@ -993,7 +998,7 @@ Class D4FatsoFire : D4AbstractMissile
 	Death: 
 		TNT1 A 0 
 		{
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("FatsoExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
 				A_SpawnItemEx("FatsoExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
@@ -1290,7 +1295,7 @@ Class OldFatShot : D4AbstractMissile Replaces FatShot
 	Spawn:
 		MANF AABB 2 bright 
 		{
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("FatsoBallTrail",0,0,0,0,0,0,0,32);
 			}
@@ -1299,7 +1304,7 @@ Class OldFatShot : D4AbstractMissile Replaces FatShot
 	Death:
 		TNT1 A 0 
 		{
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("FatsoExploParticleOrange",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);	
 				A_SpawnItemEx("FatsoExploParticleOrange",0,0,0,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);	

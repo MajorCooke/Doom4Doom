@@ -111,7 +111,11 @@ Class D4HellKnight : D4AbstractBiggie
 			Goto See;
 		
 		FireballChooser:
-			"####" "#" 0 A_Jump(128,"FireBall");
+			"####" "#" 0 
+			{
+				HQ = GetCvar("HQEffects");
+				return A_Jump(128,"FireBall");
+			}
 			Goto Leap;
 			
 			
@@ -120,8 +124,9 @@ Class D4HellKnight : D4AbstractBiggie
 	FireBall:	
 		E02M AAAAAA 1 
 		{
+			
 			A_FaceTarget();
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("BaronOfHellHandFlamelet",0,28+random(6,-6),40,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
 			}
@@ -130,7 +135,7 @@ Class D4HellKnight : D4AbstractBiggie
 		E02M B 1
 		{
 			A_FaceTarget();
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("BaronOfHellHandFlamelet",-15,15+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("BaronOfHellHandFlamelet",-15,15+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
@@ -140,7 +145,7 @@ Class D4HellKnight : D4AbstractBiggie
 		E02M B 1
 		{
 			A_FaceTarget();
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("BaronOfHellHandFlamelet",-20,12+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("BaronOfHellHandFlamelet",-20,12+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
@@ -150,7 +155,7 @@ Class D4HellKnight : D4AbstractBiggie
 		E02M B 1
 		{
 			A_FaceTarget();
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("BaronOfHellHandFlamelet",-25,8+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("BaronOfHellHandFlamelet",-25,8+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
@@ -160,7 +165,7 @@ Class D4HellKnight : D4AbstractBiggie
 		E02M B 1
 		{
 			A_FaceTarget();
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("BaronOfHellHandFlamelet",-30,4+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("BaronOfHellHandFlamelet",-30,4+random(6,-6),56,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
@@ -170,7 +175,7 @@ Class D4HellKnight : D4AbstractBiggie
 		E02M C 1
 		{
 			A_FaceTarget();
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("BaronOfHellHandFlamelet",-35,0+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("BaronOfHellHandFlamelet",-35,0+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
@@ -180,7 +185,7 @@ Class D4HellKnight : D4AbstractBiggie
 		E02M CCC 1
 		{
 			A_FaceTarget();
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("BaronOfHellHandFlamelet",-40,0+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("BaronOfHellHandFlamelet",-40,0+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
@@ -190,7 +195,7 @@ Class D4HellKnight : D4AbstractBiggie
 		E02M D 1
 		{
 			A_FaceTarget();
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("BaronOfHellHandFlamelet",25,8+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("BaronOfHellHandFlamelet",25,8+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
@@ -201,7 +206,7 @@ Class D4HellKnight : D4AbstractBiggie
 		E02M D 1
 		{
 			A_FaceTarget();
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("BaronOfHellHandFlamelet",10,15+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("BaronOfHellHandFlamelet",10,15+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
@@ -211,7 +216,7 @@ Class D4HellKnight : D4AbstractBiggie
 		E02M D 1
 		{
 			A_FaceTarget();
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("BaronOfHellHandFlamelet",0,20+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("BaronOfHellHandFlamelet",0,20+random(6,-6),48,0,0,frandom(0.8,1.8),0,SXF_NOCHECKPOSITION);
@@ -261,7 +266,7 @@ Class D4HellKnight : D4AbstractBiggie
 		LeapLoop:
 			E02L BBBBC 1
 			{
-				A_RearrangePointers(DefPtr, DefPtr, NullPtr, 4);
+				tracer = null;
 				A_SpawnItemEx("BaronLeapTrail",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSPRITEFRAME|SXF_TRANSFERSCALE);
 				if (A_CheckFloor("Null"))
 				{	return ResolveState("LeapEnd");	}
@@ -288,7 +293,7 @@ Class D4HellKnight : D4AbstractBiggie
 		LeepEndCont:
 			"----" A 0 //Don't bother leaping again if something else is in the way such as a static actor.
 			{
-				if(GetCvar("HQEffects"))
+				if (HQ)
 				{
 					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
 					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
@@ -329,7 +334,7 @@ Class D4HellKnight : D4AbstractBiggie
 		QuickMeleeFloorHit:
 			BOS4 P 0 
 			{
-				if(GetCvar("HQEffects"))
+				if (HQ)
 				{
 					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
 					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
@@ -619,7 +624,7 @@ Class D4HellKnightBall : D4AbstractMissile
 	Spawn:
 		HIB1 AB 2 BRIGHT Light("GreenMediumFlicker3")
 		{
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("DoomImpBallFlamelet",random(-2,-8),random(8,-8),random(8,-8),0,0,frandom(0,0.6),0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
 				A_SpawnItemEx("DoomImpBallFlamelet",random(-2,-8),random(8,-8),random(8,-8),0,0,frandom(0,0.6),0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
@@ -632,7 +637,7 @@ Class D4HellKnightBall : D4AbstractMissile
 	Death:
 		TNT1 A 0
 		{
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnParticle("46D200",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));
 				A_SpawnParticle("46D200",SPF_FULLBRIGHT,random(45,75),8,random(0,359),0,0,0,frandom(2,-2),frandom(2,-2),frandom(3,-3));

@@ -253,12 +253,13 @@ Class D4CacodemonBall : D4AbstractMissile
 		Translation "0:255=%[0.0,0.0,0.0]:[1.2,0.0,0.5]";
 		Decal "CacoDecal";
 	}
+	
 	States
 	{
 	Spawn:
 		X016 ABCDEFGHIJKLMNOPQRSTUVWXY 1 Light("PurpleMediumPoint2") bright 
 		{
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("D4CacoBallTrail",-5,0,0,0,0,0,0,32);
 				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(1.5,-1.5),frandom(1.5,-1.5),frandom(0.5,2.5),0,0,-0.1);
@@ -278,7 +279,7 @@ Class D4CacodemonBall : D4AbstractMissile
 		TNT1 A 0 
 		{
 			A_SpawnItemEx("D4CacoBallExplo",0,0,0,0,0,0,0,32);
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("D4CacoExploFlash",0,0,0,0,0,0,0,32);
 				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(3,5),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
@@ -489,7 +490,7 @@ Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon //replaces Cacodemon
 		HEAD K 5 A_NoBlocking();
 		HEAD L -1 
 		{
-			{bCorpse = true;}
+			bCorpse = true;
 			A_SetFloorClip();
 		}
 		Stop;
@@ -569,11 +570,11 @@ Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon //replaces Cacodemon
 	StagLooper:
 		"####" "#" 1
 		{
-			if(!countinv("FinisherToken"))
+			if (!countinv("FinisherToken"))
 			{
 				return ResolveState("See");
 			}
-			if(GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
+			if (GetCvar("D4D_NoisyStagger") && countinv("PainSoundToken"))
 			{ 
 				A_Pain(); 
 				A_TakeInventory("PainSoundToken",32768);
@@ -637,12 +638,13 @@ Class OldCacodemonBall : D4AbstractMissile replaces CacodemonBall
 		SeeSound "caco/attack";
 		DeathSound "caco/shotx";
 	}
+	
 	States
 	{
 	Spawn:
 		BAL2 AAABBB 1 bright light("PurpleSmallPoint1")
 		{	
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("DBTCacoBallTrail",0,0,0,0,0,0,0,32);
 				A_SpawnParticle("F5008B",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(1.5,-1.5),frandom(1.5,-1.5),frandom(0.5,2.5),0,0,-0.1);	
@@ -652,7 +654,7 @@ Class OldCacodemonBall : D4AbstractMissile replaces CacodemonBall
 	Death:
 		TNT1 A 0 
 		{	
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("CacoSmoke",0,0,4,frandom(0.5,2),0,0,random(0,359),32);
 				A_SpawnItemEx("CacoSmoke",0,0,4,frandom(0.5,2),0,0,random(0,359),32);

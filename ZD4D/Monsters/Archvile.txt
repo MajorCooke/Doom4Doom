@@ -446,16 +446,25 @@ Class SummonerProjectile : FastProjectile
 
 Class SummonerTrailSpawner : Actor //dummy to spawn muliple trails through fastprojectile's method
 {
+	bool HQ;
 	Default 
 	{
 		+NOINTERACTION
+		+NOTONAUTOMAP
 	}
+	
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		HQ = GetCvar("HQEffects");
+	}
+	
 	States
 	{
 	Spawn:
 		TNT1 A 3 NODELAY
 		{
-			if (GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("SummonerTrail",-2,0,random(0,10),0,0,frandom(0.5,3),0,SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("SummonerTrail",-2,0,random(0,-10),0,0,frandom(-0.5,-3),0,SXF_NOCHECKPOSITION);
@@ -492,6 +501,12 @@ Class SummonerSparks : Actor
 		Height 1;
 		Radius 1;
 	}
+	bool HQ;
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		HQ = GetCvar("HQEffects");
+	}
 	States
 	{
 	Spawn:
@@ -504,7 +519,7 @@ Class SummonerSparks : Actor
 			{	
 				A_Warp(TargetPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",0.5,1.0);
 				A_FadeTo(0.99,1.0,FTF_CLAMP);
-				if (GetCvar("HQEffects"))
+				if (HQ)
 				{
 					A_SpawnItemEx("SummonerTargetingSparks",0,0,0,1,frandom(3,-3),frandom(0.5,-0.5), 0,SXF_NOCHECKPOSITION,128);
 				}				
@@ -514,7 +529,7 @@ Class SummonerSparks : Actor
 			{
 				A_Warp(TargetPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",0.5,1.0);
 				A_FadeTo(0.3,1.0,FTF_CLAMP);
-				if (GetCvar("HQEffects"))
+				if (HQ)
 				{
 					A_SpawnItemEx("SummonerTargetingSparks",0,0,0,1,frandom(3,-3),frandom(0.5,-0.5), 0,SXF_NOCHECKPOSITION,128);
 				}	

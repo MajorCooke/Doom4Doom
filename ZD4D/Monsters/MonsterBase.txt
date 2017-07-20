@@ -30,6 +30,7 @@ Class D4AbstractMonster : Actor
 	D4DropList Pinatas;
 	Actor Spawner;
 	Color BC;
+	bool HQ;
 	
 	property BC: BC;
 	property UpgradeDropChance: UpgradeDropChance;
@@ -387,7 +388,15 @@ Class D4AbstractBoss : D4AbstractBiggie
 		DamageFactor "BFGBlast", 0.0;
 	}
 }
-Class D4AbstractMissile : Actor {}
+Class D4AbstractMissile : Actor 
+{
+	bool HQ;
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		HQ = GetCvar("HQEffects");
+	}
+}
 
 Class PainSoundToken : Inventory
 {}

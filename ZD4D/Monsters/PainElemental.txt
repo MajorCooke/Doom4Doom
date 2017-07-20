@@ -94,7 +94,7 @@ Class D4PainElemental : D4AbstractBiggie
 		INFR L 2 BRIGHT A_Scream();
 		INFR M 3 BRIGHT  
 		{
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SetTranslucent(0.99,1);
 				A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50),random(1,2)*vel.x+random(-5,5),random(1,2)*vel.y+random(-5,5),random(1,2)*vel.z+random(1,10),random(1,359),GibFlags);
@@ -154,7 +154,7 @@ Class D4PainElemental : D4AbstractBiggie
 		{
 			if(CountInv("DeathByMassacre") == 0)
 			{
-				if(GetCvar("HQEffects"))
+				if (HQ)
 				{
 					A_SetTranslucent(0.99,1);
 					A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
@@ -302,6 +302,7 @@ Class PainElementalExplosionSprite : Actor
 
 Class D4PainElmBreath : Actor 
 {
+	bool HQ;
 	Default 
 	{
 		+NOINTERACTION
@@ -316,7 +317,8 @@ Class D4PainElmBreath : Actor
 				Destroy();
 				return ResolveState(Null);
 			}
-			if (!GetCvar("HQEffects"))
+			HQ = GetCvar("HQEffects");
+			if (!HQ)
 			{
 				A_SetTics(35);
 				return ResolveState(null);
@@ -328,13 +330,10 @@ Class D4PainElmBreath : Actor
 			else
 			{
 				A_Warp(MasterPtr,8,0,0,0,WARPF_NOCHECKPOSITION,"Null");
-				if(!A_CheckSight("Null"))
+				if (!A_CheckSight("Null"))
 				{
-					if(GetCvar("HQEffects"))
-					{
-						A_SpawnItemEx("PainBreath",15,15,20,frandom(1,-1),frandom(0.3,1.2),frandom(0.6,-0.6),0,SXF_NOCHECKPOSITION,96);
-						A_SpawnItemEx("PainBreath",15,-15,20,frandom(1,-1),frandom(-0.3,-1.2),frandom(0.6,-0.6),0,SXF_NOCHECKPOSITION,96);
-					}
+					A_SpawnItemEx("PainBreath",15,15,20,frandom(1,-1),frandom(0.3,1.2),frandom(0.6,-0.6),0,SXF_NOCHECKPOSITION,96);
+					A_SpawnItemEx("PainBreath",15,-15,20,frandom(1,-1),frandom(-0.3,-1.2),frandom(0.6,-0.6),0,SXF_NOCHECKPOSITION,96);
 				}
 				return ResolveState(null);
 			}
@@ -451,7 +450,7 @@ Class D4OldPainElemental : D4AbstractBiggie // : PainElemental
 		PAIN J 5 BRIGHT;
 		PAIN K 5 Bright
 		{
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SetTranslucent(0.99,1);
 				A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50),random(1,2)*vel.x+random(-5,5),random(1,2)*vel.y+random(-5,5),random(1,2)*vel.z+random(1,10),random(1,359),GibFlags);
@@ -505,7 +504,7 @@ Class D4OldPainElemental : D4AbstractBiggie // : PainElemental
 			A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50),random(1,2)*vel.x+random(-5,5),random(1,2)*vel.y+random(-5,5),random(1,2)*vel.z+random(1,10),random(1,359),GibFlags);
 			A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50),random(1,2)*vel.x+random(-5,5),random(1,2)*vel.y+random(-5,5),random(1,2)*vel.z+random(1,10),random(1,359),GibFlags);
 			A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50),random(1,2)*vel.x+random(-5,5),random(1,2)*vel.y+random(-5,5),random(1,2)*vel.z+random(1,10),random(1,359),GibFlags);
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);

@@ -305,6 +305,12 @@ Class PacifistPuffCgunner : PacifistPuff
 
 Class BigRedLaserDrill : TrailBeamStaticScalingSpawner
 {
+	bool HQ;
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		HQ = GetCvar("HQEffects");
+	}
 	States
 	{
 	Spawn:
@@ -320,7 +326,7 @@ Class BigRedLaserDrill : TrailBeamStaticScalingSpawner
 			A_RearrangePointers(DefPtr,TargetPtr,DefPtr,4);
 			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 			
-			if (GetCvar("HQEffects"))
+			if (HQ)
 			{	A_SpawnItemEx("RedLaserCgunner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS);	}
 			
 			// Grab the velocity IMMEDIATELY.

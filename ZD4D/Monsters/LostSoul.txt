@@ -7,10 +7,15 @@
 //================================================================================================================
 Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for the version that DO give cash
 {
+	const SpawnDelay = 2;
 	int user_chasecount;
 	int user_wanderdelay;
 	int user_wanderstopped;
-	Default 
+	int WaitTics;
+	bool charging;
+	Class<Actor> Flame, Flare;
+	uint8 FailFlame, FailFlare;
+	Default
 	{
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 2;
@@ -36,6 +41,44 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 		DropItem "C1";
 	}
 	
+	override void Tick()
+	{
+		if (health < 1)	return Super.Tick();
+		
+		Super.Tick();
+		
+		if (WaitTics > 0)
+			WaitTics--;
+		else if (health > 0)
+		{
+			WaitTics = SpawnDelay;
+			
+			if (!A_CheckSight("Null"))
+			{
+				if (charging)
+				{
+					Flame = "LostSoulRedFlame";
+					Flare = "LostSoulRedFlare";
+				}
+				else
+				{
+					Flame = "LostSoulBlueFlame";
+					Flare = "LostSoulBlueFlare";
+				}
+				
+				HQ = GetCvar("HQEffects");
+				FailFlame = HQ ? 85 : 160;
+				FailFlare = HQ ? 0 : 128;
+				
+				if (HQ || charging)
+				{
+					if (Flame) A_SpawnItemEx(Flame,random(-5,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,FailFlame);
+					if (Flare) A_SpawnItemEx(Flare,-8,random(10,-10),25+random(10,-10),0,0,frandom(0.1,0.5),0,SXF_NOCHECKPOSITION,FailFlare);
+				}
+			}
+		}
+	}
+	
 	States
 	{
 	Spawn:
@@ -45,27 +88,19 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 			{
 				A_Wander();
 			}
-			
+			charging = false;
 			A_Look();
-			if(GetCvar("HQEffects"))
-			{
-				A_SpawnItemEx("LostSoulBlueFlame",random(-5,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,85);
-			}
 		}
 		Loop;
 	See:
 		PSUL AAA 2 BRIGHT Light("BlueSmallFlicker1")
 		{
+			charging = false;
 			if(user_chasecount==1)
 			{	D4Chase(); user_chasecount=0;	}
 			else
 			{	D4Chase(null,null); user_chasecount++;	}
-			
-			if(GetCvar("HQEffects"))
-			{
-				A_SpawnItemEx("LostSoulBlueFlame",random(-5,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,85);
-				A_SpawnItemEx("LostSoulBlueFlare",-8,random(10,-10),25+random(10,-10),0,0,frandom(0.1,0.5),0,SXF_NOCHECKPOSITION);	
-			}			
+					
 		}
 		Loop;
 		
@@ -75,67 +110,40 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 	Missile:
 		PSUL A 0 
 		{
+			charging = true;
 			A_FaceTarget();
 			if (bFriendly)	{	return ResolveState("SkipWarning");	}
 			A_PlaySound("Doom4/Monsters/LostSoul/Attack",CHAN_AUTO,0.6);
 			return ResolveState(null);
 		}
 		PSUL AAAAAAAAAA 2 BRIGHT Light("RedMediumFlicker3")
-		{ 
+		{
 			A_FaceTarget();
-			if(GetCvar("HQEffects"))
-			{
-				A_SpawnItemEx("LostSoulRedFlame",random(-5,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,85);
-				A_SpawnItemEx("LostSoulRedFlare",-5,random(10,-10),25+random(10,-10),0,0,frandom(0.1,0.5),0,SXF_NOCHECKPOSITION);
-			}
-			else
-			{
-				A_SpawnItemEx("LostSoulRedFlame",random(-5,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,160);
-				A_SpawnItemEx("LostSoulRedFlare",-5,random(10,-10),25+random(10,-10),0,0,frandom(0.1,0.5),0,SXF_NOCHECKPOSITION,128);
-			}
 		}
 	SkipWarning:
 		PSUL B 0 BRIGHT A_SkullAttack;	//attack frame
 		PSUL B 2 BRIGHT Light("RedMediumFlicker3")
 		{
+			charging = true;
 			if (bFRIENDLY)
 			{
 				A_FaceTarget(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch) * 20, 0, -sin(pitch) * 20,CVF_RELATIVE|CVF_REPLACE);
 				if (!target || target.health < 1)
 					return ResolveState("See");
-				
+								
 			}
-			if(GetCvar("HQEffects"))
-			{
-				A_SpawnItemEx("LostSoulRedFlame",random(-10,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,85);
-				A_SpawnItemEx("LostSoulRedFlare",-20,random(10,-10),25+random(10,-10),0,0,frandom(0.1,0.5),0,SXF_NOCHECKPOSITION);
-			}
-			else
-			{
-				A_SpawnItemEx("LostSoulRedFlame",random(-10,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,160);
-				A_SpawnItemEx("LostSoulRedFlare",-20,random(10,-10),25+random(10,-10),0,0,frandom(0.1,0.5),0,SXF_NOCHECKPOSITION,128);
-			}
-			return ResolveState(null);
+			return A_JumpIfTargetInsideMeleeRange("Melee");
 		}
 		Wait;
 	Pain: 
-		PSUL CC 2 BRIGHT Light("BlueSmallFlicker1")
+		PSUL C 4 BRIGHT Light("BlueSmallFlicker1")
 		{
-			if(GetCvar("HQEffects"))
-			{
-				A_SpawnItemEx("LostSoulBlueFlame",random(-5,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,85);
-				A_SpawnItemEx("LostSoulBlueFlare",-8,random(10,-10),25+random(10,-10),0,0,frandom(0.1,0.5),0,SXF_NOCHECKPOSITION);
-			}
+			charging = false;
 		}
 		PSUL C 2 BRIGHT Light("BlueSmallFlicker1")
 		{
 			A_Pain();
-			if(GetCvar("HQEffects"))
-			{
-				A_SpawnItemEx("LostSoulBlueFlame",random(-5,-15),random(10,-10),25,frandom(0,-1.5),frandom(1.5,-1.5),frandom(1,2),0,SXF_NOCHECKPOSITION,85);
-				A_SpawnItemEx("LostSoulBlueFlare",-8,random(10,-10),25+random(10,-10),0,0,frandom(0.1,0.5),0,SXF_NOCHECKPOSITION);	
-			}
 		}
 		Goto See;
 	Pain.StunBomb:
@@ -153,6 +161,7 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 	Death.SkullExplo:	
 		PSUL A 0 
 		{
+			charging = false;
 			if (bFRIENDLY)
 			{	
 				int dmg = random(50,150);
@@ -169,17 +178,16 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 	Death:
 		PSUL D 0 
 		{
+			charging = false;
 			bThruActors = true;
 			A_Scream();
 			A_NoBlocking();
 			if (A_CheckSight("Null"))
-			{
-				Destroy();
 				return;
-			}
+			
 			if (!CountInv("DeathByMassacre"))
 			{
-				if(GetCvar("HQEffects"))
+				if (HQ)
 				{
 					A_SpawnItemEx("LostSoulExploParticle",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
 					A_SpawnItemEx("LostSoulExploParticle",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
@@ -440,7 +448,7 @@ Class D4OldLostSoulNoCash : D4AbstractMonster
 		TNT1 A 0 
 		{
 			{ bThruActors = true; }
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("LostSoulExploParticleRed",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("LostSoulExploParticleRed",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);

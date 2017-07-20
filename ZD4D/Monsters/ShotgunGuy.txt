@@ -290,7 +290,7 @@ Class ShotgunnerPlasmaBall : ZombiemanPlasmaBall // the only difference is the f
 	LooperSG:
 		SPIR P 1 Bright Light("OrangeSmallPoint2")
 		{
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("ZombiePlasmaTrail",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
 			}

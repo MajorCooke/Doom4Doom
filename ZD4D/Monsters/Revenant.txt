@@ -299,12 +299,20 @@ Class RevenantRocketFast : FastProjectile
 		MissileHeight 8;
 		Decal "D4ExploScorchSmall";
 	}
+	
+	bool HQ;
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		HQ = GetCvar("HQEffects");
+	}
+	
 	States
 	{
 	Spawn:
 		SWMS A 1 Bright Light("OrangeMediumPoint3")
 		{
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
@@ -313,7 +321,7 @@ Class RevenantRocketFast : FastProjectile
 	Death:
 		TNT1 A 0 
 		{
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
 				A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
@@ -373,7 +381,7 @@ Class RevenantRocketSpinning : D4AbstractMissile
 		SWMS A 1 Bright Light("OrangeSmallPoint1")
 		{
 			A_Weave(2,2,1.0,1.0);
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("RocketGasTrail",-4,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
@@ -690,7 +698,7 @@ Class OldRevenantTracer : D4AbstractMissile replaces RevenantTracer
 	Death:
 		TNT1 A 0 
 		{
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("CacoSmoke",0,0,0,frandom(0.1,1.0),0,frandom(-1.2,1.0),random(0,359),32);
 				A_SpawnItemEx("CacoSmoke",0,0,0,frandom(0.1,1.0),0,frandom(-1.2,1.0),random(0,359),32);
