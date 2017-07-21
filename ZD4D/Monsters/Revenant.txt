@@ -5,6 +5,33 @@
 //
 //================================================================================================================
 //================================================================================================================
+
+/*
+Rainbow Doom Monster Schematics
+* Gains # health per level.
+
+Uncommon
+* 
+	
+Rare
+* 
+	
+Epic
+* 
+	
+Legendary
+* 
+	
+Relic
+* 
+
+CURSED (Black)
+* 
+
+BLESSED (White)
+* 
+*/
+
 Class D4Revenant : D4AbstractBiggie
 {
 	int user_wep;
@@ -100,26 +127,26 @@ Class D4Revenant : D4AbstractBiggie
 		
 		
 	Barrage:
-		SKEL K 10 A_FaceTarget();
+		SKEL K 10 
+		{
+			HQ = GetCvar("HQEffects");
+			A_FaceTarget();
+			user_wep = -1;
+		}
 	Looper:
 		SKEL J 4 Bright
 		{
-			if(user_counter>=8)
+			if (user_counter >= 8)
 			{
 				return ResolveState("EndMissiles");
 			}
 			
 			A_FaceTarget();
-			if(user_wep==0)
-			{	
-				A_SpawnProjectile("RevenantRocketSpinning",50,14,0);	
-				user_wep = 1;
-			}
-			else
-			{	
-				A_SpawnProjectile("RevenantRocketSpinning",50,-14,0);	
-				user_wep = 0;
-			}
+			
+			Class<Actor> rawket = (HQ) ? "RevenantRocketSpinning" : "RevenantRocketSpinningSimple";
+			
+			A_SpawnProjectile(rawket,50,14 * user_wep,0);
+			user_wep *= -1;
 			user_counter++;
 			return ResolveState(null);
 		}
@@ -359,9 +386,11 @@ Class RevenantRocketSpinning : D4AbstractMissile
 	int user_value2;
 	double user_value3;
 	double user_value4;
-	
+	bool simple;
+	property Simple: simple;
 	Default 
 	{
+		RevenantRocketSpinning.Simple false;
 		Projectile;
 		Speed 25;
 		FastSpeed 30;
@@ -373,6 +402,12 @@ Class RevenantRocketSpinning : D4AbstractMissile
 		SeeSound "Doom4/Weapon/Machinegun/MiniMissileFire";
 		Decal "D4ExploScorchSmallest";
 	}
+	
+	override void PostBeginPlay()
+	{
+		Actor.PostBeginPlay();
+	}
+	
 	States
 	{
 	Spawn:
@@ -381,7 +416,7 @@ Class RevenantRocketSpinning : D4AbstractMissile
 		SWMS A 1 Bright Light("OrangeSmallPoint1")
 		{
 			A_Weave(2,2,1.0,1.0);
-			if (HQ)
+			if (!simple)
 			{
 				A_SpawnItemEx("RocketGasTrail",-4,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
@@ -415,6 +450,9 @@ Class RevenantRocketSpinning : D4AbstractMissile
 		Stop;
 	}
 }
+
+Class RevenantRocketSpinningSimple : RevenantRocketSpinning
+{	Default	{	RevenantRocketSpinning.Simple true;	}	}
 
 Class MonsterRocketTrailFire : Actor //centered flare behind the rocket
 {
