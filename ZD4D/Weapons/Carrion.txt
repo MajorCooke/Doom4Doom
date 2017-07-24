@@ -1012,11 +1012,11 @@ Class CarrionPrimary : FastProjectile
 					bCausePain = true;
 					bForcePain = true;
 					// Just to prevent it from dying. It's only meant to 'stun'.
-					if (trac.health > 0) 
+					if (trac.health > 0 && !trac.bDORMANT) 
 					{
 						trac.health += 1;
 						trac.DamageMobj(self, targ, 1, DamageType, 
-							DMG_FORCED | DMG_NO_ARMOR | DMG_NO_FACTOR | DMG_NO_PROTECT | DMG_THRUSTLESS);
+							DMG_FOILINVUL | DMG_NO_ARMOR | DMG_NO_FACTOR | DMG_NO_PROTECT | DMG_THRUSTLESS);
 						//A_DamageTracer(1,"None",DMSS_NOFACTOR,null,"None",TargetPtr);
 						
 					}
