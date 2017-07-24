@@ -1,3 +1,24 @@
+/*
+Class D4BossEye : Actor replaces BossEye
+{
+	Default
+	{
+		+NOSECTOR
+		+NOBLOCKMAP
+		Height 32;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 10 A_Look();
+		Loop;
+	See:
+		TNT1 A 181 A_BrainAwake();
+		TNT1 A 150 A_BrainSpit();
+		Wait;
+	}
+}
+*/
 Class D4BossBrain : BossBrain replaces BossBrain
 {
 	double bat;

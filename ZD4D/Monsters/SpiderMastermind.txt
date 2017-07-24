@@ -5,6 +5,46 @@
 //	
 //================================================================================================================
 //================================================================================================================
+
+/*
+Rainbow Doom Monster Schematics
+* Gains 1000 health per tier.
+
+Uncommon
+* Shoots two plasma bolts instead of a single stream.
+* Attacks slightly faster with lasers, including delayed rotation.
+	
+Rare
+* 3 plasma bolts
+* Charged laser can slowly track its target
+* Gains armored legs and base
+	
+Epic
+* 4 plasma bolts
+* Increased charge laser tracking speed
+* Rotating lasers are quicker
+	
+Legendary
+* Rotating lasers are now weak-charged lasers with no range limits
+* Occasionally unleashes a small laser with its torrent of plasma bolts
+	
+Relic
+* Faster target tracking
+* Can leap at or away from target
+* Attacks cannot be interrupted
+
+CURSED (Black)
+* Lasers last longer
+* Spinning lasers are fully charged
+
+BLESSED (White)
+* All attacks replaced by shotgun laser
+* Much more aggressive
+* Easily distracted by infighting
+* Attacks can insta-kill most enemies
+* Deals extra damage to demon runes
+*/
+
 Class D4SpiderMastermind : D4AbstractBoss
 {
 	const CBAFlags = CBAF_AIMFACING|CBAF_PUFFTRACER|CBAF_NORANDOMPUFFZ|CBAF_NORANDOM|CBAF_EXPLICITANGLE;

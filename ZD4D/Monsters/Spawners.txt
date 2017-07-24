@@ -19,7 +19,7 @@ Class D4DMonsterSpawner : Actor
 		D4DMonsterSpawner.isBoss false;
 		D4DMonsterSpawner.isStealth false;
 		Monster;
-		Health 1000000;
+		Health 1000;
 		+DONTCORPSE
 		+NORADIUSDMG
 		+NONSHOOTABLE
@@ -197,8 +197,10 @@ Class D4DMonsterSpawner : Actor
 			}
 			mon.A_ChangeCountFlags(-1,-1,bCOUNTSECRET);
 			
+			/*
 			if (health != GetSpawnHealth())	
 				mon.A_SetHealth(health);
+			*/
 				
 			A_ChangeLinkFlags(true, true);
 			A_ChangeCountFlags(0);
