@@ -110,6 +110,7 @@ Class AkimboWeapon : Weapon
 		+INVENTORY.UNTOSSABLE
 		+WEAPON.NOALERT
 		+WEAPON.NOAUTOFIRE
+		Weapon.SelectionOrder 10000;
 		Weapon.UpSound "Doom4/Weapons/WeaponSwitch";
 		Tag "Akimbo Guns";
 	}
