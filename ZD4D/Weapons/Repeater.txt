@@ -36,7 +36,7 @@ Class D4Repeater : Doom4Weapon
 		Weapon.AmmoUse2 1;
 		Weapon.SelectionOrder 41 ;//slightly below HAR which is 40
 		
-		Obituary "%o was repeater'd by %k.";
+		Obituary "%o was repeatedly perforated by %k.";
 		Inventory.PickupMessage "Repeater. It has a Certain Affinity to other bullet weapons.";
 		Tag "Repeater";
 	}

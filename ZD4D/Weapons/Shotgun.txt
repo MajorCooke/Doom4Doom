@@ -18,7 +18,8 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 		+WEAPON.NOALERT
 		+INVENTORY.UNDROPPABLE
 		+INVENTORY.UNTOSSABLE
-		Inventory.PickupMessage "Shotgun picked up";
+		Inventory.PickupMessage "Shotgun! Accurate!";
+		Obituary "%o now knows %k's skills with the shotgun have not dimmed after 24 years.";
 		Weapon.AmmoType1 "D4Shells";
 		Weapon.AmmoGive1 8;
 		Weapon.AmmoUse1 1;

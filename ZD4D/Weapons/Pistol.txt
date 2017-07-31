@@ -38,6 +38,7 @@ Class D4Pistol : Doom4Weapon
 		+INVENTORY.UNDROPPABLE
 		+INVENTORY.UNTOSSABLE
 		Tag "Pistol";
+		Obituary "%k was tickled by %o's pea shooter.";
 		//Decal "D4Pistol"
 		Scale 0.5;
 		Weapon.SelectionOrder 100;

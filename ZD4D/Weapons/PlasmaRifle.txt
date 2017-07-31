@@ -18,7 +18,8 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 		+WEAPON.NOALERT
 		+INVENTORY.UNDROPPABLE
 		+INVENTORY.UNTOSSABLE
-		Inventory.PickupMessage "Plasma Rifle! Hotter than the Sun's surface!";
+		Inventory.PickupMessage "Plasma Rifle! Hot topic!";
+		Obituary "%o stared %k's plasma rifle in the barrel, and it stared back.";
 		Tag "Plasma Rifle";
 		Weapon.AmmoType1 "D4Cells";
 		Weapon.AmmoGive1 40;

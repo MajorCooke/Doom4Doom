@@ -854,7 +854,7 @@ Class D4BlackList : Thinker
 	}
 	
 	//--------------------------------------------------------------------------
-	// Checks and returns based on if the monster is on the black list.
+	// Returns if the monster is on the black list or not.
 	bool Check(Actor mon)
 	{
 		if (!mon || (List.Size() + PList.Size() < 1))

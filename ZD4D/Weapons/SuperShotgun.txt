@@ -35,6 +35,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		+INVENTORY.UNTOSSABLE
 		Weapon.SlotNumber 1;
 		Inventory.PickupMessage "Super Shotgun! Just like the old times!";
+		Obituary "%o ate %k's double dose of buckshot for breakfast.";
 		Tag "Super Shotgun";
 		Weapon.AmmoType1 "D4Shells";
 		Weapon.AmmoGive1 8;

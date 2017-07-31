@@ -28,6 +28,7 @@ Class D4GaussCannon : Doom4Weapon
 		+INVENTORY.UNTOSSABLE
 		Weapon.SlotNumber 1;
 		Inventory.PickupMessage "Gauss Cannon! BLAAAAAAAUUUUUUUGH in a nutshell!";
+		Obituary "%o was epic laser'd by %k's gauss shoop.";
 		Weapon.AmmoType1 "D4Cells";
 		Weapon.AmmoGive1 60;
 		Weapon.AmmoUse1 20;
