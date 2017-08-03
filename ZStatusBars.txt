@@ -5,8 +5,26 @@
 //==============================================================================
 //==============================================================================
 
+/*
+Vector2 Vector2::rotate(double angle, Vector2 rPoint) const {
+    Vector2 ret = *this;
+    ret -= rPoint;
+    Vector2 retC = ret;
+    ret.x = retC.x * std::cos(angle) - retC.y * std::sin(angle);
+    ret.y = retC.x * std::sin(angle) + retC.y * std::cos(angle);
+    ret += rPoint;
+    return ret;
+}
+*/
+
 Class Doom4StatusBar : BaseStatusBar
 {
+	static ui Vector2 RotateVector(Vector2 self, double angle, Vector2 rPoint)
+	{
+		self -= rPoint;
+		return (self.x * cos(angle) - self.y * sin(angle),
+				self.x * sin(angle) + self.y * cos(angle)) + rPoint;
+	}
 	const FakeCashStart = 35 * 4;
 	const FakeCashFade = 35.0;
 	const imageAlignment = DI_ITEM_LEFT_TOP|DI_ITEM_OFFSETS|DI_FORCESCALE;

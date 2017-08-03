@@ -1,20 +1,16 @@
 ===========================================================================
 Archive Maintainer      : (special instructions if any)
 Update to               : D4D.pk3
-Advanced engine needed  : GZDoom v2.5
+Advanced engine needed  : GZDoom v3.2 (Devbuild)
 Primary purpose         : Single player, no levels included
 ===========================================================================
 Title                   : DOOM(4) for DooM
 Filename                : D4D.pk
 Release date            : 10-31-16
-Author                  : Major Cooke, DBThanatos (ex-author), Michaelis
+Author                  : Major Cooke, Michaelis
 Email Address           : MajorCooke22@gmail.com
-Other Files By Author   : DBThanatos: "Quake4 Lightning Fast Mod Doom Edition",
-                          "Doomstorm", "AEons of Death", "Super Doom 3 Take II",
-                          "The Ultimate Torment & Torture: Take II", "Dream of 
-                          magic 2.0"
-                          Major Cooke: "AEons of Death", "DooMwinia"
-                          Michaelis: "ZBlood+", "AEons of Death"
+Other Files By Author   : Major Cooke: "AEons of Death", "DooMwinia"
+                          Michaelis:  "AEons of Death", "ZBlood+"
 Misc. Author Info       : Stuff.
 
 Description             : A gameplay mod bringing some of the Doom4 mechanics 
@@ -30,7 +26,7 @@ Music                   : No
 Graphics                : Yes
 Dehacked/BEX Patch      : No
 Demos                   : No
-Other                   : A plethora of ZDoom specific lumps
+Other                   : A plethora of (G)ZDoom specific lumps
 Other files required    : None other than a recent GZDoom devbuild
 
 
@@ -52,7 +48,7 @@ Difficulty Settings     : Yes, a lot of them
 Base                    : New from scratch 
 Build Time              : Something like 6 months
 Editor(s) used          : Slade, Programmer's notepad, GIMP, Audacity,
-                          Notepad++, Paint.net, FL Studio, GitKraken
+                          Notepad++, Paint.net, FL Studio, GitKraken, Sourcetree
 Known Bugs              : Sometimes glory kills will only do a quick punch
                           of death instead of the GK animation. Mastermind
                           GK will never show full animation due to tech
@@ -60,11 +56,9 @@ Known Bugs              : Sometimes glory kills will only do a quick punch
                           Sometimes glory killing will make monsters clip
                           through walls, floors or celings while being
                           executed.
-                          If you use GZDoom devbuilds, HUD elements might
-                          look off. GZDoom 2.5 is recommended.
 Might Not Run With      : Some GZDoom devbuilds. 
 Will NOT Work With 		: Zandronum. ZDoom.
-Tested With             : GZDoom v2.5 
+Tested With             : GZDoom v3.2 devbuilds
 
 
 ===========================================================================
@@ -108,9 +102,7 @@ DBThanatos              : Retired owner.
                           and grenade system. "Roach" monster recolor (which
                           was used as D4D imp). Game balance.
                           Resource gatherer and organizer.  
-                          Final polishing of visual effects.
-						  (We miss you, buddy! We wish you good luck and
-						  God speed on your future endeavors.)
+                          Final polishing of visual effects until v2.0.3.
 
 Michaelis               : Ripping, conversion and processing of graphics for
                           the Heads Up Display. Implementation of reticles
@@ -149,6 +141,11 @@ Phobos867               : D4 Imp sprite, modified from the "Roach" monster and
 MW-21                   : Sound contributions for Archvile and Arachnotron.
 
 Nightquaker             : Chainsaw ammo meters fix
+
+Gutawer					: Player damage shader effect
+
+Cactus Hege				: Inspiration for the Rainbow Doom(4) monsters. Concept 
+						  (no code) taken from Colorful Hell with permission.
 
 * Other credits * 
 
@@ -220,7 +217,7 @@ Sprite Edit: NMN, Tormentor667
 * Copyright / Permissions *
 
 Authors MAY use the contents of this file as a base for
-modification or reuse. JUST LET ME KNOW :) Permissions have been obtained 
+modification or reuse. JUST LET ME KNOW. :) Permissions have been obtained 
 from original authors for any of their resources modified or included 
 in this file.
 

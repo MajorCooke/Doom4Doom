@@ -617,10 +617,12 @@ Class Doom4Player : PlayerPawn
 				{
 					ACS_NamedExecuteAlways("Blood",0, int(floor((user_lasthp - user_currenthp) / DamageDegree)),0,0);
 				}
+				/*
 				if (A_Overlay(SovietsaurusSpinopatimus,"Null",true))
 				{
 					A_Overlay(Overlay_PainRoll,"PainRoll",true);
 				}
+				*/
 				if (health <= 40)
 				{
 					if (user_lowhp == 0)
@@ -785,7 +787,11 @@ extend class Doom4Player
 	//
 	//
 	//==========================================================================
-
+	
+	// [Gutawer]
+	// I can never get the ** operator to actually work, so i'm using a function to do it
+	double pow(double base, double power) { return exp(power * log(base)); }
+	double effectSize;
 	int PentaNoiseWait;
 	
 	//--------------------------------------------------------------------------
@@ -881,7 +887,24 @@ extend class Doom4Player
 				damage = Max(0,damage * (1 - (0.01 * pc1)));
 			}
 		}
-		return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+		
+		int ArmorBefore = 0;
+		int ArmorAfter = 0;
+		let arm = BasicArmor(FindInventory("BasicArmor"));
+		if (arm)	ArmorBefore = arm.Amount;
+		
+		int finaldamage = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+		
+		if (arm)	ArmorAfter = arm.Amount;
+		if (finaldamage > 0)
+		{
+			effectSize += log(finaldamage) / 25.0;
+		}
+		else if (ArmorBefore > ArmorAfter)
+		{
+			effectSize += log(ArmorBefore - ArmorAfter) / 25.0;
+		}
+		return finaldamage;
 	}
 	
 	override bool CanCollideWith (Actor other, bool passive)
@@ -958,6 +981,21 @@ extend class Doom4Player
 		Super.Tick();
 		if ((!player || !player.mo || player.mo != self) || health <= 0)
 			return;
+			
+		//======================================================================
+		if (effectSize > 0) {
+			Shader.SetEnabled(player, "damageshader", true);
+			Shader.SetUniform1f(player, "damageshader", "damageFactor", effectSize);
+		}
+		else Shader.SetEnabled(player, "damageshader", false);
+		
+		double returnSpeed = 0;
+		if (effectSize != 0) returnSpeed = pow(0.01, 1/(effectSize * 5));
+		if (returnSpeed < 0.01) returnSpeed = 0.01;
+		
+		effectSize -= returnSpeed;
+		effectSize = clamp(effectSize, 0, 0.5);
+		//======================================================================
 		
 		let plyr = self.player;
 		

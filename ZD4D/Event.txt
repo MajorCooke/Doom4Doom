@@ -428,11 +428,12 @@ extend class D4DHandler
 					}
 				}
 				// -------------------------------------------------------------
-				// Drop Cash.
+				// Drop credits.
 				// -------------------------------------------------------------
-				CashMul *= (p.CountInv("PowerD4Money") ? 4 : 1);
+				
 				if (D4D_CurrentUpgradeMode)
 				{
+					CashMul *= (p.CountInv("PowerD4Money") ? 4 : 1);
 					if (CrateDropAlways > 0)
 					{
 						CrateDropAlways *= CashMul;
@@ -445,7 +446,11 @@ extend class D4DHandler
 				{
 					if (CashAmount > 0)
 					{
-						CashAmount *= CashMul;
+						int CPB1 = p.CountInv("CashPercentBonus");
+						int CPB2 = p.CountInv("CashPercentBonusTemp");
+						
+						double CashAmtPercent = CashAmount * (CPB1 + CPB2);
+						CashAmount = (CashAmount + (CashAmtPercent / 100)) * CashMul;
 						p.A_GiveInventory("D4DCash",		CashAmount);
 						p.A_GiveInventory("D4DCashFake",	CashAmount);
 						p.A_GiveInventory("CashUpdater",	1);

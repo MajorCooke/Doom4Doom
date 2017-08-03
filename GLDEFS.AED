@@ -1,3 +1,11 @@
+HardwareShader PostProcess scene {
+	Name "damageshader"
+	Shader "shaders/Damage.shader" 330
+	Uniform float damageFactor
+	Enabled
+}
+
+
 pointlight PlayerLight1
 {
     color 1.0 1.0 1.0
