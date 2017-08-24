@@ -18,11 +18,11 @@ LISTMENU "MainMenu"
 	{
 		PatchItem "M_LOADG", "l", "LoadGameMenu"
 		PatchItem "M_SAVEG", "s", "SaveGameMenu"
-		PatchItem "M_OPTION","o", "D4OptionsMenu"
+		PatchItem "M_OPTION","o", "OptionsMenu"
 	}
 	else
 	{
-		PatchItem "M_OPTION","o", "D4OptionsMenu"
+		PatchItem "M_OPTION","o", "OptionsMenu"
 		PatchItem "M_LOADG", "l", "LoadGameMenu"
 		PatchItem "M_SAVEG", "s", "SaveGameMenu"
 	}
@@ -49,30 +49,10 @@ ListMenu "AkimboSideSelect"
 //==============================================================================
 //==============================================================================
 
-OptionMenu "D4OptionsMenu"
+AddOptionMenu "OptionsMenu"
 {
-	Title "$OPTMNU_TITLE"
-	Submenu "D4D Mod Options",			"D4DOptions"
 	StaticText " "
-	Submenu "$OPTMNU_CONTROLS",			"CustomizeControls"
-	Submenu "$OPTMNU_MOUSE",			"MouseOptions"
-	Submenu "$OPTMNU_JOYSTICK",			"JoystickOptions"
-	StaticText " "
-	Submenu "$OPTMNU_PLAYER",			"PlayerMenu"
-	Submenu "$OPTMNU_GAMEPLAY",			"GameplayOptions"
-	Submenu "$OPTMNU_COMPATIBILITY",	"CompatibilityOptions"
-	Submenu "$OPTMNU_AUTOMAP",			"AutomapOptions"
-	Submenu "$OPTMNU_HUD",				"HUDOptions"
-	Submenu "$OPTMNU_MISCELLANEOUS",	"MiscOptions"
-	Submenu "$OPTMNU_NETWORK",			"NetworkOptions"
-	Submenu "$OPTMNU_SOUND",			"SoundOptions"
-	Submenu "$OPTMNU_DISPLAY",			"VideoOptions"
-	Submenu "$OPTMNU_VIDEO",			"VideoModeMenu"
-	Submenu "$OPTMNU_CHANGERENDER",		"RendererMenu"
-	StaticText " "
-	SafeCommand "$OPTMNU_DEFAULTS",		"reset2defaults"
-	SafeCommand	"$OPTMNU_RESETTOSAVED",	"reset2saved"
-	Command "$OPTMNU_CONSOLE",			"menuconsole"
+	Submenu "D4D Mod Options", "D4DOptions"
 }
 
 OptionMenu "D4DOptions"
