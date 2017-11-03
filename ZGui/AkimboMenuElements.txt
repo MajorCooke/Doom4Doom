@@ -65,17 +65,16 @@ class AkimboMenuMouse : Element
 	}
 }
 
-// this element is a button's state. The next class is the actual button.
-
+// This struct defines a button's state. The next class is the actual button.
 Struct ButtonState
 {
-	int mRenderStyle;
-	Color mColor;
-	double mAlpha;
-	TextureID mTex;
-	String text;
-	int fontColor;
-	double textAlpha;
+	int mRenderStyle;	// Sprite renderstyle
+	Color mColor;		// Sprite color
+	double mAlpha;		// Sprite alpha
+	TextureID mTex;		// Sprite to draw
+	String text;		// Text to draw over the sprite
+	int fontColor;		// Text color
+	double textAlpha;	// Text alpha
 	
 	void Init()
 	{
@@ -87,6 +86,7 @@ Struct ButtonState
 		textAlpha = 1.0;
 	}
 	
+	// Sets the sprite and text to display, along with some modifications to both.
 	void SetProperties(String tex, String tx = "", int style = -1, double ta = -1.0, int a = -1, int r = -1, int g = -1, int b = -1)
 	{
 		//if (tex.Length() > 0)
@@ -101,6 +101,7 @@ Struct ButtonState
 		
 	}
 	
+	// Returns the text string, its color and alpha.
 	String, int, double GetTextColorAlpha()
 	{
 		return text, fontColor, textAlpha;
@@ -259,22 +260,23 @@ class AkimboMenuButton : Element
 		wasHovered = isHovered;
 		IsClicked = false;
 		
+		// Do everything possible to ensure all is legitimate. Take no chances.
 		if (ItemID)
-		{
+		{	// We have an item for buttonizing. Check the player.
 			if (!plr)	plr = PlayerPawn(players[consoleplayer].mo);
 			if (plr)
-			{
+			{	// We have a player. Check their current akimbo system.
 				if (!ak)		ak = AkimboWeapon(plr.FindInventory("AkimboWeapon"));
 				if (ak)
-				{
+				{	// We have a functional akimbo system. Check to see if they have the item.
 					if (!PlrItem)		PlrItem = Weapon(plr.FindInventory(ItemID,true));	
 					if (PlrItem)
 					{
-						
+						// Check to see if the weapon is select(ing/ed).
 						IsEnabled = (!(ak.LeftGun == ItemID || ak.RightGun == ItemID || ak.LeftPend == ItemID || ak.RightPend == ItemID));
 						
 						if (!IsEnabled)
-						{
+						{	// Already selected/active. Mark both sides red to indicate unavailability.
 							if (IsRight)
 							{
 								if (ak.RightGun == ItemID || ak.RightPend == ItemID)
@@ -286,33 +288,33 @@ class AkimboMenuButton : Element
 						}
 					}
 					else 
-					{	
+					{	// They don't have the item (weapon/mod).
 						IsEnabled = false;
 						if (IsMod)
-						{
+						{	// Mod unavailable (NYI)
 							mButtonDisabled.text = "X";
 							mButtonDisabled.fontColor = Font.CR_RED;
 						}
 						else
-						{
+						{	// Weapon unavailable
 							mButtonDisabled.text = "-----";
 							mButtonDisabled.fontColor = Font.CR_ORANGE;
 						}
+						// Draw it darkened to show it's unavailable.
 						mButtonDisabled.mColor.r = 32;
 						mButtonDisabled.mColor.g = 32;
 						mButtonDisabled.mColor.b = 32;
 						mButtonDisabled.mColor.a = 255;
 						mButtonDisabled.mAlpha = 0.9;
 					}
-					
-				}
+				}	// Akimbo system is missing or something else went wrong.
 				else { IsEnabled = false; mButtonDisabled.text = "Akimbo System unavailable"; }
-			}
+			}	// This shouldn't ever happen.
 			else { IsEnabled = false; mButtonDisabled.text = "Player Non-Existant"; }
 				
 		}
 		else 
-		{
+		{	// This als shouldn't ever happen.
 			IsEnabled = false;
 		}
 		
@@ -510,8 +512,7 @@ class AkimboMenuElement : Element
 		// this is very important.
 		d.Dim(0x000000, 0.5, 0, 0, r.Width, r.Height);
 		//d.DrawTexture(mDoom, false, r.Width/2-64, 48);
-		int size = MenuDesc.Size();
-		for (int i = 0; i < size; i++)
+		for (int i = 0; i < MenuDesc.Size(); i++)
 			d.DrawText(
 				MenuDesc[i].mFont,
 				MenuDesc[i].FontColor,

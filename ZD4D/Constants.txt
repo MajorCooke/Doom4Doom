@@ -1,5 +1,7 @@
 enum D4cns
 {
+	STAT_RUNEPICKUPS = 70, //Note to self: change this later to use the STAT_USER constant.
+	
 	AkimboSwitchSpeed = 24,
 	WeaponSwitchSpeed = 18,
 	WeaponSwitchBonus = 6,
@@ -125,5 +127,33 @@ enum D4itemstuff
 	ItemWatchMax = 25,
 };
 
-
+enum FrameInts
+{
+	Fr_A = 0,
+	Fr_B = 1,
+	Fr_C,
+	Fr_D,
+	Fr_E,
+	Fr_F,
+	Fr_G,
+	Fr_H,
+	Fr_I,
+	Fr_J,
+	Fr_K,
+	Fr_L,
+	Fr_M,
+	Fr_N,
+	Fr_O,
+	Fr_P,
+	Fr_Q,
+	Fr_R,
+	Fr_S,
+	Fr_T,
+	Fr_U,
+	Fr_V,
+	Fr_W,
+	Fr_X,
+	Fr_Y,
+	Fr_Z,
+};
 

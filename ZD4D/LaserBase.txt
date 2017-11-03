@@ -31,11 +31,12 @@
 Class MovingTrailBeam : Actor 
 {
 	const NoSpawn = 256;
-	double  user_dist;
+	double user_dist;
 	int user_t;
 	int user_zoffset;
 	double user_angle;
 	double user_pitch;
+	Vector3 pa, pb;
 	double user_xa, user_xb;
 	double user_ya, user_yb;
 	double user_za, user_zb;
@@ -89,25 +90,21 @@ Class MovingTrailBeam : Actor
 			user_angle = angle;
 			user_pitch = pitch;
 			user_dist = GetDistance(false, TargetPtr);
-			user_xa = pos.x;
-			user_ya = pos.y;
-			user_za = pos.z;
+			pa = pos;
 			
 			// Move to the shooter so we can get just how far out we are.
 			A_Warp(TargetPtr,0,0,0,0,WARPF_NOCHECKPOSITION);
-			user_xb = user_xa - pos.x;
-			user_yb = user_ya - pos.y;
-			user_zb = user_za - pos.z;
+			pb = pa - pos;
 			
 			// Now move back without interpolating. Otherwise it'll look weird.
-			A_Warp(TargetPtr,user_xb,user_yb,user_zb,0,WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEOFFSET);
+			A_Warp(TargetPtr, pb.x, pb.y, pb.z, 0, WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEOFFSET);
 			angle = user_angle;
 			pitch = user_pitch;
 		}
 		"####" "#" 1 
 		{
 			A_FadeIn(1.0,FTF_CLAMP);
-			A_Warp(TargetPtr, user_xb+vel.x, user_yb+vel.y, user_zb+vel.z, 0, user_pflags);
+			A_Warp(TargetPtr, pb.x + vel.x, pb.y + vel.y, pb.z + vel.z, 0, user_pflags);
 			angle = user_angle;
 			pitch = user_pitch;
 		}
@@ -124,7 +121,7 @@ Class MovingTrailBeam : Actor
 				A_SetScale(Scale.X - (user_scale / Max(1.0, user_time)), Scale.Y);
 				if (Scale.X <= 0)	{ return ResolveState("Null"); }
 			}
-			A_Warp(TargetPtr ,user_xb + vel.x, user_yb + vel.y, user_zb + vel.z ,0, user_pflags);
+			A_Warp(TargetPtr ,pb.x + vel.x, pb.y + vel.y, pb.z + vel.z ,0, user_pflags);
 			angle = user_angle;
 			pitch = user_pitch;
 			return ResolveState(null);

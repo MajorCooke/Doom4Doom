@@ -176,8 +176,8 @@ Class DemonPlayerBase : Doom4Player
 			
 			// So, create an iterator that searches for D4KeyBase-inheriting
 			// only.
-			ThinkerIterator it = ThinkerIterator.Create("Inventory");
-			Actor mo;
+			ThinkerIterator it = ThinkerIterator.Create("Inventory", STAT_RUNEPICKUPS);
+			Inventory mo;
 			while (mo = Inventory(it.Next()))
 			{
 				if (!(mo is "D4KeyBase") && (!CountInv("D4RuneUpgrade2") && !(mo is "DemonRuneBase")))
@@ -695,9 +695,6 @@ Class SoundStopper : CustomInventory
 
 Class DemonRuneBase : CustomInventory
 {
-	
-	Class<Inventory> RuneName;
-	property RuneName: RuneName;
 	int user_time;
 	Default 
 	{
@@ -710,15 +707,56 @@ Class DemonRuneBase : CustomInventory
 		+BRIGHT
 		+DONTGIB
 	}
+	
+	override void BeginPlay()
+	{
+		ChangeStatNum(STAT_RUNEPICKUPS);
+		Super.BeginPlay();
+	}
+	
+	override void PostBeginPlay()
+	{
+		if (GetClassName() == 'DemonRuneBase')
+			return Destroy();
+		
+		bool limit = true;
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (playeringame[i]) 
+			{
+				let plr = players[i].mo;
+				if (plr && plr.CountInv("D4RuneUpgrade3"))
+				{
+					limit = false;
+					break;
+				}
+			}
+		}
+		// Only check for the same type.
+		if (limit)
+		{
+			Class<Inventory> RuneName = GetClass();
+			ThinkerIterator it = ThinkerIterator.Create("DemonRuneBase", STAT_RUNEPICKUPS);
+			DemonRuneBase mo;
+			while (mo = DemonRuneBase(it.Next()))
+			{
+				if (mo == self)
+					continue;
+					
+				if (mo.GetClass() == GetClass())
+					return Destroy();
+			}
+		}
+		Super.PostBeginPlay();
+	}
+	
 	States
 	{
 	Spawn:
 		RUNE A 0 NoDelay
 		{
 			
-			// ONLY CHECK FOR THE SAME TYPE OF ITSELF. Do not check others, that's ridiculous!
-			if (!CountInv("D4RuneUpgrade3",Player1))
-			{
+				/*
 				if (CheckClass("ArachnotronRune"))
 				{
 					return (A_CheckProximity("Null","ArachnotronRune", 	32767, 1, CPXF_NOZ));
@@ -759,14 +797,14 @@ Class DemonRuneBase : CustomInventory
 				{
 					return (A_CheckProximity("Null","ArchvileRune", 	32767, 1, CPXF_NOZ));
 				}
-			}
-			return ResolveState(null);
+				*/
+			
 			
 		}
 		RUNE A 0 
 		{ 
 			A_SpawnItemEx("DemonRuneBackground",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_TRANSFERSCALE|SXF_ORIGINATOR);
-			invoker.user_time = 60 * 35;  // tics before timeout
+			invoker.user_time = 60 * 35;  // tics before expiration
 		}
 		Goto Idle;
 	Idle:

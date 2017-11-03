@@ -2499,11 +2499,16 @@ Class AkimboWeapon : Weapon
 	D4LightningGun.Fire:
 		TNT1 A 0 
 		{
+			if (CountInv("LGChainToggle"))
+			{
+				return ResolveState("D4LightningGun.AltFire");
+			}
 			AkPlaySound("Doom4/Weapon/LightningGun/LightningGunFire", CHAN_WEAPON, 1, 1);
 			AkPlaySound("Doom4/Weapon/LightningGun/LG2Loop", 5, 0.5, 1);
+			return ResolveState("D4LightningGun.Hold");
 		}
 		
-	D4LightningGun.HoldPt1:
+	D4LightningGun.Hold:
 		LGNF B 1 Bright 
 		{ 
 			AkOffsetD(frandom(-1.0,1.0),frandom(-1.0,1.0));
@@ -2548,7 +2553,7 @@ Class AkimboWeapon : Weapon
 			}
 		}
 
-		LGNF A 2 AkReFire("D4LightningGun.HoldPt1");
+		LGNF A 2 AkReFire("D4LightningGun.Hold");
 		Goto D4LightningGun.EndHold;
 	D4LightningGun.EndHold:
 		LGNI A 1 

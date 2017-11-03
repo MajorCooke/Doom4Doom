@@ -602,7 +602,7 @@ extend Class AkimboWeapon
 	//
 	// Performs special checks for special weapons first before mod checking.
 	// If it's not a special weapon, indicate it by setting the variable and
-	// letting 
+	// letting AkWeaponReady do the rest.
 	//==========================================================================
 	
 	action bool CheckMods(int side, bool checkonly = false)
@@ -615,6 +615,7 @@ extend Class AkimboWeapon
 		{
 			"D4Pistol",
 			"D4Repeater",
+			"D4LightningGun",
 			"D4CarrionCannon",
 			"D4BFG"
 		};
@@ -623,6 +624,7 @@ extend Class AkimboWeapon
 		
 		if (invoker.Status[side] != Ready)	return false;
 		
+		// Pistol: Toggles lance mode.
 		if (Gun == "D4Pistol")
 		{
 			if (CountInv("PistolUpgradeLance"))
@@ -638,12 +640,30 @@ extend Class AkimboWeapon
 			}
 			return false;
 		}
+		// Repeater: Switches between three and one shot.
 		else if (Gun == "D4Repeater")
 		{
 			if (checkonly) return true;
 			ACS_NamedExecute("ToggleRepeaterMode",0,0,0,0);
 			return true;
 		}
+		// Lightning gun: Toggles chain firing.
+		else if (Gun == "D4LightningGun")
+		{
+			if (CountInv("LGUpgradeAltFire"))
+			{
+				if (checkonly)	return true;
+				if (CountInv("LGChainToggle"))	A_SetInventory("LGChainToggle",0);
+				else
+				{
+					A_PlaySound("Doom4/Weapon/GaussGun/PrecisionDown",CHAN_WEAPON,1);	
+					A_SetInventory("LGChainToggle",1);
+				}
+				return true;				
+			}
+			return false;
+		}
+		// Carrion Cannon: Triggers absorption.
 		else if (Gun == "D4CarrionCannon")
 		{
 			if (checkonly) return true;
@@ -661,6 +681,7 @@ extend Class AkimboWeapon
 			}
 			return false;
 		}
+		// BFG: Redirects projectiles.
 		else if (Gun == "D4BFG")
 		{
 			if (CountInv("BFGUpgrade4"))
@@ -673,6 +694,8 @@ extend Class AkimboWeapon
 			return false;			
 		}
 		
+		// Otherwise, indicates the mod wishes to be changed. This is handled
+		// elsewhere to ensure things are not messed with.
 		invoker.SwitchMod[side] = true;
 		return true;
 	}

@@ -234,6 +234,7 @@ Class D4DListMenu : ListMenu
 			MenuSound (cur != null ? "menu/backup" : "menu/clear");
 			if (cur == null)
 			{
+				// Transfer all the items over to the event handler.
 				if (m && m.ItemNames.Size() > 0)
 				{
 					D4DHandler.SendNetworkEvent("EnableReception",0,0,0);

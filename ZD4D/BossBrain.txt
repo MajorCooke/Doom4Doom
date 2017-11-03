@@ -41,7 +41,7 @@ Class D4BossBrain : BossBrain replaces BossBrain
 	
 	void KillEverything()
 	{
-		ThinkerIterator it = ThinkerIterator.Create("Actor");
+		ThinkerIterator it = ThinkerIterator.Create("Actor", STAT_DEFAULT);
 		Actor mo;
 		while (mo = Actor(it.Next()))
 		{

@@ -158,7 +158,7 @@ Class D4DHandler : EventHandler
 					//Console.Printf(suffix);
 					
 					if (!i) return; 		// 0 = D4DAddon_
-					if (i == 1 || i == 2) 	// 1 = SetLeft, 2 = SetRight
+					if (i == 1 || i == 2) 	// 1 = Akimbo_SetLeft, 2 = Akimbo_SetRight
 					{
 						bool IsRight = (i == 2);
 						let ak = AkimboWeapon(plr.FindInventory("AkimboWeapon",true));
