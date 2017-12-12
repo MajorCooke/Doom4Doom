@@ -161,9 +161,10 @@ extend class D4DHandler
 		int spawnhp = 	mo.GetSpawnHealth();
 		Name mod = 		mo.DamageTypeReceived;
 		
-		
-		if (LootDrop && (!(mo.InStateSequence(mo.CurState, mo.FindState("Death"))) ||
-						mo.health < mo.GetGibHealth()))
+		if (LootDrop && (
+						(mo.InStateSequence(mo.CurState, mo.FindState("XDeathNoDrops"))) ||
+						(mo.InStateSequence(mo.CurState, mo.FindState("XDeath"))) ||
+						(mo.health < mo.GetGibHealth())))
 			Pinatas.AddItem("D4PinataCarrion", 1 * TotalMul);
 		
 		// First set up the base multiplier upon damage type when killed.
