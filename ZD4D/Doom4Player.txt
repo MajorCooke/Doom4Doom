@@ -168,7 +168,7 @@ Class Doom4Player : PlayerPawn
 		Player.StartItem "D4MultiJump", 2;
 		Player.JumpZ 7.0;
 		Player.WeaponSlot 1, "D4DFist", "D4Chainsaw";
-		Player.WeaponSlot 2, "D4Pistol";	
+		Player.WeaponSlot 2, "D4Pistol";
 		Player.WeaponSlot 3, "D4Shotgun", "D4SuperShotgun";	
 		Player.WeaponSlot 4, "D4Repeater", "D4AssaultRifle", "D4Chaingun";
 		Player.WeaponSlot 5, "D4RocketLauncher";	
@@ -192,6 +192,56 @@ Class Doom4Player : PlayerPawn
 
 		DamageFactor "HoloAttract", 0;
 		PainChance "HoloAttract", 0;
+		
+		damagefactor "FriendBullet", 0.0;
+		damagefactor "Taunt", 0.0;
+		damagefactor "KillMe", 0.0;
+		damagefactor "Shotgun", 0.7;
+		damagefactor "Shrapnel", 0.0;
+		damagefactor "Blood", 0.5;
+		damagefactor "BlueBlood", 0.5;
+		damagefactor "GreenBlood", 0.5;
+		damagefactor "MinorHead", 0.0;
+		damagefactor "Decaptate", 0.0;
+		damagefactor "MonsterKnocked", 0.0;
+		damagefactor "MonsterBullet", 0.33;
+		damagefactor "MonsterShotgunBullet", 0.33;
+		damagefactor "MonsterCutless", 0.33;
+		damagefactor "CancelTeleportFog", 0.0;
+		damagefactor "BHFTOnBarrel", 0.0;
+		damagefactor "GibRemoving", 0.0;
+		damagefactor "HelperMarineFatallity", 0.0;
+		damagefactor "Leg", 0.0;
+		damagefactor "SpawnMarine", 0.0;
+		damagefactor "TeleportRemover", 0.0;
+		DamageFactor "CauseObjectsToSplash", 0.0;
+		damagefactor "Shotgun", 0.0;
+		damagefactor "Cutless", 0.0;
+		damagefactor "SSG", 0.0;
+		damagefactor "Trample", 0.0;
+		damagefactor "bullet", 0.0;
+		damagefactor "cutless", 0.0;
+		damagefactor "shotgun", 0.0;
+		damagefactor "ssg", 0.0;
+		PainChance "SpawnMarine", 0;
+		PainChance "Leg", 0;
+		PainChance "Taunt", 0;
+		PainChance "FriendBullet", 0;
+		PainChance "KillMe", 0;
+		PainChance "Shrapnel", 0;
+		PainChance "MinorHead", 0;
+		PainChance "Decaptate", 0;
+		PainChance "MonsterKnocked", 0;
+		PainChance "CancelTeleportFog", 0;
+		PainChance "BHFTOnBarrel", 0;
+		PainChance "GibRemoving", 0;
+		PainChance "HelperMarineFatallity", 0;
+		PainChance "TeleportRemover", 0;
+		PainChance "CauseObjectsToSplash", 0;
+		PainChance "HoloAttract", 0;
+		Species "Marines";
+		+THRUSPECIES
+		+MTHRUSPECIES
 	}
 	States
 	{
@@ -803,7 +853,7 @@ extend class Doom4Player
 		
 		if (source && source == self && CountInv("PowerD4QuadDamage"))
 		{
-			damage /= 4;
+			damage *= 0.25;
 		}
 
 		// Prevents Terry abuse.
@@ -814,7 +864,15 @@ extend class Doom4Player
 		// P_DamageMobj.
 		if (bINVULNERABLE || bNODAMAGE || FindInventory("PowerInvulnerable",true) || CountInv("CantTouchThis"))
 		{
-			if (CountInv("D4PentagramUpgrade3") && mod != 'Reflection')
+			if (!(flags & DMG_NO_PROTECT))
+				damage = GetModifiedDamage(mod, damage, true);
+			if (!(flags & DMG_NO_FACTOR))
+				damage = ApplyDamageFactor(mod, damage);
+				
+			if (damage < 1 && (!inflictor || (!inflictor.bCAUSEPAIN && !bALLOWPAIN)))
+				return 0;
+				
+			if (CountInv("D4PentagramUpgrade3") && mod != 'Reflection' && damage > 0)
 			{
 				// Make sure never to do this to self! Otherwise, infiniloops happen.
 				// Doze are bad. Weally weally bad. :(
@@ -838,15 +896,15 @@ extend class Doom4Player
 				PentaNoiseWait = 70;
 			}
 			
-			Actor origin = (source && (flags & DMG_INFLICTOR_IS_PUFF))? source : inflictor;
-			
-			if (origin && !origin.bNODAMAGETHRUST && !bDONTTHRUST)
+			if (!bNODAMAGE)
 			{
-				double ang = (flags & DMG_USEANGLE) ? angle : origin.AngleTo(self);
-				double thrust = 32.0;
+				Actor origin = (source && (flags & DMG_INFLICTOR_IS_PUFF))? source : inflictor;
 				
-				if (!bNODAMAGE)
+				if (origin && !origin.bNODAMAGETHRUST && !bDONTTHRUST)
 				{
+					double ang = (flags & DMG_USEANGLE) ? angle : origin.AngleTo(self);
+					double thrust = 32.0;
+									
 					if (mass > 0)
 					{
 						int kb = 1;
@@ -863,11 +921,10 @@ extend class Doom4Player
 						thrust = max((damage * 0.125 * kb) / mass, 0.0);
 					}
 					if (thrust >= 0.01)					
-						Thrust(thrust, ang);
+						Thrust(thrust, ang);	
 				}
 			}
-			
-			return -1;
+			return 0;
 		}
 		
 		// Can't touch dis.
@@ -884,7 +941,7 @@ extend class Doom4Player
 			int pc1 = Clamp(CountInv("D4MegasphereDamageReducer"),0,25);
 			if (pc1 > 0)
 			{
-				damage = Max(0,damage * (1 - (0.01 * pc1)));
+				damage = Max(0,damage * (1.0 - (0.01 * pc1)));
 			}
 		}
 		
@@ -912,7 +969,7 @@ extend class Doom4Player
 		if (!passive)
 		{
 			// Upgrade 2 allows passing through enemies with invulnerability.
-			if (FindInventory("PowerInvulnerable",true) != null && 
+			if (FindInventory("PowerInvulnerable",true) && 
 				CountInv("D4PentagramUpgrade2") && 
 				other.bISMONSTER)
 			{
@@ -1039,11 +1096,11 @@ extend class Doom4Player
 			if (!CountInv("StaticUpgrade4"))
 			{
 					 if (CountInv("StaticUpgrade3"))
-				{	A_TakeInventory("StaticRifleChargingToken",1);	}
+					A_TakeInventory("StaticRifleChargingToken",1);	
 				else if (CountInv("StaticUpgrade2"))
-				{	A_TakeInventory("StaticRifleChargingToken",2);	}
+					A_TakeInventory("StaticRifleChargingToken",2);	
 				else
-				{	A_TakeInventory("StaticRifleChargingToken",4);	}
+					A_TakeInventory("StaticRifleChargingToken",3);	
 			}
 			A_TakeInventory("PlasmaStunBombCounter",1);
 			user_lasthp = health + CountInv("BasicArmor");
@@ -1070,13 +1127,15 @@ extend class Doom4Player
 		
 		if (GetClass() == "Doom4Player")
 		{
-			if (CountInv("StaticRifleActive"))
+			let p = self.player;
+			let wep = p.ReadyWeapon;
+			if (wep && wep.GetClass() == "D4StaticRifle")
 			{
 				if (CountInv("StaticChargeDrain"))
 				{
 					if (CountInv("StaticRifleChargingToken") > 540)
 					{
-						A_SetInventory("StaticRifleChargingToken",508);
+						A_SetInventory("StaticRifleChargingToken",540);
 					}
 					else if (CountInv("StaticRifleChargingToken"))
 					{
@@ -1089,16 +1148,17 @@ extend class Doom4Player
 				}
 				else if (CountInv("StaticRifleChargingToken") < 540)
 				{
-					user_vel = sqrt((vel.x*vel.x) + (vel.y*vel.y) + (vel.z*vel.z));
-					if (CountInv("StaticRifleActive") && (user_vel / 4) >= 1.0)
+					user_vel = vel.Length();
+					if (CountInv("StaticRifleActive") && (user_vel * 0.25) >= 1.0)
 					{
-							 if (CountInv("StaticUpgrade4"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.9) / 4));		}
-						else if (CountInv("StaticUpgrade3"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.55) / 4));	}
-						else if (CountInv("StaticUpgrade2"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.2) / 4));		}
-						else if (CountInv("StaticUpgrade1"))	{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 1.85) / 4));	}
-						else									{	A_GiveInventory("StaticRifleChargingToken", int((user_vel * 1.5) / 4));		}
+							 if (CountInv("StaticUpgrade4"))		A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.9) * 0.25));	
+						else if (CountInv("StaticUpgrade3"))		A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.55) * 0.25));	
+						else if (CountInv("StaticUpgrade2"))		A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.2) * 0.25));	
+						else if (CountInv("StaticUpgrade1"))		A_GiveInventory("StaticRifleChargingToken", int((user_vel * 1.85) * 0.25));	
+						else										A_GiveInventory("StaticRifleChargingToken", int((user_vel * 1.5) * 0.25));	
 					}
 				}
+				
 			}
 			
 			if (CountInv("D4IdfaTrap")) { A_GiveInventory("IdfaStamp"); A_SetInventory("D4IdfaTrap",0); }

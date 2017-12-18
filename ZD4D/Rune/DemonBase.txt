@@ -161,7 +161,7 @@ Class DemonPlayerBase : Doom4Player
 		
 		TicDelay++;
 		
-		if (TicDelay >= 2)
+		if (TicDelay > 1)
 		{
 			TicDelay = 0;
 			
@@ -175,7 +175,7 @@ Class DemonPlayerBase : Doom4Player
 			// properly.
 			
 			// So, create an iterator that searches for D4KeyBase-inheriting
-			// only.
+			// and runes only.
 			ThinkerIterator it = ThinkerIterator.Create("Inventory", STAT_RUNEPICKUPS);
 			Inventory mo;
 			while (mo = Inventory(it.Next()))
@@ -192,87 +192,31 @@ Class DemonPlayerBase : Doom4Player
 				if (pos.z + height < mo.pos.z || mo.pos.z + mo.height < pos.z)
 					continue;	
 				
-				if (mo is "DemonRuneBase")
+				if (mo is "D4KeyBase")
 				{
-					if (!CountInv("D4RuneUpgrade2"))
-						continue;
-					
-					if (check)
+					// if it's a key, print a message, call its special and destroy it.
+					A_GiveInventory(mo.GetClass(),1);
+					A_Log(mo.PickupMessage().." found");
+					mo.DoPickupSpecial(self);
+					mo.Destroy();
+					continue;
+				}
+				else if (mo is "DemonRuneBase" && CountInv("D4RuneUpgrade2"))
+				{
+					if (check && mo.GetClass() == RuneBase)
 					{
-						if (mo.GetClass() == RuneBase)
-						{
-							check.EffectTics += (35 * 60);
-							int MaxHP = GetMaxHealth();
-							int QuarterHP = MaxHP / 4;
-							A_SetHealth(Clamp(health + QuarterHP, 1, MaxHP));
-							A_SetInventory("DemonTimerToken",CountInv("DemonTimerToken") + (35*60), DefPtr, true);
-							A_SpawnItemEx("DemonRuneMorphOn",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
-							mo.Destroy();
-						}
+						check.EffectTics += (35 * 60);
+						int MaxHP = GetMaxHealth();
+						int PartialHP = MaxHP * ((MaxHP >= 2000) ? 0.25 : 0.5);
+						A_SetHealth(Clamp(health + PartialHP, 1, MaxHP));
+						A_SetInventory("DemonTimerToken",CountInv("DemonTimerToken") + (35*60), DefPtr, true);
+						A_SpawnItemEx("DemonRuneMorphOn",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
+						mo.DoPickupSpecial(self);
+						mo.Destroy();
 					}
 					continue;
 				}
-				
-				// Execute any specials this thing had.				
-				if (mo && mo.special)
-				{
-					mo.A_CallSpecial(mo.special, mo.args[0], mo.args[1], mo.args[2], mo.args[3], mo.args[4]);
-				}
-				
-				// Assemble the arrays only if we succeed. This first array
-				// contains the actor's hard names.
-				static const Class<Actor> KeyName[] =
-				{
-					"D4RedCard",
-					"D4YellowCard",
-					"D4BlueCard",
-					"D4RedSkull",
-					"D4YellowSkull",
-					"D4BlueSkull"
-				};
-				
-				
-				
-				// In the event someone decides to screw with the keys, check the base class.
-				for (int index = 0; index < 6; index++)
-				{
-					if (mo.GetClass() == KeyName[index])
-					{
-						// Contains the nice names for logging.
-						static const String NiceKeyName[] =
-						{
-							"Red Card",
-							"Yellow Card",
-							"Blue Card",
-							"Red Skull",
-							"Yellow Skull",
-							"Blue Skull"
-						};
-						//Concatenate a string with .. (two periods)
-						if (index >= 0 && index < NiceKeyName.Size())
-							A_Log(NiceKeyName[index].." Found");
-						else
-							A_Log(mo.GetClass().." Found");
-						break;
-					}
-				}
-				
-				// Grabs the actual key and gives it to the player. This would
-				// be the same as if I had done A_GiveInventory(KeyName[Index])
-				// inside the for loop and if block. However, if done above, it
-				// wouldn't be safe as D4D mods could possibly modify them.
-				// This ensures nothing is missed so long as they inherit from
-				// D4KeyBase. The worst that will happen, they simply don't have
-				// a pickup message attached. No big deal.
-				
-				Class<D4KeyBase> keypick = (Class<D4KeyBase>)(mo.GetClass());
-				if (keypick != null)
-				{
-					A_GiveInventory(keypick,1);
-					mo.A_Remove(DefPtr,RMVF_EVERYTHING);
-				}
 			}
-			
 		}
 	}
 	

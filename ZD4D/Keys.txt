@@ -4,10 +4,28 @@
 //==============================================================================
 Class D4KeyBase : CustomInventory 
 {
+	Class<Inventory> KeyItem;
+	Property KeyItem: KeyItem;
+	
+	Default
+	{
+		+INVENTORY.ALWAYSPICKUP
+	}
+	
 	override void BeginPlay()
 	{
 		ChangeStatNum(STAT_RUNEPICKUPS);
 		Super.BeginPlay();
+	}
+	States
+	{
+	Pickup:
+		TNT1 A 0
+		{
+			if (invoker.KeyItem)
+				A_GiveInventory(invoker.KeyItem,1);
+		}
+		Stop;
 	}
 }
 
@@ -15,9 +33,9 @@ Class D4RedCard : D4KeyBase replaces RedCard
 {
 	Default 
 	{
-		+INVENTORY.ALWAYSPICKUP
 		Scale .2;
-		Inventory.PickupMessage "Picked up the Red keycard";
+		Inventory.PickupMessage "Red key";
+		D4KeyBase.KeyItem "RedCard";
 	}
 	States
 	{
@@ -33,9 +51,6 @@ Class D4RedCard : D4KeyBase replaces RedCard
 		KEYE R 2;
 		KEYD R 3;
 		Loop;
-	Pickup:
-		TNT1 A 0 A_GiveInventory("RedCard",1);
-		Stop;
 	}
 }
 
@@ -43,9 +58,9 @@ Class D4YellowCard : D4KeyBase replaces YellowCard
 {
 	Default 
 	{
-		+INVENTORY.ALWAYSPICKUP
 		Scale .2;
-		Inventory.PickupMessage "Picked up the Yellow keycard";
+		Inventory.PickupMessage "Yellow key";
+		D4KeyBase.KeyItem "YellowCard";
 	}
 	States
 	{
@@ -61,9 +76,6 @@ Class D4YellowCard : D4KeyBase replaces YellowCard
 		KEYE Y 2;
 		KEYD Y 3;
 		Loop;
-	Pickup:
-		TNT1 A 0 A_GiveInventory("YellowCard",1);
-		Stop;
 	}
 }
 
@@ -71,9 +83,9 @@ Class D4BlueCard : D4KeyBase replaces BlueCard
 {
 	Default 
 	{
-		+INVENTORY.ALWAYSPICKUP
 		Scale .2;
-		Inventory.PickupMessage "Picked up the Blue keycard";
+		Inventory.PickupMessage "Blue key";
+		D4KeyBase.KeyItem "BlueCard";
 	}
 	States
 	{
@@ -89,9 +101,6 @@ Class D4BlueCard : D4KeyBase replaces BlueCard
 		KEYE B 2;
 		KEYD B 3;
 		Loop;
-	Pickup:
-		TNT1 A 0 A_GiveInventory("BlueCard",1);
-		Stop;
 	}
 }
 
@@ -99,9 +108,9 @@ Class D4RedSkull : D4KeyBase replaces RedSkull
 {
 	Default 
 	{
-		+INVENTORY.ALWAYSPICKUP
 		Scale .4;
-		Inventory.PickupMessage "Picked up the Red skull";
+		Inventory.PickupMessage "Red skull";
+		D4KeyBase.KeyItem "RedSkull";
 	}
 	States
 	{
@@ -109,9 +118,6 @@ Class D4RedSkull : D4KeyBase replaces RedSkull
 		SKKY R 10;
 		SKKY R 10 Bright;
 		Loop;
-	Pickup:
-		TNT1 A 0 A_GiveInventory("RedSkull",1);
-		Stop;
 	}
 }
 
@@ -119,9 +125,9 @@ Class D4YellowSkull : D4KeyBase replaces YellowSkull
 {
 	Default 
 	{
-		+INVENTORY.ALWAYSPICKUP
 		Scale .4;
-		Inventory.PickupMessage "Picked up the Yellow skull";
+		Inventory.PickupMessage "Yellow skull";
+		D4KeyBase.KeyItem "YellowSkull";
 	}
 	States
 	{
@@ -129,9 +135,6 @@ Class D4YellowSkull : D4KeyBase replaces YellowSkull
 		SKKY Y 10;
 		SKKY Y 10 Bright;
 		Loop;
-	Pickup:
-		TNT1 A 0 A_GiveInventory("YellowSkull",1);
-		Stop;
 	}
 }
 
@@ -139,9 +142,9 @@ Class D4BlueSkull : D4KeyBase replaces BlueSkull
 {
 	Default 
 	{
-		+INVENTORY.ALWAYSPICKUP
 		Scale .4;
-		Inventory.PickupMessage "Picked up the Blue skull";
+		Inventory.PickupMessage "Blue skull";
+		D4KeyBase.KeyItem "BlueSkull";
 	}
 	States
 	{
@@ -149,8 +152,5 @@ Class D4BlueSkull : D4KeyBase replaces BlueSkull
 		SKKY B 10;
 		SKKY B 10 Bright;
 		Loop;
-	Pickup:
-		TNT1 A 0 A_GiveInventory("BlueSkull",1);
-		Stop;
 	}
 }
