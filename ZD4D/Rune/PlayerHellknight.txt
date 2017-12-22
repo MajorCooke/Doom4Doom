@@ -9,6 +9,7 @@ Class KnightRune : DemonRuneBase
 {
 	Default 
 	{
+		DemonRuneBase.Morph "KnightMorpher";
 		Inventory.PickupMessage "Hell Knight rune";
 	}
 	States
@@ -26,7 +27,7 @@ Class KnightRune : DemonRuneBase
 				A_GiveInventory("HealthArmorSaver",1);
 				A_GiveInventory("IamADemonToken",1); //...gives token and morphs
 				A_GiveInventory("IamHellKnight",1);
-				A_GiveInventory("KnightMorpher",1);
+				A_GiveInventory(invoker.Morph,1);
 				return true;
 			}
 		}

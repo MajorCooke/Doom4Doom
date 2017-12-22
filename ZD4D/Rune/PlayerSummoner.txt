@@ -9,6 +9,7 @@ Class ArchvileRune : DemonRuneBase
 {
 	Default 
 	{
+		DemonRuneBase.Morph "ArchvileMorpher";
 		Inventory.PickupMessage "Summoner rune";
 		Scale 0.115;
 	}
@@ -27,7 +28,7 @@ Class ArchvileRune : DemonRuneBase
 				A_GiveInventory("HealthArmorSaver",1);
 				A_GiveInventory("IamADemonToken",1); //...gives token and morphs
 				A_GiveInventory("IamArchvile",1); 
-				A_GiveInventory("ArchvileMorpher",1);
+				A_GiveInventory(invoker.Morph,1);
 				return true;
 			}
 		}

@@ -9,6 +9,7 @@ Class CyberdemonRune : DemonRuneBase
 {
 	Default 
 	{
+		DemonRuneBase.Morph "CyberdemonMorpher";
 		Inventory.PickupMessage "Cyberdemon rune";
 		Scale 0.13;
 	}
@@ -27,7 +28,7 @@ Class CyberdemonRune : DemonRuneBase
 				A_GiveInventory("HealthArmorSaver",1);
 				A_GiveInventory("IamADemonToken",1); //...gives token and morphs
 				A_GiveInventory("IamCyberdemon",1); 
-				A_GiveInventory("CyberdemonMorpher",1);
+				A_GiveInventory(invoker.Morph,1);
 				return true;
 			}
 		}
@@ -35,7 +36,7 @@ Class CyberdemonRune : DemonRuneBase
 	}
 }
 
-Class CyberdemonMorpher: PowerupGiver
+Class CyberdemonMorpher : PowerupGiver
 {
 	Default 
 	{

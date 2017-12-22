@@ -9,6 +9,7 @@ Class PainElementalRune : DemonRuneBase
 {
 	Default 
 	{
+		DemonRuneBase.Morph "PainElementalMorpher";
 		Inventory.PickupMessage "Pain Elemental rune";
 	}
 	States
@@ -26,7 +27,7 @@ Class PainElementalRune : DemonRuneBase
 				A_GiveInventory("HealthArmorSaver",1);
 				A_GiveInventory("IamADemonToken",1);
 				A_GiveInventory("IamPainElemental",1);
-				A_GiveInventory("PainElementalMorpher",1);
+				A_GiveInventory(invoker.Morph,1);
 				return 1;
 			}
 		}

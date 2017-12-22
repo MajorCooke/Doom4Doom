@@ -9,6 +9,7 @@ Class RevenantRune : DemonRuneBase
 {
 	Default 
 	{
+		DemonRuneBase.Morph "RevenantMorpher";
 		Inventory.PickupMessage "Revenant rune";
 	}
 	States
@@ -26,7 +27,7 @@ Class RevenantRune : DemonRuneBase
 				A_GiveInventory("HealthArmorSaver",1);
 				A_GiveInventory("IamADemonToken",1);
 				A_GiveInventory("IamRevenant",1);
-				A_GiveInventory("RevenantMorpher",1);
+				A_GiveInventory(invoker.Morph,1);
 				return true;
 			}
 			

@@ -182,7 +182,15 @@ Class DemonPlayerBase : Doom4Player
 			{
 				if (!(mo is "D4KeyBase") && (!CountInv("D4RuneUpgrade2") && !(mo is "DemonRuneBase")))
 					continue;
-					
+				
+				if (CountInv("D4RuneUpgrade2"))
+				{
+					let rune = DemonRuneBase(mo);
+					if (rune && rune.ring)
+					{
+						rune.ring.bINVISIBLE = (mo.GetClass() != RuneBase);
+					}
+				}
 				// Make sure it can be touched.
 				double blockdist = radius + mo.radius;
 				if (abs(pos.x - mo.pos.x) > blockdist || abs(pos.y - mo.pos.y) > blockdist)
@@ -639,7 +647,11 @@ Class SoundStopper : CustomInventory
 
 Class DemonRuneBase : CustomInventory
 {
+	Class<Inventory> Morph;
+	Actor ring;
 	int user_time;
+	
+	Property Morph: Morph;
 	Default 
 	{
 		Inventory.MaxAmount 1;
@@ -656,6 +668,11 @@ Class DemonRuneBase : CustomInventory
 	{
 		ChangeStatNum(STAT_RUNEPICKUPS);
 		Super.BeginPlay();
+	}
+	
+	override void OnDestroy()
+	{
+		if (ring) ring.Destroy();
 	}
 	
 	override void PostBeginPlay()
@@ -699,67 +716,40 @@ Class DemonRuneBase : CustomInventory
 	Spawn:
 		RUNE A 0 NoDelay
 		{
-			
-				/*
-				if (CheckClass("ArachnotronRune"))
-				{
-					return (A_CheckProximity("Null","ArachnotronRune", 	32767, 1, CPXF_NOZ));
-				}
-				else if (CheckClass("BaronRune"))
-				{
-					return (A_CheckProximity("Null","BaronRune", 	32767, 1, CPXF_NOZ));
-				}
-				else if (CheckClass("CacodemonRune"))
-				{
-					return (A_CheckProximity("Null","CacodemonRune", 	32767, 1, CPXF_NOZ));
-				}
-				else if (CheckClass("CyberdemonRune"))
-				{
-					return (A_CheckProximity("Null","CyberdemonRune", 	32767, 1, CPXF_NOZ));
-				}
-				else if (CheckClass("FatsoRune"))
-				{
-					return (A_CheckProximity("Null","FatsoRune", 	32767, 1, CPXF_NOZ));
-				}
-				else if (CheckClass("KnightRune"))
-				{
-					return (A_CheckProximity("Null","KnightRune", 	32767, 1, CPXF_NOZ));
-				}
-				else if (CheckClass("MastermindRune"))
-				{
-					return (A_CheckProximity("Null","MastermindRune", 	32767, 1, CPXF_NOZ));
-				}
-				else if (CheckClass("PainElementalRune"))
-				{
-					return (A_CheckProximity("Null","PainElementalRune",32767, 1, CPXF_NOZ));
-				}
-				else if (CheckClass("RevenantRune"))
-				{
-					return (A_CheckProximity("Null","RevenantRune", 	32767, 1, CPXF_NOZ));
-				}
-				else if (CheckClass("ArchvileRune"))
-				{
-					return (A_CheckProximity("Null","ArchvileRune", 	32767, 1, CPXF_NOZ));
-				}
-				*/
-			
-			
-		}
-		RUNE A 0 
-		{ 
-			A_SpawnItemEx("DemonRuneBackground",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_TRANSFERSCALE|SXF_ORIGINATOR);
+			bool d;
+			[d, invoker.ring] = A_SpawnItemEx("DemonRuneBackground",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_TRANSFERSCALE|SXF_ORIGINATOR);
 			invoker.user_time = 60 * 35;  // tics before expiration
 		}
 		Goto Idle;
 	Idle:
 		RUNE A 1 BRIGHT Light("OrangeSmallPoint1")
 		{
-			if (!CountInv("PowerInvulBase",Player1) && !CountInv("IamADemonToken",Player1))
+			let ring = invoker.ring;
+			let plr = players[0].mo;
+			
+			// Only check it if it's actually invisible already.
+			if (!plr || !plr.CountInv("D4RuneUpgrade2"))
+			{
+				if (ring) ring.bINVISIBLE = false;
+			}
+			else if (ring && ring.bINVISIBLE)
+			{
+				if (plr)
+				{
+					Inventory i = plr.FindInventory("PowerMorph",true);
+					ring.bINVISIBLE = (i && i.Amount > 0);
+				}
+			}
+			if (!plr || (!plr.CountInv("PowerInvulBase") && !plr.CountInv("IamADemonToken")))
 			{
 				invoker.user_time--;
-				if (invoker.user_time < 5 * 32) { A_SetTranslucent((invoker.user_time % 32) / 32.0); } // blink before time-out
+				if (invoker.user_time < 5 * 35)
+					A_SetTranslucent((invoker.user_time % 35) / 35.0); // blink before time-out
 			}
-			return A_JumpIf(invoker.user_time <= 0,"Null");
+			else if (invoker.user_time <= 0)
+			{
+				return Destroy();
+			}
 		}
 		Wait;
 	}
@@ -779,16 +769,14 @@ Class DemonRuneBackground : Actor
 	{
 	Spawn:
 		TNT1 A 0 NODELAY A_PlaySound("Player/Demon/RuneFxLoop",CHAN_AUTO,1.0,1);
-		TNT1 A 0 A_Jumpif (IsPointerEqual(AAPTR_MASTER,AAPTR_NULL),"Null");
 		RUNE B 1 BRIGHT 
 		{
 			if (master)
 			{
 				A_SetRoll(roll-0.9,SPF_INTERPOLATE);
 				A_Warp(MasterPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_COPYVELOCITY);
-				return ResolveState(null);
 			}
-			return ResolveState("Null");
+			else return Destroy();
 		}
 		Wait;
 	}

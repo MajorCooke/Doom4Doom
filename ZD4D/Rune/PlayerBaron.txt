@@ -9,6 +9,7 @@ Class BaronRune : DemonRuneBase
 {
 	Default 
 	{
+		DemonRuneBase.Morph "BaronMorpher";
 		Inventory.PickupMessage "Baron of Hell rune";
 		Scale 0.115;
 	}
@@ -27,7 +28,7 @@ Class BaronRune : DemonRuneBase
 				A_GiveInventory("HealthArmorSaver",1);
 				A_GiveInventory("IamADemonToken",1);
 				A_GiveInventory("IamBaronOfHell",1);
-				A_GiveInventory("BaronMorpher",1);
+				A_GiveInventory(invoker.Morph,1);
 				return true;
 			}
 		}

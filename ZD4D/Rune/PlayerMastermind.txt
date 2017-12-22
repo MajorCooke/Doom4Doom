@@ -9,6 +9,7 @@ Class MastermindRune : DemonRuneBase
 {
 	Default 
 	{
+		DemonRuneBase.Morph "MastermindMorpher";
 		Inventory.PickupMessage "Spider Mastermind rune";
 		Scale 0.13;
 	}
@@ -27,7 +28,7 @@ Class MastermindRune : DemonRuneBase
 				A_GiveInventory("HealthArmorSaver",1);
 				A_GiveInventory("IamADemonToken",1); //...gives token and morphs
 				A_GiveInventory("IamSpiderMastermind",1); 
-				A_GiveInventory("MastermindMorpher",1);
+				A_GiveInventory(invoker.Morph,1);
 				return true;
 			}
 		}

@@ -9,6 +9,7 @@ Class FatsoRune : DemonRuneBase
 {
 	Default 
 	{
+		DemonRuneBase.Morph "FatsoMorpher";
 		Inventory.PickupMessage "Mancubus rune";
 	}
 	States
@@ -26,7 +27,7 @@ Class FatsoRune : DemonRuneBase
 				A_GiveInventory("HealthArmorSaver",1);
 				A_GiveInventory("IamADemonToken",1); //...gives token and morphs
 				A_GiveInventory("IamFatso",1);
-				A_GiveInventory("FatsoMorpher",1);
+				A_GiveInventory(invoker.Morph,1);
 				return true;
 			}
 		}
