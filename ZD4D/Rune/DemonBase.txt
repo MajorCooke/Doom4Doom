@@ -743,10 +743,10 @@ Class DemonRuneBase : CustomInventory
 			if (!plr || (!plr.CountInv("PowerInvulBase") && !plr.CountInv("IamADemonToken")))
 			{
 				invoker.user_time--;
-				if (invoker.user_time < 5 * 35)
-					A_SetTranslucent((invoker.user_time % 35) / 35.0); // blink before time-out
+				if (invoker.user_time < (5 * 35))
+					A_SetTranslucent((invoker.user_time % 35.0) / 35.0); // blink before time-out
 			}
-			else if (invoker.user_time <= 0)
+			if (invoker.user_time < 1)
 			{
 				return Destroy();
 			}
