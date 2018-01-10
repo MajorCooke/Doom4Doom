@@ -221,7 +221,6 @@ Class D4DMonsterSpawner : Actor
 			
 			if (!mon || !isBoss)
 			{
-				if (isBoss) A_BossDeath();
 				bVULNERABLE = true;
 				A_Die();
 			}
@@ -229,7 +228,7 @@ Class D4DMonsterSpawner : Actor
 		}
 		Loop;
 	Death:
-		TNT1 A 3;
+		TNT1 AAAAA 35;
 		Stop;
 	}
 }

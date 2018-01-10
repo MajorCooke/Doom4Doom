@@ -283,9 +283,8 @@ Class D4Cyberdemon : D4AbstractBoss
 		CYBR P 30;
 		CYBR P -1 
 		{
-			{bCorpse = true;}
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
-			
+			bCorpse = true;
 		}
 		Stop;
 

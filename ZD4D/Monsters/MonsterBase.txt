@@ -89,6 +89,7 @@ Class D4AbstractMonster : Actor
 	
 	override void Die(Actor source, Actor inflictor, int dmgflags = 0)
 	{
+		bTHRUACTORS = true;
 		if (Spawner && Spawner.health > 0)
 		{
 			Spawner.bVULNERABLE = true;
@@ -99,7 +100,13 @@ Class D4AbstractMonster : Actor
 			master.bVULNERABLE = true;
 			master.A_Die();
 		}
-		Super.Die(source, inflictor, dmgflags = 0);
+		Super.Die(source, inflictor, dmgflags);
+		
+		if (DamageTypeReceived == 'Crush')
+		{
+			let next = FindState("XDeath", true);
+			if (next)	SetState(next);
+		}
 	}
 	
 	//--------------------------------------------------------------------------
