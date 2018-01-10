@@ -1395,6 +1395,7 @@ Class AkimboWeapon : Weapon
 		{
 			UpdateStates(ID_D4Chaingun);
 			A_SetInventory("BusyToken",0);
+			
 			if (CountInv("MobileTurretActive"))		{	return ResolveState(1);	}
 			if (CountInv("GatlingRotatorActive"))	{	return ResolveState(2);	}
 			return ResolveState("Sel2");
