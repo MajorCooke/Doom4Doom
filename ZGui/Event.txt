@@ -6,7 +6,6 @@
 
 Class D4DHandler : EventHandler
 {
-	CVar EventPrint;
 	PlayerDelta deltas[MAXPLAYERS];
 	/*
 	uint Credits, MonsterPortion;
@@ -167,7 +166,7 @@ Class D4DHandler : EventHandler
 						return;
 					}
 				}
-				EventPrint = CVar.FindCVar("D4D_NetEventDebug");
+				CVar EventPrint = CVar.FindCVar("D4D_NetEventDebug");
 				if (EventPrint && EventPrint.GetBool())
 				{
 					Console.Printf(e.Name..": Undefined net event");
