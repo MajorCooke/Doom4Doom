@@ -40,6 +40,21 @@ AddDefaultMap
 		"D4Zombieman"
 }
 
+DamageType "AimingLaser"
+{
+	Factor = 0
+}
+
+DamageType "Slime"
+{
+	Factor = 1
+}
+
+DamageType "HoloAttract"
+{
+	Factor = 0
+}
+
 Clearskills
 
 skill Easy
