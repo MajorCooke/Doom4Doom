@@ -141,6 +141,10 @@ Class DemonPlayerBase : Doom4Player
 	override void Tick()
 	{
 		Super.Tick();
+		
+		if (!player || !player.mo || player.mo != self)
+			return;
+		
 		if (EndMe || GetPlayerInput(MODINPUT_BUTTONS) & BT_USER4)
 		{
 			let inv = PowerMorph(FindInventory("PowerMorph",true));
@@ -156,8 +160,11 @@ Class DemonPlayerBase : Doom4Player
 	
 		// Count down the timer effect. Purely visual, not the actual timer.
 		let check = PowerMorph(FindInventory("PowerMorph",true));
-		if (check) nextTic = check.EffectTics;
-		A_SetInventory("DemonTimerToken",nextTic, DefPtr, true);
+		if (check) 
+		{
+			nextTic = check.EffectTics;
+			A_SetInventory("DemonTimerToken",nextTic, DefPtr, true);
+		}
 		
 		TicDelay++;
 		
