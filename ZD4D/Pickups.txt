@@ -636,10 +636,11 @@ Class D4PowerUpgradePickup : CustomInventory
 		M671 F 17;
 		"----" A 1
 		{
-			invoker.ticker = (invoker.ticker + 1) % 34;
+			invoker.ticker = (invoker.ticker + 1) % 35;
 			
 			Name spr = (invoker.ticker < 17) ? "M670" : "M671";
-				
+			sprite = GetSpriteIndex(spr);
+			
 			if (invoker.count >= DelayVacuum)
 			{
 				if (invoker.tracer)
