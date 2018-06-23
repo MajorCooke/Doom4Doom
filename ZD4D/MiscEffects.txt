@@ -351,6 +351,15 @@ Class D4BulletPuff : Actor replaces BulletPuff
 		Stop;
 	}
 }
+
+Class D4BulletPuffExtreme : D4BulletPuff
+{
+	Default
+	{
+		+EXTREMEDEATH
+	}
+}
+
 Class BulletPuffParticle : Actor 
 {
 	Default 
