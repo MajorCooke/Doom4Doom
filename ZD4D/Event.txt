@@ -118,6 +118,7 @@ extend class D4DHandler
 	//--------------------------------------------------------------------------
 	override void WorldThingDied(WorldEvent e)
 	{
+		let inf = e.Inflictor;
 		let mo = e.Thing;
 		if (!mo || !mo.bISMONSTER || mo.bNOINTERACTION) return;
 		
@@ -144,7 +145,7 @@ extend class D4DHandler
 		
 		int CashMul = 1;
 		int CrateAmt, CrateDrops;
-		int LootDrop = mo.GetCvar("D4D_LootDrop");
+		int LootDrop = mo.GetCvar("user_LootDrop");
 		int TotalMul = mo.CountInv("D4MonsterUpgrader");
 		
 		// Needed because the inventory is based on n + 1 (i.e. uncommon has 1 of the above, rare has 2, etc).
@@ -161,10 +162,11 @@ extend class D4DHandler
 		int spawnhp = 	mo.GetSpawnHealth();
 		Name mod = 		mo.DamageTypeReceived;
 		
-		if (LootDrop && ((mo.health < mo.GetGibHealth()) ||
+		if (LootDrop && ((inf && inf.bEXTREMEDEATH) ||
 						(mod == 'Extreme') ||
 						(mo.InStateSequence(mo.CurState, mo.FindState("XDeathNoDrops"))) ||
-						(mo.InStateSequence(mo.CurState, mo.FindState("XDeath")))))
+						(mo.InStateSequence(mo.CurState, mo.FindState("XDeath"))) ||
+						(mo.health < mo.GetGibHealth())))
 			Pinatas.AddItem("D4PinataCarrion", 1 * TotalMul);
 		
 		// First set up the base multiplier upon damage type when killed.
