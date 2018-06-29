@@ -118,6 +118,7 @@ extend class D4DHandler
 	//--------------------------------------------------------------------------
 	override void WorldThingDied(WorldEvent e)
 	{
+		let inf = e.Inflictor;
 		let mo = e.Thing;
 		if (!mo || !mo.bISMONSTER || mo.bNOINTERACTION) return;
 		
@@ -161,7 +162,7 @@ extend class D4DHandler
 		int spawnhp = 	mo.GetSpawnHealth();
 		Name mod = 		mo.DamageTypeReceived;
 		
-		if (LootDrop && (
+		if (LootDrop && ((inf && inf.bEXTREMEDEATH) ||
 						(mo.InStateSequence(mo.CurState, mo.FindState("XDeathNoDrops"))) ||
 						(mo.InStateSequence(mo.CurState, mo.FindState("XDeath"))) ||
 						(mo.health < mo.GetGibHealth())))
