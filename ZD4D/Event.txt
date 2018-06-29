@@ -145,7 +145,7 @@ extend class D4DHandler
 		
 		int CashMul = 1;
 		int CrateAmt, CrateDrops;
-		int LootDrop = mo.GetCvar("user_LootDrop");
+		int LootDrop = mo.GetCvar("D4D_LootDrop");
 		int TotalMul = mo.CountInv("D4MonsterUpgrader");
 		
 		// Needed because the inventory is based on n + 1 (i.e. uncommon has 1 of the above, rare has 2, etc).
