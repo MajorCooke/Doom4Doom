@@ -628,10 +628,10 @@ Class GaussTrail : TrailBeam
 	Spawn:
 		X202 B 0 NoDelay
 		{
-			// user_time = time to shrink to nothing
+			// time = time to shrink to nothing
 			//pitch *= -1;
-			user_time = 17.0;
-			A_SpawnItemEx("GaussTrail",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
+			time = 17.0;
+			//A_SpawnItemEx("GaussTrail",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
 			//if (tid) { angle += 180; }
 		}
 		Goto Process;
@@ -649,10 +649,10 @@ Class GaussTrailBig : TrailBeam
 	Spawn:
 		X202 B 0 NoDelay
 		{
-			// user_time = time to shrink to nothing
+			// time = time to shrink to nothing
 			//pitch *= -1;
-			user_time = 20.0;
-			A_SpawnItemEx("GaussTrailBig",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
+			time = 20.0;
+			//A_SpawnItemEx("GaussTrailBig",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
 			//if (tid) { angle += 180; }
 		}
 		Goto Process;
@@ -737,7 +737,7 @@ Class GaussShockwave : Actor 	//the actual puff
 		{
 			A_SpawnItemEx("GaussImpactLightEmitter",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 			A_Explode(64,128,0);
-			if(GetCvar("user_quakexplosions")==1)
+			if(GetCvar("D4D_quakexplosions")==1)
 			{
 				A_QuakeEx(2,2,2,10,0,768,"",QF_SCALEDOWN,0,0,0,1);
 			}
@@ -865,7 +865,7 @@ Class GaussShockwavePrecision : Actor
 		"####" "#" 0
 		{
 			A_SpawnItemEx("GaussImpactLightEmitter",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-			if(GetCvar("user_quakexplosions")==1)
+			if(GetCvar("D4D_quakexplosions")==1)
 			{
 				A_QuakeEx(2,2,2,13,0,768,"",QF_SCALEDOWN,0,0,0,1);
 			}
@@ -998,7 +998,7 @@ Class GaussShockwaveBig : Actor //this is actually the puff of the siege mode
 		{
 			A_Warp(AAPTR_DEFAULT, 8, 0, 0,0,WARPF_NOCHECKPOSITION);
 			A_SpawnItemEx("GaussImpactLightEmitterSiege",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-			if(GetCvar("user_quakexplosions")==1)
+			if(GetCvar("D4D_quakexplosions")==1)
 			{
 				A_QuakeEx(2,2,2,15,0,768,"",QF_SCALEDOWN,0,0,0,1);
 			}
@@ -1097,9 +1097,9 @@ Class GCImpactVaporBig : Actor
 
 Class GaussSiegeFXSpawner : Actor 
 {
-	int user_s1, user_s2, user_s3, user_s0;
-	int user_failsafe;
-	int user_count;
+	int s1, s2, s3, s0;
+	int failsafe;
+	int count;
 	Default 
 	{
 		Projectile;
@@ -1119,21 +1119,21 @@ Class GaussSiegeFXSpawner : Actor
 	Spawn:
 		TNT1 A 0 NoDelay 
 		{
-			user_s0 = random(0,359);
-			user_s1 = random(0,359);
-			user_s2 = random(4,16);
-			user_s3 = random(4,16);
+			s0 = random(0,359);
+			s1 = random(0,359);
+			s2 = random(4,16);
+			s3 = random(4,16);
 		}
 	Movement:
 		TNT1 A 0
 		{
-			user_s0 = (user_s0 + user_s2) % 360;
-			user_s1 = (user_s1 + user_s3) % 360;
-			A_SpawnItemEx("GaussTrailSiege",(sin(-pitch)*10)*sin(user_s0+90),(sin(user_s0)*10),((cos(pitch)*10)*cos(user_s0)),0,0,0,0,SXF_NOCHECKPOSITION);
+			s0 = (s0 + s2) % 360;
+			s1 = (s1 + s3) % 360;
+			A_SpawnItemEx("GaussTrailSiege",(sin(-pitch)*10)*sin(s0+90),(sin(s0)*10),((cos(pitch)*10)*cos(s0)),0,0,0,0,SXF_NOCHECKPOSITION);
 			A_Warp(AAPTR_DEFAULT,vel.x,vel.y,vel.z,0,WARPF_ABSOLUTEOFFSET,1);
-			if (user_failsafe > 500)
+			if (failsafe > 500)
 			{	return ResolveState("Null"); }
-			user_failsafe++;
+			failsafe++;
 			return ResolveState(null); //NULL IS NOT THE SAME AS "NULL". DO NOT EVER MIX THE TWO UP.
 		}
 		Loop;

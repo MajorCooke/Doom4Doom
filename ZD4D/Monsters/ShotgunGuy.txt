@@ -35,7 +35,7 @@ BLESSED (White)
 Class D4ShotgunGuy : D4AbstractMonster
 {
 	
-	int user_staggertimer;
+	int staggertimer;
 	
 	Default 
 	{
@@ -186,14 +186,9 @@ Class D4ShotgunGuy : D4AbstractMonster
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		"####" "#" 0  //loot drop
-		{
-			//D4SetupLoot(true);
-		}
-		Goto XDeathNoDrops;
-		
 	XDeathNoDrops:	
-		TNT1 A 1
+		TNT1 A 0;
+		TNT1 A 10
 		{
 			bThruActors = true;
 			XDeathGush();
@@ -342,7 +337,7 @@ Class ShotgunnerPlasmaBall : ZombiemanPlasmaBall // the only difference is the f
 
 Class D4OldShotgunGuy : D4AbstractMonster // : ShotgunGuy //replaces ShotgunGuy
 {
-	int user_staggertimer;
+	int staggertimer;
 	
 	Default 
 	{

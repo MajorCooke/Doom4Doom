@@ -328,11 +328,11 @@ Class DummyPickup2 : CustomInventory
 
 Class CarrionPortalOpener : Actor 
 {
-	int user_cur;
-	int user_count;
-	int user_dist;
-	int user_olddist;
-	int user_cut;
+	int cur;
+	int count;
+	int dist;
+	int olddist;
+	int cut;
 	
 	Default 
 	{
@@ -357,19 +357,19 @@ Class CarrionPortalOpener : Actor
 				A_SpawnItemEx("CarrionPortal",0,0,0,0,0,0,72*5,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS,0,666);
 				return Destroy();
 			}
-			user_count = 0;
-			user_cut = CountInv("CarrionUpgradeAmmo",TargetPtr) ? 2 : 1;
-			while (user_dist <= 4096 && user_count < 5)
+			count = 0;
+			cut = CountInv("CarrionUpgradeAmmo",TargetPtr) ? 2 : 1;
+			while (dist <= 4096 && count < 5)
 			{
-				user_olddist = user_dist;
-				user_dist += 256;
+				olddist = dist;
+				dist += 256;
 				A_Warp(MasterPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_COPYINTERPOLATION,"Null",0.5);
-				user_cur = A_RadiusGive("CarrionPortalSpawner",user_dist,RGF_NOMASTER|RGF_MONSTERS|RGF_CUBE,1,null,"None",user_olddist,5 - user_count);
-				user_count += user_cur;
+				cur = A_RadiusGive("CarrionPortalSpawner",dist,RGF_NOMASTER|RGF_MONSTERS|RGF_CUBE,1,null,"None",olddist,5 - count);
+				count += cur;
 			}
-			if (user_count > 0)
-			{	A_TakeInventory("D4Carrion",CarrionAmmoCostSecondary / user_cut,TIF_NOTAKEINFINITE,MasterPtr);	} //Will finish this tomorrow.
-			A_GiveInventory("CarrionPortalsOpened",user_count,MasterPtr);
+			if (count > 0)
+			{	A_TakeInventory("D4Carrion",CarrionAmmoCostSecondary / cut,TIF_NOTAKEINFINITE,MasterPtr);	} //Will finish this tomorrow.
+			A_GiveInventory("CarrionPortalsOpened",count,MasterPtr);
 		}
 		Stop;
 	}
@@ -406,11 +406,11 @@ Class CarrionPortalSpawner : CustomInventory
 
 Class CarrionPortal : Actor 
 {
-	int user_count;
-	int user_cut;
-	int user_duration;
-	int user_ptr;
-	int user_spec;
+	int count;
+	int cut;
+	int duration;
+	int ptr;
+	int spec;
 	Default 
 	{
 		Projectile;
@@ -426,14 +426,14 @@ Class CarrionPortal : Actor
 			if (tid == 666)
 			{
 				Thing_ChangeTID(0,0);
-				user_spec++;
+				spec++;
 				A_RearrangePointers(DefPtr,DefPtr,TargetPtr);
-				user_duration = 35*3;
+				duration = 35*3;
 			}
 			else
 			{
-				user_cut = CountInv("CarrionUpgradeAmmo",TargetPtr) ? 2 : 1;
-				user_duration = (35 * 2) + (CountInv("CarrionUpgradeTime",TargetPtr) ? 35 : 0);
+				cut = CountInv("CarrionUpgradeAmmo",TargetPtr) ? 2 : 1;
+				duration = (35 * 2) + (CountInv("CarrionUpgradeTime",TargetPtr) ? 35 : 0);
 			}
 			
 		}
@@ -454,41 +454,41 @@ Class CarrionPortal : Actor
 			}
 			
 			
-			if (!user_spec)
+			if (!spec)
 			{	A_Warp(who,tpos.x,tpos.y,tpos.z,0,WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEPOSITION|WARPF_INTERPOLATE);		}
 			else
 			{	A_Warp(TracerPtr,70,0,Min((ceilingz - floorz) - 1,512),4,WARPF_NOCHECKPOSITION|WARPF_TOFLOOR|WARPF_USECALLERANGLE);	}
 			
-			if (user_count == 0)
+			if (count == 0)
 			{	A_SpawnItemEx("CarrionSymbols",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_ORIGINATOR);	}
-			if (user_count % 2 == 0)
+			if (count % 2 == 0)
 			{	A_SpawnItemEx("CarrionCeilingEnergy",frandom(0.0,3.0),0,0,frandom(-2.0,2.0),0,0,random(0,359),SXF_NOCHECKPOSITION);	}
 			
 			// Empower the other portals because one of them died before it could start.
-			if (user_count < 17 && (!tracer || tracer.bKilled))
+			if (count < 17 && (!tracer || tracer.bKilled))
 			{	
 				if (CountInv("CarrionPortalsOpened",TargetPtr) == 1 && !GetCvar("sv_infiniteammo"))
 				{
-					A_GiveInventory("D4Carrion",CarrionAmmoCostPrimary / user_cut,TargetPtr);
+					A_GiveInventory("D4Carrion",CarrionAmmoCostPrimary / cut,TargetPtr);
 				}
-				if (!user_spec)	{ 	A_TakeInventory("CarrionPortalsOpened",1,0,TargetPtr);	}
+				if (!spec)	{ 	A_TakeInventory("CarrionPortalsOpened",1,0,TargetPtr);	}
 				return ResolveState("Null");
 			}
 			
-			if ((user_count >= 17) && (user_count % 3 == 0))
+			if ((count >= 17) && (count % 3 == 0))
 			{
-				if (user_spec)
-				{	A_SpawnItemEx("CarrionFirePillar",0,0,-4,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS,0,(user_count == 18) ? 667 : 666);	}
+				if (spec)
+				{	A_SpawnItemEx("CarrionFirePillar",0,0,-4,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS,0,(count == 18) ? 667 : 666);	}
 				else
-				{	A_SpawnItemEx("CarrionFirePillar",0,0,-4,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS,0,(user_count == 18) ? 1 : 0);	}
+				{	A_SpawnItemEx("CarrionFirePillar",0,0,-4,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS,0,(count == 18) ? 1 : 0);	}
 			}
 			
-			if (user_count >= user_duration)
+			if (count >= duration)
 			{
 				A_TakeInventory("CarrionBombard",32767,0,TracerPtr);
 				return ResolveState("Null");
 			}
-			user_count++;
+			count++;
 			return ResolveState(null);
 		}
 		Wait;
@@ -497,14 +497,15 @@ Class CarrionPortal : Actor
 
 Class CarrionFirePillar : Actor 
 {
-	int user_t;
-	double user_speed;
-	double user_dist;
-	double user_x;
-	double user_y;
-	double user_z;
-	int user_ptr;
-	int user_count;
+	int t;
+	double USpeed;
+	double dist;
+	Vector3 P;
+	double x;
+	double y;
+	double z;
+	int ptr;
+	int count;
 	Default 
 	{
 		Projectile;
@@ -525,41 +526,41 @@ Class CarrionFirePillar : Actor
 		{
 			if (tid)
 			{
-				user_t = tid;
-				Thing_ChangeTID(0,0);
+				t = tid;
+				ChangeTID(0);
 			}
-			user_dist = GetDistance(true,TracerPtr);
-			user_speed = (user_dist >= 1536) ? (user_dist / 17.5) : speed;
-			//user_speed = 50;
-			A_ChangeVelocity(0,0,-user_speed,CVF_REPLACE);
+			dist = GetDistance(true,TracerPtr);
+			USpeed = (dist >= 1536) ? (dist / 17.5) : USpeed;
+			//speed = 50;
+			A_ChangeVelocity(0,0,-USpeed,CVF_REPLACE);
 		}
 		TNT1 A 1
 		{
-			user_z = pos.z;
+			P.z = pos.z;
 			// Preserve the Z at all times.
 			
 			//A_Warp(DefPtr,0,0,(pos.z - floorz),0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_TOFLOOR);
 			
-			user_count = int(user_speed / 8.0);
+			count = int(USpeed / 8.0);
 			if (!A_CheckRange(2048,"Null",true) && abs(GetAngle(GAF_SWITCH|GAF_RELATIVE,Player1) <= 90.0))
 			{
-				while (user_count > 0)
+				while (count > 0)
 				{
 					A_SpawnItemEx("CarrionFlameFast",
-						frandom(0.0,4.0),0,frandom(0.0,user_z - pos.z),
+						frandom(0.0,4.0),0,frandom(0.0,P.z - pos.z),
 						frandom(0.0, 2.0),0,frandom(-4.0,4.0),random(0,359),SXF_NOCHECKPOSITION,GetCvar("HQEffectsWeapons")==1 ? 128 : 240);
-					user_count--;
+					count--;
 				}
 			}
 			else
 			{
 				A_SpawnItemEx("CarrionFlameFast",
-						frandom(0.0,4.0),0,frandom(0.0,user_z - pos.z),
+						frandom(0.0,4.0),0,frandom(0.0,P.z - pos.z),
 						frandom(0.0, 2.0),0,frandom(-4.0,4.0),random(0,359),SXF_NOCHECKPOSITION,GetCvar("HQEffectsWeapons")==1 ? 64 : 215);
 			}
 			
 			// This will never miss.
-			if (A_JumpIfHigherOrLower("Death",null,0,0,false,TracerPtr) && user_t <= 1)
+			if (A_JumpIfHigherOrLower("Death",null,0,0,false,TracerPtr) && t <= 1)
 			{	
 				A_Warp(TracerPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_STOP);	
 				return ResolveState("Death");
@@ -575,7 +576,7 @@ Class CarrionFirePillar : Actor
 	Death:
 		TNT1 A 0
 		{
-			if (user_t >= 666)
+			if (t >= 666)
 			{
 				bOldRadiusDmg = true;
 				A_Explode(125,128,0,0,64);
@@ -584,15 +585,15 @@ Class CarrionFirePillar : Actor
 			{
 				A_Explode(125 / Clamp(CountInv("CarrionPortalsOpened",TargetPtr),1,5),96,0,0,48);
 			}
-			user_count = 25;
+			count = 25;
 			
 			if (!A_CheckSight("Null"))
 			{
-				while (user_count > 0)
+				while (count > 0)
 				{
 					A_SpawnItemEx("CarrionBlastSmall",frandom(30.0,60.0),0,10,frandom(0.0,5.0),0,0,random(0,359),SXF_NOCHECKPOSITION,200);
 					A_SpawnItemEx("CarrionFlameFast",frandom(0.0,10.0),0,frandom(0.0,60.0),frandom(0.0,8.0),0,frandom(0.0,3.0),random(0,359),SXF_NOCHECKPOSITION,195);
-					user_count--;
+					count--;
 				}
 			}
 			else
@@ -601,7 +602,7 @@ Class CarrionFirePillar : Actor
 				A_SpawnItemEx("CarrionFlameFast",frandom(0.0,10.0),0,frandom(0.0,60.0),frandom(0.0,8.0),0,frandom(0.0,3.0),random(0,359),SXF_NOCHECKPOSITION,GetCvar("HQEffectsWeapons")==1? 128 : 235);
 			}
 			
-			if (user_t == 1 || user_t == 667)
+			if (t == 1 || t == 667)
 			{	
 				A_SpawnItemEx("CarrionBlastBack",0,0,15,0,0,0,0,SXF_NOCHECKPOSITION);
 				A_PlaySound("CarrionCannon/Burning",5,1,1);
@@ -612,7 +613,7 @@ Class CarrionFirePillar : Actor
 		Wait;
 		TNT1 A 55
 		{
-			if (CountInv("CarrionUpgradeTime",TargetPtr) || user_t >= 666)
+			if (CountInv("CarrionUpgradeTime",TargetPtr) || t >= 666)
 			{
 				A_SetTics(55+35);
 			}
@@ -632,14 +633,14 @@ Class CarrionSymbols : Actor
 {
 	const RollAmount = 8.0;
 	const ScaleMul = 0.75;
-	double  user_c;
-	double  user_roll;
-	int user_t;
-	int user_rng;
-	double user_dist;
-	double user_cos;
-	int user_floor;
-	int user_duration;
+	double  c;
+	double  URoll;
+	int t;
+	int rng;
+	double dist;
+	double UCos;
+	int UFloor;
+	int duration;
 	
 	Default 
 	{
@@ -658,19 +659,19 @@ Class CarrionSymbols : Actor
 	Spawn:
 		RUNE C 0 NoDelay
 		{
-			user_duration = CountInv("CarrionUpgradeTime",TargetPtr) ? 35 : 0;
-			user_roll = RollAmount * randompick(-1,1);
+			duration = CountInv("CarrionUpgradeTime",TargetPtr) ? 35 : 0;
+			URoll = RollAmount * randompick(-1,1);
 		}
 	Looping:
 		"####" "#" 1
 		{
 			A_Warp(MasterPtr,0,0,-1,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
-			if (user_c >= 90.0)
+			if (c >= 90.0)
 			{	return ResolveState(1);	}
-			user_c += (90.0/12.0);
+			c += (90.0/12.0);
 			A_SetRoll((roll + RollAmount) % 360,SPF_INTERPOLATE);
 			A_FadeTo(0.99,(1.0/12.0),FTF_CLAMP);
-			A_SetScale(sin(user_c) * ScaleMul);
+			A_SetScale(sin(c) * ScaleMul);
 			return ResolveState(null);
 		}
 		Loop;
@@ -678,12 +679,12 @@ Class CarrionSymbols : Actor
 		"####" "#" 1
 		{	
 			A_Warp(MasterPtr,0,0,-1,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
-			if (user_t < (80 + user_duration) )
-			{	user_t++;	}
+			if (t < (80 + duration) )
+			{	t++;	}
 			else
 			{
-				user_c += (90.0/12.0);
-				A_SetScale(sin(user_c) * ScaleMul);
+				c += (90.0/12.0);
+				A_SetScale(sin(c) * ScaleMul);
 				if (Scale.X <= 0)	{	return ResolveState("Null");	}
 			}
 			
@@ -743,7 +744,7 @@ Class CarrionCeilingEnergy : Actor
 
 Class CCETurner : Actor 
 {
-	double user_a;
+	double a;
 	Default 
 	{
 		+NOINTERACTION
@@ -753,12 +754,12 @@ Class CCETurner : Actor
 	States
 	{
 	Spawn:
-		TNT1 A 0 NoDelay { user_a = frandom(-5.0, 5.0);	}
+		TNT1 A 0 NoDelay { a = frandom(-5.0, 5.0);	}
 		TNT1 A 1
 		{
 			if (!IsPointerEqual(MasterPtr,NullPtr))
 			{
-				A_SetRoll(roll + user_a);
+				A_SetRoll(roll + a);
 				A_SetRoll(roll,SPF_INTERPOLATE,MasterPtr);
 				return ResolveState(null);
 			}
@@ -860,7 +861,7 @@ Class CarrionBlastBack : Actor
 }
 Class CarrionBlastSmall : Actor 
 {
-	double  user_roll;
+	double  URoll;
 	Default 
 	{
 		+NOINTERACTION
@@ -878,7 +879,7 @@ Class CarrionBlastSmall : Actor
 		TNT1 A 0 NoDelay 
 		{
 			roll = frandom(0.0,359.0);
-			user_roll = frandom(3.0,8.0);
+			URoll = frandom(3.0,8.0);
 			A_SetScale((Scale.X+frandom(0.0,0.2))*randompick(-1,1));
 			Scale.Y = (Scale.X*randompick(-1,1));
 			
@@ -886,15 +887,15 @@ Class CarrionBlastSmall : Actor
 		}
 	S1:
 		X003 BCDEFGHIJKLMNOPQRSTUVWXYZ 1
-		{	A_SetRoll(roll + user_roll, SPF_INTERPOLATE);	}
+		{	A_SetRoll(roll + URoll, SPF_INTERPOLATE);	}
 		Stop;
 	S2:
 		X004 ABCDEFGHIJKLMNOPQ 1
-		{	A_SetRoll(roll + user_roll, SPF_INTERPOLATE);	}
+		{	A_SetRoll(roll + URoll, SPF_INTERPOLATE);	}
 		Stop;
 	S3:
 		FX58 ABCDEFGHIJKLMNOPQ 1
-		{	A_SetRoll(roll + user_roll, SPF_INTERPOLATE);	}
+		{	A_SetRoll(roll + URoll, SPF_INTERPOLATE);	}
 		Stop;
 	}
 }
@@ -914,18 +915,18 @@ Class CarrionPrimary : FastProjectile
 		MaxLevel = 10,
 	};
 	const SizeMul = 0.4;
-	int user_neg;
-	int user_stoff;
-	int user_maxcharge;
-	int user_charge;
-	int user_hasammo;
-	int user_level;
-	int user_count;
-	double user_sizex;
-	double user_sizey;
-	double user_sin;
-	double user_dmg;
-	int user_cut;
+	int neg;
+	int stoff;
+	int maxcharge;
+	int charge;
+	int hasammo;
+	int level;
+	int count;
+	double sizex;
+	double sizey;
+	double USin;
+	double dmg;
+	int cut;
 	
 	Default 
 	{
@@ -1007,7 +1008,7 @@ Class CarrionPrimary : FastProjectile
 			let trac = tracer;
 			if (targ && trac && targ.health > 0 && trac.health > 0)
 			{
-				if (targ.CountInv("CarrionUpgradeStun") && user_charge % 7 == 0)
+				if (targ.CountInv("CarrionUpgradeStun") && charge % 7 == 0)
 				{	
 					bCausePain = true;
 					bForcePain = true;
@@ -1022,33 +1023,33 @@ Class CarrionPrimary : FastProjectile
 					}
 					
 				}
-				if (user_charge < MaxTime &&
+				if (charge < MaxTime &&
 					targ.CountInv("CarrionShotOut") &&
 					//(GetPlayerInput(MODINPUT_BUTTONS,TargetPtr) & (BT_ATTACK)) &&
 					trac.health > 0 && trac.bShootable)
 				{
-					user_cut = CountInv("CarrionUpgradeAmmo",TargetPtr) ? 2 : 1;
+					cut = CountInv("CarrionUpgradeAmmo",TargetPtr) ? 2 : 1;
 					
 					bool infammo = GetCVar("sv_infiniteammo");
 					if (!infammo)
 						infammo = (targ.FindInventory("PowerInfiniteAmmo",true) != null);
 					
-					if (infammo || CountInv("D4Carrion",TargetPtr) >= CarrionAmmoCostPrimary / user_cut)
+					if (infammo || CountInv("D4Carrion",TargetPtr) >= CarrionAmmoCostPrimary / cut)
 					{
-						if (!user_charge)
+						if (!charge)
 						{
-							user_sizex = Scale.X;
-							user_sizey = Scale.Y;
-							user_neg = randompick(-1,1);
+							sizex = Scale.X;
+							sizey = Scale.Y;
+							neg = randompick(-1,1);
 							A_PlaySound("Doom4/Monsters/ArgentCharge",CHAN_AUTO,1,0,ATTN_NONE);
 						}
-						A_SetRoll(roll + (360.0/14.0) * user_neg,SPF_INTERPOLATE);
-						A_SetScale(user_sizex + (sin(user_sin) * SizeMul), user_sizey + (sin(user_sin) * SizeMul));
-						user_sin += (90.0/70.0);
+						A_SetRoll(roll + (360.0/14.0) * neg,SPF_INTERPOLATE);
+						A_SetScale(sizex + (sin(USin) * SizeMul), sizey + (sin(USin) * SizeMul));
+						USin += (90.0/70.0);
 						A_Warp(TracerPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",0.5);
-						user_charge += 1;
+						charge += 1;
 						targ.A_GiveInventory("CarrionTick",1);
-						targ.A_TakeInventory("D4Carrion",CarrionAmmoCostPrimary / user_cut,TIF_NOTAKEINFINITE);
+						targ.A_TakeInventory("D4Carrion",CarrionAmmoCostPrimary / cut,TIF_NOTAKEINFINITE);
 						return ResolveState(null);
 					}
 				}
@@ -1059,32 +1060,32 @@ Class CarrionPrimary : FastProjectile
 	Death:
 		TNT1 A 10
 		{
-			if (user_charge)
+			if (charge)
 			{
-				A_GiveInventory("CarrionTick",user_charge,TargetPtr);
+				A_GiveInventory("CarrionTick",charge,TargetPtr);
 				A_GiveInventory("CarrionShootSound",1,TargetPtr);
 				A_GiveInventory("KillLaser");
-				if (user_charge <= (70/3))
+				if (charge <= (70/3))
 				{	A_PlaySound("CarrionCannon/ExplosionSmall",CHAN_AUTO);	}
-				else if (user_charge <= (70/3)*2)
+				else if (charge <= (70/3)*2)
 				{	A_PlaySound("CarrionCannon/ExplosionMedium",CHAN_AUTO);	}
 				else
 				{	A_PlaySound("CarrionCannon/ExplosionBig",CHAN_AUTO);	}
 				A_SpawnItemEx("CarrionShockwave",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
-				user_dmg = user_charge * (MaxDamage / 70.0);
+				dmg = charge * (MaxDamage / 70.0);
 				
 				// Thrust away from the player.
 				A_FaceTarget(0,0,0,0,FAF_MIDDLE);
 				A_Warp(DefPtr,cos(pitch),0,-sin(pitch),0,WARPF_NOCHECKPOSITION);
 				
 				// Then explode.
-				A_Explode(int(user_dmg), 128 + (2 * user_charge),0,0,128 + (2 * user_charge));
+				A_Explode(int(dmg), 128 + (2 * charge),0,0,128 + (2 * charge));
 				A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				
-				if (user_charge >= 50)
+				if (charge >= 50)
 				{
 					let boom = CarrionExplosion(Spawn("CarrionExplosion",pos));
-					if (boom && user_charge >= MaxTime)
+					if (boom && charge >= MaxTime)
 					{
 						boom.ExplosionSize = 5;
 					}
@@ -1200,20 +1201,20 @@ Class CarrionShotTrackingLaser : Actor
 	};
 	const StepDistance = 31;
 	const StepDistHalf = StepDistance / 2.0;
-	double user_pitch;
-	double user_angle;
-	double user_dista, user_distb;
-	double user_x;
-	double user_y;
-	double user_z;
-	double user_angdiff;
-	double user_stepdiv;
+	double UPitch;
+	double UAngle;
+	double dista, distb;
+	double UX;
+	double UY;
+	double UZ;
+	double angdiff;
+	double stepdiv;
 	//[0] = Current distance travelled
 	//[1] = How much further to go
-	int user_choke;
-	int user_t;
-	int user_count;
-	int user_render;
+	int choke;
+	int t;
+	int count;
+	int render;
 	PlayerPawn plr;
 	Default 
 	{
@@ -1228,14 +1229,14 @@ Class CarrionShotTrackingLaser : Actor
 		TNT1 A 1 NoDelay
 		{
 			// The angle and pitch won't change so go ahead and save it now.
-			user_pitch = pitch;
-			user_angle = angle;
-			user_distb = Min(MaxDistance, GetDistance(true,TracerPtr));
-			user_choke = random(ChokeMin, ChokeMax);
-			user_x = pos.x;
-			user_y = pos.y;
-			user_z = pos.z;
-			user_render = int(GetCvar("vid_renderer"));
+			UPitch = pitch;
+			UAngle = angle;
+			distb = Min(MaxDistance, GetDistance(true,TracerPtr));
+			choke = random(ChokeMin, ChokeMax);
+			UX = pos.x;
+			UY = pos.y;
+			UZ = pos.z;
+			render = int(GetCvar("vid_renderer"));
 			if (master) 
 			{
 				plr = PlayerPawn(master);
@@ -1251,15 +1252,15 @@ Class CarrionShotTrackingLaser : Actor
 			
 			
 			A_Warp(MasterPtr,0,7.5,0,0,WARPF_NOCHECKPOSITION|WARPF_STOP,"Null",0.6 + sin(pitch) * 0.2, -0.6 + cos(pitch) * 0.4);
-			user_count = 0;
-			user_angdiff = abs(GetAngle(GAF_RELATIVE,TracerPtr));
+			count = 0;
+			angdiff = abs(GetAngle(GAF_RELATIVE,TracerPtr));
 			
 			if (GetDistance(true,TracerPtr) < StepDistance * 1.5)
 			{	return ResolveState(null);	}
 			
-			// user_dista = distance currently travelled.
-			// user_distb = maximum distance.
-			while ((user_count < 15) && (GetDistance(false,TracerPtr) > StepDistance * 1.5))
+			// dista = distance currently travelled.
+			// distb = maximum distance.
+			while ((count < 15) && (GetDistance(false,TracerPtr) > StepDistance * 1.5))
 			{
 				
 				if (A_CheckSight("Null"))
@@ -1273,7 +1274,7 @@ Class CarrionShotTrackingLaser : Actor
 				// Then move forward by a beam's length and repeat until done.
 				
 				
-				if (user_render)
+				if (render)
 				{	
 					if (CountInv("KillLaser",TracerPtr))
 					{	A_SpawnItemEx("CarrionTrailBeamMovingBoom",cos(pitch) * StepDistHalf,0,-sin(pitch) * StepDistHalf,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS);	}
@@ -1297,14 +1298,14 @@ Class CarrionShotTrackingLaser : Actor
 				}
 				
 				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
-				user_dista += StepDistance;
-				user_count = (user_count + 1) % 8;
+				dista += StepDistance;
+				count = (count + 1) % 8;
 			}
 			
 			if (tracer)
 			{
-				user_count = 0;
-				user_dista = 0;
+				count = 0;
+				dista = 0;
 				return ResolveState(null);
 			}
 			return ResolveState("Null");
@@ -1320,9 +1321,9 @@ Class CarrionTrailBeamMoving : MovingTrailBeam
 	Spawn:
 		X202 I 0 NoDelay 
 		{
-			user_zoffset = 0;
-			user_time = 3.0;
-			A_SpawnItemEx("CarrionTrailBeamMoving",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
+			Zoffset = 0;
+			time = 3.0;
+			//A_SpawnItemEx("CarrionTrailBeamMoving",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
 			return ResolveState("Process");
 		}
 	}
@@ -1340,9 +1341,9 @@ Class CarrionTrailBeamMovingBoom : MovingTrailBeam
 	Spawn:
 		X202 J 0 NoDelay 
 		{
-			user_zoffset = 0;
-			user_time = 3.0;
-			A_SpawnItemEx("CarrionTrailBeamMovingBoom",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
+			Zoffset = 0;
+			time = 3.0;
+			//A_SpawnItemEx("CarrionTrailBeamMovingBoom",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
 			return ResolveState("Process");
 		}
 	}

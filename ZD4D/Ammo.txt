@@ -262,7 +262,7 @@ Class D4Fuel : Ammo
 		Inventory.Amount 2;
 		Inventory.MaxAmount D4Fuel_MaxAmount1;
 		Ammo.BackpackMaxAmount D4Fuel_MaxAmount2;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Scale 0.45;
 	}
 	States
@@ -303,7 +303,7 @@ Class D4Bullets : Ammo replaces ClipBox
 		Inventory.MaxAmount D4Bullets_MaxAmount1;
 		Ammo.BackpackMaxAmount D4Bullets_MaxAmount2;
 		Ammo.BackpackAmount 16;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Scale 0.3;
 	}
 	
@@ -349,7 +349,7 @@ Class D4Shells : Ammo replaces ShellBox
 		Inventory.MaxAmount D4Shells_MaxAmount1;
 		Ammo.BackpackMaxAmount D4Shells_MaxAmount2;
 		Ammo.BackpackAmount 6;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Scale 0.3;
 	}
 	
@@ -394,7 +394,7 @@ Class D4Cells : Ammo //replaces CellPack
 	Inventory.MaxAmount D4Cells_MaxAmount1;
 	Ammo.BackpackMaxAmount D4Cells_MaxAmount2;
 	Ammo.BackpackAmount 10;
-	DistanceCheck "user_MaxDrawDistance";
+	DistanceCheck "D4D_MaxDrawDistance";
 	Scale 0.4;
 	}
 	States
@@ -437,7 +437,7 @@ Class D4Rockets : Ammo //replaces RocketBox
 		Inventory.MaxAmount D4Rockets_MaxAmount1;
 		Ammo.BackpackMaxAmount D4Rockets_MaxAmount2;
 		Ammo.BackpackAmount 1;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Scale 0.3;
 	}
 	States
@@ -476,7 +476,7 @@ Class D4BFGAmmo : Ammo
 		Ammo.BackpackAmount 1;
 		Ammo.BackpackMaxAmount D4BFGAmmo_MaxAmount;
 		Inventory.PickupSound "Doom4/Pickups/BFGAmmo";
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Scale 0.40;
 	}
 	States
@@ -557,7 +557,7 @@ Class D4PinataCarrion : CustomInventory
 		+NOTELESTOMP
 		+INVENTORY.TRANSFER
 		BounceFactor 0.5;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Translation "0:255=%[0,0,0]:[1.0,0.1,0.1]";
 	}
 	
@@ -876,8 +876,8 @@ Class CarrionTrailBeam : TrailBeam
 		X202 I 0 NoDelay
 		{
 			// time = time to shrink to nothing
-			user_time = 5.0;
-			A_SpawnItemEx("CarrionTrailBeam",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
+			time = 5.0;
+			//A_SpawnItemEx("CarrionTrailBeam",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
 			return ResolveState("Process");
 		}
 	}

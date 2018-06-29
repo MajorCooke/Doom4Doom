@@ -36,7 +36,7 @@ BLESSED (White)
 Class D4FatsoTech : D4AbstractBiggie 
 {
 	
-	int user_staggertimer;
+	int staggertimer;
 	
 	Default 
 	{
@@ -204,14 +204,9 @@ Class D4FatsoTech : D4AbstractBiggie
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		"####" "#" 0  //loot drop
-		{
-			//D4SetupLoot(true);
-		}
-		Goto XDeathNoDrops;
-		
 	XDeathNoDrops:	
-		TNT1 A 1
+		TNT1 A 0;
+		TNT1 A 10
 		{
 			bThruActors = true;
 			XDeathGush();
@@ -540,7 +535,7 @@ Class PoisonPoolSplash : Actor
 
 Class PoisonAcidFloor : D4AbstractMissile
 {
-	int user_counter;
+	int counter;
 	Default 
 	{
 		Projectile;
@@ -614,7 +609,7 @@ Class PoisonAcidGas : Actor
 //===========================================================================
 Class D4FatsoHell : D4AbstractBiggie
 {
-	int user_staggertimer;
+	int staggertimer;
 	Default 
 	{
 		D4AbstractMonster.CrateDropAmount 2;
@@ -949,7 +944,7 @@ Class Fatso2JumpGhost : Actor
 // flame thrower attack
 Class FatsoFlamethrower : D4AbstractMissile
 {
-	int user_counter;
+	int counter;
 	Default 
 	{
 		Projectile;
@@ -969,12 +964,12 @@ Class FatsoFlamethrower : D4AbstractMissile
 		{
 			A_SetScale(Scale.X+0.13);
 			A_FadeOut(0.035);
-			if(user_counter==3)
+			if(counter==3)
 			{
 				A_ScaleVelocity(0.7);
-				user_counter = 0;
+				counter = 0;
 			}
-			user_counter++;
+			counter++;
 		}
 		Goto Spawn+1;
 	Death:
@@ -1101,7 +1096,7 @@ Class FatsoFireTrail : Actor
 
 Class D4OldFatso : D4AbstractBiggie // : Fatso //replaces Fatso
 {
-	int user_staggertimer;
+	int staggertimer;
 	Default 
 	{
 		Health 600;

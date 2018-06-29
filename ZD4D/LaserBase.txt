@@ -31,19 +31,19 @@
 Class MovingTrailBeam : Actor 
 {
 	const NoSpawn = 256;
-	double user_dist;
-	int user_t;
-	int user_zoffset;
-	double user_angle;
-	double user_pitch;
+	double dist;
+	int t;
+	int Zoffset;
+	double UAngle;
+	double UPitch;
 	Vector3 pa, pb;
-	double user_xa, user_xb;
-	double user_ya, user_yb;
-	double user_za, user_zb;
-	double user_time;
-	double user_scale;
-	int user_pflags;
-	int user_neg;
+	double UXa, UXb;
+	double UYa, UYb;
+	double UZa, UZb;
+	double time;
+	double UScale;
+	int pflags;
+	int neg;
 	Default 
 	{
 		+NOINTERACTION
@@ -63,18 +63,19 @@ Class MovingTrailBeam : Actor
 		X202 B 0 NoDelay
 		{
 			// Sets how long to split the scaling-in effect.
-			user_time = 3.0;
-			user_zoffset = 16;
+			time = 3.0;
+			zoffset = 16;
 			// Set this to the actor's same name. The TID will prevent it spawning infinitely (tid * 256).
-			A_SpawnItemEx("MovingTrailBeam",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
+			//A_SpawnItemEx("MovingTrailBeam",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
 		}
 		Goto Process;
 	Process:
 		"####" "#" 0
 		{
-			if (!user_pflags)	{ user_pflags = WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEOFFSET;	}
-			A_Warp(DefPtr,0,0,user_zoffset,0,WARPF_NOCHECKPOSITION);
+			if (!pflags)	{ pflags = WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEOFFSET;	}
+			A_Warp(DefPtr,0,0,zoffset,0,WARPF_NOCHECKPOSITION);
 			// If it's a secondary trail (vertical)
+			/*
 			if (tid > 0)	
 			{	
 				Thing_ChangeTID(0,0);
@@ -82,14 +83,14 @@ Class MovingTrailBeam : Actor
 				pitch = 90;
 				angle += 90;
 			}
-		
+			*/
 			// Save our current information so we know how to properly interpolate whenever
 			// the owner moves.
-			user_neg = (Scale.X < 0) ? 1 : 0;
-			user_scale = Scale.X;
-			user_angle = angle;
-			user_pitch = pitch;
-			user_dist = GetDistance(false, TargetPtr);
+			neg = (Scale.X < 0) ? 1 : 0;
+			UScale = Scale.X;
+			UAngle = angle;
+			UPitch = pitch;
+			dist = GetDistance(false, TargetPtr);
 			pa = pos;
 			
 			// Move to the shooter so we can get just how far out we are.
@@ -98,32 +99,32 @@ Class MovingTrailBeam : Actor
 			
 			// Now move back without interpolating. Otherwise it'll look weird.
 			A_Warp(TargetPtr, pb.x, pb.y, pb.z, 0, WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEOFFSET);
-			angle = user_angle;
-			pitch = user_pitch;
+			angle = UAngle;
+			pitch = UPitch;
 		}
 		"####" "#" 1 
 		{
 			A_FadeIn(1.0,FTF_CLAMP);
-			A_Warp(TargetPtr, pb.x + vel.x, pb.y + vel.y, pb.z + vel.z, 0, user_pflags);
-			angle = user_angle;
-			pitch = user_pitch;
+			A_Warp(TargetPtr, pb.x + vel.x, pb.y + vel.y, pb.z + vel.z, 0, pflags);
+			angle = UAngle;
+			pitch = UPitch;
 		}
 		"####" "#" 1 
 		{
 			// Keep 'shrinking'. NEVER fade out!
-			if (user_neg)
+			if (neg)
 			{
-				A_SetScale(Scale.X - (user_scale / Max(1.0, user_time)), Scale.Y);
+				A_SetScale(Scale.X - (UScale / Max(1.0, time)), Scale.Y);
 				if (Scale.X >= 0)	{ return ResolveState("Null"); }
 			}
 			else
 			{
-				A_SetScale(Scale.X - (user_scale / Max(1.0, user_time)), Scale.Y);
+				A_SetScale(Scale.X - (UScale / Max(1.0, time)), Scale.Y);
 				if (Scale.X <= 0)	{ return ResolveState("Null"); }
 			}
-			A_Warp(TargetPtr ,pb.x + vel.x, pb.y + vel.y, pb.z + vel.z ,0, user_pflags);
-			angle = user_angle;
-			pitch = user_pitch;
+			A_Warp(TargetPtr, pb.x + vel.x, pb.y + vel.y, pb.z + vel.z ,0, pflags);
+			angle = UAngle;
+			pitch = UPitch;
 			return ResolveState(null);
 		}
 		Wait;
@@ -135,9 +136,9 @@ Class TrailBeam : Actor
 	const ZOffset = 16;
 	const NoSpawn = 256;
 	const PFlags = WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_COPYVELOCITY|WARPF_ABSOLUTEOFFSET;
-	double user_time;
-	double user_scale;
-	int user_neg;
+	double time;
+	double UScale;
+	int neg;
 	Default 
 	{
 		+NOINTERACTION
@@ -157,19 +158,20 @@ Class TrailBeam : Actor
 		X202 B 0 NoDelay
 		{
 			// Sets how long to split the scaling-in effect.
-			user_time = 3.0;
+			time = 3.0;
 			
 			// Set this to the actor's same name. The TID will prevent it spawning infinitely (tid * 256).
-			A_SpawnItemEx("TrailBeam",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
+			//A_SpawnItemEx("TrailBeam",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
 			return ResolveState("Process");
 		}
 	Process:
 		"####" "#" 1
 		{
 			//A_Warp(DefPtr,0,0,ZOffset,0,WARPF_NOCHECKPOSITION);
-			user_scale = Scale.X;
-			user_neg = ((user_scale < 0) ? 1 : 0);
+			UScale = Scale.X;
+			neg = ((UScale < 0) ? 1 : 0);
 			// If it's a secondary trail (vertical)
+			/*
 			if (tid > 0)	
 			{	
 				Thing_ChangeTID(0,0);
@@ -177,20 +179,21 @@ Class TrailBeam : Actor
 				pitch = 90;
 				angle += 90;
 			}
+			*/
 			A_FadeIn(1.0,FTF_CLAMP);
 		}
 		"####" "#" 1 
 		{
 			// Keep 'shrinking'. NEVER fade out!
 			
-			if (user_neg)
+			if (neg)
 			{
-				A_SetScale(Scale.X - (user_scale / Max(1.0, user_time)), Scale.Y);
+				A_SetScale(Scale.X - (UScale / Max(1.0, time)), Scale.Y);
 				if (Scale.X >= 0)	{ return ResolveState("Null"); }
 			}
 			else
 			{			
-				A_SetScale(Scale.X - (user_scale / Max(1.0, user_time)), Scale.Y);
+				A_SetScale(Scale.X - (UScale / Max(1.0, time)), Scale.Y);
 				if (Scale.X <= 0)	{ return ResolveState("Null"); }
 			}
 			return ResolveState(null);
@@ -209,16 +212,16 @@ Class TrailBeamStaticScaling : Actor
 		NoSpawn = 256,
 		PFlags = WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_COPYVELOCITY|WARPF_ABSOLUTEOFFSET,
 	};
-	double  user_dist;
-	int user_t;
-	double  user_timeup;
-	double  user_timedown;
-	double  user_scale;
-	int user_stoff;
-	int user_neg;
-	double  user_sin;
-	int user_wait;
-	int user_stage;
+	double  dist;
+	int t;
+	double  timeup;
+	double  timedown;
+	double  UScale;
+	int stoff;
+	int neg;
+	double  USin;
+	int wait;
+	int stage;
 	
 	Default 
 	{
@@ -238,18 +241,18 @@ Class TrailBeamStaticScaling : Actor
 	Spawn:
 		"####" "#" 0 NoDelay
 		{
-			user_timeup = 10.0;
-			user_wait = 30;	//
-			user_timedown = 7.0;
+			timeup = 10.0;
+			wait = 30;	//
+			timedown = 7.0;
 			
 			// Set this to the actor's same name. The TID will prevent it spawning infinitely (tid * 256).
-			A_SpawnItemEx("TrailBeamStaticScaling",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME,tid * 256,1);
+			//A_SpawnItemEx("TrailBeamStaticScaling",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME,tid * 256,1);
 			return ResolveState("Setup");
 		}
 	Setup:
 		"####" "#" 0
 		{
-			
+			/*
 			// If it's a secondary trail (vertical)
 			if (tid > 0)	
 			{
@@ -258,29 +261,29 @@ Class TrailBeamStaticScaling : Actor
 				angle += 90.0;
 				Thing_ChangeTID(0,0);
 			}
-			
-			user_scale = Scale.X;
+			*/
+			UScale = Scale.X;
 			Scale.X = 0;
 		}
 	Process:
 		"####" "#" 1 
 		{
-			if (!user_stage)
+			if (!stage)
 			{
-				user_sin += ((user_timeup >= 1.0) ? (90.0/user_timeup) : (90.0 / 35.0));
-				A_SetScale(sin(user_sin) * user_scale, Scale.Y);
-				if (user_sin >= 90.0)	{	user_stage = 1;	}
+				USin += ((timeup >= 1.0) ? (90.0/timeup) : (90.0 / 35.0));
+				A_SetScale(sin(USin) * UScale, Scale.Y);
+				if (USin >= 90.0)	{	stage = 1;	}
 			}
-			else if (user_stage == 1)
+			else if (stage == 1)
 			{
-				user_sin = 90.0;
-				user_wait--;
-				if (user_wait <= 0)		{	user_stage = 2;	}
+				USin = 90.0;
+				wait--;
+				if (wait <= 0)		{	stage = 2;	}
 			}
 			else
 			{
-				user_sin -= ((user_timedown >= 1.0) ? (90.0/user_timedown) : (90.0 / 35.0));
-				A_SetScale(sin(user_sin) * user_scale, Scale.Y);
+				USin -= ((timedown >= 1.0) ? (90.0/timedown) : (90.0 / 35.0));
+				A_SetScale(sin(USin) * UScale, Scale.Y);
 				if (Scale.X <= 0)	{ return ResolveState("Null"); }
 			}
 			
@@ -291,8 +294,8 @@ Class TrailBeamStaticScaling : Actor
 		"####" "#" 1
 		{
 			if (Scale.X <= 0)	{ return ResolveState("Null"); }
-			user_sin -= ((user_timedown >= 1.0) ? (90.0/user_timedown) : (90.0 / 35.0));
-			A_SetScale(sin(user_sin) * user_scale, Scale.Y);
+			USin -= ((timedown >= 1.0) ? (90.0/timedown) : (90.0 / 35.0));
+			A_SetScale(sin(USin) * UScale, Scale.Y);
 			return ResolveState(null);
 		}
 		Wait;
@@ -314,19 +317,19 @@ Class TrailBeamStaticScalingSpawner : Actor
 	const StepDistance = 31;
 	const AngleRandom = 6.0; // The boundaries of angle changing (random(-AngleRandom,AngleRandom))
 	const PitchRandom = 6.0; // ^ for pitch
-	double user_pitch;
-	double user_angle;
-	double user_dista, user_distb; 
-	double user_checkfova, user_checkfovb;
-	int user_checksight;
-	double user_checkrangea, user_checkrangeb;
+	double UPitch;
+	double UAngle;
+	double dista, distb; 
+	double checkfova, checkfovb;
+	int checksight;
+	double checkrangea, checkrangeb;
 	//[0] = Current distance travelled
 	//[1] = How much further to go
-	int user_DoCheckRange;
-	int user_DoCheckSight;
-	int user_DoCheckFOV;
-	int user_MaxDistance;
-	int user_flags;
+	int DoCheckRange;
+	int DoCheckSight;
+	int DoCheckFOV;
+	int MaxDistance;
+	int flags;
 	//[0] = Current distance travelled
 	//[1] = How much further to go
 	Default 
@@ -345,12 +348,12 @@ Class TrailBeamStaticScalingSpawner : Actor
 	Spawn:
 		X202 B 0 NoDelay
 		{
-			user_MaxDistance = 30000;
-			user_DoCheckSight = 0;
-			user_DoCheckRange = 0;
-			user_DoCheckFOV = 0;
-			user_checkrangea = 4096;
-			user_checkfova = 90.0;
+			MaxDistance = 30000;
+			DoCheckSight = 0;
+			DoCheckRange = 0;
+			DoCheckFOV = 0;
+			checkrangea = 4096;
+			checkfova = 90.0;
 			
 			//Include this if one wishes to spawn a laser which co-works with this one.
 			A_SpawnItemEx("TrailBeamJitterSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS);
@@ -360,36 +363,36 @@ Class TrailBeamStaticScalingSpawner : Actor
 			// Grab the velocity IMMEDIATELY.
 			if (target) { vel = target.vel; }
 			
-			if (user_MaxDistance <= 0)		{	user_MaxDistance = 		30000;	}
-			if (user_checkrangea <= 0)		{	user_checkrangea = 		4096;	}
-			if (user_checkfova <= 0.0)		{	user_checkfova =		90.0;	}
+			if (MaxDistance <= 0)		{	MaxDistance = 		30000;	}
+			if (checkrangea <= 0)		{	checkrangea = 		4096;	}
+			if (checkfova <= 0.0)		{	checkfova =		90.0;	}
 			
 			// The angle and pitch won't change so go ahead and save it now.
-			user_pitch = pitch;
-			user_angle = angle;
-			user_distb = Min(user_MaxDistance, GetDistance(true,TracerPtr));
+			UPitch = pitch;
+			UAngle = angle;
+			distb = Min(MaxDistance, GetDistance(true,TracerPtr));
 			
-			// user_dista = distance currently travelled.
-			// user_distb = maximum distance.
-			while ((user_dista < user_distb))
+			// dista = distance currently travelled.
+			// distb = maximum distance.
+			while ((dista < distb))
 			{
-				if (user_DoCheckRange)		{	user_checkrangeb = (!(A_CheckRange(user_checkrangea,"Null",false)) ? 1 : 0);	}
-				else						{	user_checkrangeb = 1;	}
+				if (DoCheckRange)		{	checkrangeb = (!(A_CheckRange(checkrangea,"Null",false)) ? 1 : 0);	}
+				else						{	checkrangeb = 1;	}
 				
-				if (user_DoCheckSight)		{	user_checksight = (!(A_CheckSight("Null")) ? 1 : 0);	}
-				else						{	user_checksight = 1;	}
+				if (DoCheckSight)		{	checksight = (!(A_CheckSight("Null")) ? 1 : 0);	}
+				else						{	checksight = 1;	}
 				
-				if (user_DoCheckFOV)		{	user_checkfovb = ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,Player1)) <= user_checkfova) ? 1 : 0);	}
-				else						{	user_checkfovb = 1;		}
+				if (DoCheckFOV)		{	checkfovb = ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,Player1)) <= checkfova) ? 1 : 0);	}
+				else						{	checkfovb = 1;		}
 				
 				// Spawn the beam with the same angle and pitch. Note that the
 				// beam is being centered so we have to take that into account
 				// and spawn it FORWARD based on half the beam's length.
 				// Then move forward by a beam's length and repeat until done.
-				if (user_checkrangeb && user_checksight && user_checkfovb)
+				if (checkrangeb && checksight && checkfovb)
 				{	A_SpawnItemEx("TrailBeamStaticScaling",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,SpawnFlags);	}
 				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
-				user_dista += StepDistance;
+				dista += StepDistance;
 			}
 		}
 		Stop;
@@ -402,28 +405,29 @@ Class TrailBeamJitterSpawner : Actor
 						SXF_TRANSFERPITCH|SXF_TRANSFERSPRITEFRAME|SXF_TRANSFERTRANSLATION;
 	const Straight = 0.0000000001;
 	const StepDistance = 31;
-	int user_count;
-	int user_choke;
-	int user_chokemin;
-	int user_chokemax;
-	int user_checksight;
-	int user_checkrangea, user_checkrangeb;
-	double user_x;
-	double user_y;
-	double user_z;
-	double user_pitch;
-	double user_angle;
-	double user_checkfova, user_checkfovb;
-	double user_dista, user_distb;
+	int count;
+	int choke;
+	int chokemin;
+	int chokemax;
+	int checksight;
+	int checkrangea, checkrangeb;
+	Vector3 P;
+	double UX;
+	double UY;
+	double UZ;
+	double UPitch;
+	double UAngle;
+	double checkfova, checkfovb;
+	double dista, distb;
 	//[0] = Current distance travelled
 	//[1] = How much further to go
-	int user_InRange;
-	int user_DoCheckRange;
-	int user_DoCheckSight;
-	int user_DoCheckFOV;
-	int user_MaxDistance;
-	double user_AngleRandom;
-	double user_PitchRandom;
+	int InRange;
+	int DoCheckRange;
+	int DoCheckSight;
+	int DoCheckFOV;
+	int MaxDistance;
+	double UAngleRandom;
+	double UPitchRandom;
 	Default 
 	{
 		Projectile;
@@ -440,26 +444,26 @@ Class TrailBeamJitterSpawner : Actor
 	Spawn:
 		TNT1 A 0 NoDelay
 		{
-			user_DoCheckRange = 0;			// Use Range Checker? Boolean. 
-			user_DoCheckSight = 0;			// Use Sight Checker? Boolean. 
-			user_DoCheckFOV = 0;			// Use Angle Checker? Boolean.
+			DoCheckRange = 0;			// Use Range Checker? Boolean. 
+			DoCheckSight = 0;			// Use Sight Checker? Boolean. 
+			DoCheckFOV = 0;			// Use Angle Checker? Boolean.
 			
-			user_count = 0; 				// How many tics this should respawn itself.
-			user_MaxDistance = 30000;		// The absolute total length it can travel.
+			count = 0; 				// How many tics this should respawn itself.
+			MaxDistance = 30000;		// The absolute total length it can travel.
 			
-			user_checkrangea = 4096;		// How far in range it must be for it to spawn for a player.
-			user_checkfova = 90.0;		// The FOV this must be in for the player.
+			checkrangea = 4096;		// How far in range it must be for it to spawn for a player.
+			checkfova = 90.0;		// The FOV this must be in for the player.
 			
 			// Choke determines how often the laser should reorient itself to 
 			// remain on target. The higher it goes, the more sporadic it will be.
-			user_chokemin = 1;				// Minimum choke.
-			user_chokemax = 7;				// Maximum choke.
+			chokemin = 1;				// Minimum choke.
+			chokemax = 7;				// Maximum choke.
 			
 			// Angle and pitch to randomize whenever not being choked.
 			// If you want it straight, use the defined keyword Straight in these
 			// parameters.
-			user_AngleRandom = 6.0;
-			user_PitchRandom = 6.0;
+			UAngleRandom = 6.0;
+			UPitchRandom = 6.0;
 			return ResolveState("Setup");
 		}
 	Setup:
@@ -470,23 +474,21 @@ Class TrailBeamJitterSpawner : Actor
 			if (target) { vel = target.vel; }
 			
 			// Establish defaults if unspecified.
-			if (user_MaxDistance <= 0)		{	user_MaxDistance = 		30000;	}
-			if (user_checkrangea <= 0)	{	user_checkrangea = 	4096;	}
-			if (user_chokemin <= 0)			{	user_chokemin = 		1;		}
-			if (user_chokemax <= 0)			{	user_chokemax = 		7;		}
-			if (user_AngleRandom <= 0.0)	{	user_AngleRandom =		6.0;	}
-			if (user_PitchRandom <= 0.0)	{	user_PitchRandom =		6.0;	}
-			if (user_checkfova <= 0.0)	{	user_checkfova =		90.0;	}
+			if (MaxDistance <= 0)		{	MaxDistance = 		30000;	}
+			if (checkrangea <= 0)	{	checkrangea = 	4096;	}
+			if (chokemin <= 0)			{	chokemin = 		1;		}
+			if (chokemax <= 0)			{	chokemax = 		7;		}
+			if (UAngleRandom <= 0.0)	{	UAngleRandom =		6.0;	}
+			if (UPitchRandom <= 0.0)	{	UPitchRandom =		6.0;	}
+			if (checkfova <= 0.0)	{	checkfova =		90.0;	}
 			
 			// The angle and pitch won't change so go ahead and save it now.
 			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-			user_pitch = pitch;
-			user_angle = angle;
-			user_x = pos.x;
-			user_y = pos.y;
-			user_z = pos.z;
-			user_distb = Min(user_MaxDistance, GetDistance(true,TracerPtr));
-			user_choke = random(user_chokemin, user_chokemax);
+			UPitch = pitch;
+			UAngle = angle;
+			P = pos;
+			distb = Min(MaxDistance, GetDistance(true,TracerPtr));
+			choke = random(chokemin, chokemax);
 			Scale.X *= 2.5;
 			Scale.Y *= 0.485;
 			return ResolveState("Sprite");
@@ -501,74 +503,74 @@ Class TrailBeamJitterSpawner : Actor
 	Moving:
 		"####" "#" 1
 		{
-			user_InRange = 0;
+			InRange = 0;
 		
-			// user_dista = distance currently travelled.
-			// user_distb = maximum distance.
+			// dista = distance currently travelled.
+			// distb = maximum distance.
 			// Make sure we always have a valid target.
-			while ((user_dista < user_distb))
+			while ((dista < distb))
 			{
 				// Don't randomize the very first beam.
-				if (user_dista > 0)
+				if (dista > 0)
 				{	A_FaceTracer(0,0,0,0,FAF_MIDDLE);	}
 				
 				// Randomizes the angle of the beams. 
-				if (user_dista < (user_distb - StepDistance))
+				if (dista < (distb - StepDistance))
 				{
 					// If we're not about to reach the end, or not hitting the 
 					// choker, randomize it. Otherwise, stay on target and go 
 					// for the puff.
-					if (user_choke > 0)
+					if (choke > 0)
 					{
-						A_SetPitch(pitch + frandom(-user_PitchRandom, user_PitchRandom));
-						A_SetAngle(angle + frandom(-user_AngleRandom, user_AngleRandom));
-						user_choke--;
+						A_SetPitch(pitch + frandom(-UPitchRandom, UPitchRandom));
+						A_SetAngle(angle + frandom(-UAngleRandom, UAngleRandom));
+						choke--;
 					}
 					else 
-					{	user_choke = random(user_chokemin, user_chokemax);	}
+					{	choke = random(chokemin, chokemax);	}
 				}
 				
 				// Check sight, range, and FOV. If disabled, then assume the 
 				// check(s) passed. For range, if the range is beyond the player
 				// and it previously was, break out of the Loop; and save on 
 				// processing time.
-				if (user_DoCheckRange)		
+				if (DoCheckRange)		
 				{	
-					if (user_checkrangeb > 0.0)
-					{	user_InRange = 1;	}
+					if (checkrangeb > 0.0)
+					{	InRange = 1;	}
 					
-					user_checkrangeb = (!(A_CheckRange(user_checkrangea,"Null",false)) ? 1 : 0);
+					checkrangeb = (!(A_CheckRange(checkrangea,"Null",false)) ? 1 : 0);
 					
-					if (!user_checkrangeb && user_InRange)
+					if (!checkrangeb && InRange)
 					{	break;	}
 				}
-				else						{	user_checkrangeb = 1;	}
+				else						{	checkrangeb = 1;	}
 				
-				if (user_DoCheckSight)		{	user_checksight = (!(A_CheckSight("Null")) ? 1 : 0);	}
-				else						{	user_checksight = 1;	}
+				if (DoCheckSight)		{	checksight = (!(A_CheckSight("Null")) ? 1 : 0);	}
+				else						{	checksight = 1;	}
 				
-				if (user_DoCheckFOV)		{	user_checkfovb = ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,Player1)) <= user_checkfova) ? 1.0 : 0.0);	}
-				else						{	user_checkfovb = 1;		}
+				if (DoCheckFOV)		{	checkfovb = ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,Player1)) <= checkfova) ? 1.0 : 0.0);	}
+				else						{	checkfovb = 1;		}
 				
 				// Spawn the beam with the same angle and pitch. Note that the
 				// beam is being centered so we have to take that into account
 				// and spawn it FORWARD based on half the beam's length.
 				// Then move forward by a beam's length and repeat until done.
-				if (user_checkrangeb && user_checksight && user_checkfovb)
+				if (checkrangeb && checksight && checkfovb)
 				{	A_SpawnItemEx("LaserBeamJitter",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,SpawnFlags);	}
 				
 				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
-				user_dista += StepDistance;
+				dista += StepDistance;
 			}
 			
-			user_count--;
+			count--;
 			
-			if (user_count <= 0)
+			if (count <= 0)
 			{	return ResolveState("Null");	}
 			
-			user_dista = 0.0;
-			A_Warp(DefPtr,user_x,user_y,user_z,user_angle,WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEPOSITION|WARPF_ABSOLUTEANGLE);
-			pitch = user_pitch;
+			dista = 0.0;
+			A_Warp(DefPtr,P.x,P.y,P.z,UAngle,WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEPOSITION|WARPF_ABSOLUTEANGLE);
+			pitch = UPitch;
 			return ResolveState(null);
 		}
 		Goto Sprite;
@@ -585,7 +587,7 @@ Class LaserBeamJitter : TrailBeam
 	Spawn:
 		"####" "#" 0 NoDelay 
 		{
-			user_time = 3.0;
+			time = 3.0;
 			A_SpawnItemEx("LaserBeamJitter",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME|SXF_TRANSFERTRANSLATION,tid * 256,1);
 			
 			return ResolveState("Process");
@@ -604,7 +606,7 @@ Class WhiteLaserBeamJitter : TrailBeam
 	Spawn:
 		"####" "#" 0 NoDelay 
 		{
-			user_time = 3.0;
+			time = 3.0;
 			A_SpawnItemEx("WhiteLaserBeamJitter",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME|SXF_TRANSFERTRANSLATION,tid * 256,1);
 			
 			return ResolveState("Process");
@@ -623,7 +625,7 @@ Class WhiteLaser : TrailBeamJitterSpawner
 	Spawn:
 		"####" "#" 0 NoDelay
 		{
-			user_checkrangea = 1024;
+			checkrangea = 1024;
 			return ResolveState("Setup");
 		}
 	}
@@ -641,9 +643,9 @@ Class RedLaser : TrailBeamJitterSpawner
 	Spawn:
 		TNT1 A 0 NoDelay
 		{
-			user_PitchRandom = 12.0;
-			user_AngleRandom = 12.0;
-			user_count = 0;
+			UPitchRandom = 12.0;
+			UAngleRandom = 12.0;
+			count = 0;
 			return ResolveState("Setup");
 		}
 	}

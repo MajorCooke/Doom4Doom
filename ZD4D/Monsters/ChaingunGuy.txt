@@ -36,10 +36,10 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 {
 	
 	const CBAFlags = CBAF_AIMFACING|CBAF_PUFFTRACER|CBAF_NORANDOMPUFFZ|CBAF_NORANDOM;
-	double user_vangle;
-	double user_p;
-	int user_count;
-	int user_staggertimer;
+	double vangle;
+	double p;
+	int count;
+	int staggertimer;
 	
 	Default 
 	{
@@ -115,8 +115,8 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 			
 			if (!CheckClass("PlayerPawn",TargetPtr,true))
 			{	A_FaceTarget(0,0,0,0,FAF_MIDDLE);	}
-			user_count = 0;
-			user_vangle = pitch;
+			count = 0;
+			vangle = pitch;
 			
 			if (GetCvar("vid_renderer") && GetCvar("D4D_MonsterLasers"))
 			{ A_CustomBulletAttack(0,0,1,0,"PacifistPuffCgunner",30000,CBAFlags,TargetPtr,"BigRedLaserDrill",32,4);	}
@@ -126,24 +126,24 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 			// Performs the attack every 5 tics.
 			if (GetCvar("vid_renderer") && GetCvar("D4D_MonsterLasers"))
 			{
-				if ((user_count % 5) == 0)
+				if ((count % 5) == 0)
 				{	
-					A_SpawnProjectile("CgunnerLaserInvisible",32,4,0,CMF_AIMDIRECTION,user_vangle);
+					A_SpawnProjectile("CgunnerLaserInvisible",32,4,0,CMF_AIMDIRECTION,vangle);
 					A_SpawnItemEx("LaserPowerUpSpark",8,4,32,frandom(-1,1),frandom(-1,1),frandom(-1,1),0,SXF_NOCHECKPOSITION);
 				}
 			}
 			else
 			{	
-				if ((user_count % 5) == 0)
+				if ((count % 5) == 0)
 				{	
-					A_SpawnProjectile("CgunnerLaser",32,4,0,CMF_AIMDIRECTION,user_vangle);
+					A_SpawnProjectile("CgunnerLaser",32,4,0,CMF_AIMDIRECTION,vangle);
 				}
 			}
 			
-			if (user_count >= 45)
+			if (count >= 45)
 			{	return ResolveState("See");	}
 			
-			user_count++;
+			count++;
 			return ResolveState(null);
 		}
 		Wait;
@@ -182,14 +182,9 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 	Death.MeleePunch:
 	Death.ChainsawPinata:	
 	XDeath:
-		"####" "#" 0  //loot drop
-		{
-			//D4SetupLoot(true);
-		}
-		Goto XDeathNoDrops;
-		
 	XDeathNoDrops:	
-		TNT1 A 1
+		TNT1 A 0;
+		TNT1 A 10
 		{
 			bThruActors = true;
 			XDeathGush();
@@ -342,12 +337,12 @@ Class BigRedLaserDrill : TrailBeamStaticScalingSpawner
 	Spawn:
 		X202 J 0 NoDelay
 		{
-			user_DoCheckSight = 0;
-			user_DoCheckRange = 0;
-			user_DoCheckFOV = 0;
-			user_MaxDistance = 30000;
-			user_checkrangea = 2048;
-			user_checkfova = 90.0;
+			DoCheckSight = 0;
+			DoCheckRange = 0;
+			DoCheckFOV = 0;
+			MaxDistance = 30000;
+			checkrangea = 2048;
+			checkfova = 90.0;
 			
 			A_RearrangePointers(DefPtr,TargetPtr,DefPtr,4);
 			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
@@ -359,31 +354,31 @@ Class BigRedLaserDrill : TrailBeamStaticScalingSpawner
 			if (target) { vel = target.vel; }
 			
 			// The angle and pitch won't change so go ahead and save it now.
-			user_pitch = pitch;
-			user_angle = angle;
-			user_distb = Min(user_MaxDistance, GetDistance(true,TracerPtr));
+			UPitch = pitch;
+			UAngle = angle;
+			distb = Min(MaxDistance, GetDistance(true,TracerPtr));
 			
-			// user_dista = distance currently travelled.
-			// user_distb = maximum distance.
-			while ((user_dista < user_distb))
+			// dista = distance currently travelled.
+			// distb = maximum distance.
+			while ((dista < distb))
 			{
-				if (user_DoCheckRange)		{	user_checkrangeb = (!(A_CheckRange(user_checkrangea,"Null",false)) ? 1 : 0);	}
-				else						{	user_checkrangeb = 1;	}
+				if (DoCheckRange)		{	checkrangeb = (!(A_CheckRange(checkrangea,"Null",false)) ? 1 : 0);	}
+				else						{	checkrangeb = 1;	}
 				
-				if (user_DoCheckSight)		{	user_checksight = (!(A_CheckSight("Null")) ? 1 : 0);	}
-				else						{	user_checksight = 1;	}
+				if (DoCheckSight)		{	checksight = (!(A_CheckSight("Null")) ? 1 : 0);	}
+				else						{	checksight = 1;	}
 				
-				if (user_DoCheckFOV)		{	user_checkfovb = ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,Player1)) <= user_checkfova) ? 1 : 0);	}
-				else						{	user_checkfovb = 1;		}
+				if (DoCheckFOV)		{	checkfovb = ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,Player1)) <= checkfova) ? 1 : 0);	}
+				else						{	checkfovb = 1;		}
 				
 				// Spawn the beam with the same angle and pitch. Note that the
 				// beam is being centered so we have to take that into account
 				// and spawn it FORWARD based on half the beam's length.
 				// Then move forward by a beam's length and repeat until done.
-				if (user_checkrangeb && user_checksight && user_checkfovb)
+				if (checkrangeb && checksight && checkfovb)
 				{	A_SpawnItemEx("BigRedLaserBeamCgunner",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,SpawnFlags);	}
 				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
-				user_dista += StepDistance;
+				dista += StepDistance;
 			}
 		}
 		Stop;
@@ -397,9 +392,9 @@ Class BigRedLaserBeamCgunner : TrailBeamStaticScaling
 	Spawn:
 		TNT1 A 0 NoDelay
 		{
-			user_timeup = 10.0;
-			user_wait = 30;
-			user_timedown = 7.0;
+			timeup = 10.0;
+			wait = 30;
+			timedown = 7.0;
 			
 			// Set this to the actor's same name. The TID will prevent it spawning infinitely (tid * 256).
 			A_SpawnItemEx("BigRedLaserBeamCgunner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME,tid * 256,1);
@@ -415,9 +410,9 @@ Class RedLaserCgunner : RedLaser
 	Spawn:
 		TNT1 A 0 NoDelay
 		{
-			user_count = 45;
-			user_checkrangea = 768;
-			user_DoCheckRange = user_DoCheckSight = user_DoCheckFOV = 1;
+			count = 45;
+			checkrangea = 768;
+			DoCheckRange = DoCheckSight = DoCheckFOV = 1;
 			
 			return ResolveState("Setup");
 		}
@@ -532,7 +527,7 @@ Class ElectricRailTrail : Actor
 
 Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy //replaces ChaingunGuy
 {
-	int user_staggertimer;
+	int staggertimer;
 	Default 
 	{
 		Health 70;

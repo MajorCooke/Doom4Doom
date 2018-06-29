@@ -277,10 +277,10 @@ Class LightningTrailBeamV2 : MovingTrailBeam
 	Spawn:
 		"####" "#" 0 NoDelay 
 		{
-			user_zoffset = 16;
-			user_time = 4.0;
-			user_pflags = WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEOFFSET|WARPF_COPYVELOCITY;
-			A_SpawnItemEx("LightningTrailBeamV2",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME,tid * 256,1);
+			zoffset = 16;
+			time = 4.0;
+			pflags = WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEOFFSET|WARPF_COPYVELOCITY;
+			//A_SpawnItemEx("LightningTrailBeamV2",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME,tid * 256,1);
 			
 			return A_JumpIf(GetCvar("D4D_BeamTexture"),"Process");
 		}
@@ -299,10 +299,10 @@ Class LightningTrailBeamV3 : MovingTrailBeam
 	Spawn:
 		"####" "#" 0 NoDelay 
 		{
-			user_zoffset = 16;
-			user_time = 4.0;
-			user_pflags = WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEOFFSET|WARPF_COPYVELOCITY;
-			A_SpawnItemEx("LightningTrailBeamV3",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME,tid * 256,1);
+			zoffset = 16;
+			time = 4.0;
+			pflags = WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEOFFSET|WARPF_COPYVELOCITY;
+			//A_SpawnItemEx("LightningTrailBeamV3",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME,tid * 256,1);
 			
 			return A_JumpIf(GetCvar("D4D_BeamTexture"),"Process");
 		}
@@ -321,8 +321,8 @@ Class LightningTrailBeamV4 : TrailBeam
 	Spawn:
 		"####" "#" 0 NoDelay 
 		{
-			user_time = 4.0;
-			A_SpawnItemEx("LightningTrailBeamV4",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME,tid * 256,1);
+			time = 4.0;
+			//A_SpawnItemEx("LightningTrailBeamV4",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME,tid * 256,1);
 			
 			return A_JumpIf(GetCvar("D4D_BeamTexture"),"Process");
 		}
@@ -342,12 +342,12 @@ Class LightningBeamV2 : Actor
 		ChokeMax = 5,		// 	"stay on target".
 	};
 	const StepDistance = 31;
-	double user_pitch;
-	double user_angle;
-	double user_dista;
-	double user_distb;
-	int user_choke;
-	int user_flags;
+	double UPitch;
+	double UAngle;
+	double dista;
+	double distb;
+	int choke;
+	int flags;
 	//[0] = Current distance travelled
 	//[1] = How much further to go
 	Default 
@@ -368,10 +368,10 @@ Class LightningBeamV2 : Actor
 			if (target) { vel = target.vel; }
 			
 			// The angle and pitch won't change so go ahead and save it now.
-			user_pitch = pitch;
-			user_angle = angle;
-			user_distb = Min(MaxDistance, GetDistance(true,TracerPtr));
-			user_choke = random(ChokeMin, ChokeMax);
+			UPitch = pitch;
+			UAngle = angle;
+			distb = Min(MaxDistance, GetDistance(true,TracerPtr));
+			choke = random(ChokeMin, ChokeMax);
 			
 			Scale.X = 0.03;
 			Scale.Y = 0.25;
@@ -381,12 +381,12 @@ Class LightningBeamV2 : Actor
 			
 			if (GetCvar("D4D_BeamTexture"))
 			{
-				user_flags = SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME;
+				flags = SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME;
 				Scale.X *= 2.5 * randompick(-1,1);
 				Scale.Y *= 0.485 * randompick(-1,1);
 			}
 			else
-				user_flags = SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS;
+				flags = SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS;
 			return ResolveState("Moving");
 		}
 	Sprite:
@@ -394,37 +394,37 @@ Class LightningBeamV2 : Actor
 	Moving:
 		"####" "#" 0
 		{
-			// user_dista = distance currently travelled.
-			// user_distb = maximum distance.
+			// dista = distance currently travelled.
+			// distb = maximum distance.
 			// Make sure we always have a valid target.
-			while ((user_dista < user_distb))
+			while ((dista < distb))
 			{
 				// Don't randomize the very first beam.
-				if (user_dista > 0)
+				if (dista > 0)
 				{	A_FaceTracer(0,0,0,0,FAF_MIDDLE);	}
 				
 				// Randomizes the angle of the beams. 
-				if (user_dista < (user_distb - StepDistance))
+				if (dista < (distb - StepDistance))
 				{
 					// If we're not about to reach the end, or not hitting the 
 					// choker, randomize it. Otherwise, stay on target and go 
 					// for the puff.
-					if (user_choke > 0)
+					if (choke > 0)
 					{
 						A_SetPitch(pitch + frandom(-PitchRandom, PitchRandom));
 						A_SetAngle(angle + frandom(-AngleRandom, AngleRandom));
-						user_choke--;
+						choke--;
 					}
 					else 
-					{	user_choke = random(ChokeMin,ChokeMax);	}
+					{	choke = random(ChokeMin,ChokeMax);	}
 				}
 				// Spawn the beam with the same angle and pitch. Note that the
 				// beam is being centered so we have to take that into account
 				// and spawn it FORWARD based on half the beam's length.
 				// Then move forward by a beam's length and repeat until done.
-				A_SpawnItemEx("LightningTrailBeamV2",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,user_flags);
+				A_SpawnItemEx("LightningTrailBeamV2",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,flags);
 				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
-				user_dista += StepDistance;
+				dista += StepDistance;
 			}
 		}
 		Stop;
@@ -442,15 +442,15 @@ Class LightningBeamV3 : Actor
 		ChokeMax = 5,		// 	"stay on target".
 	};
 	const StepDistance = 31;
-	double user_pitch;
-	double user_angle;
-	double user_dista;
-	double user_distb;
+	double UPitch;
+	double UAngle;
+	double dista;
+	double distb;
 	//[0] = Current distance travelled
 	//[1] = How much further to go
-	int user_choke;
-	int user_t;
-	int user_flags;
+	int choke;
+	int t;
+	int flags;
 	Default 
 	{
 		+NOCLIP
@@ -465,7 +465,7 @@ Class LightningBeamV3 : Actor
 		{
 			if (tid > 0)
 			{
-				user_t = tid;
+				t = tid;
 				Thing_ChangeTID(0,0);
 				
 				if (A_CheckProximity("Null","LightningPuffV3",256,1,CPXF_SETTARGET))
@@ -492,12 +492,12 @@ Class LightningBeamV3 : Actor
 			
 			if (GetCvar("D4D_BeamTexture"))
 			{
-				user_flags = SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME;
+				flags = SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME;
 				Scale.X *= 2.5 * randompick(-1,1);
 				Scale.Y *= 0.485 * randompick(-1,1);
 				return A_Jump(256,1,2,3,4);
 			}
-			user_flags = SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS;
+			flags = SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS;
 			return ResolveState("Moving");
 		}
 	Sprite:
@@ -506,33 +506,33 @@ Class LightningBeamV3 : Actor
 		"####" "#" 0
 		{
 			// The angle and pitch won't change so go ahead and save it now.
-			user_pitch = pitch;
-			user_angle = angle;
-			user_distb = Min(MaxDistance, GetDistance(true,TracerPtr));
-			user_choke = random(ChokeMin, ChokeMax);
-			// user_dista = distance currently travelled.
-			// user_distb = maximum distance.
+			UPitch = pitch;
+			UAngle = angle;
+			distb = Min(MaxDistance, GetDistance(true,TracerPtr));
+			choke = random(ChokeMin, ChokeMax);
+			// dista = distance currently travelled.
+			// distb = maximum distance.
 			// Make sure we always have a valid target.
-			while ((user_dista < user_distb))
+			while ((dista < distb))
 			{
 				// Don't randomize the very first beam.
-				if (user_dista > 0)
+				if (dista > 0)
 				{	A_FaceTracer(0,0,0,0,FAF_MIDDLE);	}
 				
 				// Randomizes the angle of the beams. 
-				if (user_dista < (user_distb - StepDistance))
+				if (dista < (distb - StepDistance))
 				{
 					// If we're not about to reach the end, or not hitting the 
 					// choker, randomize it. Otherwise, stay on target and go 
 					// for the puff.
-					if (user_choke > 0)
+					if (choke > 0)
 					{
 						A_SetPitch(pitch + frandom(-PitchRandom, PitchRandom));
 						A_SetAngle(angle + frandom(-AngleRandom, AngleRandom));
-						user_choke--;
+						choke--;
 					}
 					else 
-					{	user_choke = random(ChokeMin,ChokeMax);	}
+					{	choke = random(ChokeMin,ChokeMax);	}
 				}
 				// Spawn the beam with the same angle and pitch. Note that the
 				// beam is being centered so we have to take that into account
@@ -540,13 +540,13 @@ Class LightningBeamV3 : Actor
 				// Then move forward by a beam's length and repeat until done.
 				//A_SpawnItemEx("LightningTrailBeamV3",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS);
 				
-				if (user_t)
-				{	A_SpawnItemEx("LightningTrailBeamV4",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,user_flags);	}
+				if (t)
+				{	A_SpawnItemEx("LightningTrailBeamV4",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,flags);	}
 				else
-				{	A_SpawnItemEx("LightningTrailBeamV3",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,user_flags);	}
+				{	A_SpawnItemEx("LightningTrailBeamV3",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,flags);	}
 				
 				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
-				user_dista += StepDistance;
+				dista += StepDistance;
 			}
 		}
 		Stop;
@@ -560,8 +560,8 @@ Class LGEmitter : Actor
 	const Distance = 17;
 	const YOff = 4;
 	const ZOff = 38;
-	double  user_pos;
-	int user_t;
+	double  pos;
+	int t;
 	Projectile;
 	+NOINTERACTION
 	RenderStyle "Add";
@@ -572,9 +572,9 @@ Class LGEmitter : Actor
 		PLAY A 1 NoDelay
 		{
 			A_Warp(MasterPtr,pos.x,pos.y,pos.z,0,Flags|WARPF_ABSOLUTEPOSITION); //Grab the pitch...
-			user_pos = (-sin(pitch) * 3);
+			pos = (-sin(pitch) * 3);
 			A_Warp(MasterPtr,
-				(cos(pitch)*(Distance)) - user_pos,
+				(cos(pitch)*(Distance)) - pos,
 				YOff,
 				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);	
 		}
@@ -587,15 +587,15 @@ Class LGPuff : Actor
 	const Limit = 12.0;
 	const FMin = 0.5;
 	const FMax = 1.0;
-	double user_xa, user_xb, user_xc;
-	double user_ya, user_yb, user_yc;
-	double user_za, user_zb, user_zc;
-	double  user_dist;
-	double  user_anga, user_angb, user_angc;
-	int user_life;
-	int user_count;
-	int user_minicount;
-	double  user_narrow;
+	double xa, xb, xc;
+	double ya, yb, yc;
+	double za, zb, zc;
+	double  dist;
+	double  anga, angb, angc;
+	int life;
+	int count;
+	int minicount;
+	double  narrow;
 	Projectile;
 	//+HITTRACER
 	+CLIENTSIDEONLY
@@ -619,21 +619,21 @@ Class LGPuff : Actor
 		{
 			if (!A_CheckProximity("Null","LGEmitter",2048,1,CPXF_SETTRACER))
 			{	return ResolveState("PlayNormal"); }
-			user_narrow = 1.0;
-			user_xc = pos.x;
-			user_yc = pos.y;
-			user_zc = pos.z;
+			narrow = 1.0;
+			xc = pos.x;
+			yc = pos.y;
+			zc = pos.z;
 			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-			user_anga = angle;
+			anga = angle;
 			return ResolveState(null);
 		}
 		"####" "#" 1 bright
 		{
 			if (!IsPointerEqual(TracerPtr,NullPtr))
 			{	
-				user_angb = -GetAngle(true, TracerPtr));
+				angb = -GetAngle(true, TracerPtr));
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-				A_SetAngle(angle + user_angb);
+				A_SetAngle(angle + angb);
 				return ResolveState("Beam");	
 			}
 			A_Logfalse;
@@ -643,67 +643,67 @@ Class LGPuff : Actor
 	Beam:
 		"####" "#" 0
 		{
-			if (user_minicount <= 0)
+			if (minicount <= 0)
 			{
 				
-				user_xb = frandom(FMin,FMax) * randompick(-1,1);
-				user_yb = frandom(FMin,FMax) * randompick(-1,1);
-				user_zb = frandom(FMin,FMax) * randompick(-1,1);
-				user_minicount = random(2,4);
+				xb = frandom(FMin,FMax) * randompick(-1,1);
+				yb = frandom(FMin,FMax) * randompick(-1,1);
+				zb = frandom(FMin,FMax) * randompick(-1,1);
+				minicount = random(2,4);
 			}
 			else
 			{
 				
-				user_xa += user_xb;
-				user_ya += user_yb;
-				user_za += user_zb;
-				user_minicount--;
+				xa += xb;
+				ya += yb;
+				za += zb;
+				minicount--;
 			}
 			if (GetAngle(true,TracerPtr) > 0)
 			{
-				A_Warp(DefPtr,cos(pitch)*5,user_ya,-sin(pitch)*5,0,WARPF_NOCHECKPOSITION);
+				A_Warp(DefPtr,cos(pitch)*5,ya,-sin(pitch)*5,0,WARPF_NOCHECKPOSITION);
 				A_FaceTracer(1,1,0,0,FAF_MIDDLE);
-				A_SpawnParticle("2222FF",SPF_FULLBRIGHT|SPF_RELATIVE,2,8,0,(cos(pitch)*5),user_ya,(-sin(pitch)*5),0,0,0,0,0,0,1.0,0.5);
+				A_SpawnParticle("2222FF",SPF_FULLBRIGHT|SPF_RELATIVE,2,8,0,(cos(pitch)*5),ya,(-sin(pitch)*5),0,0,0,0,0,0,1.0,0.5);
 				return ResolveState("Beam");
 			}
-			user_dist = GetDistance(true,TracerPtr);
+			dist = GetDistance(true,TracerPtr);
 			return ResolveState("Beam2");
 		}
 	Beam2:
 		"####" "#" 2 bright
 		{
 			
-			if (user_count >= user_dist)
+			if (count >= dist)
 			{
-				user_count = 0;
+				count = 0;
 				A_RearrangePointers(DefPtr,DefPtr,NullPtr);
-				A_Warp(DefPtr,user_xc,user_yc,user_zc,0,WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEPOSITION);
+				A_Warp(DefPtr,xc,yc,zc,0,WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEPOSITION);
 				return ResolveState(null);
 			}			
-			if (user_minicount <= 0)
+			if (minicount <= 0)
 			{
 				
-				user_xb = frandom(FMin,FMax) * randompick(-1,1);
-				user_yb = frandom(FMin,FMax) * randompick(-1,1);
-				user_zb = frandom(FMin,FMax) * randompick(-1,1);
-				user_minicount = random(2,4);
+				xb = frandom(FMin,FMax) * randompick(-1,1);
+				yb = frandom(FMin,FMax) * randompick(-1,1);
+				zb = frandom(FMin,FMax) * randompick(-1,1);
+				minicount = random(2,4);
 			}
 			else
 			{
-				user_xa += user_xb;
-				user_ya += user_yb;
-				user_za += user_zb;
-				user_minicount--;
+				xa += xb;
+				ya += yb;
+				za += zb;
+				minicount--;
 			}
-			if (user_ya > Limit)		{	user_ya -= ((abs(user_ya) % Limit) * 2);	}
-			if (user_za > Limit)		{	user_za -= ((abs(user_za) % Limit) * 2);	}
-			if (user_ya < -Limit)		{	user_ya += ((abs(user_ya) % Limit) * 2);	}
-			if (user_za < -Limit)		{	user_za += ((abs(user_za) % Limit) * 2);	}
+			if (ya > Limit)		{	ya -= ((abs(ya) % Limit) * 2);	}
+			if (za > Limit)		{	za -= ((abs(za) % Limit) * 2);	}
+			if (ya < -Limit)		{	ya += ((abs(ya) % Limit) * 2);	}
+			if (za < -Limit)		{	za += ((abs(za) % Limit) * 2);	}
 			
-			if (user_count >= user_dist - 100)
-			{	user_narrow = Max(user_narrow - 0.05, 0);	}
-			A_SpawnParticle("2222FF",SPF_FULLBRIGHT|SPF_RELATIVE,2,8,0,((cos(pitch)*user_count)+(-sin(pitch)*user_xa*user_narrow)),user_ya*user_narrow,((-sin(pitch)*user_count)+(cos(pitch)*user_za*user_narrow)),0,0,0,0,0,0,1.0,0.5);
-			user_count += 5;
+			if (count >= dist - 100)
+			{	narrow = Max(narrow - 0.05, 0);	}
+			A_SpawnParticle("2222FF",SPF_FULLBRIGHT|SPF_RELATIVE,2,8,0,((cos(pitch)*count)+(-sin(pitch)*xa*narrow)),ya*narrow,((-sin(pitch)*count)+(cos(pitch)*za*narrow)),0,0,0,0,0,0,1.0,0.5);
+			count += 5;
 			return ResolveState("Beam");
 		}
 		Stop;
@@ -751,7 +751,7 @@ Class LGPuffNoPain : LGPuff
 //-----------------------------------------------------------------------
 Class D4LGTrail : Actor 
 {
-	double user_dist;
+	double dist;
 	
 	Default 
 	{
@@ -770,7 +770,7 @@ Class D4LGTrail : Actor
 		{
 			//Get the pitch. Only need to do this once.
 			if (target)		{	pitch = target.pitch;	}
-			user_dist = GetDistance(true,AAPTR_TARGET);
+			dist = GetDistance(true,AAPTR_TARGET);
 			
 			if(GetCvar("HQEffectsWeapons"))
 			{
@@ -784,7 +784,7 @@ Class D4LGTrail : Actor
 		"####" "#" 1 BRIGHT
 		{
 			A_FadeOut(0.125);
-			A_Warp(AAPTR_TARGET,cos(pitch)*user_dist,8+frandom(-1,1),frandom(-1,1)+32+sin(-pitch)*user_dist,0,WARPF_NOCHECKPOSITION|WARPF_COPYPITCH|WARPF_COPYVELOCITY|WARPF_INTERPOLATE);
+			A_Warp(AAPTR_TARGET,cos(pitch)*dist,8+frandom(-1,1),frandom(-1,1)+32+sin(-pitch)*dist,0,WARPF_NOCHECKPOSITION|WARPF_COPYPITCH|WARPF_COPYVELOCITY|WARPF_INTERPOLATE);
 			
 		}
 		Wait;
@@ -821,8 +821,8 @@ Class ElectDrSpark : Actor
 //-----------------------------------------------------------------------
 Class D4LGTrailAltFire : Actor 
 {
-	double  user_dist;
-	int user_t;
+	double  dist;
+	int t;
 	Default 
 	{
 		+NOINTERACTION
@@ -838,13 +838,13 @@ Class D4LGTrailAltFire : Actor
 		TNT1 A 0 NoDelay 
 		{
 			if (tid > 0)
-			{	user_t = tid; Thing_ChangeTID(0,0);	}
+			{	t = tid; Thing_ChangeTID(0,0);	}
 			//Get the pitch. Only need to do this once.
 			
-			if (user_t == 0)
+			if (t == 0)
 			{
 				if (target) { pitch = target.pitch; }
-				user_dist = GetDistance(true,AAPTR_TARGET);
+				dist = GetDistance(true,AAPTR_TARGET);
 			}
 			
 			if(GetCvar("HQEffectsWeapons")) 
@@ -860,7 +860,7 @@ Class D4LGTrailAltFire : Actor
 		{
 			A_FadeOut(0.125);
 			//This gathers the new pitch every other time.
-			if (user_t == 0)	{ A_Warp(AAPTR_TARGET,cos(pitch)*user_dist,8+frandom(-1,1),frandom(-1,1)+32+sin(-pitch)*user_dist,0,WARPF_NOCHECKPOSITION|WARPF_COPYPITCH|WARPF_COPYVELOCITY|WARPF_INTERPOLATE); }
+			if (t == 0)	{ A_Warp(AAPTR_TARGET,cos(pitch)*dist,8+frandom(-1,1),frandom(-1,1)+32+sin(-pitch)*dist,0,WARPF_NOCHECKPOSITION|WARPF_COPYPITCH|WARPF_COPYVELOCITY|WARPF_INTERPOLATE); }
 		}
 		Wait;
 	}
@@ -869,9 +869,9 @@ Class D4LGTrailAltFire : Actor
 Class LGAltPuff : Actor 
 {
 	const SpawnDistance = 10;
-	int user_c;
-	int user_count;
-	double  user_distance;
+	int c;
+	int count;
+	double  distance;
 	Default 
 	{
 		Projectile;
@@ -920,11 +920,11 @@ Class LGAltPuff : Actor
 					//A_RadiusGive("ChainRemover",1024,RGF_MISSILES|RGF_NOTRACER,1,"LightningChainTargeter");
 					A_TransferPointer(DefPtr,TracerPtr,MasterPtr,MasterPtr,4);
 					A_FaceTracer(0,0,0,0,FAF_BOTTOM);
-					user_distance = GetDistance(true,TracerPtr);
+					distance = GetDistance(true,TracerPtr);
 					return ResolveState("MiniLoop");
 				}
 			}
-			if (user_count > 0)
+			if (count > 0)
 			{	A_RadiusGive("ChainClearer",4096,RGF_MONSTERS,1);	}
 			return ResolveState(null);
 		}
@@ -932,15 +932,15 @@ Class LGAltPuff : Actor
 	MiniLoop:
 		"####" "#" 0
 		{
-			A_SpawnItemEx("D4LGTrailAltFire",cos(pitch)*user_c,0,-sin(pitch)*user_c,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH,0,1);
-			user_c = user_c + 10;
-			if (user_c >= user_distance)
+			A_SpawnItemEx("D4LGTrailAltFire",cos(pitch)*c,0,-sin(pitch)*c,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH,0,1);
+			c = c + 10;
+			if (c >= distance)
 			{
 				A_Warp(TracerPtr,0,0,0,0,WARPF_NOCHECKPOSITION);
 				A_GiveInventory("ChainDamager",1,TracerPtr);
-				user_c = 0;
-				user_count++;
-				if (user_count > 2)	
+				c = 0;
+				count++;
+				if (count > 2)	
 				{
 					A_RadiusGive("ChainClearer",4096,RGF_MONSTERS|RGF_OBJECTS,1);
 					return ResolveState("Null"); 

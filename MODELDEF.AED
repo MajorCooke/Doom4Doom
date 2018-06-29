@@ -1,3 +1,147 @@
+Model "TrailBeam"
+{
+	Model 0 "Models/BeamOffset.md3"
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 B 0 0
+}
+
+Model "BulletTrailBeam"
+{
+	Model 0 "Models/BeamOffset.md3"
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 B 0 0
+}
+
+Model CarrionTrailBeamMoving
+{
+	Model 0 "Models/BeamOffset.md3"
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 I 0 0
+}
+
+Model CarrionTrailBeam
+{
+	Model 0 "Models/BeamOffset.md3"
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 I 0 0
+}
+
+Model CarrionTrailBeamMovingBoom
+{
+	Model 0 "Models/BeamOffset.md3"
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 J 0 0
+}
+
+Model GaussTrail
+{
+	Model 0 "Models/BeamOffset.md3"
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 B 0 0
+}
+
+Model GaussTrailBig
+{
+	Model 0 "Models/BeamOffset.md3"
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 B 0 0
+}
+
+Model LightningTrailBeamV2
+{
+	Model 0 "Models/BeamOffset.md3"
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 F 0 0
+}
+
+Model LightningTrailBeamV3
+{
+	Model 0 "Models/BeamOffset.md3"
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 G 0 0
+}
+
+Model LightningTrailBeamV4
+{
+	Model 0 "Models/BeamOffset.md3"
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 G 0 0
+}
+
+Model LaserBeamJitter
+{
+	Model 0 "Models/BeamOffset.md3"
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 B 0 0
+	
+	Skin 0 "Graphics/LtBmBlu1.png"
+	FrameIndex X206 F 0 0
+	Skin 0 "Graphics/LtBmBlu1.png"
+	FrameIndex X206 G 0 0
+	Skin 0 "Graphics/LtBmBlu1.png"
+	FrameIndex X206 H 0 0
+	Skin 0 "Graphics/LtBmBlu1.png"
+	FrameIndex X206 I 0 0
+}
+
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Model PistolTracerNormal
 { 
 	Path "MD3/Projectiles" 
@@ -45,3 +189,124 @@ Model IncendiaryBulletDMG //for the repeater upgraded
 	PITCHFROMMOMENTUM
 	FrameIndex TRAC A 0 0
 }
+/*
+Model "TrailBeam"
+{
+	Model 0 "Models/BeamOffset.md3"
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X163 B 0 0
+}
+
+Model "BulletTrailBeam"
+{
+	Model 0 "Models/BeamOffset.md3"
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X163 B 0 0
+}
+
+Model "BulletTrailBeamInverted"
+{
+	Model 0 "Models/BeamOffset.md3"
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X163 B 0 0
+}
+*/
+// Blue
+/*
+Model "SNLightningBeam"
+{
+	//Path "Models"
+	Model 0 "Models/BeamOffset.md3"
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	// Blue
+	Skin 0 "Graphics/LtBmBlu1.png"
+	FrameIndex LNBB A 0 0
+	Skin 0 "LtBmBlu2"
+	FrameIndex LNBB B 0 0
+	Skin 0 "LtBmBlu3"
+	FrameIndex LNBB C 0 0
+	Skin 0 "LtBmBlu4"
+	FrameIndex LNBB D 0 0
+	Skin 0 "LtBmBlu5"
+	FrameIndex LNBB E 0 0
+	Skin 0 "LtBmBlu6"
+	FrameIndex LNBB F 0 0
+	Skin 0 "LtBmBlu7"
+	FrameIndex LNBB G 0 0
+	Skin 0 "LtBmBlu8"
+	FrameIndex LNBB H 0 0
+	
+	// Green
+	Skin 0 "Graphics/LtBmGrn1.png"
+	FrameIndex LNBG A 0 0
+	Skin 0 "LtBmGrn2"
+	FrameIndex LNBG B 0 0
+	Skin 0 "LtBmGrn3"
+	FrameIndex LNBG C 0 0
+	Skin 0 "LtBmGrn4"
+	FrameIndex LNBG D 0 0
+	Skin 0 "LtBmGrn5"
+	FrameIndex LNBG E 0 0
+	Skin 0 "LtBmGrn6"
+	FrameIndex LNBG F 0 0
+	Skin 0 "LtBmGrn7"
+	FrameIndex LNBG G 0 0
+	Skin 0 "LtBmGrn8"
+	FrameIndex LNBG H 0 0
+	
+	// Red
+	Skin 0 "Graphics/LtBmRed1.png"
+	FrameIndex LNBR A 0 0
+	Skin 0 "LtBmRed2"
+	FrameIndex LNBR B 0 0
+	Skin 0 "LtBmRed3"
+	FrameIndex LNBR C 0 0
+	Skin 0 "LtBmRed4"
+	FrameIndex LNBR D 0 0
+	Skin 0 "LtBmRed5"
+	FrameIndex LNBR E 0 0
+	Skin 0 "LtBmRed6"
+	FrameIndex LNBR F 0 0
+	Skin 0 "LtBmRed7"
+	FrameIndex LNBR G 0 0
+	Skin 0 "LtBmRed8"
+	FrameIndex LNBR H 0 0
+	
+	// White
+	Skin 0 "Graphics/LtBmWht1.png"
+	FrameIndex LNBW A 0 0
+	Skin 0 "LtBmWht2"
+	FrameIndex LNBW B 0 0
+	Skin 0 "LtBmWht3"
+	FrameIndex LNBW C 0 0
+	Skin 0 "LtBmWht4"
+	FrameIndex LNBW D 0 0
+	Skin 0 "LtBmWht5"
+	FrameIndex LNBW E 0 0
+	Skin 0 "LtBmWht6"
+	FrameIndex LNBW F 0 0
+	Skin 0 "LtBmWht7"
+	FrameIndex LNBW G 0 0
+	Skin 0 "LtBmWht8"
+	FrameIndex LNBW H 0 0
+}
+*/

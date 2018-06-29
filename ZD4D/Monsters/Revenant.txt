@@ -34,9 +34,9 @@ BLESSED (White)
 
 Class D4Revenant : D4AbstractBiggie
 {
-	int user_wep;
-	int user_counter;
-	int user_staggertimer;
+	int wep;
+	int counter;
+	int staggertimer;
 	Default 
 	{
 		D4AbstractMonster.CrateDropAmount 2;
@@ -88,39 +88,38 @@ Class D4Revenant : D4AbstractBiggie
 			A_FaceTarget();
 			A_PlaySound("Doom4/Monsters/Revenant/Attack",CHAN_AUTO);
 		}
-		SKEL KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK 1
+		SKEL KKKKKKKKKKKKKKKKKKKK 2
 		{
 			A_FaceTarget(0,0,0,0,FAF_MIDDLE);
-			A_CustomRailgun(0,-12,"","Red",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"NoBloodPuff",0,0,2048,1,0,0,null,19);
-			A_CustomRailgun(0,12,"","Red",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"NoBloodPuff",0,0,2048,1,0,0,null,19);
+			A_CustomRailgun(0,-12,"","Red",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"NoBloodPuff",0,0,2048,1,2,0,null,19);
+			A_CustomRailgun(0,12,"","Red",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"NoBloodPuff",0,0,2048,1,2,0,null,19);
 		}
-		SKEL KKKKKKK 1
+		SKEL KKKK 2
 		{
 			A_FaceTarget(0,0,0,0,FAF_MIDDLE);
-			A_CustomRailgun(0,-12,"","Orange",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"NoBloodPuff",0,0,2048,1,0,0,null,19);
-			A_CustomRailgun(0,12,"","Orange",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"NoBloodPuff",0,0,2048,1,0,0,null,19);
+			A_CustomRailgun(0,-12,"","Orange",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"NoBloodPuff",0,0,2048,1,2,0,null,19);
+			A_CustomRailgun(0,12,"","Orange",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"NoBloodPuff",0,0,2048,1,2,0,null,19);
 		}
-		SKEL KKKKKKK 1
+		SKEL KKKK 2
 		{
 			A_FaceTarget(0,0,0,0,FAF_MIDDLE);
-			A_CustomRailgun(0,-12,"","Yellow",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"NoBloodPuff",0,0,2048,1,0,0,null,19);
-			A_CustomRailgun(0,12,"","Yellow",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"NoBloodPuff",0,0,2048,1,0,0,null,19);
+			A_CustomRailgun(0,-12,"","Yellow",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"NoBloodPuff",0,0,2048,1,2,0,null,19);
+			A_CustomRailgun(0,12,"","Yellow",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"NoBloodPuff",0,0,2048,1,2,0,null,19);
 		}
-		SKEL KKKKKKK 1
+		SKEL KKK 2
 		{
 			A_FaceTarget(0,0,0,0,FAF_MIDDLE);
-			A_CustomRailgun(0,-12,"","White",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"NoBloodPuff",0,0,2048,1,0,0,null,19);
-			A_CustomRailgun(0,12,"","White",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"NoBloodPuff",0,0,2048,1,0,0,null,19);
+			A_CustomRailgun(0,-12,"","White",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"NoBloodPuff",0,0,2048,1,2.0,0,null,19);
+			A_CustomRailgun(0,12,"","White",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"NoBloodPuff",0,0,2048,1,2.0,0,null,19);
+			HQ = CheckEffects();
+			wep = -1;
 		}
-		SKEL J 10 Bright
+		SKEL JJ 10 Bright
 		{
 			A_FaceTarget();
-			A_SpawnProjectile("RevenantRocketFast",50,-14,0);	
-		}
-		SKEL J 10 Bright
-		{
-			A_FaceTarget();
-			A_SpawnProjectile("RevenantRocketFast",50,14,0);	
+			Class<Actor> rawket = (HQ) ? "RevenantRocketFast" : "RevenantRocketFastLQ";
+			A_SpawnProjectile(rawket,50,14 * wep,0);
+			wep *= -1;
 		}
 		SKEL K 10;
 		Goto See;
@@ -129,14 +128,14 @@ Class D4Revenant : D4AbstractBiggie
 	Barrage:
 		SKEL K 10 
 		{
-			HQ = GetCvar("HQEffects");
+			HQ = CheckEffects();
 			A_FaceTarget();
-			user_wep = -1;
+			wep = -1;
 		}
 	Looper:
 		SKEL J 4 Bright
 		{
-			if (user_counter >= 8)
+			if (counter >= 8)
 			{
 				return ResolveState("EndMissiles");
 			}
@@ -145,9 +144,9 @@ Class D4Revenant : D4AbstractBiggie
 			
 			Class<Actor> rawket = (HQ) ? "RevenantRocketSpinning" : "RevenantRocketSpinningSimple";
 			
-			A_SpawnProjectile(rawket,50,14 * user_wep,0);
-			user_wep *= -1;
-			user_counter++;
+			A_SpawnProjectile(rawket,50,14 * wep,0);
+			wep *= -1;
+			counter++;
 			return ResolveState(null);
 		}
 		Loop;
@@ -155,7 +154,7 @@ Class D4Revenant : D4AbstractBiggie
 		SKEL K 10 
 		{
 			A_FaceTarget();
-			user_counter = 0;
+			counter = 0;
 		}
 		Goto See;
 		
@@ -194,14 +193,9 @@ Class D4Revenant : D4AbstractBiggie
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		"####" "#" 0  //loot drop
-		{
-			//D4SetupLoot(true);
-		}
-		Goto XDeathNoDrops;
-		
 	XDeathNoDrops:	
-		TNT1 A 1
+		TNT1 A 0;
+		TNT1 A 10
 		{
 			bThruActors = true;
 			XDeathGush();
@@ -327,49 +321,38 @@ Class RevenantRocketFast : FastProjectile
 		Decal "D4ExploScorchSmall";
 	}
 	
-	bool HQ;
-	override void PostBeginPlay()
-	{
-		Super.PostBeginPlay();
-		HQ = GetCvar("HQEffects");
-	}
-	
 	States
 	{
 	Spawn:
 		SWMS A 1 Bright Light("OrangeMediumPoint3")
 		{
-			if (HQ)
-			{
-				A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-			}
+			A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 		}
 		Wait;
 	Death:
 		TNT1 A 0 
 		{
-			if (HQ)
-			{
-				A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
-				A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
-				A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
-				A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
-				A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
-				A_SpawnParticle("BD0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
-				A_SpawnParticle("BD0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
-				A_SpawnParticle("BD0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
-				A_SpawnParticle("BD0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
-				A_SpawnParticle("BD0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
-				A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
-				A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
-				A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
-				A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
-				A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
-			}
+			A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("BD0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("BD0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("BD0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("BD0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("BD0000",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
+			A_PlaySound("Doom4/Weapon/Machinegun/MiniMissileExplo");
+			A_SpawnItemEx("MGMiniMissileExploSlightlyBigger",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			return ResolveState("DeathCont");
 		}
-		TMT1 A 0 A_PlaySound("Doom4/Weapon/Machinegun/MiniMissileExplo");
+	DeathCont:
 		//TNT1 A 0 A_Explode(48,64,0) //he'd end up killing himself more often than not if infighting
-		TNT1 A 0 A_SpawnItemEx("MGMiniMissileExploSlightlyBigger",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 		TNT1 A 2 Light("OrangeMediumPoint2");
 		TNT1 A 2 Light("OrangeMediumPoint3");
 		TNT1 A 2 Light("OrangeSmallPoint1");
@@ -379,13 +362,34 @@ Class RevenantRocketFast : FastProjectile
 	}
 }
 
+Class RevenantRocketFastLQ : RevenantRocketFast
+{
+	Default
+	{
+		MissileType "";
+	}
+	States
+	{
+	Spawn:
+		SWMS A 1 Bright Light("OrangeMediumPoint3");
+		Wait;
+	Death:
+		TNT1 A 0
+		{
+			A_PlaySound("Doom4/Weapon/Machinegun/MiniMissileExplo");
+			A_SpawnItemEx("MGMiniMissileExploSlightlyBigger",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			return ResolveState("DeathCont");
+		}
+		Goto DeathCont;
+	}
+}
 
 Class RevenantRocketSpinning : D4AbstractMissile
 {
-	int user_value1;
-	int user_value2;
-	double user_value3;
-	double user_value4;
+	int value1;
+	int value2;
+	double value3;
+	double value4;
 	bool simple;
 	property Simple: simple;
 	Default 
@@ -411,20 +415,19 @@ Class RevenantRocketSpinning : D4AbstractMissile
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_Jump(220,4,8,12,16,20,22,26);
-		TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_Weave(2,2,1.0,1.0);	//so that it starts at a random offset of the weave
+		TNT1 A 0 NODELAY 
+		{
+			int rng = random(1,62);
+			A_Weave(rng, rng, 1.0, 1.0);
+			return ResolveState("Moving");
+		} //so that it starts at a random offset of the weave
+	Moving:
 		SWMS A 1 Bright Light("OrangeSmallPoint1")
 		{
 			A_Weave(2,2,1.0,1.0);
-			if (!simple)
-			{
-				A_SpawnItemEx("RocketGasTrail",-4,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-			}
-			else
-			{
-				A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION,128);
-			}
+			A_SpawnItemEx("RocketGasTrail",-4,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			
 		}
 		Wait;
 	Death:
@@ -439,9 +442,11 @@ Class RevenantRocketSpinning : D4AbstractMissile
 			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
 			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
 			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+			A_PlaySound("Doom4/Weapon/Machinegun/MiniMissileExplo");
+			A_SpawnItemEx("MGMiniMissileExplo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			return ResolveState("DeathCont");
 		}
-		TNT1 A 0 A_PlaySound("Doom4/Weapon/Machinegun/MiniMissileExplo");
-		TNT1 A 0 A_SpawnItemEx("MGMiniMissileExplo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+	DeathCont:
 		TNT1 A 2 Light("OrangeMediumPoint2");
 		TNT1 A 2 Light("OrangeMediumPoint3");
 		TNT1 A 2 Light("OrangeSmallPoint1");
@@ -452,7 +457,26 @@ Class RevenantRocketSpinning : D4AbstractMissile
 }
 
 Class RevenantRocketSpinningSimple : RevenantRocketSpinning
-{	Default	{	RevenantRocketSpinning.Simple true;	}	}
+{	
+	States
+	{
+	Moving:
+		SWMS A 1
+		{
+			A_Weave(2, 2, 1.0, 1.0);
+			A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION,192);
+		}
+		Wait;
+	Death:
+		TNT1 A 0
+		{
+			A_PlaySound("Doom4/Weapon/Machinegun/MiniMissileExplo");
+			A_SpawnItemEx("MGMiniMissileExplo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			return ResolveState("DeathCont");
+		}
+		Goto DeathCont;
+	}
+}
 
 Class MonsterRocketTrailFire : Actor //centered flare behind the rocket
 {
@@ -461,6 +485,7 @@ Class MonsterRocketTrailFire : Actor //centered flare behind the rocket
 		+CLIENTSIDEONLY
 		+NOINTERACTION
 		+FORCEXYBILLBOARD
+		+NOTONAUTOMAP
 		RenderStyle "Add";
 		Alpha 0.7;
 		Scale 0.11;
@@ -468,8 +493,7 @@ Class MonsterRocketTrailFire : Actor //centered flare behind the rocket
 	States
 	{
 	Spawn:
-		TNT1 A 0 ;
-		TNT1 A 0 A_Jump(256,"One","Two");
+		TNT1 A 0 A_Jump(128,"Two");
 	One:
 		X007 ABCDE 1 Bright ;
 		X007 FGHIJ 1 Bright A_FadeOut();
@@ -510,7 +534,7 @@ Class RocketGasTrail : Actor
 
 Class D4OldRevenant : D4AbstractBiggie // : Revenant //replaces Revenant
 {
-	int user_staggertimer;
+	int staggertimer;
 	Default 
 	{
 		Health 300;

@@ -281,7 +281,7 @@ Class StaticRifleActive : 	Inventory {}
 
 Class ChargeSoundPlayer : Actor 
 {
-	double user_dist;
+	double dist;
 	Default 
 	{
 		+NOINTERACTION
@@ -305,8 +305,8 @@ Class ChargeSoundPlayer : Actor
 			{	A_Warp(MasterPtr,0,0,32,0,WARPF_NOCHECKPOSITION);	}
 			else
 			{
-				user_dist = 1040 - (CountInv("StaticRifleChargingToken",MasterPtr) * 2);
-				A_Warp(MasterPtr,-user_dist,0,32,0,WARPF_NOCHECKPOSITION);
+				dist = 1040 - (CountInv("StaticRifleChargingToken",MasterPtr) * 2);
+				A_Warp(MasterPtr,-dist,0,32,0,WARPF_NOCHECKPOSITION);
 			}
 		}
 		Loop;
@@ -373,9 +373,9 @@ Class StaticTrail : TrailBeam
 		{
 			//pitch *= -1;
 			//if (tid) { angle += 180; }
-			// user_time = time to shrink to nothing
-			user_time = 25.0;
-			A_SpawnItemEx("StaticTrail",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
+			// time = time to shrink to nothing
+			time = 25.0;
+			//A_SpawnItemEx("StaticTrail",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
 		}
 		Goto Process;
 	}

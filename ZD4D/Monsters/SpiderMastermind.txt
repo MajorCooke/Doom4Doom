@@ -48,14 +48,14 @@ BLESSED (White)
 Class D4SpiderMastermind : D4AbstractBoss
 {
 	const CBAFlags = CBAF_AIMFACING|CBAF_PUFFTRACER|CBAF_NORANDOMPUFFZ|CBAF_NORANDOM|CBAF_EXPLICITANGLE;
-	int user_angle;
-	int user_counter;
-	double user_pitch;
-	int user_direction;
-	int user_count;
-	int user_staggertimer;
+	int UAngle;
+	int counter;
+	double UPitch;
+	int direction;
+	int count;
+	int staggertimer;
 	
-	override void Die(Actor source, Actor inflictor, int dmgflags = 0)
+	override void Die(Actor source, Actor inflictor, int dmgflags)
 	{
 		if (DamageTypeReceived == 'BerserkKill' || 
 			DamageTypeReceived == 'MeleePunch' || 
@@ -65,7 +65,7 @@ Class D4SpiderMastermind : D4AbstractBoss
 			for (int i = 0; i < 5; i++)
 				A_DropItem("D4PinataHealth");
 		}
-		Super.Die(source, inflictor, dmgflags = 0);
+		Super.Die(source, inflictor, dmgflags);
 	}
 	
 	Default 
@@ -122,7 +122,7 @@ Class D4SpiderMastermind : D4AbstractBoss
 	DecideAllAttacks:
 		SPID A 0 
 		{
-			user_angle = user_counter = 0;
+			UAngle = counter = 0;
 			return A_Jump(256,"PlasmaAttack","LaserShot","EletricBeams");
 		}
 		
@@ -163,39 +163,39 @@ Class D4SpiderMastermind : D4AbstractBoss
 			A_PlaySound("Doom4/Monsters/MastermindLaserFire",5,1,0,attn);
 			A_PlaySound("Doom4/SpiderMastermind/LaserLoop",6,1,1,attn);
 			A_PlaySound("Doom4/SpiderMastermind/LaunchPlasma",7,1,0,attn);
-			user_pitch = pitch;
-			user_count = 0;
+			UPitch = pitch;
+			count = 0;
 		}
 		SPID H 1 bright
 		{
-			if (!user_count && GetCvar("vid_renderer") && GetCvar("D4D_MonsterLasers"))
+			if (!count && GetCvar("vid_renderer") && GetCvar("D4D_MonsterLasers"))
 			{	
 				A_CustomBulletAttack(0,0,1,0,"PacifistPuffSMM",32767,CBAFlags,TargetPtr,"BigRedLaserDrillSMM",40,0);
 			}
-			if (user_count <= 28)
+			if (count <= 28)
 			{
 				if (GetCvar("vid_renderer") && GetCvar("D4D_MonsterLasers"))
-				{	A_SpawnProjectile("SMMLaserWeakInvis",40,0,0,CMF_AIMDIRECTION,user_pitch);		}
+				{	A_SpawnProjectile("SMMLaserWeakInvis",40,0,0,CMF_AIMDIRECTION,UPitch);		}
 				else
-				{	A_SpawnProjectile("SMMLaserWeak",40,0,0,CMF_AIMDIRECTION,user_pitch);			}
+				{	A_SpawnProjectile("SMMLaserWeak",40,0,0,CMF_AIMDIRECTION,UPitch);			}
 			}
-			else if (user_count <= 56)
+			else if (count <= 56)
 			{
 				if (GetCvar("vid_renderer") && GetCvar("D4D_MonsterLasers"))
-				{	A_SpawnProjectile("SMMLaserStrongInvis",40,0,0,CMF_AIMDIRECTION,user_pitch);		}
+				{	A_SpawnProjectile("SMMLaserStrongInvis",40,0,0,CMF_AIMDIRECTION,UPitch);		}
 				else
-				{	A_SpawnProjectile("SMMLaserStrong",40,0,0,CMF_AIMDIRECTION,user_pitch);			}
+				{	A_SpawnProjectile("SMMLaserStrong",40,0,0,CMF_AIMDIRECTION,UPitch);			}
 			}
 			else
 			{	return ResolveState("EndLaserShot");	}
 			
-			user_count++;
+			count++;
 			
 			return ResolveState(null);
 		}
 		Wait;
 	EndLaserShot:
-		SPID G 4 { A_StopSound(6); user_count = 0; }
+		SPID G 4 { A_StopSound(6); count = 0; }
 		Goto See;
 		
 	//---------------------------------------------------
@@ -208,39 +208,39 @@ Class D4SpiderMastermind : D4AbstractBoss
 		SPID AAAA 5 A_FaceTarget(0,0,0,0,FAF_MIDDLE);	//aims at target
 		SPID A 0	//attack setup
 		{
-			user_direction = randompick(-1,1); //if 1, means will turn left, -1 means right
-			user_angle = 0;
-			user_pitch = pitch;
+			direction = randompick(-1,1); //if 1, means will turn left, -1 means right
+			UAngle = 0;
+			UPitch = pitch;
 			A_PlaySound("Doom4/SpiderMastermind/LaserLoop",6,1,1,(target is "PlayerPawn" ? ATTN_NONE : ATTN_NORM));
 			A_PlaySound("Doom4/Monsters/MastermindBeamFire",7,1);
 		}
 		
 		SPID AAAAAAAAAAAAA 2
 		{
-			A_SpawnProjectile("SMMElectroBeam",40,0,0,CMF_AIMDIRECTION,user_pitch);
-			A_SpawnProjectile("SMMElectroBeam",40,0,60,CMF_AIMDIRECTION,user_pitch);
-			A_SpawnProjectile("SMMElectroBeam",40,0,-60,CMF_AIMDIRECTION,user_pitch);
-			A_SpawnProjectile("SMMElectroBeam",40,0,120,CMF_AIMDIRECTION,user_pitch);
-			A_SpawnProjectile("SMMElectroBeam",40,0,-120,CMF_AIMDIRECTION,user_pitch);
-			A_SpawnProjectile("SMMElectroBeam",40,0,180,CMF_AIMDIRECTION,user_pitch);
+			A_SpawnProjectile("SMMElectroBeam",40,0,0,CMF_AIMDIRECTION,UPitch);
+			A_SpawnProjectile("SMMElectroBeam",40,0,60,CMF_AIMDIRECTION,UPitch);
+			A_SpawnProjectile("SMMElectroBeam",40,0,-60,CMF_AIMDIRECTION,UPitch);
+			A_SpawnProjectile("SMMElectroBeam",40,0,120,CMF_AIMDIRECTION,UPitch);
+			A_SpawnProjectile("SMMElectroBeam",40,0,-120,CMF_AIMDIRECTION,UPitch);
+			A_SpawnProjectile("SMMElectroBeam",40,0,180,CMF_AIMDIRECTION,UPitch);
 		}
 	EleBeamLoop:
 		SPID G 2
 		{
-			if (user_counter >= 40)
+			if (counter >= 40)
 			{
-				user_angle = user_counter = 0;
+				UAngle = counter = 0;
 				return ResolveState("EndBeamLoop");
 			}
-			A_SpawnProjectile("SMMElectroBeam2",40,0,0+user_angle,CMF_AIMDIRECTION,user_pitch);
-			A_SpawnProjectile("SMMElectroBeam2",40,0,60+user_angle,CMF_AIMDIRECTION,user_pitch);
-			A_SpawnProjectile("SMMElectroBeam2",40,0,-60+user_angle,CMF_AIMDIRECTION,user_pitch);
-			A_SpawnProjectile("SMMElectroBeam2",40,0,120+user_angle,CMF_AIMDIRECTION,user_pitch);
-			A_SpawnProjectile("SMMElectroBeam2",40,0,-120+user_angle,CMF_AIMDIRECTION,user_pitch);
-			A_SpawnProjectile("SMMElectroBeam2",40,0,-180+user_angle,CMF_AIMDIRECTION,user_pitch);
+			A_SpawnProjectile("SMMElectroBeam2",40,0,0+UAngle,CMF_AIMDIRECTION,UPitch);
+			A_SpawnProjectile("SMMElectroBeam2",40,0,60+UAngle,CMF_AIMDIRECTION,UPitch);
+			A_SpawnProjectile("SMMElectroBeam2",40,0,-60+UAngle,CMF_AIMDIRECTION,UPitch);
+			A_SpawnProjectile("SMMElectroBeam2",40,0,120+UAngle,CMF_AIMDIRECTION,UPitch);
+			A_SpawnProjectile("SMMElectroBeam2",40,0,-120+UAngle,CMF_AIMDIRECTION,UPitch);
+			A_SpawnProjectile("SMMElectroBeam2",40,0,-180+UAngle,CMF_AIMDIRECTION,UPitch);
 			
-			user_angle += (4 * user_direction);
-			user_counter++;
+			UAngle += (4 * direction);
+			counter++;
 			return ResolveState(null);
 		}
 		Loop;
@@ -284,11 +284,8 @@ Class D4SpiderMastermind : D4AbstractBoss
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		"####" "#" 0  //loot drop
-		{
-			//D4SetupLoot(true);
-		}		
-	XDeathNoDrops:	
+	XDeathNoDrops:
+		SPID J 0;
 		SPID J 20 
 		{
 			bThruActors = true;
@@ -447,12 +444,12 @@ Class BigRedLaserDrillSMM : TrailBeamStaticScalingSpawner
 	Spawn:
 		X202 J 0 NoDelay
 		{
-			user_DoCheckSight = 0;
-			user_DoCheckRange = 0;
-			user_DoCheckFOV = 0;
-			user_MaxDistance = 30000;
-			user_checkrangea = 4096;
-			user_checkfova = 90.0;
+			DoCheckSight = 0;
+			DoCheckRange = 0;
+			DoCheckFOV = 0;
+			MaxDistance = 30000;
+			checkrangea = 4096;
+			checkfova = 90.0;
 			
 			A_RearrangePointers(DefPtr,TargetPtr,DefPtr,4);
 			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
@@ -465,31 +462,31 @@ Class BigRedLaserDrillSMM : TrailBeamStaticScalingSpawner
 			if (target) { vel = target.vel; }
 			
 			// The angle and pitch won't change so go ahead and save it now.
-			user_pitch = pitch;
-			user_angle = angle;
-			user_distb = Min(user_MaxDistance, GetDistance(true,TracerPtr));
+			UPitch = pitch;
+			UAngle = angle;
+			distb = Min(MaxDistance, GetDistance(true,TracerPtr));
 			
-			// user_dista = distance currently travelled.
-			// user_distb = maximum distance.
-			while ((user_dista < user_distb))
+			// dista = distance currently travelled.
+			// distb = maximum distance.
+			while ((dista < distb))
 			{
-				if (user_DoCheckRange)		{	user_checkrangeb = (!(A_CheckRange(user_checkrangea,"Null",false)) ? 1 : 0);	}
-				else						{	user_checkrangeb = 1;	}
+				if (DoCheckRange)		{	checkrangeb = (!(A_CheckRange(checkrangea,"Null",false)) ? 1 : 0);	}
+				else						{	checkrangeb = 1;	}
 				
-				if (user_DoCheckSight)		{	user_checksight = (!(A_CheckSight("Null")) ? 1 : 0);	}
-				else						{	user_checksight = 1;	}
+				if (DoCheckSight)		{	checksight = (!(A_CheckSight("Null")) ? 1 : 0);	}
+				else						{	checksight = 1;	}
 				
-				if (user_DoCheckFOV)		{	user_checkfovb = ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,Player1)) <= user_checkfova) ? 1 : 0);	}
-				else						{	user_checkfovb = 1;		}
+				if (DoCheckFOV)		{	checkfovb = ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,Player1)) <= checkfova) ? 1 : 0);	}
+				else						{	checkfovb = 1;		}
 				
 				// Spawn the beam with the same angle and pitch. Note that the
 				// beam is being centered so we have to take that into account
 				// and spawn it FORWARD based on half the beam's length.
 				// Then move forward by a beam's length and repeat until done.
-				if (user_checkrangeb && user_checksight && user_checkfovb)
+				if (checkrangeb && checksight && checkfovb)
 				{	A_SpawnItemEx("BigRedLaserBeamSMM",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,SpawnFlags);	}
 				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
-				user_dista += StepDistance;
+				dista += StepDistance;
 			}
 		}
 		Stop;
@@ -507,9 +504,9 @@ Class BigRedLaserBeamSMM : TrailBeamStaticScaling
 	Spawn:
 		"####" "#" 0 NoDelay
 		{
-			user_timeup = 10.0;
-			user_wait = 39;
-			user_timedown = 7.0;
+			timeup = 10.0;
+			wait = 39;
+			timedown = 7.0;
 			
 			// Set this to the actor's same name. The TID will prevent it spawning infinitely (tid * 256).
 			A_SpawnItemEx("BigRedLaserBeamSMM",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME,tid * 256,1);
@@ -530,10 +527,10 @@ Class RedLaserSMM : TrailBeamJitterSpawner
 	Spawn:
 		TNT1 A 0 NoDelay
 		{
-			user_count = 52;
-			user_DoCheckSight = 1;
-			user_DoCheckRange = 1;
-			user_checkrangea = 2048;
+			count = 52;
+			DoCheckSight = 1;
+			DoCheckRange = 1;
+			checkrangea = 2048;
 			return ResolveState("Setup");
 		}
 	}
@@ -545,8 +542,8 @@ Class SpiderMastermindDeathFX : Actor
 	const MaxX = 45;
 	const MinZ = 8;
 	const MaxZ = 30;
-	int user_max;
-	int user_c;
+	int UMax;
+	int c;
 	
 	Default 
 	{
@@ -562,26 +559,26 @@ Class SpiderMastermindDeathFX : Actor
 		TNT1 A 1 NoDelay
 		{
 			A_Warp(MasterPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_COPYVELOCITY);
-			if (user_max <= 0)
-			{	user_max = 50;	}
+			if (UMax <= 0)
+			{	UMax = 50;	}
 			
 			if (!A_CheckSight("Null"))
 			{
-				if (user_c == 8 ||
-					user_c == 12 ||
-					user_c == 16 ||
-					user_c == 20 ||
-					user_c == 24 ||
-					user_c == 28 ||
-					user_c == 32 ||
-					user_c == 36)
+				if (c == 8 ||
+					c == 12 ||
+					c == 16 ||
+					c == 20 ||
+					c == 24 ||
+					c == 28 ||
+					c == 32 ||
+					c == 36)
 				{	
 					A_SpawnItemEx("D4RocketExplosionNoGL",random(20,80),0,random(10,60),0,0,0,random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION|SXF_TRANSFERRENDERSTYLE|SXF_TRANSFERALPHA);	
 					A_SpawnItemEx("D4RocketExplosionNoGL",random(20,80),0,random(10,60),0,0,0,random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION|SXF_TRANSFERRENDERSTYLE|SXF_TRANSFERALPHA);
 					A_SpawnItemEx("D4RocketExplosionNoGL",random(20,80),0,random(10,60),0,0,0,random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION|SXF_TRANSFERRENDERSTYLE|SXF_TRANSFERALPHA);
 				}
 				
-				if (user_c == 20)
+				if (c == 20)
 				{
 					A_SpawnItemEx("BloodGibDropper",random(MinX,MaxX),0,random(MinZ,MaxZ),vel.x,vel.y,vel.z,random(0,359),SXF_NOCHECKPOSITION|SXF_ABSOLUTEVELOCITY|SXF_TRANSFERPOINTERS|SXF_TRANSFERTRANSLATION);
 					A_SpawnItemEx("BloodGibDropper",random(MinX,MaxX),0,random(MinZ,MaxZ),vel.x,vel.y,vel.z,random(0,359),SXF_NOCHECKPOSITION|SXF_ABSOLUTEVELOCITY|SXF_TRANSFERPOINTERS|SXF_TRANSFERTRANSLATION);
@@ -589,15 +586,15 @@ Class SpiderMastermindDeathFX : Actor
 				}
 			}
 			
-			if (user_c == 20)
+			if (c == 20)
 			{
 				A_PlaySound("Doom4/Other/GibExplode1",5);
 				A_PlaySound("Doom4/Other/GibExplode2",6);
 				A_PlaySound("Doom4/Other/GibExplode3",7);
 			}
-			user_c++;
+			c++;
 			
-			if (user_c > user_max)
+			if (c > UMax)
 			{	return ResolveState("Null");	}
 			return ResolveState(null);
 		}
@@ -850,8 +847,8 @@ Class SSMPlasmaTrail : Actor
 }
 Class SMMPlasmaBallPuff : Actor 
 {
-	const Scaler = 0.035;
-	double user_scaler;	//this one is to easily tweak the inherited versions
+	const Scalar = 0.035;
+	double scaler;	//this one is to easily tweak the inherited versions
 	
 	Default 
 	{
@@ -882,28 +879,28 @@ Class SMMPlasmaBallPuff : Actor
 		}
 		TNT1 A 0 A_Jump(256,"Type1","Type2","Type3","Type4","Type5","Type6","Type7","Type8");
 	Type1:
-		DB21 ABCDEFGHI 1 Bright A_SetScale(Scale.X+Scaler);
+		DB21 ABCDEFGHI 1 Bright A_SetScale(Scale.X+Scalar);
 		Stop;
 	Type2:
-		DB21 JKLMNOPQR 1 Bright A_SetScale(Scale.X+Scaler);
+		DB21 JKLMNOPQR 1 Bright A_SetScale(Scale.X+Scalar);
 		Stop;
 	Type3:
-		DB22 ABCDEFGHI 1 Bright A_SetScale(Scale.X+Scaler);
+		DB22 ABCDEFGHI 1 Bright A_SetScale(Scale.X+Scalar);
 		Stop;
 	Type4:
-		DB22 JKLMNOPQR 1 Bright A_SetScale(Scale.X+Scaler);
+		DB22 JKLMNOPQR 1 Bright A_SetScale(Scale.X+Scalar);
 		Stop;
 	Type5:
-		DB23 ABCDEFGHI 1 Bright A_SetScale(Scale.X+Scaler);
+		DB23 ABCDEFGHI 1 Bright A_SetScale(Scale.X+Scalar);
 		Stop;
 	Type6:
-		DB23 JKLMNOPQR 1 Bright A_SetScale(Scale.X+Scaler);
+		DB23 JKLMNOPQR 1 Bright A_SetScale(Scale.X+Scalar);
 		Stop;
 	Type7:
-		DB24 ABCDEFGHI 1 Bright A_SetScale(Scale.X+Scaler);
+		DB24 ABCDEFGHI 1 Bright A_SetScale(Scale.X+Scalar);
 		Stop;
 	Type8:
-		DB24 JKLMNOPQR 1 Bright A_SetScale(Scale.X+Scaler);
+		DB24 JKLMNOPQR 1 Bright A_SetScale(Scale.X+Scalar);
 		Stop;
 	}
 }
@@ -919,7 +916,7 @@ Class SMMPlasmaBallPuff : Actor
 //================================================================================================================
 Class D4OldSpiderMastermind : D4AbstractBoss // : SpiderMastermind
 {
-	int user_staggertimer;
+	int staggertimer;
 	
 	Default 
 	{

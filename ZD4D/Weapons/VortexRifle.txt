@@ -342,9 +342,9 @@ Class VortexTrail : TrailBeam
 		{
 			//pitch *= -1;
 			//if (tid) { angle += 180; }
-			// user_time = time to shrink to nothing
-			user_time = 15.0;
-			A_SpawnItemEx("VortexTrail",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
+			// time = time to shrink to nothing
+			time = 15.0;
+			//A_SpawnItemEx("VortexTrail",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
 		}
 		Goto Process;
 	}

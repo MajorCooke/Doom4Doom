@@ -118,6 +118,49 @@ Sprite X206I0, 64, 256
 	Patch X206F0, 0, -64
 }
 
+// Lightning beams for models
+Sprite "LtBmBlu2", 256, 64
+{
+	Patch "LTBMBLU1", -224, 0
+	Patch "LTBMBLU1", 32, 0
+}
+
+Sprite "LtBmBlu3", 256, 64
+{
+	Patch "LTBMBLU1", -192, 0
+	Patch "LTBMBLU1", 64, 0
+}
+
+Sprite "LtBmBlu4", 256, 64
+{
+	Patch "LTBMBLU1", -160, 0
+	Patch "LTBMBLU1", 96, 0
+}
+
+Sprite "LtBmBlu5", 256, 64
+{
+	Patch "LTBMBLU1", -128, 0
+	Patch "LTBMBLU1", 128, 0
+}
+
+Sprite "LtBmBlu6", 256, 64
+{
+	Patch "LTBMBLU1", -96, 0
+	Patch "LTBMBLU1", 160, 0
+}
+
+Sprite "LtBmBlu7", 256, 64
+{
+	Patch "LTBMBLU1", -64, 0
+	Patch "LTBMBLU1", 192, 0
+}
+
+Sprite "LtBmBlu8", 256, 64
+{
+	Patch "LTBMBLU1", -32, 0
+	Patch "LTBMBLU1", 224, 0
+}
+
 //==============================================================================
 remap R016N0 R016N0H
 //==============================================================================

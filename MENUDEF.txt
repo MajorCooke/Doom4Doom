@@ -66,17 +66,17 @@ OptionMenu "D4DOptions"
 	StaticText ""
 	StaticText "Gameplay Options", 1
 	Option "Haste Spawn Frequency",			"D4D_HasteSpawn",		"HasteSpawn"
-	Option "Monster type",					"user_MonsterType",		"DemonType"
-	Option "Monsters drop loot",			"user_LootDrop",		"LootType"
-	Option "Double jump",					"user_MultiJump",		"OnOff"
+	Option "Monster type",					"D4D_MonsterType",		"DemonType"
+	Option "Monsters drop loot",			"D4D_LootDrop",		"LootType"
+	Option "Double jump",					"D4D_MultiJump",		"OnOff"
 	Option "Ledge grabbing",				"d4d_allowClimbing",	"OnOff"
-	Option "Syphon strength",				"user_SyphonStrength",	"SyphonStrength"
+	Option "Syphon strength",				"D4D_SyphonStrength",	"SyphonStrength"
 	Option "Berserk Switch On Pickup",		"D4D_BerserkAutoSwitch","YesNo"
 	Option "Nightmare Grenade Starts",		"D4D_NMGrenades","NMGrenade"
 	StaticText ""
 	StaticText "Monster Behaviour", 1
 	Option "Enhanced Monster Chasing",		"D4D_EnhancedChase",	"OnOff"
-	Option "Archvile monster infights",		"user_ArchvileInfighting",	"YesNo"
+	Option "Archvile monster infights",		"D4D_ArchvileInfighting",	"YesNo"
 	Option "D4D HellKnight melee only",		"D4D_HKMeleeOnly",			"OnOff"
 	StaticText ""
 	StaticText "Demon Runes", 1
@@ -217,32 +217,32 @@ OptionMenu "D4DDisplayOptions"
 	Submenu "Performance/V-noise Master Switches",				"D4DPerformanceOptions"
 	StaticText ""
 	StaticText "MESSAGES", 1
-	Option "Message Style",					"user_Completionist",	"CompletionistStyle"
-	Option "Show Monster Quota",			"user_MonsterQuota",	"OnOff"
-	Option "Show Secret Quota",				"user_SecretQuota",		"OnOff"
+	Option "Message Style",					"D4D_Completionist",	"CompletionistStyle"
+	Option "Show Monster Quota",			"D4D_MonsterQuota",	"OnOff"
+	Option "Show Secret Quota",				"D4D_SecretQuota",		"OnOff"
 	//Option "Show HUD Percentages",			"D4D_HUDPercentages",	"OnOff"
 	StaticText ""
 	StaticText "EFFECTS OPTIONS", "Gold"
 	StaticText "Weapons", "White"
 	Option "Electrical Texture",			"D4D_BeamTexture",		"BeamTexture"
-	Option "Spawn Casings",					"user_Casings",				"OnOff"
-	Option "Short Casing Lives",			"user_ShortCasingLives", 	"YesNo"
-	Option "Silent Casings",				"user_SilentCasings", 		"YesNo"
-	Option "Bullet Tracer Effects",				"user_TracerFX",		"TracerMode"
+	Option "Spawn Casings",					"D4D_Casings",				"OnOff"
+	Option "Short Casing Lives",			"D4D_ShortCasingLives", 	"YesNo"
+	Option "Silent Casings",				"D4D_SilentCasings", 		"YesNo"
+	Option "Bullet Tracer Effects",				"D4D_TracerFX",		"TracerMode"
 	Option "BFG Laser effects",					"D4BFGEffects",			"OnOff"
 	Option "ZDoom Crosshair (OFF recommended)",			"crosshair", "Crosshairs"
 	StaticText ""
 	StaticText "Other effects", "White"
 	Option "Monster Lasers",				"D4D_MonsterLasers",	"MonsterLaserType"
 	Option "Voxels",						"r_drawvoxels",			"OnOff"
-	Option "Blood HUD effect",					"user_BloodScreen",		"OnOff" 
-	Option "Rocket Explosion Quakes",			"user_quakexplosions",		"OnOff"	
+	Option "Blood HUD effect",					"D4D_BloodScreen",		"OnOff" 
+	Option "Rocket Explosion Quakes",			"D4D_quakexplosions",		"OnOff"	
 	Option "Pinata Effects",					"D4D_PinataParticles",		"PinataFX"
 	Option "Particle Type",					"gl_particles_style",	"ParticleStyle"
 	Slider "Maximum Particle Count",			"r_maxparticles", 1000, 65536, 1000, 0
 	StaticText ""
-	NumberField "Max FX Render Distance", 	"user_MaxDrawDistance", 0, 20480, 8
-	NumberField "Max FX Dist (Faster)",		"user_MaxDrawDistance", 0, 20480, 64
+	NumberField "Max FX Render Distance", 	"D4D_MaxDrawDistance", 0, 20480, 8
+	NumberField "Max FX Dist (Faster)",		"D4D_MaxDrawDistance", 0, 20480, 64
 
 }
 
@@ -252,24 +252,24 @@ OptionMenu "D4DGoreOptions"
 	StaticText "Disclaimer: Not Based On Nashgore.",1
 	Command "Panic Command",	"RemoveAllGibs"
 	Option "Spawn Bullet Giblets",			"D4D_BloodGiblets", "YesNo"
-	NumberField "Bullet Giblets",			"user_Giblets",	0, 10, 1
-	NumberField "Splatter Giblets",			"user_SplatterGiblets",	0, 10, 1
-	NumberField "Blood Clouds",				"user_BloodClouds", 0, 10, 1
+	NumberField "Bullet Giblets",			"D4D_Giblets",	0, 10, 1
+	NumberField "Splatter Giblets",			"D4D_SplatterGiblets",	0, 10, 1
+	NumberField "Blood Clouds",				"D4D_BloodClouds", 0, 10, 1
 	Option "Blood Splatters",				"D4D_BloodSplatters",	"OnOff"
 	NumberField "Blood Splatter Timer",		"D4D_BloodTime", 0, 150, 1, "D4D_BloodSplatters"
-	Option "Blood Trails",					"user_BloodTrails",		"OnOff"
-	Option "Blood FX Type",					"user_BloodSprites", 	"SprPar"
-	Option "Short Gib Life",				"user_ShortGibLives", 	"OnOff"
-	Option "SuperShotgun Gibs Monsters",				"user_SSGGib",	"SSGGibStyle"
-	SafeCommand "Restore Giblet Defaults",	"user_Giblets 1; user_SplatterGiblets 3; user_BloodClouds 3;"
+	Option "Blood Trails",					"D4D_BloodTrails",		"OnOff"
+	Option "Blood FX Type",					"D4D_BloodSprites", 	"SprPar"
+	Option "Short Gib Life",				"D4D_ShortGibLives", 	"OnOff"
+	Option "SuperShotgun Gibs Monsters",				"D4D_SSGGib",	"SSGGibStyle"
+	SafeCommand "Restore Giblet Defaults",	"D4D_Giblets 1; D4D_SplatterGiblets 3; D4D_BloodClouds 3;"
 	StaticText " "
 	StaticText "SPAWN EVEN MORE GORE.", RED
 	StaticText "We hold no liability in the unplayability from", BLUE
 	StaticText "cranking the giblets spawning to the power of stupid.", BLUE
 	StaticText "YOU HAVE BEEN WARNED.", RED
 	StaticText " "
-	NumberField "Bullet Giblets Unleashed",		"user_Giblets",	0, 10000, 1
-	NumberField "Splatter Giblets Unleashed",	"user_SplatterGiblets",	0, 10000, 1
+	NumberField "Bullet Giblets Unleashed",		"D4D_Giblets",	0, 10000, 1
+	NumberField "Splatter Giblets Unleashed",	"D4D_SplatterGiblets",	0, 10000, 1
 }
 
 OptionValue "UpgradeMode"

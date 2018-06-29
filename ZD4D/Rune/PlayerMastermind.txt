@@ -310,7 +310,7 @@ Class MastermindPlayerMuzzleRed : Actor
 	const Distance = 20;
 	const YOff = 1;
 	const ZOff = 73;
-	double  user_pos;
+	double  UPos;
 	int user_t;
 	
 	Default 
@@ -333,13 +333,13 @@ Class MastermindPlayerMuzzleRed : Actor
 			// And set a multiplier for taking from the distance so it actually goes well with the gun.
 			
 			if (pitch > 0) //Looking down
-			{	user_pos = (sin(pitch) * 12);	}
+			{	UPos = (sin(pitch) * 12);	}
 			else //Looking up
-			{	user_pos = (sin(pitch) * 6);	}
+			{	UPos = (sin(pitch) * 6);	}
 			
 			
 			A_Warp(MasterPtr,
-				(cos(-pitch)*(Distance)) - user_pos,
+				(cos(-pitch)*(Distance)) - UPos,
 				YOff,
 				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
 				

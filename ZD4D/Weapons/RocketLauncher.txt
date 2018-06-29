@@ -711,7 +711,7 @@ Class ExploderDummy : Actor
 	Spawn:
 		TNT1 A 60 NODELAY
 		{
-			if(GetCvar("user_quakexplosions")==1)
+			if(GetCvar("D4D_quakexplosions")==1)
 			{
 				A_QuakeEx(2,2,2,15,0,768,"",QF_SCALEDOWN,0,0,0,1);
 			}
@@ -727,7 +727,7 @@ Class ExploderDummy : Actor
 //--------------------------------------------------------------------------------
 Class RLTargetChecker : Actor 
 {
-	int user_c1, user_c0;
+	int c1, c0;
 	
 	Default 
 	{
@@ -761,15 +761,15 @@ Class RLTargetChecker : Actor
 				return ResolveState("Null");
 			}
 			A_RearrangePointers(DefPtr,TargetPtr,DefPtr,4);
-			user_c0 = CountInv("RLLockToken",MasterPtr);
-			user_c1 = CountInv("RLLockToken",MasterPtr);
-			if (user_c0 < 200)
+			c0 = CountInv("RLLockToken",MasterPtr);
+			c1 = CountInv("RLLockToken",MasterPtr);
+			if (c0 < 200)
 			{
 				A_GiveInventory("RLLockToken",30,MasterPtr);
 				A_GiveInventory("RLLockToken",30,TracerPtr);
 			}
-			user_c0 = CountInv("RLLockToken",MasterPtr);
-			user_c1 = CountInv("RLLockToken",TracerPtr);
+			c0 = CountInv("RLLockToken",MasterPtr);
+			c1 = CountInv("RLLockToken",TracerPtr);
 			return ResolveState(null);
 		}
 	Waiting:
@@ -859,7 +859,7 @@ Class D4RocketSeeker : Actor
 				A_Explode(30,128);	
 				A_Explode(130,180,0,0,60);
 			}
-			if(GetCvar("user_quakexplosions")==1)
+			if(GetCvar("D4D_quakexplosions")==1)
 			{
 				A_QuakeEx(2,2,2,15,0,768,"",QF_SCALEDOWN,0,0,0,1);
 			}
@@ -964,7 +964,7 @@ Class PlayerRocketQuakeDummy  : Actor //had to create this, because if i keep th
 	Spawn:
 		TNT1 A 10 NODELAY
 		{
-			if(GetCvar("user_quakexplosions")==1)
+			if(GetCvar("D4D_quakexplosions")==1)
 			{
 				A_QuakeEx(2,2,2,15,0,768,"",QF_SCALEDOWN,0,0,0,1);
 			}

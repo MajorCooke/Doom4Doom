@@ -284,7 +284,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		{
 			A_WeaponReady(WRF_NOFIRE|WRF_NOBOB);
 			A_WeaponOffset(-2,2,WOF_ADD);
-			if (GetCvar("user_Casings"))
+			if (GetCvar("D4D_Casings"))
 			{
 				A_SpawnItemEx("SSGCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 				A_SpawnItemEx("SSGCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
@@ -317,7 +317,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		{
 			A_WeaponOffset(-2,2,WOF_ADD);
 			A_WeaponReady(WRF_NOFIRE|WRF_NOBOB);
-			if (GetCvar("user_Casings"))
+			if (GetCvar("D4D_Casings"))
 			{
 				A_SpawnItemEx("SSGCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 				A_SpawnItemEx("SSGCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
@@ -363,11 +363,11 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			A_TakeInventory("D4Shells",1,TIF_NOTAKEINFINITE);
 			A_GunFlash("Null");
 			class<Actor> PuffRail = null;
-			if(GetCvar("user_SSGGib") == 0)	//no gibs
+			if(GetCvar("D4D_SSGGib") == 0)	//no gibs
 			{
 				PuffRail = "D4BulletPuffForRails";
 			}
-			else if(GetCvar("user_SSGGib") == 1)	//some gibs
+			else if(GetCvar("D4D_SSGGib") == 1)	//some gibs
 			{
 				if (random(0,1))
 				{	
@@ -510,7 +510,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		M665 DDDDEE 1 A_OverlayOffset(RGun,2,6,WOF_ADD); //6
 		"####" "#" 0
 		{
-			if (GetCvar("user_Casings"))
+			if (GetCvar("D4D_Casings"))
 			{
 				A_SpawnItemEx("SSGCasingSpawnerRight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 				A_SpawnItemEx("SSGCasingSpawnerRight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
@@ -541,7 +541,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		M665 DDE 1 A_OverlayOffset(RGun,2*2,6*2,WOF_ADD); //6
 		"####" "#" 0
 		{
-			if (GetCvar("user_Casings"))
+			if (GetCvar("D4D_Casings"))
 			{
 				A_SpawnItemEx("SSGCasingSpawnerRight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 				A_SpawnItemEx("SSGCasingSpawnerRight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
@@ -572,7 +572,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			}
 				
 			/*
-			if (GetCvar("user_TracerFX") > 0)
+			if (GetCvar("D4D_TracerFX") > 0)
 			{
 				for (int i = 0; i < 7; i++)
 				{
@@ -634,7 +634,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		M664 DDDDEE 1 A_OverlayOffset(LGun,-2,6,WOF_ADD) ;
 		"####" "#" 0
 		{
-			if (GetCvar("user_Casings"))
+			if (GetCvar("D4D_Casings"))
 			{
 				A_SpawnItemEx("SSGCasingSpawnerLeft",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 				A_SpawnItemEx("SSGCasingSpawnerLeft",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
@@ -664,7 +664,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		M664 DDE 1 A_OverlayOffset(LGun,-4,12,WOF_ADD);
 		"####" "#" 0
 		{
-			if (GetCvar("user_Casings"))
+			if (GetCvar("D4D_Casings"))
 			{
 				A_SpawnItemEx("SSGCasingSpawnerLeft",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 				A_SpawnItemEx("SSGCasingSpawnerLeft",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
@@ -695,7 +695,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 				A_FireProjectile("SGSmokeSpawner",0,0,-6,2);
 			}
 			/*
-			if (GetCvar("user_TracerFX") > 0)
+			if (GetCvar("D4D_TracerFX") > 0)
 			{
 				for (int i = 0; i < 7; i++)
 				{
@@ -731,8 +731,8 @@ Class SSGCasingSpawner : Actor
 	const Distance = 18;
 	const YOff = 11;
 	const ZOff = 34;
-	double  user_pos;
-	int user_t;
+	double  pos;
+	int t;
 	
 	Default 
 	{
@@ -753,19 +753,19 @@ Class SSGCasingSpawner : Actor
 			if (master) { pitch = master.pitch; }
 			
 			if (pitch > 0) //Looking down
-			{	user_pos = (sin(pitch) * 12);	}
+			{	pos = (sin(pitch) * 12);	}
 			else //Looking up
-			{	user_pos = (sin(pitch) * 6);	}
+			{	pos = (sin(pitch) * 6);	}
 			
 			
 			A_Warp(MasterPtr,
-				(cos(-pitch)*(Distance)) - user_pos,
+				(cos(-pitch)*(Distance)) - pos,
 				YOff,
 				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
 			
-			if (GetCvar("user_Casings"))
+			if (GetCvar("D4D_Casings"))
 			{
-				if (GetCvar("user_SilentCasings"))
+				if (GetCvar("D4D_SilentCasings"))
 				{	A_SpawnItemEx("ShellCasingSilent",0,0,0,frandom(0.5,-0.5),frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
 				else
 				{	A_SpawnItemEx("ShellCasing",0,0,0,frandom(0.5,-0.5),frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
@@ -782,8 +782,8 @@ Class SSGCasingSpawnerRight : Actor
 	const Distance = 18;
 	const YOff = 11;
 	const ZOff = 31;
-	double  user_pos;
-	int user_t;
+	double  pos;
+	int t;
 	Default 
 	{
 		Projectile;
@@ -803,19 +803,19 @@ Class SSGCasingSpawnerRight : Actor
 			if (master) { pitch = master.pitch; }
 			
 			if (pitch > 0) //Looking down
-			{	user_pos = (sin(pitch) * 12);	}
+			{	pos = (sin(pitch) * 12);	}
 			else //Looking up
-			{	user_pos = (sin(pitch) * 6);	}
+			{	pos = (sin(pitch) * 6);	}
 			
 			
 			A_Warp(MasterPtr,
-				(cos(-pitch)*(Distance)) - user_pos,
+				(cos(-pitch)*(Distance)) - pos,
 				YOff,
 				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
 			
-			if (GetCvar("user_Casings"))
+			if (GetCvar("D4D_Casings"))
 			{
-				if (GetCvar("user_SilentCasings"))
+				if (GetCvar("D4D_SilentCasings"))
 				{	A_SpawnItemEx("ShellCasingSilent",0,0,0,frandom(0.5,-0.5),frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
 				else
 				{	A_SpawnItemEx("ShellCasing",0,0,0,frandom(0.5,-0.5),frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
@@ -832,8 +832,8 @@ Class SSGCasingSpawnerLeft : Actor
 	const Distance = 18;
 	const YOff = -11;
 	const ZOff = 31;
-	double  user_pos;
-	int user_t;
+	double  pos;
+	int t;
 	Default 
 	{
 		Projectile;
@@ -851,18 +851,18 @@ Class SSGCasingSpawnerLeft : Actor
 			if (master) { pitch = master.pitch; }
 			
 			if (pitch > 0) //Looking down
-			{	user_pos = (sin(pitch) * 12);	}
+			{	pos = (sin(pitch) * 12);	}
 			else //Looking up
-			{	user_pos = (sin(pitch) * 6);	}
+			{	pos = (sin(pitch) * 6);	}
 			
 			A_Warp(MasterPtr,
-				(cos(-pitch)*(Distance)) - user_pos,
+				(cos(-pitch)*(Distance)) - pos,
 				YOff,
 				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
 				
-			if (GetCvar("user_Casings"))
+			if (GetCvar("D4D_Casings"))
 			{
-				if (GetCvar("user_SilentCasings"))
+				if (GetCvar("D4D_SilentCasings"))
 				{	A_SpawnItemEx("ShellCasingSilent",0,0,0,frandom(0.5,-0.5),-frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
 				else
 				{	A_SpawnItemEx("ShellCasing",0,0,0,frandom(0.5,-0.5),-frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}

@@ -67,7 +67,7 @@ Class PowerFatsoMorph : PowerRuneBase
 
 Class PlayerFatso : DemonPlayerBase
 {
-	double user_speed;
+	double USpeed;
 	
 	Default 
 	{
@@ -127,15 +127,15 @@ Class PlayerFatso : DemonPlayerBase
 	Overlay.Steps:
 		TNT1 A 5
 		{
-			user_speed = (vel.x*vel.x + vel.y*vel.y);
+			USpeed = (vel.x*vel.x + vel.y*vel.y);
 			if(A_CheckFloor("Null"))
 			{
-				if(user_speed > 10 )
+				if(USpeed > 10 )
 				{
 					A_PlaySound("Player/Demon/MechStep",CHAN_BODY,0.8);
 					A_SetTics(14);
 				}
-				else if(user_speed > 5)
+				else if(USpeed > 5)
 				{
 					A_PlaySound("Player/Demon/MechStep",CHAN_BODY,0.8);
 					A_SetTics(18);

@@ -80,7 +80,7 @@ Class Tester : Actor
 
 Class PlayerKnight : DemonPlayerBase
 {
-	double  user_speed;
+	double  USpeed;
 	Default 
 	{
 		Speed 1;
@@ -144,15 +144,15 @@ Class PlayerKnight : DemonPlayerBase
 	Overlay.Steps:
 		TNT1 A 5
 		{
-			user_speed = (vel.x*vel.x + vel.y*vel.y);
+			USpeed = (vel.x*vel.x + vel.y*vel.y);
 			if(A_CheckFloor("Null"))
 			{
-				if(user_speed > 150)
+				if(USpeed > 150)
 				{
 					A_PlaySound("Player/Demon/HeavyStep",CHAN_AUTO,0.7);
 					A_SetTics(12);
 				}
-				else if(user_speed > 20)
+				else if(USpeed > 20)
 				{
 					A_PlaySound("Player/Demon/HeavyStep",CHAN_AUTO,0.7);
 					A_SetTics(15);

@@ -272,7 +272,7 @@ Class LostSoulDeatherer : Actor
 
 Class PainKamikazeExploFX : Actor 
 {
-	int user_angle;
+	int UAngle;
 	Default 
 	{
 		+NOINTERACTION
@@ -284,11 +284,11 @@ Class PainKamikazeExploFX : Actor
 	LooperLooper:
 		TNT1 A 0 
 		{
-			if (user_angle<=360)
+			if (UAngle<=360)
 			{
-				A_SpawnItemEx("PainElementalExplosionSpriteSlower",0,0,0,20,0,frandom(2,-2),user_angle,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("PainElementalExplosionSpriteSlower",0,0,0,20,0,frandom(2,-2),UAngle,SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(1.5,3.5),frandom(1.5,3.5),frandom(-3.5,3.5),random(0,359),SXF_NOCHECKPOSITION,64);
-				user_angle += 10;
+				UAngle += 10;
 				return ResolveState(null);
 			}
 			return ResolveState("Ender");	//dies
