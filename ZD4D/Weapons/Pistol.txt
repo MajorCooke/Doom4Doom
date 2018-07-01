@@ -606,29 +606,6 @@ Class D4PistolPuffBig3Red : D4PistolPuffBig3
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 
-Class LanceTrail : TrailBeam
-{
-	Default 
-	{
-		XScale 0.08;
-	    YScale 0.12;
-		Translation "0:255=%[0,0,0]:[1.0,0.2,0.2]";
-	}
-	States
-	{
-	Spawn:
-		X202 B 0 NoDelay
-		{
-			// time = time to shrink to nothing
-			//pitch *= -1;
-			time = 17.0;
-			A_SpawnItemEx("LanceTrail",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
-			//if (tid) { angle += 180; }
-		}
-		Goto Process;
-	}
-}
-
 Class LanceImpactDebris : Actor 
 {
 	Default 

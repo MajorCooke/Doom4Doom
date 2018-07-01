@@ -248,6 +248,7 @@ Class BFGProjectile  : Actor
 {
 	int drawBeams;
 	int renderer;
+	Array<Actor> Beamed;
 	//==========================================================================
 	// Functions
 	//==========================================================================
@@ -255,8 +256,9 @@ Class BFGProjectile  : Actor
 	override void PostBeginPlay()
 	{
 		Super.PostBeginPlay();
+		Beamed.Clear();
 		drawBeams = GetCvar("D4BFGEffects");
-		renderer = GetCvar("vid_renderer");
+		renderer = 1;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -276,7 +278,6 @@ Class BFGProjectile  : Actor
 			if (mo.bNOINTERACTION || mo.bNOSECTOR ||
 				mo.bFRIENDLY || !mo.bISMONSTER || mo.health < 1 || 
 				(!mo.bSHOOTABLE && !mo.bVULNERABLE) ||
-				(mo is "DemonShield") ||
 				(mo is "PlayerPawn"))
 				continue;	
 			
@@ -295,35 +296,48 @@ Class BFGProjectile  : Actor
 					!(mo is "BossBrain"))
 				{
 					mo.A_SetInventory("BFGKillToken",1);
+					Beamed.Push(mo);
 				}
 			}
 			
 			if (drawBeams)
 			{
-				Class<Actor> beamname = null;
-				if (renderer)
-				{	beamname = "BFGBeamGZ"; }
-				else
-				{	beamname = "BFGBeam"; 	}
-				
-				if (beamname)
-				{
-					Vector3 monpos = mo.pos + ( 0, 0, mo.height / 2.0 );
-					Actor beam = Spawn(beamname, monpos);
+				Vector3 monpos = mo.pos + ( 0, 0, mo.height / 2.0 );
+				Actor beam = Spawn("BFGBeamGZ", monpos);
 					
-					if (beam)
-					{
-						beam.target = self;
-						beam.tracer = mo;
-					}
+				if (beam)
+				{
+					beam.target = self;
+					beam.tracer = mo;
 				}
-				
 			}
 		}
 	}
 	
 	void BFGDetonate()
 	{
+		if (Beamed.Size() > 0)
+		{
+			Actor src = target;
+			if (!src)	src = self;
+			
+			for (int i = 0; i < Beamed.Size(); i++)
+			{
+				Actor mo = Beamed[i];
+				
+				if (!mo)	
+					continue;
+				
+				mo.A_SetInventory("BFGKillToken",0);
+				if (mo.bFRIENDLY || !mo.bISMONSTER || mo.health < 1 || mo.bKILLED || 
+					(mo is "PlayerPawn"))
+				{
+					continue;
+				}
+				mo.DamageMobj(self, src, 2000, "BFGExploder");
+			}
+		}
+		/*
 		ThinkerIterator it = ThinkerIterator.Create();
 		Actor mo;
 		//Actor oldTracer = tracer;
@@ -338,11 +352,10 @@ Class BFGProjectile  : Actor
 				mo.A_SetInventory("BFGKillToken",0);
 				continue;
 			}
-			Actor src;
-			if (target)	src = target;
-			else		src = self;
+			Actor src = (target) ? target : self;
 			mo.DamageMobj(self, src, 2000, "BFGExploder");
 		}
+		*/
 	}
 }
 
@@ -825,131 +838,6 @@ Class BFGLightningGenerator : Actor
 }
 
 Class BFGKillToken : Inventory	{	Default { Inventory.MaxAmount 1;	}}
-
-//==============================================================================
-// GZDoom BFG Beam
-Class BFGBeamGZ : Actor 
-{
-	enum BFGBeamGZ
-	{
-		MaxDistance = 2048,
-		AngleRandom = 7,
-		PitchRandom = 7,
-		ChokeMin = 2,
-		ChokeMax = 6,
-		MaxLife = 4,
-	};
-	const StepDistance = 62;
-	double UPitch;
-	double UAngle;
-	double dista;
-	double distb;
-	double dist[2];
-	//[0] = Current distance travelled
-	//[1] = How much further to go
-	int choke;
-	int count;
-	int flags;
-	
-	Default 
-	{
-		+NOINTERACTION
-		+SEEINVISIBLE
-		RenderStyle "None";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay
-		{
-			if (target && tracer)
-			{
-				Vector3 tpos = (tracer.pos.x, tracer.pos.y, (tracer.pos.z + (tracer.height / 2.0)));
-				SetOrigin(tpos, false);
-				A_FaceTarget(0,0,0,0,FAF_MIDDLE);
-				UPitch = pitch;
-				UAngle = angle;
-				dista = 0;
-				distb = Min(MaxDistance,GetDistance(true,TargetPtr));
-				choke = random(ChokeMin,ChokeMax);
-				
-				Scale.X = 0.075;
-				Scale.Y = 0.5;
-			
-				if (GetCvar("D4D_BeamTexture"))
-				{
-					flags = SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME;
-					Scale.X *= 2.5 * randompick(-1,1);
-					Scale.Y *= 0.485 * randompick(-1,1);
-					return A_Jump(256,1,2,3,4);
-				}
-				flags = SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS;
-				return ResolveState("Moving");
-			}
-			return ResolveState("Null");
-		}
-	Sprite:
-		X206 FGHI 0 A_Jump(256,"Moving");
-	Moving:
-		"####" "#" 1
-		{
-			while ((dista < distb) && tracer && tracer.health > 0)
-			{
-				if (dista > 0)
-				{	A_FaceTarget(0,0,0,0,FAF_MIDDLE);	}
-				
-				if (dista < (distb - StepDistance))
-				{
-					if (choke > 0)
-					{
-						pitch += frandom(-PitchRandom, PitchRandom);
-						angle += frandom(-AngleRandom, AngleRandom);
-						choke--;
-					}
-					else 
-					{	choke = random(ChokeMin,ChokeMax);	}
-				}
-				
-				if (!A_CheckSight("Null") && (dista < distb - (StepDistance / 2.0)))
-				{	A_SpawnItemEx("BFGBeamLaser",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,flags);	}
-				
-				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
-				dista += StepDistance;
-			}
-			if (count < MaxLife)	
-			{
-				count++;
-				return ResolveState(null);
-			}
-			else
-			{	return ResolveState("Null");	}
-			
-		}
-		Goto Spawn;
-	}
-}
-
-Class BFGBeamLaser : TrailBeam
-{
-	Default 
-	{
-		XScale 0.075;
-		YScale 0.5; //Don't touch.
-		Translation "0:255=%[0,0,0]:[1,2,1]";
-	}
-	States
-	{
-	Spawn:
-		"####" "#" 0 NoDelay 
-		{
-			time = 4.0;
-			//A_SpawnItemEx("BFGBeamLaser",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME,tid * 256,1);
-			
-			return A_JumpIf(GetCvar("D4D_BeamTexture"),"Process");
-		}
-		X202 E 0 	{	Thing_SetTranslation(0,0);	return ResolveState("Process");	}
-	}
-}
 
 //==============================================================================
 // ZDoom BFG Beam

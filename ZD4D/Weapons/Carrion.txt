@@ -1314,41 +1314,6 @@ Class CarrionShotTrackingLaser : Actor
 	}
 }
 
-Class CarrionTrailBeamMoving : MovingTrailBeam
-{
-	States
-	{
-	Spawn:
-		X202 I 0 NoDelay 
-		{
-			Zoffset = 0;
-			time = 3.0;
-			//A_SpawnItemEx("CarrionTrailBeamMoving",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
-			return ResolveState("Process");
-		}
-	}
-}
-
-Class CarrionTrailBeamMovingBoom : MovingTrailBeam
-{
-	Default 
-	{
-		RenderStyle "Add";
-	}
-	
-	States
-	{
-	Spawn:
-		X202 J 0 NoDelay 
-		{
-			Zoffset = 0;
-			time = 3.0;
-			//A_SpawnItemEx("CarrionTrailBeamMovingBoom",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
-			return ResolveState("Process");
-		}
-	}
-}
-
 Class CarrionShockwave : Actor 
 {
 	Default 

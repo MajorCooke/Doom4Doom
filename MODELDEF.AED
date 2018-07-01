@@ -1,124 +1,4 @@
-Model "TrailBeam"
-{
-	Model 0 "Models/BeamOffset.md3"
-	Scale 100.0 100.0 120.0
-
-	DONTCULLBACKFACES
-	USEACTORPITCH
-	
-	Skin 0 "Graphics/BulletTex.png"
-	FrameIndex X202 B 0 0
-}
-
-Model "BulletTrailBeam"
-{
-	Model 0 "Models/BeamOffset.md3"
-	Scale 100.0 100.0 120.0
-
-	DONTCULLBACKFACES
-	USEACTORPITCH
-	
-	Skin 0 "Graphics/BulletTex.png"
-	FrameIndex X202 B 0 0
-}
-
-Model CarrionTrailBeamMoving
-{
-	Model 0 "Models/BeamOffset.md3"
-	Scale 100.0 100.0 120.0
-
-	DONTCULLBACKFACES
-	USEACTORPITCH
-	
-	Skin 0 "Graphics/BulletTex.png"
-	FrameIndex X202 I 0 0
-}
-
-Model CarrionTrailBeam
-{
-	Model 0 "Models/BeamOffset.md3"
-	Scale 100.0 100.0 120.0
-
-	DONTCULLBACKFACES
-	USEACTORPITCH
-	
-	Skin 0 "Graphics/BulletTex.png"
-	FrameIndex X202 I 0 0
-}
-
-Model CarrionTrailBeamMovingBoom
-{
-	Model 0 "Models/BeamOffset.md3"
-	Scale 100.0 100.0 120.0
-
-	DONTCULLBACKFACES
-	USEACTORPITCH
-	
-	Skin 0 "Graphics/BulletTex.png"
-	FrameIndex X202 J 0 0
-}
-
-Model GaussTrail
-{
-	Model 0 "Models/BeamOffset.md3"
-	Scale 100.0 100.0 120.0
-
-	DONTCULLBACKFACES
-	USEACTORPITCH
-	
-	Skin 0 "Graphics/BulletTex.png"
-	FrameIndex X202 B 0 0
-}
-
-Model GaussTrailBig
-{
-	Model 0 "Models/BeamOffset.md3"
-	Scale 100.0 100.0 120.0
-
-	DONTCULLBACKFACES
-	USEACTORPITCH
-	
-	Skin 0 "Graphics/BulletTex.png"
-	FrameIndex X202 B 0 0
-}
-
-Model LightningTrailBeamV2
-{
-	Model 0 "Models/BeamOffset.md3"
-	Scale 100.0 100.0 120.0
-
-	DONTCULLBACKFACES
-	USEACTORPITCH
-	
-	Skin 0 "Graphics/BulletTex.png"
-	FrameIndex X202 F 0 0
-}
-
-Model LightningTrailBeamV3
-{
-	Model 0 "Models/BeamOffset.md3"
-	Scale 100.0 100.0 120.0
-
-	DONTCULLBACKFACES
-	USEACTORPITCH
-	
-	Skin 0 "Graphics/BulletTex.png"
-	FrameIndex X202 G 0 0
-}
-
-Model LightningTrailBeamV4
-{
-	Model 0 "Models/BeamOffset.md3"
-	Scale 100.0 100.0 120.0
-
-	DONTCULLBACKFACES
-	USEACTORPITCH
-	
-	Skin 0 "Graphics/BulletTex.png"
-	FrameIndex X202 G 0 0
-}
-
-Model LaserBeamJitter
+Model "D4DBeamBase"
 {
 	Model 0 "Models/BeamOffset.md3"
 	Scale 100.0 100.0 120.0
@@ -131,12 +11,20 @@ Model LaserBeamJitter
 	
 	Skin 0 "Graphics/LtBmBlu1.png"
 	FrameIndex X206 F 0 0
-	Skin 0 "Graphics/LtBmBlu1.png"
+	Skin 0 "LtBmBlu2"
 	FrameIndex X206 G 0 0
-	Skin 0 "Graphics/LtBmBlu1.png"
+	Skin 0 "LtBmBlu3"
 	FrameIndex X206 H 0 0
-	Skin 0 "Graphics/LtBmBlu1.png"
+	Skin 0 "LtBmBlu4"
 	FrameIndex X206 I 0 0
+	Skin 0 "LtBmBlu5"
+	FrameIndex X206 J 0 0
+	Skin 0 "LtBmBlu6"
+	FrameIndex X206 K 0 0
+	Skin 0 "LtBmBlu7"
+	FrameIndex X206 L 0 0
+	Skin 0 "LtBmBlu8"
+	FrameIndex X206 M 0 0
 }
 
 

@@ -312,7 +312,8 @@ Class D4VortexRifle : Doom4Weapon
 }
 
 Class VortexTrailSoftware : Actor 
-{	//you cant say i dont love you guys, i even recolored to doom pallete!
+{	// [DBT] you cant say i dont love you guys, i even recolored to doom pallete!
+	// [MC] Yeah well I don't.
 	Default 
 	{
 		+NOINTERACTION
@@ -325,28 +326,6 @@ Class VortexTrailSoftware : Actor
 		CBA3 BBBBB 1 Bright;
 		CBA3 B 1 Bright A_FadeOut(0.05);
 		Wait;
-	}
-}
-
-Class VortexTrail : TrailBeam
-{
-	Default 
-	{
-		XScale 0.1;
-		YScale 0.25; //Don't touch.
-	}
-	States
-	{
-	Spawn:
-		X202 H 0 NoDelay
-		{
-			//pitch *= -1;
-			//if (tid) { angle += 180; }
-			// time = time to shrink to nothing
-			time = 15.0;
-			//A_SpawnItemEx("VortexTrail",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
-		}
-		Goto Process;
 	}
 }
 
