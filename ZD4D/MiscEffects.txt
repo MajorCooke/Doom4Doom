@@ -412,6 +412,7 @@ Class PacifistPuff : Actor
 		+ALWAYSPUFF
 		+PUFFONACTORS
 		+SKYEXPLODE
+		+DONTSPLASH
 		Radius 1;
 		Height 1;
 		DamageType "AimingLaser";
@@ -420,7 +421,7 @@ Class PacifistPuff : Actor
 	States
 	{
 	Spawn:
-		TNT1 A 4;
+		TNT1 A 35;
 		Stop;
 	}
 }

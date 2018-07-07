@@ -130,18 +130,14 @@ Class D4DMainBeamSpawner : D4DBeamSpawnerBase
 		D4DBeamSpawnerBase.Choke 1, 3;
 		D4DBeamSpawnerBase.Steps 0, 0;
 		D4DBeamSpawnerBase.Delays 0, 0;
-		D4DBeamSpawnerBase.Lengths 0.02, 0.10;
-		D4DBeamSpawnerBase.Widths 0.05, 0.10;
 		D4DBeamSpawnerBase.SpriteName "X202";
 		D4DBeamSpawnerBase.Frames Fr_B, Fr_B;
 		D4DBeamSpawnerBase.MaxDistance 512;
 		D4DBeamSpawnerBase.HomingDistance 32;
 		D4DBeamSpawnerBase.Failsafe 500;
 		//D4DBeamSpawnerBase.BranchChance 0;
-		D4DBeamSpawnerBase.ScaleTimeMin 0, 4;
-		D4DBeamSpawnerBase.ScaleTimeMax 0, 6;
 		D4DBeamSpawnerBase.SightCheck false;
-		Translation "0:255=#[255, 192, 96]";
+		//Translation "0:255=#[255, 192, 96]";
 	}
 }
 
@@ -149,16 +145,97 @@ Class D4DMainBeam : D4DBeamBase
 {
 	Default
 	{
-		D4DBeamBase.StepTime 4;
+		D4DBeamBase.SpriteName "X202";
+		D4DBeamBase.Frames Fr_B, Fr_B;
 		D4DBeamBase.ScaleTime 0, 24;
 		D4DBeamBase.IsStep false;
 	}
 }
 
+//------------------------------------------------------------------------------
+// Custom classes begin here.
+
+Class GaussTrailSpawner : D4DBeamSpawnerBase
+{
+	Default
+	{
+		
+		D4DBeamSpawnerBase.Beam "GaussTrail";
+		D4DBeamSpawnerBase.StartBeam "GaussTrailStart";
+		D4DBeamSpawnerBase.StartPuff "";
+		D4DBeamSpawnerBase.EndPuff "BeamSpawnerPuff";
+		D4DBeamSpawnerBase.RandomAim false;
+		D4DBeamSpawnerBase.PitchStart1Min 0.0;
+		D4DBeamSpawnerBase.PitchStart1Max 0.0;
+		D4DBeamSpawnerBase.PitchRandom 0.0;
+		D4DBeamSpawnerBase.AngleStart1Min 0.0;
+		D4DBeamSpawnerBase.AngleStart1Max 0.0;
+		D4DBeamSpawnerBase.AngleRandom 0.0;
+		D4DBeamSpawnerBase.Choke 0, 0;
+		D4DBeamSpawnerBase.Steps 0, 0;
+		D4DBeamSpawnerBase.Delays 0, 0;
+		D4DBeamSpawnerBase.MaxDistance 1024;
+		D4DBeamSpawnerBase.HomingDistance 32;
+		D4DBeamSpawnerBase.Failsafe 500;
+		//D4DBeamSpawnerBase.BranchChance 0;
+		D4DBeamSpawnerBase.SightCheck false;
+	}
+}
+
+Class GaussTrailBigSpawner : GaussTrailSpawner
+{
+	Default
+	{
+		D4DBeamSpawnerBase.Beam "GaussTrailBig";
+		D4DBeamSpawnerBase.StartBeam "GaussTrailBigStart";
+	}
+}
+
+Class GaussTrail : D4DMainBeam
+{
+	Default
+	{
+		D4DBeamBase.SpriteName "X202";
+		D4DBeamBase.Frames Fr_B, Fr_B;
+		D4DBeamBase.StepTime 0;
+		D4DBeamBase.ScaleTime 0, 17;
+		D4DBeamBase.IsStep false;
+		D4DBeamBase.Lengths 1.00, 1.00;
+		D4DBeamBase.Widths 0.35, 0.35;
+	}
+}
+
+Class GaussTrailStart : GaussTrail
+{
+	Default
+	{
+		//D4DBeamBase.StartSegment true;
+		D4DBeamBase.Frames Fr_Z, Fr_Z;
+	}
+}
+
+Class GaussTrailBig : GaussTrail
+{
+	Default
+	{
+		D4DBeamBase.ScaleTime 0, 20;
+		D4DBeamBase.Widths 0.5, 0.5;
+	}
+}
+
+Class GaussTrailBigStart : GaussTrailBig
+{
+	Default
+	{
+		D4DBeamBase.Frames Fr_Z, Fr_Z;
+	}
+}
+
+
 Class BFGBeamGZ : Nothing {}
 Class BFGBeamLaser : Nothing {}
-Class GaussTrail : Nothing {}
-Class GaussTrailBig : Nothing {}
+//Class GaussTrail : Nothing {}
+//Class GaussTrailBig : Nothing {}
 Class StaticTrail : Nothing {}
 Class StaticTrailBig : Nothing {}
 Class TrailBeam : Nothing {}

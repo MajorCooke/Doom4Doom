@@ -17,17 +17,17 @@ Class D4DBeamSpawnerBase : D4DFX
 {
 	// Non-options
 	private Actor plr;
-	private bool WatchTracer;
+	private bool WatchTracer, Starting;
 	protected double BranchSize;
 	Vector3 StartPos, Pos1, Pos2;
-	Actor 	Puff[2], Destination;
+	Actor 	Puff[2];
 	
 	// Options
 	Class<Actor> EndPuff, StartPuff;
-	Class<Actor> Beam;
+	Class<D4DBeamBase> Beam, StartBeam;
 	
-	bool 	RandomAim, IsBranch, DestroyMe, SightCheck, Aimed, AlwaysAim, 
-			MoveWithSource, KeepDestination;
+	bool 	RandomAim, IsBranch, DestroyMe, SightCheck, AlwaysAim, 
+			MoveWithSource, KeepDestination, IsStraight, UseBeamProperties;
 			
 	Name 	SpriteName;
 	
@@ -42,17 +42,18 @@ Class D4DBeamSpawnerBase : D4DFX
 	double 	PitchRandom, AngleRandom, 
 			PitchStart1Min, PitchStart1Max, PitchStart2Min, PitchStart2Max,
 		    AngleStart1Min, AngleStart1Max, AngleStart2Min, AngleStart2Max,
-			LengthMin, LengthMax,
 			CurDistance, MaxDistance, HomingDistance,
+			LengthMin, LengthMax,
 			WidthMin, WidthMax,
 			TurnLimit, PitchLimit;
 			
-	
+	Property UseBeamProperties: UseBeamProperties;
+	Property IsStraight:		IsStraight;
 	Property KeepDestination:	KeepDestination;
-	Property Aimed: 			Aimed;
 	Property StartPuff:			StartPuff;		
 	Property EndPuff:			EndPuff;		
-	Property Beam:				Beam;			
+	Property Beam:				Beam;	
+	Property StartBeam:			StartBeam;
 	Property RandomAim:			RandomAim;
 	//Property Angles:			AngleRandom, AngleStart1Min, AngleStart1Max, AngleStart2Min, AngleStart2Max;
 	Property AngleRandom: 		AngleRandom;	
@@ -71,12 +72,9 @@ Class D4DBeamSpawnerBase : D4DFX
 	Property Choke:				ChokeMin, ChokeMax;
 	Property Steps:				StepMin, StepMax;
 	Property Delays:			DelayMin, DelayMax;
-	Property Lengths:			LengthMin, LengthMax;
-	Property Widths:			WidthMin, WidthMax;
 	
 	Property SpriteName:		SpriteName;
 	Property Frames:			FrameMin, FrameMax;
-	
 	
 	Property MaxDistance:		MaxDistance;	
 	Property HomingDistance:	HomingDistance;	
@@ -84,9 +82,7 @@ Class D4DBeamSpawnerBase : D4DFX
 	Property BranchChance:		BranchChance;
 	Property BranchCMax:		BranchCMax;
 	Property BranchCount:		BranchCount;
-	Property BranchSize:		BranchSize;			
-	Property ScaleTimeMin:		ScaleInTimeMin, ScaleOutTimeMin;
-	Property ScaleTimeMax:		ScaleInTimeMax, ScaleOutTimeMax;
+	Property BranchSize:		BranchSize;
 	Property SightCheck:		SightCheck;
 	Property AlwaysAim:			AlwaysAim;
 	Property MoveWithSource:	MoveWithSource;
@@ -124,23 +120,24 @@ Class D4DBeamSpawnerBase : D4DFX
 		}
 		else // Ensure the sprite/model is valid.
 		{
-			if (FrameMin < Fr_A || FrameMin > Fr_Z || FrameMax < Fr_A || FrameMax > Fr_Z)
-			{
-				return ThrowAbortException("Frames parameters must be in range [Fr_A, Fr_Z]");
-			}
-			
-			int t = GetSpriteIndex(SpriteName);
-			
-			if (t < 0)
-				return ThrowAbortException("SpriteName is bad! Check to make sure it's defined!");
+			if (!Beam)
+				return ThrowAbortException("Beam actor is null or not inheriting from D4DBeamBase");
 				
-			Sprite = t;
-			Frame = random(FrameMin, FrameMax);
-		
-			if (ScaleInTime > 0)	ScaleInTime = random(ScaleInTimeMin, ScaleInTimeMax);
-			if (ScaleOutTime > 0)	ScaleOutTime = random(ScaleOutTimeMin, ScaleOutTimeMax);
+			let Defaults = /*(class<D4DBeamBase>)*/GetDefaultByType(Beam);
+			Sprite = GetSpriteIndex(Defaults.SpriteName);
+			Frame = random(Defaults.FrameMin, Defaults.FrameMax);
+			ScaleInTime = Defaults.ScaleInTime;
+			ScaleOutTime = Defaults.ScaleOutTime;
+			LengthMin = Defaults.LengthMin;
+			LengthMax = Defaults.LengthMax;
+			WidthMin = Defaults.WidthMin;
+			WidthMax = Defaults.WidthMax;
+		//	if (ScaleInTime > 0)	ScaleInTime = random(ScaleInTimeMin, ScaleInTimeMax);
+		//	if (ScaleOutTime > 0)	ScaleOutTime = random(ScaleOutTimeMin, ScaleOutTimeMax);
+			
 		}
 		
+		Starting = (StartBeam != null);
 		TurnLimit = abs(TurnLimit);
 		PitchLimit = abs(PitchLimit);
 		Super.PostBeginPlay();
@@ -157,12 +154,12 @@ Class D4DBeamSpawnerBase : D4DFX
 		Choke = random(ChokeMin, ChokeMax);
 		
 		// We already have an entity to track. Only randomize the choke.
-		if (Destination)	return;
+		if (Tracer)	return;
 		
-		double  a1 = 0.0, p1 = 0.0;
+		double  a1 = angle, p1 = pitch;
 		if (Puff[0])	Puff[0].Destroy();
-		a1 = angle + frandom(AngleStart1Min, AngleStart1Max) + (UseRandom ? frandom(-AngleRandom, AngleRandom) : 0.0);
-		p1 = pitch + frandom(PitchStart1Min, PitchStart1Max) + (UseRandom ? frandom(-PitchRandom, PitchRandom) : 0.0);
+		a1 += frandom(AngleStart1Min, AngleStart1Max) + (UseRandom ? frandom(-AngleRandom, AngleRandom) : 0.0);
+		p1 += frandom(PitchStart1Min, PitchStart1Max) + (UseRandom ? frandom(-PitchRandom, PitchRandom) : 0.0);
 		Puff[0] = LineAttack(a1, 32766, p1, 0, 'None', EndPuff, LAF_NOINTERACT);
 		
 		if (!dual) return;
@@ -180,6 +177,7 @@ Class D4DBeamSpawnerBase : D4DFX
 		if (Steps < 1 || IsBranch || (WatchTracer && Tracer == null))
 			return false;
 		
+		Starting = (StartBeam != null);
 		Failsafe = Default.Failsafe;	// Resets the failsafe back to the defined property value.
 		BranchCount = Default.BranchCount;
 		Steps--;
@@ -213,7 +211,7 @@ Class D4DBeamSpawnerBase : D4DFX
 				Delay = random(DelayMin,DelayMax);
 				Steps = random(StepMin, StepMax);
 			}
-			if (!Destination)
+			if (!Tracer)
 			{
 				CreateLightningTarget(false, (StartPuff != null));
 				if (Puff[1])	SetOrigin(Puff[1].pos, false);
@@ -225,10 +223,10 @@ Class D4DBeamSpawnerBase : D4DFX
 		---- A 1
 		{
 			if (DestroyMe)	return Destroy();
-			else if (Puff[0] || Destination || IsBranch)
+			else if (Puff[0] || Tracer || IsBranch)
 			{
-				if (Destination)	Puff[0] = Destination;
-				if (SightCheck && plr && abs(deltaangle(plr.angle, plr.AngleTo(self))) > 45)
+				if (Tracer)	Puff[0] = Tracer;
+				if (SightCheck && (!plr || abs(deltaangle(plr.angle, plr.AngleTo(self))) > 45))
 				{
 					if (IsBranch || !TickLife())	
 						Destroy();
@@ -237,8 +235,18 @@ Class D4DBeamSpawnerBase : D4DFX
 				
 				Frame = random(FrameMin, FrameMax);
 				CurDistance = 0.0;
-				tracer = Puff[0];
-				double dist = Puff[0] ? Distance3D(Puff[0]) : MaxDistance;
+				double DistSq, Dist;
+				
+				if (Puff[0])
+				{
+					DistSq = Distance3DSquared(Puff[0]);
+					Dist = sqrt(DistSq);
+				}
+				else
+				{
+					DistSq = (MaxDistance ** 2);
+					Dist = MaxDistance;
+				}
 				double RealLengthMin = LengthMin * 100;
 				double RealLengthMax = LengthMax * 100;
 				
@@ -256,7 +264,12 @@ Class D4DBeamSpawnerBase : D4DFX
 				{
 					Failsafe--;
 					Scale.Y = frandom(LengthMin, LengthMax);
-					if (!IsBranch)	dist = Distance3D(Puff[0]);
+					
+					if (!IsBranch)	
+					{
+						DistSq = Distance3DSquared(Puff[0]);
+						Dist = sqrt(DistSq);				
+					}
 					// Do not randomize if:
 					// 1. The puff is not in FOV
 					// 2. The puff is close enough.
@@ -271,8 +284,10 @@ Class D4DBeamSpawnerBase : D4DFX
 								
 					bool hitsurface = A_CheckLOF("Null", flags, ScaledX, ptr_target: AAPTR_NULL);
 					
-					if (!IsBranch && (!Choke || hitsurface || 
-						!A_JumpIfTargetInLOS("Null",90,JLOSF_CHECKTRACER,0,HomingDistance)))
+					if (!IsBranch && (!Choke || hitsurface 
+						|| (dist <= HomingDistance)
+				//		|| !A_JumpIfTargetInLOS("Null",90,JLOSF_CHECKTRACER,0,HomingDistance)
+						))
 					{
 						Vector2 off = (0, 0);
 						if (HomingDistance >= 1.0)
@@ -281,19 +296,24 @@ Class D4DBeamSpawnerBase : D4DFX
 							off.x = sin(deg) * frandom(-AngleRandom, AngleRandom);
 							off.y = sin(deg) * frandom(-PitchRandom, PitchRandom);
 						}
-						A_Face(Puff[0], 0, 0, off.x, off.y, FAF_MIDDLE);
+						A_Face(Puff[0], TurnLimit, PitchLimit, off.x, off.y, FAF_MIDDLE);
 						Choke = random(ChokeMin, ChokeMax);
 					}
 					else
 					{
-						if (AlwaysAim)	A_Face(Puff[0], 0, 0, 0, 0, FAF_MIDDLE);
+						if (AlwaysAim)	A_Face(Puff[0], TurnLimit, PitchLimit, 0, 0, FAF_MIDDLE);
 						Angle += frandom(-AngleRandom, AngleRandom);
 						Pitch += frandom(-PitchRandom, PitchRandom);
 						Choke--;
 					}
 					
 					// Spawn the main beam.
-					D4DBeamBase bolt = D4DBeamBase(Spawn(Beam,pos));
+					D4DBeamBase bolt; 
+					if (Starting)
+						bolt = D4DBeamBase(Spawn(StartBeam,pos));
+					else		
+						bolt = D4DBeamBase(Spawn(Beam,pos));
+						
 					if (bolt)
 					{
 						bolt.master = master;
@@ -305,18 +325,31 @@ Class D4DBeamSpawnerBase : D4DFX
 						bolt.IsStep = (Steps > 0);
 						bolt.ScaleInTime = ScaleInTime;
 						bolt.ScaleOutTime = ScaleOutTime;
-						bolt.Sprite = Sprite;
-						bolt.Frame = Frame;
 						bolt.Translation = Translation;
-						bolt.dist = dist;
+						
+						if (Starting)
+						{
+							
+							let Defaults = GetDefaultByType(StartBeam);
+							int s = GetSpriteIndex(Defaults.SpriteName);
+							if (s < 0)	return ThrowAbortException("StartBeam's spritename is bad");
+							bolt.Sprite = s;
+							bolt.Frame = random(Defaults.FrameMin, Defaults.FrameMax);
+						}
+						else
+						{
+							bolt.Sprite = Sprite;
+							bolt.Frame = Frame;
+						}
 						bolt.Spawner = self;
 					}
 					
 					// Hit a wall, floor or ceiling.
+					
 					if (hitsurface && A_CheckLOF("Null", flags, ScaledX, ptr_target: AAPTR_NULL))
 						break;
 					hitsurface = false;
-	
+					
 					// Spawn branches.
 					/*
 					if (BranchCount && BranchChance && BranchSize > 0.0 && CurDistance > 0.0)
@@ -347,15 +380,16 @@ Class D4DBeamSpawnerBase : D4DFX
 					double RealScaleY = Scale.Y * 100;
 					CurDistance += RealScaleY;
 					
-					if (pos.z <= floorz || pos.z > ceilingz) break;
+					if (pos.z <= floorz || pos.z >= ceilingz) break;
 					
-					A_Warp(AAPTR_DEFAULT, cos(pitch) * RealScaleY, 0, -sin(pitch) * RealScaleY, 0, WARPF_NOCHECKPOSITION);
+					Warp(Self, cos(pitch) * RealScaleY, 0, -sin(pitch) * RealScaleY, 0, WARPF_NOCHECKPOSITION);
+					Starting = false;
 				}
 				// Either expiration or a branch. A branch should never attempt to spawn more.
 				if (IsBranch || !TickLife())	return Destroy();
 				
 				// If enabled, randomize 
-				if (!Destination && RandomAim)	CreateLightningTarget(true,(StartPuff != null));
+				if (!Tracer && RandomAim)	CreateLightningTarget(true,(StartPuff != null));
 				
 			}
 			else return Destroy();
@@ -374,15 +408,21 @@ Class D4DBeamBase : D4DFX
 	protected double PrevAngle, PrevPitch;
 	Actor Spawner;
 
-	Name SpriteName;
-	uint SpriteFrame;
-	uint StepTime, WaitTime;
-	uint FrameMin, FrameMax;
-	bool IsStep, Follow, MoveWithSource, SineScale;
-	double TargetScale, CurrentSine;
-	double ScaleInTime, ScaleOutTime;
-	double dist, SineOffset;
+	Name 	SpriteName;
+	uint 	SpriteFrame,
+			StepTime, WaitTime,
+			FrameMin, FrameMax;
+	bool 	IsStep, Follow, MoveWithSource, SineScale, StartSegment;
+	
+	double 	TargetScale, CurrentSine,
+			ScaleInTime, ScaleOutTime,
+			SineOffset,
+			LengthMin, LengthMax,
+			WidthMin, WidthMax;
+			
 	Vector3 next1, next2;
+	
+	Property StartSegment:		StartSegment;
 	Property SpriteName:		SpriteName;
 	Property Frames:			FrameMin, FrameMax;
 	property SineScale:			SineScale;
@@ -392,8 +432,12 @@ Class D4DBeamBase : D4DFX
 	property ScaleTime: 		ScaleInTime, ScaleOutTime;
 	property StepTime:			StepTime;
 	property IsStep:			IsStep;
+	
+	Property Lengths:			LengthMin, LengthMax;
+	Property Widths:			WidthMin, WidthMax;
 	Default
 	{
+		D4DBeamBase.StartSegment false;
 		D4DBeamBase.SineScale true;
 		D4DBeamBase.StepTime 4;
 		D4DBeamBase.WaitTime 4;
@@ -401,6 +445,7 @@ Class D4DBeamBase : D4DFX
 		D4DBeamBase.IsStep false;
 		D4DBeamBase.Follow false;
 		RenderStyle "Add";
+		DistanceCheck "D4D_MaxDrawDistance";
 		XScale 0.1;
 		YScale 1.0;
 		Projectile;
@@ -421,12 +466,12 @@ Class D4DBeamBase : D4DFX
 		Pitch += 90.0;
 		CurrentSine = 0.0;
 		
+		// If this is being spawned manually instead of by a spawner, set some
+		// things up.
 		if (!Spawner)
 		{
 			if (FrameMin < Fr_A || FrameMin > Fr_Z || FrameMax < Fr_A || FrameMax > Fr_Z)
-			{
 				return ThrowAbortException("Frames parameters must be in range [Fr_A, Fr_Z]");
-			}
 			
 			int t = GetSpriteIndex(SpriteName);
 			
@@ -434,7 +479,10 @@ Class D4DBeamBase : D4DFX
 				return ThrowAbortException("SpriteName is bad! Check to make sure it's defined!");
 				
 			Sprite = t;
-			Frame = random(FrameMin, FrameMax);
+			Frame = (FrameMin == FrameMax) ? FrameMin : random(FrameMin, FrameMax);
+			
+			Scale.Y = frandom(LengthMin, LengthMax);
+			Scale.X = frandom(WidthMin, WidthMax);
 		}
 		
 		if (SineScale)
@@ -468,6 +516,13 @@ Class D4DBeamBase : D4DFX
 	Spawn:
 		X202 B 1 NoDelay
 		{
+			/*
+			if (StartSegment)
+			{
+				double offs = 0.1;
+				Warp(Self, cos(pitch) * offs, 0, -sin(pitch) * offs,0,WARPF_NOCHECKPOSITION);
+			}
+			*/
 			// No scaling in or out is done if this is a stepping beam. 
 			if (IsStep)	
 			{
@@ -541,11 +596,16 @@ Class D4DBeamBase : D4DFX
 		}
 	
 	// Scale out and then destroy it.
+	Death:
 	ScaleOut:
 		#### # 0 
 		{
-			if (SineScale)	
+			bNODAMAGE = true;
+			if (SineScale)
+			{
+				CurrentSine = 90.0;
 				return ResolveState("ScaleOutSine");
+			}
 			return ResolveState("ScaleOutNormal");
 		}
 	ScaleOutNormal:

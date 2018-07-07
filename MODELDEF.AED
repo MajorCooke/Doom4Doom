@@ -27,7 +27,72 @@ Model "D4DBeamBase"
 	FrameIndex X206 M 0 0
 }
 
+Model "GaussTrail"
+{
+	Model 0 "Models/BeamOffset8.md3"
+	Scale 100.0 100.0 120.0
 
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 B 0 0
+	Skin 0 "Graphics/BulletTexStart.png"
+	FrameIndex X202 Z 0 0
+}
+
+Model "GaussTrailBig"
+{
+	Model 0 "Models/BeamOffset8.md3"
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 B 0 0
+	Skin 0 "Graphics/BulletTexStart.png"
+	FrameIndex X202 Z 0 0
+}
+
+Model "GaussTrailStart"
+{
+	Model 0 "Models/BeamOffset8Start.md3"
+	Scale 100.0 100.0 120.0
+	
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	//INHERITACTORPITCH
+	
+	Skin 0 "Graphics/BulletTexStart.png"
+	FrameIndex X202 Z 0 0
+}
+
+Model "GaussTrailBigStart"
+{
+	Model 0 "Models/BeamOffset8Start.md3"
+	Scale 100.0 100.0 120.0
+	
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Skin 0 "Graphics/BulletTexStart.png"
+	FrameIndex X202 Z 0 0
+}
+
+/*
+Model RGRail
+{ 
+   Path "MD3/Projectiles"
+   SKIN 0 "railcore.jpg"
+   MODEL 0 "railcore.md3"
+   Scale 1.0025 1.0025 1.0025
+   INHERITACTORPITCH
+   
+   FrameIndex RGRA A 0 0
+   FrameIndex RGRA B 0 1
+}
+*/
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 Model PistolTracerNormal

@@ -1,3 +1,51 @@
+const SparsitySmall = 100.0; //10.415;
+
+Struct FireStraightBeamParams
+{
+	int damage, spawnofs_xy, flags, duration, spiraloffset, limit;
+	bool useammo;
+	Color col[2];
+	double maxdiff, spread_xy, spread_z, range, driftspeed, spawnofs_z, sparsity;
+	Class<Actor> pufftype, spawnclass, spawnstart;
+	
+	double MaxEffectDistance;
+	
+	void Init(int dmg = 0)
+	{
+		damage = dmg;
+		useammo = true;
+		col[0] = col[1] = 0;
+		spawnofs_xy = flags = duration = limit = 0;
+		maxdiff = spread_xy = spread_z = range = spawnofs_z = 0.0;
+		pufftype = "BulletPuff";
+		spawnclass = null;
+		spawnstart = null;
+		sparsity = driftspeed = 1.0;
+		spiraloffset = 270;
+		
+		MaxEffectDistance = 1024;
+	}
+	/*
+	int damage, 
+	int spawnofs_xy = 0, 
+	bool useammo = true, 
+	color color1 = 0, 
+	color color2 = 0, 
+	int flags = 0, 
+	double maxdiff = 0, 
+	class<Actor> pufftype = "BulletPuff", 
+	double spread_xy = 0, 
+	double spread_z = 0, 
+	double range = 0, 
+	int duration = 0, 
+	double sparsity = 1.0, 
+	double driftspeed = 1.0, 
+	class<Actor> spawnclass = "none", 
+	double spawnofs_z = 0, 
+	int spiraloffset = 270, 
+	int limit = 0
+	*/
+}
 //==============================================================================
 //==============================================================================
 //
@@ -28,6 +76,34 @@ Class Doom4Weapon : Weapon
 		Inventory.RespawnTics 175;
 		Tag "REPLACE ME YOU IDIOT!";
 	}
+	
+	/*
+	void FireStraightBeam(
+			int damage, int spawnofs_xy = 0, bool useammo = true, 
+			color color1 = 0, color color2 = 0, int flags = 0, 
+			double maxdiff = 0, class<Actor> pufftype = "BulletPuff", 
+			double spread_xy = 0, double spread_z = 0, double range = 0, 
+			int duration = 0, double sparsity = 1.0, double driftspeed = 1.0, 
+			class<Actor> spawnclass = "none", double spawnofs_z = 0, 
+			int spiraloffset = 270, int limit = 0)
+	
+	void FireStraightBeam(FireStraightBeamParams p)
+	{
+		
+		
+		A_RailAttack(0, p.spawnofs_xy, false, "Red", "Red", p.flags, p.maxdiff,
+					"PacifistPuff", p.spread_xy, p.spread_z, 101, 0, p.sparsity, 1.0, p.spawnstart,
+					p.spawnofs_z, 270, p.limit);
+		A_RailAttack(0, p.spawnofs_xy, false, "Red", "Red", p.flags, p.maxdiff,
+					"PacifistPuff", p.spread_xy, p.spread_z, p.MaxEffectDistance, 0, p.sparsity, 1.0, p.spawnclass, 
+					p.spawnofs_z, 270, p.limit);
+		A_RailAttack(p.damage, p.spawnofs_xy, p.useammo, "None", "None", p.flags, p.maxdiff,
+					p.pufftype, 0, 0, p.range, limit: p.limit);
+					
+		//A_RailAttack(0,5,0,"Green","Green",RGF_SILENT|RGF_FULLBRIGHT|RGF_NOPIERCING,0,"PacifistPuff",0,0,201,0,SparsitySmall,1.0,"GaussTrailStart");
+		//A_RailAttack(400+random(1,150),5,1,"Green","Green",RGF_SILENT|RGF_FULLBRIGHT|RGF_NOPIERCING,0,"GaussShockwave",0,0,0,0,SparsitySmall,1.0,"GaussTrail");
+	}
+	*/
 	States
 	{
 	Spawn:
