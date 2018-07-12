@@ -284,7 +284,9 @@ Class D4Pistol : Doom4Weapon
 		"####" B 2 Bright
 		{
 			A_PlaySound("Doom4/Weapon/PistolL/Fire",CHAN_WEAPON,1);
-			A_RailAttack(PistolLanceBase + random(PistolLanceMin,PistolLanceMax),2,1,"Red","Red",RGF_SILENT|RGF_FULLBRIGHT|RGF_NOPIERCING,0,"LanceShockwave",0,0,0,0,5,1.0,"LanceTrail",5);
+			int dmg = PistolLanceBase + random(PistolLanceMin,PistolLanceMax);
+			A_FireBullets(0,0,1,dmg,"LanceShockwave",FBF_NORANDOM|FBF_NORANDOMPUFFZ|FBF_PUFFTRACER,1024,"LanceTrailSpawner",0,5);
+			//A_RailAttack(PistolLanceBase + random(PistolLanceMin,PistolLanceMax),2,1,"Red","Red",RGF_SILENT|RGF_FULLBRIGHT|RGF_NOPIERCING,0,"LanceShockwave",0,0,0,0,5,1.0,"LanceTrail",5);
 			A_AlertMonsters();
 			A_TakeInventory("PistolAltFireCounter",200);
 			A_TakeInventory("PistolLanceCounter",200);

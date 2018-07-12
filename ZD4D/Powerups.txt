@@ -67,7 +67,7 @@ Class D4Megasphere : Megasphere
 		Translation "0:255=%[0.3,0.15,0.05]:[2,1,0.3]";
 		+INVENTORY.FANCYPICKUPSOUND
 		+INVENTORY.TRANSFER
-		-INVENTORY.ALWAYSPICKUP
+		-Inventory.ALWAYSPICKUP
 		+COUNTITEM
 		+BRIGHT
 		+FLOATBOB
@@ -353,9 +353,9 @@ Class QuadDamageGiver : PowerupGiver
 {
 	Default 
 	{
-		inventory.maxamount 0;
+		Inventory.maxamount 0;
 		Powerup.Type "PowerD4QuadDamage";
-		powerup.duration -30;
+		Powerup.duration -30;
 		+INVENTORY.AUTOACTIVATE
 		+INVENTORY.ALWAYSPICKUP
 	}
@@ -366,7 +366,7 @@ Class D4QuadDamage : CustomInventory
 	Default 
 	{
 		Inventory.PickupSound "QuadDamage/Pickup";
-		inventory.pickupmessage "Quad Damage!";
+		Inventory.pickupmessage "Quad Damage!";
 		//translation "0:255=%[.00,.00,.10]:[.99,.10,.99]"
 		+INVENTORY.FANCYPICKUPSOUND
 		+COUNTITEM
@@ -551,9 +551,9 @@ Class RegenerationGiver : PowerupGiver
 {
 	Default 
 	{
-		inventory.maxamount 0;
+		Inventory.maxamount 0;
 		Powerup.Type "PowerD4Regen";
-		powerup.duration 1050;
+		Powerup.Duration 1050;
 		+INVENTORY.AUTOACTIVATE
 		+INVENTORY.ALWAYSPICKUP
 	}
@@ -563,7 +563,7 @@ Class D4Regeneration : CustomInventory replaces SoulSphere
 {
 	Default 
 	{
-		inventory.pickupmessage "Supercharge!";
+		Inventory.pickupmessage "Supercharge!";
 		Inventory.PickupSound "Regen/Pickup";
 		translation "0:255=%[.30,.30,.50]:[.10,1.99,1.99]";
 		+INVENTORY.FANCYPICKUPSOUND
@@ -712,7 +712,7 @@ Class QuadMoneyGiver : PowerupGiver
 	Default 
 	{
 		Powerup.Type "PowerD4Money";
-		powerup.duration -30;
+		Powerup.duration -30;
 		+INVENTORY.AUTOACTIVATE
 		+INVENTORY.ALWAYSPICKUP
 	}
@@ -723,7 +723,7 @@ Class D4QuadMoney : CustomInventory
 	Default 
 	{
 		Inventory.PickupSound "Regen/Pickup";
-		inventory.pickupmessage "Quad Credits!";
+		Inventory.pickupmessage "Quad Credits!";
 		translation "0:255=%[.00,.00,.10]:[.10,.99,.10]";
 		+INVENTORY.FANCYPICKUPSOUND
 		+COUNTITEM
@@ -803,7 +803,7 @@ Class BlurSphereSpawner : CustomInventory replaces BlurSphere
 	const SpawnFlags = SXF_NOCHECKPOSITION|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL|SXF_CLEARCALLERTID;
 	Default 
 	{
-		+INVENTORY.BIGPOWERUP
+		+INVENTORY.BIGPowerup
 		+INVENTORY.ALWAYSPICKUP
 		+INVENTORY.QUIET
 		-COUNTITEM
@@ -912,7 +912,7 @@ Class HasteGiver : PowerupGiver
 	Default 
 	{
 		Powerup.Type "PowerD4Haste";
-		powerup.Duration -30;
+		Powerup.Duration -30;
 		+INVENTORY.AUTOACTIVATE
 		+INVENTORY.ALWAYSPICKUP
 	}
@@ -926,7 +926,7 @@ Class D4Haste : CustomInventory
 	Default 
 	{
 		Inventory.PickupSound "Haste/Pickup";
-		inventory.pickupmessage "Haste!";
+		Inventory.pickupmessage "Haste!";
 		translation "0:255=%[.00,.00,.10]:[.99,.99,.10]";
 		+INVENTORY.FANCYPICKUPSOUND
 		+COUNTITEM
@@ -1069,7 +1069,7 @@ Class PentagramOfProtection : CustomInventory replaces InvulnerabilitySphere
 	Default 
 	{
 		+INVENTORY.ALWAYSPICKUP
-		+INVENTORY.BIGPOWERUP
+		+INVENTORY.BIGPowerup
 		+INVENTORY.FANCYPICKUPSOUND
 		+DONTGIB
 		+FLOATBOB

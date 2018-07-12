@@ -1019,7 +1019,7 @@ Class BigRedLaserBeamSMM : TrailBeamStaticScaling
 			timedown = 7.0;
 			
 			// Set this to the actor's same name. The TID will prevent it spawning infinitely (tid * 256).
-			A_SpawnItemEx("BigRedLaserBeamSMM",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME,tid * 256,1);
+			// A_SpawnItemEx("BigRedLaserBeamSMM",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS|SXF_TRANSFERSPRITEFRAME,tid * 256,1);
 			return ResolveState("Setup");
 		}
 	}

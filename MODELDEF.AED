@@ -27,55 +27,40 @@ Model "D4DBeamBase"
 	FrameIndex X206 M 0 0
 }
 
+//------------------------------------------------------------------------------
+// Gauss Cannon
 Model "GaussTrail"
 {
-	Model 0 "Models/BeamOffset8.md3"
 	Scale 100.0 100.0 120.0
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
 	
+	Model 0 "Models/BeamOffset8.md3"
 	Skin 0 "Graphics/BulletTex.png"
 	FrameIndex X202 B 0 0
+	
+	Model 0 "Models/BeamOffset8Start.md3"
+	Skin 0 "Graphics/BulletTexEnd.png"
+	FrameIndex X202 Y 0 0
 	Skin 0 "Graphics/BulletTexStart.png"
 	FrameIndex X202 Z 0 0
 }
 
 Model "GaussTrailBig"
 {
-	Model 0 "Models/BeamOffset8.md3"
 	Scale 100.0 100.0 120.0
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
 	
+	Model 0 "Models/BeamOffset8.md3"
 	Skin 0 "Graphics/BulletTex.png"
 	FrameIndex X202 B 0 0
-	Skin 0 "Graphics/BulletTexStart.png"
-	FrameIndex X202 Z 0 0
-}
-
-Model "GaussTrailStart"
-{
+	
 	Model 0 "Models/BeamOffset8Start.md3"
-	Scale 100.0 100.0 120.0
-	
-	DONTCULLBACKFACES
-	USEACTORPITCH
-	//INHERITACTORPITCH
-	
-	Skin 0 "Graphics/BulletTexStart.png"
-	FrameIndex X202 Z 0 0
-}
-
-Model "GaussTrailBigStart"
-{
-	Model 0 "Models/BeamOffset8Start.md3"
-	Scale 100.0 100.0 120.0
-	
-	DONTCULLBACKFACES
-	USEACTORPITCH
-	
+	Skin 0 "Graphics/BulletTexEnd.png"
+	FrameIndex X202 Y 0 0
 	Skin 0 "Graphics/BulletTexStart.png"
 	FrameIndex X202 Z 0 0
 }
@@ -93,6 +78,88 @@ Model RGRail
    FrameIndex RGRA B 0 1
 }
 */
+
+//------------------------------------------------------------------------------
+// Static Rifle
+
+Model "StaticTrail"
+{
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Model 0 "Models/BeamOffset8.md3"
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 B 0 0
+	
+	Model 0 "Models/BeamOffset8Start.md3"
+	Skin 0 "Graphics/BulletTexEnd.png"
+	FrameIndex X202 Y 0 0
+	Skin 0 "Graphics/BulletTexStart.png"
+	FrameIndex X202 Z 0 0
+}
+
+Model "StaticTrailBig"
+{
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Model 0 "Models/BeamOffset8.md3"
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 B 0 0
+	
+	Model 0 "Models/BeamOffset8Start.md3"
+	Skin 0 "Graphics/BulletTexEnd.png"
+	FrameIndex X202 Y 0 0
+	Skin 0 "Graphics/BulletTexStart.png"
+	FrameIndex X202 Z 0 0
+}
+
+//------------------------------------------------------------------------------
+// Pistol Lance
+Model "LanceTrail"
+{
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Model 0 "Models/BeamOffset8.md3"
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 B 0 0
+	
+	Model 0 "Models/BeamOffset8Start.md3"
+	Skin 0 "Graphics/BulletTexEnd.png"
+	FrameIndex X202 Y 0 0
+	Skin 0 "Graphics/BulletTexStart.png"
+	FrameIndex X202 Z 0 0
+}
+
+//------------------------------------------------------------------------------
+// Vortex Rifle
+
+Model "VortexTrail"
+{
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Model 0 "Models/BeamOffset8.md3"
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 B 0 0
+	
+	Model 0 "Models/BeamOffset8Start.md3"
+	Skin 0 "Graphics/BulletTexEnd.png"
+	FrameIndex X202 Y 0 0
+	Skin 0 "Graphics/BulletTexStart.png"
+	FrameIndex X202 Z 0 0
+}
+
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 Model PistolTracerNormal
@@ -114,23 +181,26 @@ Model PistolTracerRed
 	FrameIndex TRAC A 0 0 
 }
 
-Model BulletSmallTracer
+Model "BulletSmallTracer"
 { 
 	Path "MD3/Projectiles" 
-	SKIN 0 "tracer1.tga" 
-	MODEL 0 "Tracer.md3"
+	Skin 0 "tracer1.tga" 
+	Model 0 "Tracer.md3"
+	
 	Scale 4.5 4.5 1.5 
-	PITCHFROMMOMENTUM
+	//PITCHFROMMOMENTUM
+	USEACTORPITCH
 	FrameIndex TRAC A 0 0
 }
 
-Model IncendiaryBullet //for the repeater
+Model "IncendiaryBullet" //for the repeater
 { 
 	Path "MD3/Projectiles" 
 	SKIN 0 "tracer1.tga" 
 	MODEL 0 "Tracer.md3"
 	Scale 4.5 4.5 1.5 
-	PITCHFROMMOMENTUM
+	//PITCHFROMMOMENTUM
+	USEACTORPITCH
 	FrameIndex TRAC A 0 0
 }
 Model IncendiaryBulletDMG //for the repeater upgraded

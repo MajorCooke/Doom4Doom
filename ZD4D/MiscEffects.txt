@@ -399,7 +399,6 @@ Class BulletPuffParticle : Actor
 
 Class PacifistPuff : Actor 
 {
-
 	Default 
 	{
 		+ALLOWTHRUFLAGS
@@ -423,6 +422,14 @@ Class PacifistPuff : Actor
 	Spawn:
 		TNT1 A 35;
 		Stop;
+	}
+}
+
+Class PacifistPuffNoThru : PacifistPuff
+{
+	Default
+	{
+		-ALLOWTHRUFLAGS
 	}
 }
 

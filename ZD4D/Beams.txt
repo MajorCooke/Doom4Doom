@@ -118,6 +118,7 @@ Class D4DMainBeamSpawner : D4DBeamSpawnerBase
 	Default
 	{
 		D4DBeamSpawnerBase.Beam "D4DMainBeam";
+		D4DBeamSpawnerBase.StartBeam "D4DMainBeam";
 		D4DBeamSpawnerBase.StartPuff "";
 		D4DBeamSpawnerBase.EndPuff "BeamSpawnerPuff";
 		D4DBeamSpawnerBase.RandomAim false;
@@ -132,7 +133,7 @@ Class D4DMainBeamSpawner : D4DBeamSpawnerBase
 		D4DBeamSpawnerBase.Delays 0, 0;
 		D4DBeamSpawnerBase.SpriteName "X202";
 		D4DBeamSpawnerBase.Frames Fr_B, Fr_B;
-		D4DBeamSpawnerBase.MaxDistance 512;
+		D4DBeamSpawnerBase.MaxDistance 1024;
 		D4DBeamSpawnerBase.HomingDistance 32;
 		D4DBeamSpawnerBase.Failsafe 500;
 		//D4DBeamSpawnerBase.BranchChance 0;
@@ -153,18 +154,22 @@ Class D4DMainBeam : D4DBeamBase
 }
 
 //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Custom classes begin here.
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
+
+//------------------------------------------------------------------------------
+// Gauss Cannon
 Class GaussTrailSpawner : D4DBeamSpawnerBase
 {
 	Default
 	{
-		
 		D4DBeamSpawnerBase.Beam "GaussTrail";
-		D4DBeamSpawnerBase.StartBeam "GaussTrailStart";
+		D4DBeamSpawnerBase.StartBeam "GaussTrail";
 		D4DBeamSpawnerBase.StartPuff "";
 		D4DBeamSpawnerBase.EndPuff "BeamSpawnerPuff";
-		D4DBeamSpawnerBase.RandomAim false;
 		D4DBeamSpawnerBase.PitchStart1Min 0.0;
 		D4DBeamSpawnerBase.PitchStart1Max 0.0;
 		D4DBeamSpawnerBase.PitchRandom 0.0;
@@ -175,7 +180,7 @@ Class GaussTrailSpawner : D4DBeamSpawnerBase
 		D4DBeamSpawnerBase.Steps 0, 0;
 		D4DBeamSpawnerBase.Delays 0, 0;
 		D4DBeamSpawnerBase.MaxDistance 1024;
-		D4DBeamSpawnerBase.HomingDistance 32;
+		D4DBeamSpawnerBase.HomingDistance -1;
 		D4DBeamSpawnerBase.Failsafe 500;
 		//D4DBeamSpawnerBase.BranchChance 0;
 		D4DBeamSpawnerBase.SightCheck false;
@@ -187,7 +192,7 @@ Class GaussTrailBigSpawner : GaussTrailSpawner
 	Default
 	{
 		D4DBeamSpawnerBase.Beam "GaussTrailBig";
-		D4DBeamSpawnerBase.StartBeam "GaussTrailBigStart";
+		D4DBeamSpawnerBase.StartBeam "GaussTrailBig";
 	}
 }
 
@@ -197,20 +202,13 @@ Class GaussTrail : D4DMainBeam
 	{
 		D4DBeamBase.SpriteName "X202";
 		D4DBeamBase.Frames Fr_B, Fr_B;
+		D4DBeamBase.StartFrame Fr_Z;
+		D4DBeamBase.EndFrame Fr_Y;
 		D4DBeamBase.StepTime 0;
 		D4DBeamBase.ScaleTime 0, 17;
-		D4DBeamBase.IsStep false;
 		D4DBeamBase.Lengths 1.00, 1.00;
-		D4DBeamBase.Widths 0.35, 0.35;
-	}
-}
-
-Class GaussTrailStart : GaussTrail
-{
-	Default
-	{
-		//D4DBeamBase.StartSegment true;
-		D4DBeamBase.Frames Fr_Z, Fr_Z;
+		D4DBeamBase.Widths 0.20, 0.20;
+		
 	}
 }
 
@@ -219,25 +217,108 @@ Class GaussTrailBig : GaussTrail
 	Default
 	{
 		D4DBeamBase.ScaleTime 0, 20;
-		D4DBeamBase.Widths 0.5, 0.5;
+		D4DBeamBase.Widths 0.35, 0.35;
 	}
 }
 
-Class GaussTrailBigStart : GaussTrailBig
+
+//------------------------------------------------------------------------------
+// Static Trails
+
+Class StaticTrailSpawner : GaussTrailSpawner
 {
 	Default
 	{
-		D4DBeamBase.Frames Fr_Z, Fr_Z;
+		D4DBeamSpawnerBase.Beam "StaticTrail";
+		D4DBeamSpawnerBase.StartBeam "StaticTrail";
+		Translation "0:255=#[255, 128, 64]";
 	}
 }
 
+Class StaticTrailBigSpawner : StaticTrailSpawner
+{
+	Default
+	{
+		D4DBeamSpawnerBase.Beam "StaticTrailBig";
+		D4DBeamSpawnerBase.StartBeam "StaticTrailBig";
+	}
+}
+
+Class StaticTrail : GaussTrail
+{
+	Default
+	{
+		D4DBeamBase.ScaleTime 0, 12;
+		D4DBeamBase.Widths 0.20, 0.20;
+	}
+}
+
+Class StaticTrailBig : GaussTrailBig
+{
+	Default
+	{
+		D4DBeamBase.ScaleTime 0, 15;
+		D4DBeamBase.Widths 0.30, 0.30;
+	}
+}
+
+//------------------------------------------------------------------------------
+// Pistol Lance
+Class LanceTrailSpawner : GaussTrailSpawner
+{
+	Default
+	{
+		D4DBeamSpawnerBase.Beam "LanceTrail";
+		D4DBeamSpawnerBase.StartBeam "LanceTrail";
+		Translation "0:255=#[255, 32, 32]";
+	}
+}
+
+Class LanceTrail : GaussTrail
+{
+	Default
+	{
+		D4DBeamBase.Frames Fr_B, Fr_B;
+		D4DBeamBase.StartFrame Fr_Z;
+		D4DBeamBase.EndFrame Fr_Y;
+		D4DBeamBase.Widths 0.18, 0.18;
+	}
+}
+
+//------------------------------------------------------------------------------
+// Vortex Trail
+Class VortexTrailSpawner : GaussTrailSpawner
+{
+	Default
+	{
+		D4DBeamSpawnerBase.Beam "VortexTrail";
+		D4DBeamSpawnerBase.StartBeam "VortexTrail";
+		//Translation "0:255=#[249, 17, 255]";
+		//Translation "0:255=@[97, 6, 100]";
+		Translation "0:255=%[0, 0, 0]:[0.97, 0.06, 1.00]";
+		// Blend 249, 17, 255, 1.0
+	}
+}
+
+Class VortexTrail : GaussTrail
+{
+	Default
+	{
+		D4DBeamBase.Widths 0.10, 0.10;
+		D4DBeamBase.ScaleTime 0, 7;
+	}
+}
+//------------------------------------------------------------------------------
+// Bullet Trails
+Class BulletTracerFX : Nothing {}
+Class BulletTrailBeam : Nothing {}
 
 Class BFGBeamGZ : Nothing {}
 Class BFGBeamLaser : Nothing {}
 //Class GaussTrail : Nothing {}
 //Class GaussTrailBig : Nothing {}
-Class StaticTrail : Nothing {}
-Class StaticTrailBig : Nothing {}
+//Class StaticTrail : Nothing {}
+//Class StaticTrailBig : Nothing {}
 Class TrailBeam : Nothing {}
 Class MovingTrailBeam : Nothing {}
 Class TrailBeamStaticScalingSpawner : Nothing {}
@@ -254,8 +335,8 @@ Class RedLaser : Nothing {}
 Class BigRedLaserDrillSMM : Nothing {}
 Class BigRedLaserBeamSMM : Nothing {}
 Class RedLaserSMM : Nothing {}
-Class LanceTrail : Nothing {}
-Class VortexTrail : Nothing {}
+//Class LanceTrail : Nothing {}
+//Class VortexTrail : Nothing {}
 Class BigRedLaserDrill : Nothing {}
 Class BigRedLaserBeamCgunner : Nothing {}
 Class RedLaserCgunner : Nothing {}
@@ -263,8 +344,7 @@ Class CarrionMergeBeam : Nothing {}
 Class CarrionTrailBeam : Nothing {}
 Class CarrionTrailBeamMoving : Nothing {}
 Class CarrionTrailBeamMovingBoom : Nothing {}
-Class BulletTracerFX : Nothing {}
-Class BulletTrailBeam : Nothing {}
+
 /*
 Class BulletTracerFX : Actor 
 {

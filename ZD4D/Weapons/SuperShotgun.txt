@@ -362,27 +362,15 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			// Double trouble section
 			A_TakeInventory("D4Shells",1,TIF_NOTAKEINFINITE);
 			A_GunFlash("Null");
-			class<Actor> PuffRail = null;
+			
+			Class<Actor> PuffRail = null;
 			if(GetCvar("D4D_SSGGib") == 0)	//no gibs
-			{
 				PuffRail = "D4BulletPuffForRails";
-			}
 			else if(GetCvar("D4D_SSGGib") == 1)	//some gibs
-			{
-				if (random(0,1))
-				{	
-					PuffRail = "D4BulletPuffForRails";
-				}
-				else
-				{
-					PuffRail = "D4BulletPuffForRailsExtreme";
-				}
-				
-			}
+				PuffRail = (random(0,1) ? "D4BulletPuffForRails" : "D4BulletPuffForRailsExtreme");
 			else	//all gibs
-			{
 				PuffRail = "D4BulletPuffForRailsExtreme";
-			}
+			
 			
 			if(CountInv("SSGUpgrade2"))	//if you have piercing shots
 			{
@@ -390,16 +378,17 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 				for (int i = 0; i < 10; i++)
 				{
 					double sprs = 10.415 * 4.0;
-					if (i < 7)	{	A_RailAttack(DmgBase*random(DmgMulMin,DmgMulMax),invoker.hoffset,0,-1,-1,RGF_SILENT|RGF_EXPLICITANGLE,0,PuffRail,frandom(-newspread,newspread),frandom(-SpreadZ,SpreadZ),0,0,sprs,0,"BulletTrailBeam");	}
-					else		{	A_RailAttack(DmgBase*random(DmgMulMin,DmgMulMax),0,0,-1,-1,RGF_SILENT|RGF_EXPLICITANGLE,0,PuffRail,frandom(-newspread,newspread),frandom(-SpreadZ,SpreadZ));	}
+					if (i < 7)	{	A_RailAttack(DmgBase*random(DmgMulMin,DmgMulMax),invoker.hoffset,0,-1,-1,RGF_SILENT|RGF_EXPLICITANGLE,0,PuffRail,frandom(-newspread,newspread),frandom(-SpreadZ,SpreadZ));	}//,0,0,8192,0,"BulletSmallTracer");	}
+					else		{	A_RailAttack(DmgBase*random(DmgMulMin,DmgMulMax),invoker.hoffset,0,-1,-1,RGF_SILENT|RGF_EXPLICITANGLE,0,PuffRail,frandom(-newspread,newspread),frandom(-SpreadZ,SpreadZ));	}
 				}
-				
+				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,7,0,"PacifistPuff",FBF_NORANDOMPUFFZ|FBF_PUFFTRACER,0,"BulletSmallTracer",0,invoker.hoffset);
 			}
 			else //if you dont have piercing shots, then you're in normal state
 			{
-				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,7,DmgBase,PuffRail,0,0,"BulletTracerFX",0,invoker.hoffset);
-				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,3,DmgBase,PuffRail,0,0);
+				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,7,DmgBase,PuffRail,FBF_PUFFTRACER,0,"BulletSmallTracer",0,invoker.hoffset);
+				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,3,DmgBase,PuffRail,FBF_PUFFTRACER,0,null,0,invoker.hoffset);
 			}
+			
 			//-----------------------------------------------------
 			// Rest of the animation
 			A_AlertMonsters();
@@ -576,7 +565,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			{
 				for (int i = 0; i < 7; i++)
 				{
-					A_FireProjectile("BulletTracerFX",(CountInv("SSGUpgrade3") ? frandom(SpreadZ,-SpreadZ) : frandom(SpreadXY,-SpreadXY)),0,5,0);
+					A_FireProjectile("BulletSmallTracer",(CountInv("SSGUpgrade3") ? frandom(SpreadZ,-SpreadZ) : frandom(SpreadXY,-SpreadXY)),0,5,0);
 				}
 			}
 			*/
@@ -699,7 +688,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			{
 				for (int i = 0; i < 7; i++)
 				{
-					A_FireProjectile("BulletTracerFX",(CountInv("SSGUpgrade3") ? frandom(SpreadZ,-SpreadZ) : frandom(SpreadXY,-SpreadXY)),0,-5,0,FCMFlags,frandom(-SpreadZ,SpreadZ));
+					A_FireProjectile("BulletSmallTracer",(CountInv("SSGUpgrade3") ? frandom(SpreadZ,-SpreadZ) : frandom(SpreadXY,-SpreadXY)),0,-5,0,FCMFlags,frandom(-SpreadZ,SpreadZ));
 				}
 			}
 			*/

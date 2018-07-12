@@ -130,7 +130,8 @@ Class DemonPlayerBase : Doom4Player
 		A_ClearOverlays();
 		A_Overlay(6000,"Overlay.IdleSound",true);
 		A_Overlay(6001,"Overlay.Steps",true);
-		
+		A_OverlayFlags(6000, PSPF_POWDOUBLE, false);
+		A_OverlayFlags(6001, PSPF_POWDOUBLE, false);
 		//Strangely, the timer visual runs out at least a few seconds before.
 		A_SetInventory("DemonTimerToken",62*35, DefPtr, true);
 	}

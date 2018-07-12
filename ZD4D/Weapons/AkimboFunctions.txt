@@ -130,23 +130,30 @@ extend Class AkimboWeapon
 	//==========================================================================
 	// State/Status Management
 	//==========================================================================
-	
+	//
 	//--------------------------------------------------------------------------
-	// 
+	// Adjust Haste 
+	//
+	// Adjusts tics based on 
+	//--------------------------------------------------------------------------
+	
 	action void AdjustHaste(int newtic = -1)
 	{
-		if (CountInv("PowerD4Haste"))
+		if (FindInventory("PowerDoubleFiringSpeed", true) != null)
 		{
 			let plr = invoker.owner.player;
 			if (!plr) return;
 			
+			// Grab the player sprite (aka the overlay).
+			
 			let psp = plr.FindPSprite(OverlayID());
 			if (psp)
 			{
+				// Adjust the tics based on the following rules:
 				//
 				if (newtic > -1)				psp.Tics = newtic;
 				else if (psp.Tics == 1)			psp.Tics = 0;
-				else if (psp.Tics < 0)			return;
+				else if (psp.Tics <= 0)			return;
 				//else if ((psp.Tics % 2) == 1)	psp.Tics = Max(0,((psp.Tics / 2) - 1));
 				else							psp.Tics /= 2;
 			}
