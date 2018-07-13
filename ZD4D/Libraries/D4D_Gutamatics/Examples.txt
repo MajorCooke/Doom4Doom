@@ -1,0 +1,124 @@
+//------------------------------------------------------------------------------
+// Gutawer's Lightning
+
+class LightningPieceData {
+	static LightningPieceData create(Vector3 point, Vector3 dir, double alpha = 1) {
+		LightningPieceData ret = new("LightningPieceData");
+		ret.point = point;
+		ret.dir = dir;
+		ret.alpha = alpha;
+		ret.left = NULL;
+		ret.right = NULL;
+		ret.parent = NULL;
+		return ret;
+	}
+	
+	Vector3 point;
+	Vector3 dir;
+	double alpha;
+	
+	LightningPieceData left;
+	LightningPieceData right;
+	
+	LightningPieceData parent;
+}
+
+class LightningPieces {
+	Array<LightningPieceData> pieces;
+	
+	LightningPieceData root;
+}
+
+class LightningGenerator {
+	static Vector3 randomOrthogonalVec(Vector3 vec) {
+		if (vec == (0, 0, 0)) return (0, 0, 0);
+		else if (vec.x == 0 && vec.y == 0) {
+			double ang = frandom(0, 360);
+			return (cos(ang), sin(ang), 0);
+		}
+		else {
+			Vector3 orth0 = (-vec.y, vec.x, 0).unit();
+			Vector3 orth1 = (vec cross orth0).unit();
+			double ang = frandom(0, 360);
+			return cos(ang) * orth0 + sin(ang) * orth1;
+		}
+	}
+	
+	private static LightningPieceData traverseAndSubdivideSubTree(LightningPieceData node, bool portalaware, bool left = true) {
+		if (node.left  != NULL) traverseAndSubdivideSubTree(node.left , portalaware, true);
+		if (node.right != NULL) traverseAndSubdivideSubTree(node.right, portalaware, false);
+		
+		Vector3 dir = node.dir;
+		double dirLength = dir.length();
+		Vector3 halfDir = dir / 2;
+		Vector3 perp = randomOrthogonalVec(dir);
+		perp *= dirLength / 16;
+		perp *= frandom(0.75, 1);
+		Vector3 newDir0 = halfDir + perp;
+		Vector3 newDir1 = halfDir - perp;
+		
+		LightningPieceData piece0 = LightningPieceData.create(node.point, newDir0, node.alpha);
+		if (node.parent != NULL) {
+			piece0.parent = node.parent;
+			if (left) node.parent.left  = piece0;
+			else      node.parent.right = piece0;
+		}
+		
+		Vector3 startPos1;
+		if (portalaware) startPos1 = level.vec3Offset(node.point, newDir0);
+		else startPos1 = node.point + newDir0;
+		
+		LightningPieceData piece1 = LightningPieceData.create(startPos1, newDir1, node.alpha);
+		piece0.left = piece1;
+		piece1.parent = piece0;
+		
+		piece1.left  = node.left;
+		piece1.right = node.right;
+		
+		if (piece1.left != NULL)  piece1.left.parent  = piece1;
+		if (piece1.right != NULL) piece1.right.parent = piece1;
+		
+		if (random(0, 23) < 7) {
+			LightningPieceData piece2 = LightningPieceData.create(startPos1, newDir0 * frandom(1.5, 2.5), node.alpha * 0.4);
+			piece0.right = piece2;
+			piece2.parent = piece0;
+		}
+		
+		node.destroy();
+		return piece0;
+	}
+	
+	static LightningPieces generateLightning(Vector3 start, Vector3 end, int iterations, double mainAlpha = 1, bool portalAware = true) {
+		LightningPieces curPieces = new("LightningPieces");
+		LightningPieceData first;
+		if (portalAware) first = LightningPieceData.create(start, level.vec3Diff(start, end), mainAlpha);
+		else first = LightningPieceData.create(start, end - start);
+		curPieces.root = first;
+		
+		for (int i = 0; i < iterations; i++) {
+			curPieces.root = traverseAndSubdivideSubTree(curPieces.root, curPieces.root, portalaware);
+		}
+		
+		Array<LightningPieceData> queue;
+		Array<LightningPieceData> visited;
+		
+		queue.push(curPieces.root);
+		curPieces.pieces.push(curPieces.root);
+		
+		while (queue.size() > 0) {
+			LightningPieceData cur = queue[0];
+			queue.delete(0);
+			
+			if (cur.left != NULL) {
+				queue.push(cur.left);
+				curPieces.pieces.push(cur.left);
+			}
+			if (cur.right != NULL) {
+				queue.push(cur.right);
+				curPieces.pieces.push(cur.right);
+			}
+		}
+		
+		return curPieces;
+	}
+}
