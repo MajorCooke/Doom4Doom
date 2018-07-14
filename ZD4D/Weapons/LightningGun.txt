@@ -9,7 +9,8 @@ const LGChainDmgMinUpgrade = 4;
 const LGChainDmgMaxUpgrade = 8;
 
 const AltTrailLength = 256; //Indicates how far a beam can zap others with secondary.
-const SHeight = -12;
+const LGHeight = -3;
+const LGDist = 4;
 const FBFlags = FBF_USEAMMO|FBF_PUFFTRACER|FBF_NORANDOMPUFFZ;
 const FBFlagsNoAmmo = FBF_PUFFTRACER|FBF_NORANDOMPUFFZ;
 
@@ -102,9 +103,9 @@ Class D4LightningGun : Doom4Weapon
 			int dmg = CountInv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax);
 			int Flags = ((CountInv("LGUpgradeAmmo") && random(1,3)==1) ? FBFlagsNoAmmo : FBFlags);
 			int Dist = CountInv("LGUpgradeRange") ? 1024 : 768;
-			A_FireBullets(0,0,1,dmg,"LightningPuffV2",Flags,Dist,"LightningBeamPrimarySpawner",SHeight,2);
+			A_FireBullets(0,0,1,dmg,"LightningPuffV2",Flags,Dist,"LightningBeamPrimarySpawner",LGHeight,LGDist);
 			if (CountInv("PowerD4DFS"))
-				A_FireBullets(0,0,1,dmg,"LightningPuffV2",Flags,Dist,"LightningBeamPrimarySpawner",SHeight,2);
+				A_FireBullets(0,0,1,dmg,"LightningPuffV2",Flags,Dist,"LightningBeamPrimarySpawner",LGHeight,LGDist);
 		}
 		//the second frame never uses ammo anyway, so no need to add those checks
 		LGNF C 1 Bright 
@@ -114,9 +115,9 @@ Class D4LightningGun : Doom4Weapon
 			int dmg = CountInv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax);
 			int Flags = FBFlagsNoAmmo; 
 			int Dist = CountInv("LGUpgradeRange") ? 1024 : 768;
-			A_FireBullets(0,0,1,dmg,"LightningPuffV2",Flags,Dist,"LightningBeamPrimarySpawner",SHeight,2);
+			A_FireBullets(0,0,1,dmg,"LightningPuffV2",Flags,Dist,"LightningBeamPrimarySpawner",LGHeight,LGDist);
 			if (CountInv("PowerD4DFS"))
-				A_FireBullets(0,0,1,dmg,"LightningPuffV2",Flags,Dist,"LightningBeamPrimarySpawner",SHeight,2);
+				A_FireBullets(0,0,1,dmg,"LightningPuffV2",Flags,Dist,"LightningBeamPrimarySpawner",LGHeight,LGDist);
 			
 		}
 
@@ -152,9 +153,9 @@ Class D4LightningGun : Doom4Weapon
 			int Flags = FBFlagsNoAmmo; 
 			int Dist = CountInv("LGUpgradeRange") ? 1024 : 768;
 			
-			A_FireBullets(0,0,1,dmg,"LightningPuffV3",Flags,Dist,"LightningBeamSecondarySpawner",SHeight,2);
+			A_FireBullets(0,0,1,dmg,"LightningPuffV3",Flags,Dist,"LightningBeamSecondarySpawner",LGHeight,LGDist);
 			if (CountInv("PowerD4DFS"))
-				A_FireBullets(0,0,1,dmg,"LightningPuffV3",Flags,Dist,"LightningBeamSecondarySpawner",SHeight,2);
+				A_FireBullets(0,0,1,dmg,"LightningPuffV3",Flags,Dist,"LightningBeamSecondarySpawner",LGHeight,LGDist);
 			
 		}
 		LGNG B 1 A_ReFire("AltHold");	
@@ -202,6 +203,7 @@ Class LightningPuffV2NoPain : LightningPuffV2	{ Default { +PAINLESS }}
 
 Class LightningPuffV3 : LightningPuffV2
 {
+	Array<Actor> Monsters;
 	Default 
 	{
 		+HITTRACER
@@ -209,11 +211,53 @@ Class LightningPuffV3 : LightningPuffV2
 	States
 	{
 	Spawn:
-		TNT1 A 2 NoDelay
+		TNT1 A 0;
+		TNT1 A 5 
 		{
 			/*if (!IsPointerEqual(TracerPtr,NullPtr))
 			{	A_RadiusGive("LightningGunBolter",AltTrailLength,RGF_MONSTERS|RGF_NOTRACER|RGF_NOTARGET,1,null,"None",0,4);	}*/
 			//A_RadiusGive("LightningGunBolter",AltTrailLength,RGF_MONSTERS|RGF_NOTRACER|RGF_NOTARGET,1,null,"None",0,4);
+			let handler = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+			if (handler && handler.Monsters.Size() > 0)
+			{
+				int dmg = random(LGChainDmgMin, LGChainDmgMax);
+				if (target && target.CountInv("LGUpgradeDamage"))
+					dmg = random(LGChainDmgMinUpgrade, LGChainDmgMaxUpgrade);
+				Monsters.Copy(handler.Monsters);
+				int count = 0;
+				for (int i = 0; i < Monsters.Size(); i++)
+				{
+					Actor mo = Monsters[i];
+					if (!mo || mo.bCORPSE || mo.health < 1 || mo is "PlayerPawn")
+						continue;
+					
+					if (Distance3DSquared(mo) > (AltTrailLength ** 2) || 
+						!CheckSight(mo,SF_SEEPASTSHOOTABLELINES|SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
+						continue;
+					
+					A_Face(mo,0,0,0,0,FAF_MIDDLE);					
+					mo.DamageMobj(self, target, dmg, 'Electric');
+					
+					Vector3 SH = mo.pos;
+					SH.z += mo.height / 2.0;
+					Actor Puff = Spawn("PacifistPuff", SH);
+					if (Puff)
+					{
+						Actor Beamer = Spawn("LightningBeamSecondarySpawner",pos);
+						if (Beamer)
+						{
+							Beamer.Target = Target;
+							Beamer.Master = Target;
+							Beamer.Tracer = Puff;
+							Beamer.Angle = Angle;
+							Beamer.Pitch = Pitch;
+						}
+					}
+					
+					if (count++ > 4)
+						return;
+				}
+			}
 		}
 		Stop;
 	}

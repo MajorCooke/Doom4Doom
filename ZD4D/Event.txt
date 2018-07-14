@@ -42,8 +42,40 @@ class D4bum : D4Zombieman
 
 extend class D4DHandler
 {	
+	const TimeTrigger = 35 * 10;
+	uint Timer;
+	Array<Actor> Monsters;
 	D4BlackList BlackList;
 	D4ManualLootList LootList;
+	
+	//--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	override void WorldTick()
+	{
+		// Clear the list of monsters every 10 seconds.
+		if (Timer++ >= TimeTrigger)
+		{
+			Timer = 0;
+			if (Monsters.Size() > 0)
+			{
+				for (int i = Monsters.Size() - 1; i > -1; i--)
+				{
+					// Just to be safe, in the event something, somehow, does happen...
+					// It's the VM. The most unpredictable of shit can happen!
+					
+					if (i >= Monsters.Size())
+						continue;
+						
+					Actor mo = Monsters[i];
+					if (!mo || mo.health < 1)
+					{
+						Monsters.Delete(i);
+					}
+				}
+			}
+		}
+	}
+	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
 	
@@ -116,11 +148,50 @@ extend class D4DHandler
 	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
+	// Monster recording, for ease of tracking with lightning gun altfire and bfg
+	// so far.
+	
+	override void WorldThingSpawned(WorldEvent e)
+	{
+		Actor mo = e.thing;
+		
+		if (mo.bNOINTERACTION || mo.bNOSECTOR || mo.bNOBLOCKMAP || mo is "Inventory")
+			return;
+		
+		if ((mo.bISMONSTER || mo.bSHOOTABLE) && mo.health > 0)
+			Monsters.Push(mo);
+	}
+	
+	//--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	override void WorldThingRevived(WorldEvent e)
+	{
+		// Add the monster to the list if not already present.
+		Actor mo = e.Thing;
+		if (Monsters.Find(mo) >= Monsters.Size())
+			Monsters.Push(mo);
+	}
+	
+	//--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	override void WorldThingDestroyed(WorldEvent e)
+	{
+		Actor mo = e.Thing;
+		if (mo is "Inventory")	return;
+		if (mo.bISMONSTER || mo.bSHOOTABLE)
+			Monsters.Delete(Monsters.Find(e.Thing));
+	}
+	
+	//--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
 	override void WorldThingDied(WorldEvent e)
 	{
 		let inf = e.Inflictor;
-		let mo = e.Thing;
+		Actor mo = e.Thing;
 		if (!mo || !mo.bISMONSTER || mo.bNOINTERACTION) return;
+		
+		//int index = Monsters.Find(mo);
+		Monsters.Delete(Monsters.Find(mo));
 		
 		// Check the global blacklist and do nothing if found on it. This is a
 		// no-holds-barred list -- absolutely nothing will drop, no exceptions.

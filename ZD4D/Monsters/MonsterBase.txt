@@ -340,7 +340,7 @@ Class D4AbstractMonster : Actor
 		return dst;
 	}
 
-	bool CheckPitBeforeTarget(in out double dst = 480)
+	bool CheckPitBeforeTarget(in out double dst)
 	{
 		if (!target || !CheckSight(target)) return false;
 		
