@@ -350,12 +350,86 @@ Class LightningBeamSecondarySpawner : LightningBeamPrimarySpawner
 		Translation "0:255=%[0,0,0]:[1.25,1.0,1.85]";
 	}
 }
- 
+
+//------------------------------------------------------------------------------
+// BFG Tracers
+
+Class BFGBeamSpawner : LightningBeamPrimarySpawner
+{
+	Default
+	{
+		D4DBeamSpawnerBase.Beam "BFGBeam";
+		D4DBeamSpawnerBase.MoveWithSource false;
+		Translation "0:255=%[0,0,0]:[1.0,2.0,1.0]";
+	}
+}
+
+Class BFGBeam : LightningBeamPrimary
+{
+	Default
+	{
+		D4DBeamBase.Widths 0.10, 0.10;
+		D4DBeamBase.Lengths 0.1, 0.3;
+		D4DBeamBase.ScaleTime 0, 0;
+		D4DBeamBase.WaitTime 2;
+		D4DBeamBase.SpriteName "X206";
+		D4DBeamBase.Frames Fr_F, Fr_M;
+	}
+}
+
+//------------------------------------------------------------------------------
+// Carrion Beam
+Class CarrionBeamSpawner : LightningBeamPrimarySpawner
+{
+	Default
+	{
+		D4DBeamSpawnerBase.Beam "CarrionTrail";
+		D4DBeamSpawnerBase.Limits 8.0, 8.0;
+		D4DBeamSpawnerBase.PitchRandom 7.0;
+		D4DBeamSpawnerBase.AngleRandom 7.0;
+		D4DBeamSpawnerBase.AimFlag FAF_MIDDLE;
+		D4DBeamSpawnerBase.SightCheck true;
+		Translation "0:255=%[0,0,0]:[1.0, 0.5, 0.0]";
+	}
+}
+
+Class CarrionBeamBoomSpawner : CarrionBeamSpawner
+{
+	Default
+	{
+		Translation "0:255=%[0,0,0]:[1.0, 0.0, 0.0]";
+	}
+}
+// Carrion merge beam for ammo
+Class CarrionMergeSpawner : CarrionBeamSpawner
+{
+	Default
+	{
+		Translation "0:255=%[0,0,0]:[1.0, 0.1, 0.1]";
+	}
+}
+
+Class CarrionTrail : LightningBeamPrimary
+{
+	Default
+	{
+		D4DBeamBase.Widths 0.03, 0.03;
+		D4DBeamBase.Lengths 0.05, 0.2;
+		D4DBeamBase.ScaleTime 0, 3;
+		D4DBeamBase.WaitTime 1;
+		D4DBeamBase.SpriteName "X202";
+		D4DBeamBase.Frames Fr_B, Fr_B;
+	}
+}
+
+
+//------------------------------------------------------------------------------
+// Deprecated stuff
 Class BulletTracerFX : Nothing {}
 Class BulletTrailBeam : Nothing {}
 
-Class BFGBeamGZ : Nothing {}
-Class BFGBeamLaser : Nothing {}
+//Class BFGBeamGZ : Nothing {}
+//Class BFGBeamLaser : Nothing {}
 //Class GaussTrail : Nothing {}
 //Class GaussTrailBig : Nothing {}
 //Class StaticTrail : Nothing {}

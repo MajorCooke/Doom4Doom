@@ -98,7 +98,7 @@ Class D4DBeamSpawnerBase : D4DFX
 			BranchChance, BranchCMax, BranchCount,
 			ScaleOutTimeMin, ScaleOutTimeMax, ScaleOutTime,
 			ScaleInTimeMin, ScaleInTimeMax, ScaleInTime,
-			TimeLeft;
+			TimeLeft, AimFlag;
 			
 	double 	PitchRandom, AngleRandom, 
 			PitchStart1Min, PitchStart1Max, PitchStart2Min, PitchStart2Max,
@@ -133,7 +133,7 @@ Class D4DBeamSpawnerBase : D4DFX
 	Property Choke:				ChokeMin, ChokeMax;
 	Property Steps:				StepMin, StepMax;
 	Property Delays:			DelayMin, DelayMax;
-	
+	Property AimFlag:			AimFlag;
 	Property MaxDistance:		MaxDistance;	
 	Property HomingDistance:	HomingDistance;	
 	Property Failsafe:			Failsafe;		
@@ -149,6 +149,7 @@ Class D4DBeamSpawnerBase : D4DFX
 	Default
 	{
 		D4DBeamSpawnerBase.BranchSize 1.0; //Do NOT Touch this value!
+		D4DBeamSpawnerBase.AimFlag FAF_BOTTOM;
 		+NOTONAUTOMAP
 		Renderstyle "None";
 		Radius 1;
@@ -160,9 +161,6 @@ Class D4DBeamSpawnerBase : D4DFX
 		StartPos = pos;
 		Master = Target;
 		if (Tracer) Puff[0] = Tracer;
-		
-		if (SightCheck)
-			plr = players[0].mo;
 		
 		if (IsBranch)
 		{
@@ -264,8 +262,7 @@ Class D4DBeamSpawnerBase : D4DFX
 	States
 	{
 	Spawn:
-		---- A 0;
-		---- A 0
+		---- A 0 NoDelay
 		{
 			if (!EndPuff)
 				return ThrowAbortException("EndPuff is invalid! Make sure the class is defined!");
@@ -357,7 +354,7 @@ Class D4DBeamSpawnerBase : D4DFX
 						if (DistSq < (Scaled.Y ** 2) || pos.z <= floorz || pos.z >= ceilingz)
 							SpawnLast = true;
 						
-						A_Face(Puff[0], TurnLimit, PitchLimit, 0, 0, FAF_BOTTOM);
+						A_Face(Puff[0], TurnLimit, PitchLimit, 0, 0, AimFlag);
 						
 						if (!SpawnLast && FailSafe < Default.FailSafe - 1)
 						{
@@ -366,38 +363,39 @@ Class D4DBeamSpawnerBase : D4DFX
 							Choke--;
 						}
 					}
-					
-					// Spawns the beam.
-					D4DBeamBase bolt; 
-					if ((Starting || SpawnLast) && StartBeam)
-						bolt = D4DBeamBase(Spawn(StartBeam,pos));
-					else		
-						bolt = D4DBeamBase(Spawn(Beam,pos));
-						
-					if (bolt)
+					if (!SightCheck || !A_CheckSight("Null"))
 					{
-						bolt.master = target;
-						bolt.tracer = target;
-						bolt.Angle = Angle;
-						bolt.Pitch = Pitch;
-						bolt.Scale = Scale;
-						bolt.StepTime = Delay + 1;
-						bolt.IsStep = (Steps > 0);
-						bolt.ScaleInTime = ScaleInTime;
-						bolt.ScaleOutTime = ScaleOutTime;
-						bolt.Translation = Translation;
-						bolt.Spawner = self;
-						if (StartBeam && (Starting || SpawnLast))
+						// Spawns the beam.
+						D4DBeamBase bolt; 
+						if ((Starting || SpawnLast) && StartBeam)
+							bolt = D4DBeamBase(Spawn(StartBeam,pos));
+						else		
+							bolt = D4DBeamBase(Spawn(Beam,pos));
+							
+						if (bolt)
 						{
-							if (SpawnLast)
-								bolt.IsEnding = -1;
-							else
-								bolt.IsEnding = 1;
+							bolt.master = target;
+							bolt.tracer = target;
+							bolt.Angle = Angle;
+							bolt.Pitch = Pitch;
+							bolt.Scale = Scale;
+							bolt.StepTime = Delay + 1;
+							bolt.IsStep = (Steps > 0);
+							bolt.ScaleInTime = ScaleInTime;
+							bolt.ScaleOutTime = ScaleOutTime;
+							bolt.Translation = Translation;
+							bolt.Spawner = self;
+							if (StartBeam && (Starting || SpawnLast))
+							{
+								if (SpawnLast)
+									bolt.IsEnding = -1;
+								else
+									bolt.IsEnding = 1;
+							}
+							if (MoveWithSource)	Beams.Push(bolt);
+							else bolt.Pitch += 90.0;
 						}
-						if (MoveWithSource)	Beams.Push(bolt);
-						else bolt.Pitch += 90.0;
 					}
-					
 					// End it if on the last one.
 					if (SpawnLast)
 					{

@@ -248,7 +248,8 @@ Class BFGProjectile  : Actor
 {
 	int drawBeams;
 	int renderer;
-	Array<Actor> Beamed;
+	Array<Actor> Beamed, Monsters;
+	D4DHandler handler;
 	//==========================================================================
 	// Functions
 	//==========================================================================
@@ -257,86 +258,82 @@ Class BFGProjectile  : Actor
 	{
 		Super.PostBeginPlay();
 		Beamed.Clear();
-		drawBeams = GetCvar("D4BFGEffects");
-		renderer = 1;
+		Monsters.Clear();
+		handler = D4DHandler(StaticEventHandler.Find("D4DHandler"));
 	}
 	
 	//--------------------------------------------------------------------------
 	// Spawns BFG lasers.
+	// As of alpha 8, effectively a copy paste of what I did for lightning gun
+	// without damage.
 	void BFGBeams(int maxtargets)
 	{
-		int count = 0;
-		ThinkerIterator Beamer = ThinkerIterator.Create();
-		Actor mo;
-		while ((count < maxtargets) && (mo = Actor(Beamer.Next())))
+		if (!handler)	handler = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+		if (handler && handler.Monsters.Size() > 0)
 		{
-			// Obviously don't check self, and the shooter.
-			if (mo == self || mo == target)
-			{	continue;	}
-			
-			// Don't target things that aren't monsters, or are already dead.
-			if (mo.bNOINTERACTION || mo.bNOSECTOR ||
-				mo.bFRIENDLY || !mo.bISMONSTER || mo.health < 1 || 
-				(!mo.bSHOOTABLE && !mo.bVULNERABLE) ||
-				(mo is "PlayerPawn"))
-				continue;	
-			
-			
-			// Check sight and range.
-			if (Distance2D(mo) > BFG_LaserRadius || 
-				!CheckSight(mo, SF_IGNOREVISIBILITY | SF_IGNOREWATERBOUNDARY))
-			{	continue;	}
-			
-			// Passed the validation checks. Give it the bomb token and spawn a beam.
-			count++;
-			
-			if (!mo.CountInv("BFGKillToken"))
+			Monsters.Copy(handler.Monsters);
+			int count = 0;
+			for (int i = 0; i < Monsters.Size(); i++)
 			{
-				if (!(mo is "PlayerPawn") &&
-					!(mo is "BossBrain"))
-				{
-					mo.A_SetInventory("BFGKillToken",1);
-					Beamed.Push(mo);
-				}
-			}
-			
-			if (drawBeams)
-			{
-				Vector3 monpos = mo.pos + ( 0, 0, mo.height / 2.0 );
-				Actor beam = Spawn("BFGBeamGZ", monpos);
+				Actor mo = Monsters[i];
+				if (!mo || mo.bCORPSE || mo.health < 1 || mo is "PlayerPawn")
+					continue;
 					
-				if (beam)
+				// Why "squared"? Don't you value a faster game? ;)
+				// Note: ** 2 is exactly squaring a value. ** 3 is cubed, etc.
+				if (Distance3DSquared(mo) > (BFG_LaserRadius ** 2) || 
+					!CheckSight(mo,SF_SEEPASTSHOOTABLELINES|SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
+					continue;
+				
+				A_Face(mo,0,0,0,0,FAF_MIDDLE);
+				Beamed.Push(mo);
+				
+				Vector3 SH = mo.pos;
+				SH.z += mo.height / 2.0;
+				Actor Puff = Spawn("PacifistPuff", SH);
+				if (Puff)
 				{
-					beam.target = self;
-					beam.tracer = mo;
+					Actor Beamer = Spawn("BFGBeamSpawner",pos);
+					if (Beamer)
+					{
+						Beamer.Target = Target;
+						Beamer.Master = Target;
+						Beamer.Tracer = Puff;
+						Beamer.Angle = Angle;
+						Beamer.Pitch = Pitch;
+					}
 				}
+				
+				if (count++ > maxtargets)
+					return;
 			}
 		}
 	}
 	
 	void BFGDetonate()
 	{
-		if (Beamed.Size() > 0)
+		if (Beamed.Size() < 1)	
+			return;
+		
+		Actor src = target;
+		if (!src)	src = self;
+		
+		for (int i = 0; i < Beamed.Size(); i++)
 		{
-			Actor src = target;
-			if (!src)	src = self;
+			Actor mo = Beamed[i];
 			
-			for (int i = 0; i < Beamed.Size(); i++)
+			if (!mo)	
+				continue;
+			
+			mo.A_SetInventory("BFGKillToken",0);
+			if (mo.bFRIENDLY || !mo.bISMONSTER || mo.health < 1 || 
+				(mo is "PlayerPawn"))
 			{
-				Actor mo = Beamed[i];
-				
-				if (!mo)	
-					continue;
-				
-				mo.A_SetInventory("BFGKillToken",0);
-				if (mo.bFRIENDLY || !mo.bISMONSTER || mo.health < 1 || mo.bKILLED || 
-					(mo is "PlayerPawn"))
-				{
-					continue;
-				}
-				mo.DamageMobj(self, src, 2000, "BFGExploder");
+				continue;
 			}
+			mo.DamageMobj(self, src, 2000, "BFGExploder");
 		}
+		
 		/*
 		ThinkerIterator it = ThinkerIterator.Create();
 		Actor mo;
@@ -413,9 +410,12 @@ Class BFG9000Shot : BFGProjectile
 			c2 = (c2 + random(20,35)) % 360;
 			
 			A_SetRoll(roll + 5, SPF_INTERPOLATE);
-			count = (count + 1) % 4;
+			count = (count + 1) % 2;
 			
-			if (!count)	{	BFGBeams(5);	}
+			// Remember to adjust BFGBeam if the modulo count is changed.
+			// Simply change the WaitTime property.
+			if (!count)	
+				BFGBeams(5);
 			
 			A_SpawnItemEx("BFGTrailSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_TRANSFERSCALE|SXF_TRANSFERSPRITEFRAME|SXF_TRANSFERPITCH|SXF_TRANSFERROLL);
 			A_Explode((boosted ? random(10,20) : random(3,6)),BFG_LaserRadius,0,0,BFG_LaserRadius);
@@ -774,7 +774,7 @@ Class BFGLightningGenerator : Actor
 			if (tid > 0)
 			{
 				t = tid;
-				Thing_ChangeTID(0,0);
+				ChangeTID(0);
 				amin = AngMin / 2.0;
 				amax = AngMax / 2.0;
 				size = 5;
@@ -829,7 +829,7 @@ Class BFGLightningGenerator : Actor
 			A_SpawnParticle("A7FF47",SPF_FULLBRIGHT|SPF_RELATIVE,2,size,0,
 				((cos(UPitch)*Speed)*count),
 				0,
-				((sin(-UPitch)*Speed)*count),
+				((-sin(UPitch)*Speed)*count),
 				0,0,0,0,0,0,1.0,0.5);
 			return ResolveState("Looping");
 		}
@@ -838,97 +838,6 @@ Class BFGLightningGenerator : Actor
 }
 
 Class BFGKillToken : Inventory	{	Default { Inventory.MaxAmount 1;	}}
-
-//==============================================================================
-// ZDoom BFG Beam
-Class BFGBeam : Actor 
-{
-	const Limit = 18.0;
-	const FMin = 0.5;
-	const FMax = 1.0;
-	double UXa, UXb;
-	double UYa, UYb;
-	double UZa, UZb;
-	double dist;
-	int life;
-	int count;
-	int minicount;
-	double  scalar;
-	Default 
-	{
-		+NOINTERACTION
-		+NOBLOCKMAP
-		+NOTONAUTOMAP
-		RenderStyle "None";
-		Speed 5;
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 1 NoDelay
-		{
-			if (life >= 2 || !tracer || tracer.bKILLED)
-			{	return ResolveState("Null");	}
-			
-			if (target)
-			{
-				life++;
-				count = minicount = 0;
-				scalar = 0;
-				
-				Vector3 tpos = tracer.pos;	tpos.z += tracer.height / 2.0;
-				SetOrigin(tpos, false);
-				A_FaceTarget(0,0,0,0,FAF_MIDDLE);
-				dist = GetDistance(true, TargetPtr);
-				return ResolveState("Beam");
-			}
-			return ResolveState("Null");
-		}
-		Stop;
-	Beam:
-		TNT1 A 2
-		{
-			if (count >= dist)
-			{	return ResolveState(null);	}
-			
-			if (count < (speed * 20))
-			{	scalar = Clamp(scalar + (1.0/20.0), 0.0, 1.0);	}
-			if (count >= (dist - (speed * 20)))
-			{	scalar = Clamp(scalar - (1.0/20.0), 0.0, 1.0);	}
-			
-			if (minicount <= 0)
-			{
-				UXb = frandom(FMin,FMax) * randompick(-1,1);
-				UYb = frandom(FMin,FMax) * randompick(-1,1);
-				UZb = frandom(FMin,FMax) * randompick(-1,1);
-				minicount = random(2,4);
-			}
-			else
-			{
-			
-				UXa += UXb;
-				UYa += UYb;
-				UZa += UZb;
-				minicount--;
-			}
-			if (UYa > Limit)		{	UYa -= ((abs(UYa) % Limit) * 2);	}
-			if (UYa < -Limit)		{	UYa += ((abs(UYa) % Limit) * 2);	}
-			
-			if (UZa > Limit)		{	UZa -= ((abs(UZa) % Limit) * 2);	}
-			if (UZa < -Limit)		{	UZa += ((abs(UZa) % Limit) * 2);	}
-			
-			A_SpawnParticle("A7FF47",SPF_FULLBRIGHT|SPF_RELATIVE,3,16,0,
-				(cos(pitch)*count)-(sin(pitch)*UXa*scalar),
-				UYa*scalar,
-				((sin(pitch)*count)+(cos(pitch)*UZa*scalar)),
-				0,0,0,0,0,0,1.0,0.3);
-				
-			count += int(speed);
-			return ResolveState("Beam");
-		}
-		Goto Spawn;
-	}
-}
 
 // -----------------------------------------------------------------------------
 // This spawns the trails.

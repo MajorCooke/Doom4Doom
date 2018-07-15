@@ -538,7 +538,7 @@ Class D4PinataCarrion : CustomInventory
 	int timer;
 	int mergetime;
 	UpgradePinataFlier flier;
-	
+	Array<Actor> Kids;
 	Default
 	{
 		Scale 0.3;
@@ -574,6 +574,18 @@ Class D4PinataCarrion : CustomInventory
 		bool good = Super.TryPickup (toucher);
 		if (good)	ChangeTID(0);
 		return good;
+	}
+	
+	override void OnDestroy()
+	{
+		if (Kids.Size() > 0)
+		{
+			for (int i = 0; i < Kids.Size(); i++)
+			{
+				if (Kids[i])	Kids[i].Destroy();
+			}
+		}
+		Super.OnDestroy();
 	}
 	
 	States
@@ -619,11 +631,17 @@ Class D4PinataCarrion : CustomInventory
 	Spawn:
 		PIN2 D 1 NoDelay 
 		{
+			invoker.Kids.Clear();
 			A_SetTics(random(1,6));
 			if (!invoker.spawned)
 			{
-				A_SpawnItemEx("D4CarrionBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
-				A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+				
+				bool a; Actor b;
+				[a, b] = A_SpawnItemEx("D4CarrionBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+				if (b)	invoker.Kids.Push(b);
+				
+				[a, b] = A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+				if (b)	invoker.Kids.Push(b);
 				invoker.spawned = 1;
 			}
 			invoker.mergetime = random(2,MaxMergeTimer);
@@ -717,7 +735,7 @@ Class D4PinataCarrion : CustomInventory
 							inv.ChangeTID(0);
 							continue;
 						}	
-						if (Distance3D(mo) > MergeDistance * invoker.mergetime/MaxMergeTimer)
+						if (Distance3DSquared(mo) > (MergeDistance * invoker.mergetime/MaxMergeTimer) ** 2)
 							continue;
 					
 						if (!CheckSight(mo, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
@@ -725,9 +743,18 @@ Class D4PinataCarrion : CustomInventory
 						
 						inv.Amount += invoker.Amount;
 						tracer = mo;
-						A_RemoveChildren(true,RMVF_EVERYTHING);
-						A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-						A_SpawnItemEx("CarrionMergeBeam",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS);
+						//A_RemoveChildren(true,RMVF_EVERYTHING);
+						A_Face(mo,0,0,0,0,FAF_MIDDLE);
+						A_SpawnItemEx("CarrionFog",0,0,height * 0.5,0,0,0,0,SXF_NOCHECKPOSITION);
+						let Beam = Spawn("CarrionMergeSpawner",pos);
+						if (Beam)
+						{
+							Beam.Target = Target;
+							Beam.Master = Master;
+							Beam.Tracer = mo;
+							Beam.Angle = Angle;
+							Beam.Pitch = Pitch;
+						}
 						if (invoker.flier) 	invoker.flier.DestroyMe = true;
 						return Destroy();
 					}
@@ -736,6 +763,25 @@ Class D4PinataCarrion : CustomInventory
 			invoker.count += 2;
 		}
 		Loop;
+	}
+}
+
+Class CarrionFog : Actor
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		Alpha 0.99;
+		Scale 0.3;
+	}
+	States
+	{
+	Spawn:
+		DB26 A 0 NoDelay A_PlaySound("Doom4/Monsters/QuakeTport",7,0.2);
+		DB26 ABCDEFGHIIJJKKLLMMNNOO 1 Bright;
+		DB26 PQQRRSSTTUUVV 1 Bright A_FadeOut(0.035);
+		Stop;
 	}
 }
 

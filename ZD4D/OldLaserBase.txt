@@ -1505,6 +1505,131 @@ Class CarrionMergeBeam : Actor
 	}
 }
 
+Class CarrionShotTrackingLaser : Actor 
+{
+	enum CarrionShotTrackingLaser
+	{
+		MaxDistance = 2048,	// Maximum distance of the effect
+		AngleRandom = 7,	// The boundaries of angle changing (random(-AngleRandom,AngleRandom))
+		PitchRandom = 7,	// ^ for pitch
+		ChokeMin = 1,		// How sooner or later the beam needs to correct itself to
+		ChokeMax = 5,		// 	"stay on target".
+	};
+	const StepDistance = 31;
+	const StepDistHalf = StepDistance / 2.0;
+	double UPitch;
+	double UAngle;
+	double dista, distb;
+	double UX;
+	double UY;
+	double UZ;
+	double angdiff;
+	double stepdiv;
+	//[0] = Current distance travelled
+	//[1] = How much further to go
+	int choke;
+	int t;
+	int count;
+	int render;
+	PlayerPawn plr;
+	Default 
+	{
+		+NOCLIP
+		+NOINTERACTION
+		+NOBLOCKMAP
+		RenderStyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 1 NoDelay
+		{
+			// The angle and pitch won't change so go ahead and save it now.
+			UPitch = pitch;
+			UAngle = angle;
+			distb = Min(MaxDistance, GetDistance(true,TracerPtr));
+			choke = random(ChokeMin, ChokeMax);
+			UX = pos.x;
+			UY = pos.y;
+			UZ = pos.z;
+			render = int(GetCvar("vid_renderer"));
+			if (master) 
+			{
+				plr = PlayerPawn(master);
+			}
+		}
+		TNT1 A 1
+		{
+			if (!tracer || tracer.CountInv("NoLaser"))
+			{	return ResolveState("Null");	}
+			
+			if (master) { pitch = master.pitch; }
+			
+			
+			
+			A_Warp(MasterPtr,0,7.5,0,0,WARPF_NOCHECKPOSITION|WARPF_STOP,"Null",0.6 + sin(pitch) * 0.2, -0.6 + cos(pitch) * 0.4);
+			count = 0;
+			angdiff = abs(GetAngle(GAF_RELATIVE,TracerPtr));
+			
+			if (GetDistance(true,TracerPtr) < StepDistance * 1.5)
+			{	return ResolveState(null);	}
+			
+			// dista = distance currently travelled.
+			// distb = maximum distance.
+			while ((count < 15) && (GetDistance(false,TracerPtr) > StepDistance * 1.5))
+			{
+				
+				if (A_CheckSight("Null"))
+				{	break;	}
+				A_FaceTracer(8, 8, 
+					frandom(-AngleRandom, AngleRandom), frandom(-PitchRandom, PitchRandom), FAF_MIDDLE);
+				
+				// Spawn the beam with the same angle and pitch. Note that the
+				// beam is being centered so we have to take that into account
+				// and spawn it FORWARD based on half the beam's length.
+				// Then move forward by a beam's length and repeat until done.
+				
+				
+				if (render)
+				{	
+					if (CountInv("KillLaser",TracerPtr))
+					{	A_SpawnItemEx("CarrionTrailBeamMovingBoom",cos(pitch) * StepDistHalf,0,-sin(pitch) * StepDistHalf,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS);	}
+					else
+					{	A_SpawnItemEx("CarrionTrailBeamMoving",cos(pitch) * StepDistHalf,0,-sin(pitch) * StepDistHalf,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS);	}
+				}
+				else
+				{
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) * (StepDistHalf * (1 / 6)), 0, -sin(pitch) * (StepDistHalf * (1 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) * (StepDistHalf * (2 / 6)), 0, -sin(pitch) * (StepDistHalf * (2 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) * (StepDistHalf * (3 / 6)), 0, -sin(pitch) * (StepDistHalf * (3 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) * (StepDistHalf * (4 / 6)), 0, -sin(pitch) * (StepDistHalf * (4 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) * (StepDistHalf * (5 / 6)), 0, -sin(pitch) * (StepDistHalf * (5 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) * StepDistHalf	 		, 0, -sin(pitch) * (StepDistHalf			 ));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-(StepDistHalf * (1 / 6)), 0, -sin(pitch) *-(StepDistHalf * (1 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-(StepDistHalf * (2 / 6)), 0, -sin(pitch) *-(StepDistHalf * (2 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-(StepDistHalf * (3 / 6)), 0, -sin(pitch) *-(StepDistHalf * (3 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-(StepDistHalf * (4 / 6)), 0, -sin(pitch) *-(StepDistHalf * (4 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-(StepDistHalf * (5 / 6)), 0, -sin(pitch) *-(StepDistHalf * (5 / 6)));
+					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-StepDistHalf			, 0, -sin(pitch) *-(StepDistHalf			 ));
+				}
+				
+				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
+				dista += StepDistance;
+				count = (count + 1) % 8;
+			}
+			
+			if (tracer)
+			{
+				count = 0;
+				dista = 0;
+				return ResolveState(null);
+			}
+			return ResolveState("Null");
+		}
+		Wait;
+	}
+}
+
 Class CarrionTrailBeam : TrailBeam
 {
 	Default
@@ -1738,3 +1863,94 @@ Class BulletTracerFX : Actor
 
 Class BulletTracerFXInverted : BulletTracerFX
 {}
+
+//==============================================================================
+// ZDoom BFG Beam
+Class BFGBeam : Actor 
+{
+	const Limit = 18.0;
+	const FMin = 0.5;
+	const FMax = 1.0;
+	double UXa, UXb;
+	double UYa, UYb;
+	double UZa, UZb;
+	double dist;
+	int life;
+	int count;
+	int minicount;
+	double  scalar;
+	Default 
+	{
+		+NOINTERACTION
+		+NOBLOCKMAP
+		+NOTONAUTOMAP
+		RenderStyle "None";
+		Speed 5;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 1 NoDelay
+		{
+			if (life >= 2 || !tracer || tracer.bKILLED)
+			{	return ResolveState("Null");	}
+			
+			if (target)
+			{
+				life++;
+				count = minicount = 0;
+				scalar = 0;
+				
+				Vector3 tpos = tracer.pos;	tpos.z += tracer.height / 2.0;
+				SetOrigin(tpos, false);
+				A_FaceTarget(0,0,0,0,FAF_MIDDLE);
+				dist = GetDistance(true, TargetPtr);
+				return ResolveState("Beam");
+			}
+			return ResolveState("Null");
+		}
+		Stop;
+	Beam:
+		TNT1 A 2
+		{
+			if (count >= dist)
+			{	return ResolveState(null);	}
+			
+			if (count < (speed * 20))
+			{	scalar = Clamp(scalar + (1.0/20.0), 0.0, 1.0);	}
+			if (count >= (dist - (speed * 20)))
+			{	scalar = Clamp(scalar - (1.0/20.0), 0.0, 1.0);	}
+			
+			if (minicount <= 0)
+			{
+				UXb = frandom(FMin,FMax) * randompick(-1,1);
+				UYb = frandom(FMin,FMax) * randompick(-1,1);
+				UZb = frandom(FMin,FMax) * randompick(-1,1);
+				minicount = random(2,4);
+			}
+			else
+			{
+			
+				UXa += UXb;
+				UYa += UYb;
+				UZa += UZb;
+				minicount--;
+			}
+			if (UYa > Limit)		{	UYa -= ((abs(UYa) % Limit) * 2);	}
+			if (UYa < -Limit)		{	UYa += ((abs(UYa) % Limit) * 2);	}
+			
+			if (UZa > Limit)		{	UZa -= ((abs(UZa) % Limit) * 2);	}
+			if (UZa < -Limit)		{	UZa += ((abs(UZa) % Limit) * 2);	}
+			
+			A_SpawnParticle("A7FF47",SPF_FULLBRIGHT|SPF_RELATIVE,3,16,0,
+				(cos(pitch)*count)-(sin(pitch)*UXa*scalar),
+				UYa*scalar,
+				((sin(pitch)*count)+(cos(pitch)*UZa*scalar)),
+				0,0,0,0,0,0,1.0,0.3);
+				
+			count += int(speed);
+			return ResolveState("Beam");
+		}
+		Goto Spawn;
+	}
+}
