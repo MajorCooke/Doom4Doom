@@ -1321,9 +1321,9 @@ class D4D_Projectile : FastProjectile
                         tr.actorsToIgnore.Clear();
 
                     loopBreaker++;
-                    if (loopBreaker >= 4096) 
+                    if (loopBreaker >= 10000) 
 					{ // Uh oh.
-                        Console.PrintF ("Broke an infinite loop.");
+                        //Console.PrintF ("Broke an infinite loop.");
 						exploded = true;
                         Destroy();
                         return;
