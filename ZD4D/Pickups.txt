@@ -40,7 +40,7 @@ Class D4Stimpack : Health replaces Stimpack
 		Inventory.PickupMessage "Small health";
 		Inventory.Amount 10;
 		Inventory.PickUpSound "Doom4/Pickups/Health";
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Scale 0.5;
 	}
 	States
@@ -59,7 +59,7 @@ Class D4Medikit : Health replaces Medikit
 		Inventory.PickUpSound "Doom4/Pickups/HealthLarge";
 		Inventory.Amount 30;
 		Scale 0.5;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 	}
 	States
 	{
@@ -76,7 +76,7 @@ Class D4HealthBonus : HealthBonus replaces HealthBonus
 		Inventory.PickUpSound "Doom4/Pickups/HealthBonus";
 		Scale 0.55;
 		Inventory.Amount 3;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 	}
 	States
 	{
@@ -165,7 +165,7 @@ Class D4ArmorBasePickup : CustomInventory
 		D4ArmorBasePickup.IgnoreSkill false;
 		Inventory.PickupMessage "";
 		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Scale 0.5;
 	}
 	States
@@ -214,7 +214,7 @@ Class D4ArmorPickup : BasicArmorPickup replaces BasicArmorPickup
 {	
 	Default 
 	{
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Armor.SavePercent 100;
 		Armor.MaxAbsorb 200;
 		Armor.MaxFullAbsorb 200;
@@ -225,7 +225,7 @@ Class D4BasicArmorBonus : BasicArmorBonus replaces BasicArmorBonus
 {
 	Default 
 	{
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Armor.SavePercent 100;
 		Armor.MaxAbsorb 200;
 		Armor.MaxFullAbsorb 200;
@@ -240,7 +240,7 @@ Class D4ArmorBonus : ArmorBonus
 		Armor.MaxAbsorb 200;
 		Armor.MaxFullAbsorb 200;
 		Armor.SaveAmount 3;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
 		Scale 0.55;
 		+ALLOWPAIN
@@ -263,7 +263,7 @@ Class D4ArmorBonusPickup : D4ArmorBasePickup replaces ArmorBonus
 		D4ArmorBasePickup.MaxSaveAmount 200;
 		D4ArmorBasePickup.MaxAbsorb 200;
 		D4ArmorBasePickup.MaxFullAbsorb 200;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
 		Scale 0.55;
 		+INVENTORY.ALWAYSPICKUP
@@ -338,7 +338,7 @@ Class D4GreenArmor : D4ArmorBasePickup replaces GreenArmor
 		D4ArmorBasePickup.MaxFullAbsorb 200;
 		Inventory.PickUpSound "Doom4/Pickups/ArmorMed";
 		Inventory.PickUpMessage "Medium Armor Chunk";
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Scale 0.5;
 	}
 	States
@@ -361,7 +361,7 @@ Class D4BlueArmor : D4ArmorBasePickup replaces BlueArmor
 		D4ArmorBasePickup.MaxFullAbsorb 200;
 		Inventory.PickUpSound "Doom4/Pickups/Armor";
 		Inventory.PickUpMessage "Full Armor Casing";
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Scale 0.75;
 	}
 	States

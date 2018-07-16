@@ -123,20 +123,20 @@ Class Doom4Player : PlayerPawn
 							CLOFF_JUMPENEMY|CLOFF_JUMPFRIEND|CLOFF_JUMPOBJECT|
 							CLOFF_JUMPNONHOSTILE|CLOFF_JUMP_ON_MISS;
 	const MaxRoll = 0.5;
-	double user_rollpain;
-	double user_rollmove;
-	double user_rollsave;
-	double user_vel;
-	double user_zvel;
+	double URollpain;
+	double URollmove;
+	double URollsave;
+	double UVel;
+	double UZvel;
 	double user_hold;
 	double user_time;
-	double user_velx;
-	double user_vely;
+	double UVelx;
+	double UVely;
 	double user_accx;
 	double user_accy;
 	int user_lasthp;
 	int user_currenthp;
-	int user_vel2; //Must be an int.
+	int UVel2; //Must be an int.
 	int user_once;
 	int user_weapon;
 	int user_jumpsDone;
@@ -163,7 +163,7 @@ Class Doom4Player : PlayerPawn
 		Player.CrouchSprite "PLYC";
 		Player.StartItem "D4Pistol";
 		Player.StartItem "D4DFist";
-		Player.StartItem "AkimboWeapon";
+	//	Player.StartItem "AkimboWeapon";
 		Player.StartItem "TrishotClip", 3;
 		Player.StartItem "D4MultiJump", 2;
 		Player.JumpZ 7.0;
@@ -418,15 +418,15 @@ Class Doom4Player : PlayerPawn
 				{	A_SetInventory("Climbing",0);	}
 				
 				// Calculate a naive-derivative
-				user_accx = vel.x - user_velx;
-				user_accy = vel.y - user_vely;
+				user_accx = vel.x - UVelx;
+				user_accy = vel.y - UVely;
 				
 				if (user_accx*user_accx + user_accy*user_accy > 0.02)
 				{	A_SetInventory("Climbing",0);	}
 				
 				// Update historical values
-				user_velx = vel.x;
-				user_vely = vel.y;
+				UVelx = vel.x;
+				UVely = vel.y;
 				
 				// Abort if way forward is free
 				if (!A_CheckBlock("Null", CBF_DROPOFF, AAPTR_DEFAULT, 20,0,0))
@@ -473,8 +473,8 @@ Class Doom4Player : PlayerPawn
 				//user_wasClimbing
 				//user_accx
 				//user_accy
-				//user_velx
-				//user_vely
+				//UVelx
+				//UVely
 
 				int DistCheck = 24;
 				
@@ -663,7 +663,7 @@ Class Doom4Player : PlayerPawn
 					A_SetBlend("99 00 00", .3, 5);
 					user_lasthp = user_currenthp;
 				}
-				if ((GetCvar("user_BloodScreen")) && (user_lasthp - user_currenthp >= DamageDegree))
+				if ((GetCvar("D4D_BloodScreen")) && (user_lasthp - user_currenthp >= DamageDegree))
 				{
 					ACS_NamedExecuteAlways("Blood",0, int(floor((user_lasthp - user_currenthp) / DamageDegree)),0,0);
 				}
@@ -690,10 +690,10 @@ Class Doom4Player : PlayerPawn
 		M666 A 1
 		{
 			A_Overlay(Overlay_MoveRoll,"Null");
-			user_rollpain = frandom(2.0,4.0)*frandompick(-1,1);
-			A_SetRoll((roll + user_rollpain),SPF_INTERPOLATE);
+			URollpain = frandom(2.0,4.0)*frandompick(-1,1);
+			A_SetRoll((roll + URollpain),SPF_INTERPOLATE);
 		}
-		M666 AAA 1 A_SetRoll((roll - (user_rollpain / 3.0)),SPF_INTERPOLATE);
+		M666 AAA 1 A_SetRoll((roll - (URollpain / 3.0)),SPF_INTERPOLATE);
 		Stop;
 	Death:
 		PLAY H 0 
@@ -847,7 +847,7 @@ extend class Doom4Player
 	//--------------------------------------------------------------------------
 	// Damage Control
 	//--------------------------------------------------------------------------
-	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags = 0, double angle = 0)
+	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{
 		if (mod == 'HoloAttract')	return 0;
 		
@@ -1018,8 +1018,8 @@ extend class Doom4Player
 		started = true;
 		
 		//A_SetInventory("D4MultiJump",int(GetCvar("D4MultiJump")));
-		user_rollmove = user_rollpain = user_rollsave = user_offsets =
-		user_vel = user_zvel = user_hold = user_time = user_vel2 = 
+		URollmove = URollpain = URollsave = user_offsets =
+		UVel = UZvel = user_hold = user_time = UVel2 = 
 		user_once =	user_jumpsDone = user_lowhp = 0;
 	}
 	
@@ -1148,14 +1148,14 @@ extend class Doom4Player
 				}
 				else if (CountInv("StaticRifleChargingToken") < 540)
 				{
-					user_vel = vel.Length();
-					if (CountInv("StaticRifleActive") && (user_vel * 0.25) >= 1.0)
+					UVel = vel.Length();
+					if (CountInv("StaticRifleActive") && (UVel * 0.25) >= 1.0)
 					{
-							 if (CountInv("StaticUpgrade4"))		A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.9) * 0.25));	
-						else if (CountInv("StaticUpgrade3"))		A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.55) * 0.25));	
-						else if (CountInv("StaticUpgrade2"))		A_GiveInventory("StaticRifleChargingToken", int((user_vel * 2.2) * 0.25));	
-						else if (CountInv("StaticUpgrade1"))		A_GiveInventory("StaticRifleChargingToken", int((user_vel * 1.85) * 0.25));	
-						else										A_GiveInventory("StaticRifleChargingToken", int((user_vel * 1.5) * 0.25));	
+							 if (CountInv("StaticUpgrade4"))		A_GiveInventory("StaticRifleChargingToken", int((UVel * 2.9) * 0.25));	
+						else if (CountInv("StaticUpgrade3"))		A_GiveInventory("StaticRifleChargingToken", int((UVel * 2.55) * 0.25));	
+						else if (CountInv("StaticUpgrade2"))		A_GiveInventory("StaticRifleChargingToken", int((UVel * 2.2) * 0.25));	
+						else if (CountInv("StaticUpgrade1"))		A_GiveInventory("StaticRifleChargingToken", int((UVel * 1.85) * 0.25));	
+						else										A_GiveInventory("StaticRifleChargingToken", int((UVel * 1.5) * 0.25));	
 					}
 				}
 				
@@ -1227,7 +1227,7 @@ extend class Doom4Player
 					}
 				}
 				else if (GetClass() == 'Doom4Player' && 
-					GetCVar("user_MultiJump") && 
+					GetCvar("D4D_MultiJump") && 
 					(user_jumpsDone < CountInv("D4MultiJump") - 1) && 
 					!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_JUMP))
 				{
@@ -1290,7 +1290,7 @@ extend class Doom4Player
 	//--------------------------------------------------------------------------
 	//
 	//--------------------------------------------------------------------------
-	override void Die(Actor source, Actor inflictor, int dmgflags = 0)
+	override void Die(Actor source, Actor inflictor, int dmgflags)
 	{
 		if (!player || !player.mo || player.mo != self)
 			return Super.Die(source, inflictor, dmgflags);

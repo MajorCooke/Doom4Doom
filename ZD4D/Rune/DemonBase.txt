@@ -130,7 +130,8 @@ Class DemonPlayerBase : Doom4Player
 		A_ClearOverlays();
 		A_Overlay(6000,"Overlay.IdleSound",true);
 		A_Overlay(6001,"Overlay.Steps",true);
-		
+		A_OverlayFlags(6000, PSPF_POWDOUBLE, false);
+		A_OverlayFlags(6001, PSPF_POWDOUBLE, false);
 		//Strangely, the timer visual runs out at least a few seconds before.
 		A_SetInventory("DemonTimerToken",62*35, DefPtr, true);
 	}
@@ -550,12 +551,12 @@ Class DemonRuneMorphOn : Actor
 	const RollAmount = 8.0;
 	const ScaleMul = 0.5;
 	double  user_c;
-	double  user_roll;
+	double  URoll;
 	int user_t;
 	int user_rng;
 	double  user_dist;
-	double  user_cos;
-	int user_floor;
+	double  UCos;
+	int UFloor;
 	int user_duration;
 	
 	Default 
@@ -576,7 +577,7 @@ Class DemonRuneMorphOn : Actor
 		RUNE C 0 NoDelay
 		{
 			invoker.user_duration = 2;
-			invoker.user_roll = RollAmount * randompick(-1,1);
+			invoker.URoll = RollAmount * randompick(-1,1);
 			A_PlaySound("Player/Demon/Fire",7,0.7);
 		}
 	Looping:

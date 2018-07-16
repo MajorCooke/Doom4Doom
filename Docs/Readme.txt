@@ -1,19 +1,22 @@
 ===========================================================================
 Archive Maintainer      : (special instructions if any)
 Update to               : D4D.pk3
-Advanced engine needed  : GZDoom v3.2 (Devbuild)
+Advanced engine needed  : GZDoom v3.2.4+
 Primary purpose         : Single player, no levels included
 ===========================================================================
 Title                   : DOOM(4) for DooM
-Filename                : D4D.pk
-Release date            : 10-31-16
+Filename                : D4D.pk (or Doom4Doom.zip if downloaded from github)
+Release date            : 10-31-16 (2.0.3)
 Author                  : Major Cooke, Michaelis
 Email Address           : MajorCooke22@gmail.com
-Other Files By Author   : Major Cooke: "AEons of Death", "DooMwinia"
-                          Michaelis:  "AEons of Death", "ZBlood+"
+Other Files By Author   : Major Cooke: 
+							"AEons of Death", "DooMwinia"
+                          Michaelis:  
+							"AEons of Death", "ZBlood+", "D4T (Death Foretold)",
+							"Quake Champions: Doom Edition"
 Misc. Author Info       : Stuff.
 
-Description             : A gameplay mod bringing some of the Doom4 mechanics 
+Description             : A gameplay mod bringing some of the Doom 4 mechanics 
                           and it's weapons, with mods included.
 
 Additional Credits to   : See credits section
@@ -27,7 +30,10 @@ Graphics                : Yes
 Dehacked/BEX Patch      : No
 Demos                   : No
 Other                   : A plethora of (G)ZDoom specific lumps
-Other files required    : None other than a recent GZDoom devbuild
+Other files required    : D4DResources.pk3 (Make sure this is in the same 
+							directory as D4D.pk3/Doom4Doom.zip) and it will
+							auto load with the file. DO NOT add the resources
+							to the launcher list!
 
 
 * Play Information *
@@ -58,15 +64,12 @@ Known Bugs              : Sometimes glory kills will only do a quick punch
                           executed.
 Might Not Run With      : Some GZDoom devbuilds. 
 Will NOT Work With 		: Zandronum. ZDoom.
-Tested With             : GZDoom v3.2 devbuilds
+Tested With             : GZDoom v3.4
 
 
 ===========================================================================
 * Credits *
 
-
-Neccronixis             : Creator of all the Doom 4 weapon sprites &
-                          doomdoll pickup and animation.
 						  
 Major Cooke             : Current owner. Project idea and direction. 
 						  Design, creation and implementation of the "Holo
@@ -87,7 +90,25 @@ Major Cooke             : Current owner. Project idea and direction.
 						  powerup upgrades, and overhauled upgrade menu.
                           General DECORATE & ZScript mastermind.
 
-DBThanatos              : Retired owner.
+Michaelis               : Ripping, conversion and processing of graphics for
+                          the Heads Up Display. Implementation of reticles
+                          specific to each weapon/demon, including the charging
+                          animations. Ripping/processing/implementation of blood
+                          elements in the hud (along with cacodemon HUD hits).
+                          Implementation of multi jump and ledge grabbing.
+                          Added powerups and situation-aware crates.
+                          General SBARINFO & ACS mastermind.
+
+ZZYZX                   : Making shaders for glory kill effect, shaders for
+                          holographic effect. Current internal dev working on
+                          top secret stuff.
+						  
+Neccronixis             : Creator of all the Doom 4 weapon sprites (until 2.0.3) 						  
+						  & doomdoll pickup and animation.
+
+* Special Credits *
+
+DBThanatos              : Ex-author as of 2.0.3.
                           Import, offseting, renaming all of Neccronixis' weapon
                           sprites. Edited all muzleflash sprites from the 
                           weapons. Created base functional code of all weapons.
@@ -102,25 +123,12 @@ DBThanatos              : Retired owner.
                           and grenade system. "Roach" monster recolor (which
                           was used as D4D imp). Game balance.
                           Resource gatherer and organizer.  
-                          Final polishing of visual effects until v2.0.3.
-
-Michaelis               : Ripping, conversion and processing of graphics for
-                          the Heads Up Display. Implementation of reticles
-                          specific to each weapon/demon, including the charging
-                          animations. Ripping/processing/implementation of blood
-                          elements in the hud (along with cacodemon HUD hits).
-                          Implementation of multi jump and ledge grabbing.
-                          Added powerups and situation-aware crates.
-                          General SBARINFO & ACS mastermind.
-
-ZZYZX                   : Making shaders for glory kill effect, shaders for
-                          holographic effect. Current internal dev working on
-                          top secret stuff.
-
-* Special Credits *
+                          Final polishing of visual effects until v2.0.3 release.
+						  
+DrPyspy					: Spider Mastermind & Cyberdemon sound effects.
 
 Roxas                   : Creator of the weapon voxels minus the "chaingun". 
-                          Teaching me how to do voxels from scratch.
+                          Teaching DBT how to do voxels from scratch.
 
 Xaser                   : Assistance to create the Titlemap. General advisor.
                           Fine tuning of weapon animations.
@@ -147,8 +155,12 @@ Gutawer					: Player damage shader effect
 Cactus Hege				: Inspiration for the Rainbow Doom(4) monsters. Concept 
 						  (no code) taken from Colorful Hell with permission.
 
-* Other credits * 
+* Other credits *
 
+DoomKrakken				: Sound effects.
+
+OpenGameArt				: Lots of effects from here.
+						  https://opengameart.org/content/2d-effects
 
 Amuscaria               : Monster sprites for Arachnotron, Archvile, Hell
                           Mancubus, Baron of Hell, Pain Elemental. All from
@@ -179,19 +191,24 @@ Croteam					: Serious Sam's Serious Damage sound
 * Beta Testers *
 
 - 3xlneet
-- BeardedDoomGuy
 - Colossus
 - Hellser
 - iSpook
-- JohnnyTheWolf
 - Matsilagi
 - TheZombieKiller
 - TiberiumSoul
 - DoomKrakken
 - Snivyus
-- MW-21
 - Hellstorm Archon
 - TheZombieKiller
+- Viscra Maelstrom
+
+* Retired Testers *
+
+- MW-21					(Unknown release retirement)
+- JohnnyTheWolf 		(2.0.3)
+- BeardedDoomGuy		(2.0.3)
+- DrPyspy				(2.0.3)
 
 
 * For monsters from Realm667 *

@@ -12,7 +12,7 @@ Class D4PinataBorder : Actor
 {
 	int user_t;
 	int count;
-	double user_pitch;
+	double UPitch;
 	double user_dist;
 	const Increment = 4;
 	const Distance = 200;
@@ -24,7 +24,7 @@ Class D4PinataBorder : Actor
 		+BRIGHT
 		+FORCEXYBILLBOARD
 		Scale 0.3;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 	}
 	
 	override void PostBeginPlay() { Destroy();	}
@@ -80,7 +80,7 @@ Class D4PinataParticles : Actor
 		+BRIGHT
 		+FORCEXYBILLBOARD
 		Scale 0.3;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 	}
 	
 	override void PostBeginPlay() 
@@ -304,7 +304,7 @@ Class D4PinataArmor : D4ArmorBasePickup
 		+NOBLOCKMONST
 		+INVENTORY.ALWAYSPICKUP
 		BounceFactor 0.5;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
 		Inventory.PickupMessage "";
 	}
@@ -377,7 +377,7 @@ Class D4PinataHealth : D4Stimpack
 		BounceFactor 0.5;
 		+NOBLOCKMONST
 		Inventory.Amount 8;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 	}
 		
 	States
@@ -447,7 +447,7 @@ Class D4PinataBullets : D4Bullets
 		+NOBLOCKMONST
 		+NOTELESTOMP
 		BounceFactor 0.5;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 	}
 	
 	States
@@ -498,7 +498,7 @@ Class D4PinataBulletsBig : D4PinataBullets
 		Scale 0.4;
 		Inventory.Amount 50;
 		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 	}
 }
 
@@ -526,7 +526,7 @@ Class D4PinataShells : D4Shells
 		+BOUNCEONCEILINGS
 		BounceFactor 0.5;
 		+NOBLOCKMONST
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 	}
 		
 	States

@@ -104,13 +104,8 @@ Class D4OldWolfensteinSS : D4AbstractMonster replaces WolfensteinSS // : Wolfens
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		"####" "#" 0  //loot drop
-		{
-			//D4SetupLoot(true);
-		}
-		Goto XDeathNoDrops;
-		
 	XDeathNoDrops:	
+		SSWV I 0;
 		SSWV I 5
 		{
 			bThruActors = true;

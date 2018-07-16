@@ -26,7 +26,6 @@ Class D4DMonsterSpawner : Actor
 		-SHOOTABLE
 		-COUNTKILL
 		-VULNERABLE
-		+BOSSDEATH
 		+NOTIMEFREEZE
 		+CANTSEEK
 		+BOSSDEATH
@@ -69,7 +68,7 @@ Class D4DMonsterSpawner : Actor
 		// Check to see if modders have injected monster classes to spawn.
 		// Currently does not have an offset randomizer yet.
 		//======================================================================
-		int montype = GetCvar("user_MonsterType");
+		int montype = GetCvar("D4D_MonsterType");
 		// D4D Themed Section
 		
 		if (montype != 0)
@@ -175,6 +174,7 @@ Class D4DMonsterSpawner : Actor
 				let d4mon = D4AbstractMonster(mon);
 				if (d4mon)
 				{
+					d4mon.Spawner = self;
 						 if (amt < 0 || amt > 7) { }
 					else if (amt == 7)	d4mon.BC = "White";
 					else if (amt == 6)	d4mon.BC = "Black";
@@ -183,7 +183,7 @@ Class D4DMonsterSpawner : Actor
 					else if (amt == 3)	d4mon.BC = "Purple";
 					else if (amt == 2)	d4mon.BC = "Blue";
 					else if (amt == 1)	d4mon.BC = "Green";
-					d4mon.Spawner = self;
+					
 				}
 			//}
 			
@@ -205,12 +205,12 @@ Class D4DMonsterSpawner : Actor
 			A_ChangeLinkFlags(true, true);
 			A_ChangeCountFlags(0);
 		}
-		
 	}
 	
 	override void OnDestroy()
 	{
 		A_BossDeath();
+		Super.OnDestroy();
 	}
 	
 	States
@@ -218,17 +218,16 @@ Class D4DMonsterSpawner : Actor
 	Spawn:
 		TNT1 A 70 NODELAY
 		{
-			
-			if (!mon || !isBoss)
+			if (!mon || mon.health < 1 || !isBoss)
 			{
 				bVULNERABLE = true;
 				A_Die();
 			}
-			
 		}
 		Loop;
 	Death:
 		TNT1 AAAAA 35;
+		TNT1 A 1 A_BossDeath();
 		Stop;
 	}
 }

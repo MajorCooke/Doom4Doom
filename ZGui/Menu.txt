@@ -194,7 +194,7 @@ Class D4DListMenu : ListMenu
 	MenuItemList m;
 	
 	//==========================================================================
-	override void Init(Menu parent = NULL, ListMenuDescriptor desc = NULL)
+	override void Init(Menu parent, ListMenuDescriptor desc)
 	{
 		Super.Init(parent, desc);
 		

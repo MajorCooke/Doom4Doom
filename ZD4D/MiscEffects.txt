@@ -399,7 +399,6 @@ Class BulletPuffParticle : Actor
 
 Class PacifistPuff : Actor 
 {
-
 	Default 
 	{
 		+ALLOWTHRUFLAGS
@@ -412,6 +411,7 @@ Class PacifistPuff : Actor
 		+ALWAYSPUFF
 		+PUFFONACTORS
 		+SKYEXPLODE
+		+DONTSPLASH
 		Radius 1;
 		Height 1;
 		DamageType "AimingLaser";
@@ -420,8 +420,35 @@ Class PacifistPuff : Actor
 	States
 	{
 	Spawn:
-		TNT1 A 4;
+		TNT1 A 35;
 		Stop;
+	}
+}
+
+Class PacifistPuffNoThru : PacifistPuff
+{
+	Default
+	{
+		-ALLOWTHRUFLAGS
+	}
+}
+
+Class NonPacifistPuff : PacifistPuff
+{
+	Default
+	{
+		-ALLOWTHRUFLAGS
+		-BLOODLESSIMPACT
+		-PAINLESS
+		DamageType "Hitscan";
+	}
+}
+
+Class NonPacifistPuffExtreme : NonPacifistPuff
+{
+	Default
+	{
+		+EXTREMEDEATH
 	}
 }
 

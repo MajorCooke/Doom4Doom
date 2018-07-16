@@ -262,7 +262,7 @@ Class D4Fuel : Ammo
 		Inventory.Amount 2;
 		Inventory.MaxAmount D4Fuel_MaxAmount1;
 		Ammo.BackpackMaxAmount D4Fuel_MaxAmount2;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Scale 0.45;
 	}
 	States
@@ -303,7 +303,7 @@ Class D4Bullets : Ammo replaces ClipBox
 		Inventory.MaxAmount D4Bullets_MaxAmount1;
 		Ammo.BackpackMaxAmount D4Bullets_MaxAmount2;
 		Ammo.BackpackAmount 16;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Scale 0.3;
 	}
 	
@@ -349,7 +349,7 @@ Class D4Shells : Ammo replaces ShellBox
 		Inventory.MaxAmount D4Shells_MaxAmount1;
 		Ammo.BackpackMaxAmount D4Shells_MaxAmount2;
 		Ammo.BackpackAmount 6;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Scale 0.3;
 	}
 	
@@ -394,7 +394,7 @@ Class D4Cells : Ammo //replaces CellPack
 	Inventory.MaxAmount D4Cells_MaxAmount1;
 	Ammo.BackpackMaxAmount D4Cells_MaxAmount2;
 	Ammo.BackpackAmount 10;
-	DistanceCheck "user_MaxDrawDistance";
+	DistanceCheck "D4D_MaxDrawDistance";
 	Scale 0.4;
 	}
 	States
@@ -437,7 +437,7 @@ Class D4Rockets : Ammo //replaces RocketBox
 		Inventory.MaxAmount D4Rockets_MaxAmount1;
 		Ammo.BackpackMaxAmount D4Rockets_MaxAmount2;
 		Ammo.BackpackAmount 1;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Scale 0.3;
 	}
 	States
@@ -476,7 +476,7 @@ Class D4BFGAmmo : Ammo
 		Ammo.BackpackAmount 1;
 		Ammo.BackpackMaxAmount D4BFGAmmo_MaxAmount;
 		Inventory.PickupSound "Doom4/Pickups/BFGAmmo";
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Scale 0.40;
 	}
 	States
@@ -538,7 +538,7 @@ Class D4PinataCarrion : CustomInventory
 	int timer;
 	int mergetime;
 	UpgradePinataFlier flier;
-	
+	Array<Actor> Kids;
 	Default
 	{
 		Scale 0.3;
@@ -557,7 +557,7 @@ Class D4PinataCarrion : CustomInventory
 		+NOTELESTOMP
 		+INVENTORY.TRANSFER
 		BounceFactor 0.5;
-		DistanceCheck "user_MaxDrawDistance";
+		DistanceCheck "D4D_MaxDrawDistance";
 		Translation "0:255=%[0,0,0]:[1.0,0.1,0.1]";
 	}
 	
@@ -574,6 +574,18 @@ Class D4PinataCarrion : CustomInventory
 		bool good = Super.TryPickup (toucher);
 		if (good)	ChangeTID(0);
 		return good;
+	}
+	
+	override void OnDestroy()
+	{
+		if (Kids.Size() > 0)
+		{
+			for (int i = 0; i < Kids.Size(); i++)
+			{
+				if (Kids[i])	Kids[i].Destroy();
+			}
+		}
+		Super.OnDestroy();
 	}
 	
 	States
@@ -619,11 +631,17 @@ Class D4PinataCarrion : CustomInventory
 	Spawn:
 		PIN2 D 1 NoDelay 
 		{
+			invoker.Kids.Clear();
 			A_SetTics(random(1,6));
 			if (!invoker.spawned)
 			{
-				A_SpawnItemEx("D4CarrionBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
-				A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+				
+				bool a; Actor b;
+				[a, b] = A_SpawnItemEx("D4CarrionBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+				if (b)	invoker.Kids.Push(b);
+				
+				[a, b] = A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+				if (b)	invoker.Kids.Push(b);
 				invoker.spawned = 1;
 			}
 			invoker.mergetime = random(2,MaxMergeTimer);
@@ -717,7 +735,7 @@ Class D4PinataCarrion : CustomInventory
 							inv.ChangeTID(0);
 							continue;
 						}	
-						if (Distance3D(mo) > MergeDistance * invoker.mergetime/MaxMergeTimer)
+						if (Distance3DSquared(mo) > (MergeDistance * invoker.mergetime/MaxMergeTimer) ** 2)
 							continue;
 					
 						if (!CheckSight(mo, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
@@ -725,9 +743,18 @@ Class D4PinataCarrion : CustomInventory
 						
 						inv.Amount += invoker.Amount;
 						tracer = mo;
-						A_RemoveChildren(true,RMVF_EVERYTHING);
-						A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-						A_SpawnItemEx("CarrionMergeBeam",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS);
+						//A_RemoveChildren(true,RMVF_EVERYTHING);
+						A_Face(mo,0,0,0,0,FAF_MIDDLE);
+						A_SpawnItemEx("CarrionFog",0,0,height * 0.5,0,0,0,0,SXF_NOCHECKPOSITION);
+						let Beam = Spawn("CarrionMergeSpawner",pos);
+						if (Beam)
+						{
+							Beam.Target = Target;
+							Beam.Master = Master;
+							Beam.Tracer = mo;
+							Beam.Angle = Angle;
+							Beam.Pitch = Pitch;
+						}
 						if (invoker.flier) 	invoker.flier.DestroyMe = true;
 						return Destroy();
 					}
@@ -739,6 +766,25 @@ Class D4PinataCarrion : CustomInventory
 	}
 }
 
+Class CarrionFog : Actor
+{
+	Default 
+	{
+		+NOINTERACTION
+		RenderStyle "Add";
+		Alpha 0.99;
+		Scale 0.3;
+	}
+	States
+	{
+	Spawn:
+		DB26 A 0 NoDelay A_PlaySound("Doom4/Monsters/QuakeTport",7,0.2);
+		DB26 ABCDEFGHIIJJKKLLMMNNOO 1 Bright;
+		DB26 PQQRRSSTTUUVV 1 Bright A_FadeOut(0.035);
+		Stop;
+	}
+}
+
 
 
 Class D4CarrionBorder : D4PinataParticles
@@ -746,139 +792,5 @@ Class D4CarrionBorder : D4PinataParticles
 	Default
 	{
 		Translation "0:255=%[0,0,0]:[1.0,0.1,0.1]";
-	}
-}
-
-Class CarrionMergeBeam : Actor
-{
-	enum Carrion
-	{
-		MaxDistance = 2048,	// Maximum distance of the effect
-		AngleRandom = 7,	// The boundaries of angle changing (random(-AngleRandom,AngleRandom))
-		PitchRandom = 7,	// ^ for pitch
-		ChokeMin = 1,		// How sooner or later the beam needs to correct itself to
-		ChokeMax = 5,		// 	"stay on target".
-	};
-	const StepDistance = 31;
-	const StepDistHalf = StepDistance / 2.0;
-	double ipitch;
-	double iangle;
-	double dista;
-	double distb;
-	Vector3 op;
-	//[0] = Current distance travelled
-	//[1] = How much further to go
-	int choke;
-	int t;
-	int count;
-	int render;
-	
-	Default
-	{
-		+NOCLIP
-		+NOINTERACTION
-		+NOBLOCKMAP
-		RenderStyle "None";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay
-		{
-			// The angle and pitch won't change so go ahead and save it now.
-			ipitch = pitch;
-			iangle = angle;
-			distb = Min(MaxDistance, GetDistance(true,TracerPtr));
-			choke = random(ChokeMin, ChokeMax);
-			op = pos;
-			render = int(GetCvar("vid_renderer"));
-		}
-		TNT1 A 1
-		{
-			// dista = distance currently travelled.
-			// distb = maximum distance.			
-			while ((dista < distb))
-			{
-				if (!tracer)
-					return Destroy();
-				// Don't randomize the very first beam.
-				if (dista > 0)
-				{	A_FaceTracer(0,0,0,0,FAF_MIDDLE);	}
-				
-				// Randomizes the angle of the beams. 
-				if (dista < (distb - StepDistance))
-				{
-					// If we're not about to reach the end, or not hitting the 
-					// choker, randomize it. Otherwise, stay on target and go 
-					// for the puff.
-					if (choke > 0)
-					{
-						A_SetPitch(pitch + frandom(-PitchRandom, PitchRandom));
-						A_SetAngle(angle + frandom(-AngleRandom, AngleRandom));
-						choke--;
-					}
-					else 
-					{	choke = random(ChokeMin,ChokeMax);	}
-				}
-				// Spawn the beam with the same angle and pitch. Note that the
-				// beam is being centered so we have to take that into account
-				// and spawn it FORWARD based on half the beam's length.
-				// Then move forward by a beam's length and repeat until done.
-				
-				if (render)
-				{	A_SpawnItemEx("CarrionTrailBeam",cos(pitch) * StepDistHalf,0,-sin(pitch) * StepDistHalf,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS);	}
-				else
-				{
-					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) * (StepDistHalf * (1 / 6)), 0, -sin(pitch) * (StepDistHalf * (1 / 6)));
-					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) * (StepDistHalf * (2 / 6)), 0, -sin(pitch) * (StepDistHalf * (2 / 6)));
-					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) * (StepDistHalf * (3 / 6)), 0, -sin(pitch) * (StepDistHalf * (3 / 6)));
-					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) * (StepDistHalf * (4 / 6)), 0, -sin(pitch) * (StepDistHalf * (4 / 6)));
-					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) * (StepDistHalf * (5 / 6)), 0, -sin(pitch) * (StepDistHalf * (5 / 6)));
-					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) * StepDistHalf	 		, 0, -sin(pitch) * (StepDistHalf			 ));
-					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-(StepDistHalf * (1 / 6)), 0, -sin(pitch) *-(StepDistHalf * (1 / 6)));
-					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-(StepDistHalf * (2 / 6)), 0, -sin(pitch) *-(StepDistHalf * (2 / 6)));
-					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-(StepDistHalf * (3 / 6)), 0, -sin(pitch) *-(StepDistHalf * (3 / 6)));
-					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-(StepDistHalf * (4 / 6)), 0, -sin(pitch) *-(StepDistHalf * (4 / 6)));
-					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-(StepDistHalf * (5 / 6)), 0, -sin(pitch) *-(StepDistHalf * (5 / 6)));
-					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-StepDistHalf			, 0, -sin(pitch) *-(StepDistHalf			 ));
-				}
-				
-				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
-				dista += StepDistance;
-			}
-			
-			if (count < 3 && !tracer)
-			{
-				count++;
-				dista = 0;
-				pitch = ipitch;
-				
-				SetOrigin(op, false);
-				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-				return;
-			}
-			return Destroy();
-		}
-		Wait;
-	}
-}
-
-Class CarrionTrailBeam : TrailBeam
-{
-	Default
-	{
-		XScale 0.03;
-		YScale 0.25; //Don't touch.
-	}
-	States
-	{
-	Spawn:
-		X202 I 0 NoDelay
-		{
-			// time = time to shrink to nothing
-			user_time = 5.0;
-			A_SpawnItemEx("CarrionTrailBeam",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
-			return ResolveState("Process");
-		}
 	}
 }

@@ -1,12 +1,21 @@
-v3.0 Alpha 8 (???)
-- Stabilized akimbo primary fire modes.
+v3.0 Alpha 8 (07/15/18)
+- Pinky demons no longer use an external shield actor. 
+-- Any damage taken from the front to the side is halved instead.
+-- Fixes the long withstanding exploit where penetration and explosions dealt more
+	damage than intended.
+- Temporarily disabled auto-giving of akimbo system until all weapons have caught
+	up with the rest of the weapons. Don't expect this for a long time.
+- Rebalanced upgrade drops from zombies, imps, pinkies, cyberdemon and mastermind.
 - Credits and pinatas can now drop from any monster, from any mod.
-- Added new player damage effect, replacing the roll.
+- Added new player damage effect, replacing the roll. -Gutawer
 - Many optimizations to effects.
 - Added Rainbow Doom(4) prototype monsters.
 -- Concept based on Hege Cactus's "Colorful Hell" mod, borrowed with permission.
--- Code entirely done by Major from scratch.
-- Akimbo system no longer auto-selects when runnning out of ammo for guns.
+-- Code entirely done by Major Cooke from scratch.
+- Enabled secret extra jump height cvar to make up for broken ledge grabbing. 
+- Removed several effect options that are now obsolete and non-toggleable.
+- Began removing renderer checks. This mod is now officially becoming OpenGL and 
+	similar only.
 
 v3.0 Alpha 7 (06/05/17)
 - Added akimbo system, default slot 9.

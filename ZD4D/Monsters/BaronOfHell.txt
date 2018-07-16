@@ -35,10 +35,10 @@ BLESSED (White)
 Class D4BaronOfHell : D4AbstractBiggie
 {
 
-	int user_timer;
-	int user_count;
-	int user_chasecount;
-	int user_staggertimer;
+	int timer;
+	int count;
+	int chasecount;
+	int staggertimer;
 	
 	Default 
 	{
@@ -97,9 +97,9 @@ Class D4BaronOfHell : D4AbstractBiggie
 		E01W AAABBBCCCDDDEEEFFFGGGHHH 1 
 		{
 			bSPRITEFLIP = false;
-			user_chasecount = (user_chasecount + 1) % 3;
+			chasecount = (chasecount + 1) % 3;
 			
-			if (!user_chasecount) //only 1/3rd of the times it will call missile state
+			if (!chasecount) //only 1/3rd of the times it will call missile state
 			{	D4Chase(); 	}
 			else
 			{	D4Chase("Melee",null,CHF_DONTTURN|CHF_NODIRECTIONTURN|CHF_STOPIFBLOCKED);	}
@@ -111,10 +111,10 @@ Class D4BaronOfHell : D4AbstractBiggie
 		E01W AAABBBCCCDDDEEEFFFGGGHHHAAABBBCCCDDDEEEFFFGGGHHH 1 
 		{
 			bSPRITEFLIP = false;
-			user_chasecount = (user_chasecount + 1) % 3;
+			chasecount = (chasecount + 1) % 3;
 			
 			// Makes it look... smoother.
-			if (!user_chasecount)
+			if (!chasecount)
 			{	D4Chase("Melee",null); 	}
 			else
 			{	D4Chase("Melee",null,CHF_DONTTURN|CHF_NODIRECTIONTURN|CHF_STOPIFBLOCKED);	}
@@ -282,7 +282,7 @@ Class D4BaronOfHell : D4AbstractBiggie
 		E01I AAAA 3 A_FaceTarget();
 		E01L A 3
 		{
-			user_timer = 0;
+			timer = 0;
 			//{ bNoPain = true; }
 			//A_PlaySound("L4D/Hunter/Lunge",6);
 			A_FaceTarget();
@@ -315,8 +315,8 @@ Class D4BaronOfHell : D4AbstractBiggie
 				{	return ResolveState("LeapEnd");	}
 				if (vel.z == 0)
 				{
-					user_timer++;
-					if (user_timer >= 35)
+					timer++;
+					if (timer >= 35)
 					{	return ResolveState("LeapEnd");	}
 				}
 				return ResolveState(null);
@@ -464,14 +464,9 @@ Class D4BaronOfHell : D4AbstractBiggie
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		"####" "#" 0  //loot drop
-		{
-			//D4SetupLoot(true);
-		}
-		Goto XDeathNoDrops;
-		
 	XDeathNoDrops:	
-		TNT1 A 1
+		TNT1 A 0;
+		TNT1 A 10
 		{
 			bThruActors = true;
 			XDeathGush(Color_Green);
@@ -1012,7 +1007,7 @@ Class BaronOfHellBallBigFlamelet : Actor
 
 Class D4OldBaronOfHell : D4AbstractBiggie // : BaronOfHell
 {
-	int user_staggertimer;
+	int staggertimer;
 	Default 
 	{
 		D4AbstractMonster.BC "Green";

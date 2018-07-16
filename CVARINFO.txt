@@ -1,32 +1,30 @@
 server noarchive bool D4D_NetEventDebug = false;
 server bool D4Debug = false;
-server int user_TracerFX = 3;
-server int user_ShortGibLives = 0;
-server int user_BloodSprites = 1;
-server int user_MaxDrawDistance = 2048;
-server bool user_MultiJump = true;
-server int user_MonsterType = 1;
-server bool user_LootDrop = true;
-server int user_Giblets = 1;
-server int user_BloodClouds = 2;
-server int user_SplatterGiblets = 5;
-server bool user_BloodTrails = true;
-server bool user_BiggerFont = false;
+server int D4D_ShortGibLives = 0;
+server int D4D_BloodSprites = 1;
+server int D4D_MaxDrawDistance = 2048;
+server bool D4D_MultiJump = true;
+server int D4D_MonsterType = 1;
+server bool D4D_LootDrop = true;
+server int D4D_Giblets = 1;
+server int D4D_BloodClouds = 2;
+server int D4D_SplatterGiblets = 5;
+server bool D4D_BloodTrails = true;
+server bool D4D_BiggerFont = false;
 server int user_Completionist = 2;
 server bool user_MonsterQuota = true;
 server bool user_SecretQuota = true;
 server bool user_SecondaryExit = true;
-server int user_MenuMouseSpeed = 70;
-server bool user_CamRoll = true;
-server bool user_ArchvileInfighting = true;
-server bool user_BloodScreen = true;
-server int user_SSGGib = 1;	//0=none, 1=some, 2=all
-server int user_SyphonStrength = 2;
-server bool user_Casings = true;
-server bool user_ShortCasingLives = false;
-server bool user_SilentCasings = false;
-server bool user_quakexplosions = true;
-server bool D4BFGEffects = true;
+server int D4D_MenuMouseSpeed = 70;
+server bool D4D_CamRoll = true;
+server bool D4D_ArchvileInfighting = true;
+server bool D4D_BloodScreen = true;
+server int D4D_SSGGib = 1;	//0=none, 1=some, 2=all
+server int D4D_SyphonStrength = 2;
+server bool D4D_Casings = true;
+server bool D4D_ShortCasingLives = false;
+server bool D4D_SilentCasings = false;
+server bool D4D_quakexplosions = true;
 server bool HQEffects = true;
 server bool HQEffectsWeapons = true;
 server bool MPWeapons = true;
@@ -42,7 +40,7 @@ server bool D4D_BloodGiblets = true;
 server bool D4D_HKMeleeOnly = false;
 server bool D4D_DTMode = false;
 server bool D4D_RepeaterMode = false;
-server bool D4D_JumpExploit = false;
+server bool D4D_JumpExploit = true;
 server int D4D_DemonRunes = 1; 
 server bool D4D_SilentMorphs = false;
 server bool D4D_DemonWarning = True;
@@ -52,7 +50,6 @@ server bool D4D_EnhancedChase = true;
 server bool D4D_BerserkAutoSwitch = true;
 server int D4D_NMGrenades = 2; // [0,1,2] = [none,frag,all]
 server int D4D_UpgradeMode = 0; // [0,1] = [Credits, Drops]
-server bool D4D_HUDPercentages = true;
 
 server int LOfx = 0;
 server int LOfy = 0;
@@ -71,7 +68,6 @@ server bool D4D_NoisyStagger = true;
 server bool D4D_ExecutionAnimation = true;
 server int D4D_StaggerLenght = 4;
 server bool D4D_PitchCompat = true;
-server bool D4D_MonsterLasers = true;
 
 server noarchive cheat int D4D_PickupDropChance = 300;
 server cheat int D4D_CurrentUpgradeMode = 0;
@@ -82,7 +78,3 @@ server cheat int D4D_CurrentUpgradeMode = 0;
 server noarchive cheat bool Adjustable = false; //Keep this false.
 server noarchive bool UpgradeUpdating = false;
 server noarchive int CTake = 0;
-
-//==============================================================================
-// Expenses
-// Cost_U# associates itself with <WeaponName>Mod# or <WeaponName>Upgrade# respectively.

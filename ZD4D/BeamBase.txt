@@ -1,0 +1,763 @@
+
+#include "ZD4D/Beams.txt"
+/*
+================================================================================
+================================================================================
+Future note to self
+================================================================================
+================================================================================
+
+TO DO: Make the SPAWNERS set the MoveWithSource flag and perform the following.
+
+1. Start the generator at (0,0) and start working it towards the puff at (1024,0).
+2. Record the offset XYZ, their angles and Pitch.
+3. Rotate the Pitch offset with a Vec2 that has XZ or... something like that.
+4. Have all of them rotate their positions with RotateVector to the angle appropriately.
+5. Move all of them to the very base of the player with SetXYZ.
+6. Apply the offsets either with SetOrigin or Warp.
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Class D4DFX : Actor
+{
+	Default
+	{
+		+NOINTERACTION
+	}
+	
+	// Rotates the vector around (0,0,0). Like Earth orbiting the Sun.
+	static Vector3 RotateVector3D(Vector3 vec, double angle, double Pitch = -360.0)
+	{
+		Vector2 rot;
+		if (Pitch > -270.0)
+		{
+			rot = (vec.x, vec.z);
+			rot = RotateVector(rot, -Pitch);
+			vec = (rot.x, vec.y, rot.y);
+		}
+		rot = (vec.x, vec.y);
+		rot = RotateVector(rot, angle);
+		return (rot.x, rot.y, vec.z);
+	}
+	
+}
+
+//==============================================================================
+// The beam spawner. Does the movement and positioning of the beams.
+//==============================================================================
+
+Class D4DBeamSpawnerBase : D4DFX
+{
+	/*
+	Vector3 unitDir = dir.unit();
+	LightningPiece pieceActor = LightningPiece(Actor.spawn("LightningPiece", piece.point));
+	pieceActor.Pitch = -asin(unitDir.z) + 90;
+	pieceActor.angle = atan2(unitDir.y, unitDir.x);
+	*/
+		
+	// Non-options
+	private Actor plr;
+	private bool WatchTracer, Starting, SpawnLast, SpawnFirst, FirstMove;
+	private double BranchSize, PrevAngle, PrevPitch, PuffDist;
+	protected Vector2 Scaled;
+	Vector3 StartPos, Offs;
+	Actor 	Puff[2];
+	private Array<D4DBeamBase> Beams;
+	
+	// Options
+	Class<Actor> EndPuff, StartPuff;
+	Class<D4DBeamBase> Beam, StartBeam;
+	
+	bool 	RandomAim, IsBranch, DestroyMe, SightCheck, AlwaysAim, MovePitchAngle, 
+			MoveWithSource, KeepDestination, IsStraight, UseBeamProperties,
+			Velocity;
+			
+	Name 	SpriteName;
+	
+	uint 	FrameMin, FrameMax,
+			ChokeMin, ChokeMax, Choke,
+			StepMin, StepMax, Steps,	
+			DelayMin, DelayMax, Delay, Failsafe,
+			BranchChance, BranchCMax, BranchCount,
+			ScaleOutTimeMin, ScaleOutTimeMax, ScaleOutTime,
+			ScaleInTimeMin, ScaleInTimeMax, ScaleInTime,
+			TimeLeft, AimFlag;
+			
+	double 	PitchRandom, AngleRandom, 
+			PitchStart1Min, PitchStart1Max, PitchStart2Min, PitchStart2Max,
+		    AngleStart1Min, AngleStart1Max, AngleStart2Min, AngleStart2Max,
+			CurDistance, MaxDistance, HomingDistance,
+			LengthMin, LengthMax,
+			WidthMin, WidthMax,
+			TurnLimit, PitchLimit,
+			XYOffset, ZOffset;
+			
+	Property UseBeamProperties: UseBeamProperties;
+	Property KeepDestination:	KeepDestination;
+	Property StartPuff:			StartPuff;		
+	Property EndPuff:			EndPuff;		
+	Property Beam:				Beam;	
+	Property StartBeam:			StartBeam;
+	Property RandomAim:			RandomAim;
+	//Property Angles:			AngleRandom, AngleStart1Min, AngleStart1Max, AngleStart2Min, AngleStart2Max;
+	Property AngleRandom: 		AngleRandom;	
+	Property AngleStart1Min:	AngleStart1Min;
+	Property AngleStart1Max:	AngleStart1Max;	
+	Property AngleStart2Min:	AngleStart2Min;	
+	Property AngleStart2Max:	AngleStart2Max;
+	//Property Pitches:			PitchRandom, PitchStart1Min, PitchStart1Max, PitchStart2Min, PitchStart2Max;
+	Property PitchRandom: 		PitchRandom;	
+	Property PitchStart1Min: 	PitchStart1Min;	
+	Property PitchStart1Max: 	PitchStart1Max;	
+	Property PitchStart2Min: 	PitchStart2Min;	
+	Property PitchStart2Max: 	PitchStart2Max;
+	Property Offsets:			XYOffset, ZOffset;
+	Property Limits:			TurnLimit, PitchLimit;
+	Property Choke:				ChokeMin, ChokeMax;
+	Property Steps:				StepMin, StepMax;
+	Property Delays:			DelayMin, DelayMax;
+	Property AimFlag:			AimFlag;
+	Property MaxDistance:		MaxDistance;	
+	Property HomingDistance:	HomingDistance;	
+	Property Failsafe:			Failsafe;		
+	Property BranchChance:		BranchChance;
+	Property BranchCMax:		BranchCMax;
+	Property BranchCount:		BranchCount;
+	Property BranchSize:		BranchSize;
+	Property SightCheck:		SightCheck;
+	Property AlwaysAim:			AlwaysAim;
+	Property MoveWithSource:	MoveWithSource;
+	Property MovePitchAngle:	MovePitchAngle;
+	Property Velocity:			Velocity;
+	
+	Default
+	{
+		D4DBeamSpawnerBase.BranchSize 1.0; //Do NOT Touch this value!
+		D4DBeamSpawnerBase.AimFlag FAF_BOTTOM;
+		+NOTONAUTOMAP
+		Renderstyle "None";
+		Radius 1;
+		Height 1;
+	}
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		StartPos = pos;
+		Master = Target;
+		if (Tracer) Puff[0] = Tracer;
+		
+		if (IsBranch)
+		{
+			StartPuff = null;
+			BranchChance = floor(Default.BranchChance * BranchSize);
+		}
+		else // Ensure the sprite/model is valid.
+		{
+			if (!Beam)
+				return ThrowAbortException("Beam actor is null or not inheriting from D4DBeamBase");
+				
+			let Defaults = GetDefaultByType(Beam);
+			int t = GetSpriteIndex(Defaults.SpriteName);
+			Sprite = t;
+			int fmin = Defaults.FrameMin;
+			int fmax = Defaults.FrameMax;
+			Frame = random(fmin, fmax);
+			ScaleInTime = Defaults.ScaleInTime;
+			ScaleOutTime = Defaults.ScaleOutTime;
+			LengthMin = Defaults.LengthMin;
+			LengthMax = Defaults.LengthMax;
+			WidthMin = Defaults.WidthMin;
+			WidthMax = Defaults.WidthMax;
+			TimeLeft = Defaults.ScaleInTime + Defaults.ScaleOutTime + Defaults.WaitTime + 1;			
+		}
+		
+		Starting = (StartBeam != null);
+		TurnLimit = abs(TurnLimit);
+		PitchLimit = abs(PitchLimit);
+		
+		
+		
+		if (MoveWithSource && Tracer)
+		{
+			PrevAngle = Angle;
+			PrevPitch = Pitch;
+			PuffDist = Distance3D(Tracer);
+			Offs = (0,0,0);
+			if (MovePitchAngle)
+			{
+				SetOrigin(Offs, false);
+				Puff[0] = Spawn("PacifistPuff", (PuffDist,0,0));
+			}
+			
+		}
+		else MoveWithSource = MovePitchAngle = false;
+	}
+		
+	void CreateLightningTarget(bool UseRandom = true, bool dual = false)
+	{
+		// We already have an entity to track. Only randomize the choke.
+		if (Tracer)	return;
+		
+		double  a1 = angle, p1 = Pitch;
+		if (Puff[0])	Puff[0].Destroy();
+		a1 += frandom(AngleStart1Min, AngleStart1Max) + (UseRandom ? frandom(-AngleRandom, AngleRandom) : 0.0);
+		p1 += frandom(PitchStart1Min, PitchStart1Max) + (UseRandom ? frandom(-PitchRandom, PitchRandom) : 0.0);
+		Puff[0] = LineAttack(a1, MaxDistance, p1, 0, 'None', EndPuff, LAF_NOINTERACT);
+		
+		if (!dual) return;
+		
+		if (Puff[1])	Puff[1].Destroy();
+		a1 = angle + frandom(AngleStart2Min, AngleStart2Max) + (UseRandom ? frandom(-AngleRandom, AngleRandom) : 0.0);
+		p1 = Pitch + frandom(PitchStart2Min, PitchStart2Max) + (UseRandom ? frandom(-PitchRandom, PitchRandom) : 0.0);
+		Puff[1] = LineAttack(a1, MaxDistance, p1, 0, 'None', StartPuff, LAF_NOINTERACT);
+	}
+	
+	bool TickLife()
+	{
+		if (Steps < 1 || IsBranch || (WatchTracer && Tracer == null))
+			return false;
+		
+		Choke = random(ChokeMin, ChokeMax);
+		Starting = (StartBeam != null);
+		Failsafe = Default.Failsafe;	// Resets the failsafe back to the defined property value.
+		Steps--;
+		SetOrigin((Puff[1] ? Puff[1].pos : StartPos), false);
+		A_SetTics(Delay);
+		return true;
+	}
+	
+	void Finalize()
+	{
+		// Nothing to do here.
+		if (!MoveWithSource || Beams.Size() < 1)
+			return;
+			
+		for (int i = 0; i < Beams.Size(); i++)
+		{
+			let mo = D4DBeamBase(Beams[i]);
+			if (mo)
+			{
+				mo.MoveWithSource = true;
+				mo.MovePitchAngle = MovePitchAngle;
+			}
+		}
+	}
+	
+	States
+	{
+	Spawn:
+		---- A 0 NoDelay
+		{
+			if (!EndPuff)
+				return ThrowAbortException("EndPuff is invalid! Make sure the class is defined!");
+				
+			if (!Beam)
+				return ThrowAbortException("Beam is invalid! Make sure the class is defined!");
+			
+			Delay = random(DelayMin,DelayMax);
+			Steps = random(StepMin, StepMax);
+			
+			if (!Tracer)
+			{
+				CreateLightningTarget(false, (StartPuff != null));
+				if (Puff[1])	SetOrigin(Puff[1].pos, false);
+			}
+			else if (!Puff[0])
+			{
+				Puff[0] = Tracer;
+			}
+			Choke = 0;
+			Master = Target;
+			Beams.Clear();
+		}
+		
+	Stepping:
+		---- A 1
+		{
+			// If moving with source, 
+			StateLabel next = "Null";
+			if (MoveWithSource && MovePitchAngle)
+				next = "MoveWith";				
+			
+			if (DestroyMe)	return ResolveState("Null");
+			else if (Puff[0] || Tracer)
+			{
+				if (Velocity)	Vel = Master.Vel;
+				if (Tracer && !Puff[0])	Puff[0] = Tracer;
+				
+				Frame = random(FrameMin, FrameMax);
+				CurDistance = 0.0;
+				double DistSq;
+				
+				int cloff = CLOFF_ALLOWNULL|CLOFF_FROMBASE|CLOFF_NOAIM|
+							CLOFF_SKIPOBSTACLES;
+				
+				if (Puff[0])
+				{
+					DistSq = Distance3DSquared(Puff[0]);
+					MaxDistance = sqrt(DistSq);
+				}
+				else
+				{
+					DistSq = (MaxDistance ** 2);
+				}
+				double RealLengthMin = LengthMin * 100;
+				double RealLengthMax = LengthMax * 100;
+				
+				Scale.X = frandom(WidthMin, WidthMax);
+				Scaled = Scale * 100.0;
+				
+				// Waste no time or energy spawning and destroying needlessly.
+				// Simply skip to spawning the last beams.
+				if (Delay < 1)	Steps = 0;
+				
+				// Loop through
+				while (Failsafe-- > 0)
+				{
+					if (DestroyMe || CurDistance >= MaxDistance)
+					{
+						Finalize();
+						return ResolveState(next);
+					}
+					// Adjust the scale to the random amount and get the distance.
+					Scale.Y = frandom(LengthMin, LengthMax);
+					Scaled = Scale * 100.0;
+					
+					
+					// Face towards where the beam should go.
+					if (!Puff[0])
+					{
+						if (A_CheckLOF("Null", cloff, Scaled.Y, ptr_target: AAPTR_NULL))
+							SpawnLast = true;
+					}
+					else
+					{
+						// Close enough to the puff, or below floor or above ceiling.
+						// Make the next beam spawned the last one.
+						DistSq = Distance3DSquared(Puff[0]); //No square roots means quicker timing.
+						
+						if (DistSq < (Scaled.Y ** 2) || pos.z <= floorz || pos.z >= ceilingz)
+							SpawnLast = true;
+						
+						A_Face(Puff[0], TurnLimit, PitchLimit, 0, 0, AimFlag);
+						
+						if (!SpawnLast && FailSafe < Default.FailSafe - 1)
+						{
+							Angle += frandom(-AngleRandom, AngleRandom);
+							Pitch += frandom(-PitchRandom, PitchRandom);
+							Choke--;
+						}
+					}
+					if (!SightCheck || !A_CheckSight("Null"))
+					{
+						// Spawns the beam.
+						D4DBeamBase bolt; 
+						if ((Starting || SpawnLast) && StartBeam)
+							bolt = D4DBeamBase(Spawn(StartBeam,pos));
+						else		
+							bolt = D4DBeamBase(Spawn(Beam,pos));
+							
+						if (bolt)
+						{
+							bolt.master = target;
+							bolt.tracer = target;
+							bolt.Angle = Angle;
+							bolt.Pitch = Pitch;
+							bolt.Scale = Scale;
+							bolt.StepTime = Delay + 1;
+							bolt.IsStep = (Steps > 0);
+							bolt.ScaleInTime = ScaleInTime;
+							bolt.ScaleOutTime = ScaleOutTime;
+							bolt.Translation = Translation;
+							bolt.Spawner = self;
+							if (StartBeam && (Starting || SpawnLast))
+							{
+								if (SpawnLast)
+									bolt.IsEnding = -1;
+								else
+									bolt.IsEnding = 1;
+							}
+							if (MoveWithSource)	Beams.Push(bolt);
+							else bolt.Pitch += 90.0;
+							if (Velocity)	{	Bolt.Vel = Vel = Master.Vel;	}
+							
+						}
+					}
+					// End it if on the last one.
+					if (SpawnLast)
+					{
+						Finalize();
+						return ResolveState(next);
+					}
+					
+					CurDistance += Scaled.Y;
+					
+					Warp(Self, cos(Pitch) * Scaled.Y, 0, -sin(Pitch) * Scaled.Y, 0, WARPF_NOCHECKPOSITION);
+					Starting = false;
+				}
+				// Expiration.
+				if (IsBranch || !TickLife())
+				{
+					Finalize();
+					return ResolveState(next);
+				}
+				
+			}
+			else return ResolveState("Null");
+			return ResolveState(null);
+		}
+		Loop;
+	MoveWith:
+		TNT1 A 1
+		{
+			if (!Master || Beams.Size() < 1 || TimeLeft < 1)
+				return Destroy();
+				
+			TimeLeft--;
+			
+			Angle = Master.Angle;
+			Pitch = Master.Pitch;
+			
+			Vector2 ofs = AngleToVector(Master.Angle - 90, XYOffset);
+			Vector3 newpos = Master.Vec3Offset(ofs.x, ofs.y, ZOffset);
+			SetOrigin(newpos, FirstMove);
+			FirstMove = true;
+		}
+		Wait;
+	}
+}
+
+//==============================================================================
+// The bolt itself
+//==============================================================================
+Class D4DBeamBase : D4DFX
+{
+	protected double ScaleSub, ScaleAdd, PrevAngle, PrevPitch, OffAngle, OffPitch;
+	protected Vector3 PrevPos, Diff, MAngles, Offs;
+	protected bool FirstTic;
+	Actor 	Spawner;
+	int 	IsEnding;
+	
+	Name 	SpriteName;
+	uint 	SpriteFrame,
+			StepTime, WaitTime,
+			FrameMin, FrameMax,
+			StartFrame, EndFrame;
+			
+	bool 	IsStep, MoveWithSource, MovePitchAngle, SineScale;
+	
+	double 	TargetScale, CurrentSine,
+			ScaleInTime, ScaleOutTime,
+			SineOffset,
+			LengthMin, LengthMax,
+			WidthMin, WidthMax;
+			
+	Vector3 next1, next2;
+	Property StartFrame:		StartFrame;
+	Property EndFrame:			EndFrame;
+	Property SpriteName:		SpriteName;
+	Property Frames:			FrameMin, FrameMax;
+	property SineScale:			SineScale;
+	property WaitTime:			WaitTime;
+	property ScaleTime: 		ScaleInTime, ScaleOutTime;
+	property StepTime:			StepTime;
+	property IsStep:			IsStep;
+	
+	Property Lengths:			LengthMin, LengthMax;
+	Property Widths:			WidthMin, WidthMax;
+	Default
+	{
+		D4DBeamBase.SineScale true;
+		D4DBeamBase.StepTime 4;
+		D4DBeamBase.WaitTime 4;
+		D4DBeamBase.ScaleTime 0, 24;
+		D4DBeamBase.IsStep false;
+		D4DBeamBase.StartFrame Fr_Z;
+		D4DBeamBase.EndFrame Fr_Y;
+		RenderStyle "Add";
+		DistanceCheck "D4D_MaxDrawDistance";
+		XScale 0.1;
+		YScale 1.0;
+		Projectile;
+		+BRIGHT
+		+NOINTERACTION
+		+INVISIBLE
+	}
+	
+	override void BeginPlay()
+	{
+		ChangeStatNum(Thinker.STAT_USER);
+		Super.BeginPlay();
+	}
+	
+	// Set up the scaling times
+	override void PostBeginPlay()
+	{			
+		CurrentSine = 0.0;
+		
+		// If this is being spawned manually instead of by a spawner, set some
+		// things up.
+		int t = GetSpriteIndex(SpriteName);
+		
+		if (t < 0)
+			return ThrowAbortException("SpriteName is bad! Check to make sure it's defined!");
+		
+		Sprite = t;
+		if (IsEnding > 0)
+		{
+			if (StartFrame < Fr_A || StartFrame > Fr_Z)
+				return ThrowAbortException("StartFrame must be in range [Fr_A, Fr_Z]");
+			Frame = StartFrame;
+		}
+		else if (IsEnding < 0)
+		{
+			if (EndFrame < Fr_A || EndFrame > Fr_Z)
+				return ThrowAbortException("EndFrame must be in range [Fr_A, Fr_Z]");
+			Frame = EndFrame;
+		}
+		else if (FrameMin < Fr_A || FrameMin > Fr_Z || FrameMax < Fr_A || FrameMax > Fr_Z)
+			return ThrowAbortException("Frames parameters must be in range [Fr_A, Fr_Z]");
+		else
+			Frame = random(FrameMin, FrameMax);
+			
+		// Moved to the spawner instead.
+		//	Scale.Y = frandom(LengthMin, LengthMax);
+		//	Scale.X = frandom(WidthMin, WidthMax);
+		
+		
+		if (SineScale)
+		{
+			ScaleAdd = (ScaleInTime >= 1.0) ? (90.0 / ScaleInTime) : 0.0;
+			ScaleSub = (ScaleOutTime >= 1.0) ? (90.0 / ScaleOutTime) : 0.0;
+		}
+		else
+		{
+			ScaleAdd = (ScaleInTime >= 1.0) ? (Scale.X / ScaleInTime) : 0.0;
+			ScaleSub = (ScaleOutTime >= 1.0) ? (Scale.X / ScaleOutTime) : 0.0;
+		}
+		
+		if (!Spawner)
+			Pitch += 90.0;
+		OffAngle = Angle;
+		OffPitch = Pitch;
+		
+		Super.PostBeginPlay();
+	}
+	
+	override void Tick()
+	{
+		// Don't waste time if no master or not desired. Also take into account
+		// regular time freezing.
+		if (!MoveWithSource || !Master || (!bNOTIMEFREEZE && (level.frozen || globalfreeze)))
+			return Super.Tick();
+		
+		//Spawner = Master;
+		// Perform movement code here.
+		if (MoveWithSource)
+		{
+			if (MovePitchAngle)
+			{
+				if (Spawner)
+				{
+					D4D_Quaternion quat = D4D_Quaternion.createFromAngles(Spawner.angle, Spawner.Pitch, Spawner.roll);
+					Offs = quat.rotateVector3(spawnPoint);
+
+					Angle = Spawner.Angle + OffAngle;
+					Pitch = Spawner.Pitch + OffPitch;
+
+					double cosPitch = cos(Pitch);
+					Vector3 dir = (cos(angle) * cosPitch, sin(angle) * cosPitch, -sin(Pitch));
+					Vector3 unitDir = dir.unit();
+					Pitch = -asin(unitDir.z) + 90.0;
+					Angle = atan2(unitDir.y, unitDir.x);
+					SetOrigin(Spawner.Vec3Offset(Offs.x, Offs.y, Offs.z), FirstTic);
+					
+					FirstTic = true;
+					bINVISIBLE = false;
+				}
+			}
+			else if (Master)
+			{
+				if (!FirstTic)
+				{
+					FirstTic = true;
+					PrevPos = Pos;
+					PrevAngle = Angle;
+					PrevPitch = Pitch + 90;
+					Diff = PrevPos - Master.Pos;
+				}
+				
+				Warp(Master, Diff.x, Diff.y, Diff.z, 0, WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEOFFSET);
+				Angle = PrevAngle;
+				Pitch = PrevPitch;
+			}
+		}
+		else if (!FirstTic)
+		{
+			
+		}
+		Super.Tick();
+	}
+	
+	States
+	{
+	Spawn:
+		---- A 0;
+		---- A 1 
+		{			
+			// No scaling in or out is done if this is a stepping beam. 
+			/*
+			if (!MoveWithSource)
+				Pitch += 90.0;
+			*/
+			if (IsStep)	
+			{
+				
+				bINVISIBLE = false;
+				A_SetTics(StepTime);
+				return ResolveState(null);
+			}
+			TargetScale = Scale.X;
+			
+			// If scaling in is desired, set the X scale to 0 and get to scaling.
+			// Otherwise, wait if desired.
+			// If not, go straight to scaling out.
+			StateLabel next = 'ScaleOut';
+			if (ScaleAdd > 0)
+			{
+				Scale.X = 0.0;
+				if (SineScale)		next = 'ScaleInSine';
+				else				next = 'ScaleInNormal';
+			}
+			else if (WaitTime > 0)
+			{
+				next = 'Waiting';
+			}
+			bINVISIBLE = false;
+			return ResolveState(next);
+		}
+		Stop;
+		
+	//--------------------------------------------------------------------------
+	// Perform scaling in.
+	// Normal version.
+	ScaleInNormal:
+		---- A 1
+		{
+			Scale.X += ScaleAdd;
+			if (Scale.X >= TargetScale)
+			{
+				Scale.X = TargetScale;
+				return ResolveState("Waiting");
+			}
+			return ResolveState(null);
+		}
+		Wait;
+		
+	// Sine edition.
+	ScaleInSine:
+		---- A 1
+		{
+			StateLabel next = null;
+			CurrentSine += ScaleAdd;
+			Scale.X = sin(CurrentSine) * TargetScale;
+			
+			if (CurrentSine >= 90.0)
+			{
+				CurrentSine = 90.0;
+				next = 'Waiting';
+			}
+			return ResolveState(next);
+		}
+		Wait;
+	
+	//--------------------------------------------------------------------------
+	// After scaling in, wait around for a time. All movement is handled in the 
+	// Tick() function to keep things uncluttered.
+	Waiting:
+		---- A 1 
+		{
+			A_SetTics(WaitTime);
+			//A_LogInt(pos.z);
+		}
+		---- A 0
+		{
+			if (IsStep || ScaleSub <= 0.0)
+				return Destroy();
+		}
+	
+	// Scale out and then destroy it.
+	Death:
+	ScaleOut:
+		---- A 0 
+		{
+			bNODAMAGE = true;
+			if (SineScale)
+			{
+				CurrentSine = 90.0;
+				return ResolveState("ScaleOutSine");
+			}
+			return ResolveState("ScaleOutNormal");
+		}
+	ScaleOutNormal:
+		---- A 1
+		{
+			Scale.X -= ScaleSub;
+			if (Scale.X <= 0.0)	return Destroy();
+		}
+		Wait;
+	ScaleOutSine:
+		---- A 1
+		{
+			// Remember kids! After 90 degrees, the sine wave goes down!
+			CurrentSine += ScaleSub;
+			Scale.X = sin(CurrentSine) * TargetScale;
+			if (CurrentSine >= 180.0)	return Destroy();
+		}
+		Wait;
+	// Without someone using these, modeldefs will throw a fit and refuse to start.
+	Precache:
+		X202 BYZ 0;
+		X206 FGHIJKLM 0;
+		Stop;
+	}
+}
+
+Class BeamSpawnerPuff : Actor
+{
+	Default
+	{
+		//+ALLOWTHRUFLAGS
+		//+THRUACTORS
+		+SKYEXPLODE
+		+ALWAYSPUFF
+		+PUFFONACTORS
+		+NOINTERACTION
+		Radius 4;
+		Height 16;
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 35;
+		Stop;
+	}
+}

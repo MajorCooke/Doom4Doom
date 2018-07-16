@@ -1,3 +1,4 @@
+const SparsitySmall = 100.0; //10.415;
 //==============================================================================
 //==============================================================================
 //
@@ -28,6 +29,7 @@ Class Doom4Weapon : Weapon
 		Inventory.RespawnTics 175;
 		Tag "REPLACE ME YOU IDIOT!";
 	}
+	
 	States
 	{
 	Spawn:
@@ -452,8 +454,8 @@ Class ClimbingHands : Weapon
 
 Class FallingHands : Weapon
 {
-	int user_veloz;
-	int user_velooz;
+	int UVeloz;
+	int UVelooz;
 	Default 
 	{
 		+WEAPON.CHEATNOTWEAPON
@@ -801,7 +803,7 @@ Class BulletCasing : Actor
 	Death:
 		"####" "#" 100
 		{
-			if (GetCvar("user_ShortCasingLives")) { return ResolveState("Null"); }
+			if (GetCvar("D4D_ShortCasingLives")) { return ResolveState("Null"); }
 			return ResolveState(null);
 		}
 		Stop;
@@ -835,7 +837,7 @@ Class ShellCasing : Actor
 	Death:
 		"####" "#" 100
 		{
-			if (GetCvar("user_ShortCasingLives")) { return ResolveState("Null"); }
+			if (GetCvar("D4D_ShortCasingLives")) { return ResolveState("Null"); }
 			return ResolveState(null);
 		}
 		Stop;
@@ -853,6 +855,30 @@ Class ShellCasingSilent : ShellCasing
 //=======================================================================
 //=======================================================================
 
+Class NonPuff2 : Actor
+{
+	Default
+	{
+		+NOINTERACTION
+		+PAINLESS
+		+BLOODLESSIMPACT
+		+NOTIMEFREEZE
+		+NOBLOCKMAP
+		+PUFFONACTORS
+		+SKYEXPLODE
+		+HITTRACER
+		Radius 1;
+		Height 1;
+		Renderstyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 15;
+		Stop;
+	}
+}
+
 Class NonPuff : Actor
 {
 	Default
@@ -865,6 +891,7 @@ Class NonPuff : Actor
 		+ALWAYSPUFF
 		+PUFFONACTORS
 		+SKYEXPLODE
+		+HITTRACER
 		Radius 1;
 		Height 1;
 		Renderstyle "None";
@@ -883,192 +910,6 @@ Class NonPuffThru : NonPuff
 	{
 		+ALLOWTHRUFLAGS
 		+THRUACTORS
-	}
-}
-
-
-Class BulletTracerFX : Actor 
-{
-	const Sparsity = 125.0;
-	const Distance = 3.25;
-	const Multiplier = 1;
-	const SpawnSpeed = 300;
-	const TravelTic = Sparsity * 30.0;
-	enum BulletTracerFX
-	{
-		ModelOnly = 		1,
-		ParticleOnly =		2,
-		ParticleTrail =		3,
-		TrailOnly =			4,
-	};
-	int user_inv;
-	int user_count;
-	int user_rng;
-	int user_render;
-	double user_dista;
-	double user_distb;
-	
-	virtual void FaceMoveDir()
-	{
-		A_FaceTracer();
-		//A_FaceMovementDirection();
-		//pitch *= -1;
-		A_ChangeVelocity(cos(pitch), 0, sin(pitch), CVF_RELATIVE|CVF_REPLACE);
-	}
-	
-	Default 
-	{
-		+NOINTERACTION
-		+NOTONAUTOMAP
-		+NOTIMEFREEZE
-		RenderStyle "None";
-		Speed 1;
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay 
-		{	
-			user_inv = int(GetCvar("user_TracerFX"));
-			if (A_CheckSight("Null") || !user_inv)
-			{	return ResolveState("Null");	}
-			
-			if (tracer) A_FaceTracer(0,0);
-			//else FaceMoveDir();
-			//FaceMoveDir();
-			
-			else A_FaceMovementDirection();
-			if (user_inv == ModelOnly)
-			{	
-				A_SpawnItemEx("BulletSmallTracer",0,0,0,vel.x*200,vel.y*200,vel.z*200,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_ABSOLUTEVELOCITY|SXF_TRANSFERPITCH);
-				return ResolveState("Null");	
-			}
-			
-			A_Stop();
-			user_render = int(GetCvar("vid_renderer"));
-			user_count = 1;
-			
-			if (user_inv >= TrailOnly)
-			{	return ResolveState("B1");	}
-			
-			A_SpawnParticle("FF8800",SPF_FULLBRIGHT|SPF_RELATIVE,10,4 ,0,cos(pitch)*(Distance*1 ),0,-sin(pitch)*(Distance*1 ),cos(pitch)*SpawnSpeed,0,-sin(pitch)*SpawnSpeed,0,0,0,1,0);
-			A_SpawnParticle("FF8F11",SPF_FULLBRIGHT|SPF_RELATIVE,10,5 ,0,cos(pitch)*(Distance*2 ),0,-sin(pitch)*(Distance*2 ),cos(pitch)*SpawnSpeed,0,-sin(pitch)*SpawnSpeed,0,0,0,1,0);
-			A_SpawnParticle("FF9822",SPF_FULLBRIGHT|SPF_RELATIVE,10,6 ,0,cos(pitch)*(Distance*3 ),0,-sin(pitch)*(Distance*3 ),cos(pitch)*SpawnSpeed,0,-sin(pitch)*SpawnSpeed,0,0,0,1,0);
-			A_SpawnParticle("FF9F33",SPF_FULLBRIGHT|SPF_RELATIVE,10,7 ,0,cos(pitch)*(Distance*4 ),0,-sin(pitch)*(Distance*4 ),cos(pitch)*SpawnSpeed,0,-sin(pitch)*SpawnSpeed,0,0,0,1,0);
-			A_SpawnParticle("FFA844",SPF_FULLBRIGHT|SPF_RELATIVE,10,8 ,0,cos(pitch)*(Distance*5 ),0,-sin(pitch)*(Distance*5 ),cos(pitch)*SpawnSpeed,0,-sin(pitch)*SpawnSpeed,0,0,0,1,0);
-			A_SpawnParticle("FFAF55",SPF_FULLBRIGHT|SPF_RELATIVE,10,9 ,0,cos(pitch)*(Distance*6 ),0,-sin(pitch)*(Distance*6 ),cos(pitch)*SpawnSpeed,0,-sin(pitch)*SpawnSpeed,0,0,0,1,0);
-			A_SpawnParticle("FFB866",SPF_FULLBRIGHT|SPF_RELATIVE,10,10,0,cos(pitch)*(Distance*7 ),0,-sin(pitch)*(Distance*7 ),cos(pitch)*SpawnSpeed,0,-sin(pitch)*SpawnSpeed,0,0,0,1,0);
-			A_SpawnParticle("FFBF77",SPF_FULLBRIGHT|SPF_RELATIVE,10,10,0,cos(pitch)*(Distance*8 ),0,-sin(pitch)*(Distance*8 ),cos(pitch)*SpawnSpeed,0,-sin(pitch)*SpawnSpeed,0,0,0,1,0);
-			A_SpawnParticle("FFC888",SPF_FULLBRIGHT|SPF_RELATIVE,10,11,0,cos(pitch)*(Distance*9 ),0,-sin(pitch)*(Distance*9 ),cos(pitch)*SpawnSpeed,0,-sin(pitch)*SpawnSpeed,0,0,0,1,0);
-			A_SpawnParticle("FFCF99",SPF_FULLBRIGHT|SPF_RELATIVE,10,11,0,cos(pitch)*(Distance*10),0,-sin(pitch)*(Distance*10),cos(pitch)*SpawnSpeed,0,-sin(pitch)*SpawnSpeed,0,0,0,1,0);
-			A_SpawnParticle("FFD8AA",SPF_FULLBRIGHT|SPF_RELATIVE,10,12,0,cos(pitch)*(Distance*11),0,-sin(pitch)*(Distance*11),cos(pitch)*SpawnSpeed,0,-sin(pitch)*SpawnSpeed,0,0,0,1,0);
-			A_SpawnParticle("FFDFBB",SPF_FULLBRIGHT|SPF_RELATIVE,10,12,0,cos(pitch)*(Distance*12),0,-sin(pitch)*(Distance*12),cos(pitch)*SpawnSpeed,0,-sin(pitch)*SpawnSpeed,0,0,0,1,0);
-			A_SpawnParticle("FFE8CC",SPF_FULLBRIGHT|SPF_RELATIVE,10,12,0,cos(pitch)*(Distance*13),0,-sin(pitch)*(Distance*13),cos(pitch)*SpawnSpeed,0,-sin(pitch)*SpawnSpeed,0,0,0,1,0);
-			A_SpawnParticle("FFEFDD",SPF_FULLBRIGHT|SPF_RELATIVE,10,13,0,cos(pitch)*(Distance*14),0,-sin(pitch)*(Distance*14),cos(pitch)*SpawnSpeed,0,-sin(pitch)*SpawnSpeed,0,0,0,1,0);
-			A_SpawnParticle("FFF8EE",SPF_FULLBRIGHT|SPF_RELATIVE,10,13,0,cos(pitch)*(Distance*15),0,-sin(pitch)*(Distance*15),cos(pitch)*SpawnSpeed,0,-sin(pitch)*SpawnSpeed,0,0,0,1,0);
-			A_SpawnParticle("FFFFFF",SPF_FULLBRIGHT|SPF_RELATIVE,10,13,0,cos(pitch)*(Distance*16),0,-sin(pitch)*(Distance*16),cos(pitch)*SpawnSpeed,0,-sin(pitch)*SpawnSpeed,0,0,0,1,0);
-			
-			if (user_inv == ParticleOnly)
-			{	return ResolveState("Null");	}
-
-			if (!IsPointerEqual(TracerPtr,NullPtr))
-			{	user_distb = Clamp(GetDistance(true,TracerPtr),0.0,3000.0);	}
-			else
-			{	user_distb = 0;	}
-			
-			return ResolveState("B1");
-		}
-	B1:
-		TNT1 A 1;
-	Break:
-		TNT1 A 1 
-		{
-			if (user_count > 14 || A_CheckSight("Null") || (pos.z < floorz) || (pos.z > ceilingz) ) 
-			{	return ResolveState("Null");	} // Destroy it.
-			user_dista = 0;
-			return ResolveState(null); //Play out the tic.
-		}
-	Looping:	// Spawns the trail.
-		TNT1 A 0
-		{
-			// If running GZDoom, spawn the neat trail.
-			if (user_render)
-			{
-				if (user_dista <= 0.0)
-				{	user_dista = 64.0;	}
-				A_SpawnItemEx("BulletTrailBeam",cos(pitch)*user_dista,0,-sin(pitch)*user_dista,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH);
-				user_dista += Sparsity;
-			}
-			else //Otherwise, do the ol' fashion particles.
-			{
-				A_SpawnParticle("FFE99E",SPF_FULLBRIGHT|SPF_RELATIVE,100,random(3,6),0,
-					cos(pitch)*user_dista,0,-sin(pitch)*user_dista,
-					frandom(1.0,2.0),0,0,
-					-0.005,0,0.005,
-					frandom(0.5,1.0),frandom(0.06,0.12));
-				
-				user_dista += frandom(3.0,6.0);
-			}
-			
-			if (user_distb > 0.0)
-			{
-				if (user_dista > user_distb)
-				{	return ResolveState("Null");	}
-				return ResolveState("Looping");
-			}
-			else if (user_dista >= TravelTic)
-			{
-				user_count++;
-				A_Warp(DefPtr,cos(pitch)*TravelTic,0,-sin(pitch)*TravelTic,0,WARPF_NOCHECKPOSITION);
-				return ResolveState("Break");
-			}
-			return ResolveState("Looping");
-		}
-		Loop;
-	End:
-		TNT1 A 0;
-		Stop;
-	}
-}
-
-Class BulletTracerFXInverted : BulletTracerFX
-{
-	/*
-	override void FaceMoveDir()
-	{
-		A_FaceMovementDirection();
-		pitch *= -1;
-		Super.PostBeginPlay();
-	} */
-}
-
-Class BulletTrailBeam : TrailBeam
-{
-	Default 
-	{
-		XScale 0.05;
-		YScale 1; //Don't touch.
-	}
-	States
-	{
-	Spawn:
-		X202 D 0 NoDelay
-		{
-			// user_time = time to shrink to nothing
-			user_time = 4.0;
-			A_SpawnItemEx("BulletTrailBeam",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
-			
-			return ResolveState("Process");
-		}
-	}
-}
-
-Class BulletTrailBeamInverted : BulletTrailBeam
-{
-	override void PostBeginPlay()
-	{
-		pitch *= -1;
-		Super.PostBeginPlay();
 	}
 }
 
@@ -1138,8 +979,11 @@ Class PistolTracerRed : FastProjectile
 	}
 }
 
-Class BulletSmallTracer : FastProjectile
+Class BulletSmallTracer : Actor
 {
+	Actor Puff;
+	bool DestroyMe, HadPuff, FirstTic;
+	double Dist;
 	Default 
 	{
 		Projectile;
@@ -1148,16 +992,64 @@ Class BulletSmallTracer : FastProjectile
 		+DONTSPLASH
 		+NOEXTREMEDEATH
 		+NOTIMEFREEZE
+		+PAINLESS
+		+BLOODLESSIMPACT
+		+NODAMAGETHRUST
+		+NOINTERACTION
 		damage 0;
 		radius 2;
 		height 2;
-		speed 200;
+		speed 0;
 		RenderStyle "Add";
 		alpha 0.9;
 		scale 0.13;
 		//Translation "0:255=%[0,0,0]:[0,1,1.5]";
 	}
-	states
+	override void OnDestroy()
+	{
+		if (Puff)	Puff.Destroy();
+		Super.OnDestroy();
+	}
+	
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		if (Tracer)
+		{
+			HadPuff = true;
+			Dist = Distance3DSquared(Tracer);
+		}
+		else	Dist = -1.0;
+	}
+	
+	override void Tick()
+	{		
+		if (DestroyMe)	
+			return Super.Tick();
+			
+		if (!bNOTIMEFREEZE && (globalfreeze || level.frozen))
+			return Super.Tick();
+		
+		//vel = (0,0,0);
+		Puff = (Tracer) ? Tracer : LineAttack(angle, Speed, pitch, -1, '', "NonPuff2");
+		if (Puff)
+		{
+			double CurDist = Distance3DSquared(Puff);
+			if (CurDist < (Speed ** 2))
+			{
+				//Speed = sqrt(CurDist);
+				DestroyMe = true;
+				vel = (0,0,0);
+				Warp(Tracer, flags: WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
+				ExplodeMissile(null, null);
+			}
+		}
+		Vel3DFromAngle(200.0, angle, pitch);
+		//Warp(Self, cos(pitch) * Speed, 0, -sin(pitch) * Speed, 0, WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
+		Super.Tick();
+	}
+	
+	States
 	{
 	Spawn:
 		TRAC A 10 BRIGHT;
@@ -1172,3 +1064,541 @@ Class BulletSmallTracer : FastProjectile
 }
 
 
+Class D4AbstractMissile : Actor 
+{
+	transient CVar HQC;
+	bool HQ;
+	
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		
+		HQC = CVar.FindCvar("HQEffects");
+		if (HQC)	HQ = HQC.GetBool();
+	}
+}
+
+Class D4AbstractMissileQuake : D4AbstractMissile
+{
+	transient CVar QuakeC;
+	bool DoQuake;
+	
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		
+		QuakeC = CVar.FindCvar("D4D_quakexplosions");
+		if (QuakeC)	DoQuake = QuakeC.GetBool();
+	}
+}
+
+
+//------------------------------------------------------------------------------
+//	
+// The following code is courtesy of phantombeta, which can be found here:
+// https://github.com/Doom2fan/Se7evidas/blob/master/PK3%20Source/S7ZScript/Bases/Base%20Actors.ZS
+//
+// Further modifications by Major Cooke
+// 
+// Projectile bases
+// 
+//------------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------------------------
+//
+// Misc bases
+//
+//-------------------------------------------------------------------------------------------
+/** Monster spawner base
+*** Usage: Works exactly like RandomSpawner, except you can override MS_GetMonsterSpawnList to change the spawner's behaviour.
+*** Virtuals:
+***     void PostSpawn (Actor spawned): Called when the actor is finished spawning. (From RandomSpawner)
+***     DropItem MS_GetMonsterSpawnList (): called when getting the monster spawn list. (From D4D_MonsterSpawner)
+**/
+
+
+/** Trace test puffs **/
+class D4D_TraceTestPuff : Actor 
+{
+    default 
+	{
+        Radius 1;
+        Height 1;
+        +NOBLOCKMAP +ALLOWTHRUFLAGS +NOINTERACTION +NOTIMEFREEZE
+        +BLOODLESSIMPACT +PAINLESS
+    }
+
+    States 
+	{
+    Spawn:
+    Death:
+        TNT1 A 1;
+        stop;
+    }
+}
+
+class D4D_WallCheckPuff : D4D_TraceTestPuff 
+{	default {	+THRUACTORS	}	}
+
+//-------------------------------------------------------------------------------------------
+//
+// Projectile base
+//
+//-------------------------------------------------------------------------------------------
+class D4D_Projectile_Trace : LineTracer 
+{
+    D4D_Projectile sourceActor;
+    Array<Actor> actorsToIgnore;
+    
+    override ETraceStatus TraceCallback() 
+	{
+        /*if (!sourceActor)
+            return TRACE_Skip;*/
+
+        switch (Results.HitType) 
+		{
+            case TRACE_HitActor:
+                if (sourceActor.bThruActors)
+                    return TRACE_Skip;
+
+                let mo = Results.HitActor;
+				
+				if (actorsToIgnore.Size() > 0)
+				{
+					for (int i = 0; i < actorsToIgnore.Size(); i++) 
+					{
+						if (mo == actorsToIgnore [i])
+							return TRACE_Skip;
+					}
+				}
+                if (mo != sourceActor && (sourceActor.bMissile && mo != sourceActor.target)) 
+				{
+                    if (!(mo.bSolid || mo.bSpecial || mo.bShootable || mo.bTouchy))
+                        return TRACE_Skip;
+                    if (mo.bThruActors)// || (sourceActor.bThruSpecies && mo.GetSpecies () == sourceActor.GetSpecies ()))
+                        return TRACE_Skip;
+
+                    return TRACE_Stop; // && sourceActor.CanCollideWith (Results.HitActor)
+                } 
+				else
+                    return TRACE_Skip;
+            break;
+
+            case TRACE_HitFloor:
+            case TRACE_HitCeiling:
+                return TRACE_Stop;
+            break;
+
+            case TRACE_HitWall:
+                if (Results.Tier == TIER_Upper || Results.Tier == TIER_Lower) return TRACE_Stop;
+
+                let hl = Results.HitLine;
+                if (sourceActor.bMissile && (hl.flags & (Line.ML_BLOCKPROJECTILE | Line.ML_BLOCKEVERYTHING)))
+                    return TRACE_Stop;
+                
+                if (sourceActor.bMissile && Results.Tier == TIER_Middle && (hl.flags & Line.ML_BLOCKING) && (hl.flags & Line.ML_TWOSIDED))
+                    return TRACE_Skip;
+                
+                if ((hl.flags & Line.ML_BLOCKING) || (hl.flags & Line.ML_BLOCKEVERYTHING) || (sourceActor.bIsMonster && (hl.flags & Line.ML_BLOCKMONSTERS)))
+                    return TRACE_Stop;
+            break;
+        }
+        return TRACE_Skip;
+    }
+}
+
+/// The base type for all fast projectiles
+class D4D_Projectile : FastProjectile 
+{
+    enum EMovementMode 
+	{
+        Normal = 0, /// The projectile uses the normal movement code.
+        FastProjectile, /// The projectile is a FastProjectile.
+        OldFastProj, /// The projectile is a FastProjectile and uses GZDoom's code.
+    };
+    /// Determines how to detect collisions. Only used for EMovementMode.FastProjectile.
+    enum EFPCollisionMode 
+	{
+        ColMode_Center      = 1, /// Check the center for collision
+        ColMode_Corners     = 1 << 1, /// Check the corners for collision
+        ColMode_EdgeCenters = 1 << 2, /// Check the center of the edges for collision.
+    };
+	private bool exploded;
+    int moveMode;
+    int fpCollisionMode;
+    bool interpFastProj;
+    double effectStepMul;
+
+    /// Which movement code to use.
+    property MovementMode: moveMode;
+    /// How to detect collisions. Only used by EMovementMode.FastProjectile.
+    property FastProjCollision: fpCollisionMode;
+    /// Changes how many times StepEffects is called. Only used by EMovementMode.FastProjectile.
+    property EffectStepMul: effectStepMul;
+    /// Whether to interpolate the projectile's movement. Only used by EMovementMode.FastProjectile.
+    property InterpMove: interpFastProj;
+
+    Default 
+	{
+		//D4D_Projectile.MovementMode FastProjectile;
+		D4D_Projectile.FastProjCollision ColMode_Center;
+		D4D_Projectile.InterpMove true;
+		D4D_Projectile.EffectStepMul 0.125;
+        Projectile;
+    }
+
+    transient D4D_Projectile_Trace tr;
+
+	
+	override void Tick() 
+	{
+		if (exploded)	return Actor.Tick();
+		
+		if (!self)
+            return;
+
+        ClearInterpolation();
+        let oldPos = pos;
+        let oldVel = vel;
+
+        if (!bNoTimeFreeze && (globalfreeze || level.Frozen))
+            return;
+
+        if (vel != (0, 0, 0) || (pos.Z != floorz)) 
+		{	// Create a tracer
+            if (!tr) 
+			{
+				tr = new ("D4D_Projectile_Trace"); 
+				tr.sourceActor = self; 
+			}
+            tr.actorsToIgnore.Clear();
+
+            if (bMissile && vel.X == 0 && vel.Y == 0 && !IsZeroDamage())
+                vel.X = MinVel;
+
+            let velUnit = vel.Unit();
+            double velAngle = VectorAngle(velUnit.x, velUnit.y);
+            double s = sin (velAngle);
+            double c = cos (velAngle);
+
+            double maxDist = abs(vel.Length());
+            int colFlags = (fpCollisionMode & (ColMode_Center | ColMode_Corners | ColMode_EdgeCenters));
+            int iMax = FPColOffs.Size () / 2;
+
+            int loopBreaker = 0;
+            bool collisionHandled = false;
+            for (int i = 0; i < iMax; i++) 
+			{
+					 if ((i >= 0 && i <= 3) && 	!(colFlags & ColMode_EdgeCenters))
+                    continue;
+                else if ((i >= 4 && i <= 7) && 	!(colFlags & ColMode_Corners))
+                    continue;
+                else if ((i == 8) && 			!(colFlags & ColMode_Center))
+                    continue;
+
+                tr.actorsToIgnore.Clear();
+
+                do 
+				{
+                    double yOffs = radius * FPColOffs [i * 2];
+
+                    if (tr.Trace(Vec3Offset(s * yOffs, c * yOffs, height * FPColOffs [i * 2 + 1]), curSector, velUnit, maxDist, 0)) 
+					{
+                        if (!self)
+                            return;
+
+						if (HandleCollision(oldPos, oldVel)) 
+						{
+							if (!self)
+								return;
+
+							tr.actorsToIgnore.Clear();
+							collisionHandled = true;
+							break;
+						}
+                    } 
+					else
+                        tr.actorsToIgnore.Clear();
+
+                    loopBreaker++;
+                    if (loopBreaker >= 4096) 
+					{ // Uh oh.
+                        Console.PrintF ("Broke an infinite loop.");
+						exploded = true;
+                        Destroy();
+                        return;
+                    }
+                } 
+				while (tr.actorsToIgnore.Size() > 0);
+
+                if (collisionHandled)
+                    break;
+            }
+
+            if (!collisionHandled)
+                SetOrigin(pos + vel, true);
+            TryMove(pos.xy, true, false);
+			
+			class<Actor> trail = MissileName;
+			if (trail && !exploded)
+				SpawnEffects(oldPos, level.Vec3Diff (pos, oldPos).Length (), oldVel);
+
+            if (!collisionHandled) 
+			{
+                bool floorHit = pos.Z <= floorZ;
+                bool ceilingHit = (pos.Z + height) > ceilingZ;
+
+                bool hitSky = ((  floorHit &&   floorpic == skyflatnum) ||
+                               (ceilingHit && ceilingpic == skyflatnum));
+				
+                if (hitSky && !bSkyExplode) 
+				{
+					exploded = true;
+					A_Stop();
+                    Destroy();
+                    return;
+                } 
+				else if (floorHit || ceilingHit) 
+				{
+                    SetZ(floorHit ? GetZAt() : ceilingZ - height);
+
+                    if (floorHit)
+                        HitFloor();
+
+                    A_Stop();
+                    if (bMissile)
+					{
+						exploded = true;
+                        ExplodeMissile (NULL, NULL, hitsky);
+					}
+                }
+            }
+
+            vel.z += GetGravity ();
+
+            UpdateWaterLevel ();
+            CheckPortalTransition ();
+        }
+
+        // Nope the fuck out if self is null for some retarded reason, or freed itself
+        if (!self || !CheckNoDelay())
+            return;
+			
+        // Advance the state
+        if (tics != -1) 
+		{
+            if (tics > 0)
+                tics--;
+
+            while (!tics) 
+			{
+                if (!self || !CurState || !SetState(CurState.NextState)) // mobj was removed
+                    return;
+            }
+        }
+	}
+
+    virtual Actor StepEffects (Vector3 initialPos, Vector3 stepDiff, Vector3 realVel) 
+	{
+        class<Actor> trail = MissileName;
+
+        if (trail) 
+		{
+            Vector3 finalPos = initialPos + stepDiff;
+
+            Actor act = Spawn (trail, initialPos, ALLOW_REPLACE);
+            act.SetOrigin (finalPos, false);
+
+            double realFloorZ = GetZAt (finalPos.X, finalPos.Y, flags: GZF_AbsolutePos | GZF_AbsoluteAng);
+
+            double hitz = finalPos.z - 8;
+            if (hitz < realFloorZ)
+                hitz = realFloorZ;
+            // Do not clip this offset to the floor.
+            hitz += missileHeight;
+
+            act.SetOrigin ((finalPos.xy, hitz), false);
+
+            if (act) 
+			{
+                if (bGetOwner && target)
+                    act.target = target;
+                else
+                    act.target = self;
+                
+                act.angle = angle;
+                act.pitch = pitch;
+            }
+            return act;
+        }
+        return null;
+    }
+
+    void SpawnEffects (Vector3 initialPos, double dist, Vector3 stepSize) 
+	{
+        if (radius <= 0 || dist <= 0 || exploded)
+            return;
+
+        int count = 8;
+        while (abs (stepSize.X) > radius * count || abs (stepSize.Y) > radius * count)
+            count += count;
+
+        Vector3 frac = stepSize / count;
+
+        int spawnCount = int (count * effectStepMul);
+        for (int i = 0; i < count; i++) 
+		{
+            double diff = abs ((frac * i).Length ());
+
+            if (diff >= dist)
+                break;
+
+            if (--spawnCount <= 0) 
+			{
+                spawnCount = int (count * effectStepMul);
+                StepEffects (initialPos, frac * i, stepSize);
+            }
+        }
+    }
+
+	//--------------------------------------------------------------------------
+	// Offsets based on Y and Z instead of X and Y
+    static const double FPColOffs[] = 
+	{ 
+        // Edge centers
+         0, 1.0,
+         1, 0.5,
+         0, 0.0,
+        -1, 0.5,
+        // Corners
+         1, 1,
+         1, 0,
+        -1, 0,
+        -1, 1,
+        // Center
+        0, 0.5
+    };
+	
+    virtual void NewFastProjTick() 
+	{
+        
+    }
+
+    bool HandleCollision(Vector3 oldPos, Vector3 oldVel) 
+	{
+        if (abs(level.Vec3Diff(oldPos, tr.Results.hitPos).Length()) > abs (oldVel.Length()) + radius) 
+		{
+            if (tr.Results.HitType == TRACE_HitActor && tr.Results.HitActor)
+                tr.actorsToIgnore.Push(tr.Results.HitActor);
+
+            return false;
+        }
+
+        double maxDist = abs(oldVel.Length());
+        double hitPosDist = abs(tr.Results.hitPos.Length());
+        let hitPos = tr.Results.HitPos;
+        hitPos += -(oldVel.Unit() * abs (radius));
+
+        SetOrigin (hitPos, interpFastProj);
+
+        if (!bSKYEXPLODE) 
+		{
+            if (tr.Results.HitType == TRACE_HitWall && tr.Results.HitLine) 
+			{
+                let l = tr.Results.HitLine;
+                if (l.backsector && l.backsector.GetTexture (sector.ceiling) == skyflatnum) 
+				{
+                    let posr = PosRelative (l.backsector);
+                    if (pos.Z >= l.backsector.ceilingplane.ZatPoint (posr.XY)) 
+					{
+                        // Hack to prevent missiles exploding against the sky.
+                        // Does not handle sky floors.
+                        SpawnEffects (oldPos, tr.Results.Distance, oldVel);
+                        Destroy();
+                        return true;
+                    }
+                }
+
+                // [RH] Don't explode on horizon lines.
+                if (l && l.special == Line_Horizon) 
+				{
+                    SpawnEffects (oldPos, tr.Results.Distance, oldVel);
+                    Destroy();
+                    return true;
+                }
+            } 
+			else if ((tr.Results.HitType == TRACE_HitFloor && floorpic == skyflatnum) ||
+                (tr.Results.HitType == TRACE_HitCeiling && ceilingpic == skyflatnum)) 
+			{
+                SpawnEffects (oldPos, tr.Results.Distance, oldVel);
+                Destroy();
+                return true;
+            }
+        }
+
+        if (tr.Results.HitType == TRACE_HitFloor)
+            hitPos = tr.Results.HitPos;
+        else if (tr.Results.HitType == TRACE_HitCeiling) {
+            hitPos = tr.Results.HitPos;
+            hitPos -= (0, 0, height);
+        }
+
+        Vector3 rHitPos = tr.Results.HitPos;
+
+        double realFloorZ = GetZAt(rHitPos.X, rHitPos.Y, flags: GZF_AbsolutePos | GZF_AbsoluteAng);
+        double realCeilingZ = GetZAt(rHitPos.X, rHitPos.Y, flags: GZF_AbsolutePos | GZF_AbsoluteAng | GZF_Ceiling);
+
+        bool floorHit = (rHitPos.Z <= realFloorZ || rHitPos.Z ~== realFloorZ);
+        bool ceilingHit = (rHitPos.Z + height) > realCeilingZ;
+
+        FCheckPosition tm;
+        tm.DoRipping = bRipper;
+
+        if (!TryMove(hitPos.XY + (double.epsilon * 3, double.epsilon * 3), true, tm: tm)) 
+		{
+            SetOrigin(hitPos, interpFastProj);
+
+            bool hitSky = ((  floorHit &&   floorpic == skyflatnum) ||
+                           (ceilingHit && ceilingpic == skyflatnum));
+
+            A_Stop();
+            ExplodeMissile(BlockingLine, BlockingMobj, (!BlockingLine && !BlockingMobj) ? hitSky : false);
+			exploded = true;
+            return true;
+        } 
+		else if (tr.Results.HitType == TRACE_HitActor && tr.Results.HitActor)
+            tr.actorsToIgnore.Push (tr.Results.HitActor);
+        else 
+		{
+            if ((tr.Results.HitType == TRACE_HitFloor && floorHit) ||
+                (tr.Results.HitType == TRACE_HitCeiling && ceilingHit)) 
+			{
+                SetOrigin(hitPos, interpFastProj);
+
+                bool hitSky = ((  floorHit &&   floorpic == skyflatnum) ||
+                               (ceilingHit && ceilingpic == skyflatnum));
+
+                if (tr.Results.HitType == TRACE_HitFloor) 
+				{
+                    SetZ(floorZ);
+                    HitFloor();
+					exploded = true;
+                }
+
+                if (bMissile) 
+				{
+					exploded = true;
+                    A_Stop();
+                    ExplodeMissile(NULL, NULL, hitSky);
+                }
+
+                return true;
+            }
+		//	else if (D4D_DebugMode >= 1)
+		//		Console.PrintF ("zzz %f ----- %f, %d", rHitPos.Z, GetZAt (rHitPos.X, rHitPos.Y, flags: GZF_AbsolutePos | GZF_AbsoluteAng), floorHit);
+        }
+
+        SetOrigin(oldPos, false);
+        return false;
+    }
+}

@@ -137,6 +137,7 @@ Class PlayerMastermind : DemonPlayerBase
 
 Class D4DMastermindWeapon : DoomWeapon
 {
+	const Overlay_Beamer = 6010;
 	Default 
 	{
 		Tag "Experimental Energy Cannon";
@@ -180,6 +181,7 @@ Class D4DMastermindWeapon : DoomWeapon
 	AltFire:
 		CHGG A 0 
 		{
+			A_Overlay(Overlay_Beamer, "Null");
 			A_SpawnItemEx("MastermindPlayerMuzzleRed",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_PlaySound("Doom4/SpiderMastermind/LaserCharge",7,0.5);
 			//A_PlaySound("Doom4/Monsters/MastermindLaserCharge",5);
@@ -211,11 +213,12 @@ Class D4DMastermindWeapon : DoomWeapon
 					A_RemoveChildren(true,RMVF_EVERYTHING,"MastermindPlayerMuzzleRed");
 					A_SetInventory("FullyCharged",0);
 					A_GunFlash();
+					A_Overlay(Overlay_Beamer, "Overlay.Beamer");
 				}
 				CHGG AAAAAAAAAAAAAAAAAAAA 2 
 				{
-					A_RailAttack(20*random(1,8),0,0,"","",RGF_SILENT);
-					A_FireProjectile("SMMLaserThru",0,0,0);
+					A_RailAttack(20*random(1,8),0,0,"","",RGF_SILENT,0,"NonPacifistPuffExtreme");
+					//A_FireProjectile("SMMLaserThru",0,0,0);
 				}
 				CHGG A 0 A_StopSound(7);
 				Goto Ready;
@@ -235,7 +238,13 @@ Class D4DMastermindWeapon : DoomWeapon
 		TNT1 A 0 A_Light0();
 		Stop;
 
-
+	Overlay.Beamer:
+		TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 1
+		{
+			A_FireBullets(0,0,1,0,"PacifistPuff",FBF_PUFFTRACER|FBF_NORANDOMPUFFZ, 
+									4096, "BigRedLaserDrillSMMPlayerSpawner",0);
+		}
+		Stop;
 	Spawn:
 		SHOT A -1;
 		Stop;
@@ -310,7 +319,7 @@ Class MastermindPlayerMuzzleRed : Actor
 	const Distance = 20;
 	const YOff = 1;
 	const ZOff = 73;
-	double  user_pos;
+	double  UPos;
 	int user_t;
 	
 	Default 
@@ -333,13 +342,13 @@ Class MastermindPlayerMuzzleRed : Actor
 			// And set a multiplier for taking from the distance so it actually goes well with the gun.
 			
 			if (pitch > 0) //Looking down
-			{	user_pos = (sin(pitch) * 12);	}
+			{	UPos = (sin(pitch) * 12);	}
 			else //Looking up
-			{	user_pos = (sin(pitch) * 6);	}
+			{	UPos = (sin(pitch) * 6);	}
 			
 			
 			A_Warp(MasterPtr,
-				(cos(-pitch)*(Distance)) - user_pos,
+				(cos(-pitch)*(Distance)) - UPos,
 				YOff,
 				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
 				

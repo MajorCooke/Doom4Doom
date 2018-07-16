@@ -34,7 +34,7 @@ BLESSED (White)
 
 Class D4Arachnotron : D4AbstractBiggie // : Arachnotron	//to be edited
 {
-	int user_staggertimer;
+	int staggertimer;
 	Default 
 	{
 		D4AbstractMonster.CrateDropAmount 2;
@@ -121,11 +121,11 @@ Class D4Arachnotron : D4AbstractBiggie // : Arachnotron	//to be edited
 	Death.ChainsawPinata:
 	XDeath:
 	XDeathNoDrops:	
-		TNT1 A 1
+		TNT1 A 0;
+		TNT1 A 10
 		{
 			bThruActors = true;
 			XDeathGush();
-			//D4DropItems();
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_NoBlocking();	//just in case
 			
@@ -278,7 +278,7 @@ Class D4ArachnoPuffBig1 : D4PistolPuffBig1
 	Spawn:
 		TNT1 A 0 NoDelay
 		{
-			user_scaler = 0.025;
+			scaler = 0.025;
 			if (GetCvar("HQEffects"))
 			{
 				A_SpawnParticle("FFC5FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,vel.z-0.06);
@@ -303,7 +303,7 @@ Class D4ArachnoPuffBig1 : D4PistolPuffBig1
 //================================================================================================================
 Class D4OldArachnotron : D4AbstractBiggie //  : Arachnotron
 {	
-	int user_staggertimer;
+	int staggertimer;
 	Default 
 	{
 		Health 500;
@@ -386,10 +386,6 @@ Class D4OldArachnotron : D4AbstractBiggie //  : Arachnotron
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		"####" "#" 0  //loot drop
-		{		}
-		Goto XDeathNoDrops;
-		
 	XDeathNoDrops:	
 		TNT1 A 1
 		{

@@ -31,7 +31,7 @@ Class D4BossBrain : BossBrain replaces BossBrain
 		DamageFactor "Crush", 20.0;
 	}
 	
-	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags = 0, double angle = 0)
+	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{
 		if ((inflictor && inflictor is "ExplosiveBarrel") || (source && source is "ExplosiveBarrel"))
 			damage *= 20;

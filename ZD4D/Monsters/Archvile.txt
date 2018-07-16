@@ -36,8 +36,8 @@ Class ArchAttacking : Inventory {}
 Class D4Archvile : D4AbstractBiggie
 {
 	
-	int user_flee;	
-	int user_staggertimer;
+	int flee;	
+	int staggertimer;
 	Default 
 	{
 		D4AbstractMonster.BC "Black";
@@ -83,7 +83,7 @@ Class D4Archvile : D4AbstractBiggie
 		TNT1 A 0 A_Jump(64,"TeleportTowards"); //rarely it will teleport even when you´re too far
 		DIAB AABBCCDDEEFF 2 
 		{
-			if (GetCvar("user_ArchvileInfighting") > 0)
+			if (GetCvar("D4D_ArchvileInfighting") > 0)
 			{	bNoTarget = false;	}
 			else
 			{	bNoTarget = true;	}
@@ -95,7 +95,7 @@ Class D4Archvile : D4AbstractBiggie
 	SeeAfterWound:
 		DIAB AABBCCDDEEFFAABBCCDDEEFF 2 
 		{
-			if (GetCvar("user_ArchvileInfighting") > 0)
+			if (GetCvar("D4D_ArchvileInfighting") > 0)
 			{	bNoTarget = false;	}
 			else
 			{	bNoTarget = true;	}
@@ -108,11 +108,11 @@ Class D4Archvile : D4AbstractBiggie
 	// teleport "attack"
 	Melee:
 		TeleportAway:	//melee range teleport will always make it flee
-			TNT1 A 0 {user_flee = 1;}
+			TNT1 A 0 {flee = 1;}
 			Goto TeleportCommon;
 			
 		TeleportTowards:	//when he's too far, he "teleports" towards you 
-			TNT1 A 0 {user_flee = 0;} //just in case
+			TNT1 A 0 {flee = 0;} //just in case
 			Goto TeleportCommon;
 
 		TeleportCommon:
@@ -121,7 +121,7 @@ Class D4Archvile : D4AbstractBiggie
 				A_SetSpeed(40);
 				bNonShootable = true;
 				bNoPain = true;
-				if (user_flee)
+				if (flee)
 				{	
 					bFrightened = true;
 				}
@@ -138,7 +138,7 @@ Class D4Archvile : D4AbstractBiggie
 				bNonShootable = false;
 				bNoPain = false;
 				bFrightened = false;
-				user_flee = 0; //always set it to not flee
+				flee = 0; //always set it to not flee
 			}
 			Goto SeeNoTeleport; //after doing the teleport move, will go for a little bit without trying it again
 			
@@ -219,15 +219,10 @@ Class D4Archvile : D4AbstractBiggie
 	Death.BerserkKill:
 	Death.MeleePunch:
 	Death.ChainsawPinata:
-	XDeath:
-		"####" "#" 0  //loot drop
-		{
-			//D4SetupLoot(true);
-		}
-		Goto XDeathNoDrops;
-		
+	XDeath:		
 	XDeathNoDrops:	
-		TNT1 A 1
+		TNT1 A 0;
+		TNT1 A 10
 		{
 			bThruActors = true;
 			XDeathGush(Color_Black);
@@ -442,7 +437,7 @@ Class ArchvileTPortTrail : Actor
 
 //------------------------------------------
 // Argent energy attack
-Class SummonerProjectile : FastProjectile
+Class SummonerProjectile : D4D_Projectile
 {
 	Default 
 	{
@@ -471,7 +466,7 @@ Class SummonerProjectile : FastProjectile
 	}
 }
 
-Class SummonerTrailSpawner : Actor //dummy to spawn muliple trails through fastprojectile's method
+Class SummonerTrailSpawner : Actor //dummy to spawn muliple trails through D4D_Projectile's method
 {
 	bool HQ;
 	Default 
@@ -626,7 +621,7 @@ Class SummonerHandSparks : Actor //spawned in the hands of the archvile
 //================================================================================================================
 Class D4OldArchVile : D4AbstractBiggie // ArchVile replaces ArchVile
 {	
-	int user_staggertimer;
+	int staggertimer;
 	Default 
 	{
 		Health 700;

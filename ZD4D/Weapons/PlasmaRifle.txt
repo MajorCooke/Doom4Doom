@@ -19,7 +19,7 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 		+INVENTORY.UNDROPPABLE
 		+INVENTORY.UNTOSSABLE
 		Inventory.PickupMessage "Plasma Rifle! Hot topic!";
-		Obituary "%o stared %k's plasma rifle in the barrel, and it stared back.";
+		Obituary "%o stared at %k's plasma rifle in the barrel, and it stared back.";
 		Tag "Plasma Rifle";
 		Weapon.AmmoType1 "D4Cells";
 		Weapon.AmmoGive1 40;
@@ -488,7 +488,8 @@ Class D4DPlasmaBall : Actor
 		TNT1 A 0 NoDelay 
 		{
 			A_SetScale(frandom(0.04,0.06));
-			return A_Jump(256,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26);
+			int rng = random(1,26);
+			return A_Jump(256,rng);
 		}
 	Moving:
 		PLS1 ABCDEFGHIJKLMNOPQRSTUVWXYZ 1 Light("BlueSmallPoint1") Bright ;
@@ -515,16 +516,16 @@ Class HeatBlastExplo : Actor
 	const YOff = 8;
 	const ZOff = 32;
 	const BaseVel = 6.5;
-	double user_xa, user_xb;
-	double user_za, user_zb;
+	double xa, xb;
+	double za, zb;
 	// [0] = Velocity
 	// [1] = Acceleration
 	
-	double user_v;
-	int user_strength;
-	int user_rng;
-	double user_ang;
-	int user_stage;
+	double v;
+	int strength;
+	int rng;
+	double ang;
+	int stage;
 	
 	Default 
 	{
@@ -544,9 +545,9 @@ Class HeatBlastExplo : Actor
 			A_Warp(MasterPtr,cos(-pitch)*(Distance),YOff,(ZOff*GetCrouchFactor(MasterPtr))+sin(-pitch)*Distance,0,Flags);
 			
 			// Sets the damage of the wave via plasma heat counters.
-			user_strength = CountInv("PlasmaHeatBlastCounter",MasterPtr);
+			strength = CountInv("PlasmaHeatBlastCounter",MasterPtr);
 			A_TakeInventory("PlasmaHeatBlastCounter",32767,0,MasterPtr);
-			A_Explode(user_strength * random(10,18) , 128 + (user_strength * 3), 0, 0, 48 + user_strength);
+			A_Explode(strength * random(10,18) , 128 + (strength * 3), 0, 0, 48 + strength);
 		}
 		TNT1 A 0 
 		{
@@ -628,30 +629,30 @@ Class HeatBlastExplo : Actor
 			if(GetCvar("HQEffectsWeapons"))
 			{
 				// Fling the particles based on pitch, then the wave amplifier.
-				user_xa = cos(-pitch) * (BaseVel + (cos(user_ang * 8)));
-				user_za = sin(-pitch) * (BaseVel + (cos(user_ang * 8)));
-				user_xb = (-cos(-pitch) * (cos(user_ang * 8)))*0.12;
-				user_zb = (-sin(-pitch) * (cos(user_ang * 8)))*0.12;
+				xa = cos(-pitch) * (BaseVel + (cos(ang * 8)));
+				za = sin(-pitch) * (BaseVel + (cos(ang * 8)));
+				xb = (-cos(-pitch) * (cos(ang * 8)))*0.12;
+				zb = (-sin(-pitch) * (cos(ang * 8)))*0.12;
 				
-				user_rng = random(1,4);
-					 if (user_rng == 1)	{ A_SpawnParticle("80CCFF",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,user_ang,0,0,0,user_xa,0,user_za,user_xb,0,user_zb,1,-1,0.2); }
-				else if (user_rng == 2) { A_SpawnParticle("BDE4FF",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,user_ang,0,0,0,user_xa,0,user_za,user_xb,0,user_zb,1,-1,0.2); }
-				else if (user_rng == 3) { A_SpawnParticle("24A7FF",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,user_ang,0,0,0,user_xa,0,user_za,user_xb,0,user_zb,1,-1,0.2); }
-				else					{ A_SpawnParticle("0091F2",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,user_ang,0,0,0,user_xa,0,user_za,user_xb,0,user_zb,1,-1,0.2); }
+				rng = random(1,4);
+					 if (rng == 1)	{ A_SpawnParticle("80CCFF",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,ang,0,0,0,xa,0,za,xb,0,zb,1,-1,0.2); }
+				else if (rng == 2) { A_SpawnParticle("BDE4FF",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,ang,0,0,0,xa,0,za,xb,0,zb,1,-1,0.2); }
+				else if (rng == 3) { A_SpawnParticle("24A7FF",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,ang,0,0,0,xa,0,za,xb,0,zb,1,-1,0.2); }
+				else					{ A_SpawnParticle("0091F2",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,ang,0,0,0,xa,0,za,xb,0,zb,1,-1,0.2); }
 				
-				if (user_ang > 0)
+				if (ang > 0)
 				{	
-					user_rng = random(1,4);
-						 if (user_rng == 1)	{ A_SpawnParticle("80CCFF",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,-user_ang,0,0,0,user_xa,0,user_za,user_xb,0,user_zb,1,-1,0.2); }
-					else if (user_rng == 2) { A_SpawnParticle("BDE4FF",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,-user_ang,0,0,0,user_xa,0,user_za,user_xb,0,user_zb,1,-1,0.2); }
-					else if (user_rng == 3) { A_SpawnParticle("24A7FF",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,-user_ang,0,0,0,user_xa,0,user_za,user_xb,0,user_zb,1,-1,0.2); }
-					else					{ A_SpawnParticle("0091F2",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,-user_ang,0,0,0,user_xa,0,user_za,user_xb,0,user_zb,1,-1,0.2); }
+					rng = random(1,4);
+						 if (rng == 1)	{ A_SpawnParticle("80CCFF",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,-ang,0,0,0,xa,0,za,xb,0,zb,1,-1,0.2); }
+					else if (rng == 2) { A_SpawnParticle("BDE4FF",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,-ang,0,0,0,xa,0,za,xb,0,zb,1,-1,0.2); }
+					else if (rng == 3) { A_SpawnParticle("24A7FF",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,-ang,0,0,0,xa,0,za,xb,0,zb,1,-1,0.2); }
+					else					{ A_SpawnParticle("0091F2",SPF_FULLBRIGHT|SPF_RELATIVE,35,15,-ang,0,0,0,xa,0,za,xb,0,zb,1,-1,0.2); }
 				}
 				
-				if (user_ang > 90)
+				if (ang > 90)
 				{	return ResolveState("Null");	}
 				
-				user_ang += 1.0;
+				ang += 1.0;
 				return ResolveState("Particle1");
 			}
 			else
@@ -700,8 +701,8 @@ Class PlasmaHeatMuzzle : Actor
 	const Distance = 17;
 	const YOff = 10;
 	const ZOff = 37;
-	double user_pos;
-	int user_t;
+	double pos;
+	int t;
 	int side;
 	Default 
 	{
@@ -736,15 +737,15 @@ Class PlasmaHeatMuzzle : Actor
 			// And set a multiplier for taking from the distance so it actually goes well with the gun.
 			
 			if (pitch > 0) //Looking down
-			{	user_pos = (sin(pitch) * 12);	}
+			{	pos = (sin(pitch) * 12);	}
 			else //Looking up
-			{	user_pos = (sin(pitch) * 6);	}
+			{	pos = (sin(pitch) * 6);	}
 			
 			
 			A_Warp(MasterPtr,
-				(cos(-pitch)*(Distance)) - user_pos,
+				(cos(-pitch)*(Distance)) - pos,
 				YOff * side,
-				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
+				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,WARPF_NOCHECKPOSITION|WARPF_COPYPITCH|WARPF_INTERPOLATE);
 			if (CountInv("PlasmaHeatBlastCounter", MasterPtr) >= 15)
 			{
 				if(GetCvar("HQEffectsWeapons"))
@@ -767,7 +768,7 @@ Class PlasmaHeatMuzzle : Actor
 }
 Class PlasmaRifleSteam : Actor 
 {
-	int user_c;
+	int c;
 	
 	Default 
 	{
@@ -787,10 +788,10 @@ Class PlasmaRifleSteam : Actor
 	Anim:
 		X102 ABCDEFGHIJKLMNOPQRSTUV 1 
 		{
-				 if (user_c == 0)	{	}
-			else if (user_c <= 5)	{	A_FadeTo(0.8,0.1,FTF_CLAMP);	}
+				 if (c == 0)	{	}
+			else if (c <= 5)	{	A_FadeTo(0.8,0.1,FTF_CLAMP);	}
 			else					{	A_FadeOut(0.03);	}
-			user_c++;
+			c++;
 		}
 		Loop;
 	}
@@ -805,7 +806,7 @@ Class PlasmaStunBombCounter : Counter {}
 
 Class StunBomb : Actor 
 {
-	int user_angle;
+	int angle;
 	
 	Default 
 	{
@@ -841,9 +842,9 @@ Class StunBomb : Actor
 		Loop;
 	Death:
 		TNT1 A 0 A_JumpIf(GetCvar("HQEffectsWeapons")==0,"DeathEnd");
-		TNT1 A 0 A_JumpIf(user_angle>=360,"DeathEnd");
-		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(5,6),0,frandom(1,-1),user_angle,SXF_NOCHECKPOSITION);
-		TNT1 A 0 {user_angle += 15;}
+		TNT1 A 0 A_JumpIf(angle>=360,"DeathEnd");
+		TNT1 A 0 A_SpawnItemEx("StunBombSpark",0,0,0,frandom(5,6),0,frandom(1,-1),angle,SXF_NOCHECKPOSITION);
+		TNT1 A 0 {angle += 15;}
 		Loop;
 	DeathEnd:
 		TNT1 A 0 A_Explode(2,256,0,0,256);

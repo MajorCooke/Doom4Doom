@@ -391,10 +391,10 @@ Class ChainsawPuffDiagonal : ChainsawPuff
 
 Class ChainsawPuffPinata : ChainsawPuff
 {
-	int user_color;
-	int user_count;
-	int user_cap;
-	int user_quad;
+	int UColor;
+	int count;
+	int cap;
+	int quad;
 	Default 
 	{
 		+NOINTERACTION
@@ -430,10 +430,10 @@ Class ChainsawPuffPinata : ChainsawPuff
 		{
 			if (CheckClass("D4BaronOfHell",TracerPtr) ||
 				CheckClass("D4HellKnight",TracerPtr))
-			{	user_color = Color_Green;	}
+			{	UColor = Color_Green;	}
 			
 			if (CheckClass("D4Cacodemon",TracerPtr))
-			{	user_color = Color_Blue;	}
+			{	UColor = Color_Blue;	}
 			
 			// Get the pinkie directly instead of working on the shield.
 			if (CheckClass("DemonShield",TracerPtr))
@@ -444,9 +444,9 @@ Class ChainsawPuffPinata : ChainsawPuff
 				return ResolveState("Null");
 			}
 			
-			user_quad = (CountInv("PowerD4QuadDamage",TargetPtr) ? 4 : 1);
-			user_cap = CountInv("D4Fuel",TargetPtr);
-			user_count = 1 * user_quad;
+			quad = (CountInv("PowerD4QuadDamage",TargetPtr) ? 4 : 1);
+			cap = CountInv("D4Fuel",TargetPtr);
+			count = 1 * quad;
 			return ResolveState("ShreddingTime");			
 		}
 		Goto ShreddingTime;
@@ -454,17 +454,17 @@ Class ChainsawPuffPinata : ChainsawPuff
 		TNT1 A 0
 		{
 			//Prevent division by 0. And bad calculations.
-			user_quad = (CountInv("PowerD4QuadDamage",TargetPtr) ? 4 : 1);
+			quad = (CountInv("PowerD4QuadDamage",TargetPtr) ? 4 : 1);
 			
 			if (GetCvar("sv_infiniteammo") > 0)
-			{	user_count = 20 * user_quad;	}
+			{	count = 20 * quad;	}
 			
 			// Acid Drip. Like a nose drip in a way, on steroids. And disgusting.
 			else if (CountInv("OnAcid",TargetPtr))
 			{	
-				if (tracer && tracer.health <= (1600 * user_quad))
+				if (tracer && tracer.health <= (1600 * quad))
 				{	
-					user_count = 8 * user_quad;
+					count = 8 * quad;
 				}
 				else
 				{
@@ -473,11 +473,11 @@ Class ChainsawPuffPinata : ChainsawPuff
 				}
 				
 			}			
-			//else if ((!A_JumpIfHealthLower(1 + (user_count * 200),"Null",TracerPtr) && user_count < (8 * user_quad)))
-			else if ((tracer && tracer.health > (user_count * 200 * user_quad) && user_count < (user_cap * user_quad)))
+			//else if ((!A_JumpIfHealthLower(1 + (count * 200),"Null",TracerPtr) && count < (8 * quad)))
+			else if ((tracer && tracer.health > (count * 200 * quad) && count < (cap * quad)))
 			{
-				user_count++;
-				if (user_count > user_cap * user_quad)
+				count++;
+				if (count > cap * quad)
 				{
 					A_GiveInventory("NotEnoughFuel",1,TargetPtr);
 					return ResolveState("Null");
@@ -485,9 +485,9 @@ Class ChainsawPuffPinata : ChainsawPuff
 				return ResolveState("ShreddingTime");
 			}
 			
-			A_DamageTracer(1 + (user_count * 200 * user_quad),"ChainsawPinata",DMSS_NOFACTOR,null,"None",TargetPtr);
+			A_DamageTracer(1 + (count * 200 * quad),"ChainsawPinata",DMSS_NOFACTOR,null,"None",TargetPtr);
 			
-			A_SpawnItemEx("MCBloodFXMain",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION,0,user_color);
+			A_SpawnItemEx("MCBloodFXMain",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION,0,UColor);
 			if (!tracer || tracer.health < 1)
 			{
 				A_GiveInventory("ChainsawKill",1,TargetPtr);
@@ -499,8 +499,8 @@ Class ChainsawPuffPinata : ChainsawPuff
 			// KenFucky Fried Demon... Mmm. Fuckin' Delicious.
 			if (!CountInv("OnAcid",TargetPtr))
 			{	
-				user_count = Max(1, (user_count / user_quad));
-				A_TakeInventory("D4Fuel",user_count,TIF_NOTAKEINFINITE,TargetPtr);	
+				count = Max(1, (count / quad));
+				A_TakeInventory("D4Fuel",count,TIF_NOTAKEINFINITE,TargetPtr);	
 			}
 			A_SetInventory("OnAcid",0,TargetPtr);
 			return ResolveState("Null");

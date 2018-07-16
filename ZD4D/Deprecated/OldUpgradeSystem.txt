@@ -197,7 +197,7 @@ Class Holocone : Actor
 	const Decay1 = 0.02;
 	const Decay2 = 0.036;
 	const GSize = 0.2;
-	double  user_angle;
+	double  UAngle;
 	double  user_distance;
 	int user_height;
 	int user_count;
@@ -207,9 +207,9 @@ Class Holocone : Actor
 	int user_first;
 	int user_cd;
 	int user_last;
-	//double  user_x;
-	//double  user_y;
-	//double  user_z;
+	//double  UX;
+	//double  UY;
+	//double  UZ;
 	Projectile;
 	+NODAMAGE
 	+NOINTERACTION
@@ -243,7 +243,7 @@ Class Holocone : Actor
 			
 			if (user_divider < 1)	{	user_divider = 1;	} //Prevent division by 0.
 			user_count = 0;
-			user_angle = angle;
+			UAngle = angle;
 			A_GiveInventory("HoloWeaponCount",user_divider);
 		}
 	//Spawns the holographic projections based on the player having the weapon.
@@ -261,8 +261,8 @@ Class Holocone : Actor
 			if (user_count > 19)
 			{
 				user_count = 0;
-				A_SetAngle(user_angle);
-				user_angle = 0;
+				A_SetAngle(UAngle);
+				UAngle = 0;
 				return ResolveState("Looping");
 			}
 			return ResolveState(null);
@@ -273,22 +273,22 @@ Class Holocone : Actor
 		{
 			if (!user_first || user_last)
 			{
-				A_SpawnParticle("FFFFFF",ParticleFlags,1,PSize,1+user_angle    ,Distance,0,user_height+4,0,0,0,0,0,0,1);
-				A_SpawnParticle("FFFFFF",ParticleFlags,1,PSize,1+user_angle+90 ,Distance,0,user_height+4,0,0,0,0,0,0,1);
-				A_SpawnParticle("FFFFFF",ParticleFlags,1,PSize,1+user_angle+180,Distance,0,user_height+4,0,0,0,0,0,0,1);
-				A_SpawnParticle("FFFFFF",ParticleFlags,1,PSize,1+user_angle+270,Distance,0,user_height+4,0,0,0,0,0,0,1);
+				A_SpawnParticle("FFFFFF",ParticleFlags,1,PSize,1+UAngle    ,Distance,0,user_height+4,0,0,0,0,0,0,1);
+				A_SpawnParticle("FFFFFF",ParticleFlags,1,PSize,1+UAngle+90 ,Distance,0,user_height+4,0,0,0,0,0,0,1);
+				A_SpawnParticle("FFFFFF",ParticleFlags,1,PSize,1+UAngle+180,Distance,0,user_height+4,0,0,0,0,0,0,1);
+				A_SpawnParticle("FFFFFF",ParticleFlags,1,PSize,1+UAngle+270,Distance,0,user_height+4,0,0,0,0,0,0,1);
 			}
-			A_SpawnParticle(2222BB,ParticleFlags,Life,PSize,user_angle,Distance    ,0,user_height,0,0,0,0,0,0,1,Decay1,GSize);
-			A_SpawnParticle(2222BB,ParticleFlags,Life,PSize,user_angle+90,Distance ,0,user_height,0,0,0,0,0,0,1,Decay1,GSize);
-			A_SpawnParticle(2222BB,ParticleFlags,Life,PSize,user_angle+180,Distance,0,user_height,0,0,0,0,0,0,1,Decay1,GSize);
-			A_SpawnParticle(2222BB,ParticleFlags,Life,PSize,user_angle+270,Distance,0,user_height,0,0,0,0,0,0,1,Decay1,GSize);
+			A_SpawnParticle(2222BB,ParticleFlags,Life,PSize,UAngle,Distance    ,0,user_height,0,0,0,0,0,0,1,Decay1,GSize);
+			A_SpawnParticle(2222BB,ParticleFlags,Life,PSize,UAngle+90,Distance ,0,user_height,0,0,0,0,0,0,1,Decay1,GSize);
+			A_SpawnParticle(2222BB,ParticleFlags,Life,PSize,UAngle+180,Distance,0,user_height,0,0,0,0,0,0,1,Decay1,GSize);
+			A_SpawnParticle(2222BB,ParticleFlags,Life,PSize,UAngle+270,Distance,0,user_height,0,0,0,0,0,0,1,Decay1,GSize);
 			
-			A_SetUserVarFloat(user_angle, (user_angle + 2));
+			A_SetUserVarFloat(UAngle, (UAngle + 2));
 			
-			if (user_angle >= 90)
+			if (UAngle >= 90)
 			{
 				A_SetUserVar(user_height, user_height + 8);
-				A_SetUserVarFloat(user_angle, 0);
+				A_SetUserVarFloat(UAngle, 0);
 				A_SetUserVar(user_cd,25);
 				if (user_height >= 72)
 				{
@@ -320,7 +320,7 @@ Class Holocone : Actor
 				A_SetUserVar(user_cd,0);
 			}
 			A_SetUserVar(user_first,1);
-			A_SetUserVarFloat(user_angle,0);
+			A_SetUserVarFloat(UAngle,0);
 			A_SetUserVar(user_height,0);
 			A_SetUserVar(user_count,user_count + 1);
 			
@@ -358,20 +358,20 @@ Class HoloSelectable : Actor
 	const Distance = 80;
 	const ZHeight = 32;
 	double  user_dist;
-	double  user_x[3];
-	double  user_y[3];
-	double  user_z[3];
-	double  user_angle[3];
-	double  user_pitch[3];
+	double  UX[3];
+	double  UY[3];
+	double  UZ[3];
+	double  UAngle[3];
+	double  UPitch[3];
 	double  user_scale;
-	int user_pitchcheck;
+	int UPitchcheck;
 	int user_t;
 	int user_menu;
 	int user_type;
 	int user_looking;
 	double  user_rotate;
 	int user_dir;
-	int user_sin;
+	int USin;
 	int user_weap;
 	+DONTTHRUST
 	+NOGRAVITY
@@ -478,8 +478,8 @@ Class HoloSelectable : Actor
 				user_dir = 0;	
 				return ResolveState("Idling");	
 			}
-			user_angleb = angle;
-			user_sin = -90 + (180/RotateTime);
+			UAngleb = angle;
+			USin = -90 + (180/RotateTime);
 			return ResolveState("RotateLoop");
 		}
 		
@@ -490,8 +490,8 @@ Class HoloSelectable : Actor
 			(user_dir * (user_rotate / RotateTime)),
 			WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_USECALLERANGLE);
 			
-			user_sin += (180/RotateTime);
-			if (user_sin > 90)
+			USin += (180/RotateTime);
+			if (USin > 90)
 			{ 
 				A_TakeInventory("HoloRotate",32767,0,MasterPtr);
 				A_TakeInventory("HoloRotateLeft",32767,0,MasterPtr);
@@ -734,14 +734,14 @@ Class HoloSelectable : Actor
 		M668 "#" 0 
 		{
 			A_Warp(MasterPtr,0,0,ZHeight,0,WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE);
-			A_SetUserArrayFloat(user_x, 0, x);
-			A_SetUserArrayFloat(user_y, 0, y);
-			A_SetUserArrayFloat(user_z, 0, z);
+			A_SetUserArrayFloat(UX, 0, x);
+			A_SetUserArrayFloat(UY, 0, y);
+			A_SetUserArrayFloat(UZ, 0, z);
 			A_Warp(MasterPtr,-Distance,0,ZHeight,0,WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE);
-			A_SetUserArrayFloat(user_x, 1, x);
-			A_SetUserArrayFloat(user_y, 1, y);
-			A_SetUserArrayFloat(user_z, 1, z);
-			A_ChangeVelocity(-((user_xb-user_xa)/TimeDivider),-((user_yb-user_ya)/TimeDivider),0,CVF_REPLACE);
+			A_SetUserArrayFloat(UX, 1, x);
+			A_SetUserArrayFloat(UY, 1, y);
+			A_SetUserArrayFloat(UZ, 1, z);
+			A_ChangeVelocity(-((UXb-UXa)/TimeDivider),-((UYb-UYa)/TimeDivider),0,CVF_REPLACE);
 		}
 	InactiveLoop:
 		M668 "#" 1
@@ -761,7 +761,7 @@ Class HoloSelectable : Actor
 			if (IsPointerEqual(TracerPtr,NullPtr))	{	return ResolveState("Null");	}
 			if (!CountInv("MenuToken",MasterPtr))	
 			{	
-				A_ChangeVelocity(((user_xb-user_xa)/TimeDivider),((user_yb-user_ya)/TimeDivider),0,CVF_REPLACE);
+				A_ChangeVelocity(((UXb-UXa)/TimeDivider),((UYb-UYa)/TimeDivider),0,CVF_REPLACE);
 				return ResolveState("Normalize");	
 			}
 			return ResolveState(null);
@@ -820,20 +820,20 @@ Class WeaponUpgradeHolo : Actor
 	const Distance = 84;
 	const ZHeight = 32;
 	double  user_dist;
-	double  user_x[3];
-	double  user_y[3];
-	double  user_z[3];
-	double  user_angle[3];
-	double  user_pitch[3];
+	double  UX[3];
+	double  UY[3];
+	double  UZ[3];
+	double  UAngle[3];
+	double  UPitch[3];
 	int user_direw; // East (1) or West (-1)
 	int user_dirns; // North (1) or South (-1)
-	int user_pitchcheck;
+	int UPitchcheck;
 	int user_t;
 	int user_menu;
 	int user_type;
 	int user_looking;
 	int user_cash;
-	int user_cost;
+	int UCost;
 	int user_require;
 	int user_purchased; //Replace with a green checkmark once bought.
 	int user_spriteset;
@@ -868,9 +868,9 @@ Class WeaponUpgradeHolo : Actor
 			user_t = tid;//Don't keep the TID for compatibility sake
 			Thing_ChangeTID(0,0);
 			user_dist = GetDistance(false, TracerPtr);
-			user_xa = x;
-			user_ya = y;
-			user_za = z;
+			UXa = x;
+			UYa = y;
+			UZa = z;
 		}
 			/*
 	ID_U1Pistol = 			100,
@@ -1104,61 +1104,61 @@ Class WeaponUpgradeHolo : Actor
 	HighlightFramed:
 		"####" "#" 0 
 		{
-				 if (user_t == ID_U1Pistol)			{ user_cost =  GetCvar("Cost_U1Pistol); }
-			else if (user_t == ID_U2Pistol)			{ user_cost =  GetCvar("Cost_U2Pistol); }
-			else if (user_t == ID_U3Pistol)			{ user_cost =  GetCvar("Cost_U3Pistol); }
-			else if (user_t == ID_U4Pistol)			{ user_cost =  GetCvar("Cost_U4Pistol); }
-			else if (user_t == ID_U1Shotgun)		{ user_cost =  GetCvar("Cost_U1Shotgun); }
-			else if (user_t == ID_U2Shotgun)		{ user_cost =  GetCvar("Cost_U2Shotgun); }
-			else if (user_t == ID_U1SuperShotgun)	{ user_cost =  GetCvar("Cost_U1SuperShotgun); }
-			else if (user_t == ID_U2SuperShotgun)	{ user_cost =  GetCvar("Cost_U2SuperShotgun); }
-			else if (user_t == ID_U3SuperShotgun)	{ user_cost =  GetCvar("Cost_U3SuperShotgun); user_require = 2; }
-			else if (user_t == ID_U4SuperShotgun)	{ user_cost =  GetCvar("Cost_U4SuperShotgun); user_require = 1; }
-			else if (user_t == ID_U1AssaultRifle)	{ user_cost =  GetCvar("Cost_U1AssaultRifle); }
-			else if (user_t == ID_U2AssaultRifle)	{ user_cost =  GetCvar("Cost_U2AssaultRifle); }
-			else if (user_t == ID_U1Chaingun)		{ user_cost =  GetCvar("Cost_U1Chaingun); }
-			else if (user_t == ID_U2Chaingun)		{ user_cost =  GetCvar("Cost_U2Chaingun); }
-			else if (user_t == ID_U3Chaingun)		{ user_cost =  GetCvar("Cost_U3Chaingun); }
-			else if (user_t == ID_U1RocketLauncher)	{ user_cost =  GetCvar("Cost_U1RocketLauncher); }
-			else if (user_t == ID_U2RocketLauncher)	{ user_cost =  GetCvar("Cost_U2RocketLauncher); }
-			else if (user_t == ID_U1PlasmaRifle)	{ user_cost =  GetCvar("Cost_U1PlasmaRifle); }
-			else if (user_t == ID_U2PlasmaRifle)	{ user_cost =  GetCvar("Cost_U2PlasmaRifle); }
-		//	else if (user_t == ID_U1BFG)			{ user_cost =  GetCvar("Cost_U1BFG); }
-		//	else if (user_t == ID_U2BFG)			{ user_cost =  GetCvar("Cost_U2BFG); }
-			else if (user_t == ID_U1GaussCannon)	{ user_cost =  GetCvar("Cost_U1GaussCannon); }
-			else if (user_t == ID_U2GaussCannon)	{ user_cost =  GetCvar("Cost_U2GaussCannon); }
-			else if (user_t == ID_U1LightningGun)	{ user_cost =  GetCvar("Cost_U1LightningGun); }
-			else if (user_t == ID_U2LightningGun)	{ user_cost =  GetCvar("Cost_U2LightningGun); }
-			else if (user_t == ID_U3LightningGun)	{ user_cost =  GetCvar("Cost_U3LightningGun); }
-			else if (user_t == ID_U4LightningGun)	{ user_cost =  GetCvar("Cost_U4LightningGun); }
-			else if (user_t == ID_U1StaticRifle)	{ user_cost =  GetCvar("Cost_U1StaticRifle); }
-			else if (user_t == ID_U2StaticRifle)	{ user_cost =  GetCvar("Cost_U2StaticRifle); user_require = 3; }
-			else if (user_t == ID_U3StaticRifle)	{ user_cost =  GetCvar("Cost_U3StaticRifle); user_require = 4; }
-			else if (user_t == ID_U4StaticRifle)	{ user_cost =  GetCvar("Cost_U4StaticRifle); user_require = 5; }
+				 if (user_t == ID_U1Pistol)			{ UCost =  GetCvar("Cost_U1Pistol); }
+			else if (user_t == ID_U2Pistol)			{ UCost =  GetCvar("Cost_U2Pistol); }
+			else if (user_t == ID_U3Pistol)			{ UCost =  GetCvar("Cost_U3Pistol); }
+			else if (user_t == ID_U4Pistol)			{ UCost =  GetCvar("Cost_U4Pistol); }
+			else if (user_t == ID_U1Shotgun)		{ UCost =  GetCvar("Cost_U1Shotgun); }
+			else if (user_t == ID_U2Shotgun)		{ UCost =  GetCvar("Cost_U2Shotgun); }
+			else if (user_t == ID_U1SuperShotgun)	{ UCost =  GetCvar("Cost_U1SuperShotgun); }
+			else if (user_t == ID_U2SuperShotgun)	{ UCost =  GetCvar("Cost_U2SuperShotgun); }
+			else if (user_t == ID_U3SuperShotgun)	{ UCost =  GetCvar("Cost_U3SuperShotgun); user_require = 2; }
+			else if (user_t == ID_U4SuperShotgun)	{ UCost =  GetCvar("Cost_U4SuperShotgun); user_require = 1; }
+			else if (user_t == ID_U1AssaultRifle)	{ UCost =  GetCvar("Cost_U1AssaultRifle); }
+			else if (user_t == ID_U2AssaultRifle)	{ UCost =  GetCvar("Cost_U2AssaultRifle); }
+			else if (user_t == ID_U1Chaingun)		{ UCost =  GetCvar("Cost_U1Chaingun); }
+			else if (user_t == ID_U2Chaingun)		{ UCost =  GetCvar("Cost_U2Chaingun); }
+			else if (user_t == ID_U3Chaingun)		{ UCost =  GetCvar("Cost_U3Chaingun); }
+			else if (user_t == ID_U1RocketLauncher)	{ UCost =  GetCvar("Cost_U1RocketLauncher); }
+			else if (user_t == ID_U2RocketLauncher)	{ UCost =  GetCvar("Cost_U2RocketLauncher); }
+			else if (user_t == ID_U1PlasmaRifle)	{ UCost =  GetCvar("Cost_U1PlasmaRifle); }
+			else if (user_t == ID_U2PlasmaRifle)	{ UCost =  GetCvar("Cost_U2PlasmaRifle); }
+		//	else if (user_t == ID_U1BFG)			{ UCost =  GetCvar("Cost_U1BFG); }
+		//	else if (user_t == ID_U2BFG)			{ UCost =  GetCvar("Cost_U2BFG); }
+			else if (user_t == ID_U1GaussCannon)	{ UCost =  GetCvar("Cost_U1GaussCannon); }
+			else if (user_t == ID_U2GaussCannon)	{ UCost =  GetCvar("Cost_U2GaussCannon); }
+			else if (user_t == ID_U1LightningGun)	{ UCost =  GetCvar("Cost_U1LightningGun); }
+			else if (user_t == ID_U2LightningGun)	{ UCost =  GetCvar("Cost_U2LightningGun); }
+			else if (user_t == ID_U3LightningGun)	{ UCost =  GetCvar("Cost_U3LightningGun); }
+			else if (user_t == ID_U4LightningGun)	{ UCost =  GetCvar("Cost_U4LightningGun); }
+			else if (user_t == ID_U1StaticRifle)	{ UCost =  GetCvar("Cost_U1StaticRifle); }
+			else if (user_t == ID_U2StaticRifle)	{ UCost =  GetCvar("Cost_U2StaticRifle); user_require = 3; }
+			else if (user_t == ID_U3StaticRifle)	{ UCost =  GetCvar("Cost_U3StaticRifle); user_require = 4; }
+			else if (user_t == ID_U4StaticRifle)	{ UCost =  GetCvar("Cost_U4StaticRifle); user_require = 5; }
 			/*
-			else if (user_t == ID_U1Chainsaw)		{ user_cost =  GetCvar("Cost_U1Chainsaw); }
-			else if (user_t == ID_U2Chainsaw)		{ user_cost =  GetCvar("Cost_U2Chainsaw); }
-			else if (user_t == ID_U3Chainsaw)		{ user_cost =  GetCvar("Cost_U3Chainsaw); }
-			else if (user_t == ID_U4Chainsaw)		{ user_cost =  GetCvar("Cost_U4Chainsaw); }
+			else if (user_t == ID_U1Chainsaw)		{ UCost =  GetCvar("Cost_U1Chainsaw); }
+			else if (user_t == ID_U2Chainsaw)		{ UCost =  GetCvar("Cost_U2Chainsaw); }
+			else if (user_t == ID_U3Chainsaw)		{ UCost =  GetCvar("Cost_U3Chainsaw); }
+			else if (user_t == ID_U4Chainsaw)		{ UCost =  GetCvar("Cost_U4Chainsaw); }
 			
-			else if (user_t == ID_U3Hellshot)		{ user_cost =  GetCvar("Cost_U3Hellshot); }
-			else if (user_t == ID_U4Hellshot)		{ user_cost =  GetCvar("Cost_U4Hellshot); }
+			else if (user_t == ID_U3Hellshot)		{ UCost =  GetCvar("Cost_U3Hellshot); }
+			else if (user_t == ID_U4Hellshot)		{ UCost =  GetCvar("Cost_U4Hellshot); }
 			*/
 			
-			else if (user_t == ID_U1Repeater)		{ user_cost =  GetCvar("Cost_U1Repeater); }
-			else if (user_t == ID_U2Repeater)		{ user_cost =  GetCvar("Cost_U2Repeater); }
-			else if (user_t == ID_U3Repeater)		{ user_cost =  GetCvar("Cost_U3Repeater); }
-			else if (user_t == ID_U4Repeater)		{ user_cost =  GetCvar("Cost_U4Repeater); }
-			else if (user_t == ID_U1VortexRifle)	{ user_cost =  GetCvar("Cost_U1VortexRifle); }
-			else if (user_t == ID_U2VortexRifle)	{ user_cost =  GetCvar("Cost_U2VortexRifle); }
-			else if (user_t == ID_U3VortexRifle)	{ user_cost =  GetCvar("Cost_U3VortexRifle); }
-			else if (user_t == ID_U4VortexRifle)	{ user_cost =  GetCvar("Cost_U4VortexRifle); }
-			else if (user_t == ID_U1Hellshot)		{ user_cost =  GetCvar("Cost_U1Hellshot); }
-			else if (user_t == ID_U2Hellshot)		{ user_cost =  GetCvar("Cost_U2Hellshot); }
+			else if (user_t == ID_U1Repeater)		{ UCost =  GetCvar("Cost_U1Repeater); }
+			else if (user_t == ID_U2Repeater)		{ UCost =  GetCvar("Cost_U2Repeater); }
+			else if (user_t == ID_U3Repeater)		{ UCost =  GetCvar("Cost_U3Repeater); }
+			else if (user_t == ID_U4Repeater)		{ UCost =  GetCvar("Cost_U4Repeater); }
+			else if (user_t == ID_U1VortexRifle)	{ UCost =  GetCvar("Cost_U1VortexRifle); }
+			else if (user_t == ID_U2VortexRifle)	{ UCost =  GetCvar("Cost_U2VortexRifle); }
+			else if (user_t == ID_U3VortexRifle)	{ UCost =  GetCvar("Cost_U3VortexRifle); }
+			else if (user_t == ID_U4VortexRifle)	{ UCost =  GetCvar("Cost_U4VortexRifle); }
+			else if (user_t == ID_U1Hellshot)		{ UCost =  GetCvar("Cost_U1Hellshot); }
+			else if (user_t == ID_U2Hellshot)		{ UCost =  GetCvar("Cost_U2Hellshot); }
 			
-			else { user_cost =  0; }
+			else { UCost =  0; }
 			ACS_NamedExecute("ShowUpgradeName",0,user_t,0,0);
-			ACS_NamedExecute("ShowCost",0,user_cost,user_dirns,user_direw);
+			ACS_NamedExecute("ShowCost",0,UCost,user_dirns,user_direw);
 			ACS_NamedExecute("ShowRequirements",0,user_require,user_dirns,user_direw);
 			user_cash = CountInv("D4DCash",MasterPtr);
 			user_looking = 1;
@@ -1210,7 +1210,7 @@ Class WeaponUpgradeHolo : Actor
 					A_TakeInventory("MenuSelect",32767,0,MasterPtr);
 					A_PlaySound("Doom4/Player/Nope",Channels);
 				}
-				else if (user_cash < user_cost)
+				else if (user_cash < UCost)
 				{	
 					A_TakeInventory("MenuSelect",32767,0,MasterPtr);
 					A_PlaySound("Doom4/Player/Nope",Channels);
@@ -1313,10 +1313,10 @@ Class WeaponUpgradeHolo : Actor
 			//if (user_t == ID_U2Pistol)				{	user_direw = -1;	user_dirns = 1;		if (CountInv("PistolUpgradeAltDamage",MasterPtr))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(23);	} // W
 			//if (user_t == ID_U3Pistol)				{	user_direw = 1;		user_dirns = -1;	if (CountInv("PistolUpgradeAltCharge",MasterPtr))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(34);	} // D
 			//if (user_t == ID_U4Pistol)				{	user_direw = -1;	user_dirns = -1;	if (CountInv("PistolUpgradeDamage",MasterPtr))			{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(35);	} // E
-			if (user_cost)
+			if (UCost)
 			{	
-				A_GiveInventory("D4DCashFake",user_cost,MasterPtr);
-				A_TakeInventory("D4DCash",user_cost,0,MasterPtr);	
+				A_GiveInventory("D4DCashFake",UCost,MasterPtr);
+				A_TakeInventory("D4DCash",UCost,0,MasterPtr);	
 				A_GiveInventory("CashUpdaterNegative",1,MasterPtr);
 			}
 			user_purchased = 1;
@@ -1450,9 +1450,9 @@ Class HoloConfirmation : Actor
 {
 	const Distance = 84;
 	const ZHeight = 32;
-	double  user_x[2];
-	double  user_y[2];
-	double  user_z[2];
+	double  UX[2];
+	double  UY[2];
+	double  UZ[2];
 	int user_t;
 	Projectile;
 	+NOTIMEFREEZE
@@ -1466,9 +1466,9 @@ Class HoloConfirmation : Actor
 		{
 			user_t = tid;
 			Thing_ChangeTID(0,0);
-			A_SetUserArray(user_x,0,x);
-			A_SetUserArray(user_y,0,y);
-			A_SetUserArray(user_z,0,z);
+			A_SetUserArray(UX,0,x);
+			A_SetUserArray(UY,0,y);
+			A_SetUserArray(UZ,0,z);
 			
 			if (user_t == CheckMark)	{ return ResolveState(1); }
 			return ResolveState(2);
@@ -1507,7 +1507,7 @@ Class HoloCursor : Actor
 	int user_menu;
 	double  user_dist;
 	double  user_a;
-	double  user_z;
+	double  UZ;
 	int user_weap;
 	int user_cd;
 	int user_given;
@@ -1526,8 +1526,8 @@ Class HoloCursor : Actor
 	Spawn:
 		M667 Z 0 NoDelay 
 		{
-			user_z = 45;
-			A_Warp(MasterPtr,Distance,0,user_z,0,WARPF_NOCHECKPOSITION);
+			UZ = 45;
+			A_Warp(MasterPtr,Distance,0,UZ,0,WARPF_NOCHECKPOSITION);
 			
 			A_RearrangePointers(NullPtr,DefPtr,DefPtr,4);
 			if (CountInv("D4GaussCannon",MasterPtr))		{	user_weap++;	}
@@ -1552,15 +1552,15 @@ Class HoloCursor : Actor
 			//==================================================================
 			// Adjust the angle and z based on raw input. The player's totally frozen
 			// so it must be raw, not modded.
-			user_mousespeed = GetCvar("user_MenuMouseSpeed);
+			user_mousespeed = GetCvar("D4D_MenuMouseSpeed);
 			user_a = user_a + ((GetPlayerInput(INPUT_YAW,MasterPtr))/32767.0) * user_mousespeed;
-			user_z = user_z + ((GetPlayerInput(INPUT_PITCH,MasterPtr))/32767.0) * (user_mousespeed * 2);
+			UZ = UZ + ((GetPlayerInput(INPUT_PITCH,MasterPtr))/32767.0) * (user_mousespeed * 2);
 			user_a = Clamp(user_a,-AngleLimit,AngleLimit);
-			user_z = Clamp(user_z,0,ZLimit);
+			UZ = Clamp(UZ,0,ZLimit);
 			
 			//==================================================================
 			// Move the pointer.
-			A_Warp(MasterPtr,Distance,0,user_z,user_a,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
+			A_Warp(MasterPtr,Distance,0,UZ,user_a,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
 			
 			//==================================================================
 			// Cooldown to prevent breaking things such as selecting menu items
@@ -1577,7 +1577,7 @@ Class HoloCursor : Actor
 				!(GetPlayerInput(INPUT_OLDBUTTONS,MasterPtr) & BT_ALTATTACK))
 			{
 				A_GiveInventory("TextClearer",1,MasterPtr);
-				if (GetCvar("user_SecondaryExit) > 0 && !(CountInv("MenuToken",MasterPtr)))
+				if (GetCvar("D4D_SecondaryExit) > 0 && !(CountInv("MenuToken",MasterPtr)))
 				{	A_GiveInventory("ToggleMenu",1,MasterPtr);	}
 				A_TakeInventory("MenuToken",1,0,MasterPtr);
 				A_GiveToSiblings("LookingAtClearer",1);
@@ -1769,10 +1769,10 @@ Class EndHoloEffect : CustomInventory
 
 Class HoloVelocityKeeper : Actor 
 {
-	double  user_x;
-	double  user_y;
-	double  user_z;
-	double  user_pitch;
+	double  UX;
+	double  UY;
+	double  UZ;
+	double  UPitch;
 	Projectile;
 	+NOINTERACTION
 	+NOTONAUTOMAP
@@ -1783,20 +1783,20 @@ Class HoloVelocityKeeper : Actor
 	Spawn:
 		TNT1 A -1 NoDelay
 		{
-			user_x = vel.x;
-			user_y = vel.y;
-			user_z = vel.z;
+			UX = vel.x;
+			UY = vel.y;
+			UZ = vel.z;
 			A_Stop();
 			A_Warp(MasterPtr,0,0,0,0,WARPF_COPYPITCH|WARPF_NOCHECKPOSITION);
-			user_pitch = pitch;
+			UPitch = pitch;
 			A_SetPitch(0,SPF_INTERPOLATE,MasterPtr);
 		}
 	Death:
 		TNT1 A 0 
 		{
-			A_ChangeVelocity(user_x,user_y,user_z,CVF_REPLACE,MasterPtr);
+			A_ChangeVelocity(UX,UY,UZ,CVF_REPLACE,MasterPtr);
 		}
-		TNT1 A 1 A_SetPitch(user_pitch,SPF_INTERPOLATE,MasterPtr)
+		TNT1 A 1 A_SetPitch(UPitch,SPF_INTERPOLATE,MasterPtr)
 		Stop;
 	}
 }

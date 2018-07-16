@@ -13,7 +13,7 @@
 //===================================================================================================
 const RailFlags = 	RGF_SILENT|RGF_FULLBRIGHT|RGF_NOPIERCING;
 const RailFlags3 = 	RGF_SILENT|RGF_FULLBRIGHT;
-
+const StaticLength = 1024;
 Class StaticRifleChargingToken : Inventory { Default { Inventory.MaxAmount 540; } }// 520 is max already, the extra 20 is a cushion to retain "max charge"
 Class ShowStaticRifleCharge : Inventory {}
 
@@ -183,28 +183,29 @@ Class D4StaticRifle : Doom4Weapon
 			if (CountInv("StaticRifleChargingToken")>=20)
 			{
 				A_GunFlash("Null");
-				if (CountInv("StaticRifleChargingToken")>=520)	//if at max
+				if (CountInv("StaticRifleChargingToken") >= 520)	//if at max
 				{
-					if (GetCvar("vid_renderer"))	//gzdoom
+					A_FireBullets(0,0,1,0,"PacifistPuff",FBF_NORANDOM|FBF_NORANDOMPUFFZ|FBF_PUFFTRACER,StaticLength,"StaticTrailBigSpawner",0,5);
+					A_RailAttack(random(100,200),0,1,"Red","",RGF_SILENT|RGF_FULLBRIGHT,0,"StaticPuff",0,0,32765,0,2.0,1.0);
+				}
+				else	//normal attacks
+				{
+					Class<Actor> Puff = null;
+					int Flag = 0;
+					
+					if (CountInv("StaticUpgrade3"))
 					{
-						A_RailAttack(0,1,0,"","",RGF_SILENT|RGF_FULLBRIGHT,0,null,0,0,32765,0,Sparsity,0.0,"StaticTrailBig");
+						Puff = "PacifistPuff";
+						Flag = RailFlags3;
 					}
-					A_RailAttack(random(100,200),0,1,"Red","",RGF_SILENT|RGF_FULLBRIGHT,0,null,0,0,32765,0,2.0,1.0);
+					else
+					{
+						Puff = "PacifistPuffNoThru";
+						Flag = RailFlags;
+					}
+					A_FireBullets(0,0,1,0,Puff,FBF_NORANDOM|FBF_NORANDOMPUFFZ|FBF_PUFFTRACER,StaticLength,"StaticTrailSpawner",0,5);
+					A_RailAttack(int(CountInv("StaticRifleChargingToken")*0.85),0,1,"","",Flag,0,"StaticPuff",0,0,32765,0,2.0,1.0);
 				}
-				
-				
-				//normal attacks
-				if (GetCvar("vid_renderer"))	//gzdoom
-				{	
-					A_RailAttack(0,1,0,"","",(CountInv("StaticUpgrade3") ? RailFlags3 : RailFlags),0,null,0,0,32765,0,Sparsity,0.0,"StaticTrail"); 
-				}
-				else		//zdoom
-				{	A_RailAttack(0,1,0,"","Orange",(CountInv("StaticUpgrade3") ? RailFlags3 : RailFlags),0,null,0,0,32765,0,2,0.0,"StaticRifleTrailSoftware"); }
-				
-				
-				A_RailAttack(int(CountInv("StaticRifleChargingToken")*0.85),0,1,"","",(CountInv("StaticUpgrade3") ? RailFlags3 : RailFlags),0,"StaticPuff",0,0,32765,0,2.0,1.0);
-				
-				
 			}
 			//refuses to fire if the charge was too low
 			else
@@ -281,7 +282,7 @@ Class StaticRifleActive : 	Inventory {}
 
 Class ChargeSoundPlayer : Actor 
 {
-	double user_dist;
+	double dist;
 	Default 
 	{
 		+NOINTERACTION
@@ -305,8 +306,8 @@ Class ChargeSoundPlayer : Actor
 			{	A_Warp(MasterPtr,0,0,32,0,WARPF_NOCHECKPOSITION);	}
 			else
 			{
-				user_dist = 1040 - (CountInv("StaticRifleChargingToken",MasterPtr) * 2);
-				A_Warp(MasterPtr,-user_dist,0,32,0,WARPF_NOCHECKPOSITION);
+				dist = 1040 - (CountInv("StaticRifleChargingToken",MasterPtr) * 2);
+				A_Warp(MasterPtr,-dist,0,32,0,WARPF_NOCHECKPOSITION);
 			}
 		}
 		Loop;
@@ -358,31 +359,6 @@ Class StaticHitSound : CustomInventory
 	}
 }
 //----------------------------------------------------------------------
-
-Class StaticTrail : TrailBeam
-{
-	Default 
-	{
-		XScale 0.1;
-		YScale 0.25; //Don't touch.
-	}
-	States
-	{
-	Spawn:
-		X202 C 0 NoDelay
-		{
-			//pitch *= -1;
-			//if (tid) { angle += 180; }
-			// user_time = time to shrink to nothing
-			user_time = 25.0;
-			A_SpawnItemEx("StaticTrail",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERSCALE|SXF_TRANSFERPOINTERS,tid * 256,1);
-		}
-		Goto Process;
-	}
-}
-
-Class StaticTrailBig : StaticTrail
-{	Default {	XScale 0.15;	}	}
 
 Class StaticRiflePitch8 : Actor 
 {

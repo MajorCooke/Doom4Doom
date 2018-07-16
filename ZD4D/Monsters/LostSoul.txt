@@ -35,9 +35,9 @@ BLESSED (White)
 Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for the version that DO give cash
 {
 	const SpawnDelay = 2;
-	int user_chasecount;
-	int user_wanderdelay;
-	int user_wanderstopped;
+	int chasecount;
+	int wanderdelay;
+	int wanderstopped;
 	int WaitTics;
 	bool charging;
 	Class<Actor> Flame, Flare;
@@ -123,10 +123,10 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 		PSUL AAA 2 BRIGHT Light("BlueSmallFlicker1")
 		{
 			charging = false;
-			if(user_chasecount==1)
-			{	D4Chase(); user_chasecount=0;	}
+			if(chasecount==1)
+			{	D4Chase(); chasecount=0;	}
 			else
-			{	D4Chase(null,null); user_chasecount++;	}
+			{	D4Chase(null,null); chasecount++;	}
 					
 		}
 		Loop;
@@ -494,7 +494,7 @@ Class D4OldLostSoulNoCash : D4AbstractMonster
 
 Class LostSoulExploParticleRed : Actor 
 {
-	int user_counter;
+	int counter;
 	Default 
 	{
 		+NOINTERACTION

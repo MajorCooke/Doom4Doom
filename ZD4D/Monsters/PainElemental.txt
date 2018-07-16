@@ -35,7 +35,7 @@ BLESSED (White)
 Class D4PainElemental : D4AbstractBiggie
 {
 	
-	int user_staggertimer;
+	int staggertimer;
 	Default 
 	{
 		D4AbstractMonster.CrateDropAmount 2;
@@ -155,13 +155,8 @@ Class D4PainElemental : D4AbstractBiggie
 	Death.ChainsawPinata:
 		"####" "#" 0 A_GiveInventory("IWasMeleeKilled");
 	XDeath:
-		"####" "#" 0  //loot drop
-		{
-			//D4SetupLoot(true);
-		}
-		Goto XDeathNoDrops;
-		
 	XDeathNoDrops:
+		INFR L 0;
 		INFR L 2 bright 
 		{
 			bThruActors = true;
@@ -400,7 +395,7 @@ Class PainBreath : Actor
 //================================================================================================================
 Class D4OldPainElemental : D4AbstractBiggie // : PainElemental
 {
-	int user_staggertimer;
+	int staggertimer;
 	Default 
 	{
 		D4AbstractMonster.CrateDropAmount 3;

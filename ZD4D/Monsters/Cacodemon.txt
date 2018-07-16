@@ -34,7 +34,7 @@ BLESSED (White)
 
 Class D4Cacodemon : D4AbstractBiggie 
 {
-	int user_staggertimer;
+	int staggertimer;
 	
 	Default 
 	{
@@ -135,14 +135,9 @@ Class D4Cacodemon : D4AbstractBiggie
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		"####" "#" 0  //loot drop
-		{
-			//D4SetupLoot(true);
-		}
-		Goto XDeathNoDrops;
-		
 	XDeathNoDrops:	
-		TNT1 A 1
+		TNT1 A 0;
+		TNT1 A 10
 		{
 			bThruActors = true;
 			XDeathGush(Color_Blue);
@@ -443,7 +438,7 @@ Class D4CacoBallTrailMini : Actor
 Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon //replaces Cacodemon
 {
 	
-	int user_staggertimer;
+	int staggertimer;
 	Default 
 	{
 		Health 400;

@@ -67,7 +67,7 @@ Class PowerBaronMorph : PowerRuneBase
 
 Class PlayerBaron : DemonPlayerBase
 {
-	double user_speed;
+	double USpeed;
 	Default 
 	{
 		Speed 1;
@@ -129,15 +129,15 @@ Class PlayerBaron : DemonPlayerBase
 	Overlay.Steps:
 		TNT1 A 5
 		{
-			user_speed = (vel.x*vel.x + vel.y*vel.y);
+			USpeed = (vel.x*vel.x + vel.y*vel.y);
 			if (A_CheckFloor("Null"))
 			{
-				if(user_speed > 150)
+				if(USpeed > 150)
 				{
 					A_PlaySound("Player/Demon/HeavyStep",CHAN_AUTO,0.9);
 					A_SetTics(12);
 				}
-				else if(user_speed > 20)
+				else if(USpeed > 20)
 				{
 					A_PlaySound("Player/Demon/HeavyStep",CHAN_AUTO,0.9);
 					A_SetTics(15);
@@ -295,7 +295,7 @@ Class BaronPlayerMuzzle : Actor
 	const Distance = 19;
 	const YOff = 16;
 	const ZOff = 64;
-	double  user_pos;
+	double  UPos;
 	int user_t;
 	
 	Default 
@@ -320,10 +320,10 @@ Class BaronPlayerMuzzle : Actor
 			// Remember: positive pitch means looking up, and vice versa.
 				
 			pitch = master.pitch;
-			user_pos = (sin(pitch) * ((pitch > 0) ? 12 : 6));
+			UPos = (sin(pitch) * ((pitch > 0) ? 12 : 6));
 					
 			A_Warp(MasterPtr,
-				(cos(-pitch)*(Distance)) - user_pos,
+				(cos(-pitch)*(Distance)) - UPos,
 				YOff,
 				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
 							

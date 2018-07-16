@@ -35,9 +35,10 @@ BLESSED (White)
 Class D4DoomImp : D4AbstractMonster 
 {
 	
-	int user_staggertimer;
+	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.UpgradeDropChance 280;
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 4;
 		D4AbstractMonster.CashAmount 10;
@@ -144,14 +145,9 @@ Class D4DoomImp : D4AbstractMonster
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		"####" "#" 0  //loot drop
-		{
-			//D4SetupLoot(true);
-		}
-		Goto XDeathNoDrops;
-		
 	XDeathNoDrops:	
-		TNT1 A 1
+		TNT1 A 0;
+		TNT1 A 10
 		{
 			bThruActors = true;
 			XDeathGush();
@@ -685,7 +681,7 @@ Class FireballDebrisTrail : Actor
 
 Class D4OldDoomImp : D4AbstractMonster // : DoomImp //replaces DoomImp
 {
-	int user_staggertimer;
+	int staggertimer;
 	Default 
 	{
 		Health 60;

@@ -31,6 +31,7 @@ Class D4AbstractMonster : Actor
 	Actor Spawner;
 	Color BC;
 	bool HQ;
+	transient CVar HighQuality;
 	
 	property BC: BC;
 	property UpgradeDropChance: UpgradeDropChance;
@@ -72,6 +73,17 @@ Class D4AbstractMonster : Actor
 		Super.Activate(activator);
 	}
 	
+	bool CheckEffects()
+	{
+		if (!HighQuality)
+			HighQuality = CVar.FindCvar("HQEffects");
+		if (HighQuality)
+			return HighQuality.GetBool();
+		
+		return false;
+	}
+	
+	
 	// Don't let removing scripts leave gaps.
 	
 	override void OnDestroy()
@@ -87,7 +99,9 @@ Class D4AbstractMonster : Actor
 		Super.OnDestroy();
 	}
 	
-	override void Die(Actor source, Actor inflictor, int dmgflags = 0)
+	
+	
+	override void Die(Actor source, Actor inflictor, int dmgflags)
 	{
 		bTHRUACTORS = true;
 		if (Spawner && Spawner.health > 0)
@@ -326,7 +340,7 @@ Class D4AbstractMonster : Actor
 		return dst;
 	}
 
-	bool CheckPitBeforeTarget(in out double dst = 480)
+	bool CheckPitBeforeTarget(in out double dst)
 	{
 		if (!target || !CheckSight(target)) return false;
 		
@@ -395,15 +409,7 @@ Class D4AbstractBoss : D4AbstractBiggie
 		DamageFactor "BFGBlast", 0.0;
 	}
 }
-Class D4AbstractMissile : Actor 
-{
-	bool HQ;
-	override void PostBeginPlay()
-	{
-		Super.PostBeginPlay();
-		HQ = GetCvar("HQEffects");
-	}
-}
+
 
 Class PainSoundToken : Inventory
 {}
@@ -456,10 +462,10 @@ Class DecoTest : Actor
 //===================================================================================
 Class HighlightBase : Actor
 {
-	int user_MainCounter;
-	int user_woundvalue;
-	int user_RecoverToAmount;
-	int user_StgrPainCounter;
+	int MainCounter;
+	int woundvalue;
+	int RecoverToAmount;
+	int StgrPainCounter;
 	Default
 	{
 		+NOINTERACTION
@@ -473,15 +479,15 @@ Class HighlightBase : Actor
 	Spawn:
 		TNT1 A 0 NODELAY 
 		{
-			user_RecoverToAmount=15;
+			RecoverToAmount=15;
 		}
 		Goto Looper;
 	Looper:
 		TNT1 A 1 Bright //by default, is invisible
 		{
-			if(user_MainCounter>=(GetCvar("D4D_StaggerLenght")*35) )
+			if(MainCounter>=(GetCvar("D4D_StaggerLenght")*35) )
 			{
-				A_SetHealth(user_RecoverToAmount,MasterPtr);	//heals the Monster;
+				A_SetHealth(RecoverToAmount,MasterPtr);	//heals the Monster;
 				A_TakeInventory("FinisherToken",32768,0,AAPTR_MASTER); // removes the finisher token
 				return ResolveState("Null");	//and this actor dies
 			}
@@ -490,10 +496,10 @@ Class HighlightBase : Actor
 				if(GetCvar("D4D_ExecutionHighlight")==1/* && GetCvar("vid_renderer")==0*/)	//if the highlight is ON and in software mode
 				{	A_CopySpriteFrame(MasterPtr,0);	}	//copies the sprite
 				
-				if(user_StgrPainCounter==35 || user_MainCounter==0) //if the stagger just started or one second has passed
+				if(StgrPainCounter==35 || MainCounter==0) //if the stagger just started or one second has passed
 				{ 
 					A_GiveInventory("PainSoundToken",1,MasterPtr);  //makes the parent actor play pain sound
-					user_StgrPainCounter=0;
+					StgrPainCounter=0;
 				}
 					
 				//Checks if it can warp (and warps) and ensures the master is alive	
@@ -509,8 +515,8 @@ Class HighlightBase : Actor
 					return ResolveState("Null");	//this actor dies, because is no longer needed
 				}
 					
-				user_MainCounter++;	//increases the main counter
-				user_StgrPainCounter++; //increases the 1 second counter for pain sounds
+				MainCounter++;	//increases the main counter
+				StgrPainCounter++; //increases the 1 second counter for pain sounds
 				return ResolveState(null);
 			}
 		}
@@ -532,7 +538,7 @@ Class ZombieHighlight : HighlightBase
 	{	Spawn:
 			TNT1 A 0 NODELAY 
 			{	
-				user_RecoverToAmount=15; //to how much will it heal after stagger times out
+				RecoverToAmount=15; //to how much will it heal after stagger times out
 			}
 			Goto Looper;
 	}
@@ -551,7 +557,7 @@ Class ChaingunnerHighlight : HighlightBase
 	States
 	{	Spawn:
 			TNT1 A 0 NODELAY 
-			{	user_RecoverToAmount=40;	}	//to how much will it heal after stagger times out
+			{	RecoverToAmount=40;	}	//to how much will it heal after stagger times out
 			Goto Looper;
 	}
 }
@@ -568,7 +574,7 @@ Class ImpHighlight : HighlightBase
 	States
 	{	Spawn:
 			TNT1 A 0 NODELAY 
-			{	user_RecoverToAmount=30;	}	//to how much will it heal after stagger times out
+			{	RecoverToAmount=30;	}	//to how much will it heal after stagger times out
 			Goto Looper;
 	}
 }
@@ -585,7 +591,7 @@ Class DemonHighlight : HighlightBase
 	States
 	{	Spawn:
 			TNT1 A 0 NODELAY 
-			{	user_RecoverToAmount=60;	}	//to how much will it heal after stagger times out
+			{	RecoverToAmount=60;	}	//to how much will it heal after stagger times out
 			Goto Looper;
 	}
 }
@@ -598,7 +604,7 @@ Class OldDemonHighlight : HighlightBase
 	States
 	{	Spawn:
 			TNT1 A 0 NODELAY 
-			{	user_RecoverToAmount=60;	}	//to how much will it heal after stagger times out
+			{	RecoverToAmount=60;	}	//to how much will it heal after stagger times out
 			Goto Looper;
 	}
 }
@@ -615,7 +621,7 @@ Class CacoHighlight : HighlightBase
 	States
 	{	Spawn:
 			TNT1 A 0 NODELAY 
-			{	user_RecoverToAmount=100;	}	//to how much will it heal after stagger times out
+			{	RecoverToAmount=100;	}	//to how much will it heal after stagger times out
 			Goto Looper;
 	}
 }
@@ -631,7 +637,7 @@ Class D4DPainElementalHighlight : HighlightBase
 	States
 	{	Spawn:
 			TNT1 A 0 NODELAY 
-			{	user_RecoverToAmount=101;	}	//to how much will it heal after stagger times out
+			{	RecoverToAmount=101;	}	//to how much will it heal after stagger times out
 			Goto Looper;
 	}
 }
@@ -655,7 +661,7 @@ Class D4DRevenantHighlight : HighlightBase
 	States
 	{	Spawn:
 			TNT1 A 0 NODELAY 
-			{	user_RecoverToAmount=100;	}	//to how much will it heal after stagger times out
+			{	RecoverToAmount=100;	}	//to how much will it heal after stagger times out
 			Goto Looper;
 	}
 }
@@ -679,7 +685,7 @@ Class D4DHellKnightHighlight : HighlightBase
 	States
 	{	Spawn:
 			TNT1 A 0 NODELAY 
-			{	user_RecoverToAmount=130;	}	//to how much will it heal after stagger times out
+			{	RecoverToAmount=130;	}	//to how much will it heal after stagger times out
 			Goto Looper;
 	}
 }
@@ -703,7 +709,7 @@ Class D4DBaronHighlight : HighlightBase
 	States
 	{	Spawn:
 			TNT1 A 0 NODELAY 
-			{	user_RecoverToAmount=180;	}	//to how much will it heal after stagger times out
+			{	RecoverToAmount=180;	}	//to how much will it heal after stagger times out
 			Goto Looper;
 	}
 }
@@ -716,7 +722,7 @@ Class BaronHighlight : HighlightBase
 	States
 	{	Spawn:
 			TNT1 A 0 NODELAY 
-			{	user_RecoverToAmount=180;	}	//to how much will it heal after stagger times out
+			{	RecoverToAmount=180;	}	//to how much will it heal after stagger times out
 			Goto Looper;
 	}
 }
@@ -732,7 +738,7 @@ Class D4DFatsoHighlight : HighlightBase
 	States
 	{	Spawn:
 			TNT1 A 0 NODELAY 
-			{	user_RecoverToAmount=130;	}	//to how much will it heal after stagger times out
+			{	RecoverToAmount=130;	}	//to how much will it heal after stagger times out
 			Goto Looper;
 	}
 }
@@ -755,7 +761,7 @@ Class ArachnoHighlight : HighlightBase
 	States
 	{	Spawn:
 			TNT1 A 0 NODELAY 
-			{	user_RecoverToAmount=130;	}	//to how much will it heal after stagger times out
+			{	RecoverToAmount=130;	}	//to how much will it heal after stagger times out
 			Goto Looper;
 	}
 }
@@ -772,7 +778,7 @@ Class D4DArchHighlight : HighlightBase
 	States
 	{	Spawn:
 			TNT1 A 0 NODELAY 
-			{	user_RecoverToAmount=180;	}	//to how much will it heal after stagger times out
+			{	RecoverToAmount=180;	}	//to how much will it heal after stagger times out
 			Goto Looper;
 	}
 }
@@ -785,7 +791,7 @@ Class OldArchHighlight : HighlightBase
 	States
 	{	Spawn:
 			TNT1 A 0 NODELAY 
-			{	user_RecoverToAmount=130;	}	//to how much will it heal after stagger times out
+			{	RecoverToAmount=130;	}	//to how much will it heal after stagger times out
 			Goto Looper;
 	}
 }
@@ -804,14 +810,14 @@ Class CyberdemonHighlight : HighlightBase	//had to redefine, since these guys st
 	{	
 	Spawn:
 		TNT1 A 0 NODELAY 
-		{	user_RecoverToAmount=201;	}	//to how much will it heal after stagger times out
+		{	RecoverToAmount=201;	}	//to how much will it heal after stagger times out
 		Goto Looper;
 	Looper:
 		TNT1 A 1 Bright //by default, is invisible
 		{
-			if(user_MainCounter>=((GetCvar("D4D_StaggerLenght")*0.5)*35) )	//lasts only half of the time
+			if(MainCounter>=((GetCvar("D4D_StaggerLenght")*0.5)*35) )	//lasts only half of the time
 			{
-				A_SetHealth(user_RecoverToAmount,MasterPtr);	//heals the Monster;
+				A_SetHealth(RecoverToAmount,MasterPtr);	//heals the Monster;
 				A_TakeInventory("FinisherToken",32768,0,AAPTR_MASTER); // removes the finisher token
 				return ResolveState("Null");	//and this actor dies
 			}
@@ -820,10 +826,10 @@ Class CyberdemonHighlight : HighlightBase	//had to redefine, since these guys st
 				if(GetCvar("D4D_ExecutionHighlight")==1  && GetCvar("vid_renderer")==0)	//if the highlight is ON
 				{	A_CopySpriteFrame(MasterPtr,0);	}	//copies the sprite
 				
-				if(user_StgrPainCounter==35 || user_MainCounter==0) //if the stagger just started or one second has passed
+				if(StgrPainCounter==35 || MainCounter==0) //if the stagger just started or one second has passed
 				{ 
 					A_GiveInventory("PainSoundToken",1,MasterPtr);  //makes the parent actor play pain sound
-					user_StgrPainCounter=0;
+					StgrPainCounter=0;
 				}
 					
 				//Checks if it can warp (and warps) and ensures the master is alive	
@@ -839,8 +845,8 @@ Class CyberdemonHighlight : HighlightBase	//had to redefine, since these guys st
 					return ResolveState("Null");	//this actor dies, because is no longer needed
 				}
 					
-				user_MainCounter++;	//increases the main counter
-				user_StgrPainCounter++; //increases the 1 second counter for pain sounds
+				MainCounter++;	//increases the main counter
+				StgrPainCounter++; //increases the 1 second counter for pain sounds
 				return ResolveState(null);
 			}
 		}
@@ -861,7 +867,7 @@ Class MastermindHighlight : CyberdemonHighlight
 	States
 	{	Spawn:
 			TNT1 A 0 NODELAY 
-			{	user_RecoverToAmount=201;	}	//to how much will it heal after stagger times out
+			{	RecoverToAmount=201;	}	//to how much will it heal after stagger times out
 			Goto Looper;
 	}
 }

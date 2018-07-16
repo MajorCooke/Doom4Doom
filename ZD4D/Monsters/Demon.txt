@@ -35,12 +35,13 @@ BLESSED (White)
 Class D4Demon : D4AbstractMonster 
 {
 	
-	int user_staggertimer;
-	int user_Shielded;
-	int user_accelerator;
-	int user_chargecooldown;
+	int staggertimer;
+	int Shielded;
+	int accelerator;
+	int chargecooldown;
 	Default 
 	{
+		D4AbstractMonster.UpgradeDropChance 250;
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 4;
 		D4AbstractMonster.CashAmount 30;
@@ -96,25 +97,25 @@ Class D4Demon : D4AbstractMonster
 		D4DG AABBCCDD 2 Fast 
 		{
 			//Don't bother charging enemies that are beyond reach.
-			if (!A_JumpIfHigherOrLower("Null","Null") && user_chargecooldown <= 0)
+			if (!A_JumpIfHigherOrLower("Null","Null") && chargecooldown <= 0)
 			{	D4Chase();	}
 			else
 			{	D4Chase("Melee",null);	}
 		}
-		D4DG A 0 {user_chargecooldown--;}
+		D4DG A 0 {chargecooldown--;}
 		Loop;
 	Missile:
 		D4DG E 8 
 		{
 			A_FaceTarget();
 			A_PlaySound("Doom4/Monsters/Pinky/Charge");
-			user_accelerator = 5;
-			user_chargecooldown = 5; //how many "see" cycles it takes him to try to charge again
+			accelerator = 5;
+			chargecooldown = 5; //how many "see" cycles it takes him to try to charge again
 		}
 		D4DG A 0 
 		{
 			A_FaceTarget();
-			A_Recoil(-user_accelerator);
+			A_Recoil(-accelerator);
 		}
 		D4DG ABCDABCD 4 // full acceleration
 		{
@@ -122,8 +123,8 @@ Class D4Demon : D4AbstractMonster
 			{
 				return ResolveState("CrashedSomewhere");
 			}
-			A_Recoil(-user_accelerator);
-			user_accelerator += 2;
+			A_Recoil(-accelerator);
+			accelerator += 2;
 			return ResolveState(null);
 		}
 		D4DG ABCD 4 //slowing down
@@ -210,7 +211,7 @@ Class D4Demon : D4AbstractMonster
 	Wound:
 		"####" "#" 1
 		{
-			user_Shielded=0;
+			Shielded=0;
 			if(GetCvar("D4D_ExecutionsON"))
 			{
 				if(countinv("FinisherToken")==0) //if it isnt healing already
@@ -300,7 +301,7 @@ Class D4Demon : D4AbstractMonster
 
 Class DemonShield : Actor 
 {
-	int user_damage;
+	int UDamage;
 	int MasterCheck1, MasterCheck2, HealthCheck1, HealthCheck2;
 	Default 
 	{
@@ -386,17 +387,17 @@ Class D4Spectre : D4Demon //replaces Spectre
 	See:
 		D4DG A 0
 		{
-			user_Shielded=1;
+			Shielded=1;
 		}
 		D4DG AABBCCDD 2 Fast 
 		{
 			//Don't bother charging enemies that are beyond reach.
-			if (!A_JumpIfHigherOrLower("Null","Null") && user_chargecooldown <= 0)
+			if (!A_JumpIfHigherOrLower("Null","Null") && chargecooldown <= 0)
 			{	D4Chase();	}
 			else
 			{	D4Chase("Melee",null);	}
 		}
-		D4DG A 0 {user_chargecooldown--;}
+		D4DG A 0 {chargecooldown--;}
 		Loop;
 	}
 
@@ -422,7 +423,7 @@ Class D4Spectre : D4Demon //replaces Spectre
 
 Class D4OldDemon : D4AbstractMonster // : Demon //replaces Demon
 {
-	int user_staggertimer;
+	int staggertimer;
 	Default 
 	{
 		Health 150;
