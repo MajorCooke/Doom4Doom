@@ -338,10 +338,17 @@ extend class D4DHandler
 			// 2 means 1/2 chance, etc.
 			let plr = players[0].mo;
 			int Chance = (plr && plr.CountInv("PowerD4Money")) ? 4 : 1;
-			Chance *= Max(1,CashMul + (TotalMul * 2));
+			//Chance *= Max(1,CashMul + (TotalMul * 2));
+			Chance *= Max(1,TotalMul);
 			
-			bool AllowSleight = (UpgradeDropChance == -1);
+			bool AllowSleight = (UpgradeDropChance < 0);
 			if (AllowSleight)	UpgradeDropChance = D4D_PickupDropChance;
+			
+			// Black and white monsters always drop an upgrade.
+			// White drops 2, black drops 1. This stacks in accumulation
+			// with the rest of the drop chances.
+			UpgradeDropAlways += Clamp(TotalMul - 5, 0, 2);
+			
 			if (UpgradeDropChance > 0)
 			{
 				// Give a slight boost to enemies that are bosses as they're tougher.

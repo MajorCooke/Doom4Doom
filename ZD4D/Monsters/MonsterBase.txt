@@ -175,34 +175,42 @@ Class D4AbstractMonster : Actor
 		
 		if (!rarity)	return 0;
 		
+		int upgrade = CountInv("D4MonsterUpgrader");
+		
+		// Black and white monsters always drop demon runes.
+		if (upgrade >= 6)
+			return 1;
+			
+		id = Max(1, id - upgrade);
 		// Spider masterminds are the rarest of enemies. Give them special 
 		// treatment so players can enjoy playing the hell out of them.
 		if (CheckClass("D4SpiderMastermind") || CheckClass("D4OldSpiderMastermind"))
 		{
-			
 			// Only check for live ones.
 			int howmany = Max(1,CountProximity("D4SpiderMastermind",32767) + CountProximity("D4OldSpiderMastermind",32767) + 1);
+			howmany -= upgrade;
 			howmany = Clamp(howmany,1,RuneChance_Master);
 			if (rarity == 2)
 			{
-				return (random(1,howmany) == 1) ? true : false;
+				return (random(1,howmany) == 1) ? 1 : 0;
 			}
 			else if (rarity == 1)
 			{
-				return (random(1,howmany * 2) == 1) ? true : false;
+				return (random(1,howmany * 2) == 1) ? 1 : 0;
 			}
 		}
 		else if (CheckClass("D4Cyberdemon") || CheckClass("D4OldCyberdemon"))
 		{
 			int howmany = Max(1,CountProximity("D4Cyberdemon",32767) + CountProximity("D4OldCyberdemon",32767) + 1);
+			howmany -= upgrade;
 			howmany = Clamp(howmany,1,RuneChance_Cyber);
 			if (rarity == 2)
 			{
-				return (random(1,(howmany / 2)) == 1) ? true : false;
+				return (random(1,(howmany / 2)) == 1) ? 1 : 0;
 			}
 			else if (rarity == 1)
 			{
-				return (random(1,howmany) == 1) ? true : false;
+				return (random(1,howmany) == 1) ? 1 : 0;
 			}
 		}
 		else if (rarity == 2)		// Common
