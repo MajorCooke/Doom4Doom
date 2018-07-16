@@ -160,7 +160,7 @@ Class D4VortexRifle : Doom4Weapon
 				VortexRifle_DamageN * random(VortexRifle_DamageMinMulN, VortexRifle_DamageMaxMulN));
 			//	25*random(8,16) : 
 			//	20*random(5,15);
-			A_RailAttack(dmg,4,0,"","",RGF_SILENT|RGF_FULLBRIGHT|RGF_NORANDOMPUFFZ,0,null,0,0,32767);
+			A_RailAttack(dmg,4,true,"","",RGF_SILENT|RGF_FULLBRIGHT|RGF_NORANDOMPUFFZ,0,null,0,0,32767);
 			A_FireBullets(0,0,1,0,"PacifistPuff",FBF_NORANDOM|FBF_NORANDOMPUFFZ|FBF_PUFFTRACER,VortexLength,"VortexTrailSpawner",0,5);
 			//Ammo, checks for upgrade, takes either 12 or 8
 			//A_TakeInventory("D4Cells",CountInv("VortexUpgradeAmmo") ? 8 : 12,TIF_NOTAKEINFINITE);
@@ -211,7 +211,7 @@ Class D4VortexRifle : Doom4Weapon
 				VortexRifle_DamageU * random(VortexRifle_DamageMinMulU, VortexRifle_DamageMaxMulU) :
 				VortexRifle_DamageN * random(VortexRifle_DamageMinMulN, VortexRifle_DamageMaxMulN))
 				+ CountInv("VortexCharges") * 2;
-			A_RailAttack(dmg,0,0,0,0,toPierce,0,null,0,0,32767);
+			A_RailAttack(dmg,0,true,"","",toPierce,0,null,0,0,32767);
 			A_FireBullets(0,0,1,0,"PacifistPuff",FBF_NORANDOM|FBF_NORANDOMPUFFZ|FBF_PUFFTRACER,VortexLength,"VortexTrailSpawner",0,5);
 			//Ammo, checks for upgrade, takes either 15 or 10
 			//A_TakeInventory("D4Cells",CountInv("VortexUpgradeAmmo") ? 8 : 12,TIF_NOTAKEINFINITE);
