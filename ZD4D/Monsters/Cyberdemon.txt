@@ -55,6 +55,7 @@ Class D4Cyberdemon : D4AbstractBoss
 	
 	Default 
 	{
+		D4AbstractMonster.UpgradeDropChance 32;
 		D4AbstractMonster.CrateDropAmount 3;
 		D4AbstractMonster.CrateDropChance 192;
 		D4AbstractMonster.CrateDropAlways 2;
@@ -197,15 +198,8 @@ Class D4Cyberdemon : D4AbstractBoss
 			A_CustomRailgun(0,-22,"Orange","",RGF_FULLBRIGHT|RGF_SILENT,1,0,"PacifistPuff",0,0,2048,35,0,frandom(1.5,3.0),null,0,0);
 			// then the actual shot
 			// The puff does the damage dealing to prevent accidental 1k damage rape on players.
-			if (GetCvar("HQEffects"))
-			{
-				A_CustomRailgun(0,-20,"","Orange",RGF_FULLBRIGHT|RGF_SILENT,1,0,"CyberdemonRailPuff",0,0,2048,1,2,0,"CyberdemonLaserTrail",0);
-			}
-			else
-			{
-				A_CustomRailgun(0,-20,"","Orange",RGF_FULLBRIGHT|RGF_SILENT,1,0,"CyberdemonRailPuff",0,0,2048,1,2,0);
-			}
-			
+			A_CustomRailgun(0,-20,"","Orange",RGF_FULLBRIGHT|RGF_SILENT,1,0,"CyberdemonRailPuff",0,0,2048,1,100,0,"StaticTrailBig",0);
+			//A_CustomBulletAttack(0,0,1,0,"PacifistPuff",2048,CBAF_AIMFACING|CBAF_PUFFTRACER,AAPTR_TARGET,"StaticTrailBigSpawner",0,0);
 			int soundFlags = (target && target is "PlayerPawn") ? ATTN_NONE : ATTN_NORM;
 			A_PlaySound("Doom4/Weapon/GaussGun/Charge2Fire",7,1.0,0,soundFlags); //if its aiming at player, you'll hear it for sure
 			A_PlaySound("Doom4/Monsters/MastermindLaserFire",8,1.0,0,soundFlags); 			

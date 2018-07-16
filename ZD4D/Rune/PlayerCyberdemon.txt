@@ -212,14 +212,7 @@ Class D4DCyberdemonWeapon : DoomWeapon
 		MISG A 0 
 		{
 			//the attack part
-			if (GetCvar("vid_renderer"))	//gzdoom
-			{
-				A_RailAttack(1000,1,0,"","",RGF_SILENT|RGF_FULLBRIGHT,0,null,0,0,32765,0,  10.415   ,0.0,"StaticTrailBig");
-			}
-			else
-			{
-				A_RailAttack(1000,1,0,"","Orange",RGF_SILENT|RGF_FULLBRIGHT,0,null,0,0,32765,0, 2   ,0.0,"StaticRifleTrailSoftware");
-			}
+			A_RailAttack(1000,1,0,"","",RGF_SILENT|RGF_FULLBRIGHT,0,null,0,0,32765,0,  100.0 ,0.0,"StaticTrailBig");
 			
 			A_RailAttack(0,0,0,"Orange","",RGF_SILENT|RGF_FULLBRIGHT,0,null,0,0,0,70,1,random(1.0,2.0),null,0,0);
 			A_RailAttack(0,0,0,"Orange","",RGF_SILENT|RGF_FULLBRIGHT,0,null,0,0,0,70,1,random(1.0,2.0),null,0,90);

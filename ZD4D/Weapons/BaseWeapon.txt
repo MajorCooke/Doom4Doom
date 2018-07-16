@@ -1113,12 +1113,12 @@ Class D4AbstractMissileQuake : D4AbstractMissile
 *** Usage: Works exactly like RandomSpawner, except you can override MS_GetMonsterSpawnList to change the spawner's behaviour.
 *** Virtuals:
 ***     void PostSpawn (Actor spawned): Called when the actor is finished spawning. (From RandomSpawner)
-***     DropItem MS_GetMonsterSpawnList (): called when getting the monster spawn list. (From S7_MonsterSpawner)
+***     DropItem MS_GetMonsterSpawnList (): called when getting the monster spawn list. (From D4D_MonsterSpawner)
 **/
 
 
 /** Trace test puffs **/
-class S7_TraceTestPuff : Actor 
+class D4D_TraceTestPuff : Actor 
 {
     default 
 	{
@@ -1137,7 +1137,7 @@ class S7_TraceTestPuff : Actor
     }
 }
 
-class S7_WallCheckPuff : S7_TraceTestPuff 
+class D4D_WallCheckPuff : D4D_TraceTestPuff 
 {	default {	+THRUACTORS	}	}
 
 //-------------------------------------------------------------------------------------------
@@ -1145,9 +1145,9 @@ class S7_WallCheckPuff : S7_TraceTestPuff
 // Projectile base
 //
 //-------------------------------------------------------------------------------------------
-class S7_Projectile_Trace : LineTracer 
+class D4D_Projectile_Trace : LineTracer 
 {
-    S7_Projectile sourceActor;
+    D4D_Projectile sourceActor;
     Array<Actor> actorsToIgnore;
     
     override ETraceStatus TraceCallback() 
@@ -1207,8 +1207,8 @@ class S7_Projectile_Trace : LineTracer
     }
 }
 
-/// The base type for all S7 projectiles
-class S7_Projectile : FastProjectile 
+/// The base type for all fast projectiles
+class D4D_Projectile : FastProjectile 
 {
     enum EMovementMode 
 	{
@@ -1223,7 +1223,7 @@ class S7_Projectile : FastProjectile
         ColMode_Corners     = 1 << 1, /// Check the corners for collision
         ColMode_EdgeCenters = 1 << 2, /// Check the center of the edges for collision.
     };
-
+	private bool exploded;
     int moveMode;
     int fpCollisionMode;
     bool interpFastProj;
@@ -1238,40 +1238,164 @@ class S7_Projectile : FastProjectile
     /// Whether to interpolate the projectile's movement. Only used by EMovementMode.FastProjectile.
     property InterpMove: interpFastProj;
 
-    default 
+    Default 
 	{
-        S7_Projectile.MovementMode FastProjectile;
-        S7_Projectile.FastProjCollision ColMode_EdgeCenters;
-        S7_Projectile.InterpMove true;
-        S7_Projectile.EffectStepMul 0.125;
-
+		//D4D_Projectile.MovementMode FastProjectile;
+		D4D_Projectile.FastProjCollision ColMode_Center;
+		D4D_Projectile.InterpMove true;
+		D4D_Projectile.EffectStepMul 0.125;
         Projectile;
     }
 
-    transient S7_Projectile_Trace tr;
+    transient D4D_Projectile_Trace tr;
 
-    override void Tick() 
-	{
-        switch (moveMode) 
-		{
-            case Normal:
-                Actor.Tick();
-            break;
-
-            case FastProjectile:
-                NewFastProjTick();
-            break;
-
-            case OldFastProj:
-                Super.Tick();
-            break;
-        }
-    }
 	
-	override void OnDestroy()
+	override void Tick() 
 	{
-		if (tr) tr.Destroy();
-		Super.OnDestroy();
+		if (exploded)	return Actor.Tick();
+		
+		if (!self)
+            return;
+
+        ClearInterpolation();
+        let oldPos = pos;
+        let oldVel = vel;
+
+        if (!bNoTimeFreeze && (globalfreeze || level.Frozen))
+            return;
+
+        if (vel != (0, 0, 0) || (pos.Z != floorz)) 
+		{	// Create a tracer
+            if (!tr) 
+			{
+				tr = new ("D4D_Projectile_Trace"); 
+				tr.sourceActor = self; 
+			}
+            tr.actorsToIgnore.Clear();
+
+            if (bMissile && vel.X == 0 && vel.Y == 0 && !IsZeroDamage())
+                vel.X = MinVel;
+
+            let velUnit = vel.Unit();
+            double velAngle = VectorAngle(velUnit.x, velUnit.y);
+            double s = sin (velAngle);
+            double c = cos (velAngle);
+
+            double maxDist = abs(vel.Length());
+            int colFlags = (fpCollisionMode & (ColMode_Center | ColMode_Corners | ColMode_EdgeCenters));
+            int iMax = FPColOffs.Size () / 2;
+
+            int loopBreaker = 0;
+            bool collisionHandled = false;
+            for (int i = 0; i < iMax; i++) 
+			{
+					 if ((i >= 0 && i <= 3) && 	!(colFlags & ColMode_EdgeCenters))
+                    continue;
+                else if ((i >= 4 && i <= 7) && 	!(colFlags & ColMode_Corners))
+                    continue;
+                else if ((i == 8) && 			!(colFlags & ColMode_Center))
+                    continue;
+
+                tr.actorsToIgnore.Clear();
+
+                do 
+				{
+                    double yOffs = radius * FPColOffs [i * 2];
+
+                    if (tr.Trace(Vec3Offset(s * yOffs, c * yOffs, height * FPColOffs [i * 2 + 1]), curSector, velUnit, maxDist, 0)) 
+					{
+                        if (!self)
+                            return;
+
+						if (HandleCollision(oldPos, oldVel)) 
+						{
+							if (!self)
+								return;
+
+							tr.actorsToIgnore.Clear();
+							collisionHandled = true;
+							break;
+						}
+                    } 
+					else
+                        tr.actorsToIgnore.Clear();
+
+                    loopBreaker++;
+                    if (loopBreaker >= 4096) 
+					{ // Uh oh.
+                        Console.PrintF ("Broke an infinite loop.");
+						exploded = true;
+                        Destroy();
+                        return;
+                    }
+                } 
+				while (tr.actorsToIgnore.Size() > 0);
+
+                if (collisionHandled)
+                    break;
+            }
+
+            if (!collisionHandled)
+                SetOrigin(pos + vel, true);
+            TryMove(pos.xy, true, false);
+			
+			class<Actor> trail = MissileName;
+			if (trail && !exploded)
+				SpawnEffects(oldPos, level.Vec3Diff (pos, oldPos).Length (), oldVel);
+
+            if (!collisionHandled) 
+			{
+                bool floorHit = pos.Z <= floorZ;
+                bool ceilingHit = (pos.Z + height) > ceilingZ;
+
+                bool hitSky = ((  floorHit &&   floorpic == skyflatnum) ||
+                               (ceilingHit && ceilingpic == skyflatnum));
+				
+                if (hitSky && !bSkyExplode) 
+				{
+					exploded = true;
+					A_Stop();
+                    Destroy();
+                    return;
+                } 
+				else if (floorHit || ceilingHit) 
+				{
+                    SetZ(floorHit ? GetZAt() : ceilingZ - height);
+
+                    if (floorHit)
+                        HitFloor();
+
+                    A_Stop();
+                    if (bMissile)
+					{
+						exploded = true;
+                        ExplodeMissile (NULL, NULL, hitsky);
+					}
+                }
+            }
+
+            vel.z += GetGravity ();
+
+            UpdateWaterLevel ();
+            CheckPortalTransition ();
+        }
+
+        // Nope the fuck out if self is null for some retarded reason, or freed itself
+        if (!self || !CheckNoDelay())
+            return;
+			
+        // Advance the state
+        if (tics != -1) 
+		{
+            if (tics > 0)
+                tics--;
+
+            while (!tics) 
+			{
+                if (!self || !CurState || !SetState(CurState.NextState)) // mobj was removed
+                    return;
+            }
+        }
 	}
 
     virtual Actor StepEffects (Vector3 initialPos, Vector3 stepDiff, Vector3 realVel) 
@@ -1312,7 +1436,7 @@ class S7_Projectile : FastProjectile
 
     void SpawnEffects (Vector3 initialPos, double dist, Vector3 stepSize) 
 	{
-        if (radius <= 0 || dist <= 0)
+        if (radius <= 0 || dist <= 0 || exploded)
             return;
 
         int count = 8;
@@ -1357,140 +1481,7 @@ class S7_Projectile : FastProjectile
 	
     virtual void NewFastProjTick() 
 	{
-        if (!self)
-            return;
-
-        ClearInterpolation();
-        let oldPos = pos;
-        let oldVel = vel;
-
-        if (!bNoTimeFreeze && (globalfreeze || level.Frozen))
-            return;
-
-        if (vel != (0, 0, 0) || (pos.Z != floorz)) 
-		{	// Create a tracer
-            if (!tr) 
-			{
-				tr = new ("S7_Projectile_Trace"); 
-				tr.sourceActor = self; 
-			}
-            tr.actorsToIgnore.Clear();
-
-            if (bMissile && vel.X == 0 && vel.Y == 0 && !IsZeroDamage())
-                vel.X = MinVel;
-
-            let velUnit = vel.Unit();
-            double velAngle = VectorAngle(velUnit.x, velUnit.y);
-            double s = sin (velAngle);
-            double c = cos (velAngle);
-
-            double maxDist = abs(vel.Length());
-            int colFlags = (fpCollisionMode & (ColMode_Center | ColMode_Corners | ColMode_EdgeCenters));
-            int iMax = FPColOffs.Size () / 2;
-
-            int loopBreaker = 0;
-            bool collisionHandled = false;
-            for (int i = 0; i < iMax; i++) 
-			{
-					 if ((i >= 0 && i <= 3) && 	!(colFlags & ColMode_EdgeCenters))
-                    continue;
-                else if ((i >= 4 && i <= 7) && 	!(colFlags & ColMode_Corners))
-                    continue;
-                else if ((i == 8) && 			!(colFlags & ColMode_Center))
-                    continue;
-
-                tr.actorsToIgnore.Clear();
-
-                do 
-				{
-                    double yOffs = radius * FPColOffs [i * 2];
-
-                    if (tr.Trace(Vec3Offset(s * yOffs, c * yOffs, height * FPColOffs [i * 2 + 1]), curSector, velUnit, maxDist, 0)) 
-					{
-                        if (!self)
-                            return;
-
-                        if (HandleCollision(oldPos, oldVel)) 
-						{
-                            if (!self)
-                                return;
-
-                            tr.actorsToIgnore.Clear();
-                            collisionHandled = true;
-                            break;
-                        }
-                    } 
-					else
-                        tr.actorsToIgnore.Clear();
-
-                    loopBreaker++;
-                    if (loopBreaker >= 4096) 
-					{ // Uh oh.
-                        Console.PrintF ("Broke an infinite loop.");
-                        Destroy();
-                        return;
-                    }
-                } 
-				while (tr.actorsToIgnore.Size() > 0);
-
-                if (collisionHandled)
-                    break;
-            }
-
-            if (!collisionHandled)
-                SetOrigin(pos + vel, true);
-            TryMove(pos.xy, true, false);
-
-            SpawnEffects(oldPos, level.Vec3Diff (pos, oldPos).Length (), oldVel);
-
-            if (!collisionHandled) 
-			{
-                bool floorHit = pos.Z <= floorZ;
-                bool ceilingHit = (pos.Z + height) > ceilingZ;
-
-                bool hitSky = ((  floorHit &&   floorpic == skyflatnum) ||
-                               (ceilingHit && ceilingpic == skyflatnum));
-
-                if (hitSky && !bSkyExplode) 
-				{
-                    Destroy();
-                    return;
-                } 
-				else if (floorHit || ceilingHit) 
-				{
-                    SetZ(floorHit ? GetZAt() : ceilingZ - height);
-
-                    if (floorHit)
-                        HitFloor();
-
-                    A_Stop();
-                    if (bMissile)
-                        ExplodeMissile (NULL, NULL, hitsky);
-                }
-            }
-
-            vel.z += GetGravity ();
-
-            UpdateWaterLevel ();
-            CheckPortalTransition ();
-        }
-
-        // Nope the fuck out if self is null for some retarded reason, or freed itself
-        if (!self || !CheckNoDelay())
-            return;
-			
-        // Advance the state
-        if (tics != -1) 
-		{
-            if (tics > 0)
-                tics--;
-
-            while (!tics) 
-			{
-                if (!self || !CurState || !SetState(CurState.NextState)) // mobj was removed
-                    return;
-            }
-        }
+        
     }
 
     bool HandleCollision(Vector3 oldPos, Vector3 oldVel) 
@@ -1572,7 +1563,7 @@ class S7_Projectile : FastProjectile
 
             A_Stop();
             ExplodeMissile(BlockingLine, BlockingMobj, (!BlockingLine && !BlockingMobj) ? hitSky : false);
-
+			exploded = true;
             return true;
         } 
 		else if (tr.Results.HitType == TRACE_HitActor && tr.Results.HitActor)
@@ -1591,17 +1582,19 @@ class S7_Projectile : FastProjectile
 				{
                     SetZ(floorZ);
                     HitFloor();
+					exploded = true;
                 }
 
                 if (bMissile) 
 				{
+					exploded = true;
                     A_Stop();
                     ExplodeMissile(NULL, NULL, hitSky);
                 }
 
                 return true;
             }
-		//	else if (S7_DebugMode >= 1)
+		//	else if (D4D_DebugMode >= 1)
 		//		Console.PrintF ("zzz %f ----- %f, %d", rHitPos.Z, GetZAt (rHitPos.X, rHitPos.Y, flags: GZF_AbsolutePos | GZF_AbsoluteAng), floorHit);
         }
 

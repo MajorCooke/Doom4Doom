@@ -41,6 +41,7 @@ Class D4Demon : D4AbstractMonster
 	int chargecooldown;
 	Default 
 	{
+		D4AbstractMonster.UpgradeDropChance 250;
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 4;
 		D4AbstractMonster.CashAmount 30;

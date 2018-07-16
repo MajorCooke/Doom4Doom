@@ -437,7 +437,7 @@ Class ArchvileTPortTrail : Actor
 
 //------------------------------------------
 // Argent energy attack
-Class SummonerProjectile : FastProjectile
+Class SummonerProjectile : D4D_Projectile
 {
 	Default 
 	{
@@ -466,7 +466,7 @@ Class SummonerProjectile : FastProjectile
 	}
 }
 
-Class SummonerTrailSpawner : Actor //dummy to spawn muliple trails through fastprojectile's method
+Class SummonerTrailSpawner : Actor //dummy to spawn muliple trails through D4D_Projectile's method
 {
 	bool HQ;
 	Default 

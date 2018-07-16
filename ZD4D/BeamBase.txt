@@ -87,7 +87,8 @@ Class D4DBeamSpawnerBase : D4DFX
 	Class<D4DBeamBase> Beam, StartBeam;
 	
 	bool 	RandomAim, IsBranch, DestroyMe, SightCheck, AlwaysAim, MovePitchAngle, 
-			MoveWithSource, KeepDestination, IsStraight, UseBeamProperties;
+			MoveWithSource, KeepDestination, IsStraight, UseBeamProperties,
+			Velocity;
 			
 	Name 	SpriteName;
 	
@@ -145,6 +146,7 @@ Class D4DBeamSpawnerBase : D4DFX
 	Property AlwaysAim:			AlwaysAim;
 	Property MoveWithSource:	MoveWithSource;
 	Property MovePitchAngle:	MovePitchAngle;
+	Property Velocity:			Velocity;
 	
 	Default
 	{
@@ -298,6 +300,7 @@ Class D4DBeamSpawnerBase : D4DFX
 			if (DestroyMe)	return ResolveState("Null");
 			else if (Puff[0] || Tracer)
 			{
+				if (Velocity)	Vel = Master.Vel;
 				if (Tracer && !Puff[0])	Puff[0] = Tracer;
 				
 				Frame = random(FrameMin, FrameMax);
@@ -394,6 +397,8 @@ Class D4DBeamSpawnerBase : D4DFX
 							}
 							if (MoveWithSource)	Beams.Push(bolt);
 							else bolt.Pitch += 90.0;
+							if (Velocity)	{	Bolt.Vel = Vel = Master.Vel;	}
+							
 						}
 					}
 					// End it if on the last one.
@@ -549,6 +554,8 @@ Class D4DBeamBase : D4DFX
 			ScaleSub = (ScaleOutTime >= 1.0) ? (Scale.X / ScaleOutTime) : 0.0;
 		}
 		
+		if (!Spawner)
+			Pitch += 90.0;
 		OffAngle = Angle;
 		OffPitch = Pitch;
 		

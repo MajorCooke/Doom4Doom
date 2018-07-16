@@ -259,6 +259,7 @@ Class StaticTrailBig : GaussTrailBig
 	{
 		D4DBeamBase.ScaleTime 0, 15;
 		D4DBeamBase.Widths 0.30, 0.30;
+		Translation "0:255=#[255, 128, 64]";
 	}
 }
 
@@ -325,7 +326,8 @@ Class LightningBeamPrimarySpawner : D4DMainBeamSpawner
 		D4DBeamSpawnerBase.MaxDistance 2048;
 		D4DBeamSpawnerBase.Failsafe 500;
 		D4DBeamSpawnerBase.MoveWithSource true;
-		D4DBeamSpawnerBase.Offsets 6, 0;	// Only used if MovePitchAngle is true.
+	//	D4DBeamSpawnerBase.MovePitchAngle true; //Broken at the moment. Kind of.
+		D4DBeamSpawnerBase.Offsets 6, 32;	// Only used if MovePitchAngle is true.
 	}
 }
 
@@ -422,6 +424,71 @@ Class CarrionTrail : LightningBeamPrimary
 	}
 }
 
+//------------------------------------------------------------------------------
+// Big red lasers
+
+Class BigRedLaserDrillSMMSpawner : GaussTrailSpawner
+{
+	Default
+	{
+		D4DBeamSpawnerBase.Beam "BigRedLaserDrillSMM";
+		D4DBeamSpawnerBase.StartBeam "";
+	//	D4DBeamSpawnerBase.MoveWithSource true;
+	//	D4DBeamSpawnerBase.MovePitchAngle true;
+	//	D4DBeamSpawnerBase.Offsets 10, 40;
+		D4DBeamSpawnerBase.MaxDistance SMMLaserRange;
+		Translation "0:255=%[0,0,0]:[1,0,0]";
+	}
+}
+
+Class BigRedLaserDrillSMM : GaussTrailBig
+{
+	Default
+	{	// 56 tics, equal to the spider mastermind's attack duration.
+		D4DBeamBase.ScaleTime 8, 8;
+		D4DBeamBase.WaitTime 40;
+	}
+}
+
+Class BigRedLaserDrillSMMPlayerSpawner : BigRedLaserDrillSMMSpawner
+{
+	Default
+	{
+		D4DBeamSpawnerBase.Beam "BigRedLaserDrillSMMPlayer";
+		D4DBeamSpawnerBase.Velocity true;
+		
+	}
+}
+// Due to problems with the MovePitchAngle issue currently, just fast spawn these.
+// Sorry to have disappointed anyone, but... well, unless I can figure out wtf
+// I can do with it... :shrug:
+Class BigRedLaserDrillSMMPlayer : GaussTrailBig
+{
+	Default
+	{	
+		D4DBeamBase.ScaleTime 0, 0;
+		D4DBeamBase.WaitTime 1;
+	}
+}
+
+Class BigRedLaserDrillChaingunnerSpawner : BigRedLaserDrillSMMSpawner
+{
+	Default
+	{
+		D4DBeamSpawnerBase.Beam "BigRedLaserDrillChaingunner";
+	}
+}
+
+Class BigRedLaserDrillChaingunner : BigRedLaserDrillSMM
+{
+	Default
+	{
+		D4DBeamBase.Widths 0.15, 0.15;
+		D4DBeamBase.ScaleTime 4, 8;
+		D4DBeamBase.WaitTime 33;
+	}
+}
+
 
 //------------------------------------------------------------------------------
 // Deprecated stuff
@@ -443,7 +510,7 @@ Class LaserBeamJitter : Nothing {}
 Class WhiteLaserBeamJitter : Nothing {}
 Class WhiteLaser : Nothing {}
 Class RedLaser : Nothing {}
-Class BigRedLaserDrillSMM : Nothing {}
+//Class BigRedLaserDrillSMM : Nothing {}
 Class BigRedLaserBeamSMM : Nothing {}
 Class RedLaserSMM : Nothing {}
 //Class LanceTrail : Nothing {}

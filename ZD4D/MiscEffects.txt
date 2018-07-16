@@ -433,6 +433,25 @@ Class PacifistPuffNoThru : PacifistPuff
 	}
 }
 
+Class NonPacifistPuff : PacifistPuff
+{
+	Default
+	{
+		-ALLOWTHRUFLAGS
+		-BLOODLESSIMPACT
+		-PAINLESS
+		DamageType "Hitscan";
+	}
+}
+
+Class NonPacifistPuffExtreme : NonPacifistPuff
+{
+	Default
+	{
+		+EXTREMEDEATH
+	}
+}
+
 //------------------------------------------------------------------
 //------------------------------------------------------------------
 //

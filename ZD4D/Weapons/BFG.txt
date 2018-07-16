@@ -488,11 +488,13 @@ Class BFG9000Shot : BFGProjectile
 
 Class BFG9000Orbiter : BFGProjectile
 {
+	
 	int boosted;
 	int flags;
 	int count;
 	int c2;
 	double  UPitch;
+	double ang;
 	int tic;
 	int dir;
 	
@@ -507,6 +509,7 @@ Class BFG9000Orbiter : BFGProjectile
 		+ROLLSPRITE
 		+NODAMAGETHRUST
 		+NOINTERACTION
+		+NOCLIP
 		Radius 8;
 		Height 12;
 		Speed 20;
@@ -522,6 +525,7 @@ Class BFG9000Orbiter : BFGProjectile
 	Spawn:
 		BFE1 B 0 NoDelay 
 		{
+			ang = angle;
 			A_PlaySound("Doom4/Weapon/BFG/Flying",7,0.3,1);
 			dir = randompick(-1,1);
 			tic = 35 * 15;
@@ -530,13 +534,15 @@ Class BFG9000Orbiter : BFGProjectile
 	Moving:
 		BFE1 B 1 Bright Light("GreenBigFlicker3")
 		{
-			A_Warp(TargetPtr,0,0,0,(360.0/35.0) * dir,WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE|WARPF_STOP|WARPF_INTERPOLATE,"Null",0.4,3.5);
+			ang = (ang + ((360.0 / 35.0))) % 360.0;
+			if (Target)
+				Warp(Target,0,0,0,ang,WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEANGLE|WARPF_STOP|WARPF_INTERPOLATE,0.4,3.5);
 			
 			A_SetScale((sin(c2)*0.075)+0.4);
 			c2 = (c2 + random(20,35)) % 360;
 			
 			A_SetRoll(roll + 5, SPF_INTERPOLATE);
-			count = (count + 1) % 4;
+			count = (count + 1) % 2;
 			
 			if (!count)	{	BFGBeams(5);	}
 			

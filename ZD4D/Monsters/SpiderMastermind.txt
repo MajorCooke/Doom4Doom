@@ -44,10 +44,11 @@ BLESSED (White)
 * Attacks can insta-kill most enemies
 * Deals extra damage to demon runes
 */
-
+const SMMLaserRange = 32766;
 Class D4SpiderMastermind : D4AbstractBoss
 {
-	const CBAFlags = CBAF_AIMFACING|CBAF_PUFFTRACER|CBAF_NORANDOMPUFFZ|CBAF_NORANDOM|CBAF_EXPLICITANGLE;
+	const SRailFlags = RGF_SILENT|RGF_FULLBRIGHT|RGF_NORANDOMPUFFZ|RGF_CENTERZ;
+	const CBAFlags = CBAF_AIMFACING|CBAF_PUFFTRACER|CBAF_NORANDOMPUFFZ|CBAF_NORANDOM;
 	int UAngle;
 	int counter;
 	double UPitch;
@@ -70,6 +71,7 @@ Class D4SpiderMastermind : D4AbstractBoss
 	
 	Default 
 	{
+		D4AbstractMonster.UpgradeDropChance 16;
 		D4AbstractMonster.CrateDropAmount 3;
 		D4AbstractMonster.CrateDropChance 192;
 		D4AbstractMonster.CrateDropAlways 2;
@@ -123,7 +125,10 @@ Class D4SpiderMastermind : D4AbstractBoss
 		SPID A 0 
 		{
 			UAngle = counter = 0;
-			return A_Jump(256,"PlasmaAttack","LaserShot","EletricBeams");
+			double dist = Distance3DSquared(target);
+			if (dist < 800)
+				return A_Jump(256,"PlasmaAttack","LaserShot","EletricBeams");
+			return A_Jump(256,"PlasmaAttack","LaserShot");
 		}
 		
 	
@@ -151,10 +156,7 @@ Class D4SpiderMastermind : D4AbstractBoss
 		SPID GGGGGGGGGG 2 
 		{
 			A_FaceTarget(0,0,0,0,FAF_MIDDLE);
-			if (GetCvar("vid_renderer") && GetCvar("D4D_MonsterLasers"))
-			{	
-				A_CustomBulletAttack(0,0,1,0,"PacifistPuff",32767,CBAFlags,TargetPtr,"WhiteLaser",40,0);
-			}
+		//	A_CustomBulletAttack(0,0,1,0,"PacifistPuff",32767,CBAFlags,TargetPtr,"WhiteLaser",40,0);
 		}
 		SPID G 3 //gives you a tiny bit of chance to run away
 		{
@@ -168,30 +170,15 @@ Class D4SpiderMastermind : D4AbstractBoss
 		}
 		SPID H 1 bright
 		{
-			if (!count && GetCvar("vid_renderer") && GetCvar("D4D_MonsterLasers"))
-			{	
-				A_CustomBulletAttack(0,0,1,0,"PacifistPuffSMM",32767,CBAFlags,TargetPtr,"BigRedLaserDrillSMM",40,0);
-			}
-			if (count <= 28)
-			{
-				if (GetCvar("vid_renderer") && GetCvar("D4D_MonsterLasers"))
-				{	A_SpawnProjectile("SMMLaserWeakInvis",40,0,0,CMF_AIMDIRECTION,UPitch);		}
-				else
-				{	A_SpawnProjectile("SMMLaserWeak",40,0,0,CMF_AIMDIRECTION,UPitch);			}
-			}
-			else if (count <= 56)
-			{
-				if (GetCvar("vid_renderer") && GetCvar("D4D_MonsterLasers"))
-				{	A_SpawnProjectile("SMMLaserStrongInvis",40,0,0,CMF_AIMDIRECTION,UPitch);		}
-				else
-				{	A_SpawnProjectile("SMMLaserStrong",40,0,0,CMF_AIMDIRECTION,UPitch);			}
-			}
-			else
-			{	return ResolveState("EndLaserShot");	}
+			if (!count)
+				A_CustomBulletAttack(0,0,1,0,"PacifistPuffSMM",SMMLaserRange,CBAFlags,TargetPtr,"BigRedLaserDrillSMMSpawner",40,0);
 			
-			count++;
+			int dmg = ((count <= 28) ? 5 : 15) * random(1,8); 
+			A_CustomRailgun(dmg,0,"","",SRailFlags,0,0,"NonPacifistPuffExtreme",0,0,32766,4,1.0,3.0,null,8);
 			
-			return ResolveState(null);
+			StateLabel next = null;
+			if (count++ >= 56)	next = "EndLaserShot";
+			return ResolveState(next);
 		}
 		Wait;
 	EndLaserShot:
@@ -201,9 +188,6 @@ Class D4SpiderMastermind : D4AbstractBoss
 	//---------------------------------------------------
 	// Electro beams attack
 	EletricBeams:
-		TNT1 A 0 A_JumpIfCloser(800,"InRageForBeam");
-		Goto DecideAllAttacks;
-	InRageForBeam:
 		SPID A 0 A_PlaySound("Doom4/SpiderMasterMind/LaserCharge",5,1,0,(target is "PlayerPawn" ? ATTN_NONE : ATTN_NORM));
 		SPID AAAA 5 A_FaceTarget(0,0,0,0,FAF_MIDDLE);	//aims at target
 		SPID A 0	//attack setup
@@ -501,7 +485,7 @@ Class SpiderMastermindDeathFX : Actor
 
 //------------------------------------------------------------------
 // Red big laser static
-Class SMMLaserWeak : FastProjectile	//main beam aimed at you, fires a few weak ones
+Class SMMLaserWeak : D4D_Projectile	//main beam aimed at you, fires a few weak ones
 {
 	Default 
 	{
@@ -523,7 +507,7 @@ Class SMMLaserWeak : FastProjectile	//main beam aimed at you, fires a few weak o
 		Stop;
 	}
 }
-Class SMMLaserWeakInvis : FastProjectile
+Class SMMLaserWeakInvis : D4D_Projectile
 {
 	Default 
 	{
@@ -614,7 +598,7 @@ Class LaserChargeIndicator : Actor
 
 //------------------------------------------------------------------
 // Multiple yellow lasers, moving in circle
-Class SMMElectroBeam : FastProjectile	//main beam aimed at you
+Class SMMElectroBeam : D4D_Projectile	//main beam aimed at you
 {
 	Default 
 	{
