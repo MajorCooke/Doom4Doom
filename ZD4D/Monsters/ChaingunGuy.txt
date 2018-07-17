@@ -122,7 +122,7 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 			if (!count)
 				A_CustomBulletAttack(0,0,1,0,"PacifistPuffSMM",SMMLaserRange,CBAFlags,TargetPtr,"BigRedLaserDrillChaingunnerSpawner",30,4);
 			
-			if (count % 5 == 0)
+			if ((count > 0) && (count % 5 == 0))
 			{
 				int dmg = random(3,8); 
 				A_CustomRailgun(dmg,0,"","",SRailFlags,0,0,"NonPacifistPuffExtreme",0,0,32766,4,1.0,3.0,null,8);
