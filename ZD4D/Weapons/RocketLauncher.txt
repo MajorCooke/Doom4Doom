@@ -674,7 +674,7 @@ Class RLDetonatorSecondary : CustomInventory
 				return false;
 			}
 			
-			if (CountInv("ProtectionBonus2", TargetPtr))
+			if (Target && Target.CountInv("ProtectionBonus2"))
 			{			
 				A_Explode(15,128);	//deals low damage to player
 				A_Explode(145,180,0,0,60);	//then it deals a whole other bunch of damage at greater radius
@@ -693,7 +693,7 @@ Class RLDetonatorSecondary : CustomInventory
 			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
 			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
 			A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-			A_PlaySound("Doom4/Weapon/RocketLauncher/HRExplo");
+			A_PlaySound("Doom4/Weapon/RocketLauncher/Detonate");
 			A_GiveInventory("DetonateToken",1);
 			return true;
 		}
@@ -711,10 +711,7 @@ Class ExploderDummy : Actor
 	Spawn:
 		TNT1 A 60 NODELAY
 		{
-			if(GetCvar("D4D_quakexplosions")==1)
-			{
-				A_QuakeEx(2,2,2,15,0,768,"",QF_SCALEDOWN,0,0,0,1);
-			}
+			A_QuakeEx(2,2,2,15,0,360,"",QF_SCALEDOWN,0,0,0,1);
 		}
 		Stop;
 	}
@@ -861,7 +858,7 @@ Class D4RocketSeeker : Actor
 			}
 			if(GetCvar("D4D_quakexplosions")==1)
 			{
-				A_QuakeEx(2,2,2,15,0,768,"",QF_SCALEDOWN,0,0,0,1);
+				A_QuakeEx(2,2,2,15,0,256,"",QF_SCALEDOWN,0,0,0,1);
 			}
 			if(GetCvar("HQEffectsWeapons"))
 			{
@@ -953,7 +950,7 @@ Class D4Rocket : Actor
 	}
 }
 
-Class PlayerRocketQuakeDummy  : Actor //had to create this, because if i keep the Projectile;, i can detonate it after it exploded normally
+Class PlayerRocketQuakeDummy  : Actor //had to create this, because if I keep the projectile, I can detonate it after it exploded normally
 {
 	Default 
 	{
@@ -966,7 +963,7 @@ Class PlayerRocketQuakeDummy  : Actor //had to create this, because if i keep th
 		{
 			if(GetCvar("D4D_quakexplosions")==1)
 			{
-				A_QuakeEx(2,2,2,15,0,768,"",QF_SCALEDOWN,0,0,0,1);
+				A_QuakeEx(2,2,2,15,0,360,"",QF_SCALEDOWN,0,0,0,1);
 			}
 		}
 		Stop;

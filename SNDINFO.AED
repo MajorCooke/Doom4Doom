@@ -90,18 +90,76 @@ $volume Doom4/Weapon/Chainsaw/WallHit 0.4
 //==============================================================================================
 //		Machinegun
 //==============================================================================================
-Doom4/Weapon/Machinegun/FireZoomed				"sounds/weapons/MG/MGFireZoomed.ogg"
-Doom4/Weapon/Machinegun/Fire					"sounds/weapons/MG/MGFire.ogg"
-Doom4/Weapon/Machinegun/MiniMissileExplo		"sounds/weapons/MG/MGMiniMissileExplo"
-Doom4/Weapon/Machinegun/MiniMissileFire			"sounds/weapons/MG/MGMinMissileFire.ogg"
+
+
+
+$random Doom4/Weapon/Machinegun/Fire
+{
+	Doom4/Weapon/Machinegun/HARFire1
+	Doom4/Weapon/Machinegun/HARFire2
+	Doom4/Weapon/Machinegun/HARFire3
+}
+Doom4/Weapon/Machinegun/HARFire1				"Sounds/Weapons/MG/HARFire1.ogg"
+Doom4/Weapon/Machinegun/HARFire2				"Sounds/Weapons/MG/HARFire2.ogg"
+Doom4/Weapon/Machinegun/HARFire3				"Sounds/Weapons/MG/HARFire3.ogg"
+$limit Doom4/Weapon/Machinegun/Fire 0
+
+$random Doom4/Weapon/Machinegun/FireZoomed
+{
+	Doom4/Weapon/Machinegun/HARPierce1
+	Doom4/Weapon/Machinegun/HARPierce2
+	Doom4/Weapon/Machinegun/HARPierce3
+}
+Doom4/Weapon/Machinegun/HARPierce1				"Sounds/Weapons/MG/HARPierce1.ogg"
+Doom4/Weapon/Machinegun/HARPierce2				"Sounds/Weapons/MG/HARPierce2.ogg"
+Doom4/Weapon/Machinegun/HARPierce3				"Sounds/Weapons/MG/HARPierce3.ogg"
+$limit Doom4/Weapon/Machinegun/FireZoomed 0
+
+$random Doom4/Weapon/Machinegun/MiniMissileFire
+{
+	Doom4/Weapon/Machinegun/MiniMissileFire1
+	Doom4/Weapon/Machinegun/MiniMissileFire2
+	Doom4/Weapon/Machinegun/MiniMissileFire3
+	Doom4/Weapon/Machinegun/MiniMissileFire4
+}
+Doom4/Weapon/Machinegun/MiniMissileFire1		"Sounds/Weapons/MG/MicroMissileFire1.ogg"
+Doom4/Weapon/Machinegun/MiniMissileFire2		"Sounds/Weapons/MG/MicroMissileFire2.ogg"
+Doom4/Weapon/Machinegun/MiniMissileFire3		"Sounds/Weapons/MG/MicroMissileFire3.ogg"
+Doom4/Weapon/Machinegun/MiniMissileFire4		"Sounds/Weapons/MG/MicroMissileFire4.ogg"
+$limit Doom4/Weapon/Machinegun/MiniMissileFire 0
+
+$random Doom4/Weapon/Machinegun/MiniMissileExplo
+{
+	Doom4/Weapon/Machinegun/MiniMissileExplo1
+	Doom4/Weapon/Machinegun/MiniMissileExplo2
+	Doom4/Weapon/Machinegun/MiniMissileExplo3
+	Doom4/Weapon/Machinegun/MiniMissileExplo4
+}
+Doom4/Weapon/Machinegun/MiniMissileExplo1		"Sounds/Weapons/MG/MicroMissileExplode1.ogg"
+Doom4/Weapon/Machinegun/MiniMissileExplo2		"Sounds/Weapons/MG/MicroMissileExplode2.ogg"
+Doom4/Weapon/Machinegun/MiniMissileExplo3		"Sounds/Weapons/MG/MicroMissileExplode3.ogg"
+Doom4/Weapon/Machinegun/MiniMissileExplo4		"Sounds/Weapons/MG/MicroMissileExplode4.ogg"
+$limit Doom4/Weapon/Machinegun/MiniMissileExplo 6
+
+$random Doom4/Weapon/Machinegun/MiniMissilePass
+{
+	Doom4/Weapon/Machinegun/MiniMissilePass1
+	Doom4/Weapon/Machinegun/MiniMissilePass2
+	Doom4/Weapon/Machinegun/MiniMissilePass3
+	Doom4/Weapon/Machinegun/MiniMissilePass4
+}
+Doom4/Weapon/Machinegun/MiniMissilePass1		"Sounds/Weapons/MG/MicroMissilePass1.ogg"
+Doom4/Weapon/Machinegun/MiniMissilePass2		"Sounds/Weapons/MG/MicroMissilePass2.ogg"
+Doom4/Weapon/Machinegun/MiniMissilePass3		"Sounds/Weapons/MG/MicroMissilePass3.ogg"
+Doom4/Weapon/Machinegun/MiniMissilePass4		"Sounds/Weapons/MG/MicroMissilePass4.ogg"
+$limit Doom4/Weapon/Machinegun/MiniMissilePass 0
+
 Doom4/Weapon/Machinegun/MinMissilePrepare		"sounds/weapons/MG/MGPrepareMissiles.ogg"
 Doom4/Weapon/Machinegun/MinMissileRelease		"sounds/weapons/MG/MGPrepareMissilesRelease.ogg"
 Doom4/Weapon/Machinegun/SwitchToMissiles		"sounds/weapons/MG/MGSwitchToMissiles.ogg"
 Doom4/Weapon/Machinegun/SwitchToScope			"sounds/weapons/MG/MGSwitchToScope.ogg"
 Doom4/Weapon/Machinegun/ZoomIn					"sounds/weapons/MG/MGZoomIn.ogg"
 Doom4/Weapon/Machinegun/ZoomOut					"sounds/weapons/MG/MGZoomOut.ogg"
-
-$limit Doom4/Weapon/Machinegun/MiniMissileExplo 6
 
 //==============================================================================================
 //		Plasma rifle
@@ -135,10 +193,67 @@ Doom4/Weapon/PistolL/Smoke		"sounds/weapons/Pistol/PistolLSmoke.ogg"
 //==============================================================================================
 //		SuperShotgun
 //==============================================================================================
-Doom4/Weapon/SuperShotgun/Fire		"sounds/weapons/SSG/SSGFire.ogg"
-Doom4/Weapon/SuperShotgun/FireFast		"sounds/weapons/SSG/SSGFireFast.ogg"
-Doom4/Weapon/SuperShotgun/FireSingle		"sounds/weapons/SSG/SSGFireSingle.ogg"
-Doom4/Weapon/SuperShotgun/SwitchMode		"sounds/weapons/SSG/SSGSwitch.ogg"
+$random Doom4/Weapon/SuperShotgun/Fire
+{
+	Doom4/Weapon/SuperShotgun/Fire1
+	Doom4/Weapon/SuperShotgun/Fire2
+}
+Doom4/Weapon/SuperShotgun/Fire1				"Sounds/Weapons/SSG/Fire1.ogg"
+Doom4/Weapon/SuperShotgun/Fire2				"Sounds/Weapons/SSG/Fire2.ogg"
+$limit Doom4/Weapon/SuperShotgun/Fire 0
+
+Doom4/Weapon/SuperShotgun/Open				"Sounds/Weapons/SSG/Open.ogg"
+Doom4/Weapon/SuperShotgun/Tube				"Sounds/Weapons/SSG/Tube.ogg"
+
+
+Doom4/Weapon/SuperShotgun/EjectShell1		"Sounds/Weapons/SSG/EjectShell1.ogg"
+Doom4/Weapon/SuperShotgun/EjectShell2		"Sounds/Weapons/SSG/EjectShell2.ogg"
+Doom4/Weapon/SuperShotgun/EjectShell3		"Sounds/Weapons/SSG/EjectShell3.ogg"
+Doom4/Weapon/SuperShotgun/EjectShell4		"Sounds/Weapons/SSG/EjectShell4.ogg"
+$random Doom4/Weapon/SuperShotgun/EjectShell
+{
+	Doom4/Weapon/SuperShotgun/EjectShell1
+	Doom4/Weapon/SuperShotgun/EjectShell2
+	Doom4/Weapon/SuperShotgun/EjectShell3
+	Doom4/Weapon/SuperShotgun/EjectShell4
+}
+
+Doom4/Weapon/SuperShotgun/Load1				"Sounds/Weapons/SSG/Load1.ogg"
+Doom4/Weapon/SuperShotgun/Load2				"Sounds/Weapons/SSG/Load2.ogg"
+Doom4/Weapon/SuperShotgun/Load3				"Sounds/Weapons/SSG/Load3.ogg"
+$random Doom4/Weapon/SuperShotgun/Load
+{
+	Doom4/Weapon/SuperShotgun/Load1
+	Doom4/Weapon/SuperShotgun/Load2
+	Doom4/Weapon/SuperShotgun/Load3
+}
+
+Doom4/Weapon/SuperShotgun/ShellClick1		"Sounds/Weapons/SSG/ShellClick1.ogg"
+Doom4/Weapon/SuperShotgun/ShellClick2		"Sounds/Weapons/SSG/ShellClick2.ogg"
+Doom4/Weapon/SuperShotgun/ShellClick3		"Sounds/Weapons/SSG/ShellClick3.ogg"
+$random Doom4/Weapon/SuperShotgun/ShellClick
+{
+	Doom4/Weapon/SuperShotgun/ShellClick1
+	Doom4/Weapon/SuperShotgun/ShellClick2
+	Doom4/Weapon/SuperShotgun/ShellClick3
+}
+
+
+Doom4/Weapon/SuperShotgun/Close				"Sounds/Weapons/SSG/Close.ogg"
+$limit Doom4/Weapon/SuperShotgun/Close 0
+
+// In case of laziness...
+$random Doom4/Weapon/SuperShotgun/FullReload
+{
+	Doom4/Weapon/SuperShotgun/FullReload1
+	Doom4/Weapon/SuperShotgun/FullReload2
+}
+Doom4/Weapon/SuperShotgun/FullReload1		"Sounds/Weapons/SSG/FullReload1.ogg"
+Doom4/Weapon/SuperShotgun/FullReload2		"Sounds/Weapons/SSG/FullReload2.ogg"
+
+//Doom4/Weapon/SuperShotgun/FireFast			"sounds/weapons/SSG/SSGFireFast.ogg"
+//Doom4/Weapon/SuperShotgun/FireSingle		"sounds/weapons/SSG/SSGFireSingle.ogg"
+//Doom4/Weapon/SuperShotgun/SwitchMode		"sounds/weapons/SSG/SSGSwitch.ogg"
 
 
 //==============================================================================================
@@ -150,16 +265,38 @@ Doom4/Weapon/RocketLauncher/SwitchToLock		"sounds/weapons/RL/RLSwitchToLock.ogg"
 Doom4/Weapon/RocketLauncher/TargetLocked		"sounds/weapons/RL/RLLocked.ogg"
 Doom4/Weapon/RocketLauncher/StartLockOn		"sounds/weapons/RL/RLLockOnStart.ogg"
 
-$random Doom4/Weapon/RocketLauncher/HRExplo {Doom4/Weapon/RocketLauncher/HRExplo1 Doom4/Weapon/RocketLauncher/HRExplo2 Doom4/Weapon/RocketLauncher/HRExplo3}
-Doom4/Weapon/RocketLauncher/HRExplo1		"sounds/weapons/HRExplo1.ogg"
-Doom4/Weapon/RocketLauncher/HRExplo2		"sounds/weapons/HRExplo2.ogg"
-Doom4/Weapon/RocketLauncher/HRExplo3		"sounds/weapons/HRExplo3.ogg"
-$limit Doom4/Weapon/RocketLauncher/HRExplo 0
 
+$random Doom4/Weapon/RocketLauncher/Explode {Doom4/Weapon/RocketLauncher/Explode1 Doom4/Weapon/RocketLauncher/Explode2 Doom4/Weapon/RocketLauncher/Explode3}
+Doom4/Weapon/RocketLauncher/Explode1		"sounds/weapons/RL/Explode1.ogg"
+Doom4/Weapon/RocketLauncher/Explode2		"sounds/weapons/RL/Explode2.ogg"
+Doom4/Weapon/RocketLauncher/Explode3		"sounds/weapons/RL/Explode3.ogg"
+$limit Doom4/Weapon/RocketLauncher/Explode 0
+
+$random Doom4/Weapon/RocketLauncher/ExplodeAdd
+{
+	Doom4/Weapon/RocketLauncher/ExplodeAdd1
+	Doom4/Weapon/RocketLauncher/ExplodeAdd2
+	Doom4/Weapon/RocketLauncher/ExplodeAdd3
+	Doom4/Weapon/RocketLauncher/ExplodeAdd4
+}
+Doom4/Weapon/RocketLauncher/ExplodeAdd1		"sounds/weapons/RL/ExplodeAdd1.ogg"
+Doom4/Weapon/RocketLauncher/ExplodeAdd2		"sounds/weapons/RL/ExplodeAdd2.ogg"
+Doom4/Weapon/RocketLauncher/ExplodeAdd3		"sounds/weapons/RL/ExplodeAdd3.ogg"
+Doom4/Weapon/RocketLauncher/ExplodeAdd4		"sounds/weapons/RL/ExplodeAdd4.ogg"
+$limit Doom4/Weapon/RocketLauncher/ExplodeAdd 0
+
+$alias Doom4/Weapon/RocketLauncher/Q4Explo Doom4/Weapon/RocketLauncher/Explode
+$alias Doom4/Weapon/RocketLauncher/HRExplo Doom4/Weapon/RocketLauncher/Explode
+
+Doom4/Weapon/RocketLauncher/Detonate		"Sounds/Weapons/RL/Detonate.ogg"
+$limit Doom4/Weapon/RocketLauncher/Detonate 0
+
+/*
 $random Doom4/Weapon/RocketLauncher/Q4Explo {Doom4/Weapon/RocketLauncher/Q4Explo1 Doom4/Weapon/RocketLauncher/Q4Explo2 Doom4/Weapon/RocketLauncher/Q4Explo3}
 Doom4/Weapon/RocketLauncher/Q4Explo1		"sounds/weapons/RcktExp1.ogg"
 Doom4/Weapon/RocketLauncher/Q4Explo2		"sounds/weapons/RcktExp2.ogg"
 Doom4/Weapon/RocketLauncher/Q4Explo3		"sounds/weapons/RcktExp3.ogg"
+*/
 
 
 //==============================================================================================
@@ -1173,5 +1310,50 @@ Doom4/Monsters/PainElemental/Sight						"Sounds/Monsters/PainSight.ogg"
 Doom4/Monsters/Generic/ThrowFireball						"Sounds/Monsters/ThrowFireball.ogg"
 Doom4/Monsters/Generic/FireLoop						"Sounds/Monsters/FireLoop.ogg"
 
-HOLYSHIT											"Sounds/Pickups/HOLYSHIT.ogg"
 BossMegaExplosion									"Sounds/Weapons/BossMegaExplosion.ogg"
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+$random Doom4/BoneCrunch
+{
+	Doom4/BoneCrunch01
+	Doom4/BoneCrunch02
+	Doom4/BoneCrunch03
+	Doom4/BoneCrunch04
+	Doom4/BoneCrunch05
+	Doom4/BoneCrunch06
+	Doom4/BoneCrunch07
+	Doom4/BoneCrunch08
+	Doom4/BoneCrunch09
+	Doom4/BoneCrunch10
+	Doom4/BoneCrunch11
+	Doom4/BoneCrunch12
+	Doom4/BoneCrunch13
+	Doom4/BoneCrunch14
+	Doom4/BoneCrunch15
+	Doom4/BoneCrunch16
+	Doom4/BoneCrunch17
+	Doom4/BoneCrunch18
+}
+Doom4/BoneCrunch01		"Sounds/Gore/BoneCrunch01.ogg"
+Doom4/BoneCrunch02		"Sounds/Gore/BoneCrunch02.ogg"
+Doom4/BoneCrunch03		"Sounds/Gore/BoneCrunch03.ogg"
+Doom4/BoneCrunch04		"Sounds/Gore/BoneCrunch04.ogg"
+Doom4/BoneCrunch05		"Sounds/Gore/BoneCrunch05.ogg"
+Doom4/BoneCrunch06		"Sounds/Gore/BoneCrunch06.ogg"
+Doom4/BoneCrunch07		"Sounds/Gore/BoneCrunch07.ogg"
+Doom4/BoneCrunch08		"Sounds/Gore/BoneCrunch08.ogg"
+Doom4/BoneCrunch09		"Sounds/Gore/BoneCrunch09.ogg"
+Doom4/BoneCrunch10		"Sounds/Gore/BoneCrunch10.ogg"
+Doom4/BoneCrunch11		"Sounds/Gore/BoneCrunch11.ogg"
+Doom4/BoneCrunch12		"Sounds/Gore/BoneCrunch12.ogg"
+Doom4/BoneCrunch13		"Sounds/Gore/BoneCrunch13.ogg"
+Doom4/BoneCrunch14		"Sounds/Gore/BoneCrunch14.ogg"
+Doom4/BoneCrunch15		"Sounds/Gore/BoneCrunch15.ogg"
+Doom4/BoneCrunch16		"Sounds/Gore/BoneCrunch16.ogg"
+Doom4/BoneCrunch17		"Sounds/Gore/BoneCrunch17.ogg"
+Doom4/BoneCrunch18		"Sounds/Gore/BoneCrunch18.ogg"
+
+$alias misc/gibbed Doom4/BoneCrunch
+$limit Doom4/BoneCrunch 0

@@ -537,6 +537,7 @@ Class D4PinataCarrion : CustomInventory
 	int absorb;
 	int timer;
 	int mergetime;
+	bool DestroyMe;
 	UpgradePinataFlier flier;
 	Array<Actor> Kids;
 	Default
@@ -657,6 +658,7 @@ Class D4PinataCarrion : CustomInventory
 	Looping:
 		"----" A 2
 		{
+			if (invoker.DestroyMe)	return Destroy();
 			if (invoker.count >= DelayVacuum)
 			{
 				// Tracer should automatically be handled by the thinker.
@@ -749,14 +751,16 @@ Class D4PinataCarrion : CustomInventory
 						let Beam = Spawn("CarrionMergeSpawner",pos);
 						if (Beam)
 						{
-							Beam.Target = Target;
-							Beam.Master = Master;
+							Beam.Target = self;
+							Beam.Master = self;
 							Beam.Tracer = mo;
 							Beam.Angle = Angle;
 							Beam.Pitch = Pitch;
 						}
 						if (invoker.flier) 	invoker.flier.DestroyMe = true;
-						return Destroy();
+						invoker.DestroyMe = true;
+						bINVISIBLE = true;
+						return;
 					}
 				}
 			}
