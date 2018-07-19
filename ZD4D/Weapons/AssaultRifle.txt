@@ -700,13 +700,13 @@ Class MicroMissilesCounter : Inventory	//this one is to keep track of whic micro
 
 Class MGMissileToken : Inventory { Default { Inventory.InterhubAmount 0; } }
 
-Class MGMiniMissile : FastProjectile
+Class MGMiniMissile : D4D_Projectile
 {
 	const TimerMax = 35;
 	int value1;
 	int value2;
-	double  value3;
-	double  value4;
+	double value3;
+	double value4;
 	int counter;
 	
 	double UAnglea;
@@ -728,9 +728,12 @@ Class MGMiniMissile : FastProjectile
 		MissileType "MGMiniMissileSmoke";
 		MissileHeight 8;
 		+HITTRACER
+		+CAUSEPAIN
+		+EXTREMEDEATH
 		WeaveIndexXY 10;
 		WeaveIndexZ 10;
 	}
+	
 	States
 	{
 	Spawn:
@@ -791,8 +794,13 @@ Class MGMiniMissile : FastProjectile
 			return ResolveState(null);
 		}
 	Warping:
-		D008 P 0 A_JumpIf(IsPointerEqual(AAPTR_TRACER,AAPTR_NULL),"Dropout");
-		D008 P 0 A_JumpIfHealthLower(1,"DropOut",AAPTR_TRACER);
+		D008 P 0 
+		{
+			StateLabel next = null;
+			if (!Tracer || Tracer.Health < 1)
+				next = "Dropout";
+			return ResolveState(next);
+		}
 		D008 P 0 A_Warp(AAPTR_TRACER,0,0,UZ,UAnglea-UAngleb,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,null,0,-0.5);
 		SWMS A 1 Bright {count++;}
 		D008 P 0 
