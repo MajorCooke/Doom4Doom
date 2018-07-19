@@ -195,7 +195,7 @@ Class D4DMonsterSpawner : Actor
 				mon.Deactivate(self);	
 				//mon.A_ChangeCountFlags(false,-1,bCOUNTSECRET);
 			}
-			mon.A_ChangeCountFlags(-1,-1,bCOUNTSECRET);
+			mon.A_ChangeCountFlags(true,-1,bCOUNTSECRET);
 			
 			/*
 			if (health != GetSpawnHealth())	
