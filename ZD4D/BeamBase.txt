@@ -255,6 +255,7 @@ Class D4DBeamSpawnerBase : D4DFX
 			let mo = D4DBeamBase(Beams[i]);
 			if (mo)
 			{
+			//	mo.bINVISIBLE = false;
 				mo.MoveWithSource = true;
 				mo.MovePitchAngle = MovePitchAngle;
 			}
@@ -500,6 +501,7 @@ Class D4DBeamBase : D4DFX
 		+BRIGHT
 		+NOINTERACTION
 		+INVISIBLE
+	//	+DONTINTERPOLATE
 	}
 	
 	override void BeginPlay()
@@ -569,7 +571,6 @@ Class D4DBeamBase : D4DFX
 		if (!MoveWithSource || !Master || (!bNOTIMEFREEZE && (level.frozen || globalfreeze)))
 			return Super.Tick();
 		
-		//Spawner = Master;
 		// Perform movement code here.
 		if (MoveWithSource)
 		{
@@ -596,24 +597,31 @@ Class D4DBeamBase : D4DFX
 			}
 			else if (Master)
 			{
+				int flags = WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEOFFSET;
 				if (!FirstTic)
 				{
+					flags &= ~WARPF_INTERPOLATE;
 					FirstTic = true;
 					PrevPos = Pos;
 					PrevAngle = Angle;
 					PrevPitch = Pitch + 90;
 					Diff = PrevPos - Master.Pos;
 				}
-				
-				Warp(Master, Diff.x, Diff.y, Diff.z, 0, WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEOFFSET);
+				else	
+				{
+					flags |= WARPF_INTERPOLATE|WARPF_WARPINTERPOLATION|WARPF_COPYVELOCITY;
+					bINVISIBLE = false;
+				}
+				Warp(Master, Diff.x, Diff.y, Diff.z, 0, flags);
 				Angle = PrevAngle;
 				Pitch = PrevPitch;
 			}
 		}
-		else if (!FirstTic)
+		else
 		{
-			
+			bINVISIBLE = false;
 		}
+		
 		Super.Tick();
 	}
 	
@@ -651,7 +659,7 @@ Class D4DBeamBase : D4DFX
 			{
 				next = 'Waiting';
 			}
-			bINVISIBLE = false;
+			if (!MoveWithSource)	bINVISIBLE = false;
 			return ResolveState(next);
 		}
 		Stop;

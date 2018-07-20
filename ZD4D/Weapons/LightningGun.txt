@@ -243,9 +243,11 @@ Class LightningPuffV3 : LightningPuffV2
 					Actor Puff = Spawn("PacifistPuff", SH);
 					if (Puff)
 					{
-						Actor Beamer = Spawn("LightningBeamSecondarySpawner",pos);
+						Class<Actor> lname = "LightningBeamSecondarySpawner";
+						let Beamer = LightningBeamSecondarySpawner(Spawn(lname,pos));
 						if (Beamer)
 						{
+							Beamer.MoveWithSource = false;
 							Beamer.Target = Target;
 							Beamer.Master = Target;
 							Beamer.Tracer = Puff;
