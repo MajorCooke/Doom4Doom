@@ -14,6 +14,7 @@
 const PitchKick = 4.0;
 Class D4SuperShotgunDuo : Inventory {	Default { +INVENTORY.UNDROPPABLE Inventory.MaxAmount 2;		Inventory.InterhubAmount 2; } }
 
+const SSGReloadVolume = 0.3;
 Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 {
 	int hoffset;
@@ -81,8 +82,8 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			{
 				//SSR = Super Shotgun Right
 				//SSL = Super Shotgun Left
-				A_TakeInventory("SSRSecondShotToken",32767);
-				A_TakeInventory("SSLSecondShotToken",32767);
+				A_SetInventory("SSLSecondShotToken",0);
+				A_SetInventory("SSRSecondShotToken",0);
 				A_Overlay(RGun,"SSR.Ready");
 				A_Overlay(LGun,"SSL.Ready");							//Draw the second one.
 			}
@@ -103,8 +104,8 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		{
 			A_Overlay(GunWatcher,"Null");
 			A_Overlay(SwitchWatcher,"Null");
-			A_TakeInventory("SSLSecondShotToken",32767,0);
-			A_TakeInventory("SSRSecondShotToken",32767,0);
+			A_SetInventory("SSLSecondShotToken",0);
+			A_SetInventory("SSRSecondShotToken",0);
 		}
 	DesLoop:
 		"----" A 1 A_Lower;
@@ -230,14 +231,12 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 				A_Overlay(RGunFire2,"SSR.FireBullets");
 				A_GiveInventory("SSRSecondShotToken",2);
 				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",CHAN_BODY,1);
-				
 			}
-			
 			
 			if (CountInv("SSRSecondShotToken") > 1)
 			{
 				if (CountInv("SSGUpgrade1"))
-				{	return ResolveState("FastReload");	}
+					return ResolveState("FastReload");
 				return ResolveState("NormalReload");
 			}
 			A_WeaponOffset(12, 36);
@@ -423,11 +422,22 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		Loop;
 	
 	Overlay.ReloadSoundNormal:
-	//	TNT1 A 1
+		TNT1 A 5;
+		TNT1 A 1 A_PlaySound("Doom4/Weapon/SuperShotgun/Open",5,SSGReloadVolume);
+		TNT1 A 10 A_PlaySound("Doom4/Weapon/SuperShotgun/EjectShell",6,SSGReloadVolume);
+		TNT1 A 6 A_PlaySound("Doom4/Weapon/SuperShotgun/ShellClick",5,SSGReloadVolume); 
+		TNT1 A 16 A_PlaySound("Doom4/Weapon/SuperShotgun/Load",6,SSGReloadVolume);
+		TNT1 A 1 A_PlaySound("Doom4/Weapon/SuperShotgun/Close",5,SSGReloadVolume);
+		Stop;
 	Overlay.ReloadSoundFast:
-	
+		TNT1 A 11;
 	Overlay.ReloadSoundSanicDaHedgahmahoggy: // Crackhead getting crack, speed, and cocaine at once makes him super.
-		TNT1 A 0;
+		TNT1 A 1
+		{
+			// Replace the channel that's closer to finishing.
+			int channel = (S_GetLength(5) > S_GetLength(6)) ? 6 : 5;
+			A_PlaySound("Doom4/Weapon/SuperShotgun/FullReload", channel, SSGReloadVolume);
+		}
 		Stop;
 	
 	//==========================================================================
@@ -452,7 +462,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 				A_Overlay(RGunFire,"SSR.FireBullets");
 				A_Overlay(RGunFire2,"SSR.FireBullets");
 				A_GiveInventory("SSRSecondShotToken",2);
-				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",6,1);
+				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",CHAN_WEAPON,1);
 			}
 			else
 			{
@@ -461,9 +471,9 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 				A_GiveInventory("SSRSecondShotToken",1);
 				
 				if (CountInv("SSRSecondShotToken") < 2)
-				{	A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",5,1);	}
+					A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",CHAN_BODY,1);
 				else
-				{	A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",6,1);	}	
+					A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",CHAN_WEAPON,1);
 				
 			}
 		}
@@ -503,6 +513,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		M665 A 1 A_OverlayOffset(RGun,-4,-1,WOF_ADD); //6
 		
 		M665 DDDDEE 1 A_OverlayOffset(RGun,2,6,WOF_ADD); //6
+		
 		"####" "#" 0
 		{
 			if (GetCvar("D4D_Casings"))
@@ -580,7 +591,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 				A_Overlay(LGunFire,"SSL.FireBullets");
 				A_Overlay(LGunFire2,"SSL.FireBullets");
 				A_GiveInventory("SSLSecondShotToken",2);
-				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",6,1);
+				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",CHAN_WEAPON,1);
 			}
 			else
 			{
@@ -590,9 +601,9 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 				A_GiveInventory("SSLSecondShotToken",1);
 				
 				if (CountInv("SSLSecondShotToken") < 2)
-					A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",5,1);
+					A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",CHAN_BODY,1);
 				else
-					A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",6,1);	
+					A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",CHAN_WEAPON,1);	
 				
 			}
 		}
@@ -610,7 +621,19 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		M664 A 0 A_OverlayOffset(LGun,0,32-32);
 		Goto SSL.Ready;
 	SSL.Reload:
-		"####" "#" 0 A_JumpIf(CountInv("PowerD4DFS"),"SSL.ReloadFast");
+		M664 C 0 
+		{
+			StateLabel next = null;
+			if (CountInv("PowerD4DFS"))
+			{
+				next = "SSR.ReloadFast";
+				A_Overlay(5004, "Overlay.ReloadSoundSanicDaHedgahmahoggy");
+			}
+			else
+				A_Overlay(5003, "Overlay.ReloadSoundFast");
+			
+			return ResolveState(next);
+		}
 		M664 C 1 A_OverlayOffset(LGun,-6,3,WOF_ADD);
 		M664 C 1 A_OverlayOffset(LGun,8,-5,WOF_ADD);
 		M664 C 1 A_OverlayOffset(LGun,7,-3,WOF_ADD);
