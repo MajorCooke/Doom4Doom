@@ -155,7 +155,7 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 			if (bFRIENDLY)
 			{
 				A_FaceTarget(0,0,0,0,FAF_MIDDLE);
-				A_ChangeVelocity(cos(pitch) * 20, 0, -sin(pitch) * 20,CVF_RELATIVE|CVF_REPLACE);
+				A_ChangeVelocity(cos(pitch) * 30, 0, -sin(pitch) * 30,CVF_RELATIVE|CVF_REPLACE);
 				if (!target || target.health < 1)
 					return ResolveState("See");
 								
@@ -189,6 +189,7 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 		PSUL A 0 
 		{
 			charging = false;
+			//if lost soul is friendly, deals more damage
 			if (bFRIENDLY)
 			{	
 				int dmg = random(50,150);
@@ -198,9 +199,20 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 				{
 					A_DamageMaster(-(dmg * 0.05));
 				}
-			} //if lost soul is friendly, deals more damage
+			} 
 			else
-			{	A_Explode(random(30,50),64,XF_NOTMISSILE);	}
+			{	
+				// Allows infighting and targeting pain elementals. 
+				if (master && master.health > 0)
+				{
+					Actor temp = target;
+					master = target;
+					A_Explode(random(30,50),64,0);
+					target = temp;
+				}
+				else
+					A_Explode(random(30,50),64,XF_NOTMISSILE);
+			}
 		}
 	Death:
 		PSUL D 0 
