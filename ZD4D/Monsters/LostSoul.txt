@@ -205,10 +205,27 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 				// Allows infighting and targeting pain elementals. 
 				if (master && master.health > 0)
 				{
-					Actor temp = target;
-					master = target;
-					A_Explode(random(30,50),64,0);
-					target = temp;
+					let e = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+					if (e)
+					{
+						Array<Actor> mon; mon.Copy(e.Monsters);
+						if (mon.Size() > 0)
+						{
+							for (int i = 0; i < mon.Size(); i++)
+							{
+								Actor mo = mon[i];
+								if (!mo || mo.health < 1)
+									continue;
+									
+								if (Distance3DSquared(mo) > (50 **2) || !CheckSight(mo,SF_IGNOREVISIBILITY))
+									continue;
+									
+								int dmg = GetRadiusDamage(mo, 30, 50);
+								if (dmg > 0)
+									mo.DamageMobj(self, master, dmg, 'Melee');
+							}
+						}
+					}
 				}
 				else
 					A_Explode(random(30,50),64,XF_NOTMISSILE);
