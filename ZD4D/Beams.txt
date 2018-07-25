@@ -433,7 +433,7 @@ Class BigRedLaserDrillSMMSpawner : GaussTrailSpawner
 	{
 		D4DBeamSpawnerBase.Beam "BigRedLaserDrillSMM";
 		D4DBeamSpawnerBase.StartBeam "";
-	//	D4DBeamSpawnerBase.MoveWithSource true;
+		D4DBeamSpawnerBase.MoveWithSource true;
 	//	D4DBeamSpawnerBase.MovePitchAngle true;
 	//	D4DBeamSpawnerBase.Offsets 10, 40;
 		D4DBeamSpawnerBase.MaxDistance SMMLaserRange;
@@ -456,6 +456,7 @@ Class BigRedLaserDrillSMMPlayerSpawner : BigRedLaserDrillSMMSpawner
 	{
 		D4DBeamSpawnerBase.Beam "BigRedLaserDrillSMMPlayer";
 		D4DBeamSpawnerBase.Velocity true;
+		D4DBeamSpawnerBase.MoveWithSource false;
 		
 	}
 }

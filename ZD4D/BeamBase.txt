@@ -574,26 +574,24 @@ Class D4DBeamBase : D4DFX
 		// Perform movement code here.
 		if (MoveWithSource)
 		{
-			if (MovePitchAngle)
+			if (MovePitchAngle && Spawner)
 			{
-				if (Spawner)
-				{
-					D4D_Quaternion quat = D4D_Quaternion.createFromAngles(Spawner.angle, Spawner.Pitch, Spawner.roll);
-					Offs = quat.rotateVector3(spawnPoint);
+				// This doesn't work very well and needs to be debugged.
+				D4D_Quaternion quat = D4D_Quaternion.createFromAngles(Spawner.angle, Spawner.Pitch, Spawner.roll);
+				Offs = quat.rotateVector3(spawnPoint);
 
-					Angle = Spawner.Angle + OffAngle;
-					Pitch = Spawner.Pitch + OffPitch;
+				Angle = Spawner.Angle + OffAngle;
+				Pitch = Spawner.Pitch + OffPitch;
 
-					double cosPitch = cos(Pitch);
-					Vector3 dir = (cos(angle) * cosPitch, sin(angle) * cosPitch, -sin(Pitch));
-					Vector3 unitDir = dir.unit();
-					Pitch = -asin(unitDir.z) + 90.0;
-					Angle = atan2(unitDir.y, unitDir.x);
-					SetOrigin(Spawner.Vec3Offset(Offs.x, Offs.y, Offs.z), FirstTic);
-					
-					FirstTic = true;
-					bINVISIBLE = false;
-				}
+				double cosPitch = cos(Pitch);
+				Vector3 dir = (cos(angle) * cosPitch, sin(angle) * cosPitch, -sin(Pitch));
+				Vector3 unitDir = dir.unit();
+				Pitch = -asin(unitDir.z) + 90.0;
+				Angle = atan2(unitDir.y, unitDir.x);
+				SetOrigin(Spawner.Vec3Offset(Offs.x, Offs.y, Offs.z), FirstTic);
+				
+				FirstTic = true;
+				bINVISIBLE = false;
 			}
 			else if (Master)
 			{
