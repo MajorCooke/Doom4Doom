@@ -230,7 +230,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 				A_Overlay(RGunFire,"SSR.FireBullets");
 				A_Overlay(RGunFire2,"SSR.FireBullets");
 				A_GiveInventory("SSRSecondShotToken",2);
-				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",CHAN_BODY,1);
+				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",7,1);
 			}
 			
 			if (CountInv("SSRSecondShotToken") > 1)
