@@ -40,6 +40,7 @@ Class D4FatsoTech : D4AbstractBiggie
 	
 	Default 
 	{
+		D4AbstractMonster.Rune "FatsoRune", RuneChance_Fatso;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 32;
 		D4AbstractMonster.CashAmount 90;
@@ -177,24 +178,14 @@ Class D4FatsoTech : D4AbstractBiggie
 		"####" "#" 0 { bNoPain = false; }
 		Goto See;
     Death:
-		"####" "#" 0  //loot drop
-		{
-			bThruActors = true;
-			//D4SetupLoot();
-			//D4DropItems();
-			//"FatsoCashGiver");
-			if (RuneChance(RuneChance_Fatso))
-			{	A_SpawnItemEx("FatsoRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
-		}
-		FATT K 4 ;
+		"####" "#" 0;
+		FATT K 4 { bTHRUACTORS = true; }
 		FATT L 4 A_Scream();
 		FATT M 4 A_NoBlocking();
 		FATT NOPQRS 4;
 		FATT T -1
 		{
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
-			
-			{bCorpse = true;}
+			bCorpse = true;
 		}
 	    Stop;
 
@@ -210,13 +201,7 @@ Class D4FatsoTech : D4AbstractBiggie
 		{
 			bThruActors = true;
 			XDeathGush();
-			//D4DropItems();
-			//"FatsoCashGiver");
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_NoBlocking();	//just in case
-			
-			if (RuneChance(RuneChance_Fatso))
-			{	A_SpawnItemEx("FatsoRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}
 		Stop;
 	 Raise:
@@ -612,6 +597,7 @@ Class D4FatsoHell : D4AbstractBiggie
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Rune "FatsoRune", RuneChance_Fatso;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 32;
 		D4AbstractMonster.CashAmount 90;
@@ -779,22 +765,14 @@ Class D4FatsoHell : D4AbstractBiggie
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			//D4SetupLoot();
-			//D4DropItems();
-			//"FatsoCashGiver");
-			
-			if (RuneChance(RuneChance_Fatso))
-			{	A_SpawnItemEx("FatsoRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}
 		FAT2 K 4 ;
 		FAT2 L 4 A_Scream();
 		FAT2 M 4 A_NoBlocking();
 		FAT2 NOPQRS 4;
 		FAT2 T -1 
-		{
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
-			
-			{bCorpse = true;}
+		{			
+			bCorpse = true;
 		}
 	    Stop;
 		
@@ -804,26 +782,14 @@ Class D4FatsoHell : D4AbstractBiggie
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		"####" "#" 0  //loot drop
-		{
-			//D4SetupLoot(true);
-		}
-		Goto XDeathNoDrops;
-		
 	XDeathNoDrops:	
 		TNT1 A 1
 		{
 			bThruActors = true;
 			XDeathGush();
-			//D4DropItems();
-			//"FatsoCashGiver");
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_XScream();
 			A_NoBlocking();	//just in case
 			A_PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
-			
-			if (RuneChance(RuneChance_Fatso))
-			{	A_SpawnItemEx("FatsoRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}
 		Stop;
 	 Raise:

@@ -168,9 +168,6 @@ Class D4Zombieman : D4AbstractMonster // : Zombieman //replaces Zombieman
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			//D4SetupLoot();
-			//D4DropItems();
-			//"ZombieCashGiver");
 		}
 		RFTR H 4 ;
 		RFTR I 4 A_Scream();
@@ -190,9 +187,6 @@ Class D4Zombieman : D4AbstractMonster // : Zombieman //replaces Zombieman
 		{
 			bThruActors = true;
 			XDeathGush();
-			//D4DropItems();
-			//"ZombieCashGiver");
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_NoBlocking();	//just in case;
 		}
 		Stop;

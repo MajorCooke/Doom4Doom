@@ -41,6 +41,7 @@ Class D4HellKnight : D4AbstractBiggie
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Rune "KnightRune", RuneChance_Knight;
 		D4AbstractMonster.BC "Green";
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 16;
@@ -422,17 +423,7 @@ Class D4HellKnight : D4AbstractBiggie
 		Goto See;
 
 	Death:
-		E02D A 3  //loot drop
-		{
-			bThruActors = true;
-			//D4SetupLoot();
-			//D4DropItems();
-			//"HellKnightCashGiver");
-			
-			if (RuneChance(RuneChance_Knight))
-			{	A_SpawnItemEx("KnightRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
-			return ResolveState(null);
-		}
+		E02D A 3 {bThruActors = true; }
 		E02D B  3 A_Scream();
 		E02D C  3 ;
 		E02D D  3 A_NoBlocking();
@@ -453,11 +444,6 @@ Class D4HellKnight : D4AbstractBiggie
 		{
 			bThruActors = true;
 			XDeathGush(Color_Green);
-			//D4DropItems();
-			//"HellKnightCashGiver");
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
-			if (RuneChance(RuneChance_Knight))
-			{	A_SpawnItemEx("KnightRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}
 		Stop;
 		

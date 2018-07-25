@@ -38,6 +38,7 @@ Class D4Cacodemon : D4AbstractBiggie
 	
 	Default 
 	{
+		D4AbstractMonster.Rune "CacodemonRune", RuneChance_Caco;
 		D4AbstractMonster.BC "Blue";
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 28;
@@ -110,12 +111,6 @@ Class D4Cacodemon : D4AbstractBiggie
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			//D4SetupLoot();
-			//D4DropItems();
-			//"CacoCashGiver");
-			
-			if (RuneChance(RuneChance_Caco))
-			{	A_SpawnItemEx("CacodemonRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}
 		CAC2 G 5 ;
 		CAC2 H 5 A_Scream();

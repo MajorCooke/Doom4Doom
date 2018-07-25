@@ -1271,8 +1271,10 @@ Class CarrionAbsorbant : CustomInventory
 	Pickup:
 		TNT1 A 0
 		{
-			//Do not remove things with specials assigned. Wait; until they trigger first.
+			//Do not remove things with specials assigned. Wait until they trigger first.
 			if (special)	{	return false;	}
+			bSOLID = bCORPSE = false;
+			
 			A_SpawnItemEx("CorpseFader",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERSPRITEFRAME);
 			A_Remove(DefPtr,RMVF_EVERYTHING);
 			return true;

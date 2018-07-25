@@ -45,6 +45,7 @@ extend class D4DHandler
 	const TimeTrigger = 35 * 10;
 	uint Timer;
 	Array<Actor> Monsters;
+	Array<D4DBeamBase> Beams;
 	D4BlackList BlackList;
 	D4ManualLootList LootList;
 	
@@ -56,24 +57,20 @@ extend class D4DHandler
 		if (Timer++ >= TimeTrigger)
 		{
 			Timer = 0;
-			if (Monsters.Size() > 0)
+			int Size = Max(Beams.Size(), Monsters.Size());
+			
+			for (int i = Size - 1; i > -1; i--)
 			{
-				for (int i = Monsters.Size() - 1; i > -1; i--)
-				{
-					// Just to be safe, in the event something, somehow, does happen...
-					// It's the VM. The most unpredictable of shit can happen!
-					
-					if (i >= Monsters.Size())
-						continue;
-						
-					Actor mo = Monsters[i];
-					if (!mo || mo.health < 1)
-					{
-						Monsters.Delete(i);
-					}
-				}
+				if (i < Monsters.Size() && !Monsters[i])	Monsters.Delete(i);
+				if (i < Beams.Size() && !Beams[i])			Beams.Delete(i);
 			}
 		}
+	}
+	
+	override void WorldUnloaded(WorldEvent e)
+	{
+		Monsters.Clear();
+		Beams.Clear();
 	}
 	
 	//--------------------------------------------------------------------------
@@ -146,6 +143,22 @@ extend class D4DHandler
 		Super.OnRegister();
 	}
 	
+	void DestroyBeams(Actor caller)
+	{
+		if (caller && Beams.Size() > 0)
+		{
+			for (int i = 0; i < Beams.Size(); i++)
+			{
+				Actor mo = Beams[i];
+				if (mo && (mo.Master == caller) && !mo.bNODAMAGE)
+				{
+					mo.bNODAMAGE = true;
+					mo.SetStateLabel('Death');
+				}
+			}
+		}
+	}
+	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
 	// Monster recording, for ease of tracking with lightning gun altfire and bfg
@@ -155,11 +168,20 @@ extend class D4DHandler
 	{
 		Actor mo = e.thing;
 		
+		if (mo is "D4DBeamBase")
+		{
+			Beams.Push(D4DBeamBase(mo));
+			return;
+		}
+		
 		if (mo.bNOINTERACTION || mo.bNOSECTOR || mo.bNOBLOCKMAP || mo is "Inventory")
 			return;
 		
 		if ((mo.bISMONSTER || mo.bSHOOTABLE) && mo.health > 0)
 			Monsters.Push(mo);
+		
+		let mon = D4AbstractMonster(mo);
+		if (mon)	mon.Event = self;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -682,9 +704,13 @@ Class D4ManualLootList : Thinker
 			if (i < size)
 			{
 				Loot.Init	(Actors[i], 
-							UpgradeDropChance[i], UpgradeDropAlways[i], 
-							CrateDropChance[i], CrateDropAmount[i], CrateDropAlways[i], 
-							CashChainsawPinata[i], CashAmount[i]);
+							UpgradeDropChance[i], 
+							UpgradeDropAlways[i], 
+							CrateDropChance[i], 
+							CrateDropAmount[i], 
+							CrateDropAlways[i], 
+							CashChainsawPinata[i], 
+							CashAmount[i]);
 			}
 		}
 	}

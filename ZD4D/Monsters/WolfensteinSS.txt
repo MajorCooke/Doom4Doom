@@ -88,9 +88,6 @@ Class D4OldWolfensteinSS : D4AbstractMonster replaces WolfensteinSS // : Wolfens
 		SSWV I 5
 		{
 			bThruActors = true;
-			//D4SetupLoot();
-			//D4DropItems();
-			//"NaziCashGiver");
 		}
 		
 		SSWV J 5 A_Scream();
@@ -110,9 +107,6 @@ Class D4OldWolfensteinSS : D4AbstractMonster replaces WolfensteinSS // : Wolfens
 		{
 			bThruActors = true;
 			XDeathGush();
-			//D4DropItems();
-			//"NaziCashGiver");
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 		}
 		SSWV J 5 A_Scream();
 		SSWV K 5 A_NoBlocking();

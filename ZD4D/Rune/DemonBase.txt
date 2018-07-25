@@ -736,7 +736,7 @@ Class DemonRuneBase : CustomInventory
 		RUNE A 0 NoDelay
 		{
 			bool d;
-			[d, invoker.ring] = A_SpawnItemEx("DemonRuneBackground",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_TRANSFERSCALE|SXF_ORIGINATOR);
+			[d, invoker.ring] = A_SpawnItemEx("DemonRuneBackground",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_TRANSFERSCALE|SXF_ORIGINATOR|SXF_TRANSFERTRANSLATION);
 			
 		}
 		Goto Idle;

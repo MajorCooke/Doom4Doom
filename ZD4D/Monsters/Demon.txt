@@ -169,9 +169,6 @@ Class D4Demon : D4AbstractMonster
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			//D4SetupLoot();
-			//D4DropItems();
-			//"DemonCashGiver");
 		}
 		D4DG I 8; //A_RemoveChildren(True,RMVF_EVERYTHING,"DemonShield");
 		D4DG J 8 A_Scream();
@@ -193,9 +190,6 @@ Class D4Demon : D4AbstractMonster
 		{
 			bThruActors = true;
 			XDeathGush();
-			//D4DropItems();
-			//"DemonCashGiver");
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_NoBlocking();	//just in case
 		}
 		Stop;

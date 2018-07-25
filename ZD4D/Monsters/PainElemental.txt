@@ -38,6 +38,7 @@ Class D4PainElemental : D4AbstractBiggie
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Rune "PainElementalRune", RuneChance_PainEl;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 64;
 		D4AbstractMonster.CashAmount 80;
@@ -111,12 +112,7 @@ Class D4PainElemental : D4AbstractBiggie
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			//D4SetupLoot();
-			//D4DropItems();
-			//"PainElemCashGiver");
 			A_Stop();
-			if (RuneChance(RuneChance_PainEl))
-			{	A_SpawnItemEx("PainElementalRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}
 		INFR L 2 BRIGHT A_Scream();
 		INFR M 3 BRIGHT  
@@ -161,16 +157,8 @@ Class D4PainElemental : D4AbstractBiggie
 		INFR L 2 bright 
 		{
 			bThruActors = true;
-			//D4DropItems();
-			//"PainElemCashGiver");
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");	
-		
 			A_Stop();
 			A_Scream();
-			{ bThruActors = true; }
-			
-			if (RuneChance(RuneChance_PainEl))
-			{	A_SpawnItemEx("PainElementalRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}
 		INFR M 3 BRIGHT
 		{

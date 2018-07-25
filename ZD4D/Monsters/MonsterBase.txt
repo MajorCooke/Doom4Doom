@@ -22,18 +22,22 @@ enum RuneChances
 
 Class D4AbstractMonster : Actor 
 {
+
+	Class<DemonRuneBase> RuneItem;
+	int RuneDropChance;
+	D4DHandler Event;
 	int PrevWoundHealth;
 	int UpgradeDropChance, UpgradeDropAlways;
 	uint CrateDropChance, CrateDropAmount, CrateDropAlways;
 	uint CashAmount, CashChainsawPinata;
 	int CashMultiplier;
 	Name MOD;
-	D4DropList Pinatas;
 	Actor Spawner;
 	Color BC;
 	bool HQ;
 	transient CVar HighQuality, EnhancedChase, ExecuteCheck, StaggerCheck;
 	
+	Property Rune: RuneItem, RuneDropChance;
 	property BC: BC;
 	property UpgradeDropChance: UpgradeDropChance;
 	property UpgradeDropAlways: UpgradeDropAlways;
@@ -58,31 +62,22 @@ Class D4AbstractMonster : Actor
 	
 	override void BeginPlay()
 	{
-		Pinatas.ResetList();
 		Super.BeginPlay();
 		PrevWoundHealth = WoundHealth;
 	}
 	
-	override void Deactivate(Actor activator)
+	override void PostBeginPlay()
 	{
-		A_ChangeCountFlags(false);
-		Super.Deactivate(activator);
+		Super.PostBeginPlay();
+		ExecuteCheck = Cvar.FindCvar("D4D_ExecutionsON");
+		StaggerCheck = Cvar.FindCvar("D4D_MonsterStagger");
+		oldLeap = false;
 	}
-	
-	override void Activate(Actor activator)
-	{
-		A_ChangeCountFlags(true);
-		Super.Activate(activator);
-	}
-	
+		
 	bool CheckEffects()
 	{
-		if (!HighQuality)
-			HighQuality = CVar.FindCvar("HQEffects");
-		if (HighQuality)
-			return HighQuality.GetBool();
-		
-		return false;
+		if (!HighQuality)	HighQuality = CVar.FindCvar("HQEffects");
+		return (HighQuality && HighQuality.GetBool());
 	}
 	
 	bool CheckStagger()
@@ -125,6 +120,7 @@ Class D4AbstractMonster : Actor
 	
 	override void Die(Actor source, Actor inflictor, int dmgflags)
 	{
+		SpawnRune();
 		bTHRUACTORS = true;
 		if (Spawner && Spawner.health > 0)
 		{
@@ -142,6 +138,24 @@ Class D4AbstractMonster : Actor
 		{
 			let next = FindState("XDeath", true);
 			if (next)	SetState(next);
+		}
+	}
+	
+	void SpawnRune()
+	{
+		if (!RuneItem || RuneDropChance < 1)
+			return;
+			
+		if (RuneChance(RuneDropChance))
+		{
+			let Rune = DemonRuneBase(Spawn(RuneItem, pos, ALLOW_REPLACE));
+			Class<Inventory> Token = "D4MonsterUpgrader";
+			int Count = CountInv(Token);
+			if (Rune && Token && Count > 0)
+			{
+				Rune.A_SetInventory(Token, Count, beyondMax: true);
+				Rune.Translation = Translation;
+			}
 		}
 	}
 	
@@ -318,13 +332,6 @@ Class D4AbstractMonster : Actor
 		JF_UP = (1<<1),
 		
 		JF_ALL = JF_FORWARD|JF_UP
-	}
-
-	override void PostBeginPlay()
-	{
-		Super.PostBeginPlay();
-		
-		oldLeap = false;
 	}
 	
 	// Thanks go out to Gutawer for this wonderful function.

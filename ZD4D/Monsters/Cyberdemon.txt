@@ -47,7 +47,6 @@ Class D4Cyberdemon : D4AbstractBoss
 		{
 			for (int i = 0; i < 5; i++)
 				A_DropItem("D4PinataHealth");
-			
 		}
 		A_RemoveChildren(true,RMVF_EVERYTHING,"CyberdemonChargeIndicator");
 		Super.Die(source, inflictor, dmgflags);
@@ -55,6 +54,7 @@ Class D4Cyberdemon : D4AbstractBoss
 	
 	Default 
 	{
+		D4AbstractMonster.Rune "CyberdemonRune", RuneChance_Cyber;
 		D4AbstractMonster.UpgradeDropChance 5;
 		D4AbstractMonster.CrateDropAmount 3;
 		D4AbstractMonster.CrateDropChance 192;
@@ -266,9 +266,6 @@ Class D4Cyberdemon : D4AbstractBoss
 			A_SpawnItemEx("CyberdemonDeathFX",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTRACER|SXF_ORIGINATOR|SXF_TRANSFERTRANSLATION);
 			A_SpawnItemEx("BossExploderSFX",0,0,0,0,0,0,0,32|SXF_SETTRACER|SXF_ORIGINATOR);
 			
-			if (RuneChance(RuneChance_Cyber))
-			{	A_SpawnItemEx("CyberdemonRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	}
-			
 		}
 		CYBR I 10 A_Scream();
 		CYBR JKL 10;
@@ -277,7 +274,6 @@ Class D4Cyberdemon : D4AbstractBoss
 		CYBR P 30;
 		CYBR P -1 
 		{
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			bCorpse = true;
 		}
 		Stop;
@@ -291,10 +287,7 @@ Class D4Cyberdemon : D4AbstractBoss
 	XDeathNoDrops:
 		CYBR H 0;
 		CYBR H 10 
-		{
-			if (RuneChance(RuneChance_Cyber))
-			{	A_SpawnItemEx("CyberdemonRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	}
-			
+		{			
 			if (DamagetypeReceived != 'Massacre')
 			{
 				A_SpawnItemEx("CyberdemonDeathFX",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTRACER|SXF_ORIGINATOR|SXF_TRANSFERTRANSLATION);
@@ -308,7 +301,6 @@ Class D4Cyberdemon : D4AbstractBoss
 		CYBR P 30;
 		CYBR P -1 
 		{
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			bCorpse = true;	
 		}
 		Stop;
@@ -883,12 +875,7 @@ Class D4OldCyberdemon : D4AbstractBoss // : Cyberdemon
 	Death.BerserkKill:
 	Death.MeleePunch:
 	Death.ChainsawPinata:
-		"####" "#" 0 { Pinatas.AddItem("D4PinataHealth", 5); }
 	XDeath:
-		"####" "#" 0  //loot drop
-		{
-			//D4SetupLoot(true);
-		}		
 	XDeathNoDrops:	
 		TNT1 A 0
 		{

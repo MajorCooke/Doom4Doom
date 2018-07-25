@@ -37,6 +37,7 @@ Class D4Arachnotron : D4AbstractBiggie // : Arachnotron	//to be edited
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Rune "ArachnotronRune", RuneChance_Arach;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 32;
 		D4AbstractMonster.CashAmount 80;
@@ -367,7 +368,6 @@ Class D4OldArachnotron : D4AbstractBiggie //  : Arachnotron
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
-			
 			if (RuneChance(RuneChance_Arach))
 			{	A_SpawnItemEx("ArachnotronRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}

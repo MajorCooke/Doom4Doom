@@ -42,6 +42,12 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 	int count;
 	int staggertimer;
 	
+	override void Die(Actor source, Actor inflictor, int dmgflags)
+	{
+		if (Event) Event.DestroyBeams(self);
+		Super.Die(source, inflictor, dmgflags);
+	}
+	
 	Default 
 	{
 		D4AbstractMonster.UpgradeDropChance 260;
@@ -161,8 +167,15 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 		}
 		Wait;
 	Pain:
-		HRZR G 3 A_KillChildren("",KILS_KILLMISSILES,null,"LaserKillable");
-		HRZR G 3 A_Pain();
+		HRZR G 3
+		{
+			if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+		}
+		HRZR G 3 
+		{
+			if (Event) Event.DestroyBeams(self);
+			A_Pain();
+		}
 		Goto See;
 	Pain.StunBomb:
 		"####" "#" 0 { bNoPain = true; }
@@ -176,7 +189,7 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 	Death:
 		"####" "#" 0  //loot drop
 		{
-			A_KillChildren("None",KILS_KILLMISSILES,null,"LaserKillable");
+			if (Event) Event.DestroyBeams(self);
 			bThruActors = true;
 			//D4SetupLoot();
 			//D4DropItems();
@@ -205,7 +218,7 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 			//"ChainguyCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_NoBlocking();	//just in case
-			A_KillChildren("None",KILS_KILLMISSILES,null,"LaserKillable");
+			if (Event) Event.DestroyBeams(self);
 		}
 		Stop;
 	Raise:
@@ -218,6 +231,7 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 	Wound:
 		"####" "#" 1
 		{
+			if (Event) Event.DestroyBeams(self);
 			if(GetCvar("D4D_ExecutionsON"))
 			{
 				if(countinv("FinisherToken")==0) //if it isnt healing already
@@ -254,7 +268,6 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 	StagLooper:
 		"####" "#" 1
 		{
-			A_KillChildren("None",KILS_KILLMISSILES,null,"LaserKillable");
 			if(!countinv("FinisherToken"))
 			{
 				return ResolveState("See");

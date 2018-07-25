@@ -42,6 +42,7 @@ Class D4BaronOfHell : D4AbstractBiggie
 	
 	Default 
 	{
+		D4AbstractMonster.Rune "BaronRune", RuneChance_Baron;
 		D4AbstractMonster.BC "Green";
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 32;
@@ -442,13 +443,6 @@ Class D4BaronOfHell : D4AbstractBiggie
 		{
 			bSPRITEFLIP = random(0,1);
 			bThruActors = true;
-			//D4SetupLoot();
-			//D4DropItems();
-			//"BaronCashGiver");
-			
-			if (RuneChance(RuneChance_Baron))
-			{	A_SpawnItemEx("BaronRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 		}
 		E01D A 3 ;
 		E01D B 3 A_Scream();
@@ -470,12 +464,7 @@ Class D4BaronOfHell : D4AbstractBiggie
 		{
 			bThruActors = true;
 			XDeathGush(Color_Green);
-			//D4DropItems();
-			//"BaronCashGiver");
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_NoBlocking();	//just in case
-			if (RuneChance(RuneChance_Baron))
-			{	A_SpawnItemEx("BaronRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}
 		Stop;
 		
