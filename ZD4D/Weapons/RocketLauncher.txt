@@ -972,7 +972,7 @@ Class PlayerRocketQuakeDummy  : Actor //had to create this, because if I keep th
 
 
 
-Class D4RocketTrailSmoke : Actor 	//centered smoke
+Class D4RocketTrailSmoke : D4DFXOP 	//centered smoke
 {
 	Default 
 	{
@@ -993,13 +993,13 @@ Class D4RocketTrailSmoke : Actor 	//centered smoke
 			A_FadeIn(0.02);
 		}
 	Continue:
-		X037 A 1 A_FadeOut(0.018);
+		X037 A 1 D4D_FadeOut(0.018);
 		X037 A 0 A_SetScale(Scale.X+0.02);
 		Loop;
 	}
 }
 
-Class D4RocketTrailFire2 : Actor //centered flare behind the rocket
+Class D4RocketTrailFire2 : D4DFXOP //centered flare behind the rocket
 {
 	Default 
 	{
@@ -1017,15 +1017,15 @@ Class D4RocketTrailFire2 : Actor //centered flare behind the rocket
 		TNT1 A 0 A_Jump(256,"One","Two");
 	One:
 		X007 ABCDE 1 Bright ;
-		X007 FGHIJ 1 Bright A_FadeOut();
+		X007 FGHIJ 1 Bright D4D_FadeOut();
 		Stop;
 	Two:
 		X007 KLMNO 1 Bright ;
-		X007 PQRST 1 Bright A_FadeOut();
+		X007 PQRST 1 Bright D4D_FadeOut();
 		Stop;		
 	}
 }
-Class D4RocketTrailFire1 : Actor 
+Class D4RocketTrailFire1 : D4DFXOP 
 {
 	Default 
 	{
@@ -1040,7 +1040,7 @@ Class D4RocketTrailFire1 : Actor
 	Spawn:
 		PROJ DDDEEEFFFGGGHHHIII 1 Bright 
 		{
-			A_FadeOut(0.03);
+			D4D_FadeOut(0.03);
 			A_SetScale(Scale.X+0.085);
 		}
 		Stop;

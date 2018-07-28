@@ -111,6 +111,10 @@ Class D4DHandler : EventHandler
 				deltas[num].receiving = true;
 				//Console.Printf("Enabled receiving.");
 			}
+			else if (e.Name == 'ClearPool')
+			{
+				ClearPool(e.Args[0]);
+			}
 			else if (e.Name == 'UpdateItems')
 			{
 				if (deltas[num].ItemName.Size() > 0)
@@ -179,6 +183,50 @@ Class D4DHandler : EventHandler
 	
 	//==========================================================================
 	// Functions
+	
+	void ClearPool(bool forced = false)
+	{
+		int countobj = 0;
+		int countvoid = 0;
+		if (Pool.Size() > 0)
+		{
+			for (int i = 0; i < Pool.Size(); i++)
+			{
+				bool del = false;
+				D4DActor mo = Pool[i];
+				
+				if (!mo)
+				{
+					countvoid++;
+					del = true;
+				}
+				else if (mo.freed || forced)
+				{
+					mo.Destroy();
+					countobj++;
+					del = true;
+				}
+				
+				if (!forced && del)
+				{
+					Pool.Delete(i);
+					i--;
+					if (i < 0 || i >= Pool.Size())
+						break;
+				}
+			}
+			
+			if (forced) 
+			{
+				Pool.Clear();
+				Console.Printf("Pool cleared");
+			}
+			else
+				Console.Printf("Removed %d actors + %d nulls from pool", countobj, countvoid);
+		}
+		else
+			Console.Printf("Pool is empty");
+	}
 	
 	// Completely clear off all listings for a particular player.
 	void Init(int num)

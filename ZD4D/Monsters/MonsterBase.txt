@@ -20,12 +20,11 @@ enum RuneChances
 	RuneChance_Archie = 10,
 }
 
-Class D4AbstractMonster : Actor 
+Class D4AbstractMonster : D4DActor 
 {
 
 	Class<DemonRuneBase> RuneItem;
 	int RuneDropChance;
-	D4DHandler Event;
 	int PrevWoundHealth;
 	int UpgradeDropChance, UpgradeDropAlways;
 	uint CrateDropChance, CrateDropAmount, CrateDropAlways;
@@ -516,6 +515,18 @@ Class D4AbstractMonster : Actor
 		return false;
 	}
 	*/
+	
+	override void SoftDestroy()
+	{
+		Destroy();
+	}
+	
+	States
+	{
+	WaitInvis:
+		TNT1 A 0;
+		Stop;
+	}
 }
 
 

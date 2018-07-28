@@ -415,8 +415,8 @@ Class RevenantRocketSpinning : D4AbstractMissile
 		SWMS A 1 Bright Light("OrangeSmallPoint1")
 		{
 			A_Weave(2,2,1.0,1.0);
-			A_SpawnItemEx("RocketGasTrail",-4,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			A_SpawnSFX("RocketGasTrail",-4,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			A_SpawnSFX("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 			
 		}
 		Wait;
@@ -468,7 +468,7 @@ Class RevenantRocketSpinningSimple : RevenantRocketSpinning
 	}
 }
 
-Class MonsterRocketTrailFire : Actor //centered flare behind the rocket
+Class MonsterRocketTrailFire : D4DFXOP //centered flare behind the rocket
 {
 	Default 
 	{
@@ -483,18 +483,18 @@ Class MonsterRocketTrailFire : Actor //centered flare behind the rocket
 	States
 	{
 	Spawn:
-		TNT1 A 0 A_Jump(128,"Two");
+		TNT1 A 0 NoDelay A_Jump(128,"Two");
 	One:
 		X007 ABCDE 1 Bright ;
-		X007 FGHIJ 1 Bright A_FadeOut();
-		Stop;
+		X007 FGHIJ 1 Bright D4D_FadeOut();
+		Goto WaitInvis;
 	Two:
 		X007 KLMNO 1 Bright ;
-		X007 PQRST 1 Bright A_FadeOut();
-		Stop;		
+		X007 PQRST 1 Bright D4D_FadeOut();
+		Goto WaitInvis;
 	}
 }
-Class RocketGasTrail : Actor 
+Class RocketGasTrail : D4DFXOP 
 {
 	Default 
 	{
@@ -508,7 +508,7 @@ Class RocketGasTrail : Actor
 	States
 	{
 	Spawn:
-		X102 V 2 A_FadeOut(0.08);
+		X102 V 2 D4D_FadeOut(0.08);
 		Loop;
 	}
 }

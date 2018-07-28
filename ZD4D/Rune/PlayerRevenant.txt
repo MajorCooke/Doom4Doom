@@ -276,7 +276,7 @@ Class JetpackCooling : Inventory
 	}
 }
 
-Class PlayerRevRocket : Actor 
+Class PlayerRevRocket : D4AbstractMissile 
 {
 	int user_value1;
 	int user_value2;
@@ -306,12 +306,12 @@ Class PlayerRevRocket : Actor
 			if (GetCvar("HQEffects"))
 			{
 				//A_SpawnItemEx("RocketGasTrail",-4,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketTrailSmokeSmaller",-5,random(5,-5),random(5,-5),0,0,0,0,SXF_NOCHECKPOSITION);	
-				A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				A_SpawnSFX("D4RocketTrailSmokeSmaller",-5,random(5,-5),random(5,-5),0,0,0,0,SXF_NOCHECKPOSITION);	
+				A_SpawnSFX("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
 			else
 			{
-				A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION,128);
+				A_SpawnSFX("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION,128);
 			}
 		}
 		Wait;
@@ -334,10 +334,10 @@ Class PlayerRevRocket : Actor
 			A_PlaySound("Doom4/Other/OtherRocketExplo");
 			if (GetCvar("HQEffects"))
 			{
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnSFX("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnSFX("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
 			}
-			A_SpawnItemEx("CyberdemonRocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			A_SpawnSFX("CyberdemonRocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 		}
 		TNT1 A 2 Light("OrangeMediumPoint2");
 		TNT1 A 2 Light("OrangeMediumPoint3");
@@ -369,8 +369,15 @@ Class D4RocketTrailSmokeSmaller : D4RocketTrailSmoke
 			A_FadeIn(0.02);
 		}
 	Continue:
-		X037 A 1 A_FadeOut(0.018);
-		X037 A 0 A_SetScale(Scale.X+0.01);
+		X037 A 1 
+		{
+			Alpha -= 0.018;
+			A_FadeOut(0.018);
+			A_SetScale(Scale.X+0.01);
+			
+			if (Alpha <= 0.0)
+				return SoftDestroy();
+		}
 		Loop;
 	}
 }
