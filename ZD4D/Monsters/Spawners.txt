@@ -286,9 +286,15 @@ Class ChaingunGuyReplacer : D4DMonsterSpawner replaces ChaingunGuy
 	Default 
 	{
 		D4DMonsterSpawner.OldMonster "D4OldChaingunGuy";
-		D4DMonsterSpawner.NewMonster "D4ChaingunGuy";
+	//	D4DMonsterSpawner.NewMonster "D4ChaingunGuy";
 		Radius 20;
 		Height 56;
+	}
+	override void PostBeginPlay()
+	{
+		NewMonList.Push("D4ChaingunGuy");
+		NewMonList.Push("D4SergeantShield");
+		Super.PostBeginPlay();
 	}
 }
 
