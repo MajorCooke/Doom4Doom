@@ -83,7 +83,6 @@ OptionMenu "D4DOptions"
 	Option "Spawn Demon Runes",					"D4D_DemonRunes",		"DemonRunes"
 	Option "Silent idle demon-player",			"D4D_SilentMorphs",		"YesNo"
 	Option "Show HUD Demon Name",			"D4D_DemonNameDisplay",		"YesNo"
-	Option "Demon Rune Warning",			"D4D_DemonWarning",		"OnOff"
 	StaticText ""
 	StaticText "Multiplayer Weapons", 1
 	Option "Spawn MP weapons",				"MPWeapons",			"OnOff"
@@ -296,18 +295,6 @@ OptionValue "HasteSpawn"
 	2, "Always"
 }
 
-OptionValue "MonsterLaserType"
-{
-	0, "ZDoom (Faster)"
-	1, "GZDoom (Fancy)"
-}
-
-OptionValue "BeamTexture"
-{
-	0, "Plain"
-	1, "Lightning"
-}
-
 OptionValue "MPProg"
 {
 	0, "Random"
@@ -369,7 +356,7 @@ OptionValue "DemonType"
 {
 	0, "Original Doom"
 	1, "Doom(4) for Doom"
-	2, "Rainbow Doom(4)"
+	2, "Rainbow Doom(4) (Alpha)"
 }
 OptionValue "LootType"
 {

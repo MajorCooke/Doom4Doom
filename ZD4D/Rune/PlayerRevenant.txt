@@ -9,30 +9,8 @@ Class RevenantRune : DemonRuneBase
 {
 	Default 
 	{
-		DemonRuneBase.Morph "RevenantMorpher";
+		DemonRuneBase.Morph "RevenantMorpher", "IamRevenant";
 		Inventory.PickupMessage "Revenant rune";
-	}
-	States
-	{
-	Pickup:
-		TNT1 A 0 
-		{
-			if (CountInv("IamADemonToken") || CountInv("PowerInvulBase") || countinv("D4DoomDollHands") || countinv("BusyToken"))
-			{
-				return false;
-			}
-			else
-			{
-				A_GiveInventory("SoundStopper",1); //stops any sound (mostly for the looping ones)
-				A_GiveInventory("HealthArmorSaver",1);
-				A_GiveInventory("IamADemonToken",1);
-				A_GiveInventory("IamRevenant",1);
-				A_GiveInventory(invoker.Morph,1);
-				return true;
-			}
-			
-		}
-		Stop;
 	}
 }
 

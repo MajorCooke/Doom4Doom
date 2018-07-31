@@ -1,3 +1,16 @@
+
+#include "ZD4D/Rune/PlayerArachnotron.txt"
+#include "ZD4D/Rune/PlayerArchvile.txt"
+#include "ZD4D/Rune/PlayerBaron.txt"
+#include "ZD4D/Rune/PlayerCacodemon.txt"
+#include "ZD4D/Rune/PlayerCyberdemon.txt"
+#include "ZD4D/Rune/PlayerFatso.txt"
+#include "ZD4D/Rune/PlayerHellknight.txt"
+#include "ZD4D/Rune/PlayerMastermind.txt"
+#include "ZD4D/Rune/PlayerPainElemental.txt"
+#include "ZD4D/Rune/PlayerRevenant.txt"
+
+
 Class IamADemonToken  : Inventory { Default { Inventory.MaxAmount 1;    Inventory.InterHubAmount 0; }}
 Class DemonTimerToken : Inventory { Default { Inventory.MaxAmount 2100; Inventory.InterHubAmount 0; }}
 //Class DemonTimerTotal : Inventory { Default { Inventory.MaxAmount 25200; Inventory.InterHubAmount 0; }}
@@ -44,8 +57,9 @@ Class DemonPlayerBase : Doom4Player
 	Class<Inventory> RuneBase;
 	int TicDelay;
 	int prevTic, currTic, nextTic;
+	int PowerLevel;
 	const interTic = 15;
-	const minuteTic = 60 * 35;
+	const Minute = 60 * 35;
 	bool EndMe;
 	// Only ever called once.
 	override void PostBeginPlay()
@@ -78,8 +92,16 @@ Class DemonPlayerBase : Doom4Player
 				break;
 			}
 		}
+		PowerLevel = CountInv("D4MonsterUpgrader");
 		let inv = PowerMorph(FindInventory("PowerMorph",true));
-		if (inv)	currTic = inv.EffectTics;
+		if (inv)	
+		{
+			inv.EffectTics += Minute * PowerLevel;
+			currTic = inv.EffectTics;
+			//Strangely, the timer visual runs out at least a few seconds before.
+			A_SetInventory("DemonTimerToken",inv.EffectTics + 70, DefPtr, true);
+		}
+		
 		
 		PlayDemonSightSound();
 		StartDemonOverlays();
@@ -132,8 +154,7 @@ Class DemonPlayerBase : Doom4Player
 		A_Overlay(6001,"Overlay.Steps",true);
 		A_OverlayFlags(6000, PSPF_POWDOUBLE, false);
 		A_OverlayFlags(6001, PSPF_POWDOUBLE, false);
-		//Strangely, the timer visual runs out at least a few seconds before.
-		A_SetInventory("DemonTimerToken",62*35, DefPtr, true);
+		
 	}
 	
 	//--------------------------------------------------------------------------
@@ -191,9 +212,9 @@ Class DemonPlayerBase : Doom4Player
 				if (!(mo is "D4KeyBase") && (!CountInv("D4RuneUpgrade2") && !(mo is "DemonRuneBase")))
 					continue;
 				
+				let rune = DemonRuneBase(mo);
 				if (CountInv("D4RuneUpgrade2"))
 				{
-					let rune = DemonRuneBase(mo);
 					if (rune && rune.ring)
 					{
 						rune.ring.bINVISIBLE = (mo.GetClass() != RuneBase);
@@ -219,13 +240,29 @@ Class DemonPlayerBase : Doom4Player
 				}
 				else if (mo is "DemonRuneBase" && CountInv("D4RuneUpgrade2"))
 				{
-					if (check && mo.GetClass() == RuneBase)
+					if (check && rune && mo.GetClass() == RuneBase)
 					{
-						check.EffectTics += (35 * 60);
+						
+						int upgrade = rune.PowerLevel;
+					//	Will be implemented once the attack upgrades are in.
+					//	Simply put it'll be overpowered to let the player pick up
+					//	less powerful runes.
+					/*	if (PowerLevel > upgrade)
+							continue;
+						else */ if (PowerLevel < upgrade)
+						{
+							PowerLevel = upgrade;
+							A_SetInventory("D4MonsterUpgrader", upgrade);
+						}
+						
+					//	Console.Printf("%d %d", PowerLevel, upgrade);
+						check.EffectTics += (Minute) * Max(1, 1 + upgrade);
+						
+						
 						int MaxHP = GetMaxHealth();
 						int PartialHP = MaxHP * ((MaxHP >= 2000) ? 0.25 : 0.5);
-						A_SetHealth(Clamp(health + PartialHP, 1, MaxHP));
-						A_SetInventory("DemonTimerToken",CountInv("DemonTimerToken") + (35*60), DefPtr, true);
+						A_SetHealth(Min(health + PartialHP, MaxHP));
+						A_SetInventory("DemonTimerToken",check.EffectTics, DefPtr, true);
 						A_SpawnItemEx("DemonRuneMorphOn",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
 						mo.DoPickupSpecial(self);
 						mo.Destroy();
@@ -261,6 +298,287 @@ Class DemonPlayerBase : Doom4Player
 	}
 }
 
+//=================================================================================================
+//=================================================================================================
+
+//		Base sprites for the thing
+
+//=================================================================================================
+//=================================================================================================
+
+Class DemonRuneBase : CustomInventory
+{
+	const Minute = 60 * 35;
+	Actor PickerUpper;
+	Class<Inventory> Token;
+	Class<Inventory> Morph;
+	Actor ring;
+	int timer;
+	int duration;
+	int PowerLevel;
+	Property Morph: Morph, Token;
+	Default 
+	{
+		Inventory.MaxAmount 1;
+		Inventory.Amount 1;
+		Radius 6;
+		Height 12;
+		Scale 0.1;
+		+INVENTORY.QUIET
+		+FORCEXYBILLBOARD
+		+BRIGHT
+		+DONTGIB
+	//	+INVENTORY.TRANSFER
+	}
+	
+	override void BeginPlay()
+	{
+		ChangeStatNum(STAT_RUNEPICKUPS);
+		timer = 60 * 35;  // tics before expiration
+		Super.BeginPlay();
+	}
+	
+	override void OnDestroy()
+	{
+		if (ring) ring.Destroy();
+	}
+	
+	override void PostBeginPlay()
+	{
+		if (GetClassName() == 'DemonRuneBase' || !Morph)
+			return Destroy();
+		
+		bool limit = true;
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (playeringame[i]) 
+			{
+				let plr = players[i].mo;
+				if (plr && plr.CountInv("D4RuneUpgrade3"))
+				{
+					limit = false;
+					break;
+				}
+			}
+		}
+		
+		// Only check for the same type.
+		if (limit)
+		{
+			Class<Inventory> RuneName = GetClass();
+			ThinkerIterator it = ThinkerIterator.Create("DemonRuneBase", STAT_RUNEPICKUPS);
+			DemonRuneBase mo;
+			while (mo = DemonRuneBase(it.Next()))
+			{
+				if (mo == self)
+					continue;
+				
+				if (mo.GetClass() == GetClass() && mo.PowerLevel == PowerLevel)
+					return Destroy();
+			}
+		}
+		Name trans = 'None';
+		Switch (PowerLevel)
+		{
+			Case 0:	break;
+			Case 1:	trans = 'D4D_Green';	break;
+			Case 2:	trans = 'D4D_Blue';		break;
+			Case 3:	trans = 'D4D_Purple';	break;
+			Case 4:	trans = 'D4D_Orange';	break;
+			Case 5:	trans = 'D4D_Red';		break;
+			Case 6:	trans = 'D4D_Black';	break;
+			Default:
+			Case 7:	trans = 'D4D_White';	break;
+		}
+		if (trans != 'None')
+			A_SetTranslation(trans);
+		Super.PostBeginPlay();
+	}
+	
+	action void GiveMorph()
+	{
+		A_GiveInventory("SoundStopper",1); //stops any sound (mostly for the looping ones)
+		A_GiveInventory("HealthArmorSaver",1);
+		A_GiveInventory("IamADemonToken",1); //...gives token and morphs
+		A_GiveInventory(invoker.Token,1); 
+		A_GiveInventory(invoker.Morph,1);
+		A_SetInventory("D4MonsterUpgrader", invoker.PowerLevel);
+	}
+	
+	override bool TryPickup(in out Actor toucher)
+	{
+		PickerUpper = toucher;
+		return Super.TryPickup(toucher);
+	}
+	
+	States
+	{
+	Spawn:
+		RUNE A 0 NoDelay
+		{
+			bool d;
+			[d, invoker.ring] = A_SpawnItemEx("DemonRuneBackground",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_TRANSFERSCALE|SXF_ORIGINATOR|SXF_TRANSFERTRANSLATION);
+		}
+		Goto Idle;
+	Idle:
+		RUNE A 1 BRIGHT Light("OrangeSmallPoint1")
+		{
+			let ring = invoker.ring;
+			let plr = players[0].mo;
+			
+			// Only check it if it's actually invisible already.
+			if (!plr || !plr.CountInv("D4RuneUpgrade2"))
+			{
+				if (ring) ring.bINVISIBLE = false;
+			}
+			else if (ring && ring.bINVISIBLE)
+			{
+				if (plr)
+				{
+					Inventory i = plr.FindInventory("PowerMorph",true);
+					ring.bINVISIBLE = (i && i.Amount > 0);
+				}
+			}
+			if (!plr || (!plr.CountInv("PowerInvulBase") && !plr.CountInv("IamADemonToken")))
+			{
+				invoker.timer--;
+				if (invoker.timer < (5 * 35))
+					A_SetTranslucent((invoker.timer % 35.0) / 35.0); // blink before time-out
+			}
+			if (invoker.timer < 1)
+			{
+				return Destroy();
+			}
+		}
+		Wait;
+	Pickup:
+		TNT1 A 0 
+		{
+			if (CountInv("IamADemonToken") || CountInv("PowerInvulBase") || CountInv("D4DoomDollHands") || CountInv("BusyToken")) //if already a demon...
+			{
+				return false;	//...cant pickup
+			}
+			else	//otherwise..
+			{	
+				GiveMorph();
+				return true;
+			}
+		}
+		Stop;
+	HoldAndDestroy:
+		TNT1 A 1;
+		TNT1 A 1
+		{
+			Actor mo = invoker.Pickerupper;
+			if (mo)
+			{
+				if (!(mo is "DemonPlayerBase") && mo.Alternative)
+					mo = mo.Alternative;
+					
+				let plr = DemonPlayerBase(mo);
+				
+				if (plr)
+				{
+					plr.PowerLevel = invoker.PowerLevel;
+					let effect = PowerMorph(plr.FindInventory("PowerMorph",true));
+					
+					if (effect)
+						effect.EffectTics = (Minute) * Max(1, 1 + invoker.PowerLevel);
+					else A_LogInt(-3);
+				} else A_LogInt(-2);
+			}
+			else A_LogInt(-1);
+		}
+		Stop;
+	}
+}
+
+
+Class PowerRuneBase : PowerMorph
+{
+	override void InitEffect()
+	{
+		if (GetClass() == "PowerRuneBase")
+		{
+			bInitEffectFailed = true;
+			return Destroy();
+		}
+		
+		if (CountInv("D4RuneUpgrade4"))
+			A_GiveInventory("DemonRuneDrainGiver",1);
+		
+		Super.InitEffect();
+	}
+	
+	override void DoEffect()
+	{	
+		if (Owner)
+		{
+			if (globalfreeze || level.frozen)
+			{
+				EffectTics++; //'Freeze' the timer.
+			}
+			else
+			{
+				if (EffectTics <= 105)
+				{
+					Switch (EffectTics)
+					{
+						Case 105:
+						{
+							Owner.A_PlaySound("PentagramOfProtection/Warning",7,1,0,ATTN_NONE);
+						}
+						Case 70:
+						Case 35:
+							Owner.A_SetBlend("Yellow",0.4,12);
+						Default:
+							break;
+					}
+				}
+			}
+		}
+		Super.DoEffect();
+	}
+	override void EndEffect()
+	{
+		if (Owner)	Owner.A_SetInventory("D4MonsterUpgrader",0);
+		Super.EndEffect();
+	}
+}
+
+Class ExtraTime : Inventory
+{
+	Default
+	{
+		Inventory.MaxAmount 1000000;
+	}
+}
+Class DemonRuneBackground : Actor 
+{
+	Default 
+	{
+		+NOINTERACTION
+		+ROLLCENTER
+		+ROLLSPRITE
+		Scale 0.1;
+		+FORCEXYBILLBOARD
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0 NODELAY A_PlaySound("Player/Demon/RuneFxLoop",CHAN_AUTO,1.0,1);
+		RUNE B 1 BRIGHT 
+		{
+			if (master)
+			{
+				A_SetRoll(roll-0.9,SPF_INTERPOLATE);
+				A_Warp(MasterPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_COPYVELOCITY);
+			}
+			else return Destroy();
+		}
+		Wait;
+	}
+}
 
 // upon getting this thing, player will unmorph immediately
 // No longer used.
@@ -654,152 +972,6 @@ Class SoundStopper : CustomInventory
 		Stop;
 	}
 }
-//=================================================================================================
-//=================================================================================================
-
-//		Base sprites for the thing
-
-//=================================================================================================
-//=================================================================================================
-
-Class DemonRuneBase : CustomInventory
-{
-	Class<Inventory> Morph;
-	Actor ring;
-	int timer;
-	
-	Property Morph: Morph;
-	Default 
-	{
-		Inventory.MaxAmount 1;
-		Inventory.Amount 1;
-		Radius 6;
-		Height 12;
-		Scale 0.1;
-		+FORCEXYBILLBOARD
-		+BRIGHT
-		+DONTGIB
-		+INVENTORY.TRANSFER
-	}
-	
-	override void BeginPlay()
-	{
-		ChangeStatNum(STAT_RUNEPICKUPS);
-		timer = 60 * 35;  // tics before expiration
-		Super.BeginPlay();
-	}
-	
-	override void OnDestroy()
-	{
-		if (ring) ring.Destroy();
-	}
-	
-	override void PostBeginPlay()
-	{
-		if (GetClassName() == 'DemonRuneBase')
-			return Destroy();
-		
-		bool limit = true;
-		for (int i = 0; i < MAXPLAYERS; i++)
-		{
-			if (playeringame[i]) 
-			{
-				let plr = players[i].mo;
-				if (plr && plr.CountInv("D4RuneUpgrade3"))
-				{
-					limit = false;
-					break;
-				}
-			}
-		}
-		// Only check for the same type.
-		if (limit)
-		{
-			Class<Inventory> RuneName = GetClass();
-			ThinkerIterator it = ThinkerIterator.Create("DemonRuneBase", STAT_RUNEPICKUPS);
-			DemonRuneBase mo;
-			while (mo = DemonRuneBase(it.Next()))
-			{
-				if (mo == self)
-					continue;
-					
-				if (mo.GetClass() == GetClass())
-					return Destroy();
-			}
-		}
-		Super.PostBeginPlay();
-	}
-	
-	States
-	{
-	Spawn:
-		RUNE A 0 NoDelay
-		{
-			bool d;
-			[d, invoker.ring] = A_SpawnItemEx("DemonRuneBackground",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_TRANSFERSCALE|SXF_ORIGINATOR|SXF_TRANSFERTRANSLATION);
-			
-		}
-		Goto Idle;
-	Idle:
-		RUNE A 1 BRIGHT Light("OrangeSmallPoint1")
-		{
-			let ring = invoker.ring;
-			let plr = players[0].mo;
-			
-			// Only check it if it's actually invisible already.
-			if (!plr || !plr.CountInv("D4RuneUpgrade2"))
-			{
-				if (ring) ring.bINVISIBLE = false;
-			}
-			else if (ring && ring.bINVISIBLE)
-			{
-				if (plr)
-				{
-					Inventory i = plr.FindInventory("PowerMorph",true);
-					ring.bINVISIBLE = (i && i.Amount > 0);
-				}
-			}
-			if (!plr || (!plr.CountInv("PowerInvulBase") && !plr.CountInv("IamADemonToken")))
-			{
-				invoker.timer--;
-				if (invoker.timer < (5 * 35))
-					A_SetTranslucent((invoker.timer % 35.0) / 35.0); // blink before time-out
-			}
-			if (invoker.timer < 1)
-			{
-				return Destroy();
-			}
-		}
-		Wait;
-	}
-}
-
-Class DemonRuneBackground : Actor 
-{
-	Default 
-	{
-		+NOINTERACTION
-		+ROLLCENTER
-		+ROLLSPRITE
-		Scale 0.1;
-		+FORCEXYBILLBOARD
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 0 NODELAY A_PlaySound("Player/Demon/RuneFxLoop",CHAN_AUTO,1.0,1);
-		RUNE B 1 BRIGHT 
-		{
-			if (master)
-			{
-				A_SetRoll(roll-0.9,SPF_INTERPOLATE);
-				A_Warp(MasterPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_COPYVELOCITY);
-			}
-			else return Destroy();
-		}
-		Wait;
-	}
-}
 
 
 
@@ -907,55 +1079,3 @@ Class DemonRuneDrainGiver : PowerupGiver
 	}
 }
 
-Class PowerRuneBase : PowerMorph
-{
-	override void InitEffect()
-	{
-		if (GetClass() == "PowerRuneBase")
-		{
-			bInitEffectFailed = true;
-			return Destroy();
-		}
-		
-		if (CountInv("D4RuneUpgrade4"))
-			A_GiveInventory("DemonRuneDrainGiver",1);
-		
-		Super.InitEffect();
-	}
-	
-	override void DoEffect()
-	{	
-		if (Owner)
-		{
-			if (globalfreeze || level.frozen)
-			{
-				EffectTics++; //'Freeze' the timer.
-			}
-			else
-			{
-				if (EffectTics <= 105)
-				{
-					Switch (EffectTics)
-					{
-						Case 105:
-						{
-							Owner.A_PlaySound("PentagramOfProtection/Warning",7,1,0,ATTN_NONE);
-						}
-						Case 70:
-						Case 35:
-							Owner.A_SetBlend("Yellow",0.4,12);
-						Default:
-							break;
-					}
-				}
-			}
-		}
-		Super.DoEffect();
-	}
-	/*
-	override void EndEffect()
-	{
-		Super.EndEffect();
-	}
-	*/
-}

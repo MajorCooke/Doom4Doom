@@ -153,8 +153,7 @@ Class D4AbstractMonster : Actor
 			int Count = CountInv(Token);
 			if (Rune && Token && Count > 0)
 			{
-				Rune.A_SetInventory(Token, Count, beyondMax: true);
-				Rune.Translation = Translation;
+				Rune.PowerLevel = Count;
 			}
 		}
 	}

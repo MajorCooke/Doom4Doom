@@ -157,7 +157,7 @@ Class D4DMonsterSpawner : Actor
 						if (hp <= 200) 	amp += 1;
 						if (hp <= 100) 	amp += 1;
 						
-						mon.A_GiveInventory("D4MonsterUpgrader",amt);
+						mon.A_SetInventory("D4MonsterUpgrader",amt);
 						mon.A_SetHealth(hp * amp);
 						mon.Mass *= (amt + 1);
 						//mon.WoundHealth *= (amp + 1);

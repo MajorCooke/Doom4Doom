@@ -9,29 +9,8 @@ Class PainElementalRune : DemonRuneBase
 {
 	Default 
 	{
-		DemonRuneBase.Morph "PainElementalMorpher";
+		DemonRuneBase.Morph "PainElementalMorpher", "IamPainElemental";
 		Inventory.PickupMessage "Pain Elemental rune";
-	}
-	States
-	{
-	Pickup:
-		TNT1 A 0 
-		{
-			if (CountInv("IamADemonToken") || CountInv("PowerInvulBase")|| countinv("D4DoomDollHands") || countinv("BusyToken"))
-			{
-				return 0;
-			}
-			else
-			{
-				A_GiveInventory("SoundStopper",1); //stops any sound (mostly for the looping ones)
-				A_GiveInventory("HealthArmorSaver",1);
-				A_GiveInventory("IamADemonToken",1);
-				A_GiveInventory("IamPainElemental",1);
-				A_GiveInventory(invoker.Morph,1);
-				return 1;
-			}
-		}
-		Stop;
 	}
 }
 

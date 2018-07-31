@@ -9,29 +9,8 @@ Class ArachnotronRune : DemonRuneBase
 {
 	Default 
 	{
-		DemonRuneBase.Morph "ArachnotronMorpher";
+		DemonRuneBase.Morph "ArachnotronMorpher", "IamArachnotron";
 		Inventory.PickupMessage "Arachnotron rune";
-	}
-	States
-	{
-	Pickup:
-		TNT1 A 0 
-		{
-			if (CountInv("IamADemonToken") || CountInv("PowerInvulBase") || countinv("D4DoomDollHands") || countinv("BusyToken")) //if already a demon...
-			{
-				return false;	//...cant pickup
-			}
-			else	//otherwise..
-			{	
-				A_GiveInventory("SoundStopper",1); //stops any sound (mostly for the looping ones)
-				A_GiveInventory("HealthArmorSaver",1);
-				A_GiveInventory("IamADemonToken",1); //...gives token and morphs
-				A_GiveInventory("IamArachnotron",1); 
-				A_GiveInventory(invoker.Morph,1);
-				return true;
-			}
-		}
-		Stop;
 	}
 }
 
