@@ -255,7 +255,7 @@ extend class D4DHandler
 		int spawnhp = 	mo.GetSpawnHealth();
 		Name mod = 		mo.DamageTypeReceived;
 		
-		if (LootDrop && ((inf && inf.bEXTREMEDEATH) ||
+		if (MPWeapons && ((inf && inf.bEXTREMEDEATH) ||
 						(mod == 'Extreme') ||
 						(mo.InStateSequence(mo.CurState, mo.FindState("XDeathNoDrops"))) ||
 						(mo.InStateSequence(mo.CurState, mo.FindState("XDeath"))) ||
