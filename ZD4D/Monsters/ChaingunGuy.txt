@@ -385,7 +385,7 @@ Class D4SergeantShield : D4AbstractMonster
 		CPOS AABBCCDD 3 D4Chase();
 		Loop;
 	Missile:
-		CPOS E 10 A_FaceTarget();
+		CPOS E 10 A_FaceTarget(0,0);
 		CPOS FE 4 BRIGHT A_PlasmaAttack();
 		CPOS F 1 bright A_CPosRefire;
 		Goto Missile+1;
