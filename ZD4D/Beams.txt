@@ -384,13 +384,14 @@ Class CarrionBeamSpawner : LightningBeamPrimarySpawner
 {
 	Default
 	{
-		D4DBeamSpawnerBase.Beam "CarrionTrail";
+		D4DBeamSpawnerBase.Beam "CarrionBeam";
 		D4DBeamSpawnerBase.Limits 8.0, 8.0;
 		D4DBeamSpawnerBase.PitchRandom 7.0;
 		D4DBeamSpawnerBase.AngleRandom 7.0;
 		D4DBeamSpawnerBase.AimFlag FAF_MIDDLE;
 		D4DBeamSpawnerBase.SightCheck true;
 		D4DBeamSpawnerBase.Velocity false;
+		D4DBeamSpawnerBase.MoveWithSource false;
 		Translation "0:255=%[0,0,0]:[1.0, 0.5, 0.0]";
 	}
 }
@@ -402,25 +403,38 @@ Class CarrionBeamBoomSpawner : CarrionBeamSpawner
 		Translation "0:255=%[0,0,0]:[1.0, 0.0, 0.0]";
 	}
 }
+
 // Carrion merge beam for ammo
 Class CarrionMergeSpawner : CarrionBeamSpawner
 {
 	Default
 	{
+		D4DBeamSpawnerBase.Beam "CarrionTrail";
 		Translation "0:255=%[0,0,0]:[1.0, 0.1, 0.1]";
 	}
 }
 
-Class CarrionTrail : LightningBeamPrimary
+Class CarrionBeam : LightningBeamPrimary
 {
 	Default
 	{
 		D4DBeamBase.Widths 0.03, 0.03;
 		D4DBeamBase.Lengths 0.05, 0.2;
-		D4DBeamBase.ScaleTime 0, 3;
+		D4DBeamBase.ScaleTime 0, 1;
 		D4DBeamBase.WaitTime 1;
 		D4DBeamBase.SpriteName "X202";
 		D4DBeamBase.Frames Fr_B, Fr_B;
+		D4DBeamBase.SineScale false;
+	}
+}
+
+Class CarrionTrail : CarrionBeam
+{
+	Default
+	{
+		D4DBeamBase.SineScale true;
+		D4DBeamBase.ScaleTime 0, 3;
+		D4DBeamBase.WaitTime 1;
 	}
 }
 
