@@ -439,7 +439,9 @@ Class D4DBeamSpawnerBase : D4DFX
 			
 			Vector2 ofs = AngleToVector(Master.Angle - 90, XYOffset);
 			Vector3 newpos = Master.Vec3Offset(ofs.x, ofs.y, ZOffset);
-			SetOrigin(newpos, FirstMove);
+			//SetOrigin(newpos, FirstMove);
+			int flags = (FirstMove) ? 0 : WARPF_INTERPOLATE|WARPF_WARPINTERPOLATION;
+			Warp(Master, newpos.x, newpos.y, newpos.z, angle, WARPF_ABSOLUTEPOSITION|WARPF_ABSOLUTEANGLE|flags);
 			FirstMove = true;
 		}
 		Wait;
@@ -607,7 +609,7 @@ Class D4DBeamBase : D4DFX
 				}
 				else	
 				{
-					flags |= WARPF_INTERPOLATE|WARPF_WARPINTERPOLATION|WARPF_COPYVELOCITY;
+					flags |= WARPF_INTERPOLATE|WARPF_COPYINTERPOLATION|WARPF_COPYVELOCITY;
 					bINVISIBLE = false;
 				}
 				Warp(Master, Diff.x, Diff.y, Diff.z, 0, flags);

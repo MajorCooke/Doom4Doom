@@ -390,6 +390,7 @@ Class CarrionBeamSpawner : LightningBeamPrimarySpawner
 		D4DBeamSpawnerBase.AngleRandom 7.0;
 		D4DBeamSpawnerBase.AimFlag FAF_MIDDLE;
 		D4DBeamSpawnerBase.SightCheck true;
+		D4DBeamSpawnerBase.Velocity false;
 		Translation "0:255=%[0,0,0]:[1.0, 0.5, 0.0]";
 	}
 }
