@@ -626,7 +626,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			StateLabel next = null;
 			if (CountInv("PowerD4DFS"))
 			{
-				next = "SSR.ReloadFast";
+				next = "SSL.ReloadFast";
 				A_Overlay(5004, "Overlay.ReloadSoundSanicDaHedgahmahoggy");
 			}
 			else
