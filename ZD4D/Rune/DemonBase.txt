@@ -217,7 +217,9 @@ Class DemonPlayerBase : Doom4Player
 				{
 					if (rune && rune.ring)
 					{
-						rune.ring.bINVISIBLE = (mo.GetClass() != RuneBase);
+						bool invis = (mo.GetClass() != RuneBase);
+						rune.ring.bINVISIBLE = invis;
+						if (invis)	continue;
 					}
 				}
 				// Make sure it can be touched.
@@ -295,6 +297,15 @@ Class DemonPlayerBase : Doom4Player
 	Overlay.Steps:
 		TNT1 A 0;
 		Stop;
+	}
+}
+
+Class DemonWeaponBase : DoomWeapon
+{
+	action int GetPowerLevel()
+	{
+		let plr = DemonPlayerBase(invoker.owner);
+		return (plr) ? plr.PowerLevel : 0;
 	}
 }
 
@@ -466,7 +477,6 @@ Class DemonRuneBase : CustomInventory
 		}
 		Stop;
 	HoldAndDestroy:
-		TNT1 A 1;
 		TNT1 A 1
 		{
 			Actor mo = invoker.Pickerupper;
