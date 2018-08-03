@@ -124,12 +124,27 @@ Class PlayerCyberdemon : DemonPlayerBase
 	}
 }
 
-Class D4DCyberdemonWeapon : DoomWeapon
+Class D4DCyberdemonWeapon : DemonWeaponBase
 {
 	Default 
 	{
 		Tag "Demonic Rocket Launcher";
 	}
+	
+	action void A_KickPitchBig()
+	{
+		for (int i = 6021; i < 6030; i++)
+			if (A_Overlay(i,"Overlay.FirePitch1", true))
+				break;
+	}
+	
+	action void A_KickPitchSmall()
+	{
+		for (int i = 6021; i < 6030; i++)
+			if (A_Overlay(i,"Overlay.FirePitch2", true))
+				break;
+	}
+	
 	States
 	{
 	Ready:
@@ -141,46 +156,197 @@ Class D4DCyberdemonWeapon : DoomWeapon
 	Select:
 		MISG A 1 A_Raise;
 		Loop;
-		
 	Fire:
-		MISG B 8 A_GunFlash();
-		MISG B 1
-		{	
-			A_FireProjectile("PlayerCyberdemonRocket",0,0,0,10);
-			A_SetPitch(pitch-3);
-		}
-		MISG B 1 A_SetPitch(pitch-3);
-		MISG B 3;
-		MISG BBBBBB 1 A_SetPitch(pitch+1);
-		MISG B 1;
-		MISG B 0 A_ReFire("MiniRockets");
+		---- A 1 CheckPrimary();
+		Goto Ready;
+	AltFire:
+		---- A 1 CheckSecondary();
 		Goto Ready;
 		
-		Flash:
-			MISF A 3 Bright A_Light1();
-			MISF B 4 Bright;
-			MISF CD 4 Bright A_Light2();
-			Goto LightDone;
-		
-		
-		MiniRockets:
-			MISG B 3 A_GunFlash("FlashMiniRockets");
-			MISG B 1 
-			{
-				A_FireProjectile("PlayerCyberDemonRocketStream",0,0,0,10);
-				A_SetPitch(pitch-2);
-			}
-			MISG BBBB 1 A_SetPitch(pitch+0.5);
-			MISG B 0 A_ReFire("MiniRockets");
-			Goto Ready;
+	
+	Overlay.FirePitch1:
+		TNT1 A 1 A_SetPitch(pitch - 3);
+		TNT1 A 4 A_SetPitch(pitch - 3);
+		TNT1 AAAAAA 1 A_SetPitch(pitch + 1);
+		Stop;
+	Overlay.FirePitch2:
+		TNT1 A 1 A_SetPitch(pitch-2);
+		TNT1 AAAA 1 A_SetPitch(pitch + 0.5);
+		Stop;
+	Flash:
+		MISF A 3 Bright A_Light1();
+		MISF B 4 Bright;
+		MISF CD 4 Bright A_Light2();
+		Goto LightDone;
+	FlashMiniRockets:
+		MISF A 1 Bright A_Light1();
+		MISF B 2 Bright;
+		MISF CD 2 Bright A_Light2();
+		Goto LightDone;
+	
+	//==========================================================================
+	// Regular
+	FireP0:
+		MISG B 8 A_GunFlash();
+		MISG B 12
+		{
 			
-			FlashMiniRockets:
-				MISF A 1 Bright A_Light1();
-				MISF B 2 Bright;
-				MISF CD 2 Bright A_Light2();
-				Goto LightDone;
-			
-	AltFire:
+			A_FireProjectile("PlayerCyberdemonRocket",0,0,0,10);
+			A_KickPitchBig();
+		}
+		MISG B 0 A_ReFire("MiniRocketsP0");
+		Goto Ready;
+		
+	MiniRocketsP0:
+		MISG B 3 A_GunFlash("FlashMiniRockets");
+		MISG B 5
+		{
+			A_FireProjectile("PlayerCyberDemonRocketStream",0,0,0,10);
+			A_KickPitchSmall();
+		}
+		MISG B 0 A_ReFire("MiniRocketsP0");
+		Goto Ready;
+	
+	//==========================================================================
+	// Tier 1 (Green - Uncommon)
+	FireP1:
+		MISG B 8 A_GunFlash();
+		MISG B 12
+		{
+			double spread = 5.0;
+			A_FireProjectile("PlayerCyberdemonRocket",0,0,0,10);
+			A_FireProjectile("PlayerCyberDemonRocketStream",frandom(-spread, spread),0,0,10,FPF_NOAUTOAIM,frandom(-spread,spread));
+			A_KickPitchBig();
+		}
+		MISG B 0 A_ReFire("MiniRocketsP1");
+		Goto Ready;
+		
+	MiniRocketsP1:
+		MISG B 3 A_GunFlash("FlashMiniRockets");
+		MISG B 5
+		{
+			double spread = 5.0;
+			for (int i = 0; i < 2; i++) 
+				A_FireProjectile("PlayerCyberDemonRocketStream",frandom(-spread, spread),0,0,10,FPF_NOAUTOAIM,frandom(-spread,spread));
+			A_KickPitchSmall();
+		}
+		MISG B 0 A_ReFire("MiniRocketsP1");
+		Goto Ready;
+	
+	//==========================================================================
+	// Tier 2 (Blue - Rare)
+	FireP2:
+		MISG B 8 A_GunFlash();
+		MISG B 12
+		{
+			double spread = 7.5;
+			A_FireProjectile("PlayerCyberdemonRocket",0,0,0,10);
+			for (int i = 0; i < 2; i++) 
+				A_FireProjectile("PlayerCyberDemonRocketStream",frandom(-spread, spread),0,0,10,FPF_NOAUTOAIM,frandom(-spread,spread));
+			A_KickPitchBig();
+		}
+		MISG B 0 A_ReFire("MiniRocketsP2");
+		Goto Ready;
+		
+	MiniRocketsP2:
+		MISG B 3 A_GunFlash("FlashMiniRockets");
+		MISG B 5
+		{
+			double spread = 7.5;
+			for (int i = 0; i < 3; i++) 
+				A_FireProjectile("PlayerCyberDemonRocketStream",frandom(-spread, spread),0,0,10,FPF_NOAUTOAIM,frandom(-spread,spread));
+			A_KickPitchSmall();
+		}
+		MISG B 0 A_ReFire("MiniRocketsP2");
+		Goto Ready;
+		
+	//==========================================================================
+	// Tier 3 (Purple - Epic)
+	FireP3:
+		MISG B 8 A_GunFlash();
+		MISG B 12
+		{
+			double spread = 10.0;
+			A_FireProjectile("PlayerCyberdemonRocket",0,0,0,10);
+			for (int i = 0; i < 3; i++) 
+				A_FireProjectile("PlayerCyberDemonRocketStream",frandom(-spread, spread),0,0,10,FPF_NOAUTOAIM,frandom(-spread,spread));
+			A_KickPitchBig();
+		}
+		MISG B 0 A_ReFire("MiniRocketsP3");
+		Goto Ready;
+		
+	MiniRocketsP3:
+		MISG B 3 A_GunFlash("FlashMiniRockets");
+		MISG B 5
+		{
+			double spread = 10.0;
+			A_FireProjectile("PlayerCyberdemonRocketStream",0,0,0,10);
+			for (int i = 0; i < 3; i++) 
+				A_FireProjectile("PlayerCyberDemonRocketStream",frandom(-spread, spread),0,0,10,FPF_NOAUTOAIM,frandom(-spread,spread));
+			A_KickPitchSmall();
+		}
+		MISG B 0 A_ReFire("MiniRocketsP3");
+		Goto Ready;
+		
+	//==========================================================================
+	// Tier 4 (Orange - Legendary)
+	FireP4:
+		MISG B 6 A_GunFlash();
+		MISG B 5
+		{
+			A_FireProjectile("PlayerCyberDemonRocket",0,0,0,10);
+			A_KickPitchSmall();
+		}
+		MISG B 0 A_ReFire("FireP4");
+		Goto Ready;
+		
+	//==========================================================================
+	// Tier 5 (Red - Ancient)
+	FireP5:
+		MISG B 3 A_GunFlash("FlashMiniRockets");
+		MISG B 5
+		{
+			A_FireProjectile("PlayerCyberDemonRocket",0,0,0,10);
+			A_KickPitchSmall();
+		}
+		MISG B 0 A_ReFire("FireP5");
+		Goto Ready;
+		
+	//==========================================================================
+	// Tier 6 (Black - Icon of Sin Incarnate)
+	FireP6:
+		MISG B 3 A_GunFlash("FlashMiniRockets");
+		MISG B 5
+		{
+			A_FireProjectile("PlayerCyberDemonRocket",0,0,0,10);
+			for (int i = 0; i < 2; i++) 
+				A_FireProjectile("PlayerCyberDemonRocketStream",frandom(-10.0, 10.0),0,0,10,FPF_NOAUTOAIM,frandom(-10.0,10.0));
+			A_KickPitchSmall();
+		}
+		MISG B 0 A_ReFire("FireP6");
+		Goto Ready;
+		
+	//==========================================================================
+	// Tier 7 (White - The Dark One)
+	FireP7:
+		MISG B 3 A_GunFlash("FlashMiniRockets");
+		MISG B 5
+		{
+			A_FireProjectile("PlayerCyberDemonRocket",0,0,0,10);
+			A_FireProjectile("PlayerCyberDemonRocket",frandom(-10.0, 10.0),0,0,10,FPF_NOAUTOAIM,frandom(-10.0,10.0));
+			A_KickPitchSmall();
+		}
+		MISG B 0 A_ReFire("FireP7");
+		Goto Ready;
+	
+	AltFireP1:
+	AltFireP2:
+	AltFireP3:
+	AltFireP4:
+	AltFireP5:
+	AltFireP6:
+	AltFireP7:
+	AltFireP0:
 		MISG B 0 
 		{
 			A_SpawnItemEx("CyberdemonPlayerMuzzle",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
@@ -190,13 +356,27 @@ Class D4DCyberdemonWeapon : DoomWeapon
 		
 		MISG A 0 
 		{
-			//the attack part
-			A_RailAttack(1000,1,0,"","",RGF_SILENT|RGF_FULLBRIGHT,0,null,0,0,32765,0,  100.0 ,0.0,"StaticTrailBig");
+			int power = GetPowerLevel();
+			int dmg = 1000 * (1 + power);
+			int a = 255;
+			Color Spiral = Color("Yellow");
 			
-			A_RailAttack(0,0,0,"Orange","",RGF_SILENT|RGF_FULLBRIGHT,0,null,0,0,0,70,1,random(1.0,2.0),null,0,0);
-			A_RailAttack(0,0,0,"Orange","",RGF_SILENT|RGF_FULLBRIGHT,0,null,0,0,0,70,1,random(1.0,2.0),null,0,90);
-			A_RailAttack(0,0,0,"Orange","",RGF_SILENT|RGF_FULLBRIGHT,0,null,0,0,0,70,1,random(1.0,2.0),null,0,180);
-			A_RailAttack(0,0,0,"Orange","",RGF_SILENT|RGF_FULLBRIGHT,0,null,0,0,0,70,1,random(1.0,2.0),null,0,270);
+			Switch(power)
+			{
+				Default:	break;
+				Case 1:		Spiral = Color("Green");	break;
+				Case 2:		Spiral = Color("Blue");		break;
+				Case 3:		Spiral = Color("Purple");	break;
+				Case 4:		Spiral = Color("Orange");	break;
+				Case 5:		Spiral = Color("Red");		break;
+				Case 6:		Spiral = Color(a, 0, 0, 0);	break;
+				Case 7:		Spiral = Color("White");	break;
+			}
+			
+			//the attack part
+			A_RailAttack(dmg,1,0,"","",RGF_SILENT|RGF_FULLBRIGHT,0,null,0,0,32765,0,100,0,"StaticTrailBig");
+			for (int i = 0; i < 4; i++)
+				A_RailAttack(0,0,0,Spiral,"",RGF_SILENT|RGF_FULLBRIGHT,0,null,0,0,0,70,1,random(1.0,2.0),null,0,i * 90);
 			
 			//the other stuff
 			A_RemoveChildren(true,RMVF_EVERYTHING,"CyberdemonPlayerMuzzle");

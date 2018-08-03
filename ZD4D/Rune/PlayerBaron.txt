@@ -128,7 +128,7 @@ Class PlayerBaron : DemonPlayerBase
 	}
 }
 
-Class D4DBaronWeapon : DoomWeapon
+Class D4DBaronWeapon : DemonWeaponBase
 {
 	Default 
 	{
@@ -147,8 +147,21 @@ Class D4DBaronWeapon : DoomWeapon
 	Select:
 		HBRS A 1 A_Raise;
 		Loop;
-		
 	Fire:
+		---- A 1 CheckPrimary();
+		Goto Ready;
+	AltFire:
+		---- A 1 CheckSecondary();
+		Goto Ready;
+		
+	FireP1:
+	FireP2:
+	FireP3:
+	FireP4:
+	FireP5:
+	FireP6:
+	FireP7:
+	FireP0:
 		TNT1 A 0 { if(random(1,6)==6) { A_PlaySound("Doom4/Monsters/Baron/Attack",7); } }
 		TNT1 A 0 A_Jump(256,"SwingRight","SwingLeft");
 	SwingRight:
@@ -172,7 +185,14 @@ Class D4DBaronWeapon : DoomWeapon
 		W666 A 3;
 		Goto Ready;
 	
-	AltFire:
+	AltFireP1:
+	AltFireP2:
+	AltFireP3:
+	AltFireP4:
+	AltFireP5:
+	AltFireP6:
+	AltFireP7:
+	AltFireP0:
 		HBRS A 0 A_Overlay(6011, "Overlay.AltNoise", true);
 		HBRS AAAA 1 A_WeaponOffset(0,20,WOF_ADD);
 	AltFireResume:

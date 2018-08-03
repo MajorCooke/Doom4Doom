@@ -92,17 +92,15 @@ Class DemonPlayerBase : Doom4Player
 				break;
 			}
 		}
-		PowerLevel = CountInv("D4MonsterUpgrader");
 		let inv = PowerMorph(FindInventory("PowerMorph",true));
 		if (inv)	
 		{
-			inv.EffectTics += Minute * PowerLevel;
 			currTic = inv.EffectTics;
 			//Strangely, the timer visual runs out at least a few seconds before.
 			A_SetInventory("DemonTimerToken",inv.EffectTics + 70, DefPtr, true);
 		}
 		
-		
+		PowerLevel = Clamp(abs(PowerLevel), 0, MaxRunePower);
 		PlayDemonSightSound();
 		StartDemonOverlays();
 	}
@@ -302,10 +300,48 @@ Class DemonPlayerBase : Doom4Player
 
 Class DemonWeaponBase : DoomWeapon
 {
+	// Fetches the power level of the morph. I.e. 0 = normal, 1 = uncommon, 2 = rare, etc.
 	action int GetPowerLevel()
 	{
 		let plr = DemonPlayerBase(invoker.owner);
 		return (plr) ? plr.PowerLevel : 0;
+	}
+	
+	// Automatically jumps to the appropriate state based on power for the
+	// primary fire.
+	action state CheckPrimary()
+	{
+		StateLabel next = 'FireP0';
+		Switch(GetPowerLevel())
+		{
+			Case 0: break;
+			Case 1:	next = 'FireP1';	break;
+			Case 2: next = 'FireP2';	break;
+			Case 3: next = 'FireP3';	break;
+			Case 4: next = 'FireP4';	break;
+			Case 5: next = 'FireP5';	break;
+			Case 6: next = 'FireP6';	break;
+			Default: next = 'FireP7';	break;
+		}
+		return ResolveState(next);
+	}
+	
+	// Same as above but for secondary.
+	action state CheckSecondary()
+	{
+		StateLabel next = 'AltFireP0';
+		Switch(GetPowerLevel())
+		{
+			Case 0: break;
+			Case 1:	next = 'AltFireP1';		break;
+			Case 2: next = 'AltFireP2';		break;
+			Case 3: next = 'AltFireP3';		break;
+			Case 4: next = 'AltFireP4';		break;
+			Case 5: next = 'AltFireP5';		break;
+			Case 6: next = 'AltFireP6';		break;
+			Default: next = 'AltFireP7';	break;
+		}
+		return ResolveState(next);
 	}
 }
 
@@ -389,6 +425,7 @@ Class DemonRuneBase : CustomInventory
 			}
 		}
 		Name trans = 'None';
+		PowerLevel = Clamp(abs(PowerLevel), 0, MaxRunePower);
 		Switch (PowerLevel)
 		{
 			Case 0:	break;
@@ -495,7 +532,8 @@ Class DemonRuneBase : CustomInventory
 					if (effect)
 						effect.EffectTics = (Minute) * Max(1, 1 + invoker.PowerLevel);
 					else A_LogInt(-3);
-				} else A_LogInt(-2);
+				} 
+				else A_LogInt(-2);
 			}
 			else A_LogInt(-1);
 		}
@@ -556,13 +594,6 @@ Class PowerRuneBase : PowerMorph
 	}
 }
 
-Class ExtraTime : Inventory
-{
-	Default
-	{
-		Inventory.MaxAmount 1000000;
-	}
-}
 Class DemonRuneBackground : Actor 
 {
 	Default 

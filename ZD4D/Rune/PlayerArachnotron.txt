@@ -118,7 +118,7 @@ Class PlayerArachnotron : DemonPlayerBase
 	}
 }
 
-Class D4DArachnotronWeapon : DoomWeapon
+Class D4DArachnotronWeapon : DemonWeaponBase
 {
 	Default 
 	{
@@ -136,6 +136,20 @@ Class D4DArachnotronWeapon : DoomWeapon
 		ARPL M 1 A_Raise;
 		Loop;
 	Fire:
+		---- A 1 CheckPrimary();
+		Goto Ready;
+	AltFire:
+		---- A 1 CheckSecondary();
+		Goto Ready;
+		
+	FireP1:
+	FireP2:
+	FireP3:
+	FireP4:
+	FireP5:
+	FireP6:
+	FireP7:
+	FireP0:
 		ARPL N 1
 		{
 			A_PlaySound("Doom4/Monsters/PlasmaShot",CHAN_WEAPON,0.7);
@@ -154,7 +168,14 @@ Class D4DArachnotronWeapon : DoomWeapon
 		ARPL IJK 1 A_SetPitch(pitch+0.3, SPF_INTERPOLATE);
 		ARPL L 1 A_Refire;
 		Goto Ready;
-	AltFire:
+	AltFireP1:
+	AltFireP2:
+	AltFireP3:
+	AltFireP4:
+	AltFireP5:
+	AltFireP6:
+	AltFireP7:
+	AltFireP0:
 		ARPL N 1 
 		{
 			A_PlaySound("Doom4/Monsters/PlasmaShotgun",CHAN_WEAPON);
