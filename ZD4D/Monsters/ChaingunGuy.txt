@@ -125,6 +125,7 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 		}
 		HRZR E 1 Bright		//fires the damaging one
 		{
+			// Performs the attack every 5 tics.
 			if (!count)
 				A_CustomBulletAttack(0,0,1,0,"PacifistPuffSMM",SMMLaserRange,CBAFlags,TargetPtr,"BigRedLaserDrillChaingunnerSpawner",30,4);
 			
@@ -136,34 +137,6 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 			StateLabel next = null;
 			if (count++ >= 45)	next = "See";
 			return ResolveState(next);
-			// Performs the attack every 5 tics.
-			/*
-			if (GetCvar("vid_renderer") && GetCvar("D4D_MonsterLasers"))
-			{
-				if ((count % 5) == 0)
-				{	
-					A_SpawnProjectile("CgunnerLaserInvisible",32,4,0,CMF_AIMDIRECTION,vangle);
-					A_SpawnItemEx("LaserPowerUpSpark",8,4,32,frandom(-1,1),frandom(-1,1),frandom(-1,1),0,SXF_NOCHECKPOSITION);
-				}
-			}
-			else
-			{	
-				if ((count % 5) == 0)
-				{	
-					A_SpawnProjectile("CgunnerLaser",32,4,0,CMF_AIMDIRECTION,vangle);
-				}
-			}
-			
-			if ((count % 5) == 0)
-			{	
-				A_SpawnProjectile("CgunnerLaser",32,4,0,CMF_AIMDIRECTION,vangle);
-			}
-			if (count >= 45)
-			{	return ResolveState("See");	}
-			
-			count++;
-			return ResolveState(null);
-			*/
 		}
 		Wait;
 	Pain:
@@ -365,13 +338,14 @@ Class D4SergeantShield : D4AbstractMonster
 	void A_PlasmaAttack()
 	{
 		A_PlaySound("Doom4/Monsters/PlasmaShotgun",CHAN_AUTO);
-		int flags = CMF_AIMDIRECTION|CMF_OFFSETPITCH|CMF_SAVEPITCH;
+		int flags = CMF_AIMDIRECTION|CMF_OFFSETPITCH;
 		
+		A_FaceTarget(0,0);
 		double acc = 7.0;
 		for (int i = 0; i < 3; i++)
 		{
 			double ang = frandom(-acc, acc);
-			double pit = frandom(-acc, acc);
+			double pit = pitch + frandom(-acc, acc);
 			A_SpawnProjectile("ChaingunnerPlasmaBall", 30, 9, ang, flags, pit);
 		}
 	}
@@ -534,7 +508,11 @@ Class ChaingunnerPlasmaBall : ZombiemanPlasmaBall
 	States
 	{
 	Spawn:
-		TNT1 A 0;
+		TNT1 A 0 NoDelay
+		{
+		//	Vel3DFromAngle(speed, angle, pitch);
+			
+		}
 		Goto LooperSG;
 	LooperSG:
 		SPIR P 1 Bright Light("OrangeSmallPoint2")
