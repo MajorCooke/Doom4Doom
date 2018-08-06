@@ -137,6 +137,14 @@ Class D4DMonsterSpawner : Actor
 			{	
 				if (rng > 800)
 				{
+						 if (rng >= 1999)	{	amt = 7;	}
+					else if (rng >= 1997)	{	amt = 6;	}
+					else if (rng >= 1981)	{	amt = 5;	}
+					else if (rng >= 1961)	{	amt = 4;	}
+					else if (rng >= 1931)	{	amt = 3;	}
+					else if (rng >= 1901)	{	amt = 2;	}
+					else if (rng >= 1701)	{	amt = 1;	}
+					/*
 						 if (rng >= 1999)	{	amt = 7;	mon.A_SetTranslation("D4D_White");	}
 					else if (rng >= 1997)	{	amt = 6;	mon.A_SetTranslation("D4D_Black");	}
 					else if (rng >= 1981)	{	amt = 5;	mon.A_SetTranslation("D4D_Red");	}
@@ -144,7 +152,7 @@ Class D4DMonsterSpawner : Actor
 					else if (rng >= 1931)	{	amt = 3;	mon.A_SetTranslation("D4D_Purple");	}
 					else if (rng >= 1901)	{	amt = 2;	mon.A_SetTranslation("D4D_Blue");	}
 					else if (rng >= 1701)	{	amt = 1;	mon.A_SetTranslation("D4D_Green");	}
-				
+					*/
 					if (amt > 0)
 					{
 						int hp = mon.GetSpawnHealth();

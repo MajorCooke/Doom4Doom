@@ -22,7 +22,7 @@ enum RuneChances
 
 Class D4AbstractMonster : Actor 
 {
-
+	Name PowerColor;
 	Class<DemonRuneBase> RuneItem;
 	int RuneDropChance;
 	D4DHandler Event;
@@ -37,6 +37,7 @@ Class D4AbstractMonster : Actor
 	bool HQ;
 	transient CVar HighQuality, EnhancedChase, ExecuteCheck, StaggerCheck;
 	
+	Property PowerColor: PowerColor;
 	Property Rune: RuneItem, RuneDropChance;
 	property BC: BC;
 	property UpgradeDropChance: UpgradeDropChance;
@@ -48,6 +49,7 @@ Class D4AbstractMonster : Actor
 	property CashChainsawFinisher: CashChainsawPinata;
 	Default
 	{
+		D4AbstractMonster.PowerColor 'D4D';
 		D4AbstractMonster.UpgradeDropChance -1;
 		D4AbstractMonster.UpgradeDropAlways 0;
 		D4AbstractMonster.CrateDropAmount 0;
@@ -58,6 +60,28 @@ Class D4AbstractMonster : Actor
 		D4AbstractMonster.BC "Red";
 		BloodColor "Red";
 		DamageFactor "Crush", 15.0;
+	}
+	
+	// 
+	void SetPowerColor()
+	{
+		uint count = CountInv("D4MonsterUpgrader");
+		if (count)
+		{
+			Name suffix = PowerColor;
+			Switch(count)
+			{
+				Default: return;
+				Case 1:	suffix = suffix.."_Green"; 	break;
+				Case 2: suffix = suffix.."_Blue";	break;
+				Case 3: suffix = suffix.."_Purple";	break;
+				Case 4: suffix = suffix.."_Orange";	break;
+				Case 5: suffix = suffix.."_Red";	break;
+				Case 6: suffix = suffix.."_Black";	break;
+				Case 7:	suffix = suffix.."_White";	break;
+			}
+			A_SetTranslation(suffix);
+		}
 	}
 	
 	override void BeginPlay()
@@ -72,6 +96,7 @@ Class D4AbstractMonster : Actor
 		ExecuteCheck = Cvar.FindCvar("D4D_ExecutionsON");
 		StaggerCheck = Cvar.FindCvar("D4D_MonsterStagger");
 		oldLeap = false;
+		SetPowerColor();
 	}
 		
 	bool CheckEffects()
