@@ -130,10 +130,36 @@ Class PlayerBaron : DemonPlayerBase
 
 Class D4DBaronWeapon : DemonWeaponBase
 {
+	const AngPitRNG = 5.0;
+	
+	bool Punched;
 	Default 
 	{
 		Tag "Huge Red Hands";
 	}
+	
+	action void A_MeleeFireBall(double offset = 0.0)
+	{
+		int power = GetPowerLevel();
+		if (power < 1)	return;
+		
+		int chance = 0;
+		Class<Actor> ball = null;
+		
+		if (power > 4)
+		{
+			chance = random(5,7);
+			ball = (chance <= power) ? "D4PlayerBaronBallBig" : "D4PlayerBaronBall";
+		}
+		else
+		{
+			chance = random(1,4);
+			if (chance <= power)	ball = "D4PlayerBaronBall";
+		}
+		
+		if (ball)	A_FireProjectile(ball,0,0,offset,0);
+	}
+	
 	States
 	{
 	Ready:
@@ -153,7 +179,26 @@ Class D4DBaronWeapon : DemonWeaponBase
 	AltFire:
 		---- A 1 CheckSecondary();
 		Goto Ready;
+	
+	Overlay.MotionLeft:
+		TNT1 A 1;
+		TNT1 A 1 		{ A_SetAngle(angle+4, SPF_INTERPOLATE); A_SetPitch(pitch+2, SPF_INTERPOLATE); A_SetRoll(-3,SPF_INTERPOLATE); }
+		TNT1 AA 1 		{ A_SetAngle(angle+4, SPF_INTERPOLATE); A_SetPitch(pitch+2, SPF_INTERPOLATE); }
+		TNT1 AA 1 		{ A_SetAngle(angle-1, SPF_INTERPOLATE); A_SetPitch(pitch-0.5, SPF_INTERPOLATE); }
+		TNT1 AAAAAA 1 	{ A_SetAngle(angle-1, SPF_INTERPOLATE); A_SetPitch(pitch-0.5, SPF_INTERPOLATE); }
+		TNT1 A 1 		{ A_SetAngle(angle-1, SPF_INTERPOLATE); A_SetPitch(pitch-0.5, SPF_INTERPOLATE); A_SetRoll(0,SPF_INTERPOLATE); }
+		TNT1 AAA 1 		{ A_SetAngle(angle-1, SPF_INTERPOLATE); A_SetPitch(pitch-0.5, SPF_INTERPOLATE); }
+		Stop;
 		
+	Overlay.MotionRight:
+		TNT1 A 1 		{ A_SetAngle(angle-4, SPF_INTERPOLATE); A_SetPitch(pitch+2, SPF_INTERPOLATE); A_SetRoll(+3,SPF_INTERPOLATE); }
+		TNT1 AA 1 		{ A_SetAngle(angle-4, SPF_INTERPOLATE); A_SetPitch(pitch+2, SPF_INTERPOLATE); }
+		TNT1 AA 1		{ A_SetAngle(angle+1, SPF_INTERPOLATE); A_SetPitch(pitch-0.5, SPF_INTERPOLATE); }
+		TNT1 AAAAAA 1	{ A_SetAngle(angle+1, SPF_INTERPOLATE); A_SetPitch(pitch-0.5, SPF_INTERPOLATE); }
+		TNT1 A 1		{ A_SetAngle(angle+1, SPF_INTERPOLATE); A_SetPitch(pitch-0.5, SPF_INTERPOLATE); A_SetRoll(0,SPF_INTERPOLATE); }
+		TNT1 AAA 1		{ A_SetAngle(angle+1, SPF_INTERPOLATE); A_SetPitch(pitch-0.5, SPF_INTERPOLATE); }
+		Stop;
+	
 	FireP1:
 	FireP2:
 	FireP3:
@@ -162,27 +207,26 @@ Class D4DBaronWeapon : DemonWeaponBase
 	FireP6:
 	FireP7:
 	FireP0:
-		TNT1 A 0 { if(random(1,6)==6) { A_PlaySound("Doom4/Monsters/Baron/Attack",7); } }
-		TNT1 A 0 A_Jump(256,"SwingRight","SwingLeft");
+		TNT1 A 0 
+		{ 
+			if (!random(0,5))	A_PlaySound("Doom4/Monsters/Baron/Attack",7);
+			return A_Jump(256,"SwingLeft", "SwingRight");
+		}
 	SwingRight:
 		HBRM ABC 1;
-		HBRM D 1 		{ A_GiveInventory("ShorterBaronPunchFeelerProc"); A_SetAngle(angle+4, SPF_INTERPOLATE); A_SetPitch(pitch+2, SPF_INTERPOLATE); A_SetRoll(-3,SPF_INTERPOLATE); }
-		HBRM EF 1 		{ A_GiveInventory("BaronPunchFeelerProc"); A_SetAngle(angle+4, SPF_INTERPOLATE); A_SetPitch(pitch+2, SPF_INTERPOLATE); }
-		HBRM GH 1 		{ A_GiveInventory("ShorterBaronPunchFeelerProc"); A_SetAngle(angle-1, SPF_INTERPOLATE); A_SetPitch(pitch-0.5, SPF_INTERPOLATE); }
-		W666 AAAAAA 1 	{ A_GiveInventory("WeakerBaronPunchFeelerProc"); A_SetAngle(angle-1, SPF_INTERPOLATE); A_SetPitch(pitch-0.5, SPF_INTERPOLATE); }
-		W666 A 1 		{ A_SetAngle(angle-1, SPF_INTERPOLATE); A_SetPitch(pitch-0.5, SPF_INTERPOLATE); A_SetRoll(0,SPF_INTERPOLATE); }
-		W666 AAA 1 		{ A_SetAngle(angle-1, SPF_INTERPOLATE); A_SetPitch(pitch-0.5, SPF_INTERPOLATE); }
-		W666 A 3;
+		HBRM D 1 		{ A_GiveInventory("ShorterBaronPunchFeelerProc");	A_MeleeFireBall(15.0);		A_Overlay(6023, "Overlay.MotionRight", true);  }
+		HBRM EF 1 		{ A_GiveInventory("BaronPunchFeelerProc"); }
+		HBRM GH 1 		{ A_GiveInventory("ShorterBaronPunchFeelerProc");  }
+		W666 AAAAAA 1 	{ A_GiveInventory("WeakerBaronPunchFeelerProc");  }
+		W666 A 7;
 		Goto Ready;
 	SwingLeft:
 		HBRN ABC 1;
-		HBRN D 1 		{ A_GiveInventory("ShorterBaronPunchFeelerProc"); A_SetAngle(angle-4, SPF_INTERPOLATE); A_SetPitch(pitch+2, SPF_INTERPOLATE); A_SetRoll(+3,SPF_INTERPOLATE); }
-		HBRN EF 1 		{ A_GiveInventory("BaronPunchFeelerProc"); A_SetAngle(angle-4, SPF_INTERPOLATE); A_SetPitch(pitch+2, SPF_INTERPOLATE); }
-		HBRN GH 1 		{ A_GiveInventory("ShorterBaronPunchFeelerProc"); A_SetAngle(angle+1, SPF_INTERPOLATE); A_SetPitch(pitch-0.5, SPF_INTERPOLATE); }
-		W666 AAAAAA 1 	{ A_GiveInventory("WeakerBaronPunchFeelerProc"); A_SetAngle(angle+1, SPF_INTERPOLATE); A_SetPitch(pitch-0.5, SPF_INTERPOLATE); }
-		W666 A 1 		{ A_SetAngle(angle+1, SPF_INTERPOLATE); A_SetPitch(pitch-0.5, SPF_INTERPOLATE); A_SetRoll(0,SPF_INTERPOLATE); }
-		W666 AAA 1 		{ A_SetAngle(angle+1, SPF_INTERPOLATE); A_SetPitch(pitch-0.5, SPF_INTERPOLATE); }
-		W666 A 3;
+		HBRN D 1 		{ A_GiveInventory("ShorterBaronPunchFeelerProc");	A_MeleeFireBall(-15.0);		A_Overlay(6022, "Overlay.MotionLeft", true); }
+		HBRN EF 1 		{ A_GiveInventory("BaronPunchFeelerProc"); }
+		HBRN GH 1 		{ A_GiveInventory("ShorterBaronPunchFeelerProc"); }
+		W666 AAAAAA 1 	{ A_GiveInventory("WeakerBaronPunchFeelerProc"); }
+		W666 A 7;
 		Goto Ready;
 	
 	AltFireP1:
@@ -215,14 +259,19 @@ Class D4DBaronWeapon : DemonWeaponBase
 		HBRM A 0 
 		{
 			A_RemoveChildren(true,RMVF_EVERYTHING,"BaronPlayerMuzzle");
+			Class<Actor> ball = "D4PlayerBaronBall";
+			int power = GetPowerLevel();
+			int count = 1 + power;
 			
-			if (CountInv("BaronFireBallCounter")>=15)
+			ball = (CountInv("BaronFireBallCounter") >= 15) ? "D4PlayerBaronBallBig" : "D4PlayerBaronBall";
+			
+			for (int i = 0; i < count; i++)
 			{
-				A_FireProjectile("D4PlayerBaronBallBig",0,0, 15,0);
-			}
-			else
-			{
-				A_FireProjectile("D4PlayerBaronBall",0,0, 15,0);
+				Vector2 ap = (0,0);
+				if (i > 0)
+					ap = (frandom(-AngPitRNG, AngPitRNG), frandom(-AngPitRNG, AngPitRNG));
+				
+				A_FireProjectile(ball,ap.x,0,15,0,0,ap.y);
 			}
 			A_SetInventory("BaronFireBallCounter",0);
 			A_Overlay(6010, "Overlay.ReleaseSwing",true);
