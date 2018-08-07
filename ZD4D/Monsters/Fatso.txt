@@ -1065,6 +1065,10 @@ Class D4OldFatso : D4AbstractBiggie // : Fatso //replaces Fatso
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Rune "FatsoRune", RuneChance_Fatso;
+		D4AbstractMonster.CrateDropAmount 2;
+		D4AbstractMonster.CrateDropChance 32;
+		D4AbstractMonster.CashAmount 90;
 		Health 600;
 		Radius 48;
 		Height 64;

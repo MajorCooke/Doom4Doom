@@ -678,6 +678,10 @@ Class D4OldDoomImp : D4AbstractMonster // : DoomImp //replaces DoomImp
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.UpgradeDropChance 285;
+		D4AbstractMonster.CrateDropAmount 1;
+		D4AbstractMonster.CrateDropChance 4;
+		D4AbstractMonster.CashAmount 10;
 		Health 60;
 		Radius 20;
 		Height 56;

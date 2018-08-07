@@ -664,6 +664,10 @@ Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy //replaces ChaingunG
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.UpgradeDropChance 260;
+		D4AbstractMonster.CrateDropAmount 1;
+		D4AbstractMonster.CrateDropChance 8;
+		D4AbstractMonster.CashAmount 20;
 		Health 70;
 		Radius 20;
 		Height 56;

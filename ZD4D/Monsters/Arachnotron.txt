@@ -307,6 +307,10 @@ Class D4OldArachnotron : D4AbstractBiggie //  : Arachnotron
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Rune "ArachnotronRune", RuneChance_Arach;
+		D4AbstractMonster.CrateDropAmount 2;
+		D4AbstractMonster.CrateDropChance 32;
+		D4AbstractMonster.CashAmount 80;
 		Health 500;
 		Radius 64;
 		Height 64;

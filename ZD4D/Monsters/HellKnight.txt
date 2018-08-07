@@ -714,7 +714,11 @@ Class D4OldHellKnight : D4AbstractBiggie // : HellKnight //replaces HellKnight
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Rune "KnightRune", RuneChance_Knight;
 		D4AbstractMonster.BC "Green";
+		D4AbstractMonster.CrateDropAmount 2;
+		D4AbstractMonster.CrateDropChance 16;
+		D4AbstractMonster.CashAmount 60;
 		Radius 24;
 		Height 64;
 		Mass 1000;

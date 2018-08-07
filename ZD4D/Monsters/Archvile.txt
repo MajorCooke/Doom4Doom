@@ -597,6 +597,10 @@ Class D4OldArchVile : D4AbstractBiggie // ArchVile replaces ArchVile
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Rune "ArchvileRune", RuneChance_Archie;
+		D4AbstractMonster.CrateDropAmount 3;
+		D4AbstractMonster.CrateDropChance 64;
+		D4AbstractMonster.CashAmount 150;
 		Health 700;
 		Radius 20;
 		Height 56;

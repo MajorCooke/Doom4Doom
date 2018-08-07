@@ -529,8 +529,10 @@ Class D4OldPainElemental : D4AbstractBiggie // : PainElemental
 	int staggertimer;
 	Default 
 	{
-		D4AbstractMonster.CrateDropAmount 3;
-		D4AbstractMonster.CrateDropChance 48;
+		D4AbstractMonster.Rune "PainElementalRune", RuneChance_PainEl;
+		D4AbstractMonster.CrateDropAmount 2;
+		D4AbstractMonster.CrateDropChance 64;
+		D4AbstractMonster.CashAmount 80;
 		Health 400;
 		Radius 31;
 		Height 56;

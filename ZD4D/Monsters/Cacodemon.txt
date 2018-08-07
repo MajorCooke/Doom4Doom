@@ -436,6 +436,11 @@ Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon //replaces Cacodemon
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Rune "CacodemonRune", RuneChance_Caco;
+		D4AbstractMonster.BC "Blue";
+		D4AbstractMonster.CrateDropAmount 2;
+		D4AbstractMonster.CrateDropChance 28;
+		D4AbstractMonster.CashAmount 40;
 		Health 400;
 		Radius 31;
 		Height 56;

@@ -342,6 +342,10 @@ Class D4OldShotgunGuy : D4AbstractMonster // : ShotgunGuy //replaces ShotgunGuy
 	
 	Default 
 	{
+		D4AbstractMonster.UpgradeDropChance 290;
+		D4AbstractMonster.CrateDropAmount 1;
+		D4AbstractMonster.CrateDropChance 4;
+		D4AbstractMonster.CashAmount 10;
 		Health 30;
 		Radius 20;
 		Height 56;

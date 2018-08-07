@@ -527,6 +527,10 @@ Class D4OldRevenant : D4AbstractBiggie // : Revenant //replaces Revenant
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Rune "RevenantRune", RuneChance_Rev;
+		D4AbstractMonster.CrateDropAmount 2;
+		D4AbstractMonster.CrateDropChance 64;
+		D4AbstractMonster.CashAmount 60;
 		Health 300;
 		Radius 20;
 		Height 56;
