@@ -325,7 +325,7 @@ Class LightningBeamPrimarySpawner : D4DMainBeamSpawner
 		D4DBeamSpawnerBase.Delays 0, 0;
 		D4DBeamSpawnerBase.Failsafe 500;
 		D4DBeamSpawnerBase.MoveWithSource true;
-	//	D4DBeamSpawnerBase.MovePitchAngle true; //Broken at the moment. Kind of.
+		//D4DBeamSpawnerBase.MovePitchAngle true; //Broken at the moment. Kind of.
 		D4DBeamSpawnerBase.Offsets 6, 32;	// Only used if MovePitchAngle is true.
 	}
 }

@@ -34,7 +34,7 @@ BLESSED (White)
 
 Class D4Cyberdemon : D4AbstractBoss
 {
-	
+	const LaserDistance = 2048.0;
 	int staggertimer;
 	int rocketcount;
 	
@@ -107,7 +107,9 @@ Class D4Cyberdemon : D4AbstractBoss
 		---- A 0 
 		{
 			A_PlaySound("Doom4/Cyberdemon/Attack",CHAN_ITEM);
-			return A_Jump(256,"NormalRockets","StreamOfRockets","FireWave","LaserShot");
+			if (target && Distance3DSquared(target) <= (LaserDistance ** 2))
+				return A_Jump(256,"NormalRockets","StreamOfRockets","FireWave","LaserShot");
+			return A_Jump(256,"NormalRockets","StreamOfRockets","FireWave");
 		}
 		
 		StreamOfRockets:
@@ -170,22 +172,27 @@ Class D4Cyberdemon : D4AbstractBoss
 			}
 			else
 			{
-				A_PlaySound("Doom4/Weapon/GaussGun/Charge2Start",7); //if its aiming at Monster;, no special attenuation
+				A_PlaySound("Doom4/Weapon/GaussGun/Charge2Start",7); //if its aiming at Monster, no special attenuation
 			}
 		}
 		
 		CYBR EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE 1
 		{
-			if (!target || target.health < 1 || A_MonsterRefire(0, "See"))	
+			double distcheck = 0.0;
+			if (target)	distcheck = Distance3DSquared(target);
+			bool check = distcheck > (LaserDistance ** 2);
+			if (!target || target.health < 1 || A_MonsterRefire(0, "See") || check)	
 			{
 				A_RemoveChildren(true,RMVF_EVERYTHING,"CyberdemonChargeIndicator");
 				A_StopSound(7);
+				if (check && target && target.health > 0 && CheckSight(target, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
+					return A_Jump(256,"NormalRockets","StreamOfRockets","FireWave");
 				return ResolveState("See");
 			}
 			else
 			{
 				A_FaceTarget();
-				A_CustomRailgun(0,-20,"","Orange",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"PacifistPuff",0,0,2048,1,0,0,null,0);
+				A_CustomRailgun(0,-20,"","Orange",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"PacifistPuff",0,0,LaserDistance,1,0,0,null,0);
 			}
 			return ResolveState(null);
 		}
@@ -193,7 +200,7 @@ Class D4Cyberdemon : D4AbstractBoss
 		CYBR F 12 
 		{
 			//shoots the fx only first
-			A_CustomRailgun(0,-22,"Orange","",RGF_FULLBRIGHT|RGF_SILENT,1,0,"PacifistPuff",0,0,2048,35,0,frandom(1.5,3.0),null,0,270);
+			A_CustomRailgun(0,-22,"Orange","",RGF_FULLBRIGHT|RGF_SILENT,1,0,"PacifistPuff",0,0,LaserDistance,35,0,frandom(1.5,3.0),null,0,270);
 			A_CustomRailgun(0,-22,"Orange","",RGF_FULLBRIGHT|RGF_SILENT,1,0,"PacifistPuff",0,0,2048,35,0,frandom(1.5,3.0),null,0,180);
 			A_CustomRailgun(0,-22,"Orange","",RGF_FULLBRIGHT|RGF_SILENT,1,0,"PacifistPuff",0,0,2048,35,0,frandom(1.5,3.0),null,0,90);
 			A_CustomRailgun(0,-22,"Orange","",RGF_FULLBRIGHT|RGF_SILENT,1,0,"PacifistPuff",0,0,2048,35,0,frandom(1.5,3.0),null,0,0);

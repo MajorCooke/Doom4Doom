@@ -17,6 +17,7 @@ const FBFlagsNoAmmo = FBF_PUFFTRACER|FBF_NORANDOMPUFFZ;
 
 Class D4LightningGun : Doom4Weapon
 {
+	Actor Beam;
 	Default 
 	{
 		+FLOORCLIP
@@ -207,6 +208,7 @@ Class LightningPuffV3 : LightningPuffV2
 	Default 
 	{
 		+HITTRACER
+		MissileHeight 0.5;
 	}
 	States
 	{
