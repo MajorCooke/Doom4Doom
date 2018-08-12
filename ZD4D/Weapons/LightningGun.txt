@@ -215,10 +215,9 @@ Class LightningPuffV3 : LightningPuffV2
 	Spawn:
 		TNT1 A 0;
 		TNT1 A 5 
-		{
-			/*if (!IsPointerEqual(TracerPtr,NullPtr))
-			{	A_RadiusGive("LightningGunBolter",AltTrailLength,RGF_MONSTERS|RGF_NOTRACER|RGF_NOTARGET,1,null,"None",0,4);	}*/
-			//A_RadiusGive("LightningGunBolter",AltTrailLength,RGF_MONSTERS|RGF_NOTRACER|RGF_NOTARGET,1,null,"None",0,4);
+		{	
+			int maxcount = Tracer ? 5 : 4;
+			
 			let handler = D4DHandler(StaticEventHandler.Find("D4DHandler"));
 			if (handler && handler.Monsters.Size() > 0)
 			{
@@ -230,9 +229,11 @@ Class LightningPuffV3 : LightningPuffV2
 				for (int i = 0; i < Monsters.Size(); i++)
 				{
 					Actor mo = Monsters[i];
-					if (!mo || mo.bCORPSE || mo.health < 1 || mo is "PlayerPawn")
+					// Make sure it exists first and is alive. Don't target enemies directly hit.
+					if (!mo || mo.bCORPSE || mo.health < 1 || mo.player || mo == Tracer || mo.bFRIENDLY)
 						continue;
 					
+					// Don't use square root versions.
 					if (Distance3DSquared(mo) > (AltTrailLength ** 2) || 
 						!CheckSight(mo,SF_SEEPASTSHOOTABLELINES|SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
 						continue;
@@ -257,8 +258,7 @@ Class LightningPuffV3 : LightningPuffV2
 							Beamer.Pitch = Pitch;
 						}
 					}
-					
-					if (count++ > 4)
+					if (count++ >= maxcount)
 						return;
 				}
 			}
