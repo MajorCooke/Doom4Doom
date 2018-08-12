@@ -61,6 +61,7 @@ Class DemonPlayerBase : Doom4Player
 	const interTic = 15;
 	const Minute = 60 * 35;
 	bool EndMe;
+		
 	// Only ever called once.
 	override void PostBeginPlay()
 	{
@@ -299,7 +300,7 @@ Class DemonPlayerBase : Doom4Player
 }
 
 Class DemonWeaponBase : DoomWeapon
-{
+{	
 	// Fetches the power level of the morph. I.e. 0 = normal, 1 = uncommon, 2 = rare, etc.
 	action int GetPowerLevel()
 	{
@@ -573,9 +574,7 @@ Class PowerRuneBase : PowerMorph
 					Switch (EffectTics)
 					{
 						Case 105:
-						{
 							Owner.A_PlaySound("PentagramOfProtection/Warning",7,1,0,ATTN_NONE);
-						}
 						Case 70:
 						Case 35:
 							Owner.A_SetBlend("Yellow",0.4,12);
