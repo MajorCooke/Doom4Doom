@@ -988,6 +988,8 @@ Class BulletSmallTracer : Actor
 	Actor Puff;
 	bool DestroyMe, HadPuff, FirstTic;
 	double Dist;
+	double _cos, _sin;
+	const RealSpeed = 200.0;
 	Default 
 	{
 		Projectile;
@@ -1024,6 +1026,9 @@ Class BulletSmallTracer : Actor
 			Dist = Distance3DSquared(Tracer);
 		}
 		else	Dist = -1.0;
+		
+		_cos = cos(pitch) * RealSpeed;
+		_sin = -sin(pitch) * RealSpeed;
 	}
 	
 	override void Tick()
@@ -1035,21 +1040,24 @@ Class BulletSmallTracer : Actor
 			return Super.Tick();
 		
 		//vel = (0,0,0);
-		Puff = (Tracer) ? Tracer : LineAttack(angle, Speed, pitch, -1, '', "NonPuff2");
+		A_Stop();
+		Puff = (Tracer) ? Tracer : LineAttack(angle, RealSpeed + 1, pitch, -1, '', "NonPuff2", LAF_NOINTERACT);
 		if (Puff)
 		{
 			double CurDist = Distance3DSquared(Puff);
-			if (CurDist < (Speed ** 2))
+			if (CurDist <= (RealSpeed ** 2))
 			{
 				//Speed = sqrt(CurDist);
+				double root = sqrt(CurDist);
 				DestroyMe = true;
-				vel = (0,0,0);
-				Warp(Tracer, flags: WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
+				A_Stop();
+				Warp(self, cos(pitch) * root, 0, -sin(pitch) * root, flags: WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
 				ExplodeMissile(null, null);
+				return Super.Tick();
 			}
 		}
-		Vel3DFromAngle(200.0, angle, pitch);
-		//Warp(Self, cos(pitch) * Speed, 0, -sin(pitch) * Speed, 0, WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
+	//	Vel3DFromAngle(200.0, angle, pitch);
+		Warp(Self, _cos, 0, _sin, 0, WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
 		Super.Tick();
 	}
 	
