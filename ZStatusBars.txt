@@ -711,7 +711,7 @@ Class Doom4StatusBar : BaseStatusBar
 				}
 				if (GetAmountOnly("AssaultRifleMod2"))
 				{
-					String img = (GetAmountOnly("MicroMissilesActive")) ? "zactscp1" : "zactscp0";
+					String img = (GetAmountOnly("MicroMissilesActive")) ? "zissile1" : "zissile0";
 					DrawImage(img, (910, 673), imageAlignmentLeft);
 				}
 				
