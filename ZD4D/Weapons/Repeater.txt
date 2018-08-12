@@ -105,28 +105,25 @@ Class D4Repeater : Doom4Weapon
 				return ResolveState("EndFire");
 			}
 			
+			int dmg = CountInv("RepeaterUpgradeDamage") ? 22 : 14;
+			
 			//checks for upgrades
-			if(CountInv("RepeaterUpgradePiercing"))	// if piercing upgrade
+			if (CountInv("RepeaterUpgradePiercing"))	// if piercing upgrade
 			{
-				if (GetCvar("D4D_TracerFX") > 0)	{	A_FireBullets(0,0,1,0,"PacifistPuff",FBF_USEAMMO|FBF_PUFFTRACER,0,"BulletSmallTracer",0,6); }
-				A_RailAttack((CountInv("RepeaterUpgradeDamage") ? 22 : 14)*random(1,3),0,1,-1,-1,RGF_SILENT|RGF_NORANDOMPUFFZ,0,"D4BulletPuffForRails",0,0,0,10,0,0,null,0,0,2); 
-				//A_TakeInventory("D4Bullets",(CountInv("RepeaterUpgradeDamage") ? 3 : 2),TIF_NOTAKEINFINITE);
+				A_RailAttack(dmg*random(1,3),0,0,-1,-1,RGF_SILENT|RGF_NORANDOMPUFFZ,0,"D4BulletPuffForRails",0,0,0,10,0,0,null,0,0,2);
+				A_FireBullets(0,0,1,0,"PacifistPuff",FBF_USEAMMO|FBF_PUFFTRACER,0,"BulletSmallTracer",-1,7);
 			}
 			
 			else //didnt have piercing upgrade
 			{
-				if (GetCvar("D4D_TracerFX") > 0)	{	A_FireBullets(0,0,-1,(CountInv("RepeaterUpgradeDamage") ? 22 : 14),"D4BulletPuff",FBF_USEAMMO|FBF_PUFFTRACER,0,"BulletSmallTracer",-1,7); 	}
-				else								{	A_FireBullets(0,0,-1,(CountInv("RepeaterUpgradeDamage") ? 22 : 14)); 	}
-				//A_TakeInventory("D4Bullets",(CountInv("RepeaterUpgradeDamage") ? 3 : 2),TIF_NOTAKEINFINITE);
+				A_FireBullets(0,0,1,dmg,"D4BulletPuff",FBF_USEAMMO|FBF_PUFFTRACER,0,"BulletSmallTracer",-1,7);
 			}
 			
 			//casings on?
 			if (GetCvar("D4D_Casings"))
 				A_SpawnItemEx("HARCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 
-			//weapon HQ on?
-			if (GetCvar("HQEffectsWeapons"))
-				A_FireProjectile("MGSmokeSpawner",0,0,4,2);
+			A_FireProjectile("MGSmokeSpawner",0,0,4,2);
 			
 			A_GiveInventory("RepeaterCounter",1 + (D4D_RepeaterMode * 2));
 			A_GunFlash("Null");
