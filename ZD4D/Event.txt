@@ -178,10 +178,13 @@ extend class D4DHandler
 			return;
 		
 		if ((mo.bISMONSTER || mo.bSHOOTABLE) && mo.health > 0)
+		{
 			Monsters.Push(mo);
 		
-		let mon = D4AbstractMonster(mo);
-		if (mon)	mon.Event = self;
+			let mon = D4AbstractMonster(mo);
+			if (mon)	mon.Event = self;
+			return;
+		}
 	}
 	
 	//--------------------------------------------------------------------------

@@ -77,47 +77,19 @@ Class D4HellKnight : D4AbstractBiggie
 		E02I A 10 A_Look();
 		Loop;
 	See:
-		E02W AAABBBCCCDDDEEEFFFGGGHHH 1 
+		E02W A 0
 		{
-			if(GetCvar("D4D_HKMeleeOnly"))
-			{ 
-				A_SetSpeed(11);
-				chasecount = (chasecount + 1) % 6;
-				
-				if (!chasecount) //only 1/3rd of the times it will call missile state
-				{	D4Chase(); 	}
-				else if (chasecount == 3)
-				{	D4Chase("Melee",null,CHF_DONTTURN|CHF_NODIRECTIONTURN|CHF_STOPIFBLOCKED);	}
-				else
-				{	D4Chase("Melee",null);	}
-				
-			}
+			if (GetCvar("D4D_HKMeleeOnly"))
+				A_SetSpeed(33);
 			else
-			{
-				chasecount = (chasecount + 1) % 3;
-				A_SetSpeed(5.667);
-				
-				if (!chasecount) //only 1/3rd of the times it will call missile state
-				{	D4Chase(); 	}
-				else
-				{	D4Chase("Melee",null,CHF_DONTTURN|CHF_NODIRECTIONTURN|CHF_STOPIFBLOCKED);	}
-			}
-			
+				A_SetSpeed(5.667 * 3);
 		}
+		E02W ABCDEFGH 3 D4Chase();
 		Loop;
 		
 	SeeNoMissile:		//reached only when landing after a jump
 		//then continues chasing, no jumping for a little while
-		E02W AAABBBCCCDDDEEEFFFGGGHHHAAABBBCCCDDDEEEFFFGGGHHH 1 
-		{
-			chasecount = (chasecount + 1) % 3;
-			
-			// Makes it look... smoother.
-			if (!chasecount)
-			{	D4Chase("Melee",null); 	}
-			else
-			{	D4Chase("Melee",null,CHF_DONTTURN|CHF_NODIRECTIONTURN|CHF_STOPIFBLOCKED);	}
-		}
+		E02W ABCDEFGHABCDEFGH 3 D4Chase("Melee", null);
 		Goto See;
 		
 		
