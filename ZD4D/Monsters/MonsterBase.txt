@@ -237,7 +237,7 @@ Class D4AbstractMonster : Actor
 							good = true;
 					}
 					
-					// Move was good. Do the chase but without actualy moving. 
+					// Move was good. Do the chase but without actually moving. 
 					if (good)
 					{
 						newflags = CHF_DONTMOVE|CHF_DONTTURN|CHF_NODIRECTIONTURN|CHF_NOPOSTATTACKTURN;

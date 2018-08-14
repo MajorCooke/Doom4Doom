@@ -383,12 +383,12 @@ Class ArchFriendSpawner7 : ArchFriendSpawner
 		ArchFriendSpawner.Power 7;
 		DropItem "D4Cyberdemon", 255, 		1;
 		DropItem "D4Archvile", 255, 		5;
-		DropItem "D4PainElemental", 255, 	5;
-		DropItem "D4Arachnotron", 255,		10;
-		DropItem "D4FatsoTech", 255,		10;
-		DropItem "D4Cacodemon", 255,		15;
-		DropItem "D4Revenant", 255, 		15;
-		DropItem "D4BaronOfHell", 255, 		15;
+		DropItem "D4ChaingunGuy", 255, 		30;
+		DropItem "D4BaronOfHell", 255, 		30;
+		DropItem "D4Arachnotron", 255,		35;
+		DropItem "D4FatsoTech", 255,		35;
+		DropItem "D4Cacodemon", 255,		45;
+		DropItem "D4Revenant", 255, 		45;
 	}
 }
 
@@ -398,12 +398,12 @@ Class ArchFriendSpawner6 : ArchFriendSpawner
 	{
 		ArchFriendSpawner.Power 6;
 		DropItem "D4Archvile", 255, 		2;
-		DropItem "D4PainElemental", 255, 	5;
-		DropItem "D4Arachnotron", 255,		10;
-		DropItem "D4FatsoTech", 255,		10;
-		DropItem "D4Cacodemon", 255,		15;
-		DropItem "D4Revenant", 255, 		15;
+		DropItem "D4ChaingunGuy", 255, 		10;
+		DropItem "D4Arachnotron", 255,		15;
+		DropItem "D4FatsoTech", 255,		15;
 		DropItem "D4BaronOfHell", 255, 		15;
+		DropItem "D4Cacodemon", 255,		25;
+		DropItem "D4Revenant", 255, 		25;
 	}
 }
 
@@ -412,12 +412,13 @@ Class ArchFriendSpawner5 : ArchFriendSpawner
 	Default
 	{
 		ArchFriendSpawner.Power 5;
-		DropItem "D4PainElemental", 255, 	3;
-		DropItem "D4Arachnotron", 255,		10;
-		DropItem "D4FatsoTech", 255,		10;
+		DropItem "D4Arachnotron", 255,		5;
+		DropItem "D4FatsoTech", 255,		5;
+		DropItem "D4BaronOfHell", 255, 		5;
+		DropItem "D4ChaingunGuy", 255, 		10;
+		DropItem "D4HellKnight", 255, 		15;
 		DropItem "D4Cacodemon", 255,		15;
 		DropItem "D4Revenant", 255, 		15;
-		DropItem "D4BaronOfHell", 255, 		15;
 	}
 }
 
@@ -426,9 +427,8 @@ Class ArchFriendSpawner4 : ArchFriendSpawner
 	Default
 	{
 		ArchFriendSpawner.Power 4;
-		DropItem "D4PainElemental", 255, 	2;
-		DropItem "D4FatsoTech", 255,		2;
 		DropItem "D4Arachnotron", 255,		2;
+		DropItem "D4FatsoTech", 255,		2;
 		DropItem "D4Cacodemon", 255,		4;
 		DropItem "D4ChaingunGuy", 255, 		3;
 		DropItem "D4DoomImp", 255, 			5;
@@ -506,111 +506,7 @@ Class ArchFriendSpawner : RandomSpawner
 		DropItem "D4HellKnight", 255, 4;
 		DropItem "D4BaronOfHell", 255, 1;
 	}
-	/*
-	int AddMonster(Name Mon, int Weight)
-	{
-		Class<Actor> check = Mon;
-		if (!check || !Weight)	return 0;
-		
-		if (Weight < 0)	Weight = 1;
-		Monsters.Push(Mon);
-		Weights.Push(Weight);
-		return Weight;
-	}
-	
-	override Name ChooseSpawn()
-	{
-		Monsters.Clear();
-		Weights.Clear();
-		
-		int n = 0;
-		if (Power < 5)
-		{
-			// Perform a simplified version of the ChooseSpawn function, just to grab
-			// all the names and their weights.
-			DropItem di;   // di will be our drop item list iterator
-			DropItem drop; // while drop stays as the reference point.
-			
-			drop = di = GetDropItems();
-			
-			// Something went wrong.
-			if (!di)	return Super.ChooseSpawn();
-			
-			while (di)
-			{
-				Name Mon = di.Name;
-				if (Mon != 'None' && di.Amount != 0)
-				{
-					int amt = di.Amount;
-					if (amt < 0)	amt = 1;
-					
-					Class<Actor> check = Mon;
-					if (check && amt)
-					{
-						n += amt;
-						Monsters.Push(Mon);
-						Weights.Push(amt);
-					}
-				}
-				di = di.Next;
-			}
-			
-			if (n < 1)	
-			{
-				A_LogInt(-2);
-				return Super.ChooseSpawn();
-			}
-		}
-		A_LogInt(Power);
-		// Now add the ones based on the player's power.
-		Switch (Power)
-		{
-			Default:
-				n += AddMonster('D4Cyberdemon',		1);
-			Case 6:
-				n += AddMonster('D4Archvile',		5);
-			Case 5:
-				n += AddMonster('D4PainElemental',	5);
-				n += AddMonster('D4FatsoTech',		10);
-				n += AddMonster('D4Arachnotron',	10);
-				n += AddMonster('D4Revenant',		15);
-				n += AddMonster('D4BaronOfHell',	15);
-				n += AddMonster('D4Cacodemon',		15);
-				break;
-			Case 4:
-				n += AddMonster('D4PainElemental',	1);
-			Case 3:
-				n += AddMonster('D4FatsoTech',		1);
-			Case 2:
-				n += AddMonster('D4Arachnotron',	2);
-			Case 1:
-				n += AddMonster('D4Cacodemon',		3);
-				break;
-		}
-		
-		if (Monsters.Size() < 1)
-		{
-			A_LogInt(-3);
-			return Super.ChooseSpawn();
-		}
-		
-		// Now go through and pick one.
-		// Here's how it works... Each weight is subtracted from the total
-		// accumulated number. When that number reaches <= -1, that one is
-		// deemed the selected.
-		n = random[randomspawn](0, n-1);
-		for (int i = 0; i < Monsters.Size(); i++)
-		{
-			int amt = Weights[i];
-			n -= amt;
-			
-			if (n < 0)
-				return Monsters[i];
-		}
-		A_LogInt(-4);
-		return 'None';
-	}
-	*/
+
 	override void PostSpawn(Actor spawned)
 	{
 		if (!spawned)	return;
@@ -625,7 +521,7 @@ Class ArchFriendSpawner : RandomSpawner
 		{
 			Power = Spawner.PowerLevel;
 			if (Power < 1)	return;
-			spawned.A_SetInventory("FriendToken", power);
+			spawned.CopyFriendliness(master, false, false);
 			Switch (power)
 			{
 				Default:
@@ -637,7 +533,6 @@ Class ArchFriendSpawner : RandomSpawner
 				Case 2:
 				Case 1:
 				*/
-					spawned.CopyFriendliness(master, false, false);
 					spawned.Species = "DemonPlayerBase";
 					spawned.bTHRUSPECIES = true;
 					spawned.bMTHRUSPECIES = true;
