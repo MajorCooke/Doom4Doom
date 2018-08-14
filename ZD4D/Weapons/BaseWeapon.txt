@@ -1087,6 +1087,15 @@ Class D4AbstractMissile : Actor
 		
 		HQC = CVar.FindCvar("HQEffects");
 		if (HQC)	HQ = HQC.GetBool();
+		
+		if (Target && Target.bISMONSTER)
+		{
+			if (Target.Species == 'DemonPlayerBase')
+			{
+				Species = Target.Species;
+				bTHRUSPECIES = bMTHRUSPECIES = true;
+			}
+		}
 	}
 }
 
