@@ -1,0 +1,222 @@
+Class D4DNewBeamBase : Actor
+{
+	protected int BeamCount;
+	protected double ScaleSub, ScaleAdd, PrevAngle, PrevPitch, OffAngle, OffPitch;
+	protected Vector3 PrevPos, Diff, MAngles, Offs;
+	protected bool FirstTic;
+	D4DNewBeamBase 	Parent, Child;
+	int 	IsEnding;
+	
+	Name 	SpriteName;
+	uint 	SpriteFrame,
+			StepTime, WaitTime,
+			FrameMin, FrameMax,
+			StartFrame, EndFrame, MaxBeams;
+			
+	bool 	SineScale;
+	
+	double 	TargetScale, CurrentSine,
+			ScaleInTime, ScaleOutTime,
+			SineOffset,
+			LengthMin, LengthMax,
+			WidthMin, WidthMax,
+			AngleMin, AngleMax,
+			PitchMin, PitchMax,
+			TurnLimit, PitchLimit,
+			OffX, OffY, OffZ;
+			
+	Vector3 next1, next2;
+	Property StartFrame:		StartFrame;
+	Property EndFrame:			EndFrame;
+	Property SpriteName:		SpriteName;
+	Property Frames:			FrameMin, FrameMax;
+	property SineScale:			SineScale;
+	property WaitTime:			WaitTime;
+	property ScaleTime: 		ScaleInTime, ScaleOutTime;
+	property StepTime:			StepTime;
+	Property Pitches:			PitchMin, PitchMax;
+	Property Angles:			AngleMin, AngleMax;
+	Property Lengths:			LengthMin, LengthMax;
+	Property Widths:			WidthMin, WidthMax;
+	Property Limits:			TurnLimit, PitchLimit;
+	Property MaxBeams:			MaxBeams;
+	Property Offsets:			OffX, OffY, Offz;
+	Default
+	{
+		D4DNewBeamBase.MaxBeams 25;
+		D4DNewBeamBase.Offsets 10.0, 4.1, -2.7;
+		RenderStyle "Add";
+		XScale 0.1;
+		YScale 1.0;
+		Projectile;
+		+BRIGHT
+		+NOINTERACTION
+	}
+	
+	override void BeginPlay()
+	{
+		ChangeStatNum(Thinker.STAT_USER);
+		Super.BeginPlay();
+	}
+	
+	override void OnDestroy()
+	{
+		if (!Parent)	A_Log("Destroyed");
+		if (Child)	Child.Destroy();
+		Super.OnDestroy();
+	}
+	
+	// Set up the scaling times
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		CurrentSine = 0.0;
+		// If this is being spawned manually instead of by a spawner, set some
+		// things up.
+		/*
+		if (!Parent)
+		{
+			int check = GetSpriteIndex(SpriteName);
+			if (check < 0)
+				return ThrowAbortException("SpriteName is bad! Check to make sure it's defined!");
+			Sprite = check;
+			
+			if (FrameMin < Fr_A || FrameMin > Fr_Z || FrameMax < Fr_A || FrameMax > Fr_Z)
+				return ThrowAbortException("Frames parameters must be in range [Fr_A, Fr_Z]");
+			
+			Frame = random(FrameMin, FrameMax);
+		
+			Scale.Y = frandom(LengthMin, LengthMax);
+			Scale.X = frandom(WidthMin, WidthMax);
+			Pitch += 90.0;
+		}
+		*/
+		OffAngle = Angle;
+		OffPitch = Pitch;
+		
+	}
+	
+	void UpdateBeam()
+	{
+		// Perform movement code here.
+		Scale.Y = frandom(LengthMin, LengthMax);
+		double SY = Scale.Y * 100.0;
+		double RealPitch = Pitch - 90.0;
+		
+		if (Parent)
+		{
+			Scale.X = Parent.Scale.X;
+			Frame = Parent.Frame;
+			Tracer = Parent.Tracer;
+			double PSY = Parent.Scale.Y * 100.0;
+			double pit = Parent.Pitch - 90;			
+			Warp(Parent, cos(pit) * PSY, 0, -sin(pit) * PSY, 0, WARPF_NOCHECKPOSITION);
+		}
+		else
+		{
+			Frame = random(FrameMin, FrameMax);
+			Scale.X = frandom(WidthMin, WidthMax);
+			if (Target.Player)
+			{
+				Vector3 x, y, z, origin;
+				[x, y, z] = Matrix4.GetAxes(target.pitch,target.angle,target.roll);
+				origin = target.Vec2OffsetZ(0,0,target.player.viewz) + OffX * x + OffY * y + OffZ * z;
+				SetOrigin(origin, true);
+			}
+			else 
+			{
+			//	origin = target.Vec3Offset(OffX,OffY,OffZ + Target.MissileHeight);
+				Warp(Target, OffX, OffY, OffZ, 0, WARPF_NOCHECKPOSITION);
+			}
+		}
+		
+		double Dist = 0;
+		if (Tracer)
+		{
+			Dist = Distance3DSquared(tracer);
+			Pitch -= 90.0;
+			A_Face(Tracer,TurnLimit,PitchLimit,0,0,FAF_MIDDLE);
+			if (Dist > SY ** 2)
+			{
+				A_SetPitch(pitch + FRandom(PitchMin, PitchMax));
+				A_SetAngle(angle + FRandom(AngleMin, AngleMax));
+			}
+			Pitch += 90.0;
+		}
+		else
+		{
+			A_SetPitch(pitch + FRandom(PitchMin, PitchMax));
+			A_SetAngle(angle + FRandom(AngleMin, AngleMax));
+		}
+		
+		if (Dist > SY ** 2)
+		{
+			if (Child)
+			{
+				Child.UpdateBeam();
+			}
+			else if ((BeamCount < MaxBeams))
+			{
+				Child = D4DNewBeamBase(Spawn(GetClass(), pos));
+				/*
+				Child.Sprite = Sprite;
+				Child.Frame = Frame;
+				*/
+				Child.Tracer = Tracer;
+				Child.Target = Target;
+				Child.Master = Master;
+				Child.Parent = self;
+				Child.Angle = Angle;
+				Child.Pitch = Pitch;
+			//	Child.Warp(self, cos(RealPitch) * SY, 0, -sin(RealPitch) * SY, 0, WARPF_NOCHECKPOSITION);
+				Child.BeamCount = BeamCount + 1;
+				Child.UpdateBeam();
+			}
+		}
+		else 
+		{
+			if (Child)	Child.Destroy();
+			if (Tracer)
+				Scale.Y = Distance3D(Tracer) * 0.01;
+		}
+	}
+	
+	override void Tick()
+	{
+		// Don't waste time if no master or not desired. Also take into account
+		// regular time freezing.
+		if (!bNOTIMEFREEZE && (level.frozen || globalfreeze))
+			return;
+		
+		if (!Target)	return Destroy();
+		if (!Parent)	UpdateBeam();
+		Super.Tick();
+	}
+	
+	States
+	{
+	Spawn:
+		---- A 1;
+		Wait;
+	// Without someone using these, modeldefs will throw a fit and refuse to start.
+	Precache:
+		X202 BYZ 0;
+		X206 FGHIJKLM 0;
+	Death:
+		TNT1 A 1;
+		Stop;
+	}
+}
+
+Class NewLightningBeamPrimary : D4DNewBeamBase
+{
+	Default
+	{
+		D4DNewBeamBase.SpriteName 'X206';
+		D4DNewBeamBase.Frames Fr_F, Fr_M;
+		D4DNewBeamBase.Widths 0.10, 0.10;
+		D4DNewBeamBase.Lengths 0.2, 0.6;
+		D4DNewBeamBase.Angles -10, 10;
+		D4DNewBeamBase.Pitches -10, 10;
+	}
+}
