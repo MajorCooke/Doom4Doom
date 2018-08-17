@@ -248,7 +248,11 @@ Class D4SpiderMastermind : D4AbstractBoss
 		Goto See;
 	
 	Pain:
-		SPID I 3 A_StopSound(6);
+		SPID I 3 
+		{
+			if (Event) Event.DestroyBeams(self);
+			A_StopSound(6);
+		}
 		SPID I 3 A_Pain();
 		Goto See;
 	Death:
