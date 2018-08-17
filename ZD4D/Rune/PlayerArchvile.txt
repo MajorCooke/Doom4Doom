@@ -251,34 +251,40 @@ Class D4DArchvileWeapon : DemonWeaponBase
 			
 			Switch (invoker.power)
 			{
+				// 5 monsters
 				Default:
-				Case 6:
-				Case 5:
-				Case 4:
+				Case 7:		// white
 				{
 					for (int i = -90; i <= 90; i += 45)
 						DropMonster(i);
 					break;
 				}
-				Case 3:
+				// 4 monsters
+				Case 6:		// black
 				{
 					for (int i = -60; i <= 60; i += 40)
 						DropMonster(i);
 					break;
 				}
-				Case 2:
+				// 3 monsters
+				Case 5:		// artifact
+				Case 4:		// legendary
 				{
 					for (int i = -45; i <= 45; i += 45)
 						DropMonster(i);
 					break;
 				}
-				Case 1:
+				// 2 monsters
+				Case 3:		// epic
+				Case 2:		// rare
 				{
 					for (int i = -30; i <= 30; i += 60)
 						DropMonster(i);
 					break;
 				}
-				Case 0:
+				// 1 monster
+				Case 1:		// uncommon
+				Case 0:		// normal
 					DropMonster(0);
 					break;
 			}
@@ -383,12 +389,12 @@ Class ArchFriendSpawner7 : ArchFriendSpawner
 		ArchFriendSpawner.Power 7;
 		DropItem "D4Cyberdemon", 255, 		1;
 		DropItem "D4Archvile", 255, 		5;
-		DropItem "D4ChaingunGuy", 255, 		30;
-		DropItem "D4BaronOfHell", 255, 		30;
-		DropItem "D4Arachnotron", 255,		35;
-		DropItem "D4FatsoTech", 255,		35;
-		DropItem "D4Cacodemon", 255,		45;
-		DropItem "D4Revenant", 255, 		45;
+		DropItem "D4ChaingunGuy", 255, 		20;
+		DropItem "D4BaronOfHell", 255, 		20;
+		DropItem "D4Arachnotron", 255,		25;
+		DropItem "D4FatsoTech", 255,		25;
+		DropItem "D4Cacodemon", 255,		35;
+		DropItem "D4Revenant", 255, 		35;
 	}
 }
 
