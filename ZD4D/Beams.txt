@@ -117,6 +117,7 @@ Class D4DMainBeamSpawner : D4DBeamSpawnerBase
 {
 	Default
 	{
+		+NOTIMEFREEZE
 		D4DBeamSpawnerBase.Beam "D4DMainBeam";
 		D4DBeamSpawnerBase.StartBeam "";
 		D4DBeamSpawnerBase.StartPuff "";
@@ -146,6 +147,7 @@ Class D4DMainBeam : D4DBeamBase
 {
 	Default
 	{
+		+NOTIMEFREEZE
 		D4DBeamBase.SpriteName "X202";
 		D4DBeamBase.Frames Fr_B, Fr_B;
 		D4DBeamBase.ScaleTime 0, 24;
@@ -336,7 +338,7 @@ Class LightningBeamPrimary : GaussTrail
 	{
 		D4DBeamBase.Widths 0.10, 0.10;
 		D4DBeamBase.Lengths 0.2, 0.6;
-		D4DBeamBase.ScaleTime 0, 5;
+		D4DBeamBase.ScaleTime 0, 1;
 		D4DBeamBase.WaitTime 2;
 		D4DBeamBase.SpriteName "X206";
 		D4DBeamBase.Frames Fr_F, Fr_M;
@@ -445,6 +447,7 @@ Class BigRedLaserDrillSMMSpawner : GaussTrailSpawner
 {
 	Default
 	{
+		-NOTIMEFREEZE
 		D4DBeamSpawnerBase.Beam "BigRedLaserDrillSMM";
 		D4DBeamSpawnerBase.StartBeam "";
 		D4DBeamSpawnerBase.MoveWithSource true;
@@ -459,6 +462,7 @@ Class BigRedLaserDrillSMM : GaussTrailBig
 {
 	Default
 	{	// 56 tics, equal to the spider mastermind's attack duration.
+		-NOTIMEFREEZE
 		D4DBeamBase.ScaleTime 8, 8;
 		D4DBeamBase.WaitTime 40;
 	}
@@ -468,10 +472,10 @@ Class BigRedLaserDrillSMMPlayerSpawner : BigRedLaserDrillSMMSpawner
 {
 	Default
 	{
+		+NOTIMEFREEZE
 		D4DBeamSpawnerBase.Beam "BigRedLaserDrillSMMPlayer";
 		D4DBeamSpawnerBase.Velocity true;
 		D4DBeamSpawnerBase.MoveWithSource false;
-		
 	}
 }
 // Due to problems with the MovePitchAngle issue currently, just fast spawn these.
@@ -480,7 +484,8 @@ Class BigRedLaserDrillSMMPlayerSpawner : BigRedLaserDrillSMMSpawner
 Class BigRedLaserDrillSMMPlayer : GaussTrailBig
 {
 	Default
-	{	
+	{
+		+NOTIMEFREEZE
 		D4DBeamBase.ScaleTime 0, 0;
 		D4DBeamBase.WaitTime 1;
 	}
@@ -490,6 +495,7 @@ Class BigRedLaserDrillChaingunnerSpawner : BigRedLaserDrillSMMSpawner
 {
 	Default
 	{
+		-NOTIMEFREEZE
 		D4DBeamSpawnerBase.Beam "BigRedLaserDrillChaingunner";
 	}
 }
@@ -498,6 +504,7 @@ Class BigRedLaserDrillChaingunner : BigRedLaserDrillSMM
 {
 	Default
 	{
+		-NOTIMEFREEZE
 		D4DBeamBase.Widths 0.15, 0.15;
 		D4DBeamBase.ScaleTime 4, 8;
 		D4DBeamBase.WaitTime 33;
