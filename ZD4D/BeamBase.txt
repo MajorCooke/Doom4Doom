@@ -1,4 +1,4 @@
-
+#include "ZD4D/NewBeamBase.txt"
 #include "ZD4D/Beams.txt"
 /*
 ================================================================================
@@ -43,6 +43,12 @@ Class D4DFX : Actor
 		+NOINTERACTION
 	}
 	
+	override void BeginPlay()
+	{
+		ChangeStatNum(Thinker.STAT_USER);
+		Super.BeginPlay();
+	}
+	
 	// Rotates the vector around (0,0,0). Like Earth orbiting the Sun.
 	static Vector3 RotateVector3D(Vector3 vec, double angle, double Pitch = -360.0)
 	{
@@ -59,6 +65,8 @@ Class D4DFX : Actor
 	}
 	
 }
+
+
 
 //==============================================================================
 // The beam spawner. Does the movement and positioning of the beams.
@@ -389,13 +397,12 @@ Class D4DBeamSpawnerBase : D4DFX
 							bolt.ScaleOutTime = ScaleOutTime;
 							bolt.Translation = Translation;
 							bolt.Spawner = self;
+							if (SpawnLast)
+								bolt.Scale.Y = Min(Scale.Y, (MaxDistance - CurDistance) * 0.01);
+							
 							if (StartBeam && (Starting || SpawnLast))
-							{
-								if (SpawnLast)
-									bolt.IsEnding = -1;
-								else
-									bolt.IsEnding = 1;
-							}
+								bolt.IsEnding = (SpawnLast) ? -1 : 1;
+							
 							if (MoveWithSource)	Beams.Push(bolt);
 							else bolt.Pitch += 90.0;
 							if (Velocity)	{	Bolt.Vel = Vel = Master.Vel;	}
@@ -504,12 +511,6 @@ Class D4DBeamBase : D4DFX
 		+NOINTERACTION
 		+INVISIBLE
 	//	+DONTINTERPOLATE
-	}
-	
-	override void BeginPlay()
-	{
-		ChangeStatNum(Thinker.STAT_USER);
-		Super.BeginPlay();
 	}
 	
 	// Set up the scaling times

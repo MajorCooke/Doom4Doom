@@ -1,39 +1,25 @@
 Class D4DNewBeamBase : Actor
 {
 	protected int BeamCount;
-	protected double ScaleSub, ScaleAdd, PrevAngle, PrevPitch, OffAngle, OffPitch;
-	protected Vector3 PrevPos, Diff, MAngles, Offs;
-	protected bool FirstTic;
+	protected bool KeepKid;
 	D4DNewBeamBase 	Parent, Child;
-	int 	IsEnding;
 	
 	Name 	SpriteName;
-	uint 	SpriteFrame,
-			StepTime, WaitTime,
-			FrameMin, FrameMax,
-			StartFrame, EndFrame, MaxBeams;
-			
-	bool 	SineScale;
+	int		FrameMin, FrameMax,
+			MaxBeams;
 	
-	double 	TargetScale, CurrentSine,
-			ScaleInTime, ScaleOutTime,
-			SineOffset,
-			LengthMin, LengthMax,
+	double 	LengthMin, LengthMax,
 			WidthMin, WidthMax,
 			AngleMin, AngleMax,
 			PitchMin, PitchMax,
 			TurnLimit, PitchLimit,
 			OffX, OffY, OffZ;
 			
-	Vector3 next1, next2;
-	Property StartFrame:		StartFrame;
-	Property EndFrame:			EndFrame;
+	bool	UseDeathState;
+	
+	Property UseDeathState:		UseDeathState;
 	Property SpriteName:		SpriteName;
 	Property Frames:			FrameMin, FrameMax;
-	property SineScale:			SineScale;
-	property WaitTime:			WaitTime;
-	property ScaleTime: 		ScaleInTime, ScaleOutTime;
-	property StepTime:			StepTime;
 	Property Pitches:			PitchMin, PitchMax;
 	Property Angles:			AngleMin, AngleMax;
 	Property Lengths:			LengthMin, LengthMax;
@@ -43,6 +29,7 @@ Class D4DNewBeamBase : Actor
 	Property Offsets:			OffX, OffY, Offz;
 	Default
 	{
+		D4DNewBeamBase.UseDeathState false;
 		D4DNewBeamBase.MaxBeams 25;
 		D4DNewBeamBase.Offsets 10.0, 4.1, -2.7;
 		RenderStyle "Add";
@@ -53,27 +40,59 @@ Class D4DNewBeamBase : Actor
 		+NOINTERACTION
 	}
 	
+	// Propagates the chain of children, ensuring they all follow through.
+	void SetKeeping(bool keep)
+	{
+		KeepKid = keep;
+		if (Child)	Child.SetKeeping(keep);
+	}
+	
+	override void OnDestroy()
+	{
+		if (Child && !KeepKid)
+		{
+			Child.Destroy();
+		}
+		Super.OnDestroy();
+	}
+	
+	// For whatever fancy effects can happen, use the death state. Disables
+	// child chain destruction so they can disappear on their own whenever they want.
+	// Only applies if UseDeathState is true. Otherwise, destroy it.
+	override void Die(Actor source, Actor inflictor, int dmgflags, Name MeansOfDeath)
+	{
+		if (!bKILLED)
+		{
+			bKILLED = true;
+			
+			// Only the parent should call this since this will propagate into
+			// children, and they'll call it needlessly over and over again.
+			if (!Parent)	
+				SetKeeping(UseDeathState);
+				
+			if (UseDeathState)
+			{
+				if (Child)		Child.Die(null, null);
+				SetState(ResolveState("Death"));
+			}
+			else return Destroy();
+		}
+	}
+	
 	override void BeginPlay()
 	{
 		ChangeStatNum(Thinker.STAT_USER);
 		Super.BeginPlay();
 	}
 	
-	override void OnDestroy()
-	{
-		if (!Parent)	A_Log("Destroyed");
-		if (Child)	Child.Destroy();
-		Super.OnDestroy();
-	}
-	
 	// Set up the scaling times
 	override void PostBeginPlay()
 	{
 		Super.PostBeginPlay();
-		CurrentSine = 0.0;
+		
 		// If this is being spawned manually instead of by a spawner, set some
 		// things up.
-		/*
+		
 		if (!Parent)
 		{
 			int check = GetSpriteIndex(SpriteName);
@@ -89,15 +108,13 @@ Class D4DNewBeamBase : Actor
 			Scale.Y = frandom(LengthMin, LengthMax);
 			Scale.X = frandom(WidthMin, WidthMax);
 			Pitch += 90.0;
-		}
-		*/
-		OffAngle = Angle;
-		OffPitch = Pitch;
-		
+		}		
 	}
 	
 	void UpdateBeam()
 	{
+		if (bKILLED)	return;
+		
 		// Perform movement code here.
 		Scale.Y = frandom(LengthMin, LengthMax);
 		double SY = Scale.Y * 100.0;
@@ -158,10 +175,8 @@ Class D4DNewBeamBase : Actor
 			else if ((BeamCount < MaxBeams))
 			{
 				Child = D4DNewBeamBase(Spawn(GetClass(), pos));
-				/*
 				Child.Sprite = Sprite;
 				Child.Frame = Frame;
-				*/
 				Child.Tracer = Tracer;
 				Child.Target = Target;
 				Child.Master = Master;
@@ -175,35 +190,37 @@ Class D4DNewBeamBase : Actor
 		}
 		else 
 		{
-			if (Child)	Child.Destroy();
+			if (Child)	
+			{
+				SetKeeping(false);
+				Child.Destroy();
+			}
+			
 			if (Tracer)
 				Scale.Y = Distance3D(Tracer) * 0.01;
 		}
 	}
 	
-	override void Tick()
-	{
-		// Don't waste time if no master or not desired. Also take into account
-		// regular time freezing.
-		if (!bNOTIMEFREEZE && (level.frozen || globalfreeze))
-			return;
-		
-		if (!Target)	return Destroy();
-		if (!Parent)	UpdateBeam();
-		Super.Tick();
-	}
-	
 	States
 	{
 	Spawn:
-		---- A 1;
+		---- A 0;
+		---- A 1 
+		{
+			if (!Target)	
+			{
+				SetKeeping(false);
+				return Destroy();
+			}
+			if (!Parent)	UpdateBeam();
+		}
 		Wait;
 	// Without someone using these, modeldefs will throw a fit and refuse to start.
 	Precache:
 		X202 BYZ 0;
 		X206 FGHIJKLM 0;
 	Death:
-		TNT1 A 1;
+		---- A 1;
 		Stop;
 	}
 }

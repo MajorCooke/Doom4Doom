@@ -287,6 +287,7 @@ Class D4BulletPuff : Actor replaces BulletPuff
 		+FORCEXYBILLBOARD
 		+HITTRACER
 		+ALWAYSPUFF
+		+ROLLSPRITE
 		Scale 0.25;
 		Decal "BulletChip";
 	}
@@ -295,7 +296,9 @@ Class D4BulletPuff : Actor replaces BulletPuff
 	Spawn:	//non bleeder
 		TNT1 A 0 NODELAY
 		{
-			if(random(1,2)==3)
+			bSPRITEFLIP = random(0,1);
+			roll = random(0,359);
+			if (!random(0,2))
 			{
 				A_PlaySound("Doom4/Other/BulletHitConcrete",CHAN_AUTO,0.75,0,4);
 			}

@@ -17,7 +17,7 @@ Other Files By Author   : Major Cooke:
 Misc. Author Info       : Stuff.
 
 Description             : A gameplay mod bringing some of the Doom 4 mechanics 
-                          and it's weapons, with mods included.
+                          and it's weapons, with mods included, to DooM.
 
 Additional Credits to   : See credits section
 ===========================================================================
@@ -30,41 +30,44 @@ Graphics                : Yes
 Dehacked/BEX Patch      : No
 Demos                   : No
 Other                   : A plethora of (G)ZDoom specific lumps
-Other files required    : D4DResources.pk3 (Make sure this is in the same 
-							directory as D4D.pk3/Doom4Doom.zip) and it will
-							auto load with the file. DO NOT add the resources
-							to the launcher list!
+Other files required    : D4DResources.pk3 (DO NOT LOAD THIS FILE MANUALLY.)
+							Make sure this is in the same directory as 
+							D4D.pk3 OR Doom4Doom.zip.
+							Do NOT add D4DResources to the launcher list!
+							Load either D4D.pk3 or Doom4Doom.zip, NOT BOTH.
 
-
+===========================================================================
 * Play Information *
 
-Game                    : Doom 2 (compatible with Doom)
-Map #                   : No
+Game                    : Doom 2 (compatible with Ultimate Doom, Plutonia, TNT, etc.)
+Map #                   : N/A
 Single Player           : Designed for
-Cooperative 2-4 Player  : No
+Cooperative 2-4 Player  : No (Eventually)
 Deathmatch 2-4 Player   : No
 Other game styles       : No
 Difficulty Settings     : Yes, a lot of them
 
 
 ===========================================================================
-
 * Construction *
 
 Base                    : New from scratch 
 Build Time              : Something like 6 months
 Editor(s) used          : Slade, Programmer's notepad, GIMP, Audacity,
                           Notepad++, Paint.net, FL Studio, GitKraken, Sourcetree
-Known Bugs              : Sometimes glory kills will only do a quick punch
+Known Bugs              : * Sometimes glory kills will only do a quick punch
                           of death instead of the GK animation. Mastermind
                           GK will never show full animation due to tech
                           limitations.
-                          Sometimes glory killing will make monsters clip
+                          * Sometimes glory killing will make monsters clip
                           through walls, floors or celings while being
                           executed.
-Might Not Run With      : Some GZDoom devbuilds. 
-Will NOT Work With 		: Zandronum. ZDoom.
-Tested With             : GZDoom v3.4
+Might Not Work With     : GZDoom devbuilds, unless mentioned otherwise.
+Will NOT Work With 		: Zandronum. ZDoom. GZDoom v2.x and older.
+Tested With             : GZDoom v3.5
+
+===========================================================================
+
 
 
 ===========================================================================
@@ -151,6 +154,9 @@ MW-21                   : Sound contributions for Archvile and Arachnotron.
 Nightquaker             : Chainsaw ammo meters fix
 
 Gutawer					: Player damage shader effect
+						  Gutamatics library
+
+Marisa Kirisami			: Matrix4 class and tips on producing better lightning.
 
 Cactus Hege				: Inspiration for the Rainbow Doom(4) monsters. Concept 
 						  (no code) taken from Colorful Hell with permission.
@@ -186,29 +192,41 @@ Xeotroid				: Ripping Doom 4 Cyberdemon sounds
 
 Croteam					: Serious Sam's Serious Damage sound
 
+Tormentor667,
+SolarSnowfall,
+GhastlyDragon			: Spark sprite for lightning gun puffs. Taken from 
+						  S.U.P.E.R. Natural.
+
 
 
 * Beta Testers *
 
 - 3xlneet
 - Colossus
-- Hellser
+- ClownMan
+- DoomKrakken
+- GlenSkunk
+- Hellstorm Archon
 - iSpook
 - Matsilagi
+- Maxwell
+- MJ79
+- Snivyus
 - TheZombieKiller
 - TiberiumSoul
-- DoomKrakken
-- Snivyus
-- Hellstorm Archon
-- TheZombieKiller
-- Viscra Maelstrom
+- Syrix
 
 * Retired Testers *
 
-- MW-21					(Unknown release retirement)
-- JohnnyTheWolf 		(2.0.3)
 - BeardedDoomGuy		(2.0.3)
 - DrPyspy				(2.0.3)
+- Hellser				(2.0.3)
+- JohnnyTheWolf 		(2.0.3)
+- MW-21					(Unknown release retirement)
+- ShadowTiger			(2.0.3)
+- Viscra Maelstrom		(2.0.3)
+- Zanieon				(2.0.3)
+
 
 
 * For monsters from Realm667 *

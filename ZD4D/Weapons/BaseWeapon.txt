@@ -15,6 +15,92 @@ Class Doom4Weapon : Weapon
 	
 	Inventory Modules[2];
 	Inventory ActiveMod;
+	Array<D4DNewBeamBase> Beams;
+	
+	// Default offsets are 10.0, 4.1, -2.7
+	action void A_StartBeam(
+		Class<D4DNewBeamBase> BeamName, Vector3 Off = (0,0,0), int Count = 1,
+		Class<Actor> PuffName = "D4BulletPuff", int dmg = 0, double ang = 0, double pit = 0,
+		double dist = 8192)
+	{
+		Count = Max(1, Count);
+		
+		Vector3 x, y, z, origin;
+		[x, y, z] = Matrix4.GetAxes(Pitch,Angle,Roll);
+		origin = Vec2OffsetZ(0,0,player.viewz) + Off.x * x + Off.y * y + Off.z * z;
+		
+		if (dist <= 0.0)	dist = 8192.0;
+		Actor Puff = LineAttack(angle + ang, dist, pitch + pit, dmg, 'None', PuffName, LAF_NOINTERACT);
+		for (int i = 0; i < Count; i++)
+		{
+			let Beam = D4DNewBeamBase(Spawn(beamname,origin));
+			Beam.Angle = Angle;
+			Beam.Pitch = Pitch;
+			Beam.Target = invoker.owner;
+			Beam.Master = invoker.owner;
+			Beam.Tracer = Puff;
+			Beam.OffX = Off.x;
+			Beam.OffY = Off.y;
+			Beam.OffZ = Off.z;
+			Beam.Parent = null;
+			invoker.Beams.Push(Beam);
+		}
+	}
+	
+	action void A_UpdateBeamTracer(
+		Class<Actor> PuffName = "D4BulletPuff", int dmg = 0, double ang = 0, double pit = 0,
+		double dist = 8192)
+	{
+		int flags = LAF_NORANDOMPUFFZ;
+		if (dmg <= 0)	flags |= LAF_NOINTERACT;
+		Actor Puff = LineAttack(angle + ang, dist, BulletSlope() + pit, dmg, '', PuffName, flags);
+		
+		if (invoker.Beams.Size() < 1)	return;
+		for (int i = 0; i < invoker.Beams.Size(); i++)
+		{
+			let mo = invoker.Beams[i];
+			if (!mo)	continue;
+			
+			if (Puff)	mo.Tracer = Puff;
+		}
+	}
+	
+	action void A_StopBeam(Sound StopSound = "")
+	{
+		A_StopSound(CHAN_WEAPON);
+		A_PlaySound(StopSound, CHAN_WEAPON);
+		if (invoker.beams.Size() > 0)
+		{
+			for (int i = 0; i < invoker.beams.Size(); i++)
+			{
+				let mo = invoker.Beams[i];
+				if (mo)	mo.Die(null, null);
+			}
+			invoker.Beams.Clear();
+		}
+	}
+	
+	action int DoubleSpeed()
+	{	return (invoker.owner.FindInventory("PowerDoubleFiringSpeed") != null) ? 2 : 1;	}
+	
+	action bool IsDoubleSpeed()
+	{	return (invoker.owner.FindInventory("PowerDoubleFiringSpeed") != null);	}
+	
+	override void OwnerDied()
+	{
+		A_StopBeam();
+		Super.OwnerDied();
+	}
+	override void DetachFromOwner()
+	{
+		A_StopBeam();
+		Super.DetachFromOwner();
+	}
+	override void OnDestroy()
+	{
+		A_StopBeam();
+		Super.OnDestroy();
+	}
 	
 	Default 
 	{
@@ -24,8 +110,8 @@ Class Doom4Weapon : Weapon
 		Weapon.BobSpeed 2.0;
 		Weapon.BobRangeX 0.7;
 		Weapon.BobRangeY 0.5;
-		Inventory.PickupSound "Doom4/Other/WeaponPickup";
 		Weapon.UpSound "Doom4/Weapons/WeaponSwitch";
+		Inventory.PickupSound "Doom4/Other/WeaponPickup";
 		Inventory.RespawnTics 175;
 		Tag "REPLACE ME YOU IDIOT!";
 	}
@@ -129,7 +215,7 @@ Class Doom4Weapon : Weapon
 		"####" "###" 1 A_WeaponOffset(-11,-16,WOF_ADD);
 		"####" "#" 0 
 		{ 
-			A_TakeInventory("BusyToken",32767);
+			A_SetInventory("BusyToken",0);
 			return ResolveState("Ready"); 
 		}
 		
@@ -183,7 +269,7 @@ Class Doom4Weapon : Weapon
 		"####" "###" 1 A_WeaponOffset(-7,-40,WOF_ADD);
 		"####" "#" 0 
 		{ 
-			A_TakeInventory("BusyToken",32767);
+			A_SetInventory("BusyToken",0);
 			return ResolveState("Ready"); 
 		}
 	Overlay.Finisher:
