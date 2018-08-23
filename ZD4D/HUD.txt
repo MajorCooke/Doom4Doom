@@ -3,6 +3,48 @@
 // bars around ammo, and if it works, laser boxes to indicate someone's aiming
 // at the player.
 /*
+extend class D4DHandler
+{
+	override void RenderOverlay(RenderEvent e) 
+	{
+		if (automapactive || Tracker.Size() < 1) return;
+
+		double fovH = (e.camera.player != NULL) ? e.camera.player.FOV : e.camera.cameraFOV;
+        D4D_Matrix worldToClip = D4D_Matrix.worldToClip(e.viewPos, e.viewAngle, e.viewPitch, e.viewRoll, fovH);
+
+		for (int i = 0; i < Tracker.Size(); i++)
+		{
+			// REJECTION ROLE
+			// Make sure the tracker has something to watch.
+			Actor mo = Tracker[i];
+			if (!mo || mo.bNOSECTOR || mo.bINVISIBLE || mo == e.Camera)
+				continue;			
+			
+			// We have something. Do the thing!
+			Vector3 adjustedWorldPos = e.viewPos + LevelLocals.vec3Diff(e.viewPos, mo.pos);
+			Vector3 ndcPos = worldToClip.multiplyVector3(adjustedWorldPos).asVector3();
+			if (ndcPos.z <= 1 && ndcPos.z >= -1) 
+			{
+				// this is the coordinates where you're drawing to:
+				Vector2 drawPos = D4D_GlobalMaths.ndcToViewPort(ndcPos);
+				
+				// drawing code goes here
+				if (inv)
+				{
+					String text = inv.Text;
+					
+					Screen.drawText(smallfont, Font.CR_White, 
+						drawPos.x - (smallfont.stringWidth(text) * cleanXFac / 2.0),	// Ensures centering on the X
+						drawPos.y - (smallfont.getHeight() * cleanYFac / 2.0), 			// For Y
+						text,
+						DTA_CleanNoMove, true);
+				}
+			}
+		}
+    }
+}
+*/
+/*
 class ####_ProjectionTestHandler : StaticEventHandler {
 	override void renderOverlay(RenderEvent e) {
 		if (automapactive != 0) return;

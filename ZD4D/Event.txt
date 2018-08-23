@@ -45,6 +45,7 @@ extend class D4DHandler
 	const TimeTrigger = 35 * 10;
 	uint Timer;
 	Array<Actor> Monsters;
+	Array<Actor> Tracker;
 	Array<D4DBeamBase> Beams;
 	D4BlackList BlackList;
 	D4ManualLootList LootList;
@@ -69,6 +70,7 @@ extend class D4DHandler
 	
 	override void WorldUnloaded(WorldEvent e)
 	{
+		Tracker.Clear();
 		Monsters.Clear();
 		Beams.Clear();
 	}
@@ -159,6 +161,19 @@ extend class D4DHandler
 		}
 	}
 	
+	void AddTracker(Actor mo)
+	{
+		if (!mo)	return;
+		if (Tracker.Size() < 1 || Tracker.Find(mo) != Tracker.Size())
+			Tracker.Push(mo);
+	}
+	
+	void RemoveTracker(Actor mo)
+	{
+		if (!mo || Tracker.Size() < 1)	return;
+		Tracker.Delete(Tracker.Find(mo));
+	}
+	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
 	// Monster recording, for ease of tracking with lightning gun altfire and bfg
@@ -204,7 +219,9 @@ extend class D4DHandler
 		Actor mo = e.Thing;
 		if (mo is "Inventory")	return;
 		if (mo.bISMONSTER || mo.bSHOOTABLE)
+		{
 			Monsters.Delete(Monsters.Find(e.Thing));
+		}
 	}
 	
 	//--------------------------------------------------------------------------
