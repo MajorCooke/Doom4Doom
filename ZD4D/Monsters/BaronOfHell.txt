@@ -52,7 +52,7 @@ Class D4BaronOfHell : D4AbstractBiggie
 		Height 64;
 		Mass 1000;
 	//	Speed 5.667;
-		Speed 17;
+		Speed 15;
 		PainChance 50;
 		Monster;
 		+FLOORCLIP
@@ -275,10 +275,12 @@ Class D4BaronOfHell : D4AbstractBiggie
 		E01L A 0 
 		{
 			StateLabel next = "FireBall";
+			
+			// Make sure it's neither too close nor too far.
 			if (target)
 			{
 				double dist = Distance3DSquared(target);
-				if (dist >= 250 && dist < 768) // Make sure it's neither too close nor too far.
+				if (dist >= (250 ** 2) && dist < (768 ** 2)) 
 					next = "CanLeap";
 			}
 			return ResolveState(next);

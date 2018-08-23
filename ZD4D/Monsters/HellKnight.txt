@@ -50,7 +50,7 @@ Class D4HellKnight : D4AbstractBiggie
 		Radius 24;
 		Height 64;
 		Mass 600;
-		Speed 5.667;
+		Speed 15;
 		PainChance 128;
 		Monster;
 		+FLOORCLIP
@@ -82,7 +82,7 @@ Class D4HellKnight : D4AbstractBiggie
 			if (GetCvar("D4D_HKMeleeOnly"))
 				A_SetSpeed(33);
 			else
-				A_SetSpeed(5.667 * 3);
+				A_SetSpeed(15);
 		}
 		E02W ABCDEFGH 3 D4Chase();
 		Loop;
@@ -232,8 +232,19 @@ Class D4HellKnight : D4AbstractBiggie
 	//--------------------------------------
 	// leap attack
 	Leap:
-		E02L A 0 A_JumpIfCloser(200,"FireBall"); //if too close, dont leap
-		E02L A 0 A_JumpIfCloser(768,"CanLeap"); //if middle point, jump
+		E01L A 0 
+		{
+			StateLabel next = "FireBall";
+			
+			// Make sure it's neither too close nor too far.
+			if (target)
+			{
+				double dist = Distance3DSquared(target);
+				if (dist >= (250 ** 2) && dist < (768 ** 2)) 
+					next = "CanLeap";
+			}
+			return ResolveState(next);
+		}
 		Goto FireBall;
 	CanLeap:
 		E02I AAAA 3 A_FaceTarget();
