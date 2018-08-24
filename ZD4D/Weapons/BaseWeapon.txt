@@ -1185,6 +1185,15 @@ Class D4AbstractMissile : Actor
 	}
 }
 
+Class D4AbstractMissilePlayer : D4AbstractMissile
+{
+	override void PostBeginPlay()
+	{
+		Actor.PostBeginPlay();
+		HQ = GetCvar("HQEffectsWeapons");
+	}
+}
+
 Class D4AbstractMissileQuake : D4AbstractMissile
 {
 	transient CVar QuakeC;

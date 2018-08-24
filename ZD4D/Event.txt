@@ -58,13 +58,23 @@ extend class D4DHandler
 		if (Timer++ >= TimeTrigger)
 		{
 			Timer = 0;
-			int Size = Max(Beams.Size(), Monsters.Size());
 			
-			for (int i = Size - 1; i > -1; i--)
-			{
-				if (i < Monsters.Size() && !Monsters[i])	Monsters.Delete(i);
-				if (i < Beams.Size() && !Beams[i])			Beams.Delete(i);
-			}
+			// Go through the lists backwards.
+			if (Monsters.Size() > 0)
+				for (int i = Monsters.Size() - 1; i > -1; i--)
+					if (!Monsters[i])	Monsters.Delete(i);
+			
+			if (Beams.Size() > 0)
+				for (int i = Beams.Size() - 1; i > -1; i--)
+					if (!Beams[i])		Beams.Delete(i);
+					
+			if (Tracker.Size() > 0)
+				for (int i = Tracker.Size() - 1; i > -1; i--)
+					if (!Tracker[i])	Tracker.Delete(i);
+					
+			Monsters.ShrinkToFit();
+			Beams.ShrinkToFit();
+			Tracker.ShrinkToFit();
 		}
 	}
 	
@@ -164,7 +174,7 @@ extend class D4DHandler
 	void AddTracker(Actor mo)
 	{
 		if (!mo)	return;
-		if (Tracker.Size() < 1 || Tracker.Find(mo) != Tracker.Size())
+		if (Tracker.Size() < 1 || Tracker.Find(mo) >= Tracker.Size())
 			Tracker.Push(mo);
 	}
 	
@@ -189,7 +199,8 @@ extend class D4DHandler
 			return;
 		}
 		
-		if (mo.bNOINTERACTION || mo.bNOSECTOR || mo.bNOBLOCKMAP || mo is "Inventory")
+		if (mo.bNOINTERACTION || mo.bNOSECTOR || mo.bNOBLOCKMAP || mo.player || 
+			mo is "Inventory")
 			return;
 		
 		if ((mo.bISMONSTER || mo.bSHOOTABLE) && mo.health > 0)
@@ -198,7 +209,6 @@ extend class D4DHandler
 		
 			let mon = D4AbstractMonster(mo);
 			if (mon)	mon.Event = self;
-			return;
 		}
 	}
 	

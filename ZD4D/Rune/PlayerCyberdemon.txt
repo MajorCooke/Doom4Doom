@@ -470,7 +470,7 @@ Class CyberdemonPlayerSpark : Actor
 }
 //-----------------------------------------------
 // Regular rockets
-Class PlayerCyberdemonRocket : Actor 
+Class PlayerCyberdemonRocket : D4AbstractMissilePlayer
 {
 	Default 
 	{
@@ -493,10 +493,10 @@ Class PlayerCyberdemonRocket : Actor
 	Moving:
 		MICR A 1 Light("YellowMediumPoint3") Bright
 		{
-			if (GetCvar("HQEffectsWeapons"))
+			if (HQ)
 			{
 				A_SpawnItemEx("D4RocketTrailFire1",-5,0,0,0,frandom(0.3,-0.3),frandom(0.3,-0.3),0,SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketTrailSmoke",-5,random(5,-5),random(5,-5),0,0,0,0,SXF_NOCHECKPOSITION);	
+				A_SpawnItemEx("D4RocketTrailSmoke",-5,random(5,-5),random(5,-5),0,0,0,0,SXF_NOCHECKPOSITION);
 			}
 			A_SpawnItemEx("D4RocketTrailFire2",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	//spawns even if HQ effects are off, for visibility
 		}
@@ -506,14 +506,10 @@ Class PlayerCyberdemonRocket : Actor
 		{
 			A_Explode(192,256,0);
 			A_QuakeEx(2,2,2,15,0,384,"",QF_SCALEDOWN, falloff: 1);
-			
-			if (GetCvar("HQEffectsWeapons"))
+			if (HQ)
 			{
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				for (int i = 0; i < 5; i++)
+					A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
 			}
 			A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 		}
@@ -527,7 +523,7 @@ Class PlayerCyberdemonRocket : Actor
 
 //-----------------------------------------------
 // Stream of rockets
-Class PlayerCyberDemonRocketStream : Actor 
+Class PlayerCyberDemonRocketStream : D4AbstractMissilePlayer
 {
 	Default 
 	{
@@ -549,30 +545,14 @@ Class PlayerCyberDemonRocketStream : Actor
 	Moving:
 		MICR A 1 Light("YellowMediumPoint3") Bright 
 		{
-			if (GetCvar("HQEffects"))
-			{
-				A_SpawnItemEx("CDRocketFlare",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-			}
-			else
-			{
-				A_SpawnItemEx("CDRocketFlare",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION,64); //still spawns constantly for visibility
-			}
+			A_SpawnItemEx("CDRocketFlare",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 		}
 		Loop;
 	Death:
 		TNT1 A 0 
 		{
 			A_Explode(92,128,0);
-			if (GetCvar("D4D_quakexplosions")==1)
-			{
-				A_QuakeEx(2,2,2,10,0,192,"",QF_SCALEDOWN, falloff: 1);
-			}
-			if (GetCvar("HQEffects"))
-			{
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-			}
+			A_QuakeEx(2,2,2,10,0,192,"",QF_SCALEDOWN, falloff: 1);
 			A_SpawnItemEx("CyberdemonRocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 		}
 		TNT1 A 50

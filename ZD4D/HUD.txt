@@ -2,7 +2,7 @@
 // Not to be confused with status bar huds. This is just here for the drawing
 // bars around ammo, and if it works, laser boxes to indicate someone's aiming
 // at the player.
-/*
+
 extend class D4DHandler
 {
 	override void RenderOverlay(RenderEvent e) 
@@ -29,6 +29,7 @@ extend class D4DHandler
 				Vector2 drawPos = D4D_GlobalMaths.ndcToViewPort(ndcPos);
 				
 				// drawing code goes here
+				/*
 				if (inv)
 				{
 					String text = inv.Text;
@@ -38,12 +39,15 @@ extend class D4DHandler
 						drawPos.y - (smallfont.getHeight() * cleanYFac / 2.0), 			// For Y
 						text,
 						DTA_CleanNoMove, true);
+						
+					
 				}
+				*/
 			}
 		}
     }
 }
-*/
+
 /*
 class ####_ProjectionTestHandler : StaticEventHandler {
 	override void renderOverlay(RenderEvent e) {

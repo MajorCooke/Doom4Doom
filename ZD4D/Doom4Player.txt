@@ -887,7 +887,7 @@ extend class Doom4Player
 			}
 			
 			double alfa = Clamp(0.01 + damage * 0.02, 0.01, 0.6);
-			int fadetime = Clamp(damage * 0.05, 2, 70);
+			int fadetime = Clamp(damage * 0.1, 2, 70);
 			A_SetBlend("White",alfa,fadetime);
 			
 			if (PentaNoiseWait < 1)
@@ -938,10 +938,15 @@ extend class Doom4Player
 		{
 			// Reduce by 1% for every megasphere we've picked up.
 			// DoomDoll does not give this bonus.
-			int pc1 = Clamp(CountInv("D4MegasphereDamageReducer"),0,25);
-			if (pc1 > 0)
+			let inv = FindInventory("D4MegasphereDamageReducer");
+			if (inv)
 			{
-				damage = Max(0,damage * (1.0 - (0.01 * pc1)));
+				int pc1 = Clamp(inv.Amount, 0, inv.MaxAmount);
+				if (pc1 > 0)
+				{
+					double dmg = Max(0,damage * (1.0 - (0.01 * pc1)));
+					damage = int(floor(dmg));
+				}
 			}
 		}
 		
@@ -1158,7 +1163,6 @@ extend class Doom4Player
 						else										A_GiveInventory("StaticRifleChargingToken", int((UVel * 1.5) * 0.25));	
 					}
 				}
-				
 			}
 			
 			if (CountInv("D4IdfaTrap")) { A_GiveInventory("IdfaStamp"); A_SetInventory("D4IdfaTrap",0); }
