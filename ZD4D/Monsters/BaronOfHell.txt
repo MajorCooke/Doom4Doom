@@ -436,7 +436,7 @@ Class D4BaronOfHell : D4AbstractBiggie
 		Goto See;
 		
 	Pain.StunBomb:
-		"####" "#" 0 { bNoPain = true; bSPRITEFLIP = false; }
+		E01P A 0 { bNoPain = true; bSPRITEFLIP = false; }
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);

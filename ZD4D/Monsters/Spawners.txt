@@ -125,75 +125,28 @@ Class D4DMonsterSpawner : Actor
 			toSpawn = NewMonster;
 		else return Destroy();
 		
-		bool test;
+		bool test = false;
 		[test, mon] = A_SpawnItemEx(toSpawn,0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		
 		if (mon)
 		{
 			if (isStealth)	mon.bSTEALTH = true;
-			int rng = random(0, 1999);
-			int amt = 0;
-			if (monType > 1)
-			{	
-				if (rng > 800)
-				{
-						 if (rng >= 1999)	{	amt = 7;	}
-					else if (rng >= 1997)	{	amt = 6;	}
-					else if (rng >= 1981)	{	amt = 5;	}
-					else if (rng >= 1961)	{	amt = 4;	}
-					else if (rng >= 1931)	{	amt = 3;	}
-					else if (rng >= 1901)	{	amt = 2;	}
-					else if (rng >= 1701)	{	amt = 1;	}
-					/*
-						 if (rng >= 1999)	{	amt = 7;	mon.A_SetTranslation("D4D_White");	}
-					else if (rng >= 1997)	{	amt = 6;	mon.A_SetTranslation("D4D_Black");	}
-					else if (rng >= 1981)	{	amt = 5;	mon.A_SetTranslation("D4D_Red");	}
-					else if (rng >= 1961)	{	amt = 4;	mon.A_SetTranslation("D4D_Orange");	}
-					else if (rng >= 1931)	{	amt = 3;	mon.A_SetTranslation("D4D_Purple");	}
-					else if (rng >= 1901)	{	amt = 2;	mon.A_SetTranslation("D4D_Blue");	}
-					else if (rng >= 1701)	{	amt = 1;	mon.A_SetTranslation("D4D_Green");	}
-					*/
-					if (amt > 0)
-					{
-						int hp = mon.GetSpawnHealth();
-						int amp = amt + 1;
-						
-						if (hp < 1000)	amp += 1;
-						if (hp <= 500) 	amp += 1;
-						if (hp <= 400) 	amp += 1;
-						if (hp <= 300) 	amp += 1;
-						if (hp <= 200) 	amp += 1;
-						if (hp <= 100) 	amp += 1;
-						
-						mon.A_SetInventory("D4MonsterUpgrader",amt);
-						mon.A_SetHealth(hp * amp);
-						mon.Mass *= (amt + 1);
-						//mon.WoundHealth *= (amp + 1);
-					}
-				}
-			}
+			
 			if (bBossSpawned)
 			{
 				mon.TeleportMove (mon.pos, true);
 				mon.bBossSpawned = true;
 			}
-			//if (isBoss)
-			//{
+			
+			if (monType > 1)
+			{
 				let d4mon = D4AbstractMonster(mon);
 				if (d4mon)
 				{
-					d4mon.Spawner = self;
-						 if (amt < 0 || amt > 7) { }
-					else if (amt == 7)	d4mon.BC = "White";
-					else if (amt == 6)	d4mon.BC = "Black";
-					else if (amt == 5)	d4mon.BC = "Red";
-					else if (amt == 4)	d4mon.BC = "Orange";
-					else if (amt == 3)	d4mon.BC = "Purple";
-					else if (amt == 2)	d4mon.BC = "Blue";
-					else if (amt == 1)	d4mon.BC = "Green";
-					
+					int amt = d4mon.ChoosePowerLevel();
+					if (amt)  d4mon.SetupPowerLevel(amt);
 				}
-			//}
+			}
 			
 			if (master)	
 				mon.master = master;

@@ -169,7 +169,7 @@ Class D4FatsoTech : D4AbstractBiggie
 		FATT J 3 A_Pain();
 		Goto See;
 	Pain.StunBomb:
-		"####" "#" 0 { bNoPain = true; }
+		FATT J 0 { bNoPain = true; }
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
@@ -753,7 +753,7 @@ Class D4FatsoHell : D4AbstractBiggie
 		FAT2 J 3 A_Pain();
 		Goto See;
 	Pain.StunBomb:
-		"####" "#" 0 { bNoPain = true; }
+		FAT2 J 0 { bNoPain = true; }
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);

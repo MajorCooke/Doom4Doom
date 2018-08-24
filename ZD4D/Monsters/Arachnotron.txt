@@ -86,7 +86,7 @@ Class D4Arachnotron : D4AbstractBiggie // : Arachnotron	//to be edited
 		ARAC I 3 A_Pain();
 		Goto See+1;
 	Pain.StunBomb:
-		"####" "#" 0 { bNoPain = true; }
+		ARAC I 0 { bNoPain = true; }
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);

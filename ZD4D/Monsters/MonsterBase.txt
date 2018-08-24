@@ -62,28 +62,6 @@ Class D4AbstractMonster : Actor
 		DamageFactor "Crush", 15.0;
 	}
 	
-	// 
-	void SetPowerColor()
-	{
-		uint count = CountInv("D4MonsterUpgrader");
-		if (count)
-		{
-			Name suffix = PowerColor;
-			Switch(count)
-			{
-				Default: return;
-				Case 1:	suffix = suffix.."_Green"; 	break;
-				Case 2: suffix = suffix.."_Blue";	break;
-				Case 3: suffix = suffix.."_Purple";	break;
-				Case 4: suffix = suffix.."_Orange";	break;
-				Case 5: suffix = suffix.."_Red";	break;
-				Case 6: suffix = suffix.."_Black";	break;
-				Case 7:	suffix = suffix.."_White";	break;
-			}
-			A_SetTranslation(suffix);
-		}
-	}
-	
 	override void BeginPlay()
 	{
 		Super.BeginPlay();
@@ -93,39 +71,104 @@ Class D4AbstractMonster : Actor
 	override void PostBeginPlay()
 	{
 		Super.PostBeginPlay();
-		ExecuteCheck = Cvar.FindCvar("D4D_ExecutionsON");
-		StaggerCheck = Cvar.FindCvar("D4D_MonsterStagger");
+	//	ExecuteCheck = Cvar.FindCvar("D4D_ExecutionsON");
+	//	StaggerCheck = Cvar.FindCvar("D4D_MonsterStagger");
 		oldLeap = false;
-		SetPowerColor();
 	}
-		
+	
+	//--------------------------------------------------------------------------
+	// SetupPowerLevel
+	// 
+	// Randomizes and sets up the power level with the help of the overridable
+	// function, ChoosePowerLevel. 
+	// Customizable power level RNG that can be overridden for specific monsters.
+	virtual int ChoosePowerLevel()
+	{
+		int rng = random(1, 2000);
+		if (rng <= 1)	return 7;	
+		if (rng <= 5)	return 6;	
+		if (rng <= 10)	return 5;	
+		if (rng <= 30)	return 4;	
+		if (rng <= 60)	return 3;	
+		if (rng <= 100)	return 2;	
+		if (rng <= 200)	return 1;
+		return 0;
+	}
+	int SetupPowerLevel(int amt = -1)
+	{	
+		if (amt < 0) amt = ChoosePowerLevel();
+		if (amt > 0)
+		{
+			A_SetInventory("D4MonsterUpgrader",amt);
+			int hp = GetSpawnHealth();
+			int amp = amt + 1;
+			
+			if (hp < 1000)	amp += 1;
+			if (hp <= 500) 	amp += 1;
+			if (hp <= 400) 	amp += 1;
+			if (hp <= 300) 	amp += 1;
+			if (hp <= 200) 	amp += 1;
+			if (hp <= 100) 	amp += 1;
+			
+			
+			A_SetHealth(hp * amp);
+			Mass *= (amt + 1);
+			
+			Name suffix = PowerColor;
+			Switch(amt)
+			{
+				Default: return amt;
+				Case 1:	suffix = suffix.."_Green";	BC = "Green";	break;
+				Case 2: suffix = suffix.."_Blue";	BC = "Blue";	break;
+				Case 3: suffix = suffix.."_Purple";	BC = "Purple";	break;
+				Case 4: suffix = suffix.."_Orange";	BC = "Orange";	break;
+				Case 5: suffix = suffix.."_Red";	BC = "Red";		break;
+				Case 6: suffix = suffix.."_Black";	BC = "Black";	break;
+				Case 7:	suffix = suffix.."_White";	BC = "White";	break;
+			}
+			A_SetTranslation(suffix);				
+			
+		}
+		return amt;
+	}
+	
+	//--------------------------------------------------------------------------
+	// Checks to see if HQ monster effects cvar is on or off.
 	bool CheckEffects()
 	{
 		if (!HighQuality)	HighQuality = CVar.FindCvar("HQEffects");
 		return (HighQuality && HighQuality.GetBool());
 	}
 	
-	bool CheckStagger()
-	{
-		if (!ExecuteCheck)	ExecuteCheck = Cvar.FindCvar("D4D_ExecutionsON");
-		if (!ExecuteCheck || !ExecuteCheck.GetBool())	return false;
-		
-		if (!StaggerCheck)	StaggerCheck = Cvar.FindCvar("D4D_MonsterStagger");
-		if (!StaggerCheck || !StaggerCheck.GetBool())	return false;
-		return true;
-	}
-	
-	
+	// Do not check for staggering if the monster dies or still has health above
+	// the threshold.
 	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{
-		if (CheckStagger())
-			WoundHealth = PrevWoundHealth;
-		else
-		{
-			PrevWoundHealth = WoundHealth;
-			WoundHealth = -1;
+		if (health < 1 || (!bSHOOTABLE && !bVULNERABLE))	return 0;
+		
+		if (InStateSequence(CurState, ResolveState("StagLooper")))	
+			flags |= DMG_NO_PAIN;
+		
+			
+		int temp = WoundHealth;		WoundHealth = -1;
+		int DamageDone = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+		WoundHealth = temp;
+		
+		if (Health > 0 && Health <= WoundHealth && DamageDone > 0)
+		{			
+			if (GetCvar("D4D_ExecutionsON") && GetCvar("D4D_MonsterStagger"))
+			{
+				WoundHealth = PrevWoundHealth;
+				if (!InStateSequence(CurState, ResolveState("StagLooper")))
+					SetState(ResolveState("Wound"));
+			}
+			else
+			{
+				PrevWoundHealth = WoundHealth;
+				WoundHealth = -1;
+			}
 		}
-		return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+		return DamageDone;
 	}
 	
 	// Don't let removing scripts leave gaps.

@@ -116,7 +116,7 @@ Class D4DoomImp : D4AbstractMonster
 		ROAC H 2 A_Pain();
 		Goto See;
 	Pain.StunBomb:
-		"####" "#" 0 { bNoPain = true; }
+		ROAC H 0 { bNoPain = true; }
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
