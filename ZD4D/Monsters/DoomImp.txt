@@ -74,11 +74,16 @@ Class D4DoomImp : D4AbstractMonster
 		---- A 0 
 		{
 			HQ = GetCvar("HQEffects");
-			return A_JumpIfCloser(1024,"FireBall");	//if too far away, will always use the big ball
+			StateLabel next = "FireBallHuge";	//if too far away, will always use the big ball
+			if (Target && Distance3DSquared(Target) <= 1024 ** 2)
+			{	// yet, if close enough, it will sometimes use the big ball
+				if (random(1,256) <= 192)
+					next = "FireBall";	
+			}
+			return ResolveState(next);
 		}
 		
 		FireBall:
-			TNT1 A 0 A_Jump(64,"FireBallhuge");	//yet, if close enough, it will still use sometimes the big ball
 			ROAC FFFFFFFFFFFFFFFF 1 
 			{
 				A_FaceTarget();
@@ -92,7 +97,7 @@ Class D4DoomImp : D4AbstractMonster
 			}
 			ROAC G 6 A_SpawnProjectile("D4DoomImpBall",35,5,0);
 			Goto See;
-		FireBallhuge:
+		FireBallHuge:
 			ROAC FFFFFFFFFF 4
 			{
 				A_FaceTarget();
