@@ -339,7 +339,7 @@ Class PistolLanceCounter : Counter {}
 //	Primary fire related
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-Class D4PistolPuffNormal : Actor 
+Class D4PistolPuffNormal : D4AbstractMissile 
 {
 	double scaler;	//this one is to easily tweak the inherited versions
 	Default 

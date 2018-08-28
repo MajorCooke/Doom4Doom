@@ -1164,16 +1164,13 @@ Class BulletSmallTracer : Actor
 
 Class D4AbstractMissile : Actor 
 {
-	transient CVar HQC;
 	bool HQ;
 	
 	override void PostBeginPlay()
 	{
 		Super.PostBeginPlay();
 		
-		HQC = CVar.FindCvar("HQEffects");
-		if (HQC)	HQ = HQC.GetBool();
-		
+		HQ = GetCvar("HQEffects");		
 		if (Target && Target.bISMONSTER)
 		{
 			if (Target.Species == 'DemonPlayerBase')

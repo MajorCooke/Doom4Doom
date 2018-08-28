@@ -618,7 +618,7 @@ Class BaronShockwave : D4AbstractMissile
 	Spawn:
 		TNT1 A 0 NoDelay
 		{
-			if(GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(0.2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
 				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(0.2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
@@ -963,7 +963,7 @@ Class BaronBallBigTrail : Actor
 	Spawn:
 		X025 AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVWWXXYY 1 Bright
 		{
-			A_SetScale(Scale.X+0.1);
+			A_SetScale(Scale.X + 0.1);
 			A_FadeOut(0.04);
 		}
 		Loop;

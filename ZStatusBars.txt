@@ -69,7 +69,7 @@ Class Doom4StatusBar : BaseStatusBar
 	double fadeamt;
 	int AspectRatio, DemonTimer;
 	uint FakeCashTimer, FakeCash, Cash, HP, MaxHP;
-	uint8 DoomDollMax, DoomDollCount, MegasphereCount, AmmoClamp;
+	uint8 DoomDollMax, DoomDollCount, MegasphereCount, MegasphereMax, AmmoClamp;
 	bool ignoreFakeUpdate, noReticle, addonOverride, automap, AmDemon, WasDemon;
 
 	static ui Vector2 RotateVector(Vector2 self, double angle, Vector2 rPoint)
@@ -133,8 +133,6 @@ Class Doom4StatusBar : BaseStatusBar
 		Super.Tick();
 		AspectRatio = Screen.GetAspectRatio();
 		noReticle = GetAmountOnly("NoReticle");
-		WasDemon = AmDemon;
-		AmDemon = GetAmountOnly("IAmADemonToken");
 		DemonTimer = GetAmountOnly("DemonTimerToken");
 		DemonKeyOffsets = (DemonKeyOffsetX, DemonKeyOffsetY);
 		
@@ -164,7 +162,7 @@ Class Doom4StatusBar : BaseStatusBar
 			Cash = GetAmountOnly("D4DCash");
 			
 			// Megaspheres
-			MegasphereCount = GetAmountOnly("D4MegasphereDamageReducer");
+			[MegasphereCount, MegasphereMax] = GetAmount("D4MegasphereDamageReducer");
 		
 			// Doom Doll Count
 			DoomDollCount = GetAmountOnly("DollUses");
@@ -214,6 +212,9 @@ Class Doom4StatusBar : BaseStatusBar
 
 		if (addonOverride) return;
 
+		WasDemon = AmDemon;
+		AmDemon = GetAmountOnly("IAmADemonToken");
+
 		if (state == HUD_StatusBar)
 		{
 			BeginStatusBar(true);
@@ -237,6 +238,7 @@ Class Doom4StatusBar : BaseStatusBar
 	protected void DrawMainBar (double TicFrac)
 	{
 		if (!CPlayer || !CPlayer.mo)	return;
+		
 		// Draw the powerup screens first so they don't overlap the rest of the hud.
 		if (!automap)
 		{
@@ -284,15 +286,17 @@ Class Doom4StatusBar : BaseStatusBar
 		SlotPos[4] = (MSlotX, BotSlotY);
 		SlotPos[5] = (RSlotX, BotSlotY);
 		
-		if (AmDemon)
+		for (int i = 0; i < KeyPos.Size(); i++)
 		{
-			for (int i = 0; i < KeyPos.Size(); i++)
+			if (AmDemon)
 			{
 				KeyPos[i] += DemonKeyOffsets;
 				SlotPos[i] += DemonKeyOffsets;
 			}
+			DrawImage((GetAmountOnly(keynames[i]) ? "KEYSLOT1" : "KEYSLOT0"), SlotPos[i], imageAlignmentLeft);
+			if (GetAmountOnly(keynames[i]))	DrawImage(keyimg[i], KeyPos[i], imageAlignmentLeft);
 		}
-		
+		/*
 		DrawImage((GetAmountOnly(keynames[0]) ? "KEYSLOT1" : "KEYSLOT0"), SlotPos[0], imageAlignmentLeft);
 		DrawImage((GetAmountOnly(keynames[1]) ? "KEYSLOT1" : "KEYSLOT0"), SlotPos[1], imageAlignmentLeft);
 		DrawImage((GetAmountOnly(keynames[2]) ? "KEYSLOT1" : "KEYSLOT0"), SlotPos[2], imageAlignmentLeft);
@@ -306,6 +310,7 @@ Class Doom4StatusBar : BaseStatusBar
 		if (GetAmountOnly(keynames[3]))	DrawImage(keyimg[3], KeyPos[3], imageAlignmentLeft);
 		if (GetAmountOnly(keynames[4]))	DrawImage(keyimg[4], KeyPos[4], imageAlignmentLeft);
 		if (GetAmountOnly(keynames[5]))	DrawImage(keyimg[5], KeyPos[5], imageAlignmentLeft);
+		*/
 		
 		// Demon Runes
 		if (AmDemon)
@@ -418,7 +423,7 @@ Class Doom4StatusBar : BaseStatusBar
 			}
 			if (MegasphereCount)
 			{
-				int colRes = (MegasphereCount >= 25) ? Font.CR_GREEN : Font.CR_WHITE;
+				int colRes = (MegasphereCount >= MegasphereMax) ? Font.CR_GREEN : Font.CR_WHITE;
 				DrawString(mConsoleFont, "Resistance:", (1024, 100), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
 				DrawStringScaled(mQ4SmallHudFont, FormatNumber(MegasphereCount, 1), (1024, 116), DI_TEXT_ALIGN_RIGHT, colRes, scaling: 2);
 			}

@@ -330,6 +330,14 @@ Class SummonerMonsterSpawner : Actor
 		WallBounceFactor 1.0;
 		RenderStyle "None";
 	}
+	
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		
+		Tracer = Target;
+	}
+	
 	States
 	{
 	Spawn:
@@ -354,6 +362,19 @@ Class TporDropBallSpawner : RandomSpawner
 		DropItem "D4LostSoul", 255, 10;
 		DropItem "D4Revenant", 255, 2;
 		DropItem "D4HellKnight", 255, 2;
+	}
+	
+	override void PostSpawn(Actor spawned)
+	{
+		Super.PostSpawn(spawned);
+		if (Tracer)
+		{
+			spawned.CopyFriendliness(Tracer, true);
+			if (Tracer.Species == 'DemonPlayerBase')
+				spawned.Species = Tracer.Species;
+			spawned.bTHRUSPECIES = Tracer.bTHRUSPECIES;
+			spawned.bMTHRUSPECIES = Tracer.bMTHRUSPECIES;
+		}
 	}
 }
 
@@ -384,7 +405,7 @@ Class SummonTeleportFog : D4AbstractMissile
 
 //------------------------------------------
 // The trails used for when it "teleports"
-Class ArchvileTPortTrail : Actor 
+Class ArchvileTPortTrail : D4DFX 
 {
 	Default 
 	{
@@ -508,9 +529,9 @@ Class SummonerSparks : Actor
 		DB08 A 0 Nodelay A_PlaySound("Doom4/Monsters/ArgentCharge",6,0.8);
 		DB08 ABCDEFGHIJKLMNOPQRSTUVWXYABCDEFGHIJKLMNOPQRSTUVWXY 1 Bright 
 		{
-			if (IsPointerEqual(MasterPtr,NullPtr) || A_JumpIfHealthLower(1,"Null",MasterPtr))
+			if (!master || master.health < 1)
 			{	return ResolveState("Null");	}
-			if (A_CheckLOF("Null",CLOFF_SKIPOBSTACLES,0,0,0,0,0,0,MasterPtr))
+			if (CheckSight(master, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
 			{	
 				A_Warp(TargetPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",0.5,1.0);
 				A_FadeTo(0.99,1.0,FTF_CLAMP);

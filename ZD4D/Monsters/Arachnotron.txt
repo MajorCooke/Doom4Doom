@@ -256,11 +256,11 @@ Class ArachnoPlasma : D4AbstractMissile
 		TNT1 A 0 NoDelay 
 		{
 			A_SetScale(frandom(0.06,0.08));
-			return A_Jump(256,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26);
+			return A_Jump(256,random(1,26));
 		}
 	Moving:
 		PLS1 ABCDEFGHIJKLMNOPQRSTUVWXYZ 1 Light("PurpleSmallPoint1") Bright;
-		PLS2 ABCDEF 1 Light("PurpleSmallPoint1") Bright ;
+		PLS2 ABCDEF 1 Light("PurpleSmallPoint1") Bright;
 		Loop;
 	Death:
 		TNT1 A 10 A_SpawnItemEx("D4ArachnoPuffBig1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
@@ -280,7 +280,7 @@ Class D4ArachnoPuffBig1 : D4PistolPuffBig1
 		TNT1 A 0 NoDelay
 		{
 			scaler = 0.025;
-			if (GetCvar("HQEffects"))
+			if (HQ)
 			{
 				A_SpawnParticle("FFC5FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,vel.z-0.06);
 				A_SpawnParticle("FFC5FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,vel.z-0.06);
