@@ -57,7 +57,7 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 			Goto ContinueReady;
 			
 	ContinueReady:
-		"####" AAAAAAAAA 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+		"####" AAAAAAAAA 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWUSER2);
 		Loop;
 	
 	Overlay.HeatGeneration:
@@ -478,6 +478,8 @@ Class D4DPlasmaBall : Actor
 		RenderStyle "Add"; 
 		Alpha 0.99;
 		+FORCEXYBILLBOARD
+		+EXTREMEDEATH
+		+HITTRACER
 		Translation "0:255=%[0,0,0]:[0.7,0.9,1.5]";
 		DeathSound "Doom4/Weapon/PlasmaGun/PlasmaCrash";
 		Decal "D4Plasma";
@@ -495,13 +497,79 @@ Class D4DPlasmaBall : Actor
 		PLS1 ABCDEFGHIJKLMNOPQRSTUVWXYZ 1 Light("BlueSmallPoint1") Bright ;
 		PLS2 ABCDEF 1 Light("BlueSmallPoint1") Bright ;
 		Loop;
+	XDeath:
+		TNT1 A 0
+		{
+			if (Tracer && Tracer.Health < 1)
+			{
+				let mo = D4PlasmaExplosion(Tracer.Spawn("D4PlasmaExplosion", pos, ALLOW_REPLACE));
+				if (mo)
+				{
+					mo.Tracer = Tracer;
+				}
+			}
+		}
 	Death:
 		TNT1 A 10 A_SpawnItemEx("D4PistolPuffBig1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 		Stop;
 	}
 }
 
+Class D4PlasmaExplosion : D4DFX
+{
+	Default
+	{
+		+NOINTERACTION
+		+INVISIBLE
+		+NOSECTOR
+	}
+	
+	States
+	{
+	Spawn:
+		TNT1 A 0;
+		TNT1 A 0
+		{
+			A_QuakeEx(0, 2, 2, 17, 0, 256, "", QF_SCALEUP|QF_SCALEDOWN|QF_FULLINTENSITY|QF_WAVE|QF_RELATIVE, 0, frandom(2.0, 5.0), frandom(2.0, 5.0), 1);
+			A_SpawnItemEx("D4PlasmaShockwave",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		TNT1 A 35;
+		Stop;
+	}
+}
 
+Class D4PlasmaShockwave : D4DFX
+{
+	Default
+	{
+		+NOINTERACTION
+		+BRIGHT
+		+ROLLSPRITE
+		RenderStyle "Add";
+		Scale 0.1;
+		Alpha 0.99;
+		Translation "0:255=%[0,0,0]:[0.5,0.5,2]";
+	}
+	
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		roll = random(0,359);
+	}
+	
+	States
+	{
+	Spawn:
+		// INTENTIONALLY does not have NoDelay.
+		X060 FFFFFF 1 A_SetScale(Scale.X + 0.1);
+		X060 F 1
+		{
+			A_SetScale(Scale.X + 0.1);
+			A_FadeOut();
+		}
+		Wait;
+	}
+}
 
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------

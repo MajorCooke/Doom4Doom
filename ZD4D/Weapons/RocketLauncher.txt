@@ -184,7 +184,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 				Goto ResumeReadySequence;
 				
 	ResumeReadySequence:
-		"####" A 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+		"####" A 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWUSER2);
 		Loop;
 	ReadyNoAmmo:
 		"####" A 1

@@ -97,7 +97,7 @@ Class D4Chaingun : Doom4Weapon
 			if (CountInv("BusyToken"))
 			{	A_WeaponReady(WRF_NOFIRE|WRF_NOSWITCH);	}
 			else
-			{	A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER1|WRF_ALLOWUSER2);		}
+			{	A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWUSER2);		}
 			return ResolveState(null);
 		}
 		Loop;
@@ -141,7 +141,7 @@ Class D4Chaingun : Doom4Weapon
 			return ResolveState(null);
 		}
 	RPF:
-		"####" "#" 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+		"####" "#" 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWUSER2);
 		Loop;
 	//-------------------------------------------------------
 	// Regular fire

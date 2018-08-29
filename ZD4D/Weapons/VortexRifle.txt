@@ -106,7 +106,7 @@ Class D4VortexRifle : Doom4Weapon
 	// Ready sequence
 	//-------------------------------------------------------
 	Ready:
-		VTXG A 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+		VTXG A 1 A_WeaponReady(WRF_ALLOWUSER2);
 		Loop;
 		
 	//===========================================================================	

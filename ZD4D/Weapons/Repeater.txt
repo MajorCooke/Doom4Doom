@@ -65,7 +65,7 @@ Class D4Repeater : Doom4Weapon
 	//-------------------------------------------------------
 	Ready:
 	    M666 A 0 A_Overlay(SwitchWatcher,"SwitchWatcher",true);
-		REPG A 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+		REPG A 1 A_WeaponReady(WRF_ALLOWUSER2);
 		Loop;
 	SwitchWatcher:
 		M666 A 1
@@ -155,7 +155,7 @@ Class D4Repeater : Doom4Weapon
 		REPG A 1 { A_WeaponOffset(1,33); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
 		REPG A 0 A_WeaponOffset(0.5,32.5);
 		
-		REPG AAAAAAAAAAAAAAAAAA 1 A_WeaponReady(WRF_NOBOB|WRF_ALLOWRELOAD|WRF_ALLOWUSER2); // half a second without bob, to avoid jerkiness when running and firing
+		REPG AAAAAAAAAAAAAAAAAA 1 A_WeaponReady(WRF_NOBOB|WRF_ALLOWUSER2); // half a second without bob, to avoid jerkiness when running and firing
 		Goto Ready;
 		
 	Flash:

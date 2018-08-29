@@ -132,7 +132,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		"----" A 1 
 		{
 			if (!CountInv("SSGUpgrade4"))
-			{	A_WeaponReady((!CountInv("BusyToken")) ? WRF_NOSECONDARY|WRF_ALLOWRELOAD|WRF_ALLOWUSER2 : WRF_NOSWITCH);	}
+			{	A_WeaponReady((!CountInv("BusyToken")) ? WRF_NOSECONDARY|WRF_ALLOWUSER2 : WRF_NOSWITCH);	}
 			else
 			{	
 				// Follow the weapon.
@@ -161,7 +161,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 				{	// Both are ready.
 					A_OverlayFlags(LGun,WeapBob,true);
 					A_OverlayFlags(RGun,WeapBob,true);
-					A_WeaponReady((!CountInv("BusyToken")) ? WRF_NOFIRE|WRF_ALLOWRELOAD|WRF_ALLOWUSER2 : WRF_NOFIRE|WRF_NOSWITCH);
+					A_WeaponReady((!CountInv("BusyToken")) ? WRF_NOFIRE|WRF_ALLOWUSER2 : WRF_NOFIRE|WRF_NOSWITCH);
 				}
 			}
 			return ResolveState(null);

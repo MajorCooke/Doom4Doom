@@ -95,7 +95,7 @@ Class D4Pistol : Doom4Weapon
 			}
 			
 			int wflag = CountInv("PistolUpgradeLance") ? WRF_ALLOWUSER1 : 0;
-			A_WeaponReady(WRF_ALLOWRELOAD|wflag|WRF_ALLOWUSER2|WRF_ALLOWUSER4);
+			A_WeaponReady(wflag|WRF_ALLOWUSER2|WRF_ALLOWUSER4);
 		}
 		Loop;
 		
@@ -159,14 +159,14 @@ Class D4Pistol : Doom4Weapon
 		"####" C 1 { A_WeaponOffset(3,30); A_WeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); }
 		"####" C 1 { A_WeaponOffset(6,27); A_WeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); if (CountInv("PowerD4DFS")) { A_SetTics(0); } }
 		"####" C 1 { A_WeaponOffset(8,30); A_WeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); }
-		"####" A 1 { A_WeaponOffset(2,33); A_WeaponReady(WRF_NOSECONDARY|WRF_ALLOWRELOAD|WRF_NOSWITCH|WRF_NOBOB); if (CountInv("PowerD4DFS")) { A_SetTics(0); } }
-		"####" A 1 { A_WeaponOffset(0,32); A_WeaponReady(WRF_NOSECONDARY|WRF_ALLOWRELOAD|WRF_NOSWITCH|WRF_NOBOB); }
+		"####" A 1 { A_WeaponOffset(2,33); A_WeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); if (CountInv("PowerD4DFS")) { A_SetTics(0); } }
+		"####" A 1 { A_WeaponOffset(0,32); A_WeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); }
 		"####" A 1 
 		{
 			A_WeaponOffset(0,32);
 			if (CountInv("PistolUpgradeAutomatic"))		
 			{	A_Refire("Fire");	}
-			A_WeaponReady(WRF_ALLOWRELOAD|WRF_NOSWITCH|WRF_NOBOB);
+			A_WeaponReady(WRF_NOSWITCH|WRF_NOBOB);
 			if (CountInv("PowerD4DFS")) { A_SetTics(0); }
 		}
 		Goto Ready;
@@ -277,8 +277,8 @@ Class D4Pistol : Doom4Weapon
 		"####" D 1 { A_WeaponOffset(3,30); }
 		"####" C 1 { A_WeaponOffset(2,32); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
 		"####" C 1 { A_WeaponOffset(1,33); }
-		"####" A 1 { A_WeaponOffset(1,32); A_WeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_ALLOWRELOAD|WRF_NOSWITCH);	A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
-		"####" A 1 { A_Refire("AltFire"); A_WeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_ALLOWRELOAD|WRF_NOSWITCH);	}
+		"####" A 1 { A_WeaponOffset(1,32); A_WeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_NOSWITCH);	A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+		"####" A 1 { A_Refire("AltFire"); A_WeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_NOSWITCH);	}
 		Goto Ready;				
 	ReleaseLance:	
 		"####" B 2 Bright
@@ -310,8 +310,8 @@ Class D4Pistol : Doom4Weapon
 		"####" DDDDDDDD 3 A_FireProjectile("SGSmokeSpawner",0,0,6,2);
 		"####" C 1 { A_WeaponOffset(2,32); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
 		"####" C 1 { A_WeaponOffset(1,33); }
-		"####" A 1 { A_WeaponOffset(1,32); A_WeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_ALLOWRELOAD|WRF_NOSWITCH);	A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
-		"####" A 1 { A_Refire("AltFire"); A_WeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_ALLOWRELOAD|WRF_NOSWITCH);	}
+		"####" A 1 { A_WeaponOffset(1,32); A_WeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_NOSWITCH);	A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+		"####" A 1 { A_Refire("AltFire"); A_WeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_NOSWITCH);	}
 		Goto Ready;
 	User1:
 		"####" "#" 10 

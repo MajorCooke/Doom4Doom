@@ -53,7 +53,7 @@ Class D4BFG : Doom4Weapon
 			A_SetInventory("SineZoom",0);
 		}
 	ReadyLoop:
-		WEP7 A 1 A_WeaponReady((CountInv("BFGUpgrade2") ? (WRF_ALLOWRELOAD|WRF_ALLOWUSER2) : (WRF_NOSECONDARY|WRF_ALLOWRELOAD|WRF_ALLOWUSER2)));
+		WEP7 A 1 A_WeaponReady((CountInv("BFGUpgrade2") ? (WRF_ALLOWUSER2) : (WRF_NOSECONDARY|WRF_ALLOWUSER2)));
 		Loop;
 	Deselect:
 		WEP7 A 0 

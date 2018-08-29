@@ -104,14 +104,14 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 			}
 			else
 			{
-				A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+				A_WeaponReady(WRF_ALLOWUSER2);
 				return ResolveState(null);
 			}
 		}
 		Loop;
 		"####" AABB 1 
 		{
-			A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+			A_WeaponReady(WRF_ALLOWUSER2);
 			if(random(1,3)==1)
 			{
 				A_WeaponOffset(0+random(1,-1),32+random(0,1));

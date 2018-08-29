@@ -89,7 +89,7 @@ Class D4CarrionCannon : Doom4Weapon
 		"####" "#" 0 A_Lower(WeaponSwitchSpeed);
 		Loop;
 	Ready:
-		HELG H 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER1|WRF_ALLOWUSER2);
+		HELG H 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWUSER2);
 		Loop;
 	/*==========================================================================
 	 Primary Fire

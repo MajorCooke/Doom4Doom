@@ -149,7 +149,7 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 	VeryReady:
 		"####" "#####" 1 
 		{
-			int WeapReadyFlags = WRF_ALLOWUSER1|WRF_ALLOWRELOAD|WRF_ALLOWUSER2;
+			int WeapReadyFlags = WRF_ALLOWUSER1|WRF_ALLOWUSER2;
 			
 			if (!CountInv("AssaultRifleMod1") && !CountInv("AssaultRifleMod2"))
 			{

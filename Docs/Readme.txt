@@ -133,7 +133,7 @@ DrPyspy					: Spider Mastermind & Cyberdemon sound effects.
 Roxas                   : Creator of the weapon voxels minus the "chaingun". 
                           Teaching DBT how to do voxels from scratch.
 
-Xaser                   : Assistance to create the Titlemap. General advisor.
+Xaser                   : Assistance in creating the Titlemap. General advisor.
                           Fine tuning of weapon animations.
 
 HorrorMovieGuy          : Doom 64 Pinky with classic Doom's color pallete, glory
@@ -160,6 +160,8 @@ Marisa Kirisami			: Matrix4 class and tips on producing better lightning.
 
 Cactus Hege				: Inspiration for the Rainbow Doom(4) monsters. Concept 
 						  (no code) taken from Colorful Hell with permission.
+						  
+Nev3r					: Shoulder cannon sprite.
 
 * Other credits *
 

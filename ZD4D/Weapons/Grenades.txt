@@ -41,12 +41,13 @@ Class FragGrenadeWorld : CustomInventory
 	Pickup:
 		TNT1 A 0 
 		{
+			
+			A_GiveInventory("GrenadeSelectedStripper",1);
+			if (CountInv("GrenadeCharge") < 350)
+				A_SetInventory("GrenadeCharge", 350);
 			A_GiveInventory("FragGrenadePickup",1);
 			A_GiveInventory("FragGrenadeSelected",1);
 			ACS_NamedExecute("GrenadePrint",0,1); //print frag
-			
-			A_TakeInventory("SyphonGrenadeSelected",32767);
-			A_TakeInventory("MarineHoloSelected",32767);
 		}
 		Stop;
 	}
@@ -66,12 +67,12 @@ Class SyphonGrenadeWorld : CustomInventory
 	Pickup:
 		TNT1 A 0 
 		{
+			A_GiveInventory("GrenadeSelectedStripper",1);
+			if (CountInv("GrenadeCharge") < 350)
+				A_SetInventory("GrenadeCharge", 350);
 			A_GiveInventory("SyphonGrenadePickup",1);
 			A_GiveInventory("SyphonGrenadeSelected",1);
 			ACS_NamedExecute("GrenadePrint",0,2); //print syphon
-			
-			A_TakeInventory("FragGrenadeSelected",32767);
-			A_TakeInventory("MarineHoloSelected",32767);
 		}
 		Stop;
 	}
@@ -92,12 +93,12 @@ Class HoloGrenadeWorld : CustomInventory
 	Pickup:
 		TNT1 A 0 
 		{
+			A_GiveInventory("GrenadeSelectedStripper",1);
+			if (CountInv("GrenadeCharge") < 350)
+				A_SetInventory("GrenadeCharge", 350);
 			A_GiveInventory("HoloGrenadePickup",1);
 			A_GiveInventory("MarineHoloSelected",1);
 			ACS_NamedExecute("GrenadePrint",0,3); //print holo
-			
-			A_TakeInventory("FragGrenadeSelected",32767);
-			A_TakeInventory("SyphonGrenadeSelected",32767);
 		}
 		Stop;
 	}
@@ -110,6 +111,15 @@ Class GrenadeCooldown : Inventory
 	{
 		Inventory.MaxAmount 35;
 		Inventory.InterHubAmount 0;
+	}
+}
+
+Class GrenadeCharge : Inventory
+{
+	Default
+	{
+		Inventory.MaxAmount 350;
+		Inventory.InterHubAmount 350;
 	}
 }
 

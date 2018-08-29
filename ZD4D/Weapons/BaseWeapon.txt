@@ -127,6 +127,9 @@ Class Doom4Weapon : Weapon
 	Reload:	//since there's no reload, we used this key to throw grenades
 		"####" "#" 1
 		{
+			
+			return ResolveState(null);
+			
 			if(countinv("FragGrenadeSelected")|| countinv("SyphonGrenadeSelected")|| countinv("MarineHoloSelected"))
 			{
 				return ResolveState("ThrowGrenade");
@@ -142,7 +145,6 @@ Class Doom4Weapon : Weapon
 			return ResolveState(null);
 		}
 		"####" "#" 0 { return ResolveState("Ready"); }	//goes back to ready
-		
 	ThrowGrenade:
 		"####" "#" 1
 		{

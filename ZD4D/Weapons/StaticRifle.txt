@@ -93,18 +93,18 @@ Class D4StaticRifle : Doom4Weapon
 		STRF A 1
 		{
 			if (CountInv("StaticUpgrade4"))
-			{	A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);	}
+			{	A_WeaponReady(WRF_ALLOWUSER2);	}
 			else
-			{	A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2|WRF_NOSECONDARY);	}
+			{	A_WeaponReady(WRF_ALLOWUSER2|WRF_NOSECONDARY);	}
 		}
 		Goto Ready;
 	ReadyCharging:
 		STRF BBBCCC 1 
 		{
 			if (CountInv("StaticUpgrade4"))
-			{	A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);	}
+			{	A_WeaponReady(WRF_ALLOWUSER2);	}
 			else
-			{	A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2|WRF_NOSECONDARY);	}
+			{	A_WeaponReady(WRF_ALLOWUSER2|WRF_NOSECONDARY);	}
 		}
 		Goto Ready;
 	//===========================================================================	

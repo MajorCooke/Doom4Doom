@@ -98,10 +98,10 @@ Class D4LightningGun : Doom4Weapon
 			{ return ResolveState("ReadyNoAltFire"); }
 		}
 	ReadyWithAltFire:
-		LGNI AABBCC 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+		LGNI AABBCC 1 A_WeaponReady(WRF_ALLOWUSER2);
 		Goto Ready;
 	ReadyNoAltFire:
-		LGNI AABBCC 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2|WRF_NOSECONDARY);
+		LGNI AABBCC 1 A_WeaponReady(WRF_ALLOWUSER2|WRF_NOSECONDARY);
 		Goto Ready;
 		
 	//===========================================================================	

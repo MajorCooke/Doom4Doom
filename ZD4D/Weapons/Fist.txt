@@ -48,7 +48,7 @@ Class D4DFist : Doom4Weapon
 	States
 	{
 	Ready:
-		MELE "]" 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWRELOAD);
+		MELE "]" 1 A_WeaponReady(WRF_ALLOWUSER1);
 		Loop;
 	Deselect:
 		MELE "]" 1 A_Lower;

@@ -123,6 +123,10 @@ Class Doom4Player : PlayerPawn
 							CLOFF_JUMPENEMY|CLOFF_JUMPFRIEND|CLOFF_JUMPOBJECT|
 							CLOFF_JUMPNONHOSTILE|CLOFF_JUMP_ON_MISS;
 	const MaxRoll = 0.5;
+	const CannonArmX = 83.0;
+	const CannonArmY = 23.0;
+	const CannonDestX = 83.0;
+	const CannonDestY = 23.0;
 	double URollpain;
 	double URollmove;
 	double URollsave;
@@ -146,6 +150,7 @@ Class Doom4Player : PlayerPawn
 	int user_climbBouncePrevention;
 	double user_offsets;
 	bool spawned;
+	Class<Actor> GrenadeToFire;
 	Default 
 	{
 		+ALLOWPAIN
@@ -250,11 +255,134 @@ Class Doom4Player : PlayerPawn
 		{
 			if (player && player.mo && player.mo == self)
 			{
+				A_Overlay(Overlay_UtilityManager, "Overlay.UtilityManager", true);
 				A_Overlay(Overlay_LedgeGrab,"Overlay.LedgeGrab",true);
 				A_Overlay(99,"Overlay.Debug",true);
 			}
 		}
 		Loop;
+	
+	//==========================================================================
+	// Overlay:			Utility Items
+	// Deals with grenades, flame thrower, etc.
+	//==========================================================================
+	Overlay.UtilityManager:
+		M201 A 1
+		{
+			let plr = player;
+			if (!plr)	return ResolveState("Null");
+			
+			bool ThrowGrenade = (plr.cmd.buttons & BT_RELOAD) && !(plr.oldbuttons & BT_RELOAD);
+			int Amt = 0, MaxAmt = 0;
+			let inv = GetDefaultByType("GrenadeCharge");
+			MaxAmt = inv.MaxAmount;
+			
+			A_OverlayFlags(OverlayID(), PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
+			A_OverlayOffset(OverlayID(), -CannonArmX, -CannonArmY, WOF_INTERPOLATE);
+			
+			if (CountInv("GrenadeCharge") >= MaxAmt)
+			{
+				if (ThrowGrenade)
+				{
+					static const Class<Inventory> GrenadeSelected[] =
+					{
+						"FragGrenadeSelected",
+						"SyphonGrenadeSelected",
+						"MarineHoloSelected"
+					};
+					
+					static const Class<Actor> GrenadeTypes[] =
+					{
+						"D4FragGrenade",
+						"D4SyphonGrenade",
+						"D4PlayerHolograph"
+					};
+					
+					int size = GrenadeSelected.Size();
+					for (int i = 0; i < size; i++)
+					{
+						if (CountInv(GrenadeSelected[i]))
+						{
+							GrenadeToFire = GrenadeTypes[i];
+							return ResolveState("DeployCannon");
+						}
+					}
+					ACS_NamedExecute("GrenadeUnavailPrint",0,4); //print "No grenade available"
+					A_PlaySound("Doom4/Player/Nope",CHAN_AUTO);
+				}
+			}
+			else	
+			{
+				A_GiveInventory("GrenadeCharge",1);
+				if (CountInv("GrenadeCharge") >= MaxAmt)
+					A_PlaySound("Doom4/Weapon/Grenade/GrenadeRegen");
+				else if (ThrowGrenade)
+				{
+					ACS_NamedExecute("GrenadeUnavailPrint",0,5); //print "grenade not ready"
+					A_PlaySound("Doom4/Player/Nope",CHAN_AUTO);
+				}
+			}
+			return ResolveState(null);
+		}
+		Loop;
+	DeployCannon:
+		M201 A 1 
+		{
+			int OID = OverlayID();
+			double divisor = 2.0;
+			double offx = (CannonArmX / divisor);
+			double offy = (CannonArmY / divisor);
+			if (OverlayX(OID) + offx >= 0)
+			{
+				return ResolveState("LaunchGrenade");
+			}
+			A_OverlayOffset(OID, offx, offy, WOF_ADD|WOF_INTERPOLATE);
+			return ResolveState(null);
+		}
+		Wait;
+	LaunchGrenade:
+		M201 A 12
+		{
+			int OID = OverlayID();
+			A_OverlayOffset(OID, 0, 0, WOF_INTERPOLATE);
+			if (GrenadeToFire)
+			{
+				let inv = GetDefaultByType("GrenadeCharge");
+				int Amt = inv.MaxAmount;
+				A_TakeInventory("GrenadeCharge", Amt, 0);
+			//	A_FireProjectile(GrenadeToFire, 0, false, -8, 6);
+				Vector3 px, py, pz, origin;
+				[px, py, pz] = Matrix4.GetAxes(Pitch,Angle,Roll);
+				origin = Vec2OffsetZ(0,0,player.viewz) - 1.0 * px + -15.0 * py + 5.0 * pz;
+				
+				let gren = Spawn(GrenadeToFire, origin, ALLOW_REPLACE);
+				if (gren)
+				{
+					gren.A_PlaySound("Doom4/Weapon/Grenade/ThrowGren",5);
+					gren.target = self;
+					gren.angle = angle;
+					gren.Vel3DFromAngle(gren.speed, angle, pitch);
+				}
+			}
+		}
+	RetractCannon:
+		M201 A 1 
+		{
+			int OID = OverlayID();
+			double divisor = 2.0;
+			double offx = (CannonArmX / divisor);
+			double offy = (CannonArmY / divisor);
+			if (OverlayX(OID) - offx <= CannonArmX)
+			{
+				return ResolveState(1);
+			}
+			A_OverlayOffset(OID, -offx, -offy, WOF_ADD|WOF_INTERPOLATE);
+			return ResolveState(null);
+		}
+		Wait;
+		M201 A 1 A_OverlayOffset(OverlayID(), -CannonArmX, -CannonArmY, WOF_INTERPOLATE);
+		Goto Overlay.UtilityManager;
+	
 	//==========================================================================
 	// Overlay: 		Gun Shifting (WIP)
 	// Offsets the weapon whenever turning the camera angle/pitch.
@@ -310,8 +438,10 @@ Class Doom4Player : PlayerPawn
 		}
 		M666 A 0
 		{
-			if(	!(GetPlayerInput(MODINPUT_BUTTONS)   & BT_FORWARD) &&
-				(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_FORWARD))
+			int cur = GetPlayerInput(MODINPUT_BUTTONS);
+			int old = GetPlayerInput(MODINPUT_OLDBUTTONS);
+			if(!(cur & BT_FORWARD) &&
+				(old & BT_FORWARD))
 			{
 				if(countInv("KonamiToken") < 2)
 				{
@@ -323,8 +453,8 @@ Class Doom4Player : PlayerPawn
 				}
 			}
 			
-			if (!(GetPlayerInput(MODINPUT_BUTTONS)   & BT_BACK) &&
-				(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_BACK))
+			if (!(cur & BT_BACK) &&
+				(old & BT_BACK))
 			{
 				if (countInv("KonamiToken") < 4 &&
 					countInv("KonamiToken") >=2)
@@ -337,8 +467,8 @@ Class Doom4Player : PlayerPawn
 				}
 			}
 			
-			if (!(GetPlayerInput(MODINPUT_BUTTONS)   & BT_LEFT) &&
-				(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_LEFT))
+			if (!(cur & BT_LEFT) &&
+				(old & BT_LEFT))
 			{
 				if (countInv("KonamiToken") == 4 ||
 					countInv("KonamiToken") == 6)
@@ -351,8 +481,8 @@ Class Doom4Player : PlayerPawn
 				}
 			}
 			
-			if (!(GetPlayerInput(MODINPUT_BUTTONS)   & BT_RIGHT) &&
-				(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_RIGHT))
+			if (!(cur & BT_RIGHT) &&
+				(old & BT_RIGHT))
 			{
 				if (countInv("KonamiToken") == 5 ||
 					countInv("KonamiToken") == 7)
@@ -365,8 +495,8 @@ Class Doom4Player : PlayerPawn
 				}
 			}
 			
-			if(	!(GetPlayerInput(MODINPUT_BUTTONS)   & BT_ATTACK) &&
-				(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_ATTACK))
+			if (!(cur & BT_ATTACK) &&
+				(old & BT_ATTACK))
 			{
 				if(countInv("KonamiToken") == 8)
 				{
@@ -378,8 +508,8 @@ Class Doom4Player : PlayerPawn
 				}
 			}
 			
-			if(	!(GetPlayerInput(MODINPUT_BUTTONS)   & BT_ALTATTACK) &&
-				(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_ALTATTACK))
+			if (!(cur & BT_ALTATTACK) &&
+				(old & BT_ALTATTACK))
 			{
 				if(countInv("KonamiToken") == 9)
 				{
@@ -638,22 +768,15 @@ Class Doom4Player : PlayerPawn
 		PLAY F 1 bright light("PlayerLight5");
 		PLAY F 1 bright light("PlayerLight6");
 		Goto MissileCont;
-	Overlay.Protection:
-		M666 A 70
-		{
-			A_PlaySound("PentagramOfProtection/Protect",CHAN_VOICE);
-		}
-		Stop;
 	
 	Pain:
 		PLAY G 8 
 		{
-			if (CountInv("PowerInvulBase") || CountInv("PowerInvulnerable") || bInvulnerable ||bNoDamage)
+			if (CountInv("PowerInvulBase") || CountInv("PowerInvulnerable") || bInvulnerable || bNoDamage)
 			{
 				user_lowhp = 0;
 				A_SetBlend("FFFFFF",0.15,5);
 				//Just like Quake. Only happens once per two seconds.
-				A_Overlay(Overlay_Protection,"Overlay.Protection",true); 
 			}
 			else
 			{
@@ -667,12 +790,7 @@ Class Doom4Player : PlayerPawn
 				{
 					ACS_NamedExecuteAlways("Blood",0, int(floor((user_lasthp - user_currenthp) / DamageDegree)),0,0);
 				}
-				/*
-				if (A_Overlay(SovietsaurusSpinopatimus,"Null",true))
-				{
-					A_Overlay(Overlay_PainRoll,"PainRoll",true);
-				}
-				*/
+				
 				if (health <= 40)
 				{
 					if (user_lowhp == 0)
@@ -698,17 +816,6 @@ Class Doom4Player : PlayerPawn
 	Death:
 		PLAY H 0 
 		{
-			A_RadiusGive("SyphonDestroyer",16386,RGF_MISSILES,1,"D4SyphonGrenade");
-			A_StopSound(1);
-			A_StopSound(2);
-			A_StopSound(3);
-			A_StopSound(4);
-			A_StopSound(5);
-			A_StopSound(6);
-			A_StopSound(7);
-			A_StopSound(8);
-			A_Overlay(1,"Null");
-			A_ClearOverlays();
 			if (A_PlayerSkinCheck("AltSkinDeath"))
 			{	return ResolveState("AltSkinDeath");	}
 			return ResolveState("Death1");
@@ -723,17 +830,6 @@ Class Doom4Player : PlayerPawn
 	XDeath:
 		PLAY O 0 
 		{
-			A_RadiusGive("SyphonDestroyer",16386,RGF_MISSILES,1,"D4SyphonGrenade");
-			A_StopSound(1);
-			A_StopSound(2);
-			A_StopSound(3);
-			A_StopSound(4);
-			A_StopSound(5);
-			A_StopSound(6);
-			A_StopSound(7);
-			A_StopSound(8);
-			A_Overlay(1,"Null");
-			A_ClearOverlays();
 			if (A_PlayerSkinCheck("AltSkinXDeath"))
 			{	return ResolveState("AltSkinXDeath");	}
 			return ResolveState("XDeath1");
@@ -1002,6 +1098,7 @@ extend class Doom4Player
 				{
 					if (!CountInv("FragGrenadePickup"))
 					{	
+						A_SetInventory("GrenadeCharge", 350);
 						A_SetInventory("FragGrenadePickup",1);
 						A_SetInventory("FragGrenadeSelected",1);
 					}
@@ -1009,11 +1106,14 @@ extend class Doom4Player
 				if (GetCvar("D4D_NMGrenades") >= 2) // Give the rest and select syphon if the setting is "All"
 				{
 					if (!CountInv("HoloGrenadePickup"))
+					{
+						A_SetInventory("GrenadeCharge", 350);
 						A_GiveInventory("HoloGrenadePickup",1);
+					}
 					if (!CountInv("SyphonGrenadePickup"))
 					{   
-						A_SetInventory("FragGrenadeSelected",0);
-						A_SetInventory("MarineHoloSelected",0); //Just in case
+						A_SetInventory("GrenadeCharge", 350);
+						A_GiveInventory("GrenadeSelectedStripper",1); //Just in case
 						A_SetInventory("SyphonGrenadePickup",1);
 						A_SetInventory("SyphonGrenadeSelected",1); 
 					}
@@ -1044,6 +1144,7 @@ extend class Doom4Player
 		if ((!player || !player.mo || player.mo != self) || health <= 0)
 			return;
 			
+		
 		//======================================================================
 		if (effectSize > 0) {
 			Shader.SetEnabled(player, "damageshader", true);
@@ -1098,6 +1199,7 @@ extend class Doom4Player
 		// shuts this off.
 		if (!(timer % 3))
 		{
+			A_Overlay(Overlay_UtilityManager, "Overlay.UtilityManager", true);
 			if (!CountInv("StaticUpgrade4"))
 			{
 					 if (CountInv("StaticUpgrade3"))
@@ -1116,6 +1218,7 @@ extend class Doom4Player
 			A_TakeInventory("SGTripleShotTimer",1);
 			A_TakeInventory("SGGrenadeTimer",1);
 		}
+		/*
 		if (!(timer % 10))
 		{
 			if (CountInv("GrenadeCooldown"))
@@ -1127,7 +1230,7 @@ extend class Doom4Player
 				}
 			}
 		}
-		
+		*/
 		//----------------------------------------------------------------------
 		
 		if (GetClass() == "Doom4Player")
@@ -1347,9 +1450,13 @@ extend class Doom4Player
 		}
 		
 		Super.Die(source, inflictor, dmgflags);
+		
+		A_RadiusGive("SyphonDestroyer",16386,RGF_MISSILES,1,"D4SyphonGrenade");
+		for (int i = 1; i < 9; i++)
+			A_StopSound(i);
+		A_Overlay(1,"Null");
+		A_ClearOverlays();
 	}
-	
-	
 }
 
 /*==============================================================================

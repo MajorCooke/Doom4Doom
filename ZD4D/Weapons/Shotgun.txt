@@ -100,7 +100,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 			// if one doesn't press the alt-fire key until after the animation
 			// ends, it doesn't respond on the first press. So it must be forced.
 			
-			A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+			A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWUSER2);
 			if (GetPlayerInput(INPUT_BUTTONS) & BT_ALTATTACK)
 			{	return ResolveState("AltFire");	}
 			return ResolveState(null);
