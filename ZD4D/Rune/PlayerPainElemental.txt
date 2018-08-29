@@ -79,24 +79,19 @@ Class PlayerPainElemental : DemonPlayerBase
 	States
 	{
 	Spawn:
-		INFR A -1;
-		Stop;
+		PAIN A -1;
+		Loop;
 	See:
-		INFR ABCD 4;
+		PAIN AABBCC 3;
 		Loop;
 	Pain:
-		INFR K 5 A_Pain();
+		PAIN G 5 A_Pain();
 		Goto Spawn;
 	Missile:
-	Melee:
-		INFR HIJ 4;
+		PAIN DEF 4;
 		Goto Spawn;
 	Death:
-		INFR LM 4;
-		INFR N 4 A_Scream();
-		INFR O 4 A_NoBlocking();
-		INFR P 4;
-		INFR Q -1;
+		TNT1 A -1;
 		Stop;
 	
 	Overlay.IdleSound:
