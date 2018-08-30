@@ -15,12 +15,14 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 {
 	Default 
 	{
+		+WEAPON.NOAUTOFIRE
 		+WEAPON.NOALERT
 		+INVENTORY.UNDROPPABLE
 		+INVENTORY.UNTOSSABLE
 		Inventory.PickupMessage "Shotgun! Accurate!";
 		Obituary "%o now knows %k's skills with the shotgun have not dimmed after 24 years.";
 		Weapon.AmmoType1 "D4Shells";
+		Weapon.AmmoType2 "D4Shells";
 		Weapon.AmmoGive1 8;
 		Weapon.AmmoUse1 1;
 		Tag "Shotgun";
@@ -39,7 +41,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 	Deselect:
 		"----" A 0 
 		{
-			A_TakeInventory("AltFireToken",32767);
+			A_SetInventory("AltFireToken",0);
 			ACS_NamedExecute("RemoveModText",0,0,0,0);
 			A_ZoomFactor(1.0,ZOOM_NOSCALETURNING);
 		}
@@ -75,10 +77,12 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 	//-------------------------------------------------------
 	// Ready sequence
 	//-------------------------------------------------------
+	ReadyDelay:
+		---- A 1;
 	Ready:
 		DW3A A 0
 		{
-			A_TakeInventory("AltFireToken",32767);
+			A_SetInventory("AltFireToken",0);
 			if(CountInv("GrenadeActive"))
 			{	
 				ACS_NamedExecute("ModSelectedText",0,4,0,0);	//print greande
@@ -96,13 +100,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 	ReadyLoop:
 		"####" "#" 1 
 		{
-			// For some stupid fucking reason, after firing a grenade or trishot,
-			// if one doesn't press the alt-fire key until after the animation
-			// ends, it doesn't respond on the first press. So it must be forced.
-			
 			A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWUSER2);
-			if (GetPlayerInput(INPUT_BUTTONS) & BT_ALTATTACK)
-			{	return ResolveState("AltFire");	}
 			return ResolveState(null);
 		}
 		Loop;
@@ -125,8 +123,8 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 	Fire:
 		DW3A A 0 
 		{
-			if(CountInv("TriShotActive"))		{	return ResolveState("FireTriShot");	}
-			else if(CountInv("GrenadeActive"))	{	return ResolveState("FireGrenade");	}
+			if (CountInv("TriShotActive"))		{	return ResolveState("FireTriShot");	}
+			else if (CountInv("GrenadeActive"))	{	return ResolveState("FireGrenade");	}
 			else								{	return ResolveState("PrimaryFire");	}
 		}
 		FireTriShot:	DW3C A 0 {	return ResolveState("PrimaryFire");	}
@@ -179,7 +177,26 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 			A_WeaponOffset(-1.5,-1,WOF_ADD); //-9 -6
 			A_WeaponReady(WRF_NOFIRE|WRF_NOBOB);
 		}
-		"####" "#" 0 A_Refire("PrimaryFire");
+		---- A 0
+		{
+			// For some stupid fucking reason, after firing,
+			// if one doesn't press the alt-fire key until after the animation
+			// ends, it doesn't respond on the first press. So it must be forced.
+			int cur = GetPlayerInput(MODINPUT_BUTTONS);
+			if (cur & BT_ATTACK && invoker.CheckAmmo(0, true, true))
+			{	return ResolveState("PrimaryFire");		}
+			else if (cur & BT_ALTATTACK)
+			{	return ResolveState("AltFire");	}
+			
+			return ResolveState(null);
+		}
+		/*
+		"####" "#" 0 
+		{
+			A_WeaponReady(WRF_NOSECONDARY);
+			A_Refire("PrimaryFire");
+		}
+		*/
 		"####" "#" 0 A_WeaponReady(WRF_NOBOB);
 		Goto Ready;
 
@@ -189,36 +206,59 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 	AltFire:
 		"####" "#" 0 
 		{
+			if (!DoSecondaryPriming())
+			{
+				if (CountInv("TriShotActive"))
+					return ResolveState("FireMod1");
+				else if (CountInv("GrenadeActive"))
+					return ResolveState("FireMod2");
+				return ResolveState("ReadyDelay");
+			}
 			//You can ironsight it juuuuust a little.
 			A_GiveInventory("AltFireToken",1);
 			A_ZoomFactor(1.05,ZOOM_NOSCALETURNING);
-			if(countinv("TriShotActive"))
+			if (CountInv("TriShotActive"))
 			{	A_PlaySound("Doom4/Weapon/Shotgun/TripleShotAim",5); }
-			else if(countinv("GrenadeActive"))
+			else if (CountInv("GrenadeActive"))
 			{	A_PlaySound("Doom4/Weapon/Shotgun/GrenadeAim",5); }
-			return ResolveState("AltHold");
+			return ResolveState("AltHold");			
 		}
+	DelayAltHold:
+		---- A 1;
 	AltHold:
 		"####" "#" 1 
 		{
-		
-			if (GetPlayerInput(INPUT_BUTTONS) & BT_ATTACK)
+			if ((GetPlayerInput(MODINPUT_BUTTONS) & BT_ATTACK) &&
+				!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_ATTACK))
 			{
-				if (CountInv("TriShotActive"))
-				{	return ResolveState("FireMod1");	}
-				if (CountInv("GrenadeActive"))
-				{	return ResolveState("FireMod2");	}
+				if (DoSecondaryPriming())
+				{
+					if (CountInv("TriShotActive"))
+					{	return ResolveState("FireMod1");	}
+					if (CountInv("GrenadeActive"))
+					{	return ResolveState("FireMod2");	}
+				}
+				A_ZoomFactor(1.0, ZOOM_NOSCALETURNING);
+				A_SetInventory("AltFireToken", 0);
+				return ResolveState("Fire");
 			}
 			return ResolveState(null);
 		}
-		"####" "#" 0 A_Refire("AltHold");
+		"####" "#" 0 
+		{	// Needs to be manual here because the refire could be assigned to
+			// the primary instead of secondary when coming in from regular fire.
+			StateLabel next = null;
+			if (GetPlayerInput(MODINPUT_BUTTONS) & BT_ALTATTACK)
+				next = "AltHold";
+			return ResolveState(next);
+		}
 		"####" "#" 0 
 		{
 			if (CountInv("TriShotActive") || CountInv("GrenadeActive"))
 			{
 				A_PlaySound("Doom4/Weapon/Shotgun/CancelAim",6);
 			}
-			A_TakeInventory("AltFireToken",32767);
+			A_SetInventory("AltFireToken",0);
 			A_ZoomFactor(1.0,ZOOM_NOSCALETURNING);
 		}
 		Goto Ready;
@@ -229,8 +269,8 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 		FireMod1:
 			"####" "#" 1
 			{
-				A_TakeInventory("AltFireToken",32767);
-				if (GetCvar("sv_infiniteammo") > 0 || CountInv("D4Shells") >= 3)		//do you have the ammo required?
+				// Fake it because the parameter "ammocount" only works for DEH ammo.
+				if (invoker.CheckAmmo(0, false, true, 3))		//do you have the ammo required?
 				{
 					if (!CountInv("SGTripleShotTimer"))	//is the weapon no longer cooling off?
 					{
@@ -250,21 +290,20 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 					return ResolveState(null);
 				}
 			}
-			Goto Ready; 
+			Goto AltHold; 
 			
 		TripleShot:
 			DW3E A 1 Bright
 			{
-				A_TakeInventory("AltFireToken",32767);
+				A_SetInventory("AltFireToken",0);
 				// 51th counter in Trishot is invisible, then countdown brings it down to 50 which looks full
 				A_GiveInventory("SGTripleShotTimer",51);
-				A_TakeInventory("AltFireToken",32767,0);
 				
 				A_FireProjectile("SGSmokeSpawner",0,0,6,2);
-				A_FireBullets(6,6,7,10, "D4BulletPuff", FBF_USEAMMO|FBF_PUFFTRACER, 0, "BulletSmallTracer", 0, 5);
+				A_FireBullets(6,6,7,10, "D4BulletPuff", FBF_PUFFTRACER, 0, "BulletSmallTracer", 0, 5);
+				A_TakeInventory(invoker.AmmoType1, invoker.AmmoUse1, TIF_NOTAKEINFINITE);
 				A_AlertMonsters();
 				A_GunFlash("Null");
-				A_TakeInventory("D4Shells",1,TIF_NOTAKEINFINITE);
 				A_TakeInventory("TrishotClip",1);
 				A_ZoomFactor(0.995,ZOOM_NOSCALETURNING);
 				A_PlaySound("Doom4/Weapon/Shotgun/TripleFireDeeper",CHAN_WEAPON,1);
@@ -278,10 +317,10 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 			DW3E C 1 Bright 
 			{
 				A_FireProjectile("SGSmokeSpawner",0,0,6,2);
-				A_FireBullets(6,6,7,10, "D4BulletPuff", FBF_USEAMMO|FBF_PUFFTRACER, 0, "BulletSmallTracer", 0, 5);
+				A_FireBullets(6,6,7,10, "D4BulletPuff", FBF_PUFFTRACER, 0, "BulletSmallTracer", 0, 5);
+				A_TakeInventory(invoker.AmmoType1, invoker.AmmoUse1, TIF_NOTAKEINFINITE);
 				A_AlertMonsters();
 				A_GunFlash("Null");
-				A_TakeInventory("D4Shells",1,TIF_NOTAKEINFINITE);
 				A_TakeInventory("TrishotClip",1);
 				A_ZoomFactor(0.993,ZOOM_NOSCALETURNING);
 				A_Overlay(4,"Overlay.PitchSetterQuick");
@@ -295,10 +334,10 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 			{
 				
 				A_FireProjectile("SGSmokeSpawner",0,0,6,2);
-				A_FireBullets(6,6,7,10, "D4BulletPuff", FBF_USEAMMO|FBF_PUFFTRACER, 0, "BulletSmallTracer", 0, 5);
+				A_FireBullets(6,6,7,10, "D4BulletPuff", FBF_PUFFTRACER, 0, "BulletSmallTracer", 0, 5);
+				A_TakeInventory(invoker.AmmoType1, invoker.AmmoUse1, TIF_NOTAKEINFINITE);
 				A_AlertMonsters();
 				A_GunFlash("Null");
-				A_TakeInventory("D4Shells",1,TIF_NOTAKEINFINITE);
 				A_TakeInventory("TrishotClip",1);
 				A_ZoomFactor(0.99,ZOOM_NOSCALETURNING);
 				A_Overlay(5,"Overlay.PitchSetterQuick");
@@ -342,9 +381,9 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 		//-------------------------------------------------------
 		// Grenade launcher
 		FireMod2:
-			DW3F A 0
+			DW3F A 1
 			{
-				if (GetCvar("sv_infiniteammo") > 0 || CountInv("D4Shells") >= 2)		//do you have the ammo required?
+				if (invoker.CheckAmmo(0, false, true, 2))		//do you have the ammo required?
 				{
 					if (!CountInv("SGGrenadeTimer"))	//is the weapon no longer cooling off?
 					{
@@ -363,8 +402,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 					return ResolveState(null);
 				}
 			}
-			DW3F A 1;
-			Goto Ready;
+			Goto AltHold;
 	
 		GrenadeLauncher:
 			DW3F B 1 Bright Offset(6,36)
@@ -373,7 +411,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 				A_FireProjectile("D4ShotgunGrenade",0,0,7);
 				A_AlertMonsters();
 				A_GunFlash("Null");
-				A_TakeInventory("D4Shells",2,TIF_NOTAKEINFINITE);
+				A_TakeInventory(invoker.AmmoType1,2,TIF_NOTAKEINFINITE);
 				A_Overlay(10,"Overlay.PitchSetter");
 				A_ZoomFactor(0.99,ZOOM_NOSCALETURNING);
 				A_PlaySound("Doom4/Weapon/Shotgun/GrenadeLaunch",CHAN_WEAPON,1);

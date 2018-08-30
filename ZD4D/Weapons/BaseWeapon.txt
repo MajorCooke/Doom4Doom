@@ -17,6 +17,21 @@ Class Doom4Weapon : Weapon
 	Inventory ActiveMod;
 	Array<D4DNewBeamBase> Beams;
 	
+	// Gets the player preference for performing secondary priming or not.
+	// Defaults to performing the secondary priming if the owner's not a player
+	// or the cvar isn't found.
+	action bool DoSecondaryPriming()
+	{
+		let plr = invoker.owner.player;
+		
+		// Voodoo doll check.
+		if (!plr || !plr.mo || plr.mo != invoker.owner)
+			return true;
+			
+		CVar check = CVar.GetCVar("D4D_SecondaryPriming", plr);
+		return (!check || check.GetBool());
+	}
+	
 	// Default offsets are 10.0, 4.1, -2.7
 	action void A_StartBeam(
 		Class<D4DNewBeamBase> BeamName, Vector3 Off = (0,0,0), int Count = 1,
@@ -78,6 +93,21 @@ Class Doom4Weapon : Weapon
 			}
 			invoker.Beams.Clear();
 		}
+	}
+	
+	override bool CheckAmmo(int firemode, bool autoswitch, bool requireAmmo, int ammocount)
+	{
+		if (ammocount == 0)
+			return true;
+		else if (ammocount < 0)
+		{
+			return Super.CheckAmmo(firemode, autoswitch, requireammo);
+		}
+		int temp = AmmoUse1;
+		AmmoUse1 = ammocount;
+		bool check = Super.CheckAmmo(firemode, autoswitch, requireammo);
+		AmmoUse1 = temp;
+		return check;
 	}
 	
 	action int DoubleSpeed()

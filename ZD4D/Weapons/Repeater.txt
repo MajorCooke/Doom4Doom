@@ -33,7 +33,6 @@ Class D4Repeater : Doom4Weapon
 		Weapon.AmmoType2 "D4Bullets";
 		Weapon.AmmoGive1 40;
 		Weapon.AmmoUse1 1;
-		Weapon.AmmoUse2 1;
 		Weapon.SelectionOrder 41 ;//slightly below HAR which is 40
 		
 		Obituary "%o was repeatedly perforated by %k.";
@@ -173,8 +172,13 @@ Class D4Repeater : Doom4Weapon
 	AltFire:
 		REPG A 0
 		{
-			if (!GetCvar("sv_infiniteammo") && (CountInv("D4Bullets") < (CountInv("RepeaterUpgradeAltAmmo") ? 5 : 8)))
+			if (!invoker.CheckAmmo(0, false, true, (CountInv("RepeaterUpgradeAltAmmo") ? 5 : 8)))
 			{	return ResolveState("NotEnoughAmmo");	}
+			
+			if (!DoSecondaryPriming())
+			{
+				return ResolveState("AltFireShoot");
+			}
 			
 			A_PlaySound("Doom4/Weapon/Shotgun/GrenadeAim",6);
 			A_GiveInventory("RepeaterAimHolding");
@@ -184,7 +188,10 @@ Class D4Repeater : Doom4Weapon
 	AltFireHolding:
 		REPG A 1 
 		{
+			if (!DoSecondaryPriming())
+				return ResolveState("Ready");
 			A_WeaponReady(WRF_NOBOB|WRF_NOSWITCH|WRF_NOSECONDARY);
+			return ResolveState(null);
 		}
 		REPG A 0
 		{
@@ -210,9 +217,8 @@ Class D4Repeater : Doom4Weapon
 		{
 			A_PlaySound("Doom4/Weapon/Repeater/FireSingle",CHAN_WEAPON);
 			A_PlaySound("Doom4/Weapon/HellShot/AltFire",5);
-			
 			//Ammo upgrade?
-			A_TakeInventory("D4Bullets",CountInv("RepeaterUpgradeAltAmmo") ? 5 : 8,TIF_NOTAKEINFINITE);
+			A_TakeInventory(invoker.AmmoType1, (CountInv("RepeaterUpgradeAltAmmo") ? 5 : 8), TIF_NOTAKEINFINITE);
 			
 			A_GunFlash("Null");
 			//Alt damage upgrade?
