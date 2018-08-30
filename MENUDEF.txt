@@ -63,6 +63,7 @@ OptionMenu "D4DOptions"
 	SubMenu "Customize Keybinds",			"D4DKeybinds"
 	Submenu "Glory Kill Options",			"D4DGloryKillOptions"
 	Submenu "Gore Options",					"D4DGoreOptions"
+	Submenu "Weapon Options",				"D4DWeaponOptions"
 	StaticText ""
 	StaticText "Gameplay Options", 1
 	Option "Haste Spawn Frequency",			"D4D_HasteSpawn",		"HasteSpawn"
@@ -84,14 +85,24 @@ OptionMenu "D4DOptions"
 	Option "Silent idle demon-player",			"D4D_SilentMorphs",		"YesNo"
 	Option "Show HUD Demon Name",			"D4D_DemonNameDisplay",		"YesNo"
 	StaticText ""
-	StaticText "Multiplayer Weapons", 1
-	Option "Spawn MP weapons",				"MPWeapons",			"OnOff"
-	Option "Spawn style",					"MPSpawnProgressive",	"MPProg"
-	StaticText ""
 	StaticText "Footsteps", 1
 	Slider "Footsteps volume",				"fs_volume_mul",	0.0, 3.0, 0.1, 2
 	Slider "Footsteps frequency",			"fs_delay_mul",		0.8, 1.3, 0.025, 3
 }
+
+OptionMenu "D4DWeaponOptions"
+{
+	Title "Weapon Options"
+	StaticText "Weapon Modifications", GOLD
+	StaticText "Some secondary fire modes can be changed to skip priming.", YELLOW
+	StaticText "Triple fire, grenade, micro missiles, etc.", YELLOW
+	Option "Secondary Priming Mode",		"D4D_SecondaryPriming", "OnOff"
+	StaticText ""
+	StaticText "Multiplayer Weapons", GOLD
+	Option "Spawn MP weapons",				"MPWeapons",			"OnOff"
+	Option "Spawn style",					"MPSpawnProgressive",	"MPProg"
+}
+
 OptionMenu "D4DUpgradeMode"
 {
 	Title "Choose Upgrade Mode"
