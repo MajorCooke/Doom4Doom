@@ -223,7 +223,6 @@ Class RocketLauncherSpawner : CustomInventory replaces RocketLauncher
 		+NOTELESTOMP
 		+NOTONAUTOMAP
 		RenderStyle "None";
-		Inventory.RespawnTics 1032;
 	}
 	States
 	{
@@ -232,52 +231,21 @@ Class RocketLauncherSpawner : CustomInventory replaces RocketLauncher
 		{
 			if (GetCvar("MPWeapons"))
 			{
-				//if MP weps == "progressive"
-				if (GetCvar("MPSpawnProgressive"))
+				Class<Inventory> wep;
+				int rng = random(0,1);
+				Switch(rng)
 				{
-					if(countinv("D4RocketLauncher",Player1) && countinv("D4GaussCannon",Player1))	//if player has both, then it's random
-					{
-						if(random(1,2)==1)
-						{	A_SpawnItemEx("D4GaussCannon",0,0,0,0,0,0,random(0,359),PFlags,0,tid); }
-						else
-						{	A_SpawnItemEx("D4RocketLauncher",0,0,0,0,0,0,random(0,359),PFlags,0,tid);	}
-					}
-					else //if player didnt have both RL and GC, then decides which one to spawn
-					{
-						if(countinv("D4RocketLauncher",Player1) && countinv("D4PlasmaRifle",Player1) || countinv("D4RocketLauncher",Player1) && countinv("D4LightningGun",Player1))
-						{	
-							A_SpawnItemEx("D4GaussCannon",0,0,0,0,0,0,random(0,359),PFlags,0,tid);	
-						}
-						else
-						{	A_SpawnItemEx("D4RocketLauncher",0,0,0,0,0,0,random(0,359),PFlags,0,tid);	}
-					}
+					Default:	wep = "D4RocketLauncher";	break;
+					Case 1: 	wep = "D4GrenadeLauncher";	break;
 				}
-				
-				//if MP weps == "random"
-				else
-				{	
-					A_SpawnItemEx("D4RocketLauncher",0,0,0,0,0,0,random(0,359),PFlags,0,tid);	//always
-					A_SpawnItemEx("D4GaussCannon",0,0,0,0,0,0,random(0,359),PFlags,192,tid);	//sometimes
-					A_SpawnItemEx("D4MPWeapon",0,0,0,0,0,0,random(0,359),SXF_NOCHECKPOSITION,NoSpawnChanceRandom);	//sometimes
-				}
+				A_SpawnItemEx(wep,0,0,0,0,0,0,random(0,359),PFlags,0,tid);
+				A_SpawnItemEx("D4MPWeapon",0,0,0,0,0,0,random(0,359),SXF_NOCHECKPOSITION,NoSpawnChanceRandom);	//sometimes
 			}
 			//if MP weps OFF
 			else
 			{
-				if(countinv("D4RocketLauncher",Player1) && countinv("D4GaussCannon",Player1))	//if player has both, then it's random
-				{
-					if(random(1,2)==1)
-					{	A_SpawnItemEx("D4GaussCannon",0,0,0,0,0,0,random(0,359),PFlags,0,tid); }
-					else
-					{	A_SpawnItemEx("D4RocketLauncher",0,0,0,0,0,0,random(0,359),PFlags,0,tid);	}
-				}
-				else
-				{
-					if(countinv("D4RocketLauncher",Player1) && countinv("D4PlasmaRifle",Player1))
-					{	A_SpawnItemEx("D4GaussCannon",0,0,0,0,0,0,random(0,359),PFlags,0,tid);	}
-					else
-					{	A_SpawnItemEx("D4RocketLauncher",0,0,0,0,0,0,random(0,359),PFlags,0,tid);	}
-				}
+				
+				A_SpawnItemEx("D4RocketLauncher",0,0,0,0,0,0,random(0,359),PFlags,0,tid);
 			}
 		}
 		Stop;
@@ -311,20 +279,25 @@ Class PlasmaRifleSpawner : CustomInventory replaces PlasmaRifle
 				if (GetCvar("MPSpawnProgressive"))	
 				{
 					if (CountInv("D4PlasmaRifle",Player1) && random(1,3)==1)
-					{	A_SpawnItemEx("D4LightningGun",0,0,0,0,0,0,random(0,359),SXF_NOCHECKPOSITION);	}
+					{	A_SpawnItemEx("D4LightningGun",0,0,0,0,0,0,random(0,359),PFlags,0,tid);	}
 					else
 					{	A_SpawnItemEx("D4PlasmaRifle",0,0,0,0,0,0,random(0,359),PFlags,0,tid);	}
+					A_SpawnItemEx("D4GaussCannon",0,0,0,0,0,0,random(0,359),SXF_NOCHECKPOSITION,NoSpawnChanceRandom);
 				}
 				//if MP weps == "random"
 				else	
 				{	
 					A_SpawnItemEx("D4MPWeapon",0,0,0,0,0,0,random(0,359),SXF_NOCHECKPOSITION,NoSpawnChanceRandom);	
 					A_SpawnItemEx("D4PlasmaRifle",0,0,0,0,0,0,random(0,359),PFlags,0,tid);
+					A_SpawnItemEx("D4GaussCannon",0,0,0,0,0,0,random(0,359),SXF_NOCHECKPOSITION,NoSpawnChanceRandom);
 				}
 			}
 			//if MP weps OFF
 			else
-			{	A_SpawnItemEx("D4PlasmaRifle",0,0,0,0,0,0,random(0,359),PFlags,0,tid);	}
+			{	
+				A_SpawnItemEx("D4PlasmaRifle",0,0,0,0,0,0,random(0,359),PFlags,0,tid);
+				A_SpawnItemEx("D4GaussCannon",0,0,0,0,0,0,random(0,359),SXF_NOCHECKPOSITION,NoSpawnChanceRandom,tid);
+			}
 		}
 		Stop;
 	}

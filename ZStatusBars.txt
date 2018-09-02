@@ -755,6 +755,11 @@ Class Doom4StatusBar : BaseStatusBar
 				
 				if (!noReticle)	DrawImage("rCha_gun", (464, 336), imageAlignmentLeft);
 			}
+			else if (CheckWeaponSelected("D4GrenadeLauncher"))
+			{
+				if (!noReticle)	DrawImage("rGL", (465, 337), imageAlignmentLeft);
+				DrawImage("grenader", (983,676), imageAlignmentLeft);
+			}
 			else if (CheckWeaponSelected("D4RocketLauncher"))
 			{
 				// Mods Display

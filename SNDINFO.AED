@@ -257,7 +257,7 @@ Doom4/Weapon/SuperShotgun/FullReload2		"Sounds/Weapons/SSG/FullReload2.ogg"
 
 
 //==============================================================================================
-//		RocketLauncher
+//		Rocket Launcher
 //==============================================================================================
 Doom4/Weapon/RocketLauncher/Fire		"sounds/weapons/RL/RLFire.ogg"
 Doom4/Weapon/RocketLauncher/SwitchToDetonate		"sounds/weapons/RL/RLSwitchToDetonate.ogg"
@@ -286,6 +286,7 @@ Doom4/Weapon/RocketLauncher/ExplodeAdd3		"sounds/weapons/RL/ExplodeAdd3.ogg"
 Doom4/Weapon/RocketLauncher/ExplodeAdd4		"sounds/weapons/RL/ExplodeAdd4.ogg"
 $limit Doom4/Weapon/RocketLauncher/ExplodeAdd 0
 
+$alias Doom4/Weapon/GrenadeLauncher/Explode	Doom4/Weapon/RocketLauncher/Explode
 $alias Doom4/Weapon/RocketLauncher/Q4Explo Doom4/Weapon/RocketLauncher/Explode
 $alias Doom4/Weapon/RocketLauncher/HRExplo Doom4/Weapon/RocketLauncher/Explode
 
@@ -299,10 +300,51 @@ Doom4/Weapon/RocketLauncher/Q4Explo2		"sounds/weapons/RcktExp2.ogg"
 Doom4/Weapon/RocketLauncher/Q4Explo3		"sounds/weapons/RcktExp3.ogg"
 */
 
+//==============================================================================
+//		Grenade Launcher
+//==============================================================================
+Doom4/Weapon/GrenadeLauncher/Bounce1	"Sounds/Weapons/GL/Bounce1.ogg"
+Doom4/Weapon/GrenadeLauncher/Bounce2	"Sounds/Weapons/GL/Bounce2.ogg"
+Doom4/Weapon/GrenadeLauncher/Bounce3	"Sounds/Weapons/GL/Bounce3.ogg"
+Doom4/Weapon/GrenadeLauncher/Bounce4	"Sounds/Weapons/GL/Bounce4.ogg"
+Doom4/Weapon/GrenadeLauncher/Bounce5	"Sounds/Weapons/GL/Bounce5.ogg"
 
-//==============================================================================================
+Doom4/Weapon/GrenadeLauncher/Fire1		"Sounds/Weapons/GL/Fire1.ogg"
+Doom4/Weapon/GrenadeLauncher/Fire2		"Sounds/Weapons/GL/Fire2.ogg"
+Doom4/Weapon/GrenadeLauncher/Fire3		"Sounds/Weapons/GL/Fire3.ogg"
+
+Doom4/Weapon/GrenadeLauncher/Smoke1		"Sounds/Weapons/GL/Smoke1.ogg"
+Doom4/Weapon/GrenadeLauncher/Smoke2		"Sounds/Weapons/GL/Smoke2.ogg"
+
+$random Doom4/Weapon/GrenadeLauncher/Bounce
+{
+	Doom4/Weapon/GrenadeLauncher/Bounce1
+	Doom4/Weapon/GrenadeLauncher/Bounce2
+	Doom4/Weapon/GrenadeLauncher/Bounce3
+	Doom4/Weapon/GrenadeLauncher/Bounce4
+	Doom4/Weapon/GrenadeLauncher/Bounce5
+}
+
+$random Doom4/Weapon/GrenadeLauncher/Fire
+{
+	Doom4/Weapon/GrenadeLauncher/Fire1
+	Doom4/Weapon/GrenadeLauncher/Fire2
+	Doom4/Weapon/GrenadeLauncher/Fire3
+}
+
+$random Doom4/Weapon/GrenadeLauncher/SmokeExplo
+{
+	Doom4/Weapon/GrenadeLauncher/Smoke1
+	Doom4/Weapon/GrenadeLauncher/Smoke2
+}
+
+$limit Doom4/Weapon/GrenadeLauncher/Bounce 0
+$limit Doom4/Weapon/GrenadeLauncher/Fire 0
+$limit Doom4/Weapon/GrenadeLauncher/SmokeExplo 0
+
+//==============================================================================
 //		Shotgun
-//==============================================================================================
+//==============================================================================
 Doom4/Weapon/Shotgun/Fire					"sounds/weapons/SG/SGFire.ogg"
 Doom4/Weapon/Shotgun/GrenadeLaunch			"sounds/weapons/SG/SGGrenLaunch.ogg"
 Doom4/Weapon/Shotgun/GrenadeAim				"sounds/weapons/SG/SGGrenLaunchAim.ogg"

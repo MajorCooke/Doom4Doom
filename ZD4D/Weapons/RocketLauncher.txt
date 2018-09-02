@@ -23,8 +23,6 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	{
 		+WEAPON.NOALERT
 		+WEAPON.ALT_AMMO_OPTIONAL
-		+INVENTORY.UNDROPPABLE
-		+INVENTORY.UNTOSSABLE
 		Weapon.SlotNumber 1;
 		Inventory.PickupMessage "Rocket Launcher! Make a mess!";
 		Obituary "%o rode %k's rocket.";
@@ -32,9 +30,8 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 		Weapon.AmmoType1 "D4Rockets";
 		Weapon.AmmoGive1 4;
 		Weapon.AmmoUse1 1;
-		scale 0.6;
 		Weapon.SelectionOrder 80;
-		+DONTGIB
+		Scale 0.6;
 	}
 	
 	override void OwnerDied()

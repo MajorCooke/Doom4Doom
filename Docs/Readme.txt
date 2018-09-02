@@ -165,7 +165,9 @@ Nev3r					: Shoulder cannon sprite.
 
 * Other credits *
 
-DoomKrakken				: Sound effects.
+DoomKrakken				: Sound effects for single player weapons.
+
+Death Foretold			: Sound effects for multiplayer weapons. Extra reticles.
 
 OpenGameArt				: Lots of effects from here.
 						  https://opengameart.org/content/2d-effects
@@ -180,7 +182,7 @@ ScubaSteve              : First person Mancubus weapons
 
 Mike12                  : First person Revenant cannons
 
-id Software             : Quake 4 / Doom 2016 sounds and graphics
+id Software             : Quake 4 / Doom 2016 sounds, graphics, and models
 
 Flying Wild Hog         : Hard Reset sounds
 
@@ -198,6 +200,9 @@ Tormentor667,
 SolarSnowfall,
 GhastlyDragon			: Spark sprite for lightning gun puffs. Taken from 
 						  S.U.P.E.R. Natural.
+						  
+Zanieon					: Teaching me useful stuff about models and nifty 'hires'
+							trick for hi-def weapon sprites.
 
 
 

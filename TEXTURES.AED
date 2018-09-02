@@ -2353,6 +2353,10 @@ Graphic rGau_er0, 	320,128 { 	XScale 1.35 	YScale 1.333 	Patch "Graphics/HUD/Ret
 Graphic rGau_er1, 	320,128 { 	XScale 1.35 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleGaussSniper1.png" 	, 0,0 {} }
 Graphic rGau_er4,  1024,512 { 								 	Patch "Graphics/HUD/Reticle/ReticleGaussSniper4.png" 	, 0,0 {} }
 Graphic rGau_ege, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleGaussSiege.png" 		, 0,0 {} }
+Graphic rGL, 		128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleGL.png" 				, 0,0 {} }
+Graphic rGL0, 		128, 48 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleGL0.png" 			, 0,0 {} }
+Graphic rGL1, 		128, 48 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleGL1.png" 			, 0,0 {} }
+Graphic rGL2, 		128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleGL2.png" 			, 0,0 {} }
 Graphic rHARIdle, 	128,128 { 	XScale 1.333 	YScale 1.333 	Patch "Graphics/HUD/Reticle/ReticleHARIdle.png" 		, 0,0 {} }
 Graphic rHAR_ope, 	768,512 { 									Patch "Graphics/HUD/Reticle/ReticleHARScope.png" 		, 0,0 {} }
 Graphic rHAR_ip6, 	128,128 { 								 	Patch "Graphics/HUD/Reticle/ReticleHARClip6.png" 		, 0,0 {} }
@@ -2966,5 +2970,16 @@ Sprite "CG3FD0", 146, 417
 	Patch "CGTFD0", 0, 0
 	{
 		Rotate -90
+	}
+}
+
+//------------------------------------------------------------------------------
+Graphic "GrenadeLauncherDiffuse", 960, 960
+{
+	Offset 0, 0
+	Patch "models/grenadelauncher_diffuse_small.jpg", 0, 0
+	{
+		//Rotate 90
+		FlipY
 	}
 }

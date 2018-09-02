@@ -504,3 +504,17 @@ Model "SNLightningBeam"
 	FrameIndex LNBW H 0 0
 }
 */
+
+Model "D4GrenadeLauncher"
+{
+	Model 0 "Models/GrenadeLauncher.md3"
+	Scale 1.0 1.0 1.2
+
+	DONTCULLBACKFACES
+	ROTATING
+	
+	Skin 0 "GrenadeLauncherDiffuse"
+	FrameIndex M202 Z 0 0
+	
+	Rotation-Speed 50
+}
