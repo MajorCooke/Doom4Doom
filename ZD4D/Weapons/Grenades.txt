@@ -6,22 +6,19 @@
 
 //------------------------------------------------------
 // tokens to indicate that the grenade exists in the player inventory
-Class FragGrenadePickup : Inventory
-{ Default { +INVENTORY.UNDROPPABLE }}
-Class SyphonGrenadePickup : Inventory
-{ Default { +INVENTORY.UNDROPPABLE }}
-Class HoloGrenadePickup : Inventory
-{ Default { +INVENTORY.UNDROPPABLE }}
+
+Class D4DGrenadeItem : D4DKeeperItem {}
+
+Class FragGrenadePickup : D4DGrenadeItem {}
+Class SyphonGrenadePickup : D4DGrenadeItem {}
+Class HoloGrenadePickup : D4DGrenadeItem {}
 
 
 //------------------------------------------------------
 // tokens to indicate which grenade is selected
-Class FragGrenadeSelected : Inventory
-{ Default { +INVENTORY.UNDROPPABLE }}
-Class SyphonGrenadeSelected : Inventory
-{ Default { +INVENTORY.UNDROPPABLE }}
-Class MarineHoloSelected : Inventory
-{ Default { +INVENTORY.UNDROPPABLE }}
+Class FragGrenadeSelected : D4DGrenadeItem {}
+Class SyphonGrenadeSelected : D4DGrenadeItem {}
+Class MarineHoloSelected : D4DGrenadeItem {}
 
 
 //------------------------------------------------------
@@ -114,7 +111,7 @@ Class GrenadeCooldown : Inventory
 	}
 }
 
-Class GrenadeCharge : Inventory
+Class GrenadeCharge : D4DGrenadeItem
 {
 	Default
 	{

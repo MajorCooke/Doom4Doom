@@ -113,10 +113,10 @@ Class Doom4Weapon : Weapon
 	}
 	
 	action int DoubleSpeed()
-	{	return (invoker.owner.FindInventory("PowerDoubleFiringSpeed") != null) ? 2 : 1;	}
+	{	return (invoker.owner.FindInventory("PowerDoubleFiringSpeed", true) != null) ? 2 : 1;	}
 	
 	action bool IsDoubleSpeed()
-	{	return (invoker.owner.FindInventory("PowerDoubleFiringSpeed") != null);	}
+	{	return (invoker.owner.FindInventory("PowerDoubleFiringSpeed", true) != null);	}
 	
 	action Actor FireProjectile(Class<Actor> proj, Vector3 off, bool useammo = true)
 	{

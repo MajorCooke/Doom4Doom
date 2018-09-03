@@ -4,44 +4,9 @@ class D4bum : D4Zombieman
 {
 }
 
-/*
-	Array<Actor> Things;
-	override void WorldLoaded(WorldEvent e)
-	{
-		Things.Clear();
-		
-		if (!multiplayer && !deathmatch)
-		{
-			for (int j = 0; j < 100; j++)
-			{
-				Vector3 checkpos = G_PickDeathmatchStart();
-				
-				// Means there is no deathmatch starts.
-				if (checkpos ~== (0,0,0))
-					return;
-				
-				if (Things.Size() > 0)
-				{
-					bool cont = false;
-					for (int i = 0; i < Things.Size(); i++)
-					{
-						if (Things[i].pos == checkpos)
-						{
-							cont = true;
-							break;
-						}
-					}
-					if (cont) continue;
-				}
-				Actor n = Actor.Spawn("Unknown", checkpos);
-				if (n) Things.Push(n);
-			}
-		}
-	}
-	*/
-
 extend class D4DHandler
 {	
+	bool FirstTime;
 	const TimeTrigger = 35 * 10;
 	uint Timer;
 	Array<Actor> Monsters;
@@ -49,6 +14,11 @@ extend class D4DHandler
 	Array<D4DBeamBase> Beams;
 	D4BlackList BlackList;
 	D4ManualLootList LootList;
+	private int UpgradeMode;
+	private int CurrentUpgradeMode;
+	
+	//--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
 	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
@@ -78,12 +48,33 @@ extend class D4DHandler
 		}
 	}
 	
+	override void WorldLoaded(WorldEvent e)
+	{
+		// If starting a new game, set the upgrade mode appropriately. 
+		if (!FirstTime && !e.IsSaveGame && !e.IsReopen)
+		{
+			CVar Upgrade[2];
+			Upgrade[0] = CVar.FindCVar("D4D_UpgradeMode");
+			Upgrade[1] = CVar.FindCVar("D4D_CurrentUpgradeMode");
+			
+			if (Upgrade[0] && Upgrade[1])
+			{
+				UpgradeMode = Upgrade[0].GetInt();
+				Upgrade[1].SetInt(UpgradeMode);
+				CurrentUpgradeMode = UpgradeMode;
+			}
+		}
+		FirstTime = true;
+	}
+	
 	override void WorldUnloaded(WorldEvent e)
 	{
 		Tracker.Clear();
 		Monsters.Clear();
 		Beams.Clear();
 	}
+	
+	clearscope int GetUpgradeMode()	{	return CurrentUpgradeMode;	}
 	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
@@ -153,35 +144,6 @@ extend class D4DHandler
 			BlackList.Add("D4OldLostSoulNoCash", true);
 		}
 		Super.OnRegister();
-	}
-	
-	void DestroyBeams(Actor caller)
-	{
-		if (caller && Beams.Size() > 0)
-		{
-			for (int i = 0; i < Beams.Size(); i++)
-			{
-				Actor mo = Beams[i];
-				if (mo && (mo.Master == caller) && !mo.bNODAMAGE)
-				{
-					mo.bNODAMAGE = true;
-					mo.SetStateLabel('Death');
-				}
-			}
-		}
-	}
-	
-	void AddTracker(Actor mo)
-	{
-		if (!mo)	return;
-		if (Tracker.Size() < 1 || Tracker.Find(mo) >= Tracker.Size())
-			Tracker.Push(mo);
-	}
-	
-	void RemoveTracker(Actor mo)
-	{
-		if (!mo || Tracker.Size() < 1)	return;
-		Tracker.Delete(Tracker.Find(mo));
 	}
 	
 	//--------------------------------------------------------------------------
@@ -286,7 +248,11 @@ extend class D4DHandler
 		Name mod = 		mo.DamageTypeReceived;
 		
 		if (MPWeapons && ((inf && inf.bEXTREMEDEATH) ||
-						(mod == 'Extreme') ||
+						(MOD == 'Extreme' ||
+						MOD == 'BerserkKill' || 
+						MOD == 'ChainsawKill' || 
+						MOD == 'MeleePunch' ||
+						MOD == 'GloryKill') ||
 						(mo.InStateSequence(mo.CurState, mo.FindState("XDeathNoDrops"))) ||
 						(mo.InStateSequence(mo.CurState, mo.FindState("XDeath"))) ||
 						(mo.health < mo.GetGibHealth())))
@@ -345,7 +311,7 @@ extend class D4DHandler
 		}
 		else	// Neither D4D monster nor a manually added one.
 		{
-			if (D4D_CurrentUpgradeMode)
+			if (CurrentUpgradeMode)
 			{
 				// For every 1000 health, guarantee a crate credit.
 				// Otherwise, dvide the HP by 20 and use that as a base chance.
@@ -368,7 +334,7 @@ extend class D4DHandler
 		}
 		
 		// Pickup/Crate Mode?
-		if (D4D_CurrentUpgradeMode)
+		if (CurrentUpgradeMode)
 		{
 			// Cycle through the drop chances of each, excluding the always
 			// dropping. If the chance is within valid ranges, just add to
@@ -596,7 +562,60 @@ extend class D4DHandler
 			Pinatas.Multiply(TotalMul);
 		Pinatas.DropItemsPos(pos);
 	}
+	
+	//--------------------------------------------------------------------------
+	// Custom functions
+	//--------------------------------------------------------------------------
+	static clearscope bool CheckParent(Class<Object> child, Class<Object> parent)
+	{
+		if (!child)	return false;
+		while (true)
+		{
+			let check = child.GetParentClass();
+			if (child == null || check == null)
+				return (parent == null) ? true : false;
+			if (check == parent)
+				return true;
+			child = child.GetParentClass();
+		}
+		return false;
+	}
+	
+	void DestroyBeams(Actor caller)
+	{
+		if (caller && Beams.Size() > 0)
+		{
+			for (int i = 0; i < Beams.Size(); i++)
+			{
+				Actor mo = Beams[i];
+				if (mo && (mo.Master == caller) && !mo.bNODAMAGE)
+				{
+					mo.bNODAMAGE = true;
+					mo.SetStateLabel('Death');
+				}
+			}
+		}
+	}
+	
+	void AddTracker(Actor mo)
+	{
+		if (!mo)	return;
+		if (Tracker.Size() < 1 || Tracker.Find(mo) >= Tracker.Size())
+			Tracker.Push(mo);
+	}
+	
+	void RemoveTracker(Actor mo)
+	{
+		if (!mo || Tracker.Size() < 1)	return;
+		Tracker.Delete(Tracker.Find(mo));
+	}
 }
+
+//------------------------------------------------------------------------------
+//
+//
+//
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 //

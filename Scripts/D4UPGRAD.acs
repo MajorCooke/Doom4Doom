@@ -3,7 +3,6 @@
 
 global bool 1:died;
 global bool 2:notanewgame;
-global int 3:upgradeMode;
 
 //	Upgrade System
 //	Developed by Major Cooke
@@ -17,7 +16,7 @@ Script "RestoreMusicVolume" UNLOADING
 {
 	SetMusicVolume(1.0);
 }
-
+/*
 Script "GameModeSwitch" ENTER
 {
 	
@@ -30,7 +29,7 @@ Script "GameModeSwitch" ENTER
 	
 	SetCvar("D4D_CurrentUpgradeMode",upgradeMode);
 }
-
+*/
 str weapon;
 
 Script "D4RestoreWeapon" ENTER
@@ -547,7 +546,7 @@ Script "CompletionMessage" (int amount)
 
 // ItemWatchMin and Max are used for the soviet chaingun. It basically requires
 // those items to be purchased first before it's made available.
-
+/*
 #define ItemTypeCount 77
 #define ItemWatchMin 1
 #define ItemWatchMax 25
@@ -739,3 +738,4 @@ Script "RefreshCredits" (void)
 	else
 		SetCvar("ChaingunSpec", false);
 }
+*/

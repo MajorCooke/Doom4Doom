@@ -186,6 +186,7 @@ Class LightningPuffFX : D4DFX
 		+FORCEXYBILLBOARD
 		+BRIGHT
 		+NOINTERACTION
+		+NOTIMEFREEZE
 		RenderStyle "Add";
 		Alpha 0.99;
 	}
@@ -219,6 +220,7 @@ Class LightningPuffV2 : Actor
 		+SKYEXPLODE
 		+EXTREMEDEATH
 		+DONTSPLASH
+		+NOTIMEFREEZE
 		RenderStyle "None";
 	}
 	
@@ -238,7 +240,7 @@ Class LightningPuffV2 : Actor
 	}
 }
 
-Class LightningPuffV2NoPain : LightningPuffV2	{ Default { +PAINLESS }}
+Class LightningPuffV2NoPain : LightningPuffV2	{ Default { +PAINLESS +NOTIMEFREEZE }}
 
 Class LightningPuffV3 : LightningPuffV2
 {

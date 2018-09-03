@@ -891,9 +891,10 @@ extend class Doom4Player
 		
 		if (self.GetClass() == "Doom4Player")
 		{
+			/*
 			ItemsToSave ITS;
 			ITS.Init();
-			/*
+			
 			What is the point behind this? Simple. It gives
 			and takes an inventory item so that it's technically 'present'
 			yet at the same time acts as if it's not there, preventing it from
@@ -914,6 +915,7 @@ extend class Doom4Player
 			tl;dr the item's there for the menu while not being active until
 			the player has 1+, nuff sed
 			*/
+			/*
 			for (int i = 1; i < ITS.ItemList.Size(); i++)
 			{
 				Class<Inventory> check = ITS.ItemList[i];
@@ -921,6 +923,39 @@ extend class Doom4Player
 				{
 					A_SetInventory(check,1);
 					A_SetInventory(check,0);	
+				}
+			}
+			*/
+			
+			for (int i = 0; i < AllActorClasses.Size(); ++i)
+			{
+				bool doContinue = false;
+				Class<D4DKeeperItem> Type = (Class<D4DKeeperItem>)(AllActorClasses[i]);
+				if (Type != null)
+				{
+					// Make sure it's not the direct item itself.
+					static const Class<Inventory> list[] =
+					{
+						"UpgradeItem",
+						"D4DKeeperItem"
+					};
+					
+					int Size = list.Size();
+					for (int j = 0; j < Size; j++)
+					{
+						if (Type == list[j])
+						{
+							doContinue = true;
+							break;
+						}
+					}					
+					if (doContinue)	continue;
+					
+					if (!CountInv(Type))
+					{
+						A_SetInventory(Type,1);
+						A_SetInventory(Type,0);
+					}
 				}
 			}
 			stamina = 0;
@@ -1424,15 +1459,6 @@ extend class Doom4Player
 					continue;
 				}
 				
-				// Same thing with the cvar.
-				/*
-				CVar mCheck = CVar.FindCVar(ITS.ItemList[i]);
-				if (mCheck == null)
-				{
-					A_Log(ITS.ItemList[i].." is an item but has no cvar! Report to devs!");
-					continue;
-				}
-				*/
 				
 				// Either save or restore it.
 				int amt = CountInv(checker);

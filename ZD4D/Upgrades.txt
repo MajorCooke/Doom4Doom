@@ -1,4 +1,24 @@
-Class UpgradeItem : Inventory
+
+Class D4DKeeperItem : Inventory 
+{
+	Default
+	{
+		+INVENTORY.UNDROPPABLE
+		+INVENTORY.UNTOSSABLE
+	}
+	
+	// NEVER let this item be picked up raw.
+	override bool TryPickup(in out Actor toucher)
+	{
+		let Cls = GetClass();
+		if (!toucher || Cls == "UpgradeItem" || Cls == "D4DKeeperItem")
+			return false;
+			
+		return Super.TryPickup(toucher);
+	}
+}
+
+Class UpgradeItem : D4DKeeperItem
 {
 	int Cost, Cost2, Cost3, Cost4;
 	int Quantity, Q2, Q3, Q4;
