@@ -982,6 +982,14 @@ extend class Doom4Player
 	{
 		if (mod == 'HoloAttract')	return 0;
 		
+		let inv = BasicArmor(FindInventory("BasicArmor"));
+		if (inv)
+		{
+			inv.MaxAbsorb = Max(inv.MaxAbsorb, 200);
+			inv.MaxFullAbsorb = Max(inv.MaxFullAbsorb, 200);
+			inv.SavePercent = 100.0;
+		}
+		
 		if (source && source == self && CountInv("PowerD4QuadDamage"))
 		{
 			damage *= 0.25;
