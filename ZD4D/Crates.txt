@@ -24,7 +24,6 @@ Class BuyCrate : CustomInventory
 				A_TakeInventory("D4DCash",(upgradeMode) ? 1 : 500);	
 				ACS_NamedExecuteWithResult("UpdateCashScript",0,1,0,0);
 				ACS_NamedExecute("BuyingCrate",0,1);
-				ACS_NamedExecute("RefreshCredits",0,0,0,0);
 			}
 			else
 			{
@@ -797,20 +796,20 @@ Class CrateItemSpawner3 : Actor
 			
 			if (random(0,1000) < 2)
 			{
-				A_SpawnItemEx("D4QuadDamage"			,random(-128,128),random(-128,128),0,random(-60,60),random(-60,60),random(0,60),0,SXF_NOCHECKPOSITION,128);
-				A_SpawnItemEx("D4Regeneration"			,random(-128,128),random(-128,128),0,random(-60,60),random(-60,60),random(0,60),0,SXF_NOCHECKPOSITION,128);
-				A_SpawnItemEx("D4Haste"					,random(-128,128),random(-128,128),0,random(-60,60),random(-60,60),random(0,60),0,SXF_NOCHECKPOSITION,128);
-				A_SpawnItemEx("SoulSphere"				,random(-128,128),random(-128,128),0,random(-60,60),random(-60,60),random(0,60),0,SXF_NOCHECKPOSITION,128);
-				A_SpawnItemEx("BlurSphere"				,random(-128,128),random(-128,128),0,random(-60,60),random(-60,60),random(0,60),0,SXF_NOCHECKPOSITION,128);
-				A_SpawnItemEx("InvulnerabilitySphere"	,random(-128,128),random(-128,128),0,random(-60,60),random(-60,60),random(0,60),0,SXF_NOCHECKPOSITION,128);
-				A_SpawnItemEx("BlurSphere"				,random(-128,128),random(-128,128),0,random(-60,60),random(-60,60),random(0,60),0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4QuadDamage"			,random(-5,5),random(-5,5),0,random(-5,5),random(-5,5),0,0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4Regeneration"			,random(-5,5),random(-5,5),0,random(-5,5),random(-5,5),0,0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("D4Haste"					,random(-5,5),random(-5,5),0,random(-5,5),random(-5,5),0,0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("SoulSphere"				,random(-5,5),random(-5,5),0,random(-5,5),random(-5,5),0,0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("BlurSphere"				,random(-5,5),random(-5,5),0,random(-5,5),random(-5,5),0,0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("InvulnerabilitySphere"	,random(-5,5),random(-5,5),0,random(-5,5),random(-5,5),0,0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("BlurSphere"				,random(-5,5),random(-5,5),0,random(-5,5),random(-5,5),0,0,SXF_NOCHECKPOSITION,128);
 				A_SpawnItemEx("D4QuadMoney",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				return;
 			}
 			
 			
 			
-			
+			// [MC] How badly do you have to fuck up for this to happen? :P
 			if(random(0,100) < 50)
 			{
 			// 98. Probably rerun this
