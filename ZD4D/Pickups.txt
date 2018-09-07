@@ -3,30 +3,20 @@ enum PickupConstants
 	//Armor Per Difficulty
 	ArmorCapGreen =				100,
 	ArmorCapBlue =				200,
-	ArmorCapGreenNormal =		100,	//UV
+	ArmorCapGreenNormal =		100,		//Ultra Violence
 	ArmorCapGreenNightmare =	100,		//Nightmare
 	ArmorCapGreenUltra =		100,		//Ultra Nightmare
 	ArmorCapBlueNormal =		200,
 	ArmorCapBlueNightmare =		200,
 	ArmorCapBlueUltra =			200,
 	
-	ArmorGreenNormal =		100,	//UV
+	ArmorGreenNormal =		100,	//Ultra Violence
 	ArmorGreenNightmare =	75,		//Nightmare
 	ArmorGreenUltra =		50,		//Ultra Nightmare
 	ArmorBlueNormal =		200,
 	ArmorBlueNightmare =	150,
-	ArmorBlueUltra =		100,
-	
-
-	PinataLifetime = 			175 + DelayVacuum, 
-	PinataLifetimeLong = 		700 + DelayVacuum, 
-	PinataLifetimeSuperLong = 	4200 + DelayVacuum, //2min
-	RadiusPull = 				192,
-	DelayVacuum =				20,
-	PSpeed = 					24,
-	VelFlags =					CVF_RELATIVE|CVF_REPLACE,
+	ArmorBlueUltra =		100
 };
-
 //=======================================================================
 //=======================================================================
 // Health
@@ -199,9 +189,9 @@ Class D4ArmorBasePickup : CustomInventory
 				}
 				inv.Amount = Min(inv.Amount + int((invoker.SaveAmount * Max(1,invoker.Amount)) * SkillFactor), Cap);
 				invoker.Amount = 1;
-				inv.ArmorType = inv.GetClassName();
-				inv.MaxFullAbsorb = invoker.MaxFullAbsorb;
-				inv.MaxAbsorb = invoker.MaxAbsorb;
+				if (inv.ArmorType == 'None')	inv.ArmorType = "D4ArmorPickup";
+				inv.MaxFullAbsorb = Max(inv.MaxFullAbsorb, invoker.MaxFullAbsorb);
+				inv.MaxAbsorb = Max(inv.MaxAbsorb, invoker.MaxAbsorb);
 				return true;
 			}
 			return false;
@@ -685,7 +675,7 @@ Class D4PowerUpgradePickup : CustomInventory
 				A_Print("$"..invoker.items[rng]);
 			}
 			
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			//
 			return true;
 		}
 		Stop;
@@ -708,7 +698,7 @@ Class D4UpgradePickup : D4PowerUpgradePickup
 		{
 			if (!CountInv(""))
 			
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			
 			return true;
 		}
 		Stop;
@@ -847,7 +837,7 @@ Class D4ArmorUpgradePickup : D4SuitUpgradePickup
 				
 				A_Print(line1);
 			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			//
 			return true;
 		}
 		Stop;
@@ -872,7 +862,7 @@ Class D4CashUpgradePickup : D4SuitUpgradePickup
 				
 				A_Print("Credit Upgrade +"..amt.."%");
 			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			//
 			return true;
 		}
 		Stop;
@@ -901,7 +891,6 @@ Class D4CrateUpgradePickup : D4SuitUpgradePickup
 				else				A_Print("Weapon Crates\nCrates may contain weapons");
 				
 			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
 		Stop;
@@ -939,7 +928,6 @@ Class D4ProtectionUpgradePickup : D4SuitUpgradePickup
 				A_PlaySound("PentagramOfProtection/Pickup",CHAN_ITEM,1);
 				A_GiveInventory("PentagramOfProtection",1); //Fuck it, why not. :P
 			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
 		Stop;
@@ -1073,7 +1061,6 @@ Class PistolUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
 		Stop;
@@ -1118,7 +1105,6 @@ Class ShotgunUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
 			return true;
 		}
 		Stop;
@@ -1167,7 +1153,7 @@ Class SuperShotgunUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			
 			return true;
 		}
 		Stop;
@@ -1206,7 +1192,7 @@ Class StaticRifleUpgradePickup : D4UpgradePickup
 				A_GiveInventory("StaticUpgrade4");
 				A_PrintBold("$StaticUpgrade4");
 			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			
 			return true;
 		}
 		Stop;
@@ -1251,7 +1237,7 @@ Class RepeaterUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			
 			return true;
 		}
 		Stop;
@@ -1297,7 +1283,7 @@ Class AssaultRifleUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			
 			return true;
 		}
 		Stop;
@@ -1343,7 +1329,7 @@ Class ChaingunUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			
 			return true;
 		}
 		Stop;
@@ -1388,7 +1374,7 @@ Class RocketLauncherUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			
 			return true;
 		}
 		Stop;
@@ -1433,7 +1419,7 @@ Class PlasmaRifleUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			
 			return true;
 		}
 		Stop;
@@ -1478,7 +1464,7 @@ Class LightningGunUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			
 			return true;
 		}
 		Stop;
@@ -1523,7 +1509,7 @@ Class VortexRifleUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			
 			return true;
 		}
 		Stop;
@@ -1568,7 +1554,7 @@ Class GaussCannonUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			
 			return true;
 		}
 		Stop;
@@ -1613,7 +1599,7 @@ Class BFGUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			
 			return true;
 		}
 		Stop;
@@ -1658,7 +1644,7 @@ Class CarrionCannonUpgradePickup : D4UpgradePickup
 				A_PrintBold(invoker.desc[rng]);
 				A_GiveInventory(invoker.items[rng]);
 			}
-			ACS_NamedExecute("SaveTokens",0,0,0,0);
+			
 			return true;
 		}
 		Stop;
