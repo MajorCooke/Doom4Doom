@@ -453,11 +453,18 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			{	
 				//A_FireBullets(0,0,1,0,"RLTargetChecker",FBF_NOFLASH|FBF_NORANDOMPUFFZ|FBF_NORANDOM);
 				// Grab the target and tracer from the WEAPON, not the owner.
-				// I think it's safe to use because they're not used.
+				// The weapon pointers are never used, it appears.
 				Actor Targ = invoker.Target;
 				Actor Trac = invoker.Tracer;
 				
-				Targ = LockOn();
+				// First, check to see if we have a direct target to aim at.
+				FTranslatedLineTarget hit;
+				LineAttack(0, 32767, invoker.owner.pitch, 0, 'None', "PacifistPuffNoThru", LAF_NORANDOMPUFFZ|LAF_NOIMPACTDECAL, hit);
+				Targ = hit.linetarget;
+				
+				// If we don't, use the cone method.
+				if (!Targ)
+					Targ = LockOn();
 				
 				// If switching targets...
 				if (Trac != Targ)
