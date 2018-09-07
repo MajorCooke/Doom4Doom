@@ -1,56 +1,184 @@
 
-//============================================================================================================
-//============================================================================================================
-//
-// Piñata pickups
-//
-//============================================================================================================
-//============================================================================================================
+enum PinataConstants
+{	
+	PinataLifetime = 			175 + DelayVacuum, 
+	PinataLifetimeLong = 		700 + DelayVacuum, 
+	PinataLifetimeSuperLong = 	4200 + DelayVacuum, //2 minutes
+	RadiusPull = 				192,
+	DelayVacuum =				20,
+	PSpeed = 					24,
+	VelFlags =					CVF_RELATIVE|CVF_REPLACE,
+};
 
+//==============================================================================
+//==============================================================================
+//
+// Pinata pickups
+//
+//==============================================================================
+//==============================================================================
 
-Class D4PinataBorder : Actor 
+//------------------------------------------------------------------------------
+// The base of all pinatas.
+// Contains all the work for determining
+//------------------------------------------------------------------------------
+Class D4PinataBase : CustomInventory
 {
-	int user_t;
-	int count;
-	double UPitch;
-	double user_dist;
-	const Increment = 4;
-	const Distance = 200;
-	Actor ms;
-	int Border;
-	Default 
+	enum BorderTypes
 	{
-		+NOINTERACTION
-		+BRIGHT
-		+FORCEXYBILLBOARD
-		Scale 0.3;
-		DistanceCheck "D4D_MaxDrawDistance";
+		Border_RegAmmo = 	Fr_D,
+		Border_BFGAmmo =	Fr_H,
+		Border_Armor =		Fr_A,
+		Border_Health =		Fr_B
+	};
+	
+	enum ETypes
+	{
+		Pinata_Ammo = 0,
+		Pinata_Health,
+		Pinata_Armor
+	};
+	// Armor specific
+	
+	// General properties
+	int					MainType, Amt, MaxAmt;
+	double 				MagnetDistance;
+	bool				Magnetic;
+	Class<Ammo>			AmmoType;
+	Property MainType: 			MainType;
+	Property AmmoType: 			AmmoType;
+	Property Magnetic: 			Magnetic;
+	Property Distance:			MagnetDistance;
+	
+	Default
+	{
+		D4PinataBase.MainType Pinata_Ammo;
+	//	D4PinataBase.AmmoType "D4Bullets";
+		D4PinataBase.Magnetic true;
+		D4PinataBase.Distance RadiusPull;
 	}
 	
-	override void PostBeginPlay() { Destroy();	}
+	//==========================================================================
+	// Overrides
+	//==========================================================================
+	override void BeginPlay()
+	{
+		Amt = Amount;
+		MaxAmt = MaxAmount;
+		Super.BeginPlay();
+	}
+	override void PostBeginPlay()
+	{
+		if ((!AmmoType || AmmoType.GetParentClass() != "Ammo") && MainType == Pinata_Ammo)	
+			return Destroy();
+		
+		Super.PostBeginPlay();
+	}
+	
+	//==========================================================================
+	// Custom Functions
+	//==========================================================================
+	
+	//-------------------------------------------------------------------------
+	//  
+	Actor FindPlayer(int distance = -1, Actor mo = null)
+	{
+		if (distance <= 0) distance = RadiusPull;
+		
+		// First check for a player to pull towards. If none is supplied,
+		// find one.
+		bool InfPickup = sv_unlimited_pickup;
+		if (!mo || !mo.player || !mo.bPICKUP)
+		{
+			mo = null;
+			double dist = MagnetDistance;
+			for (int i = 0; i < MAXPLAYERS; i++)
+			{
+				if (!playeringame[i])	
+					continue;
+				
+				Actor plr = players[i].mo;
+				if (!plr || plr.health < 1 || !plr.bPICKUP)
+					continue;
+					
+				double curdist = Distance3DSquared(plr);
+				if (curdist > dist ** 2)
+					continue;
+				//--------------------------------------------------------------
+				// Now we need to check for what type.
+				
+				if (MainType == Pinata_Ammo && AmmoType)
+				{
+					if (!InfPickup)
+					{
+						let inv = plr.FindInventory(AmmoType, true);
+						if (inv && inv.Amount >= inv.MaxAmount)
+							continue;
+					}
+				}
+				else if (MainType == Pinata_Health)
+				{
+					let pl = PlayerPawn(plr);
+					if (!pl || pl.Health >= pl.GetMaxHealth(true))
+						continue;
+				}
+				else if (MainType == Pinata_Armor)
+				{
+					if (!InfPickup)
+					{
+						let inv = BasicArmor(plr.FindInventory("BasicArmor",true));
+						if (inv && inv.Amount >= MaxAmt)
+							continue;
+					}
+				}
+				else return null;
+				
+				//--------------------------------------------------------------
+				dist = curdist;
+				mo = plr;
+			}
+			// None in range, so return nothing.
+			return mo;
+		}
+		else if (MainType == Pinata_Ammo && AmmoType)
+		{
+			if (!InfPickup)
+			{
+				let inv = mo.FindInventory(AmmoType, true);
+				if (inv && inv.Amount >= inv.MaxAmount)
+					return null;
+			}
+		}
+		else if (MainType == Pinata_Health)
+		{
+			let pl = PlayerPawn(mo);
+			if (!pl || pl.Health >= pl.GetMaxHealth(true))
+				return null;
+		}
+		else if (MainType == Pinata_Armor)
+		{
+			if (!InfPickup)
+			{
+				let inv = BasicArmor(mo.FindInventory("BasicArmor",true));
+				if (inv && inv.Amount >= MaxAmt)
+					return null;
+			}
+		}
+		else return null;
+		
+		return mo;
+	}
 	
 	States
 	{
 	Spawn:
-		TNT1 A 0 NoDelay
+		TNT1 A 0;
+		---- A 2
 		{
-			if (!master)	{	Destroy();	return ResolveState(null);	}
-			ms = master;
-			if (master.GetClass() == "D4PinataArmor")		{ return ResolveState(1); }
-			if (master.GetClass() == "D4PinataHealth")		{ return ResolveState(2); }
-			if (master is "D4Carrion")						{ return ResolveState(3); }
-			if (master is "D4BFGAmmo")						{ return ResolveState(4); }
-			if (master is "Ammo")							{ return ResolveState(3); }
-			return ResolveState("Null");
+			if (invoker.Magnetic)
+				invoker.Tracer = invoker.FindPlayer(-1, invoker.Tracer);
 		}
-		PIN3 ABDH 0 A_Jump(256,"Enact");
-	Enact:
-		"####" "#" 1
-		{
-			if (!master || master != ms)	{ Destroy(); return; }
-			A_Warp(MasterPtr,0,0,5,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_COPYVELOCITY,"Null");
-		}
-		Loop;
+		Wait;
 	}
 }
 
@@ -66,7 +194,7 @@ Class D4PinataParticles : Actor
 		CV_Particle = 			2,
 		CV_None = 				3,
 		
-		CV_ParticleBorder = CV_BorderParticle,
+		CV_ParticleBorder = 	CV_BorderParticle,
 		Distance = 				200,
 		Increment = 			4
 	};
@@ -204,6 +332,8 @@ Struct PlrCheck play
 	}
 }
 
+
+
 /* UpgradePinataFlier
  *
  * Serves as the latest think tank for the pinatas to help reduce code bloat.
@@ -314,8 +444,7 @@ Class D4PinataArmor : D4ArmorBasePickup
 	Spawn:
 		PIN2 A 0 NoDelay 
 		{
-			A_SpawnItemEx("D4PinataBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
-			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER,0,Color_Green);
+			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			invoker.flier = new("UpgradePinataFlier");
 			if (invoker.flier)
 			{
@@ -345,7 +474,7 @@ Class D4PinataArmor : D4ArmorBasePickup
 			}
 			
 			if (invoker.count > invoker.Lifetime)	A_FadeOut();
-			else 							invoker.Alpha = 1.0;
+			else 									invoker.Alpha = 1.0;
 		}
 		Loop;
 	}
@@ -385,7 +514,6 @@ Class D4PinataHealth : D4Stimpack
 	Spawn:
 		PIN2 B 0 NoDelay 
 		{
-			A_SpawnItemEx("D4PinataBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER,0,Color_Blue);
 			flier = new("UpgradePinataFlier");
 			if (flier)
@@ -455,7 +583,6 @@ Class D4PinataBullets : D4Bullets
 	Spawn:
 		PIN2 D 0 NoDelay 
 		{
-			A_SpawnItemEx("D4PinataBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			flier = new("UpgradePinataFlier");
 			if (flier)
@@ -534,7 +661,6 @@ Class D4PinataShells : D4Shells
 	Spawn:
 		PIN2 E 0 NoDelay 
 		{
-			A_SpawnItemEx("D4PinataBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			flier = new("UpgradePinataFlier");
 			if (flier)
@@ -614,7 +740,6 @@ Class D4PinataCells : D4Cells
 	Spawn:
 		PIN2 F 0 NoDelay 
 		{
-			A_SpawnItemEx("D4PinataBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			flier = new("UpgradePinataFlier");
 			if (flier)
@@ -691,7 +816,6 @@ Class D4PinataRockets : D4Rockets
 	Spawn:
 		PIN2 G 0 NoDelay 
 		{
-			A_SpawnItemEx("D4PinataBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			flier = new("UpgradePinataFlier");
 			if (flier)
@@ -768,7 +892,6 @@ Class D4PinataBFG : D4BFGAmmo
 	Spawn:
 		PIN2 H 0 NoDelay 
 		{
-			A_SpawnItemEx("D4PinataBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER,0,Color_Green);
 			flier = new("UpgradePinataFlier");
 			if (flier)
@@ -836,7 +959,6 @@ Class D4PinataBulletsZombieman : D4Bullets	//only dropped by these guys, and the
 	Spawn:
 		PIN2 D 0 NoDelay 
 		{
-			A_SpawnItemEx("D4PinataBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 		}
 	Looping:
@@ -885,7 +1007,6 @@ Class D4PinataShellsShotgunGuy : D4Shells	//only dropped by these guys, and they
 	Spawn:
 		PIN2 E 0 NoDelay 
 		{
-			A_SpawnItemEx("D4PinataBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 		}
 	Looping:
