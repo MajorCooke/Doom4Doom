@@ -123,23 +123,25 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 		PSUL AAA 2 BRIGHT Light("BlueSmallFlicker1")
 		{
 			charging = false;
-			if(chasecount==1)
-			{	D4Chase(); chasecount=0;	}
+			chasecount = (chasecount + 1) % 2;
+			if(chasecount)
+				D4Chase(); 
 			else
-			{	D4Chase(null,null); chasecount++;	}
+				D4Chase(null,null);
 					
 		}
 		Loop;
 		
 	Melee:
-		PSUL A 0 A_Die("SkullExplo");
-		Goto Death;
+		PSUL A 1 A_Die("SkullExplo");
+		Goto Death.SkullExplo;
 	Missile:
 		PSUL A 0 
 		{
 			charging = true;
 			A_FaceTarget();
-			if (bFriendly)	{	return ResolveState("SkipWarning");	}
+			if (bFriendly)	
+				return ResolveState("SkipWarning");
 			A_PlaySound("Doom4/Monsters/LostSoul/Attack",CHAN_AUTO,0.6);
 			return ResolveState(null);
 		}
@@ -214,15 +216,19 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 							for (int i = 0; i < mon.Size(); i++)
 							{
 								Actor mo = mon[i];
-								if (!mo || mo.health < 1)
+								if (!mo || mo.health < 1 || mo == self)
 									continue;
 									
-								if (Distance3DSquared(mo) > (50 **2) || !CheckSight(mo,SF_IGNOREVISIBILITY))
+								if (Distance3DSquared(mo) > (50 ** 2) || !CheckSight(mo,SF_IGNOREVISIBILITY))
 									continue;
 									
 								int dmg = GetRadiusDamage(mo, 30, 50);
 								if (dmg > 0)
-									mo.DamageMobj(self, master, dmg, 'Melee');
+								{
+									Actor blame = master;
+									if (!master)	blame = self;
+									mo.DamageMobj(blame, blame, dmg, 'Melee');
+								}
 							}
 						}
 					}
@@ -237,7 +243,7 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 			charging = false;
 			bThruActors = true;
 			A_Scream();
-			A_NoBlocking();
+			A_Fall();
 			if (A_CheckSight("Null"))
 				return;
 			

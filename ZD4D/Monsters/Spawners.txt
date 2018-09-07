@@ -130,6 +130,7 @@ Class D4DMonsterSpawner : Actor
 		
 		if (mon)
 		{
+			
 			if (isStealth)	mon.bSTEALTH = true;
 			
 			if (bBossSpawned)
@@ -145,6 +146,7 @@ Class D4DMonsterSpawner : Actor
 				{
 					int amt = d4mon.ChoosePowerLevel();
 					if (amt)  d4mon.SetupPowerLevel(amt);
+					d4mon.Spawner = self;
 				}
 			}
 			
@@ -170,24 +172,26 @@ Class D4DMonsterSpawner : Actor
 	
 	override void OnDestroy()
 	{
-		A_BossDeath();
+		if (isBoss)	A_BossDeath();
 		Super.OnDestroy();
 	}
 	
 	States
 	{
 	Spawn:
-		TNT1 A 70 NODELAY
+		TNT1 A 35
 		{
-			if (!mon || mon.health < 1 || !isBoss)
+			if (!mon || mon.health < 1)
 			{
 				bVULNERABLE = true;
 				A_Die();
 			}
 		}
-		Loop;
+		Wait;
 	Death:
+		TNT1 A 0 { bVULNERABLE = false; }
 		TNT1 AAAAA 35;
+		TNT1 A 35 A_Fall();
 		Stop;
 	}
 }
