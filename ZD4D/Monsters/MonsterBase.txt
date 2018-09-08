@@ -144,23 +144,33 @@ Class D4AbstractMonster : Actor
 	// the threshold.
 	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{
+		// Don't run this if dead or not shootable.
 		if (health < 1 || (!bSHOOTABLE && !bVULNERABLE))	return 0;
 		
+		// Do nothing further if no wound state is found, let the engine handle it instead.
+		let WoundState = ResolveState("Wound");
+		if (!WoundState)	return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+		
+		// We have a wound state to deal with. Temporarily remove the wound health
+		// threshold and do the damage. Then restore it and check to see if under
+		// that threshold. Otherwise, the internal engine would often bug out
+		// and constantly make enemies go to the wound state and this instigates
+		// a LOT of quirkiness.
 		if (InStateSequence(CurState, ResolveState("StagLooper")))	
 			flags |= DMG_NO_PAIN;
 		
-			
 		int temp = WoundHealth;		WoundHealth = -1;
-		int DamageDone = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+		damage = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
 		WoundHealth = temp;
 		
-		if (Health > 0 && Health <= WoundHealth && DamageDone > 0)
-		{			
+		if (Health > 0 && Health <= WoundHealth && damage > 0)
+		{	
+			// If not already in the looping state, go to the initializing state.
 			if (GetCvar("D4D_ExecutionsON") && GetCvar("D4D_MonsterStagger"))
 			{
 				WoundHealth = PrevWoundHealth;
 				if (!InStateSequence(CurState, ResolveState("StagLooper")))
-					SetState(ResolveState("Wound"));
+					SetState(WoundState);
 			}
 			else
 			{
@@ -168,7 +178,7 @@ Class D4AbstractMonster : Actor
 				WoundHealth = -1;
 			}
 		}
-		return DamageDone;
+		return damage;
 	}
 	
 	// Don't let removing scripts leave gaps.
