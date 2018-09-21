@@ -68,9 +68,10 @@ Class Doom4StatusBar : BaseStatusBar
 	Vector2 DemonKeyOffsets;
 	double fadeamt;
 	int AspectRatio, DemonTimer;
-	uint FakeCashTimer, FakeCash, Cash, HP, MaxHP;
+	uint FakeCashTimer, FakeCash, Cash, HP, MaxHP, UpgradeMode;
 	uint8 DoomDollMax, DoomDollCount, MegasphereCount, MegasphereMax, AmmoClamp;
 	bool ignoreFakeUpdate, noReticle, addonOverride, automap, AmDemon, WasDemon;
+	D4DHandler Event;
 
 	static ui Vector2 RotateVector(Vector2 self, double angle, Vector2 rPoint)
 	{
@@ -113,6 +114,8 @@ Class Doom4StatusBar : BaseStatusBar
 		plr = CPlayer.mo;
 		ResetInterpolators(100, 0);
 		DemonKeyOffsets = (DemonKeyOffsetX, DemonKeyOffsetY);
+		Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+		if (Event)	UpgradeMode = Event.GetUpgradeMode();
 	}
 	
 	void ResetInterpolators(int health, int time = 0)
@@ -409,10 +412,10 @@ Class Doom4StatusBar : BaseStatusBar
 			}
 			
 			// Credits and resistance counters
-			CVar UpgradeMode = CVar.FindCVar("D4D_CurrentUpgradeMode");
-			if (UpgradeMode != null)
+			CVar Upgrade = CVar.FindCVar("D4D_CurrentUpgradeMode");
+			if (Upgrade != null)
 			{
-				String which = (UpgradeMode.GetInt() == 1) ? "Crates:" : "Credits:";
+				String which = (UpgradeMode) ? "Crates:" : "Credits:";
 				DrawString(mConsoleFont, which, (1024, 8), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
 				DrawStringScaled(mQ4SmallHudFont, FormatNumber(Cash, 1), (1024, 24), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 2);
 				
@@ -537,14 +540,56 @@ Class Doom4StatusBar : BaseStatusBar
 			if (GetAmountOnly("D4BFG"))
 			{
 				int BFGUpgrade = Clamp(GetAmountOnly("BFGUpgrade1"),0,1);
+				
 				int BFGAmmo = 0, BFGMaxAmmo = 0;
 				[BFGAmmo, BFGMaxAmmo] = GetAmount("D4BFGAmmo");
 				BFGMaxAmmo += BFGUpgrade;
-				
+				/*
 				String BFGBar1 = BFGUpgrade ? "BFGAMM44" : "BFGAMM33";
 				String BFGBar2 = BFGUpgrade ? "BFGAMM04" : "BFGAMM03";
 				
 				DrawBar(BFGBar1, BFGBar2, BFGAmmo, BFGMaxAmmo, (878, 713), 0, SHADER_REVERSE, imageAlignmentLeft);
+				*/
+				
+				// Spaced by pixel size + 1 extra on the X axis.
+				if (BFGUpgrade)
+				{
+					DrawImage("BFGAMM02", (878, 713), imageAlignmentLeft);
+					DrawImage("BFGAMM02", (878 + 23, 713), imageAlignmentLeft);
+					DrawImage("BFGAMM02", (878 + (23 * 2), 713), imageAlignmentLeft);
+					DrawImage("BFGAMM02", (878 + (23 * 3), 713), imageAlignmentLeft);
+					
+					if (BFGAmmo > 0)
+					{
+						Switch (BFGAmmo)
+						{
+							Default:
+							Case 4: DrawImage("BFGAMM22", (878, 713), imageAlignmentLeft);
+							Case 3: DrawImage("BFGAMM22", (878 + 23, 713), imageAlignmentLeft);
+							Case 2: DrawImage("BFGAMM22", (878 + (23 * 2), 713), imageAlignmentLeft);
+							Case 1: DrawImage("BFGAMM22", (878 + (23 * 3), 713), imageAlignmentLeft);
+							Case 0: break;
+						}
+					}
+				}
+				else
+				{
+					DrawImage("BFGAMM01", (878, 713), imageAlignmentLeft);
+					DrawImage("BFGAMM01", (878 + 31, 713), imageAlignmentLeft);
+					DrawImage("BFGAMM01", (878 + 62, 713), imageAlignmentLeft);
+					
+					if (BFGAmmo > 0)
+					{
+						Switch (BFGAmmo)
+						{
+							Default:
+							Case 3: DrawImage("BFGAMM11", (878, 713), imageAlignmentLeft);
+							Case 2: DrawImage("BFGAMM11", (878 + 31, 713), imageAlignmentLeft);
+							Case 1: DrawImage("BFGAMM11", (878 + 62, 713), imageAlignmentLeft);
+							Case 0: break;
+						}
+					}
+				}
 			}
 			
 			if (GetAmountOnly("D4Chainsaw"))
