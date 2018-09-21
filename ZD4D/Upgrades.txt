@@ -23,8 +23,8 @@ Class UpgradeItem : D4DKeeperItem
 	int Cost, Cost2, Cost3, Cost4;
 	int Quantity, Q2, Q3, Q4;
 	bool Tiered;
-	String Req1, Req2, Req3, Req4;
-	int ReqQ1, ReqQ2, ReqQ3, ReqQ4;
+	String Req1, Req2, Req3, Req4;		// Required Item
+	int ReqQ1, ReqQ2, ReqQ3, ReqQ4;		// Requirement Quantity
 	String Attach1, Attach2, Attach3, Attach4;
 	int Attamt1, Attamt2, Attamt3, Attamt4;
 	String Desc, Desc1, Desc2, Desc3, Desc4;
@@ -395,6 +395,7 @@ Class ProtectionBonus : UpgradeItem
 Class D4HigherJump : UpgradeItem 				{ Default { UpgradeItem.Cost 6000;	}}
 Class D4MultiJump : UpgradeItem 				{ Default { UpgradeItem.Cost 8000;	Inventory.MaxAmount 3; }}
 Class D4AirControl : UpgradeItem 				{ Default { UpgradeItem.Cost 10000;	}}
+Class D4Dash : UpgradeItem 						{ Default { UpgradeItem.Cost 12000;	}}
 
 Class D4AirUpgrade : UpgradeItem
 {
@@ -406,10 +407,11 @@ Class D4AirUpgrade : UpgradeItem
 		UpgradeItem.Quantity 1;
 		UpgradeItem.Quantity2 2;
 		UpgradeItem.Quantity3 3;
-		UpgradeItem.Desc1 "Higher Jump";
-		UpgradeItem.Desc2 "Triple Jump";
-		UpgradeItem.Desc3 "Air Control";
-		Inventory.MaxAmount 3;
+		UpgradeItem.Desc1 "$AirUpgrade1";
+		UpgradeItem.Desc2 "$AirUpgrade2";
+		UpgradeItem.Desc3 "$AirUpgrade3";
+		UpgradeItem.Desc4 "$AirUpgrade4";
+		Inventory.MaxAmount 4;
 	}
 	
 	override void PrintDesc()
@@ -418,9 +420,10 @@ Class D4AirUpgrade : UpgradeItem
 		Switch (amt)
 		{
 			Default:
-			Case 1: Desc = Desc1; break;
-			Case 2: Desc = Desc2; break;
-			Case 3: Desc = Desc3; break;
+			Case 4: Desc = Desc4;	break;
+			Case 3: Desc = Desc3;	break;
+			Case 2: Desc = Desc2;	break;
+			Case 1: Desc = Desc1;	break;
 		}
 		Super.PrintDesc();
 	}
@@ -430,9 +433,10 @@ Class D4AirUpgrade : UpgradeItem
 		if (Owner)
 		{
 			int amt = Owner.CountInv("D4AirUpgrade");
-			if (amt > 0)	{ Owner.A_SetInventory("D4HigherJump",1);	}
-			if (amt > 1)	{ Owner.A_SetInventory("D4MultiJump",3);	}
-			if (amt > 2)	{ Owner.A_SetInventory("D4AirControl",1);	}
+			Owner.A_SetInventory("D4HigherJump", 	((amt > 0) ? 1 : 0));
+			Owner.A_SetInventory("D4MultiJump",		((amt > 1) ? 3 : 2));
+			Owner.A_SetInventory("D4AirControl",	((amt > 2) ? 1 : 0));
+			Owner.A_SetInventory("D4Dash",			((amt > 3) ? 1 : 0));
 		}
 	}
 	override void DepleteOrDestroy()
@@ -442,6 +446,7 @@ Class D4AirUpgrade : UpgradeItem
 			Owner.A_SetInventory("D4HigherJump",0);
 			Owner.A_SetInventory("D4MultiJump",2);
 			Owner.A_SetInventory("D4AirControl",0);
+			Owner.A_SetInventory("D4Dash",0);
 		}
 		Super.DepleteOrDestroy();
 	}
@@ -485,7 +490,8 @@ Class D4Stamina : UpgradeItem
 	{
 		if (Owner && Owner.player)
 		{
-			Owner.player.mo.stamina -= Owner.CountInv("D4HealthUpgrade"); 
+		//	Owner.player.mo.stamina -= Owner.CountInv("D4HealthUpgrade"); 
+			Owner.stamina -= Owner.CountInv("D4HealthUpgrade"); 
 			Owner.A_SetInventory("D4HealthUpgrade",0);
 		}
 		Super.DepleteOrDestroy();

@@ -743,9 +743,19 @@ Class D4DoomDollHands : Weapon
 				A_GiveInventory("DollSpeed");
 				A_GiveInventory("DollJump");
 			}
+			A_Overlay(200, "Overlay.BroFist");
+			
 		}
-		TNT1 AAAA 1 A_WeaponOffset(-8,20,WOF_ADD);
-		DDLL AAAAAAAA 1 A_WeaponOffset(4,-10,WOF_ADD);
+		TNT1 A 1;
+		Wait;
+	Overlay.BroFist:
+		TNT1 AAAA 1 
+		{
+			int OID = OverlayID();
+			A_OverlayFlags(OID, PSPF_POWDOUBLE, false);
+			A_OverlayOffset(OID,-8,20,WOF_ADD);
+		}
+		DDLL AAAAAAAA 1 A_OverlayOffset(OverlayID(),4,-10,WOF_ADD);
 		DDLL A 70;
 		DDLL BCDEE 1 ;
 		"####" F 1
@@ -768,10 +778,10 @@ Class D4DoomDollHands : Weapon
 		DDLL FFFF 1;
 		DDLL GHIJKLMNOPQRSTUVWXYZ 2;
 		DDL2 ABCDEFGHI 2;
-		DDLL AAAAAAAA 1 A_WeaponOffset(-14,20,WOF_ADD);
+		DDLL AAAAAAAA 1 A_OverlayOffset(OverlayID(),-14,20,WOF_ADD);
 		TNT1 A 5 ;
 		TNT1 A 10000; //just to ensure it wont play again while the script takes it away
-		Loop;
+		Wait;
 	Fire:
 		M666 A 1;
 		Goto Ready;

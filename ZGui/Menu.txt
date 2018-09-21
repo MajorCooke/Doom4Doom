@@ -172,13 +172,6 @@ Class MenuItemList : Object ui
 		Console.Printf(item.." is not a valid item!");
 		return -1;
 	}
-	/*
-	override void OnDestroy()
-	{
-		Console.Printf("MenuItemList was destroyed.");
-		Super.OnDestroy();
-	}
-	*/
 }
 
 
@@ -243,6 +236,7 @@ Class D4DListMenu : ListMenu
 					{
 						D4DHandler.SendNetworkEvent(m.ItemNames[i],m.Count[i],0,0);
 					}
+					// Now the event handler will give the items to the player.
 					D4DHandler.SendNetworkEvent("DisableReception",0,0,0);
 					D4DHandler.SendNetworkEvent("UpdateItems",0,0,0);
 				}

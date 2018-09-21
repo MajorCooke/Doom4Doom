@@ -142,6 +142,14 @@ Class D4DHandler : EventHandler
 		{
 			RemoveAmmoActors();
 		}
+		else if (e.Name == 'DestroySpawners')
+		{
+			DestroySpawners();
+		}
+		else if (e.Name == 'FindLiveTID')
+		{
+			FindLiveTID(e);
+		}
 		
 		else
 		{
@@ -162,7 +170,10 @@ Class D4DHandler : EventHandler
 				
 				Switch(i)
 				{
+					// For external mods to use as they please using their own handlers
+					// without interrupting this one.
 					Case 0:		// D4DAddon_
+						
 						return;
 					
 					Case 1:		// Akimbo_SetLeft_
@@ -289,6 +300,33 @@ Class D4DHandler : EventHandler
 		Console.Printf("%d ammo actors destroyed", count);
 	}
 	
+	void DestroySpawners()
+	{
+		let it = ThinkerIterator.Create("D4DMonsterSpawner");
+		Actor mo;
+		int count;
+		while (mo = Actor(it.Next()))
+		{
+			Console.Printf("%s", mo.GetClassName());
+			count++;
+			mo.Destroy();
+		}
+		Console.Printf("%d spawners destroyed", count);
+	}
+	
+	void FindLiveTID(ConsoleEvent e)
+	{
+		if (e.Args[0] != 0)
+		{
+			let it = ActorIterator.Create(e.Args[0]);
+			Actor mo;
+			while (mo = Actor(it.Next()))
+			{
+				if (mo.health > 0 && mo.tid == e.Args[0])
+					Console.Printf("%s", mo.GetClassName());				
+			}
+		}
+	}
 }
 
 /*==============================================================================
@@ -361,5 +399,11 @@ Struct PlayerDelta
 		ItemName.Push(thing);
 		Count.Push(amt);
 		return true;
+	}
+	
+	void Reset()
+	{
+		ItemName.Clear();
+		Count.Clear();
 	}
 }

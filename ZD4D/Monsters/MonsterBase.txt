@@ -375,27 +375,37 @@ Class D4AbstractMonster : Actor
 	// for blood colors on the gib dropper.
 	//==========================================================================
 	
-	void XDeathGush(int bcolor = 0)
+	void XDeathGush(int bcolor = 0, bool simple = false)
 	{
 		MOD = DamagetypeReceived;
 		if ((MOD != 'Massacre'))
 		{
-			//int sflag = (CountInv("D4MonsterUpgrader")) ? SXF_TRANSFERTRANSLATION : SXF_USEBLOODCOLOR;
-			let gibs = BloodGibDropper(Spawn("BloodGibDropper", pos));
-			//[t, gibspawner] = A_SpawnItemEx("BloodGibDropper",0,0,0,vel.x,vel.y,vel.z,0,
-			//	SXF_NOCHECKPOSITION|SXF_ABSOLUTEVELOCITY|SXF_SETTRACER|SXF_ORIGINATOR);//,0,bcolor);
 			
-			if (gibs)
+			if (simple)
 			{
-				gibs.tracer = self;
-				gibs.vel = vel;
-				int tier = CountInv("D4MonsterUpgrader");
-				int toSend = (tier) ? Translation : BloodTranslation;
-				gibs.BC = BC;
-				gibs.Translation = ((tier) ? Translation : BloodTranslation);
+				//A_SpawnItemEx("D4BloodCloud",random(15,-15),random(15,-15),random(20,40),0,0,0,0,CloudFlags);
+				let cloud = D4BloodCloud(Spawn("D4BloodCloud", pos + (0,0, height * 0.5), ALLOW_REPLACE));
+				if (cloud)
+				{
+					cloud.tracer = self;
+					cloud.Translation = (CountInv("D4MonsterUpgrader") ? Translation : BloodTranslation);
+				}
 			}
-			
-			A_XScream();
+			else
+			{
+				let gibs = BloodGibDropper(Spawn("BloodGibDropper", pos));
+				
+				if (gibs)
+				{
+					gibs.tracer = self;
+					gibs.vel = vel;
+					int tier = CountInv("D4MonsterUpgrader");
+					int toSend = (tier) ? Translation : BloodTranslation;
+					gibs.BC = BC;
+					gibs.Translation = ((tier) ? Translation : BloodTranslation);
+				}
+			}
+			if (!simple)	A_XScream();
 			A_PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
 		}
 	}

@@ -106,11 +106,32 @@ Class D4PainElemental : D4AbstractBiggie
 		"####" "#" 0  //loot drop
 		{
 			bThruActors = true;
+			
 		}
-		PAIN H 5 BRIGHT ;
-		PAIN I 5 BRIGHT A_PlaySound(DeathSound, 7);
-		PAIN J 5 BRIGHT;
-		PAIN K 5 Bright
+		PAIN H 3 BRIGHT 
+		{
+			// Don't spawn lost souls if melee killed, massacred or telefragged.
+			Name mod = DamageTypeReceived;
+			if (mod == "Telefrag" ||
+				mod == "Massacre")
+				return;
+				
+			if (target && target.player)
+			{
+				if (mod == 'BerserkKill' ||
+					mod == 'MeleePunch' ||
+					mod == 'ChainsawPinata')
+					return;
+			}
+				
+			if (!CountInv("IWasMeleeKilled"))
+			{
+				A_PainDie("D4LostSoulNoCash");
+			}
+		}
+		PAIN I 3 BRIGHT A_PlaySound(DeathSound, 7);
+		PAIN J 3 BRIGHT ;
+		PAIN K 3 Bright
 		{
 			XDeathGush();
 			if (HQ)
@@ -126,12 +147,7 @@ Class D4PainElemental : D4AbstractBiggie
 				A_SpawnItemEx("PainElementalExplosionSprite",0,0,28,frandom(-3,3),frandom(-3,3),frandom(-3,3),random(0,359),SXF_NOCHECKPOSITION);
 			}
 		}
-		PAIN L 5 BRIGHT 
-		{
-			if (!CountInv("IWasMeleeKilled"))
-			{	A_PainDie("D4LostSoulNoCash");	}
-		}
-		PAIN M 5 BRIGHT;
+		PAIN LM 3 BRIGHT ;
 		Stop;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states
