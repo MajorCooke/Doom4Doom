@@ -52,6 +52,7 @@ server bool D4D_EnhancedChase = true;
 server bool D4D_BerserkAutoSwitch = true;
 server int D4D_NMGrenades = 2; // [0,1,2] = [none,frag,all]
 server int D4D_UpgradeMode = 0; // [0,1] = [Credits, Drops]
+server cheat int D4D_CurrentUpgradeMode = 0;
 
 server int LOfx = 0;
 server int LOfy = 0;
@@ -72,7 +73,7 @@ server int D4D_StaggerLenght = 4;
 server bool D4D_PitchCompat = true;
 
 server noarchive cheat int D4D_PickupDropChance = 250;
-server cheat int D4D_CurrentUpgradeMode = 0;
+
 
 //==============================================================================
 // Misc crap. Mainly used for removing credit errors.

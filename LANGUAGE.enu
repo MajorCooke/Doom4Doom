@@ -329,7 +329,7 @@ StaticUpgrade4D5 =			"0.5s Drain Time";
 StaticUpgrade4D6 = 			"Primary or Secondary to Fire";
 
 LGUpgradeAmmo = 			"Inductive Clamp";
-LGUpgradeAmmoD1 = 			"+ Chance to not consume ammo";
+LGUpgradeAmmoD1 = 			"+ Primary chance to not consume ammo";
 
 LGUpgradeRange = 			"Electrocoil";
 LGUpgradeRangeD1 = 			"+ Range";
@@ -339,7 +339,7 @@ LGUpgradeDamageD1 = 		"+ Damage";
 
 LGUpgradeAltFire = 			"Bolt Buddy";
 LGUpgradeAltFireD1 = 		"Adds Secondary Fire";
-LGUpgradeAltFireD2 = 		"Beam bounces to nearby enemies on impact";
+LGUpgradeAltFireD2 = 		"Main beam impact electrocutes nearby enemies";
 
 VortexUpgradeDamage = 		"Weakness Exposer";
 VortexUpgradeDamageD1 =		"+ Non-Scoped Damage";
@@ -355,14 +355,14 @@ VortexUpgradeAltPierce = 	"Drilling Head";
 VortexUpgradeAltPierceD1 = 	"Scoped shots pierces targets";
 
 RepeaterUpgradePiercing = 	"Uranium Coating";
-RepeaterUpgradePiercingD1 = 	"+1 Target Penetration";
+RepeaterUpgradePiercingD1 = "+1 Target Penetration";
 
 RepeaterUpgradeDamage = 	"Tri-Shot Chamber";
 RepeaterUpgradeDamageD1 = 	"+ Primary Damage";
 RepeaterUpgradeDamageD2 = 	"+ Ammo Cost"; //RED
 
 RepeaterUpgradeAltDamage = 		"Brennbaren Zitronensaft"; //German: Combustible Lemon Juice. Cave Johnson lives on, somewhere...
-RepeaterUpgradeAltDamageD1 = 	"+ Incendiary Damage";
+RepeaterUpgradeAltDamageD1 =	"+ Incendiary Damage";
 
 RepeaterUpgradeAltAmmo = 	"Pyrolight";
 RepeaterUpgradeAltAmmoD1 = 	"- Secondary Ammo Cost";
@@ -415,22 +415,28 @@ CarrionUpgradeTimeD1 =		"+1 Second to Portal Duration";
 HealthUpgrade1 =			"Health Cap + 25";
 HealthUpgrade2 =			"Health Cap + 50";
 HealthUpgrade3 =			"Health Cap + 100";
+HealthUpgradeF1 =			"Pumping + humping = MY POWUR IS MAXIMUMER";
 
 ArmorUpgrade1 =				"Armor Cap + 25";
 ArmorUpgrade2 =				"Armor Cap + 50";
 ArmorUpgrade3 =				"Armor Cap + 100";
+ArmorUpgradeF1 = 			"Crotch protection when you need it.";
 
 AirUpgrade1 =				"Increased Jump Height";
 AirUpgrade2 =				"Triple Jump";
 AirUpgrade3 =				"Increased Air Control";
+AirUpgrade4 =				"Dash Ability";
+AirUpgradeF1 =				"The power of farts compels you higher!";
 
 ProtectionUpgrade1 =		"Environment Damage Reduction";
 ProtectionUpgrade2 =		"Self Damage Reduction";
 ProtectionUpgrade3 =		"Radius Damage Reduction";
+ProtectionUpgradeF1 =		"Rubber saves lives, kids.";
 
 CrateQualityUpgrade1 =		"Big Crate Items";
 CrateQualityUpgrade2 =		"Situational Crate Items";
 CrateQualityUpgrade3 =		"Weaponized Crates";
+CrateQualityUpgradeF1 =		"Gambling addiction not included.";
 
 CrateQuantityUpgrade =		"+ Crate Earn Chance";
 
@@ -462,7 +468,7 @@ D4RuneUpgrade2D3 =			"rune of the Black taps into the well of Darkness and";
 D4RuneUpgrade2D4 =			"empowers the currently active sigil when close to a twin";
 D4RuneUpgrade2D5 =			"of its own, allowing the holder to sustain themselves";
 D4RuneUpgrade2D6 =			"for a longer period of time.";
-D4RuneUpgrade2F1 =			"2 stronk";
+D4RuneUpgrade2F1 =			"EAT MY ASS, YOU CUM COLORED CHRISTMAS ORNAMENT.";
 
 D4RuneUpgrade3D1 =			"Hell is not just some unintelligently brutal war";
 D4RuneUpgrade3D2 =			"machine. In fact, they are devious, keeping even the";
@@ -471,7 +477,7 @@ D4RuneUpgrade3D4 =			"mortals, said mundaneness is something which would"
 D4RuneUpgrade3D4 =			"allow them the ability to fight like Hell itself.";
 D4RuneUpgrade3D5 =			"The Hell Magic Rune reveals the hidden details,";
 D4RuneUpgrade3D6 =			"granting more opportunities to fight fire with fire.";
-D4RuneUpgrade3F1 =			"Ceiling cat is watching your every move.";
+D4RuneUpgrade3F1 =			"(S)He who shits bricks dies slowly from mad cow disease.";
 
 D4RuneUpgrade4D1 =			"The elder magic is beyond understanding for any beast";
 D4RuneUpgrade4D2 =			"regardless of being -- good or evil. Infusing such";
@@ -480,7 +486,7 @@ D4RuneUpgrade4D4 =			"knows Chaos, and there must always be perseverence.";
 D4RuneUpgrade4D5 =			"The rune of elder holds a tiny sliver of such power";
 D4RuneUpgrade4D6 =			"to grant this perseverence by leaching health from";
 D4RuneUpgrade4D7 =			"the defender's foes.";
-D4RuneUpgrade4F1 =			"Hey now, that old fart knows what's going on!";
+D4RuneUpgrade4F1 =			"Senzu Bean v0.1";
 
 D4PentagramUpgrade1 = 		"Death Bringer's Reflection";
 D4PentagramUpgrade2 = 		"Death Bringer's Shadow";
@@ -491,20 +497,36 @@ D4PentagramUpgrade4 = 		"Protection of the Dark One";
 //D4PentagramUpgrade1D2 =		"one capable of reflecting everything sent against";
 //D4PentagramUpgrade1D3 =		"him. Such power could be useful...";
 D4PentagramUpgrade1D1 =		"Reflects projectiles back at attackers";
-D4PentagramUpgrade1F1 =		"Can't touch dis, Cap'n.";
+D4PentagramUpgrade1F1 =		"If I had a penny for every time MC Hammer's been\nreferenced...";
 
 //D4PentagramUpgrade2D1 =		"None can impede the shadow of Death physically.";
 //D4PentagramUpgrade2D2 =		"Those who attempt will only feel foolish, as the";
 //D4PentagramUpgrade2D3 =		"the protected are but a ghost to the enemy.";
 D4PentagramUpgrade2D1 =		"Invulnerability allows passing through monsters";
-D4PentagramUpgrade2F1 =		"Scooby Dooby Don't";
+D4PentagramUpgrade2F1 =		"Like Curly on Cocaine. WOOP Woop woop woop woop!";
 
 D4PentagramUpgrade3D1 =		"Deal 20% damage back to enemy attackers.";
-D4PentagramUpgrade3F1 =		"Like jumping onto a cactus.";
+D4PentagramUpgrade3F1 =		"Like jumping on a cactus.";
 
 //D4PentagramUpgrade4D1 =		"The dark one's protection is truly unbeatable, save";
 //D4PentagramUpgrade4D2 =		"for the Great One's strength alone. What is used";
 //D4PentagramUpgrade4D3 =		"currently can save all but several factors. Let";
 //D4PentagramUpgrade4D4 =		"those factors be no more. Become truly unkillable.";
 D4PentagramUpgrade4D1 =		"Grants invulnerability to instant death effects";
-D4PentagramUpgrade4F1 =		"Bypass all death exits. Pass go, collect $200!";
+D4PentagramUpgrade4F1 =		"U mad, trollface.png? =D";
+
+CashPercentBonus1F1 =		"Bitches be richer, yo.";
+
+D4MegachargeUpgrade1F1 =	"Incites hallucinations of becoming a\nMonster Truck that walks like a MAN";
+D4MegachargeUpgrade2F1 =	"He who moves at the speed of stupid is a traffic jam in New York,\n"
+							"or a fly whose brain goes ass first on a windshield.\n"
+							"He who moves at the speed of dopefish retards the human race\n"
+							"with large buck teeth and obnoxious belching.";
+
+D4DoomDollUpgrade1F1 =		"Bat Country called. They want their fanbois back.";
+D4DoomDollUpgrade2F1 =		"Who needs guns when you have a can of whoop-ass?";
+
+D4RegenUpgrade1F1 =			"Tim Allen grunts louder when happiest.";
+D4RegenUpgrade2F1 =			"Aspect of the Namekian:\nLose no hope when you lose an arm.";
+D4RegenUpgrade3F1 =			"When you wake up in a tub full of ice, you're laughing.";
+D4RegenUpgrade4F1 = 		"Steroids Without Consequences";
