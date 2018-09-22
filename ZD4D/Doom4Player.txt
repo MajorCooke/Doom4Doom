@@ -348,7 +348,9 @@ Class Doom4Player : PlayerPawn
 	Overlay.Dashing:
 		M666 AAAAAA 1
 		{
+			double vz = Max(0.0, vel.z);
 			Vel3DFromAngle(30, Angle + DashAngle, 0);
+			vel.z = vz;
 		}
 		Goto Overlay.DashManager;
 	//==========================================================================
