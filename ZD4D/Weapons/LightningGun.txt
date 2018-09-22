@@ -67,6 +67,7 @@ Class D4LightningGun : Doom4Weapon
 	Deselect:
 		LGNI A 0 
 		{
+			A_StopBeam("");
 			A_TakeInventory("AltFireToken",32767);
 			ACS_NamedExecute("RemoveModText",0,0,0,0);
 			A_StopSound(5);
@@ -155,6 +156,7 @@ Class D4LightningGun : Doom4Weapon
 			int Dist = CountInv("LGUpgradeRange") ? 1024 : 768;
 			
 			A_FireBullets(0,0,1,dmg,"LightningPuffV3",Flags,Dist,"LightningBeamSecondarySpawner",LGHeight,LGDist);
+			
 			if (CountInv("PowerD4DFS"))
 				A_FireBullets(0,0,1,dmg,"LightningPuffV3",Flags,Dist,"LightningBeamSecondarySpawner",LGHeight,LGDist);
 			
