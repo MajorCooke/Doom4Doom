@@ -777,7 +777,7 @@ Class D4SuitUpgradePickup : CustomInventory
 			
 			for (int i = 0; i < Items.Size(); i++)
 			{
-				let inv = invoker.owner.FindInventory(Items[i]);
+				let inv = FindInventory(Items[i]);
 				if (!inv || inv.Amount < inv.MaxAmount)
 					list.Push(Items[i]);
 			}
