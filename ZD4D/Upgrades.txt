@@ -1,4 +1,49 @@
 
+Class UpgradeRequirementChecker
+{
+	const Total = 4;
+	Class<UpgradeItem> Item;
+	Array<Class<UpgradeItem> > ReqList;
+	
+	int CheckItem(Class<UpgradeItem> Check, Actor Plr)
+	{
+		Item = Check;
+		ReqList.Clear();
+		
+		if (!Item || !Plr)	return -1;
+		
+		String Reqs[Total];
+		int ReqQ[Total];
+		Class<Inventory> Checks[Total];
+		let def = GetDefaultByType(Item);
+		
+		Reqs[0] = def.Req1;	ReqQ[0] = def.ReqQ1;
+		Reqs[1] = def.Req2;	ReqQ[1] = def.ReqQ2;
+		Reqs[2] = def.Req3;	ReqQ[2] = def.ReqQ3;
+		Reqs[3] = def.Req4;	ReqQ[3] = def.ReqQ4;
+		
+		for (int i = 0; i < Reqs.Size(); i++)
+		{
+			if (Reqs[i].Length() < 1)
+			{
+				Checks[i] = null;
+				continue;
+			}
+			
+			Checks[i] = Reqs[i];
+			if (Checks[i])
+			{
+				let inv = Plr.FindInventory(Checks[i]);
+				if (!inv || inv.Amount < inv.MaxAmount)
+					ReqList.Push(Checks[i]);
+			}
+			else Console.Printf("Bad item: %s", Reqs[i]);
+		}
+		
+		return ReqList.Size();
+	}
+}
+
 Class D4DKeeperItem : Inventory 
 {
 	Default
@@ -42,12 +87,12 @@ Class UpgradeItem : D4DKeeperItem
 	property Quantity3: Q3;
 	property Quantity4: Q4;
 	property Tiered: Tiered;
-	
+
 	property Attached1: Attach1, Attamt1;
 	property Attached2: Attach2, Attamt2;
 	property Attached3: Attach3, Attamt3;
 	property Attached4: Attach4, Attamt4;
-	
+
 	property Req1: Req1, ReqQ1;
 	property Req2: Req2, ReqQ2;
 	property Req3: Req3, ReqQ3;
@@ -110,7 +155,18 @@ Class UpgradeItem : D4DKeeperItem
 		InterhubAmount = MaxAmount;
 		
 		if (badItems.Length() > 0)
-			Console.Printf("Bad item requirements in %s: %s", badItems, GetClass());
+			Console.Printf("Bad item requirements in %s: %s", GetClassName(), badItems);
+	}
+	
+	override bool HandlePickup(Inventory item)
+	{
+		bool good = Super.HandlePickup(item);
+		if (good)
+		{
+			let inv = UpgradeItem(FindInventory(GetClass()));
+			if (inv)	inv.UpdateItem();
+		}
+		return good;
 	}
 }
 
@@ -162,17 +218,17 @@ Class D4HealthUpgrade : UpgradeStamina
 	
 	override bool TryPickup (in out Actor toucher)
 	{
-		if (toucher.player == NULL)
+		if (!toucher.player)
 			return false;
 			
 		int amt = 0;
 		
-		int inv = toucher.player.mo.stamina;
+		int inv = toucher.stamina;
 		int in2 = toucher.CountInv("D4Stamina");
 		
-		toucher.player.mo.stamina = Max(inv, in2);
-		if (toucher.player.mo.stamina >= MaxAmount)
-			toucher.player.mo.stamina = MaxAmount;
+		toucher.stamina = Max(inv, in2);
+		if (toucher.stamina >= MaxAmount)
+			toucher.stamina = MaxAmount;
 			
 		toucher.GiveBody (-100);
 		GoAwayAndDie();
@@ -204,12 +260,12 @@ Class ProtectionBonus1Real : PowerProtection
 {
 	Default 
 	{
-		DamageFactor "Normal", 1.0;
+		DamageFactor "Normal", 	1.0;
 		DamageFactor "Drowning",0.5;
 		DamageFactor "Slime", 	0.5;
 		DamageFactor "Fire", 	0.5;	// for lava
 		DamageFactor "Crush", 	0.5;
-		DamageFactor "Falling", 0.5;
+		DamageFactor "Falling", 0.0;
 		+INVENTORY.PERSISTENTPOWER
 		+INVENTORY.UNTOSSABLE
 		+INVENTORY.UNDROPPABLE
@@ -235,7 +291,7 @@ Class ProtectionBonus3Real : PowerProtection
 		+INVENTORY.PERSISTENTPOWER
 		+INVENTORY.UNTOSSABLE
 		+INVENTORY.UNDROPPABLE
-		Powerup.Duration 0x7FFFFFFD;
+		Powerup.Duration 1000000;
 		Inventory.InterhubAmount 1;
 		Inventory.MaxAmount 1;
 	}
@@ -269,8 +325,8 @@ Class BFGUpgrade1 : UpgradeItem	// Ammo Capacity
 			let inv = Owner.FindInventory("D4BFGAmmo");
 			if (inv)
 			{
-				inv.MaxAmount = 4;
-				inv.InterHubAmount = 4;
+				inv.MaxAmount = inv.Default.MaxAmount + Amount;
+				inv.InterHubAmount = inv.Default.InterHubAmount + Amount;
 			}
 		}
 	}
@@ -281,8 +337,8 @@ Class BFGUpgrade1 : UpgradeItem	// Ammo Capacity
 			let inv = Owner.FindInventory("D4BFGAmmo");
 			if (inv)
 			{
-				inv.MaxAmount = 3;
-				inv.InterHubAmount = 3;
+				inv.MaxAmount = inv.Default.MaxAmount;
+				inv.InterHubAmount = inv.Default.InterHubAmount;
 			}
 		}
 		Super.DepleteOrDestroy();
@@ -539,6 +595,7 @@ Class D4CrateUpgrade : UpgradeItem
 		UpgradeItem.Desc1 "Heavy Crates\nGuarantees larger quality items";
 		UpgradeItem.Desc2 "Sensor Crates\nCrates are more situationally aware";
 		UpgradeItem.Desc3 "Weapon Crates\nCrates may contain weapons";
+		UpgradeItem.Desc4 "This shouldn't have happened...";
 		Inventory.MaxAmount 3; 
 	}
 	
@@ -548,7 +605,8 @@ Class D4CrateUpgrade : UpgradeItem
 			 if (amt == 1) 		Desc = Desc1;
 		else if (amt == 2)		Desc = Desc2;
 		else if (amt == 3)		Desc = Desc3;
-		else					Desc = "This shouldn't have happened...";
+		else if (amt == 4)		Desc = Desc4;
+		else					Desc = "";
 		
 		Super.PrintDesc();
 	}

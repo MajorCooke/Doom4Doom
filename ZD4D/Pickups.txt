@@ -540,7 +540,7 @@ Class D4UpgradePickupSpawner : Actor
 				items.Push("D4PowerUpgradePickup");
 			
 		
-			if (plr.CountInv("D4AirUpgrade") < 3 ||
+			if (plr.CountInv("D4AirUpgrade") < 4 ||
 				plr.CountInv("D4Stamina") < 100 ||
 				plr.CountInv("D4ArmorCapRaiser") < 100 ||
 				plr.CountInv("D4CrateUpgrade") < 3 ||
@@ -604,7 +604,6 @@ Class D4PowerUpgradePickup : CustomInventory
 	int count;
 	int ticker;
 	bool Flying;
-	Array<String> items;
 	Default
 	{
 		+INVENTORY.ALWAYSPICKUP
@@ -650,32 +649,33 @@ Class D4PowerUpgradePickup : CustomInventory
 	Pickup:
 		TNT1 A 0
 		{
-			invoker.items.Clear();
-			if (!CountInv("D4MegachargeUpgrade1"))	invoker.items.Push("D4MegachargeUpgrade1");
-			if (!CountInv("D4MegachargeUpgrade2"))	invoker.items.Push("D4MegachargeUpgrade2");
-			if (!CountInv("D4DoomDollUpgrade1"))	invoker.items.Push("D4DoomDollUpgrade1");
-			if (!CountInv("D4DoomDollUpgrade2"))	invoker.items.Push("D4DoomDollUpgrade2");
-			if (!CountInv("D4RegenUpgrade1"))	invoker.items.Push("D4RegenUpgrade1");
-			else if (!CountInv("D4RegenUpgrade2"))	invoker.items.Push("D4RegenUpgrade2"); //Requires the first.
-			if (!CountInv("D4RegenUpgrade3"))	invoker.items.Push("D4RegenUpgrade3");
-			if (!CountInv("D4RegenUpgrade4"))	invoker.items.Push("D4RegenUpgrade4");
-			if (!CountInv("D4PentagramUpgrade1"))	invoker.items.Push("D4PentagramUpgrade1");
-			if (!CountInv("D4PentagramUpgrade2"))	invoker.items.Push("D4PentagramUpgrade2");
-			if (!CountInv("D4PentagramUpgrade3"))	invoker.items.Push("D4PentagramUpgrade3");
-			if (!CountInv("D4PentagramUpgrade4"))	invoker.items.Push("D4PentagramUpgrade4");
-			//if (!CountInv("D4RuneUpgrade1"))	invoker.items.Push("D4RuneUpgrade1");
-			if (!CountInv("D4RuneUpgrade2"))	invoker.items.Push("D4RuneUpgrade2");
-			if (!CountInv("D4RuneUpgrade3"))	invoker.items.Push("D4RuneUpgrade3");
-			if (!CountInv("D4RuneUpgrade4"))	invoker.items.Push("D4RuneUpgrade4");
-			if (invoker.items.Size() > 0)
+			Array<String> items;
+			items.Clear();
+			if (!CountInv("D4MegachargeUpgrade1"))	items.Push("D4MegachargeUpgrade1");
+			if (!CountInv("D4MegachargeUpgrade2"))	items.Push("D4MegachargeUpgrade2");
+			if (!CountInv("D4DoomDollUpgrade1"))	items.Push("D4DoomDollUpgrade1");
+			if (!CountInv("D4DoomDollUpgrade2"))	items.Push("D4DoomDollUpgrade2");
+			if (!CountInv("D4RegenUpgrade1"))		items.Push("D4RegenUpgrade1");
+			else if (!CountInv("D4RegenUpgrade2"))	items.Push("D4RegenUpgrade2"); //Requires the first.
+			if (!CountInv("D4RegenUpgrade3"))		items.Push("D4RegenUpgrade3");
+			if (!CountInv("D4RegenUpgrade4"))		items.Push("D4RegenUpgrade4");
+			if (!CountInv("D4PentagramUpgrade1"))	items.Push("D4PentagramUpgrade1");
+			if (!CountInv("D4PentagramUpgrade2"))	items.Push("D4PentagramUpgrade2");
+			if (!CountInv("D4PentagramUpgrade3"))	items.Push("D4PentagramUpgrade3");
+			if (!CountInv("D4PentagramUpgrade4"))	items.Push("D4PentagramUpgrade4");
+			//if (!CountInv("D4RuneUpgrade1"))		items.Push("D4RuneUpgrade1");
+			if (!CountInv("D4RuneUpgrade2"))		items.Push("D4RuneUpgrade2");
+			if (!CountInv("D4RuneUpgrade3"))		items.Push("D4RuneUpgrade3");
+			if (!CountInv("D4RuneUpgrade4"))		items.Push("D4RuneUpgrade4");
+			if (items.Size() > 0)
 			{
-				int rng = random(0, invoker.items.Size() - 1);
-				Class<Inventory> som = invoker.items[rng];
+				int rng = random(0, items.Size() - 1);
+				Class<Inventory> som = items[rng];
 				if (som)	A_GiveInventory(som);
-				A_Print("$"..invoker.items[rng]);
+				A_Print("$"..items[rng]);
 			}
 			
-			//
+			items.Clear();
 			return true;
 		}
 		Stop;
@@ -763,15 +763,31 @@ Class D4SuitUpgradePickup : CustomInventory
 			// Gonna find out whose a jackass or vice!
 			// Satan Claws is coming to drown!
 			
-			Array<String> list;
+			Array<Class<Inventory> > list;
 			list.Clear();
 			
-			if (CountInv("D4AirUpgrade") < 3)			list.Push("D4AirUpgrade");
+			static const Class<Inventory> Items[] =
+			{
+				"D4AirUpgrade",
+				"D4Stamina",
+				"D4ArmorCapRaiser",
+				"D4CrateUpgrade",
+				"ProtectionBonus"
+			};
+			
+			for (int i = 0; i < Items.Size(); i++)
+			{
+				let inv = invoker.owner.FindInventory(Items[i]);
+				if (!inv || inv.Amount < inv.MaxAmount)
+					list.Push(Items[i]);
+			}
+			/*
+			if (CountInv("D4AirUpgrade") < 4)			list.Push("D4AirUpgrade");
 			if (CountInv("D4Stamina") < 100)			list.Push("D4Stamina");
 			if (CountInv("D4ArmorCapRaiser") < 100)		list.Push("D4ArmorCapRaiser");
 			if (CountInv("D4CrateUpgrade") < 3)			list.Push("D4CrateUpgrade");
 			if (CountInv("ProtectionBonus") < 3)		list.Push("ProtectionBonus");
-			
+			*/
 			if (list.Size() < 1)	
 				return true;
 			
@@ -797,6 +813,7 @@ Class D4SuitUpgradePickup : CustomInventory
 				}
 			}
 			else Console.Printf("ERROR: %s - bad item!", list[rng]);
+			
 			return true;
 		}
 		Stop;

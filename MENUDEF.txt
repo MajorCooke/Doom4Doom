@@ -156,6 +156,7 @@ OptionMenu "D4DKeybinds"
 	StaticText "Special Use", 1
 	Control "Akimbo Menu (Slot 9)",			"+user3"
 	Control "Buy Crate (500cr)",			"give BuyCrate"
+	Control "Dash (when available)",		"NetEvent Dash"
 	Control "Brofist (when available)",		"pukename D4DoomDoll"
 	Control "Chaingun Special Mode", 		"pukename D4ToggleSoviet"
 	Control "Panic Button (Clear Gibs)",	"RemoveAllGibs"
@@ -172,7 +173,7 @@ OptionMenu "D4DWeaponsMenu"
 	Control		"Slot 2 (Pistol)",							"slot 2"
 	Control		"Slot 3 (Shotgun, SS.)",					"slot 3"
 	Control		"Slot 4 (H.A.R., Repeater, Chaingun)",		"slot 4"
-	Control		"Slot 5 (Rocket Launcher)",					"slot 5"
+	Control		"Slot 5 (Rocket, Grenade Launcher)",		"slot 5"
 	Control		"Slot 6 (Plasma, LightningGun)",			"slot 6"
 	Control		"Slot 7 (Static, Vortex, Gauss)",			"slot 7"
 	Control		"Slot 8 (BFG, Carrion)",					"slot 8"
@@ -384,125 +385,6 @@ OptionValue PuffTypesLocked
 {
 	0.0, "Sprites"
 }
-
-
-
-
-
-
-
-
-
-//-------------------------------------------------------------------------------------------
-//
-// Controls Menu
-//
-//-------------------------------------------------------------------------------------------
-
-OptionMenu "CustomizeControls"
-{
-	Title "$CNTRLMNU_TITLE"
-	ScrollTop 2
-	StaticTextSwitchable 	"$CNTRLMNU_SWITCHTEXT1", "$CNTRLMNU_SWITCHTEXT2", "ControlMessage"
-	StaticText ""
-	StaticText "D4D Keybinds"
-	Control "Upgrade Menu",			"UpgradeMenu"
-	StaticText ""
-	Control "Switch Weapon Mods",			"+user1"
-	Control "Melee Attack",					"+user2"
-	Control "Select next grenade type",		"Give GrenadeSwitchNext"
-	Control "Select previous grenade type",	"Give GrenadeSwitchPrev"
-	Control "Throw Grenade",				"+reload"
-	StaticText ""
-	StaticText "Special Use", 1
-	Control "Buy Crate (500cr)",		"give BuyCrate"
-	Control "Brofist (when available)",		"pukename D4DoomDoll"
-	Control "Chaingun Special Mode", 		"pukename D4ToggleSoviet"
-	Control "Panic Button (Clear Gibs)",	"RemoveAllGibs"
-	StaticText ""
-	SubMenu "Weapon keybinds",			"D4DWeaponsMenu"
-	StaticText 	""
-	StaticText 	"$CNTRLMNU_CONTROLS", 1
-	Control 	"$CNTRLMNU_ATTACK",					"+attack"
-	Control 	"$CNTRLMNU_ALTATTACK",				"+altattack"
-	Control 	"$CNTRLMNU_RELOAD",					"+reload"
-	Control 	"$CNTRLMNU_ZOOM",					"+zoom"
-	Control		"$CNTRLMNU_USER1",					"+user1"
-	Control		"$CNTRLMNU_USER2",					"+user2"
-	Control		"$CNTRLMNU_USER3",					"+user3"
-	Control		"$CNTRLMNU_USER4",					"+user4"
-	Control 	"$CNTRLMNU_USE",					"+use"
-	Control 	"$CNTRLMNU_FORWARD",				"+forward"
-	Control 	"$CNTRLMNU_BACK",					"+back"
-	Control 	"$CNTRLMNU_MOVELEFT",				"+moveleft"
-	Control 	"$CNTRLMNU_MOVERIGHT",				"+moveright"
-	Control 	"$CNTRLMNU_TURNLEFT",				"+left"
-	Control 	"$CNTRLMNU_TURNRIGHT",				"+right"
-	Control		"$CNTRLMNU_TURN180",				"turn180"
-	Control 	"$CNTRLMNU_JUMP",					"+jump"
-	Control 	"$CNTRLMNU_CROUCH",					"+crouch"
-	Control 	"$CNTRLMNU_TOGGLECROUCH",			"crouch"
-	Control 	"$CNTRLMNU_MOVEUP",					"+moveup"
-	Control 	"$CNTRLMNU_MOVEDOWN",				"+movedown"
-	Control 	"$CNTRLMNU_LAND",					"land"
-	Control 	"$CNTRLMNU_MOUSELOOK",				"+mlook"
-	Control 	"$CNTRLMNU_KEYBOARDLOOK",			"+klook"
-	Control 	"$CNTRLMNU_LOOKUP",					"+lookup"
-	Control 	"$CNTRLMNU_LOOKDOWN",				"+lookdown"
-	Control 	"$CNTRLMNU_CENTERVIEW",				"centerview"
-	Control 	"$CNTRLMNU_RUN",					"+speed"
-	Control 	"$CNTRLMNU_TOGGLERUN",				"toggle cl_run"
-	Control 	"$CNTRLMNU_STRAFE",					"+strafe"
-	Control 	"$CNTRLMNU_SCOREBOARD",				"+showscores"
-	Control 	"$CNTRLMNU_TOGGLESCOREBOARD",		"togglescoreboard"
-	StaticText 	""
-	StaticText 	"$CNTRLMNU_CHAT", 1
-	Control 	"$CNTRLMNU_SAY",					"messagemode"
-	Control 	"$CNTRLMNU_TEAMSAY",				"messagemode2"
-	StaticText 	""
-	StaticText 	"$CNTRLMNU_WEAPONS", 1
-	Control 	"$CNTRLMNU_NEXTWEAPON",				"weapnext"
-	Control 	"$CNTRLMNU_PREVIOUSWEAPON",			"weapprev"
-	Control		"$CNTRLMNU_SLOT1",					"slot 1"
-	Control		"$CNTRLMNU_SLOT2",					"slot 2"
-	Control		"$CNTRLMNU_SLOT3",					"slot 3"
-	Control		"$CNTRLMNU_SLOT4",					"slot 4"
-	Control		"$CNTRLMNU_SLOT5",					"slot 5"
-	Control		"$CNTRLMNU_SLOT6",					"slot 6"
-	Control		"$CNTRLMNU_SLOT7",					"slot 7"
-	Control		"$CNTRLMNU_SLOT8",					"slot 8"
-	Control		"$CNTRLMNU_SLOT9",					"slot 9"
-	Control		"$CNTRLMNU_SLOT0",					"slot 0"
-	StaticText 	""
-	StaticText 	"$CNTRLMNU_INVENTORY", 1
-	Control 	"$CNTRLMNU_USEITEM",				"invuse"
-	Control 	"$CNTRLMNU_USEALLITEMS",			"invuseall"
-	Control 	"$CNTRLMNU_NEXTITEM",				"invnext"
-	Control 	"$CNTRLMNU_PREVIOUSITEM",			"invprev"
-	Control 	"$CNTRLMNU_DROPITEM",				"invdrop"
-	Control		"$CNTRLMNU_QUERYITEM",				"invquery"
-	Control 	"$CNTRLMNU_DROPWEAPON",				"weapdrop"
-	StaticText 	""
-	StaticText 	"$CNTRLMNU_OTHER", 1
-	Control 	"$CNTRLMNU_AUTOMAP",				"togglemap"
-	Control 	"$CNTRLMNU_CHASECAM",				"chase"
-	Control 	"$CNTRLMNU_COOPSPY",				"spynext"
-	Control 	"$CNTRLMNU_SCREENSHOT",				"screenshot"
-	Control  	"$CNTRLMNU_CONSOLE",				"toggleconsole"
-	StaticText 	""
-	StaticText 	"$CNTRLMNU_POPUPS", 1
-	Control 	"$CNTRLMNU_MISSION",				"showpop 1"
-	Control 	"$CNTRLMNU_KEYS",					"showpop 2"
-	Control 	"$CNTRLMNU_STATS",					"showpop 3"
-}
-
-
-
-
-
-
-
-
 
 
 //==============================================================================
@@ -1603,6 +1485,8 @@ OptionMenu "D4Stamina"
 	CostDisplay D4Stamina
 	StaticText " "
 	CreditDisplay D4Stamina
+	StaticText ""
+	StaticText "$HealthUpgradeF1", WHITE
 }
 
 //==============================================================================
@@ -1635,6 +1519,8 @@ OptionMenu "D4ArmorCapRaiser"
 	CostDisplay D4ArmorCapRaiser
 	StaticText ""
 	CreditDisplay D4ArmorCapRaiser
+	StaticText ""
+	StaticText "$ArmorUpgradeF1", WHITE
 }
 //==============================================================================
 // Jump
@@ -1644,24 +1530,28 @@ OptionMenu "D4AirUpgrade"
 	Class "D4DOptionMenuUpgrades"
 	Title "Jump Upgrades"
 	StaticText "*** COLOR LEGEND ***", WHITE
-	StaticText " "
+	StaticText ""
 	StaticText "OWNED"
 	StaticText "BUYING", GOLD
 	StaticText "GATED", TAN
-	StaticText " "
+	StaticText ""
 	StaticText "------- STATUS -------", WHITE
-	StaticText " "
-	StaticTextTier "Higher Jump", "D4AirUpgrade", 1
-	StaticText " "
-	StaticTextTier "Triple Jump", "D4AirUpgrade", 2
-	StaticText " "
-	StaticTextTier "Air Control", "D4AirUpgrade", 3
-	StaticText " "
+	StaticText ""
+	StaticTextTier "$AirUpgrade1", "D4AirUpgrade", 1
+	StaticText ""
+	StaticTextTier "$AirUpgrade2", "D4AirUpgrade", 2
+	StaticText ""
+	StaticTextTier "$AirUpgrade3", "D4AirUpgrade", 3
+	StaticText ""
+	StaticTextTier "$AirUpgrade4", "D4AirUpgrade", 4
+	StaticText ""
 	Purchase D4AirUpgrade
 	StaticText ""
 	CostDisplay D4AirUpgrade
 	StaticText ""
 	CreditDisplay D4AirUpgrade
+	StaticText ""
+	StaticText "$AirUpgradeF1", WHITE
 }
 
 //==============================================================================
@@ -1692,6 +1582,9 @@ OptionMenu "CashPercentBonus"
 	CostDisplay CashPercentBonus
 	StaticText ""
 	CreditDisplay CashPercentBonus
+	StaticText ""
+	StaticText ""
+	StaticText "$CashPercentBonus1F1", WHITE
 }
 
 //==============================================================================
@@ -1720,6 +1613,8 @@ OptionMenu "ProtectionBonus"
 	CostDisplay ProtectionBonus
 	StaticText ""
 	CreditDisplay ProtectionBonus
+	StaticText ""
+	StaticText "$ProtectionUpgradeF1", WHITE
 }
 
 //==============================================================================
@@ -1751,6 +1646,8 @@ OptionMenu "D4CrateUpgrade"
 	CostDisplay D4CrateUpgrade
 	StaticText ""
 	CreditDisplay D4CrateUpgrade
+	StaticText ""
+	StaticText "$CrateQualityUpgradeF1", WHITE
 }
 
 
@@ -1890,8 +1787,7 @@ OptionMenu "D4MegachargeUpgrade1"
 	StaticText ""
 	CreditDisplay D4MegachargeUpgrade1
 	StaticText ""
-	StaticText "Incites hallucinations of becoming a", WHITE
-	StaticText "Monster Truck that walks like a MAN", WHITE
+	StaticText "$D4MegachargeUpgrade1F1", WHITE
 }
 
 OptionMenu "D4MegachargeUpgrade2"
@@ -1906,7 +1802,7 @@ OptionMenu "D4MegachargeUpgrade2"
 	StaticText ""
 	CreditDisplay D4MegachargeUpgrade2
 	StaticText ""
-	StaticText "Tank 'n Spank an Impse", WHITE
+	StaticText "$D4MegachargeUpgrade2F1", WHITE
 }
 
 OptionMenu "D4DoomDollUpgrade1"
@@ -1923,7 +1819,7 @@ OptionMenu "D4DoomDollUpgrade1"
 	StaticText ""
 	CreditDisplay D4DoomDollUpgrade1
 	StaticText ""
-	StaticText "WARNING: Attracts fanbois from Bat Country", WHITE
+	StaticText "$D4DoomDollUpgrade1F1", WHITE
 }
 
 OptionMenu "D4DoomDollUpgrade2"
@@ -1938,7 +1834,7 @@ OptionMenu "D4DoomDollUpgrade2"
 	StaticText ""
 	CreditDisplay D4DoomDollUpgrade2
 	StaticText ""
-	StaticText "PEANUT AKBAR", WHITE
+	StaticText "$D4DoomDollUpgrade2F1", WHITE
 }
 
 OptionMenu "D4RegenUpgrade1"
@@ -1953,9 +1849,7 @@ OptionMenu "D4RegenUpgrade1"
 	StaticText ""
 	CreditDisplay D4RegenUpgrade1
 	StaticText ""
-	StaticText "Thy flesh be venomous sugar, most withering,", WHITE
-	StaticText "Thy skin burns their mithes by flaming salt.", WHITE
-	StaticText "Getting a hard-on has never been so satisfying.", WHITE
+	StaticText "$D4RegenUpgrade1F1", WHITE
 }
 
 OptionMenu "D4RegenUpgrade2"
@@ -1970,8 +1864,7 @@ OptionMenu "D4RegenUpgrade2"
 	StaticText ""
 	CreditDisplay D4RegenUpgrade2
 	StaticText ""
-	StaticText "Aspect of the Namekian:", WHITE
-	StaticText "Lose no hope when you lose an arm.", WHITE
+	StaticText "$D4RegenUpgrade2F1", WHITE
 }
 
 OptionMenu "D4RegenUpgrade2NA"
@@ -1998,7 +1891,7 @@ OptionMenu "D4RegenUpgrade3"
 	StaticText ""
 	CreditDisplay D4RegenUpgrade3
 	StaticText ""
-	StaticText "When you wake up in a tub full of ice, you're laughing.", WHITE
+	StaticText "$D4RegenUpgrade3F1", WHITE
 }
 
 OptionMenu "D4RegenUpgrade4"
@@ -2013,7 +1906,7 @@ OptionMenu "D4RegenUpgrade4"
 	StaticText ""
 	CreditDisplay D4RegenUpgrade4
 	StaticText ""
-	StaticText "Steroids Without Consequences", WHITE
+	StaticText "$D4RegenUpgrade4F1", WHITE
 }
 
 OptionMenu "D4PentagramUpgrade1"

@@ -97,6 +97,11 @@ Class D4DHandler : EventHandler
 				}
 			}
 		}
+		if (e.Name == 'Dash')
+		{
+			let pl = Doom4Player(plr);
+			if (pl)	pl.TryDash();
+		}
 		if (e.Name == 'DisableReception')
 		{
 			deltas[num].receiving = false;

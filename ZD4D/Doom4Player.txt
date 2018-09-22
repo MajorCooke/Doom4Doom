@@ -148,6 +148,9 @@ Class Doom4Player : PlayerPawn
 	int user_ordersJump;
 	int user_wasClimbing;
 	int user_climbBouncePrevention;
+	int GrenChargeCurrent;
+	int DashTimer;
+	double DashForward, DashSide, DashAngle;
 	double user_offsets;
 	bool spawned;
 	Class<Actor> GrenadeToFire;
@@ -251,17 +254,103 @@ Class Doom4Player : PlayerPawn
 	States
 	{
 	Spawn:
-		PLAY A -1
+		PLAY A -1 NoDelay
 		{
 			if (player && player.mo && player.mo == self)
 			{
+				A_Overlay(Overlay_DashManager, "Overlay.DashManager", true);
 				A_Overlay(Overlay_UtilityManager, "Overlay.UtilityManager", true);
 				A_Overlay(Overlay_LedgeGrab,"Overlay.LedgeGrab",true);
 				A_Overlay(99,"Overlay.Debug",true);
 			}
 		}
 		Loop;
-	
+	//==========================================================================
+	// Overlay:			Dash Manager
+	// Deals with fast movement in a direction, horizontally.
+	//==========================================================================
+	Overlay.DashManager:
+		M666 A 1
+		{
+			if (!player)	return ResolveState("Null");
+			
+			DashForward = DashSide = DashAngle = 0;
+			if (!CountInv("D4Dash"))
+			{
+				A_OverlayFlags(OverlayID(), PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
+				A_SetTics(17);
+				return ResolveState(null);
+			}
+			if (DashTimer > 1) 
+				DashTimer--; // Still waiting.
+			else if (DashTimer == 1)
+			{
+				if (bONMOBJ || pos.z <= GetZAt() || A_CheckFloor("Null"))
+					DashTimer = 0; // Can dash.
+			}
+			else if (DashTimer == -1)
+			{
+				int btns = GetPlayerInput(MODINPUT_BUTTONS);
+				bool forward = (btns & BT_FORWARD);
+				bool backward = (btns & BT_BACK);
+				bool left = (btns & BT_MOVELEFT);
+				bool right = (btns & BT_MOVERIGHT);
+				if (forward || backward || left || right)
+				{
+					if (forward != backward && left != right)
+					{
+						if (forward)
+						{
+							DashAngle = 0;
+							if (right != left)
+								DashAngle += (left) ? 45 : -45;
+							 
+						}
+						else
+						{
+							DashAngle = 180;
+							if (right != left)
+								DashAngle += (left) ? -45 : 45;
+						}
+					}
+					else if (forward != backward || right != left)
+					{
+						if (forward != backward)
+						{
+							DashAngle = (backward) ? 180 : 0;
+						}
+						else if (right != left)
+						{
+							DashAngle = (left) ? 90 : -90;
+						}
+					}
+					else
+					{
+						return ResolveState(null);
+					}
+					// Finally, check to make sure our desired angle isn't already
+					// going the speed of stupid - NASCAR style. =B
+					if (Vel.XY.Length() > 30.0)
+					{
+						double VelAng = VectorAngle(vel.x, vel.y);
+						DashAngle = Normalize180(DashAngle);
+						if (AbsAngle(VelAng,Angle + DashAngle) < 22.5)
+							return ResolveState(null);
+					}
+					DashTimer = 6;
+					return ResolveState("Overlay.Dashing");
+				}
+				else DashTimer = 0;
+			}
+			return ResolveState(null);
+		}
+		Wait;
+	Overlay.Dashing:
+		M666 AAAAAA 1
+		{
+			Vel3DFromAngle(30, Angle + DashAngle, 0);
+		}
+		Goto Overlay.DashManager;
 	//==========================================================================
 	// Overlay:			Utility Items
 	// Deals with grenades, flame thrower, etc.
@@ -273,14 +362,15 @@ Class Doom4Player : PlayerPawn
 			if (!plr)	return ResolveState("Null");
 			
 			bool ThrowGrenade = (plr.cmd.buttons & BT_RELOAD) && !(plr.oldbuttons & BT_RELOAD);
-			int Amt = 0, MaxAmt = 0;
+			int MaxAmt = 0;
 			let inv = GetDefaultByType("GrenadeCharge");
 			MaxAmt = inv.MaxAmount;
 			
-			A_OverlayFlags(OverlayID(), PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
-			A_OverlayOffset(OverlayID(), -CannonArmX, -CannonArmY, WOF_INTERPOLATE);
+			int OID = OverlayID();
+			A_OverlayFlags(OID, PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
+			A_OverlayOffset(OID, -CannonArmX, -CannonArmY, WOF_INTERPOLATE);
 			
-			if (CountInv("GrenadeCharge") >= MaxAmt)
+			if (GrenChargeCurrent >= MaxAmt)
 			{
 				if (ThrowGrenade)
 				{
@@ -311,16 +401,10 @@ Class Doom4Player : PlayerPawn
 					A_PlaySound("Doom4/Player/Nope",CHAN_AUTO);
 				}
 			}
-			else	
+			else if (ThrowGrenade)
 			{
-				A_GiveInventory("GrenadeCharge",1);
-				if (CountInv("GrenadeCharge") >= MaxAmt)
-					A_PlaySound("Doom4/Weapon/Grenade/GrenadeRegen");
-				else if (ThrowGrenade)
-				{
-					ACS_NamedExecute("GrenadeUnavailPrint",0,5); //print "grenade not ready"
-					A_PlaySound("Doom4/Player/Nope",CHAN_AUTO);
-				}
+				ACS_NamedExecute("GrenadeUnavailPrint",0,5); //print "grenade not ready"
+				A_PlaySound("Doom4/Player/Nope",CHAN_AUTO);	
 			}
 			return ResolveState(null);
 		}
@@ -992,6 +1076,7 @@ extend class Doom4Player
 		
 		if (source && source == self && CountInv("PowerD4QuadDamage"))
 		{
+			
 			damage *= 0.25;
 		}
 
@@ -1184,10 +1269,20 @@ extend class Doom4Player
 	override void Tick()
 	{
 		Super.Tick();
-		if ((!player || !player.mo || player.mo != self) || health <= 0)
+		if ((!player || !player.mo || player.mo != self) || health <= 0)	
 			return;
-			
 		
+		//======================================================================
+			
+		let inv = FindInventory("GrenadeCharge");
+		if (!inv || inv.Amount < inv.MaxAmount)
+		{
+			A_GiveInventory("GrenadeCharge",1);
+			if (!inv)	inv = FindInventory("GrenadeCharge");
+			if (inv && inv.Amount >= inv.MaxAmount)
+				A_PlaySound("Doom4/Weapon/Grenade/GrenadeRegen");
+		}
+		GrenChargeCurrent = (inv) ? inv.Amount : 0;
 		//======================================================================
 		if (effectSize > 0) {
 			Shader.SetEnabled(player, "damageshader", true);
@@ -1242,7 +1337,6 @@ extend class Doom4Player
 		// shuts this off.
 		if (!(timer % 3))
 		{
-			A_Overlay(Overlay_UtilityManager, "Overlay.UtilityManager", true);
 			if (!CountInv("StaticUpgrade4"))
 			{
 					 if (CountInv("StaticUpgrade3"))
@@ -1490,6 +1584,11 @@ extend class Doom4Player
 			A_StopSound(i);
 		A_Overlay(1,"Null");
 		A_ClearOverlays();
+	}
+	
+	void TryDash()
+	{
+		if (!DashTimer && health > 0)	DashTimer = -1;
 	}
 }
 
