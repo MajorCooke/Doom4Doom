@@ -127,31 +127,28 @@ Class Doom4Player : PlayerPawn
 	const CannonArmY = 23.0;
 	const CannonDestX = 83.0;
 	const CannonDestY = 23.0;
-	double URollpain;
-	double URollmove;
-	double URollsave;
 	double UVel;
 	double UZvel;
-	double user_hold;
-	double user_time;
+	double UHold;
+	double Utime;
 	double UVelx;
 	double UVely;
-	double user_accx;
-	double user_accy;
-	int user_lasthp;
-	int user_currenthp;
+	double Uaccx;
+	double Uaccy;
+	int Ulasthp;
+	int Ucurrenthp;
 	int UVel2; //Must be an int.
-	int user_once;
-	int user_weapon;
-	int user_jumpsDone;
-	int user_lowhp;
-	int user_ordersJump;
-	int user_wasClimbing;
-	int user_climbBouncePrevention;
+	int Uonce;
+	int Uweapon;
+	int UjumpsDone;
+	int Ulowhp;
+	int UordersJump;
+	int UwasClimbing;
+	int UclimbBouncePrevention;
 	int GrenChargeCurrent;
 	int DashTimer;
 	double DashForward, DashSide, DashAngle;
-	double user_offsets;
+	double UOffsets;
 	bool spawned;
 	Class<Actor> GrenadeToFire;
 	Default 
@@ -261,7 +258,7 @@ Class Doom4Player : PlayerPawn
 				A_Overlay(Overlay_DashManager, "Overlay.DashManager", true);
 				A_Overlay(Overlay_UtilityManager, "Overlay.UtilityManager", true);
 				A_Overlay(Overlay_LedgeGrab,"Overlay.LedgeGrab",true);
-				A_Overlay(99,"Overlay.Debug",true);
+			//	A_Overlay(99,"Overlay.Debug",true);
 			}
 		}
 		Loop;
@@ -334,10 +331,11 @@ Class Doom4Player : PlayerPawn
 					{
 						double VelAng = VectorAngle(vel.x, vel.y);
 						DashAngle = Normalize180(DashAngle);
-						if (AbsAngle(VelAng,Angle + DashAngle) < 22.5)
+						if (AbsAngle(VelAng,DashAngle + Angle) < 22.5)
 							return ResolveState(null);
 					}
 					DashTimer = 6;
+					DashAngle += Angle;
 					return ResolveState("Overlay.Dashing");
 				}
 				else DashTimer = 0;
@@ -349,10 +347,22 @@ Class Doom4Player : PlayerPawn
 		M666 AAAAAA 1
 		{
 			double vz = Max(0.0, vel.z);
-			Vel3DFromAngle(30, Angle + DashAngle, 0);
+			Vel3DFromAngle(30, DashAngle, 0);
 			vel.z = vz;
 		}
-		Goto Overlay.DashManager;
+		M666 A 1
+		{
+			StateLabel next = "Overlay.DashManager";
+			if (!bONMOBJ && z > GetZAt())
+			{
+				next = null;
+				double vz = vel.z;
+				Vel3DFromAngle(30, DashAngle, 0);
+				vel.z = vz;
+			}
+			return ResolveState(next);
+		}
+		Wait;
 	//==========================================================================
 	// Overlay:			Utility Items
 	// Deals with grenades, flame thrower, etc.
@@ -479,27 +489,27 @@ Class Doom4Player : PlayerPawn
 		{
 			if (GetCvar("D4D_TurningBehavior"))
 			{
-				if (abs(user_offsets) < 10.0)
+				if (abs(UOffsets) < 10.0)
 				{
-					user_offsets += (GetPlayerInput(INPUT_YAW,DefPtr) / 32767.0) * 10.0;
-					//A_LogFloat(user_offsets);
+					UOffsets += (GetPlayerInput(INPUT_YAW,DefPtr) / 32767.0) * 10.0;
+					//A_LogFloat(UOffsets);
 				}
-				if (user_offsets != 0.0)
+				if (UOffsets != 0.0)
 				{
-					if (user_offsets < 1.0 && user_offsets > -1.0)
+					if (UOffsets < 1.0 && UOffsets > -1.0)
 					{
-						A_WeaponOffset(user_offsets,0,WOF_ADD);
-						user_offsets = 0;
+						A_WeaponOffset(UOffsets,0,WOF_ADD);
+						UOffsets = 0;
 					}
-					else if (user_offsets < 0.0)
+					else if (UOffsets < 0.0)
 					{
-						A_WeaponOffset(user_offsets,0,WOF_ADD);
-						user_offsets += 1.0;
+						A_WeaponOffset(UOffsets,0,WOF_ADD);
+						UOffsets += 1.0;
 					}
-					else if (user_offsets > 0.0)
+					else if (UOffsets > 0.0)
 					{
-						A_WeaponOffset(user_offsets,0,WOF_ADD);
-						user_offsets -= 1.0;
+						A_WeaponOffset(UOffsets,0,WOF_ADD);
+						UOffsets -= 1.0;
 					}
 				}
 			}
@@ -522,99 +532,6 @@ Class Doom4Player : PlayerPawn
 				A_SetInventory("DebugMissilesToken", countProximity("D4AbstractMissile", 2048, CPXF_ANCESTOR));
 			}
 		}
-		M666 A 0
-		{
-			int cur = GetPlayerInput(MODINPUT_BUTTONS);
-			int old = GetPlayerInput(MODINPUT_OLDBUTTONS);
-			if(!(cur & BT_FORWARD) &&
-				(old & BT_FORWARD))
-			{
-				if(countInv("KonamiToken") < 2)
-				{
-					A_GiveInventory("KonamiToken",1);
-				}
-				else
-				{
-					A_SetInventory("KonamiToken",0);
-				}
-			}
-			
-			if (!(cur & BT_BACK) &&
-				(old & BT_BACK))
-			{
-				if (countInv("KonamiToken") < 4 &&
-					countInv("KonamiToken") >=2)
-				{
-					A_GiveInventory("KonamiToken",1);
-				}
-				else
-				{
-					A_SetInventory("KonamiToken",0);
-				}
-			}
-			
-			if (!(cur & BT_LEFT) &&
-				(old & BT_LEFT))
-			{
-				if (countInv("KonamiToken") == 4 ||
-					countInv("KonamiToken") == 6)
-				{
-					A_GiveInventory("KonamiToken",1);
-				}
-				else
-				{
-					A_SetInventory("KonamiToken",0);
-				}
-			}
-			
-			if (!(cur & BT_RIGHT) &&
-				(old & BT_RIGHT))
-			{
-				if (countInv("KonamiToken") == 5 ||
-					countInv("KonamiToken") == 7)
-				{
-					A_GiveInventory("KonamiToken",1);
-				}
-				else
-				{
-					A_SetInventory("KonamiToken",0);
-				}
-			}
-			
-			if (!(cur & BT_ATTACK) &&
-				(old & BT_ATTACK))
-			{
-				if(countInv("KonamiToken") == 8)
-				{
-					A_GiveInventory("KonamiToken",1);
-				}
-				else
-				{
-					A_SetInventory("KonamiToken",0);
-				}
-			}
-			
-			if (!(cur & BT_ALTATTACK) &&
-				(old & BT_ALTATTACK))
-			{
-				if(countInv("KonamiToken") == 9)
-				{
-					A_GiveInventory("KonamiToken",1);
-				}
-				else
-				{
-					A_SetInventory("KonamiToken",0);
-				}
-			}
-			
-			if(countInv("KonamiToken") == 10)
-			{
-				A_Log("Blissfully Ecstatic Upgrades Added");
-				A_PlaySound("Konami",CHAN_AUTO);
-				A_GiveInventory("ModuleGiver",1);
-				A_SetInventory("KonamiToken",0);
-			}
-		}
 		Loop;
 	//==========================================================================
 	// Overlay: 		Ledge Climbing
@@ -626,7 +543,7 @@ Class Doom4Player : PlayerPawn
 		{
 			if (GetCvar("D4D_AllowClimbing") == true)
 			{
-				user_wasClimbing = CountInv("RlyClimb"); // to catch transitive states like 0->1 or 1->0
+				UwasClimbing = CountInv("RlyClimb"); // to catch transitive states like 0->1 or 1->0
 				A_SetInventory("RlyClimb",0);
 				A_GiveInventory("Climbing",1);
 				
@@ -634,10 +551,10 @@ Class Doom4Player : PlayerPawn
 				{	A_SetInventory("Climbing",0);	}
 				
 				// Calculate a naive-derivative
-				user_accx = vel.x - UVelx;
-				user_accy = vel.y - UVely;
+				Uaccx = vel.x - UVelx;
+				Uaccy = vel.y - UVely;
 				
-				if (user_accx*user_accx + user_accy*user_accy > 0.02)
+				if (Uaccx*Uaccx + Uaccy*Uaccy > 0.02)
 				{	A_SetInventory("Climbing",0);	}
 				
 				// Update historical values
@@ -653,10 +570,10 @@ Class Doom4Player : PlayerPawn
 				}
 				
 				// Also suppress initial instability
-				if (user_climbBouncePrevention > 0) 
+				if (UclimbBouncePrevention > 0) 
 				{
-					//A_LogInt(user_climbBouncePrevention);
-					A_GiveInventory("Climbing", user_climbBouncePrevention--);
+					//A_LogInt(UclimbBouncePrevention);
+					A_GiveInventory("Climbing", UclimbBouncePrevention--);
 				}
 				
 				if (!((GetPlayerInput(MODINPUT_BUTTONS)  == BT_FORWARD) &&	// Abort if doing anything except walking forward
@@ -686,9 +603,9 @@ Class Doom4Player : PlayerPawn
 			}
 			else
 			{
-				//user_wasClimbing
-				//user_accx
-				//user_accy
+				//UwasClimbing
+				//Uaccx
+				//Uaccy
 				//UVelx
 				//UVely
 
@@ -728,7 +645,7 @@ Class Doom4Player : PlayerPawn
 						if (!A_CheckBlock("Null",CBF_ABSOLUTEPOS,DefPtr,np.x,np.y,np.z,0))
 						{
 							A_Warp(DefPtr,np.x,np.y,np.z,0,WARPF_ABSOLUTEPOSITION|WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_STOP);
-							A_Warp(DefPtr,flags: WARPF_TOFLOOR|WARPF_NOCHECKPOSITION);
+						//	A_Warp(DefPtr,flags: WARPF_TOFLOOR|WARPF_NOCHECKPOSITION);
 							break;
 						}
 					}
@@ -809,11 +726,11 @@ Class Doom4Player : PlayerPawn
 		M666 A 0
 		{
 			A_GiveInventory("RlyClimb",1);
-			if(user_wasClimbing == 0)
+			if(UwasClimbing == 0)
 			{
 				//A_Log("starting climbing");
 				A_PlaySound("Doom4/Player/Climb",7);
-				user_climbBouncePrevention = 5;
+				UclimbBouncePrevention = 5;
 			}
 		}
 		M666 A 0
@@ -860,45 +777,36 @@ Class Doom4Player : PlayerPawn
 		{
 			if (CountInv("PowerInvulBase") || CountInv("PowerInvulnerable") || bInvulnerable || bNoDamage)
 			{
-				user_lowhp = 0;
+				Ulowhp = 0;
 				A_SetBlend("FFFFFF",0.15,5);
 				//Just like Quake. Only happens once per two seconds.
 			}
 			else
 			{
-				user_currenthp = health + CountInv("BasicArmor");
-				if (user_lasthp != user_currenthp)
+				Ucurrenthp = health + CountInv("BasicArmor");
+				if (Ulasthp != Ucurrenthp)
 				{
 					A_SetBlend("99 00 00", .3, 5);
-					user_lasthp = user_currenthp;
+					Ulasthp = Ucurrenthp;
 				}
-				if ((GetCvar("D4D_BloodScreen")) && (user_lasthp - user_currenthp >= DamageDegree))
+				if ((GetCvar("D4D_BloodScreen")) && (Ulasthp - Ucurrenthp >= DamageDegree))
 				{
-					ACS_NamedExecuteAlways("Blood",0, int(floor((user_lasthp - user_currenthp) / DamageDegree)),0,0);
+					ACS_NamedExecuteAlways("Blood",0, int(floor((Ulasthp - Ucurrenthp) / DamageDegree)),0,0);
 				}
 				
 				if (health <= 40)
 				{
-					if (user_lowhp == 0)
+					if (Ulowhp == 0)
 					{
 						A_SpawnItemEx("LowHealthAlarm",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-						user_lowhp = 1;
+						Ulowhp = 1;
 					}
 				}
 				else
-				{	user_lowhp = 0;	}
+				{	Ulowhp = 0;	}
 			}
 		}
 		Goto Spawn;
-	PainRoll:
-		M666 A 1
-		{
-			A_Overlay(Overlay_MoveRoll,"Null");
-			URollpain = frandom(2.0,4.0)*frandompick(-1,1);
-			A_SetRoll((roll + URollpain),SPF_INTERPOLATE);
-		}
-		M666 AAA 1 A_SetRoll((roll - (URollpain / 3.0)),SPF_INTERPOLATE);
-		Stop;
 	Death:
 		PLAY H 0 
 		{
@@ -1081,9 +989,6 @@ extend class Doom4Player
 			
 			damage *= 0.25;
 		}
-
-		// Prevents Terry abuse.
-		flags &= ~DMG_FORCED;
 		
 		// Handle Pentagram of Protection effects here. Pretty much a copy/pasta
 		// of the internal damage, including thrusting since it's needless to call
@@ -1157,6 +1062,7 @@ extend class Doom4Player
 		if (CountInv("CantTouchThis"))
 		{
 			bNODAMAGE = true;
+			flags &= ~DMG_FORCED;
 			damage = Clamp(damage, 0, TELEFRAG_DAMAGE - 1);
 		}
 		// Don't negate stuff if it's telefrag damage.
@@ -1207,6 +1113,12 @@ extend class Doom4Player
 				return false;
 			}
 		}
+		else
+		{
+			if (other.FindInventory("PowerInvulnerable", true) &&
+				other.CountInv("D4PentagramUpgrade2"))
+				return false;
+		}
 		return true;
 	}
 	
@@ -1253,9 +1165,9 @@ extend class Doom4Player
 		started = true;
 		
 		//A_SetInventory("D4MultiJump",int(GetCvar("D4MultiJump")));
-		URollmove = URollpain = URollsave = user_offsets =
-		UVel = UZvel = user_hold = user_time = UVel2 = 
-		user_once =	user_jumpsDone = user_lowhp = 0;
+		UOffsets =
+		UVel = UZvel = UHold = Utime = UVel2 = 
+		Uonce =	UjumpsDone = Ulowhp = 0;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -1304,7 +1216,7 @@ extend class Doom4Player
 		
 		if (plyr && plyr.onground)
 		{
-			user_jumpsDone = 0;
+			UjumpsDone = 0;
 		}
 		if (PentaNoiseWait > 0)	PentaNoiseWait--;
 		if (level.maptime <= 1)	
@@ -1349,7 +1261,7 @@ extend class Doom4Player
 					A_TakeInventory("StaticRifleChargingToken",3);	
 			}
 			A_TakeInventory("PlasmaStunBombCounter",1);
-			user_lasthp = health + CountInv("BasicArmor");
+			Ulasthp = health + CountInv("BasicArmor");
 		}
 		
 		if (!(timer % 2))
@@ -1432,12 +1344,12 @@ extend class Doom4Player
 			else if (waterlevel >= 2)
 			{
 				Vel.Z = 4 * Speed;
-				user_jumpsDone = 1;
+				UjumpsDone = 1;
 			}
 			else if (bNoGravity)
 			{
 				Vel.Z = 3.;
-				user_jumpsDone = 1;
+				UjumpsDone = 1;
 			}
 			else if (level.IsJumpingAllowed())
 			{
@@ -1446,7 +1358,7 @@ extend class Doom4Player
 					// Regular jump
 					if (player.jumpTics == 0)
 					{
-						user_jumpsDone = 1;
+						UjumpsDone = 1;
 						double jumpvelz = JumpZ * 35 / TICRATE;
 						double jumpfac = 0;
 
@@ -1474,13 +1386,13 @@ extend class Doom4Player
 				}
 				else if (GetClass() == 'Doom4Player' && 
 					GetCvar("D4D_MultiJump") && 
-					(user_jumpsDone < CountInv("D4MultiJump") - 1) && 
+					(UjumpsDone < CountInv("D4MultiJump") - 1) && 
 					!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_JUMP))
 				{
 					if (Vel.Z < 0.0)	Vel.Z = 0.0;
 						
 					Vel.Z += (8.2 + CountInv("D4HigherJump"));
-					user_jumpsDone++;
+					UjumpsDone++;
 					A_PlaySound("Doom4/Player/DoubleJump");
 				}
 			}
@@ -1498,13 +1410,18 @@ extend class Doom4Player
 				if (CountInv("D4AirControl") && !plyr.onground)
 				{
 					int gpi = GetPlayerInput(MODINPUT_BUTTONS);
-					A_ChangeVelocity(
-					((gpi & BT_FORWARD  ) ? .8 : 0) - 
-					((gpi & BT_BACK     ) ? .8 : 0),
-					((gpi & BT_MOVELEFT ) ? .8 : 0) -
-					((gpi & BT_MOVERIGHT) ? .8 : 0),
-					0,CVF_RELATIVE);
-					A_ChangeVelocity(vel.x*.95,vel.y*.95,vel.z,CVF_REPLACE);
+					
+					if (gpi & (BT_FORWARD|BT_BACK|BT_MOVELEFT|BT_MOVERIGHT))
+					{
+						A_ChangeVelocity(
+						((gpi & BT_FORWARD  ) ? .8 : 0) - 
+						((gpi & BT_BACK     ) ? .8 : 0),
+						((gpi & BT_MOVELEFT ) ? .8 : 0) -
+						((gpi & BT_MOVERIGHT) ? .8 : 0),
+						0,CVF_RELATIVE);
+						
+						vel *= 0.95;
+					}
 				}
 			}
 		}
@@ -1540,6 +1457,8 @@ extend class Doom4Player
 	{
 		if (!player || !player.mo || player.mo != self)
 			return Super.Die(source, inflictor, dmgflags);
+			
+		
 		
 		ItemsToSave ITS;
 		

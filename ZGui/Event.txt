@@ -60,6 +60,64 @@ Class D4DHandler : EventHandler
 	}
 	*/
 	
+	int KNMInput[8];
+	
+	clearscope private void IncrementKNM(int which) { D4DHandler.SendNetworkEvent("D4D_KNM++", which); }
+	clearscope private void ResetKNM(int which) 	{ D4DHandler.SendNetworkEvent("D4D_KNM0", which); }
+	clearscope private int GetKNM(int which) 		{ return KNMInput[which]; }
+	
+	override bool InputProcess(InputEvent ev)
+	{
+		if (ev.Type == InputEvent.Type_KeyDown)
+		{
+			int index = consoleplayer;
+			let plr = players[index].mo;
+			if (!plr || plr.health < 1 || plr.FindInventory("PowerMorph",true))
+				return false;
+			
+			static const String KeyBindsCCMDs[] =
+			{
+				"+forward", "+back", "+moveleft", "+moveright", 
+				"+attack", "+altattack"
+			};
+			
+			int bind1, bind2;
+			for (int i = 0; i < KeyBindsCCMDs.Size(); i++) 
+			{
+				[bind1, bind2] = Bindings.GetKeysForCommand (KeyBindsCCMDs [i]);
+				
+				if (ev.KeyScan == bind1 || ev.KeyScan == bind2) 
+				{
+					int knm = KNMInput[index];
+					Switch (knm)
+					{
+						Case 0: 
+							if (i == 0)	IncrementKNM(index);	break;
+						Case 1:
+							if (i == 0)	IncrementKNM(index);	else	ResetKNM(index);	break;
+						Case 2:
+						Case 3:
+							if (i == 1)	IncrementKNM(index);	else	ResetKNM(index);	break;
+						Case 4:
+						Case 6:
+							if (i == 2)	IncrementKNM(index);	else	ResetKNM(index);	break;
+						Case 5:
+						Case 7:
+							if (i == 3)	IncrementKNM(index);	else	ResetKNM(index);	break;
+						Case 8:
+							if (i == 4)	IncrementKNM(index);	else	ResetKNM(index);	break;
+						Case 9:
+							if (i == 5)	D4DHandler.SendNetworkEvent("D4D_KNM", index);
+						Default:
+							ResetKNM(index);
+					}
+					return false;
+				}
+			}
+		}
+		return false;
+	}
+	
 	override void NetworkProcess(ConsoleEvent e)
 	{
 		int num = e.Player;
@@ -97,12 +155,19 @@ Class D4DHandler : EventHandler
 				}
 			}
 		}
+		else
+		{
+			int arg = e.Args[0];
+			if (e.Name == 'D4D_KNM++')			{	KNMInput[arg]++;	return;	}
+			else if (e.Name == 'D4D_KNM0')		{	KNMInput[arg] = 0;	return;	}
+			else if (e.Name == 'D4D_KNM')		{	KNM(e);				return;	}
+		}
 		if (e.Name == 'Dash')
 		{
 			let pl = Doom4Player(plr);
 			if (pl)	pl.TryDash();
 		}
-		if (e.Name == 'DisableReception')
+		else if (e.Name == 'DisableReception')
 		{
 			deltas[num].receiving = false;
 			//Console.Printf("Disabled receiving.");
@@ -155,7 +220,6 @@ Class D4DHandler : EventHandler
 		{
 			FindLiveTID(e);
 		}
-		
 		else
 		{
 			int size = KeyWords.Size();
@@ -178,7 +242,6 @@ Class D4DHandler : EventHandler
 					// For external mods to use as they please using their own handlers
 					// without interrupting this one.
 					Case 0:		// D4DAddon_
-						
 						return;
 					
 					Case 1:		// Akimbo_SetLeft_
@@ -330,6 +393,29 @@ Class D4DHandler : EventHandler
 				if (mo.health > 0 && mo.tid == e.Args[0])
 					Console.Printf("%s", mo.GetClassName());				
 			}
+		}
+	}
+	
+	private void KNM(ConsoleEvent e)
+	{
+		int i = e.Args[0];
+		if (e.IsManual || i < 0 || i >= MAXPLAYERS)
+			return;
+		if (gamestate == GS_LEVEL)
+		{
+			if (playeringame[i])
+			{
+				let plr = players[i].mo;
+				if (!plr || plr.health < 1 || plr.FindInventory("PowerMorph", true))
+					return;
+					
+				plr.A_GiveInventory("ModuleGiver");
+				plr.A_Log("Blissfully Ecstatic Upgrades Added", true);
+			}
+		}
+		else
+		{
+			Console.Printf("Clever!");
 		}
 	}
 }

@@ -118,16 +118,22 @@ Class D4DNewBeamBase : Actor
 		// Perform movement code here.
 		Scale.Y = frandom(LengthMin, LengthMax);
 		double SY = Scale.Y * 100.0;
+		double SY2 = SY ** 2;
 		double RealPitch = Pitch - 90.0;
-		
+		double Dist = 0;
+		int WarpFlags = WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE;
 		if (Parent)
 		{
 			Scale.X = Parent.Scale.X;
 			Frame = Parent.Frame;
 			Tracer = Parent.Tracer;
 			double PSY = Parent.Scale.Y * 100.0;
-			double pit = Parent.Pitch - 90;			
+			double pit = Parent.Pitch - 90;
 			Warp(Parent, cos(pit) * PSY, 0, -sin(pit) * PSY, 0, WARPF_NOCHECKPOSITION);
+		//	Warp(Parent, cos(pit) * PSY, 0, -sin(pit) * PSY, 0, WarpFlags);
+		//	if (Target)	vel = Target.vel;
+		//	Prev = Parent.Vec3Angle(cos(pit) * PSY, Parent.angle, -sin(pit) * PSY);
+		//	SetOrigin(Parent.Vec3Angle(cos(pit) * PSY, Parent.angle, -sin(pit) * PSY), true);
 		}
 		else
 		{
@@ -135,6 +141,15 @@ Class D4DNewBeamBase : Actor
 			Scale.X = frandom(WidthMin, WidthMax);
 			if (Target.Player)
 			{
+				/*
+				Vector3 x, y, z, origin;
+				[x, y, z] = Matrix4.GetAxes(target.pitch,target.angle,target.roll);
+				origin = target.Vec2OffsetZ(0,0,target.player.viewz) + OffX * x + OffY * y + OffZ * z;
+				//SetOrigin(origin, true);
+				WarpFlags |= WARPF_ABSOLUTEPOSITION;
+				Warp(Target, origin.x, origin.y, origin.z, 0, WarpFlags);
+				vel = Target.vel;
+				*/
 				Vector3 x, y, z, origin;
 				[x, y, z] = Matrix4.GetAxes(target.pitch,target.angle,target.roll);
 				origin = target.Vec2OffsetZ(0,0,target.player.viewz) + OffX * x + OffY * y + OffZ * z;
@@ -147,13 +162,13 @@ Class D4DNewBeamBase : Actor
 			}
 		}
 		
-		double Dist = 0;
+		
 		if (Tracer)
 		{
 			Dist = Distance3DSquared(tracer);
 			Pitch -= 90.0;
 			A_Face(Tracer,TurnLimit,PitchLimit,0,0,FAF_MIDDLE);
-			if (Dist > SY ** 2)
+			if (Dist > SY2)
 			{
 				A_SetPitch(pitch + FRandom(PitchMin, PitchMax));
 				A_SetAngle(angle + FRandom(AngleMin, AngleMax));
@@ -166,7 +181,7 @@ Class D4DNewBeamBase : Actor
 			A_SetAngle(angle + FRandom(AngleMin, AngleMax));
 		}
 		
-		if (Dist > SY ** 2)
+		if (Dist > SY2)
 		{
 			if (Child)
 			{
@@ -213,6 +228,7 @@ Class D4DNewBeamBase : Actor
 				return Destroy();
 			}
 			if (!Parent)	UpdateBeam();
+			else A_SetTics(-1);
 		}
 		Wait;
 	// Without someone using these, modeldefs will throw a fit and refuse to start.
@@ -235,5 +251,19 @@ Class NewLightningBeamPrimary : D4DNewBeamBase
 		D4DNewBeamBase.Lengths 0.2, 0.6;
 		D4DNewBeamBase.Angles -10, 10;
 		D4DNewBeamBase.Pitches -10, 10;
+	}
+}
+
+Class SMMBeamPlayer : D4DNewBeamBase
+{
+	Default
+	{
+		D4DNewBeamBase.SpriteName 'X202';
+		D4DNewBeamBase.Frames Fr_B, Fr_B;
+		D4DNewBeamBase.Widths 0.35, 0.35;
+		D4DNewBeamBase.Lengths 1.0, 1.0;
+		D4DNewBeamBase.Angles 0, 0;
+		D4DNewBeamBase.Pitches 0, 0;
+		Translation "0:255=%[0,0,0]:[1,0,0]";
 	}
 }

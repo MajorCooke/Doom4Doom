@@ -24,7 +24,7 @@ extend class D4DHandler
 	//--------------------------------------------------------------------------
 	override void WorldTick()
 	{
-		// Clear the list of monsters every 10 seconds.
+		// Clear the lists every 10 seconds of null pointers.
 		if (Timer++ >= TimeTrigger)
 		{
 			Timer = 0;
@@ -50,6 +50,7 @@ extend class D4DHandler
 	
 	override void WorldLoaded(WorldEvent e)
 	{
+		for (int i = 0; i < MAXPLAYERS; i++)	KNMInput[i] = 0;
 		// If starting a new game, set the upgrade mode appropriately. 
 		if (!FirstTime && !e.IsSaveGame && !e.IsReopen)
 		{
@@ -67,11 +68,13 @@ extend class D4DHandler
 		FirstTime = true;
 	}
 	
+	// No need to keep track of the old entities anymore.
 	override void WorldUnloaded(WorldEvent e)
 	{
 		Tracker.Clear();
 		Monsters.Clear();
 		Beams.Clear();
+		for (int i = 0; i < MAXPLAYERS; i++)	KNMInput[i] = 0;
 	}
 	
 	clearscope int GetUpgradeMode()	{	return CurrentUpgradeMode;	}
@@ -81,6 +84,7 @@ extend class D4DHandler
 	
 	override void OnRegister()
 	{
+		for (int i = 0; i < MAXPLAYERS; i++)	KNMInput[i] = 0;
 		LootList = D4ManualLootList.Get();
 		if (LootList)
 		{
@@ -200,7 +204,6 @@ extend class D4DHandler
 	//--------------------------------------------------------------------------
 	override void WorldThingDied(WorldEvent e)
 	{
-		let inf = e.Inflictor;
 		Actor mo = e.Thing;
 		if (!mo || !mo.bISMONSTER || mo.bNOINTERACTION) return;
 		
@@ -247,7 +250,12 @@ extend class D4DHandler
 		int spawnhp = 	mo.GetSpawnHealth();
 		Name mod = 		mo.DamageTypeReceived;
 		
-		if (MPWeapons && ((inf && inf.bEXTREMEDEATH) ||
+		
+		if (MPWeapons) 
+		{
+			let inf = e.Inflictor;
+			if ((inf && !inf.bNOEXTREMEDEATH && 
+				(inf.bEXTREMEDEATH || inf.DamageType == "Extreme" || inf.DeathType == "Extreme")) ||
 						(MOD == 'Extreme' ||
 						MOD == 'BerserkKill' || 
 						MOD == 'ChainsawKill' || 
@@ -255,9 +263,9 @@ extend class D4DHandler
 						MOD == 'GloryKill') ||
 						(mo.InStateSequence(mo.CurState, mo.FindState("XDeathNoDrops"))) ||
 						(mo.InStateSequence(mo.CurState, mo.FindState("XDeath"))) ||
-						(mo.health < mo.GetGibHealth())))
-			Pinatas.AddItem("D4PinataCarrion", 1 * TotalMul);
-		
+						(mo.health < mo.GetGibHealth()))
+				Pinatas.AddItem("D4PinataCarrion", 1 * TotalMul);
+		}
 		// First set up the base multiplier upon damage type when killed.
 		if (mod == 'ChainsawPinata')
 		{
@@ -333,7 +341,7 @@ extend class D4DHandler
 			}
 		}
 		
-		// Pickup/Crate Mode?
+		// Now that the monster has been prepared, set up the drop chances for crates.
 		if (CurrentUpgradeMode)
 		{
 			// Cycle through the drop chances of each, excluding the always
@@ -344,7 +352,7 @@ extend class D4DHandler
 			{
 				for (int i = 0; i < CrateDrops; i++)
 				{
-					if (random(1,256) <= CrateDropChance)
+					if (random[drop](1,256) <= CrateDropChance)
 						CrateDropAlways++;
 				}
 			}
@@ -378,7 +386,7 @@ extend class D4DHandler
 						UpgradeDropChance -= 10;
 				}
 				
-				if (Max(1,random(1, (UpgradeDropChance / Chance))) == 1)
+				if (Max(1,random[drop](1, (UpgradeDropChance / Chance))) == 1)
 					UpgradeDropAlways++;
 			}
 			
@@ -420,8 +428,7 @@ extend class D4DHandler
 			}
 		}
 		
-		// 
-		
+		// Iterate through each player to see who has the highest upgrades.
 		for (int i = 0; i < MAXPLAYERS; i++)
 		{
 			if (!playeringame[i]) continue;
@@ -435,21 +442,21 @@ extend class D4DHandler
 					{
 						if (mod == 'ChainsawPinata')
 						{
-							// armor
+							// Armor
 							if (!Armor[0] && p.CountInv("D4ArmorCapRaiser") >= 25)
 							{
 								Armor[0] = true;
 								int rng[2];
-								rng[0] = random(1,256) > 128 ? 1 : 0;
-								rng[1] = random(1,256) > 128 ? 1 : 0;
+								rng[0] = random[drop](1,256) > 128 ? 1 : 0;
+								rng[1] = random[drop](1,256) > 128 ? 1 : 0;
 								Pinatas.AddItem("D4PinataArmor", rng[0] + rng[1]);
 							}
 							if (!Armor[1] && p.CountInv("D4ArmorCapRaiser") >= 50)
 							{
 								Armor[1] = true;
 								int rng[2];
-								rng[0] = random(1,256) > 128 ? 1 : 0;
-								rng[1] = random(1,256) > 128 ? 1 : 0;
+								rng[0] = random[drop](1,256) > 128 ? 1 : 0;
+								rng[1] = random[drop](1,256) > 128 ? 1 : 0;
 								Pinatas.AddItem("D4PinataArmor", rng[0] + rng[1]);
 							}
 							if (!Armor[2] && p.CountInv("D4ArmorCapRaiser") >= 100)
@@ -463,7 +470,7 @@ extend class D4DHandler
 							if (!Armor[3] && p.CountInv("BasicArmor") < 200 && p.CountInv("D4ArmorCapRaiser") >= 25)	//only if player isnt at full armor and has upgraded his armor
 							{
 								Armor[3] = true;
-								int rng = random(1,256) > 192 ? 1 : 0;
+								int rng = random[drop](1,256) > 192 ? 1 : 0;
 								Pinatas.AddItem("D4PinataArmor", rng); //very rarely they will drop armor
 							}
 						}
@@ -471,7 +478,7 @@ extend class D4DHandler
 						if (!HPPin && p.health < 60)
 						{
 							HPPin = true;
-							int rng = random(1,256) > 192 ? 1 : 0;
+							int rng = random[drop](1,256) > 192 ? 1 : 0;
 							Pinatas.AddItem("D4PinataHealth", 1 + rng);
 						}
 						//bullets giver
@@ -482,8 +489,8 @@ extend class D4DHandler
 						{
 							Bullets = true;
 							int rng[2];
-							rng[0] = random(1,256) > 128 ? 1 : 0;
-							rng[1] = random(1,256) > 240 ? 1 : 0;
+							rng[0] = random[drop](1,256) > 128 ? 1 : 0;
+							rng[1] = random[drop](1,256) > 240 ? 1 : 0;
 							Pinatas.AddItem("D4PinataBullets", rng[0] + rng[1]);
 						}
 						
@@ -494,8 +501,8 @@ extend class D4DHandler
 						{
 							Shells = true;
 							int rng[2];
-							rng[0] = random(1,256) > 128 ? 1 : 0;
-							rng[1] = random(1,256) > 128 ? 1 : 0;
+							rng[0] = random[drop](1,256) > 128 ? 1 : 0;
+							rng[1] = random[drop](1,256) > 128 ? 1 : 0;
 							Pinatas.AddItem("D4PinataShells", rng[0] + rng[1]);
 						}
 						
@@ -507,45 +514,46 @@ extend class D4DHandler
 						{
 							Cells = true;
 							int rng[2];
-							rng[0] = random(1,256) > 128 ? 1 : 0;
-							rng[1] = random(1,256) > 128 ? 1 : 0;
+							rng[0] = random[drop](1,256) > 128 ? 1 : 0;
+							rng[1] = random[drop](1,256) > 128 ? 1 : 0;
 							Pinatas.AddItem("D4PinataCells", rng[0] + rng[1]);
 						}
 						//Rockets giver
 						if (!Rockets && p.CountInv("D4RocketLauncher") && p.CountInv("D4Rockets") < 5)
 						{
 							Rockets = true;
-							int rng = random(1,256) > 196 ? 1 : 0;
+							int rng = random[drop](1,256) > 196 ? 1 : 0;
 							Pinatas.AddItem("D4PinataRockets", rng);
 						}
 						
-						//BFG ammo giver, this one doesnt check for ammo low, but it does check for the weapon
+						//BFG ammo giver, this one doesnt check for low ammo, but it does check for the weapon
 						if (!BFG && p.CountInv("D4BFG"))
 						{
 							BFG = true;
-							if (random(1,512) < 16)	Pinatas.AddItem("D4PinataBFG", 1);
+							if (random[drop](1,512) < 16)	Pinatas.AddItem("D4PinataBFG", 1);
 						}
 					}
 				}
-				// -------------------------------------------------------------
-				// Drop credits.
-				// -------------------------------------------------------------
 				
-				if (D4D_CurrentUpgradeMode)
+				// -------------------------------------------------------------
+				// Drop the cash.
+				// -------------------------------------------------------------
+				// Crates
+				if (CurrentUpgradeMode)
 				{
-					CashMul *= (p.CountInv("PowerD4Money") ? 4 : 1);
 					if (CrateDropAlways > 0)
 					{
-						CrateDropAlways *= CashMul;
 						p.A_GiveInventory("D4DCash",		CrateDropAlways);
 						p.A_GiveInventory("D4DCashFake",	CrateDropAlways);
 						p.A_GiveInventory("CashUpdater",	1);
 					}
 				}
-				else
+				else // Credits
 				{
 					if (CashAmount > 0)
 					{
+						int OldMul = CashMul;
+						CashMul *= (p && p.CountInv("PowerD4Money")) ? 4 : 1;
 						int CPB1 = p.CountInv("CashPercentBonus");
 						int CPB2 = p.CountInv("CashPercentBonusTemp");
 						
@@ -554,6 +562,7 @@ extend class D4DHandler
 						p.A_GiveInventory("D4DCash",		CashAmount);
 						p.A_GiveInventory("D4DCashFake",	CashAmount);
 						p.A_GiveInventory("CashUpdater",	1);
+						CashMul = oldmul;
 					}
 				}
 			}
@@ -902,8 +911,8 @@ Struct D4DropList play
 						it.bTHRUACTORS = true;
 						it.amount = int(it.amount * ItemAmountMul[i]);
 						it.bTHRUACTORS = false;
-						it.VelFromAngle(frandom(3,6),random(0,359));
-						it.vel.Z += frandom(1,5);
+						it.VelFromAngle(frandom[a](3,6),random[a](0,359));
+						it.vel.Z += frandom[a](1,5);
 						it.A_FaceMovementDirection(0,0);
 						
 					}

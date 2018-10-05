@@ -852,6 +852,7 @@ Class GatlingRotatorExplosivePuff : Actor
 {
 	Default 
 	{
+		Projectile;
 		+FORCEXYBILLBOARD
 		+NOINTERACTION
 		+ALWAYSPUFF
@@ -867,7 +868,7 @@ Class GatlingRotatorExplosivePuff : Actor
 		X132 AABBCC 1 Bright A_SetScale(Scale.X+0.02);
 		X132 DEFGHIJKLMNOPQR 2 Bright
 		{
-			A_FadeOUt(0.15);
+			A_FadeOut(0.15);
 			A_SetScale(Scale.X+0.025);
 		}
 		Stop;
