@@ -219,17 +219,18 @@ extend class D4DHandler
 		// once and discard all further attempts if it's going to spawn already.
 		D4DropList Pinatas;
 		
-		bool Armor[4];
-		bool HPPin;
-		bool Bullets;
-		bool Shells;
-		bool Cells;
-		bool Rockets;
-		bool BFG;
+		bool Armor[4];		for (int i = 0; i < Armor.Size(); i++)	Armor[i] = false;
+		bool HPPin = false;
+		bool Bullets = false;
+		bool Shells = false;
+		bool Cells = false;
+		bool Rockets = false;
+		bool BFG = false;
+		bool CashPower = false;
 		int UpgradeDropChance = -1, UpgradeDropAlways = 0;
-		int CrateDropChance, CrateDropAmount, CrateDropAlways;
-		int CashChainsawPinata;
-		int CashAmount;
+		int CrateDropChance = 0, CrateDropAmount = 0, CrateDropAlways = 0;
+		int CashChainsawPinata = 0;
+		int CashAmount = 0;
 		
 		int CashMul = 1;
 		int CrateAmt, CrateDrops;
@@ -243,7 +244,7 @@ extend class D4DHandler
 			CashMul *= TotalMul;
 		}
 		else TotalMul = 1;
-		
+		int Chance = Max(1,TotalMul);
 		
 		Vector3 pos = 	mo.pos;
 		//int hp = 		mo.health;
@@ -283,8 +284,6 @@ extend class D4DHandler
 			CashMul *= 2;
 			if (LootDrop)  Pinatas.AddItem("D4PinataHealth", 5); 
 		}
-		
-		
 		
 		// Now check to see if it's a D4D monster. If so, just use what's given.
 		// If not, see if it's a manual loot table.
@@ -333,16 +332,19 @@ extend class D4DHandler
 			else
 			{
 				CashAmount = spawnhp / (mo.bBoss ? 12 : 15);
-				if (CashChainsawPinata > 0 && mod == 'ChainsawPinata')
-				{
-					CashAmount = CashChainsawPinata;
-					CashMul = 1;
-				}
 			}
 		}
 		
 		// Now that the monster has been prepared, set up the drop chances for crates.
-		if (CurrentUpgradeMode)
+		if (!CurrentUpgradeMode)	// Credits
+		{
+			if (CashChainsawPinata > 0 && mod == 'ChainsawPinata')
+			{
+				CashAmount = CashChainsawPinata;
+				CashMul = Max(1, TotalMul); // Only multiply if they are a colored monster.
+			}
+		}
+		else	// Crates
 		{
 			// Cycle through the drop chances of each, excluding the always
 			// dropping. If the chance is within valid ranges, just add to
@@ -362,10 +364,56 @@ extend class D4DHandler
 			// 0 means no chance. 
 			// 1 means guaranteed.
 			// 2 means 1/2 chance, etc.
-			let plr = players[0].mo;
-			int Chance = (plr && plr.CountInv("PowerD4Money")) ? 4 : 1;
-			//Chance *= Max(1,CashMul + (TotalMul * 2));
-			Chance *= Max(1,TotalMul);
+			
+			bool Soviet = false;
+			for (int i = 0; i < MAXPLAYERS; i++)
+			{
+				if (!playeringame[i]) continue;
+				let plr = players[i].mo;
+				if (!plr)	continue;
+				
+				if (!CashPower && plr.CountInv("PowerD4Money"))
+				{
+					Chance *= 4;
+					CashPower = true;
+				}
+				
+				if (!Soviet && 
+				!plr.CountInv("SovietToken") &&
+				plr.CountInv("AssaultRifleMod1") &&
+				plr.CountInv("AssaultRifleMod2") &&
+				plr.CountInv("ChaingunMod1") &&
+				plr.CountInv("ChaingunMod2") &&
+				plr.CountInv("GaussCannonMod1") &&
+				plr.CountInv("GaussCannonMod2") &&
+				plr.CountInv("PlasmaRifleMod1") &&
+				plr.CountInv("PlasmaRifleMod2") &&
+				plr.CountInv("RocketLauncherMod1") &&
+				plr.CountInv("RocketLauncherMod2") &&
+				plr.CountInv("ShotgunMod1") &&
+				plr.CountInv("ShotgunMod2") &&
+				plr.CountInv("SSGUpgrade1") &&
+				plr.CountInv("SSGUpgrade2") &&
+				plr.CountInv("SSGUpgrade3") &&
+				plr.CountInv("SSGUpgrade4") &&
+				plr.CountInv("PistolUpgradeAutomatic") &&
+				plr.CountInv("PistolUpgradeAltDamage") &&
+				plr.CountInv("PistolUpgradeAltCharge") &&
+				plr.CountInv("PistolUpgradeDamage") &&
+				plr.CountInv("PistolUpgradeLance") &&
+				plr.CountInv("BFGUpgrade1") &&
+				plr.CountInv("BFGUpgrade2") &&
+				plr.CountInv("BFGUpgrade3") &&
+				plr.CountInv("BFGUpgrade4"))
+				{
+					Soviet = true;
+					mo.A_DropItem("SovietChaingunUpgradePickup");
+				}
+				
+				if (Soviet && CashPower)
+					break;
+			}
+			
 			
 			bool AllowSleight = (UpgradeDropChance < 0);
 			if (AllowSleight)	UpgradeDropChance = D4D_PickupDropChance;
@@ -396,37 +444,10 @@ extend class D4DHandler
 				for (int i = 0; i < UpgradeDropAlways; i++)
 					mo.A_DropItem("D4UpgradePickupSpawner");
 			}
-				
-			if (!plr.CountInv("SovietToken") &&
-				plr.CountInv("AssaultRifleMod1") &&
-				plr.CountInv("AssaultRifleMod2") &&
-				plr.CountInv("ChaingunMod1") &&
-				plr.CountInv("ChaingunMod2") &&
-				plr.CountInv("GaussCannonMod1") &&
-				plr.CountInv("GaussCannonMod2") &&
-				plr.CountInv("PlasmaRifleMod1") &&
-				plr.CountInv("PlasmaRifleMod2") &&
-				plr.CountInv("RocketLauncherMod1") &&
-				plr.CountInv("RocketLauncherMod2") &&
-				plr.CountInv("ShotgunMod1") &&
-				plr.CountInv("ShotgunMod2") &&
-				plr.CountInv("SSGUpgrade1") &&
-				plr.CountInv("SSGUpgrade2") &&
-				plr.CountInv("SSGUpgrade3") &&
-				plr.CountInv("SSGUpgrade4") &&
-				plr.CountInv("PistolUpgradeAutomatic") &&
-				plr.CountInv("PistolUpgradeAltDamage") &&
-				plr.CountInv("PistolUpgradeAltCharge") &&
-				plr.CountInv("PistolUpgradeDamage") &&
-				plr.CountInv("PistolUpgradeLance") &&
-				plr.CountInv("BFGUpgrade1") &&
-				plr.CountInv("BFGUpgrade2") &&
-				plr.CountInv("BFGUpgrade3") &&
-				plr.CountInv("BFGUpgrade4"))
-			{
-				mo.A_DropItem("SovietChaingunUpgradePickup");
-			}
 		}
+		
+		if (CashPower)
+			CashMul *= 4;
 		
 		// Iterate through each player to see who has the highest upgrades.
 		for (int i = 0; i < MAXPLAYERS; i++)
@@ -542,7 +563,7 @@ extend class D4DHandler
 				if (CurrentUpgradeMode)
 				{
 					if (CrateDropAlways > 0)
-					{
+					{	// The multiplier is already calculated above so do nothing else.
 						p.A_GiveInventory("D4DCash",		CrateDropAlways);
 						p.A_GiveInventory("D4DCashFake",	CrateDropAlways);
 						p.A_GiveInventory("CashUpdater",	1);

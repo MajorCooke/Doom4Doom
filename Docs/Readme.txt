@@ -1,7 +1,7 @@
 ===========================================================================
 Archive Maintainer      : (special instructions if any)
 Update to               : D4D.pk3
-Advanced engine needed  : GZDoom v3.2.4+
+Advanced engine needed  : GZDoom v3.5+
 Primary purpose         : Single player, no levels included
 ===========================================================================
 Title                   : DOOM(4) for DooM
@@ -12,7 +12,7 @@ Email Address           : MajorCooke22@gmail.com
 Other Files By Author   : Major Cooke: 
 							"AEons of Death", "DooMwinia"
                           Michaelis:  
-							"AEons of Death", "ZBlood+", "D4T (Death Foretold)",
+							"AEons of Death", "ZBlood+", "Death Foretold",
 							"Quake Champions: Doom Edition"
 Misc. Author Info       : Stuff.
 
@@ -25,7 +25,7 @@ Additional Credits to   : See credits section
 
 New levels              : None (unless you count the "Titlemap")
 Sounds                  : Yes
-Music                   : No
+Music                   : Titlemap, intermission and cluster text.
 Graphics                : Yes
 Dehacked/BEX Patch      : No
 Demos                   : No
@@ -52,7 +52,7 @@ Difficulty Settings     : Yes, a lot of them
 * Construction *
 
 Base                    : New from scratch 
-Build Time              : Something like 6 months
+Build Time              : ~6 months for v1
 Editor(s) used          : Slade, Programmer's notepad, GIMP, Audacity,
                           Notepad++, Paint.net, FL Studio, GitKraken, Sourcetree
 Known Bugs              : * Sometimes glory kills will only do a quick punch
@@ -63,7 +63,7 @@ Known Bugs              : * Sometimes glory kills will only do a quick punch
                           through walls, floors or celings while being
                           executed.
 Might Not Work With     : GZDoom devbuilds, unless mentioned otherwise.
-Will NOT Work With 		: Zandronum. ZDoom. GZDoom v2.x and older.
+Will NOT Work With 		: Zandronum. ZDoom. GZDoom v3.4 and older.
 Tested With             : GZDoom v3.5
 
 ===========================================================================
@@ -91,6 +91,7 @@ Major Cooke             : Current owner. Project idea and direction.
                           Half Life-like laser for Gauss Cannon, Static 
                           Rifle and many more. Created the Carrion Cannon,
 						  powerup upgrades, and overhauled upgrade menu.
+						  Almost all new code for v3.0+.
                           General DECORATE & ZScript mastermind.
 
 Michaelis               : Ripping, conversion and processing of graphics for
@@ -145,6 +146,8 @@ BeardedDoomGuy          : Creating the "Demon tears mug" image.
 
 Zanieon                 : Bullet tracer model & texture, 1st iteration of Baron
                           sounds. Baron of Hell and Hell Knight sprites.
+						  Teaching Major Cooke useful stuff about models and 
+						  nifty 'hires' folder trick for hi-def weapon sprites.
 
 Phobos867               : D4 Imp sprite, modified from the "Roach" monster and
                           Cacodemon sprite.
@@ -164,6 +167,8 @@ Cactus Hege				: Inspiration for the Rainbow Doom(4) monsters. Concept
 Nev3r					: Shoulder cannon sprite.
 
 * Other credits *
+
+Legendary				: Sound effects for some forthcoming powerups.
 
 DoomKrakken				: Sound effects for single player weapons.
 
@@ -200,9 +205,6 @@ Tormentor667,
 SolarSnowfall,
 GhastlyDragon			: Spark sprite for lightning gun puffs. Taken from 
 						  S.U.P.E.R. Natural.
-						  
-Zanieon					: Teaching me useful stuff about models and nifty 'hires'
-							trick for hi-def weapon sprites.
 
 
 
@@ -222,6 +224,7 @@ Zanieon					: Teaching me useful stuff about models and nifty 'hires'
 - TheZombieKiller
 - TiberiumSoul
 - Syrix
+- Iamcarrotmaster
 
 * Retired Testers *
 
@@ -233,6 +236,8 @@ Zanieon					: Teaching me useful stuff about models and nifty 'hires'
 - ShadowTiger			(2.0.3)
 - Viscra Maelstrom		(2.0.3)
 - Zanieon				(2.0.3)
+- Roxas					(2.0.3)
+- Xaser					(2.0.3)
 
 
 
