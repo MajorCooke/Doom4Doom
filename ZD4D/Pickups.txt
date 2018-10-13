@@ -194,7 +194,7 @@ Class D4ArmorBasePickup : CustomInventory
 				inv.MaxAbsorb = Max(inv.MaxAbsorb, invoker.MaxAbsorb);
 				return true;
 			}
-			return false;
+			return (invoker.bAlwaysPickup);
 		}
 		Stop;
 	}

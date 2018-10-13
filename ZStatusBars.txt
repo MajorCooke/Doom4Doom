@@ -60,6 +60,10 @@ Class Doom4StatusBar : BaseStatusBar
 	HUDFont mConsoleFont;
 	HUDFont	mQ4SmallHudFont;
 	
+	// Life counter
+	double LifeCounterFade;
+	int LifeCount[2];
+	
 	// Misc variables
 	InventoryBarState diparms;
 	InventoryBarState diparms_sbar;
@@ -166,6 +170,9 @@ Class Doom4StatusBar : BaseStatusBar
 			
 			// Megaspheres
 			[MegasphereCount, MegasphereMax] = GetAmount("D4MegasphereDamageReducer");
+			
+			// Extra Lives
+			LifeCount[0] = GetAmountOnly("D4ExtraLife");
 		
 			// Doom Doll Count
 			DoomDollCount = GetAmountOnly("DollUses");
@@ -411,7 +418,7 @@ Class Doom4StatusBar : BaseStatusBar
 				DrawStringScaled(mQ4SmallHudFont, FormatNumber(DoomDollCount, 1, 2), (1008, 733), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 1.5);
 			}
 			
-			// Credits and resistance counters
+			// Credits, lives and resistance counters
 			CVar Upgrade = CVar.FindCVar("D4D_CurrentUpgradeMode");
 			if (Upgrade != null)
 			{
@@ -424,13 +431,41 @@ Class Doom4StatusBar : BaseStatusBar
 					DrawStringScaled(mQ4SmallHudFont, "+"..FormatNumber(FakeCash, 1), (1024, 56), DI_TEXT_ALIGN_RIGHT, Font.CR_ORANGE, alpha: fadeamt, scaling: 1.5);
 				}
 			}
+			Vector2 LifePos = (1024, 100);
+			// Megasphere
 			if (MegasphereCount)
 			{
+				LifePos.Y += 92;
 				int colRes = (MegasphereCount >= MegasphereMax) ? Font.CR_GREEN : Font.CR_WHITE;
 				DrawString(mConsoleFont, "Resistance:", (1024, 100), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
 				DrawStringScaled(mQ4SmallHudFont, FormatNumber(MegasphereCount, 1), (1024, 116), DI_TEXT_ALIGN_RIGHT, colRes, scaling: 2);
 			}
+			// Lives
+			// Whenever a life is lost, flash it red for a moment and fade it out.
+			int LifeCounterColor = (LifeCount[0] > 0) ? Font.CR_WHITE : Font.CR_RED;
+			DrawString(mConsoleFont, "Lives:", LifePos, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
+			DrawStringScaled(mQ4SmallHudFont, FormatNumber(LifeCount[0], 1), LifePos + (0, 16), DI_TEXT_ALIGN_RIGHT, LifeCounterColor, scaling: 2);
 			
+			int PrevLives = GetAmountOnly("LifeRedFlash");
+			if (PrevLives)
+			{
+				LifeCount[1] = PrevLives;
+				LifeCounterFade = 1.5;
+			}
+			
+			if (LifeCounterFade > 0.0)
+			{
+				DrawStringScaled(mQ4SmallHudFont, FormatNumber(LifeCount[1], 1), LifePos + (0, 16), DI_TEXT_ALIGN_RIGHT, LifeCounterColor, 
+					Clamp(LifeCounterFade, 0.0, 1.0), scaling: 2);
+				double sub = 1.0 / 60.0;
+				LifeCounterFade -= sub;
+			}
+			
+			
+			
+			
+			//==================================================================
+			// Now for health + armor.
 			SetSize(0, BaseSize.X, BaseSize.Y);
 			// Base bar for health and armor.
 			DrawImage ("BODYBAR0", (-69, 669), imageAlignmentLeft);

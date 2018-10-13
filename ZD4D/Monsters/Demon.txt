@@ -34,7 +34,6 @@ BLESSED (White)
 
 Class D4Demon : D4AbstractMonster 
 {
-	
 	int staggertimer;
 	int Shielded;
 	int accelerator;
@@ -71,20 +70,28 @@ Class D4Demon : D4AbstractMonster
 	}
 	
 	// Mitigate the damage if attack is originating from the front half, and only if
-	// the damage is substantial enough. Does not apply if telefragged or if
-	// DMG_NO_FACTOR or DMG_FORCED flags are involved.
+	// the damage is substantial enough. Does not apply if telefragged, the 
+	// DMG_NO_FACTOR/DMG_FORCED flags or ripper missiles are involved.
 	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{
 		if (health < 1)	return 0;
 		
-		if (!(flags & (DMG_NO_FACTOR|DMG_FORCED)) && damage > 1 && damage < TELEFRAG_DAMAGE)
+		Actor inf = inflictor;
+		if (inf && damage > 1)
 		{
-			if (inflictor && absangle(AngleTo(inflictor), self.angle) < 90.0)
+			if (inf.bMISSILE && inf.bRIPPER && !(flags & DMG_EXPLOSION))
+				return Super.DamageMobj(inf, source, damage, mod, flags, angle);
+		
+			if (!(flags & (DMG_NO_FACTOR|DMG_FORCED)) && 
+				damage < TELEFRAG_DAMAGE &&	absangle(AngleTo(inf), self.angle) < 90.0)
 			{
-				damage /= 2;
+				if (absangle(AngleTo(inf), self.angle) < 90.0)
+				{
+					damage /= 2;
+				}
 			}
 		}
-		return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+		return Super.DamageMobj(inf, source, damage, mod, flags, angle);
 	}
 	
 	States

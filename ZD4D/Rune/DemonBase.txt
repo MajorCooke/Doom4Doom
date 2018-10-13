@@ -287,6 +287,7 @@ Class DemonPlayerBase : Doom4Player
 	
 	Default
 	{
+		Doom4Player.UseLives false;
 		DamageFactor "Slime", 0.0;
 		DamageFactor "HellSlime", 0.0;
 		DamageFactor "Fall", 0.0;
@@ -588,7 +589,7 @@ Class DemonRuneBase : CustomInventory
 					ring.bINVISIBLE = (i && i.Amount > 0);
 				}
 			}
-			if (!plr || (!plr.CountInv("PowerInvulBase") && !plr.CountInv("IamADemonToken")))
+			if (!plr || (!plr.FindInventory("PowerInvulnerable",true) && !plr.CountInv("IamADemonToken")))
 			{
 				invoker.timer--;
 				if (invoker.timer < (5 * 35))

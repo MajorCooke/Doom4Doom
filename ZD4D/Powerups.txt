@@ -36,11 +36,11 @@ Class MegaSphereReplacer : RandomSpawner replaces Megasphere
 {
 	Default 
 	{
-		DropItem "D4Megasphere", 	255, 5;
-		DropItem "D4DoomDoll", 		255, 1;
+		DropItem "D4Megasphere", 	255, 10;
+		DropItem "D4DoomDoll", 		255, 4;
+		DropItem "D4ExtraLife",		255, 1;
 	}
 }
-
 
 Class D4BlueArmorMegasphere : ArmorBonus replaces BlueArmorForMegasphere 
 {
@@ -98,15 +98,22 @@ Class D4Megasphere : Megasphere
 			int maxhp = Max(plr.GetMaxHealth() + stamina,200);
 			if (health < maxhp)
 				A_SetHealth(Clamp(health, health + 200, maxhp));
-			if (A_GiveInventory("ArmorStripper",1))
-				A_GiveInventory("D4BlueArmorMegasphere",1);
+			
+			if (!inv)
+			{
+				if (A_GiveInventory("ArmorStripper",1))
+					A_GiveInventory("D4BlueArmorMegasphere",1);
+			}
+			else
+			{
+				A_GiveInventory("D4BlueArmor200",1);
+			}
 				
 			if (!invoker.bonus)	return true;
 			
 			if (CountInv("D4MegachargeUpgrade1") && CountInv("D4MegasphereDamageReducer") < 25)
 			{
 				A_GiveInventory("D4MegasphereDamageReducer",1);
-				ACS_NamedExecuteAlways("ShowResistance",0,0,0,0);
 			}
 			if (CountInv("D4MegachargeUpgrade2"))
 				A_GiveInventory("D4TimeFreeze",1);
@@ -159,11 +166,60 @@ Class D4TimeFreeze : PowerTimeFreezer
 	}
 }
 
-//=======================================================================
-//=======================================================================
+//==============================================================================
+// Extra Life
+//==============================================================================
+
+Class D4ExtraLife : Inventory
+{
+	Default 
+	{
+		Inventory.PickUpSound "Doom4/Pickups/MegaHealth";
+		Inventory.PickupMessage "Extra life!";
+		Inventory.MaxAmount 1000000;
+		Inventory.InterhubAmount 1000000;
+		Translation "0:255=%[0.05,0.3,0.05]:[0.3,2.0,0.3]";
+		+INVENTORY.FANCYPICKUPSOUND
+		+INVENTORY.TRANSFER
+		+INVENTORY.ALWAYSPICKUP
+		+INVENTORY.UNDROPPABLE
+		+INVENTORY.UNTOSSABLE
+		+INVENTORY.BIGPOWERUP
+		+INVENTORY.NEVERRESPAWN //CHEATER CHEATER PUMPKIN TWEETER
+		+COUNTITEM
+		+BRIGHT
+		+FLOATBOB
+		+ROLLSPRITE
+		+ROLLCENTER
+		+FORCEXYBILLBOARD
+		Scale 0.17;
+	}
+	States
+	{
+	Spawn:
+		M680 D 1 Light("ExtraLifeLightWorld") 
+		{
+			A_SpawnItemEx("PentaShadow",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERROLL|SXF_TRANSFERSPRITEFRAME|SXF_TRANSFERTRANSLATION);
+			A_SetRoll(roll + 1,SPF_INTERPOLATE);
+		}
+		Wait;
+	}
+}
+
+Class LifeRedFlash : Inventory
+{
+	Default
+	{
+		Inventory.MaxAmount 1000000;
+		Inventory.InterhubAmount 0;
+	}
+}
+
+//==============================================================================
+//==============================================================================
 // Radsuit
-//=======================================================================
-//=======================================================================
+//==============================================================================
+//==============================================================================
 
 Class PowerRadSuit : PowerProtection
 {
@@ -366,7 +422,7 @@ Class D4QuadDamage : CustomInventory
 	Default 
 	{
 		Inventory.PickupSound "QuadDamage/Pickup";
-		Inventory.pickupmessage "Quad Damage!";
+		Inventory.PickupMessage "Quad Damage!";
 		//translation "0:255=%[.00,.00,.10]:[.99,.10,.99]"
 		+INVENTORY.FANCYPICKUPSOUND
 		+COUNTITEM
@@ -551,7 +607,7 @@ Class RegenerationGiver : PowerupGiver
 {
 	Default 
 	{
-		Inventory.maxamount 0;
+		Inventory.MaxAmount 0;
 		Powerup.Type "PowerD4Regen";
 		Powerup.Duration 1050;
 		+INVENTORY.AUTOACTIVATE
@@ -559,11 +615,20 @@ Class RegenerationGiver : PowerupGiver
 	}
 }
 
-Class D4Regeneration : CustomInventory replaces SoulSphere
+Class SoulSphereReplacer : RandomSpawner replaces SoulSphere
+{
+	Default
+	{
+		DropItem "D4Regeneration",	255, 20;
+		DropItem "D4ExtraLife",		255, 1;
+	}
+}
+
+Class D4Regeneration : CustomInventory
 {
 	Default 
 	{
-		Inventory.pickupmessage "Supercharge!";
+		Inventory.PickupMessage "Supercharge!";
 		Inventory.PickupSound "Regen/Pickup";
 		translation "0:255=%[.30,.30,.50]:[.10,1.99,1.99]";
 		+INVENTORY.FANCYPICKUPSOUND
@@ -580,9 +645,7 @@ Class D4Regeneration : CustomInventory replaces SoulSphere
 	Spawn:
 		M680 D 1 Light("RegenLightWorld") 
 		{
-			if (!A_CheckSight("Null"))
-				A_SpawnItemEx("PentaShadow",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERROLL|SXF_TRANSFERSPRITEFRAME);
-			
+			A_SpawnItemEx("PentaShadow",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERROLL|SXF_TRANSFERSPRITEFRAME);
 			A_SetRoll(roll + 1,SPF_INTERPOLATE);
 		}
 		Wait;
@@ -723,7 +786,7 @@ Class D4QuadMoney : CustomInventory
 	Default 
 	{
 		Inventory.PickupSound "Regen/Pickup";
-		Inventory.pickupmessage "Quad Credits!";
+		Inventory.PickupMessage "Quad Credits!";
 		translation "0:255=%[.00,.00,.10]:[.10,.99,.10]";
 		+INVENTORY.FANCYPICKUPSOUND
 		+COUNTITEM
@@ -803,7 +866,7 @@ Class BlurSphereSpawner : CustomInventory replaces BlurSphere
 	const SpawnFlags = SXF_NOCHECKPOSITION|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL|SXF_CLEARCALLERTID;
 	Default 
 	{
-		+INVENTORY.BIGPowerup
+		+INVENTORY.BIGPOWERUP
 		+INVENTORY.ALWAYSPICKUP
 		+INVENTORY.QUIET
 		-COUNTITEM
@@ -926,7 +989,7 @@ Class D4Haste : CustomInventory
 	Default 
 	{
 		Inventory.PickupSound "Haste/Pickup";
-		Inventory.pickupmessage "Haste!";
+		Inventory.PickupMessage "Haste!";
 		translation "0:255=%[.00,.00,.10]:[.99,.99,.10]";
 		+INVENTORY.FANCYPICKUPSOUND
 		+COUNTITEM
@@ -1069,7 +1132,7 @@ Class PentagramOfProtection : CustomInventory replaces InvulnerabilitySphere
 	Default 
 	{
 		+INVENTORY.ALWAYSPICKUP
-		+INVENTORY.BIGPowerup
+		+INVENTORY.BIGPOWERUP
 		+INVENTORY.FANCYPICKUPSOUND
 		+DONTGIB
 		+FLOATBOB
@@ -1128,13 +1191,8 @@ Class Invulnerability : PowerupGiver
 	}
 }
 
-Class Invul3s : Invulnerability
-{
-	Default
-	{
-		Powerup.Duration 107;
-	}
-}
+Class Invul3s : Invulnerability	{ Default {	Powerup.Duration 107; } }
+Class Invul5s : Invulnerability	{ Default {	Powerup.Duration -5; } }
 
 Class PowerInvulBase : PowerInvulnerable
 {

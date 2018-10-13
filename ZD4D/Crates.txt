@@ -120,6 +120,7 @@ Class CrateItemSpawner : RandomSpawner
 		DropItem "D4QuadMoney",			 255, 3;
 		DropItem "D4Megasphere",		 255, 3;
 		DropItem "D4DoomDoll",			 255, 1;
+		DropItem "D4ExtraLife",			 255, 1;
 	}
 }
 
@@ -155,6 +156,7 @@ Class CrateItemSpawnerBFG : RandomSpawner
 		DropItem "D4QuadMoney",			 255, 3;
 		DropItem "D4Megasphere",		 255, 3;
 		DropItem "D4DoomDoll",			 255, 1;
+		DropItem "D4ExtraLife",			 255, 1;
 	}
 }
 
@@ -175,6 +177,7 @@ Class CrateItemSpawner1 : RandomSpawner
 		DropItem "D4Haste", 		255,  8;
 		DropItem "SoulSphere", 		255,  6;
 		DropItem "D4Megasphere",	255,  4;
+		DropItem "D4ExtraLife",		 255, 2;
 		DropItem "D4DoomDoll", 		255,  1;
 
 		DropItem "BlurSphere", 	255, 10;
@@ -206,6 +209,7 @@ Class CrateItemSpawner1BFG : RandomSpawner
 		DropItem "D4Haste", 		255,  8;
 		DropItem "SoulSphere", 		255,  6;
 		DropItem "D4Megasphere",	255,  4;
+		DropItem "D4ExtraLife",		255,  2;
 		DropItem "D4DoomDoll", 		255,  1;
 
 		DropItem "BlurSphere", 	255, 10;
@@ -630,15 +634,17 @@ Class CrateItemSpawner3 : Actor
 			{
 				if(random(0,100) < 60)
 				{ A_SpawnItemEx("SoulSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
-				else if(random(0,100) < 50)
+				else if (random(0,100) < 50)
 				{ A_SpawnItemEx("D4MegaSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
-				else if(random(0,100) < 30)
+				else if (random(0, 100) < 20)
+				{ A_SpawnItemEx("D4ExtraLife",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				else if (random(0,100) < 30)
 				{ A_SpawnItemEx("InvulnerabilitySphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
-				else if(random(0,100) < 30)
+				else if (random(0,100) < 30)
 				{ A_SpawnItemEx("BlurSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
-				else if(random(0,100) < 70)
+				else if (random(0,100) < 70)
 				{ A_SpawnItemEx("D4DoomDoll",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
-				else if(!CountInv("PowerScanner", TargetPtr))
+				else if (!CountInv("PowerScanner", TargetPtr))
 				{ A_SpawnItemEx("AllMap",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 				else 
 				{ A_SpawnItemEx("CrateWeaponSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
@@ -751,6 +757,8 @@ Class CrateItemSpawner3 : Actor
 				{ A_SpawnItemEx("SoulSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 				else if(random(0,100) < 20)
 				{ A_SpawnItemEx("D4MegaSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				else if (random(0,100) < 20)
+				{ A_SpawnItemEx("D4ExtraLife",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 				else if(random(0,100) < 20)
 				{ A_SpawnItemEx("InvulnerabilitySphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 				else if(random(0,100) < 20)
@@ -802,7 +810,7 @@ Class CrateItemSpawner3 : Actor
 				A_SpawnItemEx("SoulSphere"				,random(-5,5),random(-5,5),0,random(-5,5),random(-5,5),0,0,SXF_NOCHECKPOSITION,128);
 				A_SpawnItemEx("BlurSphere"				,random(-5,5),random(-5,5),0,random(-5,5),random(-5,5),0,0,SXF_NOCHECKPOSITION,128);
 				A_SpawnItemEx("InvulnerabilitySphere"	,random(-5,5),random(-5,5),0,random(-5,5),random(-5,5),0,0,SXF_NOCHECKPOSITION,128);
-				A_SpawnItemEx("BlurSphere"				,random(-5,5),random(-5,5),0,random(-5,5),random(-5,5),0,0,SXF_NOCHECKPOSITION,128);
+				A_SpawnItemEx("Megasphere"				,random(-5,5),random(-5,5),0,random(-5,5),random(-5,5),0,0,SXF_NOCHECKPOSITION,128);
 				A_SpawnItemEx("D4QuadMoney",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				return;
 			}

@@ -151,12 +151,24 @@ Class Doom4Player : PlayerPawn
 	double UOffsets;
 	bool spawned;
 	Class<Actor> GrenadeToFire;
+	D4PlayerLineFinder LineFinder;
+	Vector3 MantlePos[2];
+	double MantleCos;
+	bool Mantling;
+	Vector3 LifePos[3], LifeVel[3];
+	Vector2 LifeAP[3];
+	
+	// Properties
+	meta bool UseLives;
+	Property UseLives: UseLives;
 	Default 
 	{
+		Doom4Player.UseLives true;
 		+ALLOWPAIN
 		+PLAYERPAWN.CROUCHABLEMORPH
 		+NOICEDEATH
 		+AIMREFLECT
+		-NODROPOFF
 		Speed 1;
 		Health 100;
 		Radius 16;
@@ -164,6 +176,7 @@ Class Doom4Player : PlayerPawn
 		Mass 100;
 		PainChance 255;
 		Gravity 0.8;
+		MaxDropOffHeight 32767;
 		Player.DisplayName "Marine";
 		Player.CrouchSprite "PLYC";
 		Player.StartItem "D4Pistol";
@@ -258,10 +271,42 @@ Class Doom4Player : PlayerPawn
 				A_Overlay(Overlay_DashManager, "Overlay.DashManager", true);
 				A_Overlay(Overlay_UtilityManager, "Overlay.UtilityManager", true);
 				A_Overlay(Overlay_LedgeGrab,"Overlay.LedgeGrab",true);
+				A_Overlay(Overlay_LifeRecorder, "Overlay.LifeRecorder", true);
 			//	A_Overlay(99,"Overlay.Debug",true);
 			}
 		}
 		Loop;
+	//==========================================================================
+	// Overlay:			Life Recorder
+	// Records position, velocity, angle, and pitch every second for respawns.
+	//==========================================================================
+	Overlay.LifeRecorder:
+		// When starting a new map, clear out the old data.
+		M666 A 0 
+		{
+			for (int i = 0; i < LifePos.Size(); i++)
+			{
+				LifePos[i] = Pos;
+				LifeVel[i] = Vel;
+				LifeAP[i] = (Angle,Pitch);
+			}
+		}
+		// Now pass each second along the arrays, except for the first
+		// index (0). 
+		M666 A 35
+		{
+			for (int i = LifePos.Size() - 1; i > 0; i--)
+			{
+				int j = i - 1;
+				LifePos[i] = LifePos[j];
+				LifeVel[i] = LifeVel[j];
+				LifeAP[i] = LifeAP[j];
+			}
+			LifePos[0] = Pos;
+			LifeVel[0] = Vel;
+			LifeAP[0] = (Angle,Pitch);
+		}
+		Wait;
 	//==========================================================================
 	// Overlay:			Dash Manager
 	// Deals with fast movement in a direction, horizontally.
@@ -597,42 +642,19 @@ Class Doom4Player : PlayerPawn
 		M666 A 0
 		{
 			int waitTics = 14;
-			if (!GetCvar("D4D_AllowClimbing"))
+			if (!player || !GetCvar("D4D_AllowClimbing"))
 			{
 				A_SetTics(waitTics);
 			}
 			else
 			{
-				//UwasClimbing
-				//Uaccx
-				//Uaccy
-				//UVelx
-				//UVely
-
 				int DistCheck = 24;
-				
-				if (vel.x * vel.x + vel.y * vel.y > 4)
-				{	return;		}
-				
-				// Abort if way forward is free
-				if (!A_CheckBlock("Null", CBF_DROPOFF, AAPTR_DEFAULT, DistCheck,0,0))
-				{	return;		}
-				
-				// Abort if doing anything except walking forward
-				if (!((GetPlayerInput(MODINPUT_BUTTONS)  == BT_FORWARD) &&	
-					(GetPlayerInput(MODINPUT_OLDBUTTONS) == BT_FORWARD)))
-				{	return;		}
-				
-				// Abort if not looking upward when grounded
-				if ((pitch >= 0) /*&& (pos.z == floorz)*/ ) 
-				{	return;		}
-				
-				
 				double newfloor = GetZAt(DistCheck,0,0);
 				double newceiling = GetZAt(DistCheck,0,0,GZF_CEILING);
 				double ledgedist = abs(newfloor - (pos.z + 36));
 				// if player is below new floor by no more than ledgedist units
 				// and can actually fit inside of it, mantle over.
+				
 				if ((ledgedist > 0) && (ledgedist <= 24) 
 					&&
 					(newfloor + height < ceilingz) &&
@@ -656,6 +678,26 @@ Class Doom4Player : PlayerPawn
 			}
 		}
 		Loop;
+	Overlay.Mantling:
+		TNT1 A 1
+		{
+			StateLabel next = null;
+			if (MantleCos > 0)
+				MantleCos -= 10;
+			else 
+			{
+				A_PlaySound("Doom4/Player/Land");
+				next = "MantleDone";
+			}
+			
+			Vector3 Travel = D4D_VectorUtil.LerpVec3(MantlePos[0], MantlePos[1], cos(MantleCos));
+			SetOrigin(Travel, true);
+			return ResolveState(next);
+		}
+		Wait;
+	MantleDone:
+		TNT1 A 14;
+		Goto Overlay.LedgeGrab;
 	/*	
 		
 	Overlay.LedgeGrab.TryClimb:
@@ -976,6 +1018,9 @@ extend class Doom4Player
 	{
 		if (mod == 'HoloAttract')	return 0;
 		
+		if (!player || !player.mo)
+			return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+		
 		let inv = BasicArmor(FindInventory("BasicArmor"));
 		if (inv)
 		{
@@ -993,7 +1038,9 @@ extend class Doom4Player
 		// Handle Pentagram of Protection effects here. Pretty much a copy/pasta
 		// of the internal damage, including thrusting since it's needless to call
 		// P_DamageMobj.
-		if (bINVULNERABLE || bNODAMAGE || FindInventory("PowerInvulnerable",true) || CountInv("CantTouchThis"))
+		if (bNODAMAGE || CountInv("CantTouchThis") ||
+			((damage < TELEFRAG_DAMAGE || bLAXTELEFRAGDMG) && 
+			 (bINVULNERABLE || FindInventory("PowerInvulnerable",true))))
 		{
 			if (!(flags & DMG_NO_PROTECT))
 				damage = GetModifiedDamage(mod, damage, true);
@@ -1065,8 +1112,8 @@ extend class Doom4Player
 			flags &= ~DMG_FORCED;
 			damage = Clamp(damage, 0, TELEFRAG_DAMAGE - 1);
 		}
-		// Don't negate stuff if it's telefrag damage.
-		else if (damage < TELEFRAG_DAMAGE)
+		// Don't negate stuff if it's telefrag damage, unless LAXTELEFRAGDMG is used.
+		else if (bLAXTELEFRAGDMG || (damage < TELEFRAG_DAMAGE))
 		{
 			// Reduce by 1% for every megasphere we've picked up.
 			// DoomDoll does not give this bonus.
@@ -1087,7 +1134,41 @@ extend class Doom4Player
 		let arm = BasicArmor(FindInventory("BasicArmor"));
 		if (arm)	ArmorBefore = arm.Amount;
 		
-		int finaldamage = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+		int finaldamage = damage;
+		
+		// Don't consume extra lives inside of a sector meant to end the level.
+		// Otherwise, respawn the player if they were to die and consume a life.
+		// Give the BUDDHA2 cheat temporarily, damage the player and restore
+		// their previous cheats.
+		int LifeCount = CountInv("D4ExtraLife");
+		if (player && UseLives && LifeCount > 0 && !(CurSector.Flags & Sector.SECF_ENDLEVEL))
+		{
+			int prev = health;
+			int temp = player.cheats;
+			player.cheats |= CF_BUDDHA2;
+			finaldamage = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+			player.cheats = temp;
+			
+			if (finaldamage >= prev)
+			{
+				A_GiveInventory("Invul5s",1);
+				A_SetInventory("LifeRedFlash",LifeCount,beyondMax: true);
+				A_TakeInventory("D4ExtraLife",1);
+				A_ResetHealth();
+				A_SpawnItemEx(TeleFogSourceType, flags: SXF_NOCHECKPOSITION);
+				int LastIndex = LifePos.Size() - 1;
+				if (!TeleportMove(LifePos[LastIndex], bTELESTOMP))
+				{
+					SetXYZ(LifePos[LastIndex]);
+				}
+				Vel = LifeVel[LastIndex];
+				Angle = LifeAP[LastIndex].X;
+				Pitch = LifeAP[LastIndex].Y;
+				A_SpawnItemEx(TeleFogDestType, flags: SXF_NOCHECKPOSITION);
+				A_Overlay(Overlay_LifeRecorder, "Overlay.LifeRecorder"); // Reset all the data.
+			}
+		}
+		else finaldamage = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
 		
 		if (arm)	ArmorAfter = arm.Amount;
 		if (finaldamage > 0)
@@ -1101,17 +1182,17 @@ extend class Doom4Player
 		return finaldamage;
 	}
 	
+	//==========================================================================
 	override bool CanCollideWith (Actor other, bool passive)
 	{
 		if (!passive)
 		{
-			// Upgrade 2 allows passing through enemies with invulnerability.
+			// Death Bringer's Shadow allows passing through enemies when invulnerable.
 			if (FindInventory("PowerInvulnerable",true) && 
 				CountInv("D4PentagramUpgrade2") && 
 				other.bISMONSTER)
-			{
 				return false;
-			}
+			
 		}
 		else
 		{
@@ -1241,7 +1322,7 @@ extend class Doom4Player
 			
 			InitPlayer();
 		}
-		
+		A_SetInventory("LifeRedFlash",0);
 		//======================================================================
 		//	Cooldowns
 		//======================================================================

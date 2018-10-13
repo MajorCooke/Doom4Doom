@@ -6,10 +6,10 @@ class D4bum : D4Zombieman
 
 extend class D4DHandler
 {	
-	bool FirstTime;
 	const TimeTrigger = 35 * 10;
+	bool FirstTime;
 	uint Timer;
-	Array<Actor> Monsters;
+	Array<Actor> Monsters, DeadMonsters;
 	Array<Actor> Tracker;
 	Array<D4DBeamBase> Beams;
 	D4BlackList BlackList;
@@ -25,26 +25,28 @@ extend class D4DHandler
 	override void WorldTick()
 	{
 		// Clear the lists every 10 seconds of null pointers.
-		if (Timer++ >= TimeTrigger)
+		Timer++;
+		if (Timer >= TimeTrigger)
 		{
 			Timer = 0;
+			// Go through the lists
+			int i = 0;
+			for (i = 0; i < Monsters.Size(); i++)
+				if (!Monsters[i])		{	Monsters.Delete(i); i--;	}
 			
-			// Go through the lists backwards.
-			if (Monsters.Size() > 0)
-				for (int i = Monsters.Size() - 1; i > -1; i--)
-					if (!Monsters[i])	Monsters.Delete(i);
+			for (i = 0; i < Beams.Size(); i++)
+				if (!Beams[i])			{	Beams.Delete(i); i--;	}
+					
+			for (i = 0; i < Tracker.Size(); i++)
+				if (!Tracker[i])		{	Tracker.Delete(i); i--;	}
+					
+			for (i = 0; i < DeadMonsters.Size(); i++)
+				if (!DeadMonsters[i])	{	DeadMonsters.Delete(i); i--;	}
 			
-			if (Beams.Size() > 0)
-				for (int i = Beams.Size() - 1; i > -1; i--)
-					if (!Beams[i])		Beams.Delete(i);
-					
-			if (Tracker.Size() > 0)
-				for (int i = Tracker.Size() - 1; i > -1; i--)
-					if (!Tracker[i])	Tracker.Delete(i);
-					
 			Monsters.ShrinkToFit();
 			Beams.ShrinkToFit();
 			Tracker.ShrinkToFit();
+			DeadMonsters.ShrinkToFit();
 		}
 	}
 	
@@ -74,6 +76,7 @@ extend class D4DHandler
 		Tracker.Clear();
 		Monsters.Clear();
 		Beams.Clear();
+		DeadMonsters.Clear();
 		for (int i = 0; i < MAXPLAYERS; i++)	KNMInput[i] = 0;
 	}
 	
@@ -185,7 +188,10 @@ extend class D4DHandler
 		// Add the monster to the list if not already present.
 		Actor mo = e.Thing;
 		if (Monsters.Find(mo) >= Monsters.Size())
+		{
+			DeadMonsters.Delete(DeadMonsters.Find(mo));
 			Monsters.Push(mo);
+		}
 	}
 	
 	//--------------------------------------------------------------------------
@@ -196,7 +202,8 @@ extend class D4DHandler
 		if (mo is "Inventory")	return;
 		if (mo.bISMONSTER || mo.bSHOOTABLE)
 		{
-			Monsters.Delete(Monsters.Find(e.Thing));
+			Monsters.Delete(Monsters.Find(mo));
+			DeadMonsters.Delete(DeadMonsters.Find(mo));
 		}
 	}
 	
@@ -208,8 +215,9 @@ extend class D4DHandler
 		if (!mo || !mo.bISMONSTER || mo.bNOINTERACTION) return;
 		
 		//int index = Monsters.Find(mo);
-		Monsters.Delete(Monsters.Find(mo));
 		
+		DeadMonsters.Push(mo);
+		Monsters.Delete(Monsters.Find(mo));
 		// Check the global blacklist and do nothing if found on it. This is a
 		// no-holds-barred list -- absolutely nothing will drop, no exceptions.
 		if (!BlackList) BlackList = D4BlackList.Get();

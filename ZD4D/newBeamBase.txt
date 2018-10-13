@@ -56,6 +56,8 @@ Class D4DNewBeamBase : Actor
 		Super.OnDestroy();
 	}
 	
+	
+	
 	// For whatever fancy effects can happen, use the death state. Disables
 	// child chain destruction so they can disappear on their own whenever they want.
 	// Only applies if UseDeathState is true. Otherwise, destroy it.
@@ -121,12 +123,13 @@ Class D4DNewBeamBase : Actor
 		double SY2 = SY ** 2;
 		double RealPitch = Pitch - 90.0;
 		double Dist = 0;
-		int WarpFlags = WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE;
+		int WarpFlags = WARPF_NOCHECKPOSITION|WARPF_COPYINTERPOLATION;
 		if (Parent)
 		{
 			Scale.X = Parent.Scale.X;
 			Frame = Parent.Frame;
 			Tracer = Parent.Tracer;
+			Translation = Parent.Translation;
 			double PSY = Parent.Scale.Y * 100.0;
 			double pit = Parent.Pitch - 90;
 			Warp(Parent, cos(pit) * PSY, 0, -sin(pit) * PSY, 0, WARPF_NOCHECKPOSITION);
@@ -155,7 +158,7 @@ Class D4DNewBeamBase : Actor
 				origin = target.Vec2OffsetZ(0,0,target.player.viewz) + OffX * x + OffY * y + OffZ * z;
 				SetOrigin(origin, true);
 			}
-			else 
+			else if (Target)
 			{
 			//	origin = target.Vec3Offset(OffX,OffY,OffZ + Target.MissileHeight);
 				Warp(Target, OffX, OffY, OffZ, 0, WARPF_NOCHECKPOSITION);
@@ -198,6 +201,7 @@ Class D4DNewBeamBase : Actor
 				Child.Parent = self;
 				Child.Angle = Angle;
 				Child.Pitch = Pitch;
+				Child.Translation = Translation;
 			//	Child.Warp(self, cos(RealPitch) * SY, 0, -sin(RealPitch) * SY, 0, WARPF_NOCHECKPOSITION);
 				Child.BeamCount = BeamCount + 1;
 				Child.UpdateBeam();
@@ -267,3 +271,21 @@ Class SMMBeamPlayer : D4DNewBeamBase
 		Translation "0:255=%[0,0,0]:[1,0,0]";
 	}
 }
+
+Class RevenantLaserWhite : D4DNewBeamBase
+{
+	Default
+	{
+		D4DNewBeamBase.SpriteName 'X202';
+		D4DNewBeamBase.Frames Fr_B, Fr_B;
+		D4DNewBeamBase.Widths 0.05, 0.05;
+		D4DNewBeamBase.Lengths 1.0, 1.0;
+		D4DNewBeamBase.Angles 0, 0;
+		D4DNewBeamBase.Pitches 0, 0;
+		Translation "0:255=%[0,0,0]:[1,1,1]";
+	}
+}
+
+Class RevenantLaserYellow : RevenantLaserWhite	{ Default { Translation "0:255=%[0,0,0]:[1,1,0]"; } }
+Class RevenantLaserOrange : RevenantLaserWhite	{ Default { Translation "0:255=%[0,0,0]:[1,0.5,0]"; } }
+Class RevenantLaserRed : RevenantLaserWhite 	{ Default { Translation "0:255=%[0,0,0]:[1,0,0]"; } }

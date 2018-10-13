@@ -1,1 +1,65 @@
 // To be filled with testing materials for the development cycle.
+
+// This particular tracer is designed to try and connect the player's vision
+// to the line he's facing.
+Class D4PlayerLineFinder : LineTracer
+{
+	Actor ignore;
+	Line TargetLine;
+	bool ran;
+	override ETraceStatus TraceCallback()
+	{
+		ran = true;
+		if (TargetLine == null)	return TRACE_Abort;
+		
+		if (Results.HitType != TRACE_HitWall)
+		{
+			if (Results.HitType == TRACE_HitActor)
+				return TRACE_Skip;
+			return TRACE_Abort;
+		}
+		
+		Line ln = Results.Hitline;
+		if (ln == TargetLine)
+			return TRACE_Stop;
+		
+		if (Results.Tier == TIER_Middle)
+		{
+			if (ln.Flags & (Line.ML_BLOCKING|Line.ML_BLOCK_PLAYERS|Line.ML_BLOCKEVERYTHING))
+				return TRACE_Abort;
+			return TRACE_Skip;
+		}
+		
+		return TRACE_Abort;
+	}
+}
+
+/*
+				int DistCheck = 24;
+				double newfloor = GetZAt(DistCheck,0,0);
+				double newceiling = GetZAt(DistCheck,0,0,GZF_CEILING);
+				double ledgedist = abs(newfloor - (pos.z + 36));
+				// if player is below new floor by no more than ledgedist units
+				// and can actually fit inside of it, mantle over.
+				
+				if ((ledgedist > 0) && (ledgedist <= 24) 
+					&&
+					(newfloor + height < ceilingz) &&
+					(newceiling - newfloor >= height))
+				{
+					bSlidesOnWalls = false;
+					for (int i = 0; i < 21; i += 2)
+					{
+						Vector3 np = Vec3Angle(DistCheck - i,angle,newfloor);
+						if (!A_CheckBlock("Null",CBF_ABSOLUTEPOS,DefPtr,np.x,np.y,np.z,0))
+						{
+							A_Warp(DefPtr,np.x,np.y,np.z,0,WARPF_ABSOLUTEPOSITION|WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_STOP);
+						//	A_Warp(DefPtr,flags: WARPF_TOFLOOR|WARPF_NOCHECKPOSITION);
+							break;
+						}
+					}
+						
+					bSlidesOnWalls = true;
+					A_SetTics(waitTics);
+				}
+*/

@@ -342,12 +342,54 @@ Model "SMMBeamPlayer"
 	Model 0 "Models/BeamOffset8.md3"
 	Skin 0 "Graphics/BulletTex.png"
 	FrameIndex X202 B 0 0
+}
+
+Model "RevenantLaserWhite"
+{
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
 	
-	Model 0 "Models/BeamOffset8Start.md3"
-	Skin 0 "Graphics/BulletTexEnd.png"
-	FrameIndex X202 Y 0 0
-	Skin 0 "Graphics/BulletTexStart.png"
-	FrameIndex X202 Z 0 0
+	Model 0 "Models/BeamOffset8.md3"
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 B 0 0
+}
+
+Model "RevenantLaserYellow"
+{
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Model 0 "Models/BeamOffset8.md3"
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 B 0 0
+}
+
+Model "RevenantLaserOrange"
+{
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Model 0 "Models/BeamOffset8.md3"
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 B 0 0
+}
+
+Model "RevenantLaserRed"
+{
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Model 0 "Models/BeamOffset8.md3"
+	Skin 0 "Graphics/BulletTex.png"
+	FrameIndex X202 B 0 0
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

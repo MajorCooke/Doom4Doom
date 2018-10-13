@@ -38,7 +38,7 @@ Class D4GrenadeLauncher : Doom4Weapon
 	Ready:
 		M202 A 1
 		{
-			A_WeaponReady();
+			A_WeaponReady(WRF_ALLOWUSER2);
 		}
 		Wait;
 	Fire:
@@ -141,6 +141,24 @@ Class D4Grenade : Actor
 		BounceSound "Doom4/Weapon/GrenadeLauncher/Bounce";
 		DeathSound "Doom4/Weapon/GrenadeLauncher/Explode";
 	}
+	
+	void ExplodeEffects()
+	{
+		A_QuakeEx(2,2,2,15,0,256,"",QF_SCALEDOWN,0,0,0,1);
+		if(GetCvar("HQEffectsWeapons"))
+		{
+			A_SpawnItemEx("GenericExplosionParticleSpawner",0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+		}
+		A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	//Center
+	}
+	
 	States
 	{
 	Spawn:
@@ -167,19 +185,7 @@ Class D4Grenade : Actor
 				A_Explode(30,128);	
 				A_Explode(130,180,0,0,60);
 			}
-			A_QuakeEx(2,2,2,15,0,256,"",QF_SCALEDOWN,0,0,0,1);
-			if(GetCvar("HQEffectsWeapons"))
-			{
-				A_SpawnItemEx("GenericExplosionParticleSpawner",0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-			}
-			A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	//Center
+			ExplodeEffects();
 		}
 		Stop;
 	}

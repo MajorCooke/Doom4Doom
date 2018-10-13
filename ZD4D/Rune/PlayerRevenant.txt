@@ -110,7 +110,7 @@ Class PlayerRevenant : DemonPlayerBase
 	Overlay.Steps:
 		TNT1 A 5
 		{
-			USpeed = (vel.x*vel.x + vel.y*vel.y);
+			USpeed = vel.XY dot vel.XY;
 			if(A_CheckFloor("Null"))
 			{
 				if(USpeed > 150)
@@ -189,11 +189,14 @@ Class PlayerRevenant : DemonPlayerBase
 
 Class D4DRevenantWeapon : DemonWeaponBase
 {
+	int count;
 	enum RevConsts
 	{
 		Both = 0,
 		Left,
 		Right,
+		RightOffset = 15,
+		LeftOffset = -15,
 		GunR = 6030,
 		GunL = 6031
 	};
@@ -241,23 +244,114 @@ Class D4DRevenantWeapon : DemonWeaponBase
 	Fire:
 		---- A 1 CheckPrimary();
 		Goto Ready;
-	FireP1:
-	FireP2:
-	FireP3:
-	FireP4:
-	FireP5:
-	FireP6:
-	FireP7:
 	FireP0:
-		M666 B 28
+		M666 A 28
 		{
 			A_PlaySound("Player/Demon/Revenant/Fire",6);
 			A_SetGunState("Overlay.WeaponFire");
-			A_FireProjectile("PlayerRevRocket",0,0,-15,12);
-			A_FireProjectile("PlayerRevRocket",0,0,15,12);
+			A_FireProjectile("PlayerRevRocket",0,0,LeftOffset,12);
+			A_FireProjectile("PlayerRevRocket",0,0,RightOffset,12);
 			A_Overlay(6020, "Overlay.ZoomEffect");
 		}
 		Goto VeryReady;
+	FireP1:
+		M666 A 12
+		{
+			bool rightside = (invoker.count % 2 == 0);
+			double off = rightside ? RightOffset : LeftOffset;
+			A_SetGunState("Overlay.WeaponFire", (rightside ? Right : Left));
+			A_PlaySound("Player/Demon/Revenant/Fire",6);
+			A_FireProjectile("PlayerRevRocket",0,0,off,12);
+			A_Overlay(6020, "Overlay.ZoomEffectHalf");
+			invoker.count = (invoker.count + 1) % 2;
+		}
+		Goto VeryReady;
+	FireP2:
+		M666 A 16
+		{
+			A_PlaySound("Player/Demon/Revenant/Fire",6);
+			A_SetGunState("Overlay.WeaponFire");
+			A_FireProjectile("PlayerRevRocket",0,0,LeftOffset,12);
+			A_FireProjectile("PlayerRevRocket",0,0,RightOffset,12);
+			A_Overlay(6020, "Overlay.ZoomEffect");
+		}
+		Goto VeryReady;
+	FireP3:
+		M666 A 0 { invoker.count = 0; }
+		M666 A 4
+		{
+			bool rightside = (invoker.count % 2 == 0);
+			double off = rightside ? RightOffset : LeftOffset;
+			A_PlaySound("Player/Demon/Revenant/Fire",6);
+			A_SetGunState("Overlay.WeaponFire", (rightside ? Right : Left));
+			A_FireProjectile("PlayerRevRocket",0,0,off,12);
+			A_Overlay(6020, "Overlay.ZoomEffectHalf");
+			invoker.count++;
+			if (invoker.count > 7)
+				return ResolveState(1);
+			return ResolveState(null);
+		}
+		Wait;
+		M666 A 17;
+		Goto VeryReady;
+	FireP4:
+		M666 AAAAAA 4
+		{
+			int channel = (invoker.count % 2 == 0) ? CHAN_WEAPON : 6;
+			A_PlaySound("Player/Demon/Revenant/Fire",channel);
+			A_SetGunState("Overlay.WeaponFire");
+			A_FireProjectile("PlayerRevRocket",0,0,LeftOffset,12);
+			A_FireProjectile("PlayerRevRocket",0,0,RightOffset,12);
+			A_Overlay(6020, "Overlay.ZoomEffect");
+			invoker.count = (invoker.count + 1) % 2;
+		}
+		M666 A 25;
+		Goto VeryReady;
+	FireP5:
+		M666 A 16
+		{
+			bool rightside = (invoker.count % 2 == 0);
+			double off = rightside ? RightOffset : LeftOffset;
+			A_SetGunState("Overlay.WeaponFire", (rightside ? Right : Left));
+			A_FireProjectile("PlayerCyberdemonRocket",0,0,off,12);
+			A_Overlay(6020, "Overlay.ZoomEffectHalf");
+			invoker.count = (invoker.count + 1) % 2;
+		}
+		Goto VeryReady;
+	FireP6:
+		M666 A 0 { invoker.count = 0; }
+		M666 A 4
+		{
+			bool rightside = (invoker.count % 2 == 0);
+			double off = rightside ? RightOffset : LeftOffset;
+			A_SetGunState("Overlay.WeaponFire", (rightside ? Right : Left));
+			A_FireProjectile("PlayerCyberdemonRocket",0,0,off,12);
+			A_Overlay(6020, "Overlay.ZoomEffectHalf");
+			invoker.count++;
+			if (invoker.count > 7)
+				return ResolveState(1);
+			return ResolveState(null);
+		}
+		Wait;
+		M666 A 35;
+		Goto VeryReady;
+	FireP7:
+		M666 AAAAAA 4
+		{
+			A_SetGunState("Overlay.WeaponFire");
+			A_FireProjectile("PlayerCyberdemonRocket",0,0,LeftOffset,12);
+			A_FireProjectile("PlayerCyberdemonRocket",0,0,RightOffset,12);
+			A_Overlay(6020, "Overlay.ZoomEffect");
+		}
+		M666 A 35;
+		Goto VeryReady;
+	
+	//--------------------------------------------------------------------------
+	Overlay.ZoomEffectHalf:
+		TNT1 A 1 A_ZoomFactor(0.95, ZOOM_INSTANT|ZOOM_NOSCALETURNING);
+		TNT1 A 1 A_ZoomFactor(0.975, ZOOM_NOSCALETURNING);
+		TNT1 A 0 A_ZoomFactor(1.00, ZOOM_NOSCALETURNING);
+		Stop;
 	//--------------------------------------------------------------------------
 	Overlay.ZoomEffect:
 		TNT1 A 1 A_ZoomFactor(0.90, ZOOM_INSTANT|ZOOM_NOSCALETURNING);

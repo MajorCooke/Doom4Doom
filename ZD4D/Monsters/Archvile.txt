@@ -74,22 +74,23 @@ Class D4Archvile : D4AbstractBiggie
 	Spawn:
 		DIAB A 0 NODELAY	//in case player/target died somehow in the middle of his teleport
 		{					//it will reset everything back to normal
-			A_SetSpeed(15);
+			A_SetSpeed(Default.Speed);
 			A_SetShootable();
 			bNoPain = false;
 			bFrightened = false;
 		}
 		DIAB AB 10 A_Look();
 		Loop;
+	SeeAfterWound:
 	See:
 		TNT1 A 0 A_Jump(64,"TeleportTowards"); //rarely it will teleport even when you´re too far
-		DIAB AABBCCDDEEFF 2 D4Chase();
+		DIAB AABBCCDDEEFF 2 D4Chase(flags: CHF_RESURRECT);
 		Loop;
 		
 	//I had to create this one to stop this guy from teleporting away every time you made it enter wound
-	SeeAfterWound:
-		DIAB AABBCCDDEEFFAABBCCDDEEFF 2 D4Chase(null,"Missile");
-		Goto See;
+	//SeeAfterWound:
+	//	DIAB AABBCCDDEEFFAABBCCDDEEFF 2 D4Chase(null,"Missile");
+	//	Goto See;
 		
 
 	//==============================================
@@ -116,7 +117,7 @@ Class D4Archvile : D4AbstractBiggie
 			}
 			TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 1
 			{
-				A_Chase(null,null);
+				A_Chase(null,null,CHF_RESURRECT);
 				A_SpawnItemEx("ArchvileTPortTrail",0,0,20,0,0,0,0,SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("ArchvileTPortTrail",0,0,40,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
@@ -131,11 +132,11 @@ Class D4Archvile : D4AbstractBiggie
 			Goto SeeNoTeleport; //after doing the teleport move, will go for a little bit without trying it again
 			
 			SeeNoTeleport:
-				DIAB AABBCCDDEEFF 2 D4Chase(null,"Missile");
-				DIAB AABBCCDDEEFF 2 D4Chase(null,"Missile");
-				DIAB AABBCCDDEEFF 2 D4Chase(null,"Missile");
-				DIAB AABBCCDDEEFF 2 D4Chase(null,"Missile");
-				DIAB AABBCCDDEEFF 2 D4Chase(null,"Missile");
+				DIAB AABBCCDDEEFF 2 D4Chase(null,"Missile",CHF_RESURRECT);
+				DIAB AABBCCDDEEFF 2 D4Chase(null,"Missile",CHF_RESURRECT);
+				DIAB AABBCCDDEEFF 2 D4Chase(null,"Missile",CHF_RESURRECT);
+				DIAB AABBCCDDEEFF 2 D4Chase(null,"Missile",CHF_RESURRECT);
+				DIAB AABBCCDDEEFF 2 D4Chase(null,"Missile",CHF_RESURRECT);
 				Goto See;
 	//==============================================
 	// Summon and Argent attack
@@ -169,6 +170,17 @@ Class D4Archvile : D4AbstractBiggie
 				A_SpawnItemEx("SummonerTargetingSparks",0,-22,35,frandom(0.1,2.0),frandom(3,-3),frandom(1,-1),0,SXF_NOCHECKPOSITION);
 			}
 			DIAB "#" 0 A_SetInventory("ArchAttacking",0);
+			Goto See;
+		Heal:
+			DIAB "[" 0
+			{
+				A_SetShootable();
+			}
+			DIAB "[[[[\\\\]]]]" 3 BRIGHT
+			{
+				A_SpawnItemEx("SummonerTargetingSparks",0,22,35,frandom(0.1,2.0),frandom(3,-3),frandom(1,-1),0,SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("SummonerTargetingSparks",0,-22,35,frandom(0.1,2.0),frandom(3,-3),frandom(1,-1),0,SXF_NOCHECKPOSITION);
+			}
 			Goto See;
 	Pain:
 		DIAB Q 5 A_SetInventory("ArchAttacking",0);
