@@ -36,7 +36,7 @@ Class Counter : Inventory
 	Default 
 	{
 		Inventory.MaxAmount 52;
-		Inventory.InterhubAmount 0 ;
+		Inventory.InterhubAmount 0;
 	}
 }
 
@@ -48,7 +48,7 @@ Class SuperArmorToken  : Inventory { Default { Inventory.MaxAmount 100; }}
 Class SuperAmmoToken   : Inventory { Default { Inventory.MaxAmount 100; }}
 Class      AmmoToken   : Inventory { Default { Inventory.MaxAmount 100; }}
  
-Class Nothing : Actor { override void PostBeginPlay() { return Destroy(); } }
+Class Nothing : Actor { Default { +NOINTERACTION } States { Spawn: TNT1 A 1; Stop; } }
 Class KonamiToken : Inventory { Default { Inventory.MaxAmount 10; }}
 
 Class DeathByMassacre : Inventory {}

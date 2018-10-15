@@ -1,4 +1,5 @@
 user bool D4D_SecondaryPriming = false;
+server bool D4D_DTMode = false;
 
 server noarchive bool D4D_NetEventDebug = false;
 server bool D4Debug = false;
@@ -16,7 +17,6 @@ server bool D4D_BiggerFont = false;
 server int user_Completionist = 2;
 server bool user_MonsterQuota = true;
 server bool user_SecretQuota = true;
-server bool user_SecondaryExit = true;
 server int D4D_MenuMouseSpeed = 70;
 server bool D4D_CamRoll = true;
 server bool D4D_ArchvileInfighting = true;
@@ -40,7 +40,6 @@ server int D4D_BloodTime = 10;
 server int D4D_BeamTexture = 0;
 server bool D4D_BloodGiblets = true;
 server bool D4D_HKMeleeOnly = false;
-server bool D4D_DTMode = false;
 server bool D4D_RepeaterMode = false;
 server bool D4D_JumpExploit = true;
 server int D4D_DemonRunes = 1; 
@@ -53,6 +52,13 @@ server bool D4D_BerserkAutoSwitch = true;
 server int D4D_NMGrenades = 2; // [0,1,2] = [none,frag,all]
 server int D4D_UpgradeMode = 0; // [0,1] = [Credits, Drops]
 server cheat int D4D_CurrentUpgradeMode = 0;
+server bool D4D_ExecutionsON = true;
+server bool D4D_ExecutionHighlight = true;
+server bool D4D_MonsterStagger = true;
+server bool D4D_NoisyStagger = true;
+server bool D4D_ExecutionAnimation = true;
+server int D4D_StaggerLenght = 4;
+server bool D4D_PitchCompat = true;
 
 server int LOfx = 0;
 server int LOfy = 0;
@@ -64,16 +70,6 @@ server int ROfy = 0;
 server float fs_volume_mul = 1.4;
 server float fs_delay_mul = 1.05;
 
-server bool D4D_ExecutionsON = true;
-server bool D4D_ExecutionHighlight = true;
-server bool D4D_MonsterStagger = true;
-server bool D4D_NoisyStagger = true;
-server bool D4D_ExecutionAnimation = true;
-server int D4D_StaggerLenght = 4;
-server bool D4D_PitchCompat = true;
-
-server noarchive cheat int D4D_PickupDropChance = 250;
-
 
 //==============================================================================
 // Misc crap. Mainly used for removing credit errors.
@@ -81,3 +77,7 @@ server noarchive cheat int D4D_PickupDropChance = 250;
 server noarchive cheat bool Adjustable = false; //Keep this false.
 server noarchive bool UpgradeUpdating = false;
 server noarchive int CTake = 0;
+
+//==============================================================================
+// Deprecated.
+server bool user_SecondaryExit = true;

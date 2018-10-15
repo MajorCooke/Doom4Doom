@@ -1,12 +1,12 @@
 //==============================================================================
 //==============================================================================
 //
-//								SuperShotgun
+//								Super Shotgun
 //
 //	Sprites: Neccronixis
 //	MuzzleFlash sprite edit: DBThanatos
 //	Original Code: DBThanatos
-//	Code rewrite + layer support: Major Cooke
+//	Code Overhaul + Layers: Major Cooke
 //	Offset tweaks: Xaser
 //
 //==============================================================================
@@ -17,17 +17,17 @@ Class D4SuperShotgunDuo : Inventory {	Default { +INVENTORY.UNDROPPABLE Inventory
 const SSGReloadVolume = 0.3;
 Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 {
-	int hoffset;
-	name RP;
 	enum SuperShotgun
 	{
 		DmgBase = 		5,
 		DmgMulMin = 	1,
 		DmgMulMax = 	3,
 		FCMFlags =		FPF_NOAUTOAIM,
+		GibRange =		192
 	};
 	const SpreadXY = 11.2;
 	const SpreadZ = 7.1;
+	
 	Default 
 	{
 		+WEAPON.NOAUTOFIRE
@@ -45,6 +45,21 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		Scale 0.75;
 		+DONTGIB
 	}
+	
+	action Class<Inventory> ShotToken(int OID)
+	{
+		Class<Inventory> item = "SSRSecondShotToken"; 
+		if (OID == LGun) item = "SSLSecondShotToken";
+		return item;
+	}
+	
+	action Class<Actor> ShellSide(int OID)
+	{
+		Class<Actor> shell = 		"SSGCasingSpawnerRight";
+		if (OID == LGun) shell = 	"SSGCasingSpawnerLeft";
+		return shell;
+	}
+	
 	States
 	{
 	Spawn:
@@ -119,8 +134,9 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			A_Overlay(SwitchWatcher,"SwitchWatcher",true);
 			if (CountInv("SSGUpgrade4"))
 			{	
-				A_Overlay(RGun,"SSR.Ready",true);
-				A_Overlay(LGun,"SSL.Ready",true);
+				A_Overlay(RGun,"SSD.Ready",true);
+				A_Overlay(LGun,"SSD.Ready",true);
+				A_OverlayFlags(LGun, PSPF_FLIP|PSPF_MIRROR, true);
 				A_Overlay(GunWatcher,"SSG.Listen");
 				return ResolveState("ReadyLoop"); 
 			}
@@ -135,10 +151,23 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			{	A_WeaponReady((!CountInv("BusyToken")) ? WRF_NOSECONDARY|WRF_ALLOWUSER2 : WRF_NOSWITCH);	}
 			else
 			{	
+			
 				// Follow the weapon.
-				A_OverlayFlags(LGun,WeapMove,true);
+				A_OverlayFlags(LGun,WeapMove|PSPF_FLIP|PSPF_MIRROR,true);
 				A_OverlayFlags(RGun,WeapMove,true);
 				A_Overlay(GunWatcher,"SSG.Listen",true);
+				
+				bool SSL = (CountInv("SSLSecondShotToken") > 1);
+				bool SSR = (CountInv("SSRSecondShotToken") > 1);
+				A_OverlayFlags(LGun,WeapBob,SSL);
+				A_OverlayFlags(RGun,WeapBob,SSR);	
+				
+				int WeapFlags = WRF_NOFIRE;
+				if (!SSL && !SSR) 
+					WeapFlags |= (CountInv("BusyToken")) ? WRF_NOSWITCH : WRF_ALLOWUSER2;
+					
+				A_WeaponReady(WeapFlags);
+				/*
 				if (CountInv("SSLSecondShotToken") > 1 && CountInv("SSRSecondShotToken") > 1)
 				{	// Both are reloading.
 					A_OverlayFlags(LGun,WeapBob,false);
@@ -163,8 +192,8 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 					A_OverlayFlags(RGun,WeapBob,true);
 					A_WeaponReady((!CountInv("BusyToken")) ? WRF_NOFIRE|WRF_ALLOWUSER2 : WRF_NOFIRE|WRF_NOSWITCH);
 				}
+				*/
 			}
-			return ResolveState(null);
 		}
 		Goto Ready;
 	SwitchWatcher:
@@ -174,6 +203,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 				!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_USER1))
 			{
 				ACS_NamedExecute("ToggleDoubleTrouble",0,0,0,0);
+				
 			}
 		}
 		Loop;
@@ -185,10 +215,13 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		DW4A A -1;
 		Stop;
 	SSR.Ready:
-		M665 A -1;
-		Stop;
+	SSD.Ready:
 	SSL.Ready:
-		M664 A -1;
+		M665 A -1
+		{
+			int OID = OverlayID();
+			A_OverlayFlags(OID, PSPF_MIRROR|PSPF_FLIP, (OID == LGun));
+		}
 		Stop;
 	//-------------------------------------------------------
 	// Primary Fire
@@ -196,14 +229,13 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 	Fire:
 		M666 A 1
 		{
-			
 			if (!CountInv("SSGUpgrade4"))
 			{
 				A_Overlay(LGun,"Null");
 				A_Overlay(RGun,"Null");
 			}
 			
-			if (CountInv("D4Shells") > 1 || GetCvar("sv_infiniteammo") > 0) 
+			if (!A_JumpIfNoAmmo("Null")) 
 			{	return ResolveState("FireSingle");	}
 			return ResolveState("HoldNoRef");
 		}
@@ -211,33 +243,31 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 	HoldNoRef:
 		M666 A 1;
 		M666 A 0 A_Refire("HoldNoRef");
-		M666 A 0 A_TakeInventory("FireToken",32767);
+		M666 A 0 A_SetInventory("FireToken",0);
 		Goto Ready;
 	FireSingle:
 		DW4A B 1 Bright
 		{			
 			if (GetCvar("D4D_DTMode") || CountInv("SSRSecondShotToken"))
 			{	
-				A_Overlay(RGunFX,"SSR.FX");
-				A_Overlay(RGunFire,"SSR.FireBullets");
+				A_Overlay(RGunFire,"SSG.FireBullets");
 				A_GiveInventory("SSRSecondShotToken",1);
-				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",CHAN_WEAPON,1);
+				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",CHAN_WEAPON);
 			}
 			else								
 			{
-				A_Overlay(RGunFX,"SSR.FX");
-				A_Overlay(RGunFX2,"SSR.FX");
-				A_Overlay(RGunFire,"SSR.FireBullets");
-				A_Overlay(RGunFire2,"SSR.FireBullets");
+				A_Overlay(RGunFire,"SSG.FireBullets");
+				A_Overlay(RGunFire2,"SSG.FireBullets");
 				A_GiveInventory("SSRSecondShotToken",2);
-				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",7,1);
+				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",7);
 			}
 			
 			if (CountInv("SSRSecondShotToken") > 1)
 			{
+				StateLabel next = "NormalReload";
 				if (CountInv("SSGUpgrade1"))
-					return ResolveState("FastReload");
-				return ResolveState("NormalReload");
+					next = "FastReload";
+				return ResolveState(next);
 			}
 			A_WeaponOffset(12, 36);
 			return ResolveState(1);
@@ -331,18 +361,8 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		DW4A A 0 A_WeaponReady(WRF_NOFIRE);
 		Goto Ready;
 	SSL.FireBullets:
-		M666 A 0
-		{
-			invoker.hoffset = -5;
-			return ResolveState("SSGFireBullets");
-		}
 	SSR.FireBullets:
-		M666 A 0
-		{
-			invoker.hoffset = 5;
-			return ResolveState("SSGFireBullets");
-		}
-	SSGFireBullets:
+	SSG.FireBullets:
 		M666 A 0
 		{
 			double newspread = (CountInv("SSGUpgrade3") ? 7.1 : 11.2);
@@ -351,30 +371,40 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			A_TakeInventory("D4Shells",1,TIF_NOTAKEINFINITE);
 			A_GunFlash("Null");
 			
-			Class<Actor> PuffRail = null;
+			Class<Actor> PuffRail = "D4BulletPuffSSG";
+			/*
 			if(GetCvar("D4D_SSGGib") == 0)	//no gibs
 				PuffRail = "D4BulletPuffForRails";
 			else if(GetCvar("D4D_SSGGib") == 1)	//some gibs
 				PuffRail = (random(0,1) ? "D4BulletPuffForRails" : "D4BulletPuffForRailsExtreme");
 			else	//all gibs
 				PuffRail = "D4BulletPuffForRailsExtreme";
+			*/
 			
-			
-			if(CountInv("SSGUpgrade2"))	//if you have piercing shots
+			int OID = OverlayID();
+			double sign = (OID == RGunFire || OID == RGunFire2) ? 1 : -1;
+			double offs = 5 * sign;
+			if (CountInv("SSGUpgrade2"))	//if you have piercing shots
 			{
 				
 				for (int i = 0; i < 10; i++)
 				{
 					double sprs = 10.415 * 4.0;
-					if (i < 7)	{	A_RailAttack(DmgBase*random(DmgMulMin,DmgMulMax),invoker.hoffset,0,-1,-1,RGF_SILENT|RGF_EXPLICITANGLE,0,PuffRail,frandom(-newspread,newspread),frandom(-SpreadZ,SpreadZ));	}//,0,0,8192,0,"BulletSmallTracer");	}
-					else		{	A_RailAttack(DmgBase*random(DmgMulMin,DmgMulMax),invoker.hoffset,0,-1,-1,RGF_SILENT|RGF_EXPLICITANGLE,0,PuffRail,frandom(-newspread,newspread),frandom(-SpreadZ,SpreadZ));	}
+					if (i < 7)	{	A_RailAttack(0,offs,0,-1,-1,RGF_SILENT|RGF_EXPLICITANGLE,0,PuffRail,frandom(-newspread,newspread),frandom(-SpreadZ,SpreadZ));	}//,0,0,8192,0,"BulletSmallTracer");	}
+					else		{	A_RailAttack(0,offs,0,-1,-1,RGF_SILENT|RGF_EXPLICITANGLE,0,PuffRail,frandom(-newspread,newspread),frandom(-SpreadZ,SpreadZ));	}
 				}
-				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,7,0,"PacifistPuff",FBF_NORANDOMPUFFZ|FBF_PUFFTRACER,0,"BulletSmallTracer",0,invoker.hoffset);
+				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,7,0,"PacifistPuff",FBF_NORANDOMPUFFZ|FBF_PUFFTRACER,0,"BulletSmallTracer",0,offs);
 			}
-			else //if you dont have piercing shots, then you're in normal state
+			else
 			{
-				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,7,DmgBase,PuffRail,FBF_PUFFTRACER,0,"BulletSmallTracer",0,invoker.hoffset);
-				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,3,DmgBase,PuffRail,FBF_PUFFTRACER,0,null,0,invoker.hoffset);
+				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,7,0,PuffRail,FBF_PUFFTRACER,0,"BulletSmallTracer",0,offs);
+				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,3,0,PuffRail,FBF_PUFFTRACER,0,null,0,offs);
+			}
+			
+			if (GetCvar("HQEffectsWeapons"))
+			{
+				for (int i = 4; i < 7; i++)
+					A_FireProjectile("SGSmokeSpawner",0,0,i * sign,2);
 			}
 			
 			//-----------------------------------------------------
@@ -406,20 +436,167 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			// Have ammo?
 			if (!A_JumpIfNoAmmo("Null") && !CountInv("BusyToken"))
 			{
+				int inp = GetPlayerInput(MODINPUT_BUTTONS);
+				int old = GetPlayerInput(MODINPUT_OLDBUTTONS);
 				// Primary shoots left
 				if ((CountInv("SSLSecondShotToken") < 2) &&
-					(GetPlayerInput(MODINPUT_BUTTONS) & BT_ATTACK) &&
-					!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_ATTACK))
-				{	A_Overlay(LGun,"SSL.Fire");	}
+					(inp & BT_ATTACK) &&
+					!(old & BT_ATTACK))
+				{	
+					A_Overlay(LGun,"SSD.Fire");
+					A_OverlayFlags(LGun, PSPF_MIRROR|PSPF_FLIP, true);
+				}
 				
 				// Secondary shoots right
 				if ((CountInv("SSRSecondShotToken") < 2) &&
-					(GetPlayerInput(MODINPUT_BUTTONS) & BT_ALTATTACK) &&
-					!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_ALTATTACK))
-				{	A_Overlay(RGun,"SSR.Fire");	}
+					(inp & BT_ALTATTACK) &&
+					!(old & BT_ALTATTACK))
+				{	A_Overlay(RGun,"SSD.Fire");	}
 			}
 		}
 		Loop;
+	SSD.Fire:
+		M665 B 1 Bright 
+		{
+			//A_OverlayOffset(RGun,12,36-32);
+			int OID = OverlayID();
+			Class<Inventory> item = ShotToken(OID);
+			bool leftgun = (OID == LGun);
+			int DGunFire = RGunFire;
+			int DGunFire2 = RGunFire2;
+			
+			A_OverlayFlags(OID, PSPF_MIRROR|PSPF_FLIP, leftgun);
+			A_OverlayOffset(OID,12,5,WOF_ADD);
+			
+			if (leftgun)
+			{
+				DGunFire = LGunFire;
+				DGunFire2 = LGunFire2;
+			}
+			
+			
+		//	let CV = CVar.GetCvar("D4D_DTMode", invoker.owner.player);
+		//	if (CV && CV.GetBool() && !CountInv("SSRSecondShotToken"))
+			
+			if (GetCVar("D4D_DTMode") || CountInv(item))
+			{
+				A_Overlay(DGunFire,"SSG.FireBullets");
+				
+				int channel = 6;
+				if (leftgun)	channel = (!CountInv(item)) ? CHAN_VOICE : 6;
+				else			channel = (!CountInv(item)) ? CHAN_WEAPON : 7;
+				
+				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",channel);
+				A_GiveInventory(item,1);
+			}
+			else
+			{
+				A_Overlay(DGunFire,"SSG.FireBullets");
+				A_Overlay(DGunFire2,"SSG.FireBullets");
+				int channel = (leftgun) ? CHAN_WEAPON : 7;
+				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",channel);
+				A_GiveInventory(item,2);
+			}
+		}
+		
+	
+		M665 B 1 bright
+		{
+			//A_OverlayOffset(RGun,24,39-32);
+			int OID = OverlayID();
+			A_OverlayOffset(OID,12,5,WOF_ADD);
+			return A_JumpIfInventory(ShotToken(OID),2,"SSD.Reload");
+		}
+		M665 C 1 A_OverlayOffset(OverlayID(),6,3,WOF_ADD);	//30 13
+		M665 C 1 A_OverlayOffset(OverlayID(),-8,-5,WOF_ADD);
+		M665 C 1 A_OverlayOffset(OverlayID(),-7,-3,WOF_ADD);
+		M665 C 1 A_OverlayOffset(OverlayID(),-6,-2,WOF_ADD);
+		M665 C 1 A_OverlayOffset(OverlayID(),-5,-2,WOF_ADD);
+		M665 A 1 A_OverlayOffset(OverlayID(),-4,-1,WOF_ADD);
+		M665 A 0 A_OverlayOffset(OverlayID(),0,32-32);
+		Goto SSD.Ready;
+	SSD.Reload:
+		M665 C 0 
+		{
+			StateLabel next = null;	
+			int OID = OverlayID();
+			if (IsDoubleSpeed())
+			{
+				next = "SSD.ReloadFast";
+				A_Overlay((OID == LGun) ? 5004 : 5002, "Overlay.ReloadSoundSanicDaHedgahmahoggy");
+			}
+			else
+				A_Overlay((OID == LGun) ? 5003 : 5001, "Overlay.ReloadSoundFast");
+			
+			return ResolveState(next);
+		}
+		M665 C 1 A_OverlayOffset(OverlayID(),6,3,WOF_ADD);
+		M665 C 1 A_OverlayOffset(OverlayID(),-8,-5,WOF_ADD);
+		M665 C 1 A_OverlayOffset(OverlayID(),-7,-3,WOF_ADD);
+		M665 C 1 A_OverlayOffset(OverlayID(),-6,-2,WOF_ADD);
+		M665 C 1 A_OverlayOffset(OverlayID(),-5,-2,WOF_ADD);
+		M665 A 1 A_OverlayOffset(OverlayID(),-4,-1,WOF_ADD); //6
+		
+		M665 DDDDEE 1 A_OverlayOffset(OverlayID(),2,6,WOF_ADD); //6
+		
+	
+		---- A 0
+		{
+			if (GetCvar("D4D_Casings"))
+			{
+				Class<Actor> shell = ShellSide(OverlayID());
+				for (int i = 0; i < 2; i++)
+					A_SpawnItemEx(shell, flags: SXF_NOCHECKPOSITION|SXF_SETMASTER);
+			}
+		}
+		M665 FFFF 1 A_OverlayOffset(OverlayID(),-2,2,WOF_ADD);
+		M665 FFFF 1 A_OverlayOffset(OverlayID(),2,-2,WOF_ADD);	//8
+		M665 GGGGG 1; 	//5
+
+		
+		M665 HHII 1 A_OverlayOffset(OverlayID(),2,-8,WOF_ADD);
+		M665 JJJJ 1 A_OverlayOffset(OverlayID(),1,3,WOF_ADD);	//8
+		M665 A 0 
+		{
+			int OID = OverlayID();
+			A_OverlayOffset(OID,0,32-32);
+			A_SetInventory(ShotToken(OID),0);
+		}
+		Goto SSD.Ready;
+		
+	SSD.ReloadFast:
+		M665 C 1 A_OverlayOffset(OverlayID(),6,3,WOF_ADD);
+		M665 C 0 A_OverlayOffset(OverlayID(),-8,-5,WOF_ADD);
+		M665 C 1 A_OverlayOffset(OverlayID(),-7,-3,WOF_ADD);
+		M665 C 0 A_OverlayOffset(OverlayID(),-6,-2,WOF_ADD);
+		M665 C 1 A_OverlayOffset(OverlayID(),-5,-2,WOF_ADD);
+		M665 A 0 A_OverlayOffset(OverlayID(),-4,-1,WOF_ADD); //6
+		
+		M665 DDE 1 A_OverlayOffset(OverlayID(),2*2,6*2,WOF_ADD); //6
+		---- A 0
+		{
+			if (GetCvar("D4D_Casings"))
+			{
+				Class<Actor> shell = ShellSide(OverlayID());
+				for (int i = 0; i < 2; i++)
+					A_SpawnItemEx(shell, flags: SXF_NOCHECKPOSITION|SXF_SETMASTER);
+			}
+		}
+		M665 FF 1 A_OverlayOffset(OverlayID(),-4,4,WOF_ADD);
+		M665 FF 1 A_OverlayOffset(OverlayID(),4,-4,WOF_ADD);	//8
+		M665 GG 1 ;	//5
+
+		
+		M665 HI 1 A_OverlayOffset(OverlayID(),4,-16,WOF_ADD);
+		M665 JJ 1 A_OverlayOffset(OverlayID(),2,6,WOF_ADD);	//8
+		M665 A 0 
+		{
+			int OID = OverlayID();
+			A_OverlayOffset(OID,0,32-32);
+			A_SetInventory(ShotToken(OID),0);
+		}
+		Goto SSD.Ready;
+	//==========================================================================
 	
 	Overlay.ReloadSoundNormal:
 		TNT1 A 5;
@@ -434,9 +611,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 	Overlay.ReloadSoundSanicDaHedgahmahoggy: // Crackhead getting crack, speed, and cocaine at once makes him super.
 		TNT1 A 1
 		{
-			// Replace the channel that's closer to finishing.
-			int channel = (S_GetLength(5) > S_GetLength(6)) ? 6 : 5;
-			A_PlaySound("Doom4/Weapon/SuperShotgun/FullReload", channel, SSGReloadVolume);
+			A_PlaySound("Doom4/Weapon/SuperShotgun/FullReload", 5, SSGReloadVolume);
 		}
 		Stop;
 	
@@ -449,16 +624,16 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 	// it already has the y value. So take 32 from the y value on all
 	// A_OverlayOffset calls for those layers. (Does not apply for the weapon
 	// layer itself!)
+	/*
 	SSR.Fire:
 		M665 B 1 Bright 
 		{
 			//A_OverlayOffset(RGun,12,36-32);
 			A_OverlayOffset(RGun,12,5,WOF_ADD);
-			
-			if (!GetCvar("D4D_DTMode") && !CountInv("SSRSecondShotToken"))
+		//	let CV = CVar.GetCvar("D4D_DTMode", invoker.owner.player);
+		//	if (CV && CV.GetBool() && !CountInv("SSRSecondShotToken"))
+			if (!GetCVar("D4D_DTMode") && !CountInv("SSRSecondShotToken"))
 			{
-				A_Overlay(RGunFX,"SSR.FX");
-				A_Overlay(RGunFX2,"SSR.FX");
 				A_Overlay(RGunFire,"SSR.FireBullets");
 				A_Overlay(RGunFire2,"SSR.FireBullets");
 				A_GiveInventory("SSRSecondShotToken",2);
@@ -466,15 +641,9 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			}
 			else
 			{
-				A_Overlay(RGunFX,"SSR.FX");
 				A_Overlay(RGunFire,"SSR.FireBullets");
 				A_GiveInventory("SSRSecondShotToken",1);
-				
-				if (CountInv("SSRSecondShotToken") < 2)
-					A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",CHAN_BODY,1);
-				else
-					A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",CHAN_WEAPON,1);
-				
+				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",CHAN_VOICE,1);
 			}
 		}
 		M665 B 1 bright
@@ -566,45 +735,26 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			A_TakeInventory("SSRSecondShotToken",32767,0);
 		}
 		Goto SSR.Ready;
-		
-	SSR.FX:
-		M666 A 0
-		{
-		//	A_SpawnItemEx("SSGFireNoise", flags: SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_SETMASTER);
-			if (GetCvar("HQEffectsWeapons"))
-			{
-				A_FireProjectile("SGSmokeSpawner",0,0,4,2);
-				A_FireProjectile("SGSmokeSpawner",0,0,5,2);
-				A_FireProjectile("SGSmokeSpawner",0,0,6,2);
-			}
-		}
-		Stop;
 	//==========================================================================
 	SSL.Fire:
 		M664 B 1 Bright
 		{
 			A_OverlayOffset(LGun,-12,5,WOF_ADD);
-			if (!GetCvar("D4D_DTMode") && !CountInv("SSLSecondShotToken"))
+		//	let CV = CVar.GetCvar("D4D_DTMode", invoker.owner.player);
+		//	if (CV && CV.GetBool() && !CountInv("SSRSecondShotToken"))
+			if (!GetCVar("D4D_DTMode") && !CountInv("SSLSecondShotToken"))
 			{
-				A_Overlay(LGunFX,"SSL.FX");
-				A_Overlay(LGunFX2,"SSL.FX");
 				A_Overlay(LGunFire,"SSL.FireBullets");
 				A_Overlay(LGunFire2,"SSL.FireBullets");
 				A_GiveInventory("SSLSecondShotToken",2);
-				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",CHAN_WEAPON,1);
+				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",6,1);
 			}
 			else
 			{
-				A_Overlay(LGunFX,"SSL.FX");
 				A_Overlay(LGunFire,"SSL.FireBullets");
 				
 				A_GiveInventory("SSLSecondShotToken",1);
-				
-				if (CountInv("SSLSecondShotToken") < 2)
-					A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",CHAN_BODY,1);
-				else
-					A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",CHAN_WEAPON,1);	
-				
+				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",7,1);
 			}
 		}
 		M664 B 1 Bright 
@@ -672,7 +822,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		M664 A 0 A_OverlayOffset(LGun,4,-1,WOF_ADD);
 		
 		M664 DDE 1 A_OverlayOffset(LGun,-4,12,WOF_ADD);
-		"####" "#" 0
+		---- A 0
 		{
 			if (GetCvar("D4D_Casings"))
 			{
@@ -693,20 +843,17 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			A_TakeInventory("SSLSecondShotToken",32767,0);
 		}
 		Goto SSL.Ready;
+		*/
+	}
+}
 
-		
-	SSL.FX:
-		M666 A 0
-		{
-			//A_SpawnItemEx("SSGFireNoise",flags: SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_SETMASTER);
-			if (GetCvar("HQEffectsWeapons"))
-			{
-				A_FireProjectile("SGSmokeSpawner",0,0,-4,2);
-				A_FireProjectile("SGSmokeSpawner",0,0,-5,2);
-				A_FireProjectile("SGSmokeSpawner",0,0,-6,2);
-			}
-		}
-		Stop;
+Class D4BulletPuffSSG : D4BulletPuffGibDistance
+{
+	Default
+	{
+		Damage D4SuperShotgun.DmgBase;
+		D4BulletPuffGibDistance.Range D4SuperShotgun.GibRange;
+		+ALWAYSPUFF;
 	}
 }
 
@@ -748,8 +895,6 @@ Class D4BulletPuffForRails : D4BulletPuff
 
 Class D4BulletPuffForRailsExtreme : D4BulletPuffForRails
 {	Default { +EXTREMEDEATH	}	}
-
-
 
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------

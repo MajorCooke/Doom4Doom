@@ -1,0 +1,121 @@
+    /*
+    ** Copyright (c) 2018 Chronos Ouroboros
+    **
+    ** This software is provided 'as-is', without any express or implied
+    ** warranty. In no event will the authors be held liable for any damages
+    ** arising from the use of this software.
+    **
+    ** Permission is granted to anyone to use this software for any purpose,
+    ** including commercial applications, and to alter it and redistribute it
+    ** freely, subject to the following restrictions:
+    ** 
+    ** 1. The origin of this software must not be misrepresented; you must not
+    **    claim that you wrote the original software. If you use this software
+    **    in a product, an acknowledgment in the product documentation would be
+    **    appreciated but is not required.
+    ** 2. Altered source versions must be plainly marked as such, and must not be
+    **    misrepresented as being the original software.
+    ** 3. This notice may not be removed or altered from any source distribution.
+    */
+    
+    
+
+Class D4D_Intercept
+{
+	//[MC] A simple wrapper function
+	static bool, Vector3 GetInterceptPos(Actor Interceptor, Actor Intercepting, bool Aim = false)
+	{
+		if (!Interceptor || !Intercepting)
+			return false, (double.NaN, double.NaN, double.NaN);
+			
+		bool ret1; Vector3 ret2;
+		[ret1, ret2] = D4D_Intercept.ShotPos(Interceptor.Pos, Intercepting.Pos, Intercepting.Vel, Interceptor.Speed);
+		
+		if (Aim)
+		{
+			
+		}
+		
+		return ret1, ret2;
+	}
+	
+	/* Summary:
+    **  Calculates the future position of a moving target so that a projectile launched immediately can hit it.
+    **  Taken from the GameDev.net article "Shooting at stuff" (https://www.gamedev.net/articles/programming/math-and-physics/shooting-at-stuff-r3884/)
+    **  Modified for use in 3D in GZDoom by Chronos "phantombeta" Ouroboros.
+	**	Further modified by Major Cooke.
+    **  Dual-licensed under the GPL2 and Zlib licenses - this function can be used under the terms of either license.
+    **
+    ** Arguments:
+    **  projPos: The projectile's position.
+    **  targetPos: The target's position.
+    **  targetVel: The target's velocities.
+    **  projSpeed: The projectile's speed.
+    **
+    ** Returns:
+    **  The position that the intercept will occur at. The function will return null if a solution cannot be found.
+    **  Consider the case of a target moving away from the shooter faster than the speed of the projectile and you will see at least one case where this calculation may fail.
+    */
+	static bool, Vector3 ShotPos (Vector3 projPos, Vector3 targetPos, Vector3 targetVel, double projSpeed) 
+	{
+	// This formulation uses the quadratic equation to solve
+	// the intercept position.
+		Vector3 R = targetPos - projPos;
+		double a = (targetVel dot targetVel) - (projSpeed ** 2.);
+		double b = 2. * (R dot targetVel);
+		double c = R dot R;
+		double tBullet = 0.;
+
+		// If the target and the shooter have already collided, don't bother.
+		if (c < double.Min_Normal)
+			return false, (double.NaN, double.NaN, double.NaN);
+
+		// If the squared velocity of the target and the bullet are the same, the equation
+		// collapses to tBullet*b = -c. If they are REALLY close to each other (float tol),
+		// you could get some weirdness here. Do some "is it close" checking?
+		if (abs (a) < double.Min_Normal) 
+		{
+			// If the b value is 0, we can't get a solution.
+			if (abs (b) < double.Min_Normal)
+				return false, (double.NaN, double.NaN, double.NaN);
+
+			tBullet = -c / b;
+		} 
+		else 
+		{
+			// Calculate the discriminant to figure out how many solutions there are.
+			double discriminant = b*b - 4. * a * c;
+
+			if (discriminant < 0.) // All solutions are complex.
+				return false, (double.NaN, double.NaN, double.NaN);
+
+			if (discriminant > 0.) {
+				// Two solutions. Pick the smaller one.
+				// Calculate the quadratic.
+				double quad = sqrt (discriminant);
+				double tBullet1 = (-b + quad) / (2. * a);
+				double tBullet2 = (-b - quad) / (2. * a);
+
+				if ((tBullet1 < 0.) && (tBullet2 < 0.)) // This would be really odd. Both times are negative.
+					return false, (double.NaN, double.NaN, double.NaN);
+				else if (tBullet2 < 0. && tBullet1 >= 0.) // One negative, one positive.
+					tBullet = tBullet1;
+				else if (tBullet1 < 0. && tBullet2 >= 0.) // One negative, one positive.
+					tBullet = tBullet2;
+				else if (tBullet1 < tBullet2) // First less than second
+					tBullet = tBullet1;
+				else // Only choice left
+					tBullet = tBullet2;
+			} 
+			else
+				tBullet = -b / (2. * a);
+		}
+
+		// If the time is negative, we can't get there from here.
+		if (tBullet < 0.)
+			return false, (double.NaN, double.NaN, double.NaN);
+
+		// Calculate the intercept position.
+		return true, (targetPos + tBullet*targetVel);
+	}
+}

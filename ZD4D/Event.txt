@@ -6,6 +6,7 @@ class D4bum : D4Zombieman
 
 extend class D4DHandler
 {	
+	const DefaultDropChance = 250;
 	const TimeTrigger = 35 * 10;
 	bool FirstTime;
 	uint Timer;
@@ -424,7 +425,7 @@ extend class D4DHandler
 			
 			
 			bool AllowSleight = (UpgradeDropChance < 0);
-			if (AllowSleight)	UpgradeDropChance = D4D_PickupDropChance;
+			if (AllowSleight)	UpgradeDropChance = DefaultDropChance;
 			
 			// Black and white monsters always drop an upgrade.
 			// White drops 2, black drops 1. This stacks in accumulation

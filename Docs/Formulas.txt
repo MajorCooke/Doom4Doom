@@ -23,8 +23,9 @@ See http://zdoom.org/wiki/Trigonometry for more details.
 Get Current Actor Velocity (+ Z)
 Relativity doesn't matter here.
 ================================================================================
-sqrt((velx * velx) + (vely * vely)) 
-sqrt((velx * velx) + (vely * vely) + (velz * velz)) 
+Vector2.Length() = sqrt((velx * velx) + (vely * vely)) 
+Vector3.Length() = sqrt((velx * velx) + (vely * vely) + (velz * velz)) 
+Use the Length function instead of manual calculation. Faster this way.
 
 ================================================================================
 Set Relative Velocity With Pitch 
@@ -69,3 +70,17 @@ Returns the exponent the number was raised to, in order to get that number.
 Example:
 	1000 = 10 * 10 * 10 = 10^3
 	log(1000) = 3 <--The exponent of 10.
+	
+================================================================================
+Side check
+================================================================================
+Returns the side of a line an entity is on.
+
+sign(delta.x * (pos.y - BlockingLine.v1.p.y) - delta.y * (pos.x - BlockingLine.v1.p.x))
+
+================================================================================
+View Vector
+================================================================================
+Mainly useful for getting an actor's angle and pitch for LineTracer class.
+
+Vector3 viewVector = (cos(angle)*cos(pitch),sin(angle)*cos(pitch),-sin(pitch));

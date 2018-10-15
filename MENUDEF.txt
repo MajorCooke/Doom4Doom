@@ -267,7 +267,6 @@ OptionMenu "D4DGoreOptions"
 	Option "Blood Trails",					"D4D_BloodTrails",		"OnOff"
 	Option "Blood FX Type",					"D4D_BloodSprites", 	"SprPar"
 	Option "Short Gib Life",				"D4D_ShortGibLives", 	"OnOff"
-	Option "SuperShotgun Gibs Monsters",				"D4D_SSGGib",	"SSGGibStyle"
 	SafeCommand "Restore Giblet Defaults",	"D4D_Giblets 1; D4D_SplatterGiblets 3; D4D_BloodClouds 3;"
 	StaticText " "
 	StaticText "SPAWN EVEN MORE GORE.", RED
@@ -325,13 +324,6 @@ OptionValue "SyphonStrength"
 	1, "Low"
 	2, "Medium"
 	3, "High"
-}
-
-OptionValue "SSGGibStyle"
-{
-	0, "Never"
-	1, "Sometimes"
-	2, "Always"
 }
 
 OptionValue "ParticleStyle"

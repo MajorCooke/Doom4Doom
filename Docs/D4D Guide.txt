@@ -44,15 +44,13 @@ information.
     distract them while you reposition yourself to avoid incoming damage
 
 0.4 Pinkies have a frontal shield. It absorbs PART of the damage, however, they
-    are completely vulnerable to any piercing rounds, explosives, and also
-    the shield does not protect them from your pistol, fists or Chainsaw.
-    Spectres lack their shielding.
+    are completely vulnerable to any attacks on the backside.
 
 0.5 D4D Archviles will teleport away from you if you get too close. Snipe on 
     them to take them down.
 
 0.6 Any monster hit with by the BFG lasers, will die as soon as the BFG shot
-    explodes, no matter how far away it crashes from the monsters. Only
+    explodes, no matter how far away or where/whom it hits. Only
     exceptions are the Cyberdemon and SpiderMastermind
 
 0.7 Monsters killed with Berserk or Chainsaw's primary fire, will ALWAYS drop
@@ -94,8 +92,8 @@ The mod has quite a few custom keys to use. Make sure to go under
      keys are to cycle between them. In game, you will see the icon and name
      of the grenade change as you press this key.
 
-1.5  Throw Grenade: Once you have found any of the 3 types of grenades in
-     game, this key is gonna throw one.
+1.5  Throw Grenade: Once you have found any of the grenade types in
+     game, launches the grenade highlighted on the HUD.
 
      * Special Use *
 	 
@@ -105,7 +103,7 @@ The mod has quite a few custom keys to use. Make sure to go under
 
 1.7  Buy Crate (500cr): At any point in game, you can press this key and 
      it will spawn a random item for the price of 500 credits. Good for when 
-     you just don't have anything else to buy in the upgrade store. This
+     you don't have anything else to buy in the upgrade store. This
      crate can be upgraded (through upgrade menu) to contain better items.
 
 1.8  Brofist (when available): Because you know you want to do it again.
@@ -119,6 +117,10 @@ The mod has quite a few custom keys to use. Make sure to go under
 
 1.11 Weapon Keybinds: In this sub menu, you can bind weapons to keys per slot
      or per weapon.
+	 
+1.12 Dash Ability: Once you've acquired the upgrade, press this key while pressing
+	 a movement key to hurl yourself in that direction. Can only be used once while
+	 airborne. Recharges on the ground.
 
 
 
@@ -293,44 +295,29 @@ Here you can change several settings of how D4D displays some stuff.
 
 3.7 Silent Casings: Toggles if you want casings to play a sound or not.
 
-3.8 Bullet Tracer Effects
-3.8.1 Model: Uses a 3d model to show the weapon tracer effects.
-3.8.2 Particle: Uses a particle based projectile for the tracers.
-3.8.3 Trail: Uses an instant trail showing the trajectory, a beam of light.
-3.8.4 Particle Trail: Combines both "particle" and "trail" options.
-3.8.5 None: No tracers at all.
-
-3.9 BFG Lasers: Toggles on/off the visual effect of the BFG lasers when
-    it attacks monsters. Turn this off if the BFG lags too much for you.
-    Default is "on".
-
-3.10 ZDoom Crosshair: Since D4D includes custom reticles, ZDoom's crosshair 
+3.8 ZDoom Crosshair: Since D4D includes custom reticles, ZDoom's crosshair 
      is recommended to be OFF (none).
 
 
     * Other effects *
-3.11 Monster Lazers: Toggles between "Fancy" and "Faster" lazer effects for some
-     monsters. This is particularly relevant in cases where there are too
-	 many laser monsters at the same time, as it can have a big hit in performance.
-
-3.12 Voxels: Toggle voxels on/off. If you turn this off, visual glitches will
+3.9 Voxels: Toggle voxels on/off. If you turn this off, visual glitches will
      occur, yet it might help with performance in some extreme cases. GZDOOM RESETS
      THIS VALUE BACK TO "ON" EVERY TIME YOU OPEN GZDOOM.
 
-3.13 Blood HUD effect: Toggles on/off the effect of blood splattered on screen when
+3.10 Blood HUD effect: Toggles on/off the effect of blood splattered on screen when
      you take damage (this only appears when you have no armor). Default "on".
 
-3.14 Rocket Explosion Quakes: Toggles on/off quake effects when explosions
+3.11 Rocket Explosion Quakes: Toggles on/off quake effects when explosions
      happen near you. On by default.
 
-3.15 Particle Type: To select whether you want square, round or smooth zdoom
+3.12 Particle Type: To select whether you want square, round or smooth zdoom
      particles.
     
-3.16 Max Amount of Particles: It is suggested to go as high as possible, since
+3.13 Max Amount of Particles: It is suggested to go as high as possible, since
      D4D uses a lot of particles for all the effects.
 
-3.17 Max Fx Render Distance
-3.18 Max Fx Dist (faster)
+3.14 Max Fx Render Distance
+3.15 Max Fx Dist (faster)
      These two options changes how far away from player will some fx stop rendering,
      The second option increases the number much faster than the first.
     
@@ -354,6 +341,9 @@ General options that you might want to change right away
       these. Monsters have no undodgeable attacks, but their projectiles are
       much faster than the vanilla doom monsters. Almost all of the D4D
       monsters use custom graphics.
+4.1.2 Rainbow Doom(4): A customized version of D4D monsters that adds an extra
+	  challenge, along with some unique rewards. If you've played Colorful Hell,
+	  this is what that setting is based on. 
 4.1.2 Original Doom: They look and behave like vanilla. No changes to any of
       their values, being health, damage, or speed. They only have slighly
       visually updated projectile attacks, but the behavior remains the same.
@@ -408,19 +398,15 @@ General options that you might want to change right away
 4.10 Show HUD Demon Name: Default YES. Displays the name of the demon you
      morphed into, for as long as you're morphed.
 
-4.11 Demon Rune Warning: Default ON. Displays a warning to not save/load
-     nor exit a level while morphed. "When ON" message displays for as long
-	 as you are in demon form.
-
     ** Multiplayer Weapons **
 
-4.12 Multiplayer Weapons Spawn in SP: Toggles ON/OFF the spawning of the Doom4
+4.11 Multiplayer Weapons Spawn in SP: Toggles ON/OFF the spawning of the Doom4
      multiplayer weapons that are included in D4D. When OFF, these weapons
      (Lightning Gun, Static Rifle, Vortex Rifle, Repeater, Carrion Cannon*) will 
 	 no longer spawn in game.
 	 * Carrion Cannon: This is the former "Hellshot". 
 
-4.13 Spawn Style: Determines how are the MP weapons going to spawn throughout
+4.12 Spawn Style: Determines how are the MP weapons going to spawn throughout
      the game. 
 	 -Progressive (default): The MP weapons will spawn based on the weapons
 	  you already have. A static rifle will only spawn until you have a 
@@ -438,10 +424,10 @@ General options that you might want to change right away
 
     ** Footsteps **
 
-4.14 Footsteps frequency: Alters how often footsteps are played. The higher the
+4.13 Footsteps frequency: Alters how often footsteps are played. The higher the
      number, the more frequent the footsteps are.
 
-4.15 Footsteps volume: Alters the volume of the footsteps. The higher the value,
+4.14 Footsteps volume: Alters the volume of the footsteps. The higher the value,
      the louder the sounds.
 
 
@@ -486,7 +472,7 @@ Super Shotgun: Double barrelled fun.
     "DOUBLE THE GUN. DOUBLE THE FUN." - Serious Sam 2
     What's not to like about quick slinging two super shotguns that you can
     single OR dual fire both barrels? If mastered, one can easily stunlock 
-    enemies into their pain states with enough practice.
+    enemies with enough practice.
 
 Repeater: Semi auto, high precision hitscan. Primary fires a burst of 3 bullets.
    Secondary fires a flare shot.
@@ -732,7 +718,7 @@ reward for getting through this. Congratulations!
     by the amount listed.
 - Armor: Upgrades the maximum armor, allowing lesser armor pickups to fulfill up
     to the amount listed.
-- Jumping: Allows for higher jump, triple jump, and better air control when
+- Jumping: Allows for higher jump, triple jump, better air control and dash when
     purchasing each.
 - Credits: Enhances how much credits one receives in ALL categories:
     - Kills

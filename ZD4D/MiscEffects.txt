@@ -363,6 +363,45 @@ Class D4BulletPuffExtreme : D4BulletPuff
 	}
 }
 
+Class D4BulletPuffGibDistance : D4BulletPuff
+{
+	double Range;
+	bool RandomDamage;
+	Property Range: Range;
+	Property RandomDamage: RandomDamage;
+	Default
+	{
+		D4BulletPuffGibDistance.RandomDamage true;
+		D4BulletPuffGibDistance.Range 192 ** 2;
+		+HITTRACER
+		+PUFFGETSOWNER
+		Damage 9;
+		DamageType "HitScan";
+	}
+	
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+			
+		if (tracer && tracer.health > 0 && (tracer.bSHOOTABLE || tracer.bVULNERABLE))
+		{
+			if (target && Distance3DSquared(target) <= Range)
+				bEXTREMEDEATH = true;
+			int mask = 3;
+			int add = 0;
+			
+			if (RandomDamage)
+			{
+				mask = 0;
+				add = 1;
+			}
+			int dmg = GetMissileDamage(mask, add);
+			
+			Tracer.DamageMobj(self, target, dmg, DamageType, DMG_INFLICTOR_IS_PUFF|DMG_USEANGLE,angle);
+		}
+	}
+}
+
 Class BulletPuffParticle : Actor 
 {
 	Default 

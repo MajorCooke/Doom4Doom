@@ -359,7 +359,14 @@ Class SummonerMonsterSpawner : Actor
 		Goto Death;
 	Death:
 		TNT1 A 0 A_SpawnItemEx("SummonTeleportFog",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-		TNT1 A 1 A_SpawnItemEx("TporDropBallSpawner",0,0,0,0,0,0,0,SXF_TRANSFERPOINTERS);
+		TNT1 A 1 
+		{
+			let mon = Spawn("TporDropBallSpawner", pos, ALLOW_REPLACE);
+			if (mon)
+			{
+				mon.Tracer = Tracer;
+			}
+		}
 		Stop;
 	}
 }

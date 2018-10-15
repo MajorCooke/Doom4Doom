@@ -804,8 +804,29 @@ Class DemonRuneMorphOff : Actor
 		
 			target.A_GiveInventory("DemonOverlayCleaner",1);	//cleans the demon overlays on unmorphed player
 			target.A_GiveInventory("DemonWarpersCleaner",1);	//cleans the demon warpers on unmorphed player
-			target.A_GiveInventory("MinionsTurner",1);			//makes all minions enemy to unmorphed player
 			target.A_GiveInventory("HealthArmorRestorer",1);	//restores health and armor
+		}
+		
+		// Reset all D4D monsters back to normal.
+		let event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+		if (event)
+		{
+			let en = Spawn("Enemifier", (0,0,0));
+			Array<Actor> Monsters; Monsters.Copy(Event.Monsters);
+			for (int i = 0; i < Monsters.Size(); i++)
+			{
+				Actor mon = Monsters[i];
+				if (!mon || !(mon is "D4AbstractMonster") || mon.health < 1)	
+					continue;
+				
+				mon.CopyFriendliness(en, false, false);
+				mon.bFriendly = false;
+				mon.bDontHarmSpecies = false;
+				mon.bThruSpecies = false;
+				mon.bMThruSpecies = false;
+				mon.bNoBlockMonst = false;
+				mon.Species = Default.Species;
+			}
 		}
 		A_SpawnItemEx("BloodGibDropper",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION/*|SXF_USEBLOODCOLOR*/);
 		A_PlaySound("Doom4/Other/GibExplode",6);
@@ -966,12 +987,15 @@ Class Enemifier : Actor
 {
 	Default 
 	{
+		Monster;
 		+NOINTERACTION
 		-COUNTKILL
 		+NODAMAGE
 		+THRUACTORS
 		-FRIENDLY
-		Monster;
+		+NOTRIGGER
+		+NOTELEPORT
+		Renderstyle "None";
 	}
 	States
 	{

@@ -1,7 +1,7 @@
 ===========================================================================
 Archive Maintainer      : (special instructions if any)
 Update to               : D4D.pk3
-Advanced engine needed  : GZDoom v3.5+
+Advanced engine needed  : GZDoom v3.6+
 Primary purpose         : Single player, no levels included
 ===========================================================================
 Title                   : DOOM(4) for DooM
@@ -63,8 +63,8 @@ Known Bugs              : * Sometimes glory kills will only do a quick punch
                           through walls, floors or celings while being
                           executed.
 Might Not Work With     : GZDoom devbuilds, unless mentioned otherwise.
-Will NOT Work With 		: Zandronum. ZDoom. GZDoom v3.4 and older.
-Tested With             : GZDoom v3.5
+Will NOT Work With 		: Zandronum. ZDoom. GZDoom v3.5 and older.
+Tested With             : GZDoom v3.6
 
 ===========================================================================
 
@@ -107,14 +107,14 @@ ZZYZX                   : Making shaders for glory kill effect, shaders for
                           holographic effect. Current internal dev working on
                           top secret stuff.
 						  
-Neccronixis             : Creator of all the Doom 4 weapon sprites (until 2.0.3) 						  
+Neccronixis             : Creator of all the Doom 4 weapon sprites (until 3.0+) 						  
 						  & doomdoll pickup and animation.
 
 * Special Credits *
 
 DBThanatos              : Ex-author as of 2.0.3.
                           Import, offseting, renaming all of Neccronixis' weapon
-                          sprites. Edited all muzleflash sprites from the 
+                          sprites. Edited all muzzleflash sprites from the 
                           weapons. Created base functional code of all weapons.
                           Doom4 sound ripping, conversion and processing. 
                           Created voxels for: ammo pickups, health pickups,
@@ -160,6 +160,8 @@ Gutawer					: Player damage shader effect
 						  Gutamatics library
 
 Marisa Kirisami			: Matrix4 class and tips on producing better lightning.
+
+PhantomBeta				: Providing the intercepting projectile code.
 
 Cactus Hege				: Inspiration for the Rainbow Doom(4) monsters. Concept 
 						  (no code) taken from Colorful Hell with permission.
@@ -260,7 +262,19 @@ Sprite Edit: Neoworm
 Sprites: Id Software
 Sprite Edit: NMN, Tormentor667
 
-===========================================================================
+================================================================================
+* Contact Information *
+
+Want to let me know about your thoughts, comments or ask questions?
+
+Discord server: https://discord.gg/RehCYqS
+ZDoom thread:	https://forum.zdoom.org/viewtopic.php?f=43&t=54843
+Email:			majorcooke22@gmail.com
+
+I HIGHLY recommend joining the discord server. That is where I'm most active.
+You get free spoilers on occasion that I'm too forgetful to post anywhere else. 
+
+================================================================================
 * Copyright / Permissions *
 
 Authors MAY use the contents of this file as a base for
@@ -268,9 +282,15 @@ modification or reuse. JUST LET ME KNOW. :) Permissions have been obtained
 from original authors for any of their resources modified or included 
 in this file.
 
+Authors who copy the libraries MUST include the license(s) present in the 
+folders.
+
 You MAY distribute this file, provided you include this text file, with
 no modifications. You may distribute this file in any electronic
 format as long as you include this file intact. I have received permission 
 from the original authors of any modified or included content in this file 
 to allow further distribution.
 
+================================================================================
+
+Have fun!
