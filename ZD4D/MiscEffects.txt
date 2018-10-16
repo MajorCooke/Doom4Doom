@@ -372,7 +372,7 @@ Class D4BulletPuffGibDistance : D4BulletPuff
 	Default
 	{
 		D4BulletPuffGibDistance.RandomDamage true;
-		D4BulletPuffGibDistance.Range 192 ** 2;
+		D4BulletPuffGibDistance.Range 192
 		+HITTRACER
 		+PUFFGETSOWNER
 		Damage 9;
@@ -385,7 +385,7 @@ Class D4BulletPuffGibDistance : D4BulletPuff
 			
 		if (tracer && tracer.health > 0 && (tracer.bSHOOTABLE || tracer.bVULNERABLE))
 		{
-			if (target && Distance3DSquared(target) <= Range)
+			if (target && Distance3DSquared(target) <= Range ** 2)
 				bEXTREMEDEATH = true;
 			int mask = 3;
 			int add = 0;
