@@ -242,6 +242,7 @@ Class D4Revenant : D4AbstractBiggie
 	Wound:
 		"####" "#" 1
 		{
+			A_StopBeam();
 			bSPRITEFLIP = false;
 			if(GetCvar("D4D_ExecutionsON"))
 			{
