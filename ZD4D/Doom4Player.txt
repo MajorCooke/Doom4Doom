@@ -1147,7 +1147,7 @@ extend class Doom4Player
 		// Give the BUDDHA2 cheat temporarily, damage the player and restore
 		// their previous cheats.
 		int LifeCount = CountInv("D4ExtraLife");
-		if (player && UseLives && LifeCount > 0 && !(CurSector.Flags & Sector.SECF_ENDLEVEL))
+		if (UseLives && LifeCount > 0 && player && !(CurSector.Flags & Sector.SECF_ENDLEVEL))
 		{
 			int prev = health;
 			int temp = player.cheats;
@@ -1155,22 +1155,61 @@ extend class Doom4Player
 			finaldamage = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
 			player.cheats = temp;
 			
+			// The player has an extra life. Gives 5 seconds of invulnerability,
+			// teleports (and telefrags anything in the way) to one of the three 
+			// prior positions if possible. If not, check if currently blocked.
+			// Move back to the start of the map if so.
 			if (finaldamage >= prev)
 			{
 				A_GiveInventory("Invul5s",1);
 				A_SetInventory("LifeRedFlash",LifeCount,beyondMax: true);
 				A_TakeInventory("D4ExtraLife",1);
-				A_ResetHealth();
-				A_SpawnItemEx(TeleFogSourceType, flags: SXF_NOCHECKPOSITION);
+				A_SetHealth(GetMaxHealth(true));
 				int LastIndex = LifePos.Size() - 1;
-				if (!TeleportMove(LifePos[LastIndex], bTELESTOMP))
+				bool good = false;
+				bool thru = bTHRUACTORS;
+				Vector3 lpos = pos;
+				
+				// Iterate through each position. See if it's blocked or not.
+				for (int i = LastIndex; i > -1; i++)
 				{
-					SetXYZ(LifePos[LastIndex]);
+					if (TeleportMove(LifePos[LastIndex], bTELESTOMP))
+					{
+						bTHRUACTORS = true;
+						good = !(A_CheckBlock("Null"));
+					}
+					bTHRUACTORS = thru;
+					if (good)		break;
 				}
-				Vel = LifeVel[LastIndex];
-				Angle = LifeAP[LastIndex].X;
-				Pitch = LifeAP[LastIndex].Y;
-				A_SpawnItemEx(TeleFogDestType, flags: SXF_NOCHECKPOSITION);
+				
+				// If none of the previous spots work, see if anything is blocking
+				// the player where they stand, ignoring all actors. If so,
+				// force them back to the spawn point.
+				if (!good)
+				{
+					bTHRUACTORS = true;
+					good = !(A_CheckBlock("Null"));
+					bTHRUACTORS = thru;
+					if (!good)
+					{
+						good = true;
+						TeleportMove(SpawnPoint, bTELESTOMP);
+						SetXYZ(SpawnPoint);
+					}
+				}
+				
+				bTHRUACTORS = thru;
+				
+				if (good)
+				{
+					Vel = LifeVel[LastIndex];
+					Angle = LifeAP[LastIndex].X;
+					Pitch = LifeAP[LastIndex].Y;
+					Actor fr = Spawn(TeleFogSourceType, lpos, ALLOW_REPLACE);
+					if (fr)	fr.target = self;
+					Actor to = Spawn(TeleFogDestType, pos, ALLOW_REPLACE);
+					if (to)	to.target = self;
+				}
 				A_Overlay(Overlay_LifeRecorder, "Overlay.LifeRecorder"); // Reset all the data.
 			}
 		}
