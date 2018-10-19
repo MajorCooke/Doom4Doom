@@ -455,7 +455,7 @@ Class Doom4StatusBar : BaseStatusBar
 			
 			if (LifeCounterFade > 0.0)
 			{
-				DrawStringScaled(mQ4SmallHudFont, FormatNumber(LifeCount[1], 1), LifePos + (0, 16), DI_TEXT_ALIGN_RIGHT, LifeCounterColor, 
+				DrawStringScaled(mQ4SmallHudFont, FormatNumber(LifeCount[1], 1), LifePos + (0, 16), DI_TEXT_ALIGN_RIGHT, Font.CR_RED, 
 					Clamp(LifeCounterFade, 0.0, 1.0), scaling: 2);
 				double sub = 1.0 / 60.0;
 				LifeCounterFade -= sub;
