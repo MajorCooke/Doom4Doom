@@ -578,3 +578,19 @@ Model "D4GrenadeLauncher"
 	
 	Rotation-Speed 50
 }
+
+Model "D4BFGAmmoPart"
+{
+	USEACTORPITCH
+	USEACTORROLL
+	USEROTATIONCENTER
+	Scale 1.0 1.0 1.2
+	Skin 0 "BFGAmmoSkin"
+	
+	Model 0 "Models/BFGAmmoBase.md3"
+	FrameIndex AMBF B 0 0
+	Model 0 "Models/BFGAmmoOuterRing.md3"
+	FrameIndex AMBF C 0 0
+	Model 0 "Models/BFGAmmoInnerRing.md3"
+	FrameIndex AMBF D 0 0
+}

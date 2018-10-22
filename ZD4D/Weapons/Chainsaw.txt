@@ -12,7 +12,6 @@
 //===================================================================================================
 Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 {
-	
 	Default 
 	{
 		+INVENTORY.UNDROPPABLE
@@ -28,9 +27,15 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 		Weapon.AmmoUse1 0;
 		Weapon.AmmoUse2 1;
 		Obituary "%o was shredded to pieces by %k's Chainsaw.";
-		Inventory.PickupMessage "Chainsaw. Shred and tear!";
+		Inventory.PickupMessage "Chainsaw. Shred and shear!";
 		Tag "Chainsaw";
 		Weapon.SelectionOrder 90;
+	}
+	
+	override void EnableAmmoSpawn()
+	{
+		if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+		if (Event)	Event.SetAmmoSpawn(D4DHandler.ChainsawAmmo, true);
 	}
 	
 	States
@@ -41,7 +46,7 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 	Select:
 		CSWN A 0 
 		{
-			if (player && player.mo)
+			if (player && player.mo == invoker.owner)
 			{
 				ACS_NamedExecuteAlways("RemoveModText",0,0,0,0);
 				A_PlaySound("Doom4/Weapon/Chainsaw/Idle",CHAN_WEAPON,0.25,1);

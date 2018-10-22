@@ -37,9 +37,12 @@ Class ClipReplacer : CustomInventory replaces Clip
 		TNT1 A 0 NODELAY A_SpawnItemEx("D4BulletsSmall",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
 		TNT1 A -1 
 		{
-			if (CountInv("D4Chainsaw",Player1) || A_CheckProximity("Null","D4Chainsaw",20000,1))
+			D4DHandler Event;
+			if (random[rng](0,255) < (256 - 245))
 			{
-				A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION,245);
+				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (Event && Event.CheckAmmoSpawn(D4DHandler.ChainsawAmmo))
+					A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
 		}
 		Stop;
@@ -64,9 +67,12 @@ Class ClipBoxReplacer : CustomInventory replaces ClipBox
 		TNT1 A 0 NODELAY A_SpawnItemEx("D4Bullets",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
 		TNT1 A -1 
 		{
-			if (CountInv("D4Chainsaw",Player1) || A_CheckProximity("Null","D4Chainsaw",20000,1))
+			D4DHandler Event;
+			if (random[rng](0,255) < (256 - 230))
 			{
-				A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION,230);
+				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (Event && Event.CheckAmmoSpawn(D4DHandler.ChainsawAmmo))
+					A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
 		}
 		Stop;
@@ -91,9 +97,12 @@ Class ShellReplacer : CustomInventory replaces Shell
 		TNT1 A 0 NODELAY A_SpawnItemEx("D4ShellsSmall",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
 		TNT1 A -1 
 		{
-			if (CountInv("D4Chainsaw",Player1) || A_CheckProximity("Null","D4Chainsaw",20000,1))
+			D4DHandler Event;
+			if (random[rng](0,255) < (256 - 245))
 			{
-				A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION,245);
+				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (Event && Event.CheckAmmoSpawn(D4DHandler.ChainsawAmmo))
+					A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
 		}
 		Stop;
@@ -118,9 +127,12 @@ Class ShellBoxReplacer : CustomInventory replaces ShellBox
 		TNT1 A 0 NODELAY A_SpawnItemEx("D4Shells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
 		TNT1 A -1  
 		{
-			if (CountInv("D4Chainsaw",Player1) || A_CheckProximity("Null","D4Chainsaw",20000,1))
+			D4DHandler Event;
+			if (random[rng](0,255) < (256 - 230))
 			{
-				A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION,230);
+				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (Event && Event.CheckAmmoSpawn(D4DHandler.ChainsawAmmo))
+					A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
 		}
 		Stop;
@@ -146,9 +158,12 @@ Class RocketAmmoReplacer : CustomInventory replaces RocketAmmo
 		TNT1 A 0 NODELAY A_SpawnItemEx("D4RocketsSmall",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
 		TNT1 A -1 
 		{
-			if (CountInv("D4Chainsaw",Player1) || A_CheckProximity("Null","D4Chainsaw",20000,1))
+			D4DHandler Event;
+			if (random[rng](0,255) < (256 - 200))
 			{
-				A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION,200);
+				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (Event && Event.CheckAmmoSpawn(D4DHandler.ChainsawAmmo))
+					A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
 		}
 		Stop;
@@ -173,9 +188,12 @@ Class RocketBoxReplacer : CustomInventory replaces RocketBox
 		TNT1 A 0 NODELAY A_SpawnItemEx("D4Rockets",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
 		TNT1 A -1 
 		{
-			if (CountInv("D4Chainsaw",Player1) || A_CheckProximity("Null","D4Chainsaw",20000,1))
+			D4DHandler Event;
+			if (random[rng](0,255) < (256 - 160))
 			{
-				A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION,160);
+				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (Event && Event.CheckAmmoSpawn(D4DHandler.ChainsawAmmo))
+					A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
 		}
 		Stop;
@@ -195,20 +213,26 @@ Class CellReplacer : CustomInventory replaces Cell
 		Species "Ammo";
 		Renderstyle "None";
 	}
+	
 	States
 	{
 	Spawn:
 		TNT1 A -1 NODELAY 
 		{
+			D4DHandler Event;
+			if (random[rng](0,255) < (256 - 245))
+			{
+				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (Event && Event.CheckAmmoSpawn(D4DHandler.BFGAmmo))
+					A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			}
+			if (random[rng](0,255) < (256 - 200))
+			{
+				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (Event && Event.CheckAmmoSpawn(D4DHandler.ChainsawAmmo))
+					A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
+			}
 			A_SpawnItemEx("D4CellsSmall",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
-			if (CountInv("D4Chainsaw",Player1) || A_CheckProximity("Null","D4Chainsaw",20000,1))
-			{
-				A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION,200);
-			}
-			if (CountInv("D4BFG",Player1) || A_CheckProximity("Null","D4BFG",20000,1))
-			{
-				A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION,245);
-			}
 		}
 		Stop;
 	}
@@ -230,15 +254,20 @@ Class CellPackReplacer : CustomInventory replaces CellPack
 	Spawn:
 		TNT1 A -1 NODELAY
 		{
-			A_SpawnItemEx("D4Cells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
-			if (CountInv("D4Chainsaw",Player1) || A_CheckProximity("Null","D4Chainsaw",20000,1))
+			D4DHandler Event;
+			if (random[rng](0,255) < (256 - 220))
 			{
-				A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION,160);
+				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (Event && Event.CheckAmmoSpawn(D4DHandler.BFGAmmo))
+					A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
-			if (CountInv("D4BFG",Player1) || A_CheckProximity("Null","D4BFG",20000,1))
+			if (random[rng](0,255) < (256 - 160))
 			{
-				A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION,220);
-			}			
+				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (Event && Event.CheckAmmoSpawn(D4DHandler.ChainsawAmmo))
+					A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("D4Cells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);	
 		}
 		Stop;
 	}
@@ -467,6 +496,19 @@ Class D4RocketsSmall : D4Rockets //replaces RocketAmmo
 //==============================================================================
 Class D4BFGAmmo : Ammo
 {
+	enum EParts
+	{
+		Base = 0,
+		Outer = 1,
+		Inner = 2
+	};
+	const TurnMin = 5.0;
+	const TurnMax = 20.0;
+	D4BFGAmmoPart Part[3];
+	D4BFGAmmoEffects FX[4];
+	Vector3 OldPos;
+	Vector3 RingOffset;
+	Vector3 Turn;
 	Default
 	{
 		Inventory.PickupMessage "BFG cells";
@@ -477,13 +519,177 @@ Class D4BFGAmmo : Ammo
 		Ammo.BackpackMaxAmount D4BFGAmmo_MaxAmount;
 		Inventory.PickupSound "Doom4/Pickups/BFGAmmo";
 		DistanceCheck "D4D_MaxDrawDistance";
-		Scale 0.40;
+		Scale 0.80;
+	}
+	
+	override void PostBeginPlay()
+	{
+		RingOffset = (0,0,20);
+		Turn.X = (frandom[rng](TurnMin, TurnMax) * frandompick(-1.0, 1.0)); 
+		Turn.Y = (frandom[rng](TurnMin, TurnMax) * frandompick(-1.0, 1.0)) * 0.4;
+		if (abs(Turn.X) < abs(Turn.Y))
+		{
+			Turn.Z = Turn.X;
+			Turn.X = Turn.Y;
+			Turn.Y = Turn.Z;
+		}
+		Turn.Z = frandom(0.5, 2.0) * frandompick(-1.0, 1.0);
+		Super.PostBeginPlay();
+		OldPos = pos;
+	}
+	
+	void RemoveParts()
+	{
+		for (int i = 0; i < FX.Size(); i++)
+			if (FX[i]) FX[i].Destroy();
+		
+		for (int i = 0; i < Part.Size(); i++)
+			if (Part[i])	Part[i].Destroy();
+	}
+	
+	override bool TryPickup(in out Actor toucher)
+	{
+		bool ret = Super.TryPickup(toucher);
+		if (ret)	RemoveParts();
+		return ret;
+	}
+	
+	override void OnDestroy()
+	{
+		RemoveParts();
+		Super.OnDestroy();
+	}
+	
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay
+		{
+			A_PlaySound("Doom4/Weapon/BFG/AmmoLoop",7,0.5,true,5);
+			Vector3 offs = RingOffset * Scale.X;
+			Vector3 SpawnPos = Vec3Offset(offs.x, offs.y, offs.z);
+			
+			int Size = FX.Size();
+			for (int i = 0; i < Size; i++)
+			{
+				FX[i] = D4BFGAmmoEffects(Spawn("D4BFGAmmoEffects", SpawnPos, ALLOW_REPLACE));
+				if (FX[i])
+				{
+					FX[i].Master = self;
+					if (i >= (Size / 2))
+						FX[i].ID = 1;
+				}
+			}
+			for (int i = 0; i < Part.Size(); i++)
+			{
+				Part[i] = D4BFGAmmoPart(Spawn("D4BFGAmmoPart", (i == 0) ? pos : SpawnPos, ALLOW_REPLACE));
+				if (Part[i])	
+				{
+					Part[i].Frame = Fr_B + i;
+					Part[i].Scale = Scale;
+				}
+			}
+		}
+		TNT1 A 1 Light("BFGAmmoLight")
+		{
+			if (OldPos != Pos)
+			{
+				OldPos = Pos;
+				Vector3 offs = Vec3Offset(RingOffset.x, RingOffset.y, RingOffset.z) * Scale.X;
+				for (int i = 0; i < FX.Size(); i++)
+				{
+					if (FX[i]) FX[i].SetOrigin(offs, true);
+				}
+				for (int i = 0; i < Part.Size(); i++)
+				{
+					if (!Part[i])	continue;
+					Part[i].SetOrigin((i == 0) ? pos : offs, true);
+				}
+			}
+			if (Part[Inner])
+			{
+				Part[Inner].A_SetRoll (Part[Inner].Roll  + Turn.X, SPF_INTERPOLATE);
+				Part[Inner].A_SetPitch(Part[Inner].Pitch + Turn.Y, SPF_INTERPOLATE);
+				Part[Inner].A_SetAngle(Part[Inner].Angle + Turn.Z, SPF_INTERPOLATE);
+			}
+			if (Part[Outer])
+				Part[Outer].A_SetAngle(Part[Outer].Angle + Turn.Z, SPF_INTERPOLATE);
+		}
+		Wait;
+	}
+}
+
+Class D4BFGAmmoPart : D4DFX
+{
+	int PartNum;
+	Default
+	{
+		-INVISIBLE
+		+NOTONAUTOMAP
+	}
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		Angle = random(0,359);
+	}
+	States
+	{
+	Precache:
+		AMBF BCD 0;
+	Spawn:
+		AMBF B -1;
+		Stop;
+	Test:
+		---- A 17 Bright;
+		---- A 17;
+		Loop;
+	}
+}
+
+Class D4BFGAmmoEffects : D4DFX
+{
+	int ID;
+	double RollAmt, Scalar;
+	Default
+	{
+		+NOTONAUTOMAP
+		+ROLLSPRITE
+		RenderStyle "Add";
+		Translation "0:255=%[0,0,0]:[0.5,2,0.5]";
+		Alpha 1.0;
+	}
+	override void PostBeginPlay()
+	{
+		bSPRITEFLIP = random(false, true);
+		Roll = random[rng](0,359);
+		RollAmt = frandom[rng](2,10) * randompick[rng](-1,1);
+		Super.PostBeginPlay();
+		
+		Scalar = 0.1675;
+		if (ID == 1)	Scalar = 0.8;
+		if (Master) 	Scale = Master.Scale * Scalar;
+	}
+	
+	override void Tick()
+	{
+		if (!bNOTIMEFREEZE && (level.frozen || globalfreeze))
+			return;
+		A_SetRoll(roll + RollAmt, SPF_INTERPOLATE);
+		Super.Tick();
 	}
 	States
 	{
 	Spawn:
-		AMBF A 120 Bright NODELAY Light("GreenSmallPoint3") A_PlaySound("Doom4/Weapon/BFG/AmmoLoop",7,0.5,0,5);
-		Wait;
+		X072 L -1 NoDelay Bright
+		{
+			StateLabel next = null;
+			if (ID == 1)	next = "S2";
+			return ResolveState(next);
+		}
+		Stop;
+	S2:
+		X029 KJIHGFEDCBA 2 Bright;
+		Loop;
 	}
 }
 

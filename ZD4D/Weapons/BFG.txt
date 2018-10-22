@@ -12,7 +12,7 @@
 //===================================================================================================
 
 Class D4BFG : Doom4Weapon
-{	
+{
 	Default 
 	{
 		+INVENTORY.UNDROPPABLE
@@ -22,20 +22,27 @@ Class D4BFG : Doom4Weapon
 		Weapon.AmmoType2 "D4BFGAmmo";
 		Weapon.AmmoUse1 1;
 		Weapon.AmmoUse2 1;
-		Weapon.AmmoGive1 1;
-		Inventory.PickupMessage "BFG 9000! Hell YES!";
-		Inventory.PickupSound "Doom4/Weapon/BFG/Pickup";
+		Weapon.AmmoGive1 3;
+		Inventory.PickupMessage "BFG 9000! HELL YES!";
+		Inventory.PickupSound "";
 		Obituary "%o felt the wrath of %k's beautiful greenliness.";
 		Tag "BFG 9000";
 		Weapon.SelectionOrder 130;
 		+DONTGIB
 	}
 	
+	override void EnableAmmoSpawn()
+	{
+		if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+		if (Event)	Event.SetAmmoSpawn(D4DHandler.BFGAmmo, true);
+	}
+	
 	override bool TryPickup (in out Actor toucher)
 	{
 		if (Super.TryPickup(toucher))
 		{
-			A_PlaySound("Doom4/Weapon/BFG/Pickup", 5, 1, 0, ATTN_NONE);
+			for (int i = 5; i < 7; i++)
+			A_PlaySound("Doom4/Weapon/BFG/Pickup", i, 1, 0, ATTN_NONE);
 			return true;
 		}
 		return false;

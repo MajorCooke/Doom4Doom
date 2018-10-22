@@ -204,6 +204,7 @@ Class D4DHandler : EventHandler
 			deltas[num].ItemName.Clear();
 			deltas[num].Count.Clear();			
 		}
+	//	else if (e.Name == 'SectorLight')		{	SetSectorLight(e);	}
 		else if (e.Name == 'ClearFakeCash')
 		{
 			plr.A_SetInventory("D4DCashFake",0);
@@ -274,6 +275,18 @@ Class D4DHandler : EventHandler
 	
 	//==========================================================================
 	// Functions
+	
+	// Sets the light level of the current sector the player is in.
+	void SetSectorLight(ConsoleEvent e)
+	{
+		let plr = players[e.Player].mo;
+		if (!plr)	return;
+		
+		Sector s = plr.CurSector;
+		if (!s)	return;
+		
+		s.SetLightLevel(e.Args[0]);
+	}
 	
 	// Summons a rune with a power level.
 	void SummonRune(Actor player, String suffix, Int power)

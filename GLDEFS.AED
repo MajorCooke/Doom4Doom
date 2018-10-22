@@ -5,6 +5,18 @@ HardwareShader PostProcess scene {
 	Enabled
 }
 
+Material Sprite BFGAmmoSkin
+{
+	
+}
+
+pointlight BFGAmmoLight
+{
+	color 0.0 1.0 0.0
+	offset 0 10 0
+    size 20
+}
+
 
 pointlight PlayerLight1
 {

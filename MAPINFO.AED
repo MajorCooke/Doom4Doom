@@ -3,6 +3,8 @@ GameInfo
 	AddEventHandlers = "D4DHandler"
 	PlayerClasses = "Doom4Player"
 	StatusBarClass = "Doom4StatusBar"
+	//PrecacheClasses = "D4BFGAmmo"
+	PrecacheTextures = "BFGAmmoSkin"
 }
 
 Map TITLEMAP "Doom 4 For Doom"
@@ -37,7 +39,43 @@ AddDefaultMap
 		"D4Revenant",
 		"D4ShotgunGuy",
 		"D4SpiderMastermind",
-		"D4Zombieman"
+		"D4Zombieman",
+		
+		"D4StimPack",
+		"D4Medkit",
+		"D4HealthBonus",
+		"D4ArmorBonusPickup",
+		"D4GreenArmor",
+		"D4BlueArmor",
+		
+		"D4Shotgun",
+		"D4SuperShotgun",
+		"D4Chaingun",
+		"D4AssaultRifle",
+		"D4Repeater",
+		"D4RocketLauncher",
+		"D4GrenadeLauncher",
+		"D4PlasmaRifle",
+		"D4VortexRifle",
+		"D4LightningGun",
+		"D4StaticRifle",
+		"D4GaussCannon",
+		"D4BFG",
+		"D4Backpack",
+		"D4FuelSmall",
+		"D4Fuel",
+		"D4BFGAmmo",
+		"D4BFGAmmoPart",
+		"D4BFGAmmoEffects",
+		"D4BulletsSmall",
+		"D4Bullets",
+		"D4ShellsSmall",
+		"D4Shells",
+		"D4RocketsSmall",
+		"D4Rockets"
+		"D4CellsSmall",
+		"D4Cells",
+		"D4Carrion"
 }
 
 Clearskills

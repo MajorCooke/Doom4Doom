@@ -1036,13 +1036,13 @@ extend class Doom4StatusBar
 	// Uniform scaling.
 	void DrawStringScaled(HUDFont font, String string, Vector2 pos, int flags = 0, int translation = Font.CR_UNTRANSLATED, double Alpha = 1., int wrapwidth = -1, int linespacing = 4, double scaling = 1.0)
 	{
-		Vector2 OldScale = BaseSize, TempScale = BaseSize;
-		Vector2 ScaledPos = pos;
-		
 		if (scaling == 0.0)
 			return;
-		
+			
 		scaling = abs(scaling);
+		
+		Vector2 OldScale = BaseSize, TempScale = BaseSize;
+		Vector2 ScaledPos = pos;
 		
 		bool sized = (scaling != 1.0);
 		if (sized)
@@ -1054,7 +1054,6 @@ extend class Doom4StatusBar
 		if (sized) SetSize(0, TempScale.X, TempScale.Y);
 		DrawString(font, string, ScaledPos, flags, translation, Alpha, wrapwidth, linespacing);
 		if (sized) SetSize(0, OldScale.X, OldScale.Y);
-		
 	}
 	
 	// Independent axis scaling.

@@ -36,7 +36,13 @@ Class D4Restriction play
 }
 
 extend class D4DHandler
-{	
+{
+	enum EWeaponAmmo
+	{
+		BFGAmmo = 0,
+		ChainsawAmmo = 1
+	};
+	private bool Spawnable[2];
 	const DefaultDropChance = 250;
 	const TimeTrigger = 35 * 10;
 	bool FirstTime;
@@ -48,6 +54,9 @@ extend class D4DHandler
 	D4ManualLootList LootList;
 	private int UpgradeMode;
 	private int CurrentUpgradeMode;
+	
+	bool CheckAmmoSpawn(EWeaponAmmo index)			{	return Spawnable[index];	}
+	void SetAmmoSpawn(EWeaponAmmo index, bool can) 	{	Spawnable[index] = can; 	}
 	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
@@ -199,6 +208,8 @@ extend class D4DHandler
 	// No need to keep track of the old entities anymore.
 	override void WorldUnloaded(WorldEvent e)
 	{
+		Spawnable[BFGAmmo] = false;
+		Spawnable[ChainsawAmmo] = false;
 		Tracker.Clear();
 		Monsters.Clear();
 		Beams.Clear();
@@ -1045,7 +1056,7 @@ Struct D4DropList play
 	}
 	
 	//--------------------------------------------------------------------------
-	// MultiplyAmount (amount)
+	// Multiply(amount)
 	// 
 	// Multiplies the amount on all drops.
 	//--------------------------------------------------------------------------
