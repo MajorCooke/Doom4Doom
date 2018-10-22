@@ -224,15 +224,15 @@ Class CellReplacer : CustomInventory replaces Cell
 			{
 				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
 				if (Event && Event.CheckAmmoSpawn(D4DHandler.BFGAmmo))
-					A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
 			}
+			else A_SpawnItemEx("D4CellsSmall",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
 			if (random[rng](0,255) < (256 - 200))
 			{
 				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
 				if (Event && Event.CheckAmmoSpawn(D4DHandler.ChainsawAmmo))
 					A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
-			A_SpawnItemEx("D4CellsSmall",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
 		}
 		Stop;
 	}
