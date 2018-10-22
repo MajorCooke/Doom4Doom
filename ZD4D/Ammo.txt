@@ -259,15 +259,16 @@ Class CellPackReplacer : CustomInventory replaces CellPack
 			{
 				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
 				if (Event && Event.CheckAmmoSpawn(D4DHandler.BFGAmmo))
-					A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
 			}
+			else A_SpawnItemEx("D4Cells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
+			
 			if (random[rng](0,255) < (256 - 160))
 			{
 				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
 				if (Event && Event.CheckAmmoSpawn(D4DHandler.ChainsawAmmo))
 					A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
-			A_SpawnItemEx("D4Cells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);	
 		}
 		Stop;
 	}
@@ -275,10 +276,8 @@ Class CellPackReplacer : CustomInventory replaces CellPack
 //=============================================================================
 //
 //=============================================================================
-
 Class D4Fuel : Ammo 
 {
-	
 	Default
 	{
 		+FLOORCLIP
@@ -292,7 +291,6 @@ Class D4Fuel : Ammo
 		Inventory.MaxAmount D4Fuel_MaxAmount1;
 		Ammo.BackpackMaxAmount D4Fuel_MaxAmount2;
 		DistanceCheck "D4D_MaxDrawDistance";
-		Scale 0.45;
 	}
 	States
 	{
@@ -304,19 +302,17 @@ Class D4Fuel : Ammo
 
 Class D4FuelSmall : D4Fuel 
 {
-	
 	Default
 	{
 		Inventory.PickupSound "Doom4/Pickups/AmmoSmall";
 		Inventory.Amount 1;
-		Scale 0.3;
+		Scale 0.7;
 	}
 }
 
 //=============================================================================
 //
 //=============================================================================
-
 Class D4Bullets : Ammo replaces ClipBox
 {
 	
@@ -333,7 +329,6 @@ Class D4Bullets : Ammo replaces ClipBox
 		Ammo.BackpackMaxAmount D4Bullets_MaxAmount2;
 		Ammo.BackpackAmount 16;
 		DistanceCheck "D4D_MaxDrawDistance";
-		Scale 0.3;
 	}
 	
 	States
@@ -363,7 +358,6 @@ Class D4BulletsSmall : D4Bullets replaces clip
 //=============================================================================
 //
 //=============================================================================
-
 Class D4Shells : Ammo replaces ShellBox
 {
 	Default
@@ -379,7 +373,6 @@ Class D4Shells : Ammo replaces ShellBox
 		Ammo.BackpackMaxAmount D4Shells_MaxAmount2;
 		Ammo.BackpackAmount 6;
 		DistanceCheck "D4D_MaxDrawDistance";
-		Scale 0.3;
 	}
 	
 	States
@@ -413,18 +406,17 @@ Class D4Cells : Ammo //replaces CellPack
 {
 	Default
 	{
-	+FLOORCLIP
-	-TELESTOMP
-	Radius 20;
-	Height 16;
-	Inventory.PickupMessage "Plasma cells";
-	Inventory.PickupSound "Doom4/Pickups/AmmoBig";
-	Inventory.Amount 30;
-	Inventory.MaxAmount D4Cells_MaxAmount1;
-	Ammo.BackpackMaxAmount D4Cells_MaxAmount2;
-	Ammo.BackpackAmount 10;
-	DistanceCheck "D4D_MaxDrawDistance";
-	Scale 0.4;
+		+FLOORCLIP
+		-TELESTOMP
+		Radius 20;
+		Height 16;
+		Inventory.PickupMessage "Plasma cells";
+		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
+		Inventory.Amount 35;
+		Inventory.MaxAmount D4Cells_MaxAmount1;
+		Ammo.BackpackMaxAmount D4Cells_MaxAmount2;
+		Ammo.BackpackAmount 10;
+		DistanceCheck "D4D_MaxDrawDistance";
 	}
 	States
 	{
@@ -438,8 +430,8 @@ Class D4CellsSmall : D4Cells //replaces Cell
 {
 	Default
 	{
-	Inventory.Amount 10;
-	Inventory.PickupSound "Doom4/Pickups/AmmoSmall";
+		Inventory.Amount 12;
+		Inventory.PickupSound "Doom4/Pickups/AmmoSmall";
 	}
 	States
 	{
@@ -467,7 +459,6 @@ Class D4Rockets : Ammo //replaces RocketBox
 		Ammo.BackpackMaxAmount D4Rockets_MaxAmount2;
 		Ammo.BackpackAmount 1;
 		DistanceCheck "D4D_MaxDrawDistance";
-		Scale 0.3;
 	}
 	States
 	{
@@ -590,7 +581,7 @@ Class D4BFGAmmo : Ammo
 				}
 			}
 		}
-		TNT1 A 1 Light("BFGAmmoLight")
+		TNT1 A 1 //Light("BFGAmmoLight")
 		{
 			if (OldPos != Pos)
 			{

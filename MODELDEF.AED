@@ -594,3 +594,74 @@ Model "D4BFGAmmoPart"
 	Model 0 "Models/BFGAmmoInnerRing.md3"
 	FrameIndex AMBF D 0 0
 }
+
+Model D4Rockets
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/RocketBig.md3"
+	Skin 0 "RocketBigSkin"
+	FrameIndex AMRK A 0 0
+}
+Model D4RocketsSmall
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/RocketSmall.md3"
+	Skin 0 "RocketSmallSkin"
+	FrameIndex AMRK B 0 0
+}
+Model D4Cells
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/PlasmaBig.md3"
+	Skin 0 "PlasmaBigSkin"
+	FrameIndex AMPL A 0 0
+}
+Model D4CellsSmall
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/PlasmaSmall.md3"
+	Skin 0 "PlasmaSmallSkin"
+	FrameIndex AMPL B 0 0
+}
+Model D4Bullets
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/BulletsBig.md3"
+	Skin 0 "BulletsBigSkin"
+	FrameIndex AMBL A 0 0
+}
+Model D4BulletsSmall
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/BulletsSmall.md3"
+	Skin 0 "BulletsSmallSkin"
+	FrameIndex AMBL B 0 0
+}
+Model D4Shells
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/ShellBig.md3"
+	Skin 0 "ShellBigSkin"
+	FrameIndex AMSH A 0 0
+}
+Model D4ShellsSmall
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/ShellSmall.md3"
+	Skin 0 "ShellSmallSkin"
+	FrameIndex AMSH B 0 0
+}
+Model D4Fuel
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/GasCan.md3"
+	Skin 0 "GasCanSkin"
+	FrameIndex AMGS A 0 0
+}
+Model D4FuelSmall
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/GasCan.md3"
+	Skin 0 "GasCanSkin"
+	FrameIndex AMGS A 0 0
+}

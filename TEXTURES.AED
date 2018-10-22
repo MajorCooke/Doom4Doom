@@ -3003,8 +3003,50 @@ Graphic "BFGAMM22", 22, 7
 {
 	Patch "BFGAMM44", -1, -1
 }
-
-Graphic "BFGAmmoSkin", 1024, 1024
+//------------------------------------------------------------------------------
+Graphic "BFGAmmoSkin", 1024, 1024 
 {
-	Patch "Materials/BFGAmmoSkin.jpg", 0, 0
+	Patch "Materials/BFGAmmoSkin.jpg", 0, 0 
+}
+Graphic "BulletsSmallSkin", 1024, 1024 
+{
+	Patch "Materials/BulletsSmallSkin.jpg", 0, 0
+}
+Graphic "BulletsBigSkin", 480, 480
+{
+	Patch "Materials/BulletsBigSkin.jpg", 0, 0
+	Patch "Materials/Brightmaps/Auto/BulletsBigSkin.jpg", 0, 0 { Style Add }
+}
+Graphic "GasCanSkin", 480, 480 
+{
+	Patch "Materials/GasCanSkin.jpg", 0, 0
+	Patch "Materials/Brightmaps/Auto/GasCanSkin.jpg", 0, 0 { Style Add }
+}
+Graphic "PlasmaBigSkin", 480, 480
+{
+	Patch "Materials/PlasmaBigSkin.jpg", 0, 0
+	Patch "Materials/Brightmaps/Auto/PlasmaBigSkin.jpg", 0, 0 { Style Add }
+}
+Graphic "PlasmaSmallSkin", 240, 240 
+{
+	Patch "Materials/PlasmaSmallSkin.jpg", 0, 0
+	Patch "Materials/Brightmaps/Auto/PlasmaSmallSkin.jpg", 0, 0 { Style Add }
+}
+Graphic "RocketBigSkin", 480, 480 
+{
+	Patch "Materials/RocketBigSkin.jpg", 0, 0
+	Patch "Materials/Brightmaps/Auto/RocketBigSkin.jpg", 0, 0 { Style Add }
+}
+Graphic "RocketSmallSkin", 480, 240 
+{
+	Patch "Materials/RocketSmallSkin.jpg", 0, 0
+}
+Graphic "ShellBigSkin", 480, 480
+{
+	Patch "Materials/ShellBigSkin.jpg", 0, 0
+	Patch "Materials/Brightmaps/Auto/ShellBigSkin.jpg", 0, 0 { Style Add }
+}
+Graphic "ShellSmallSkin", 240, 120
+{
+	Patch "Materials/ShellSmallSkin.jpg", 0, 0
 }
