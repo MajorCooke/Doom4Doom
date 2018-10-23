@@ -489,17 +489,13 @@ Class D4BFGAmmo : Ammo
 {
 	enum EParts
 	{
-		Base = 0,
-		Outer = 1,
-		Inner = 2
+		Outer = 0,
+		Inner
 	};
-	const TurnMin = 5.0;
-	const TurnMax = 20.0;
-	D4BFGAmmoPart Part[3];
+	D4BFGAmmoPart Part[2];
 	D4BFGAmmoEffects FX[4];
 	Vector3 OldPos;
 	Vector3 RingOffset;
-	Vector3 Turn;
 	Default
 	{
 		Inventory.PickupMessage "BFG cells";
@@ -516,15 +512,6 @@ Class D4BFGAmmo : Ammo
 	override void PostBeginPlay()
 	{
 		RingOffset = (0,0,20);
-		Turn.X = (frandom[rng](TurnMin, TurnMax) * frandompick(-1.0, 1.0)); 
-		Turn.Y = (frandom[rng](TurnMin, TurnMax) * frandompick(-1.0, 1.0)) * 0.4;
-		if (abs(Turn.X) < abs(Turn.Y))
-		{
-			Turn.Z = Turn.X;
-			Turn.X = Turn.Y;
-			Turn.Y = Turn.Z;
-		}
-		Turn.Z = frandom(0.5, 2.0) * frandompick(-1.0, 1.0);
 		Super.PostBeginPlay();
 		OldPos = pos;
 	}
@@ -573,38 +560,30 @@ Class D4BFGAmmo : Ammo
 			}
 			for (int i = 0; i < Part.Size(); i++)
 			{
-				Part[i] = D4BFGAmmoPart(Spawn("D4BFGAmmoPart", (i == 0) ? pos : SpawnPos, ALLOW_REPLACE));
+				Part[i] = D4BFGAmmoPart(Spawn("D4BFGAmmoPart", SpawnPos, ALLOW_REPLACE));
 				if (Part[i])	
 				{
-					Part[i].Frame = Fr_B + i;
+					Part[i].Frame = Fr_C + i;
 					Part[i].Scale = Scale;
 				}
 			}
 		}
-		TNT1 A 1 //Light("BFGAmmoLight")
+		AMBF B 1 //Light("BFGAmmoLight")
 		{
 			if (OldPos != Pos)
 			{
 				OldPos = Pos;
-				Vector3 offs = Vec3Offset(RingOffset.x, RingOffset.y, RingOffset.z) * Scale.X;
 				for (int i = 0; i < FX.Size(); i++)
 				{
-					if (FX[i]) FX[i].SetOrigin(offs, true);
+					if (!FX[i])		continue;
+					FX[i].Warp(self, 0, 0, RingOffset.z * Scale.X, 0, WARPF_NOCHECKPOSITION);
 				}
 				for (int i = 0; i < Part.Size(); i++)
 				{
 					if (!Part[i])	continue;
-					Part[i].SetOrigin((i == 0) ? pos : offs, true);
+					Part[i].Warp(self, 0, 0, RingOffset.z * Scale.X, 0, WARPF_NOCHECKPOSITION);
 				}
 			}
-			if (Part[Inner])
-			{
-				Part[Inner].A_SetRoll (Part[Inner].Roll  + Turn.X, SPF_INTERPOLATE);
-				Part[Inner].A_SetPitch(Part[Inner].Pitch + Turn.Y, SPF_INTERPOLATE);
-				Part[Inner].A_SetAngle(Part[Inner].Angle + Turn.Z, SPF_INTERPOLATE);
-			}
-			if (Part[Outer])
-				Part[Outer].A_SetAngle(Part[Outer].Angle + Turn.Z, SPF_INTERPOLATE);
 		}
 		Wait;
 	}
@@ -612,9 +591,13 @@ Class D4BFGAmmo : Ammo
 
 Class D4BFGAmmoPart : D4DFX
 {
-	int PartNum;
+	const TurnMin = 5.0;
+	const TurnMax = 20.0;
+	Vector3 Turn;
 	Default
 	{
+		+MOVEWITHSECTOR
+		+RELATIVETOFLOOR
 		-INVISIBLE
 		+NOTONAUTOMAP
 	}
@@ -622,18 +605,32 @@ Class D4BFGAmmoPart : D4DFX
 	{
 		Super.PostBeginPlay();
 		Angle = random(0,359);
+		Turn.X = (frandom[rng](TurnMin, TurnMax) * frandompick(-1.0, 1.0)); 
+		Turn.Y = (frandom[rng](TurnMin, TurnMax) * frandompick(-1.0, 1.0)) * 0.4;
+		if (abs(Turn.X) < abs(Turn.Y))
+		{
+			Turn.Z = Turn.X;
+			Turn.X = Turn.Y;
+			Turn.Y = Turn.Z;
+		}
+		Turn.Z = (frandom(TurnMin, TurnMax) * 0.1) * frandompick(-1.0, 1.0);
 	}
 	States
 	{
 	Precache:
-		AMBF BCD 0;
+		AMBF CD 0;
 	Spawn:
-		AMBF B -1;
-		Stop;
-	Test:
-		---- A 17 Bright;
-		---- A 17;
-		Loop;
+		AMBF C 1;
+		---- A 1
+		{
+			if (Frame == Fr_D)
+			{
+				A_SetRoll (Roll  + Turn.X, SPF_INTERPOLATE);
+				A_SetPitch(Pitch + Turn.Y, SPF_INTERPOLATE);
+			}
+			A_SetAngle(Angle + Turn.Z, SPF_INTERPOLATE);
+		}
+		Wait;
 	}
 }
 
@@ -643,6 +640,8 @@ Class D4BFGAmmoEffects : D4DFX
 	double RollAmt, Scalar;
 	Default
 	{
+		+MOVEWITHSECTOR
+		+RELATIVETOFLOOR
 		+NOTONAUTOMAP
 		+ROLLSPRITE
 		RenderStyle "Add";
