@@ -306,7 +306,7 @@ Class D4FuelSmall : D4Fuel
 	{
 		Inventory.PickupSound "Doom4/Pickups/AmmoSmall";
 		Inventory.Amount 1;
-		Scale 0.7;
+		Scale 0.8;
 	}
 }
 
@@ -346,6 +346,7 @@ Class D4BulletsSmall : D4Bullets replaces clip
 	{
 		Inventory.Amount 16;
 		Inventory.PickupSound "Doom4/Pickups/AmmoSmall";
+		Scale 0.65;
 	}
 	States
 	{
@@ -364,6 +365,7 @@ Class D4Shells : Ammo replaces ShellBox
 	{
 		+FLOORCLIP
 		-TELESTOMP
+		+NOTELESTOMP
 		Radius 20;
 		Height 16;
 		Inventory.PickupMessage "Shotgun shells";
@@ -390,6 +392,7 @@ Class D4ShellsSmall : D4Shells replaces Shell
 	{
 		Inventory.Amount 6;
 		Inventory.PickupSound "Doom4/Pickups/AmmoSmall";
+		Scale 1.75;
 	}
 	States
 	{
@@ -432,6 +435,7 @@ Class D4CellsSmall : D4Cells //replaces Cell
 	{
 		Inventory.Amount 12;
 		Inventory.PickupSound "Doom4/Pickups/AmmoSmall";
+		Scale 1.5;
 	}
 	States
 	{
@@ -621,14 +625,15 @@ Class D4BFGAmmoPart : D4DFX
 		AMBF CD 0;
 	Spawn:
 		AMBF C 1;
-		---- A 1
+		---- AA 1
 		{
+			int flags = 0; //SPF_INTERPOLATE;
 			if (Frame == Fr_D)
 			{
-				A_SetRoll (Roll  + Turn.X, SPF_INTERPOLATE);
-				A_SetPitch(Pitch + Turn.Y, SPF_INTERPOLATE);
+				A_SetRoll (Roll  + Turn.X, flags);
+				A_SetPitch(Pitch + Turn.Y, flags);
 			}
-			A_SetAngle(Angle + Turn.Z, SPF_INTERPOLATE);
+			A_SetAngle(Angle + Turn.Z, flags);
 		}
 		Wait;
 	}
