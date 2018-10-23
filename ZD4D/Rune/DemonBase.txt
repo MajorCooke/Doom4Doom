@@ -826,6 +826,7 @@ Class DemonRuneMorphOff : Actor
 				mon.bMThruSpecies = false;
 				mon.bNoBlockMonst = false;
 				mon.Species = Default.Species;
+				mon.A_ChangeCountFlags(true);
 			}
 		}
 		A_SpawnItemEx("BloodGibDropper",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION/*|SXF_USEBLOODCOLOR*/);

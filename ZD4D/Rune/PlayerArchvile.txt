@@ -502,6 +502,8 @@ Class ArchFriendSpawner : RandomSpawner
 	Property Power: Power;
 	Default 
 	{
+		+FRIENDLY
+		-COUNTKILL
 		ArchFriendSpawner.Power 0;
 		DropItem "D4ChaingunGuy", 255, 2;
 		DropItem "D4DoomImp", 255, 2;
@@ -517,8 +519,6 @@ Class ArchFriendSpawner : RandomSpawner
 			
 		spawned.bFRIENDLY = true;
 		spawned.bNOBLOCKMONST = true;
-		spawned.A_ChangeCountFlags(false);
-		
 		if (!Spawner) Spawner = DemonPlayerBase(master);
 		
 		if (Spawner)
