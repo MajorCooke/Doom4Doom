@@ -7,14 +7,16 @@ HardwareShader PostProcess scene {
 
 Material Sprite BFGAmmoSkin
 {
-	
+	SpecularLevel 1.0
+	Glossiness 5.0
 }
 
 pointlight BFGAmmoLight
 {
 	color 0.0 1.0 0.0
-	offset 0 10 0
+	offset 0 20 0
     size 20
+	attenuate 1
 }
 
 

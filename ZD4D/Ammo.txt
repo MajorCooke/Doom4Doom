@@ -572,7 +572,7 @@ Class D4BFGAmmo : Ammo
 				}
 			}
 		}
-		AMBF B 1 //Light("BFGAmmoLight")
+		AMBF B 1 Light("BFGAmmoLight")
 		{
 			if (OldPos != Pos)
 			{
@@ -600,7 +600,6 @@ Class D4BFGAmmoPart : D4DFX
 	Vector3 Turn;
 	Default
 	{
-		+MOVEWITHSECTOR
 		+RELATIVETOFLOOR
 		-INVISIBLE
 		+NOTONAUTOMAP
@@ -645,7 +644,6 @@ Class D4BFGAmmoEffects : D4DFX
 	double RollAmt, Scalar;
 	Default
 	{
-		+MOVEWITHSECTOR
 		+RELATIVETOFLOOR
 		+NOTONAUTOMAP
 		+ROLLSPRITE
