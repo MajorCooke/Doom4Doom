@@ -204,7 +204,7 @@ Class D4DHandler : EventHandler
 			deltas[num].ItemName.Clear();
 			deltas[num].Count.Clear();			
 		}
-	//	else if (e.Name == 'SectorLight')		{	SetSectorLight(e);	}
+		else if (e.Name == 'SectorLight')		{	SetSectorLight(e);	}
 		else if (e.Name == 'ClearFakeCash')
 		{
 			plr.A_SetInventory("D4DCashFake",0);

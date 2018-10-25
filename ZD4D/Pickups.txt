@@ -22,58 +22,138 @@ enum PickupConstants
 // Health
 //=======================================================================
 //=======================================================================
+
 Class D4Stimpack : Health replaces Stimpack
-{	
+{
+	Actor Glass;
+	Vector3 OldPos;
 	Default 
 	{
-		Inventory.PickupMessage "Small health";
+		Inventory.PickupMessage "Stimpack";
 		Inventory.Amount 10;
 		Inventory.PickUpSound "Doom4/Pickups/Health";
 		DistanceCheck "D4D_MaxDrawDistance";
-		Scale 0.5;
+	}
+	
+	void RemoveParts()
+	{
+		if (Glass) Glass.Destroy();
+	}
+	
+	override void OnDestroy()
+	{
+		RemoveParts();
+		Super.OnDestroy();
+	}
+	
+	override bool TryPickup(in out Actor toucher)
+	{
+		bool res = Super.TryPickup(toucher);
+		if (res)	RemoveParts();
+		return res;
+	}
+	
+	void CheckParts()
+	{
+		if (OldPos != Pos)
+		{
+			Glass.Warp(self, flags: WARPF_NOCHECKPOSITION);
+			OldPos = Pos;
+		}
+	}
+	
+	void SpawnParts(Class<Actor> Gls)
+	{
+		if (!Gls) return;
+		Glass = Spawn(Gls,pos);
+		if (Glass)
+		{
+			Glass.Scale = Scale;
+			Glass.Angle = Angle;
+		}
+	}
+	
+	States
+	{
+	Spawn:
+		D4HL A 0 NODELAY 
+		{
+			A_SetAngle(random(0,359));
+			SpawnParts("D4StimpackGlass");
+		}
+		---- A 1 CheckParts();
+		Wait;
+	}
+}
+Class D4StimpackGlass : D4DFX
+{
+	Default
+	{
+		RenderStyle "Translucent";
+		Alpha 0.8;
+		+BRIGHT
+		+NOTONAUTOMAP
+		+RELATIVETOFLOOR
 	}
 	States
 	{
 	Spawn:
-		D4HL A -1 NODELAY A_SetAngle(random(0,359));
+		M666 A -1;
 		Stop;
 	}
 }
 
-Class D4Medikit : Health replaces Medikit
+Class D4Medikit : D4Stimpack replaces Medikit
 {	
 	Default 
 	{
-		Inventory.PickupMessage "Big health";
+		Inventory.PickupMessage "Medikit";
 		Inventory.PickUpSound "Doom4/Pickups/HealthLarge";
 		Inventory.Amount 30;
-		Scale 0.5;
 		DistanceCheck "D4D_MaxDrawDistance";
 	}
 	States
 	{
 	Spawn:
-		D4HL B -1 NODELAY A_SetAngle(random(0,359));
-		Stop;
+		D4HL B 0 NODELAY
+		{
+			A_SetAngle(random(0,359));
+			SpawnParts("D4MedikitGlass");
+		}
+		---- A 1 CheckParts();
+		Wait;
 	}
 }
 
-Class D4HealthBonus : HealthBonus replaces HealthBonus
+Class D4MedikitGlass : D4StimpackGlass	
+{}
+
+Class D4HealthBonus : D4Stimpack replaces HealthBonus
 {	
 	Default 
 	{
-		Inventory.PickUpSound "Doom4/Pickups/HealthBonus";
-		Scale 0.55;
+		+INVENTORY.ALWAYSPICKUP
+		Inventory.PickupMessage "Health bonus";
+		Inventory.PickupSound "Doom4/Pickups/HealthBonus";
 		Inventory.Amount 3;
+		
 		DistanceCheck "D4D_MaxDrawDistance";
 	}
 	States
 	{
 	Spawn:
-		D4HL C -1 NODELAY A_SetAngle(random(0,359));
-		Stop;
+		D4HL C 0 NODELAY
+		{
+			A_SetAngle(random(0,359));
+			SpawnParts("D4HealthBonusGlass");
+		}
+		---- A 1 CheckParts();
+		Wait;
 	}
 }
+
+Class D4HealthBonusGlass : D4StimpackGlass
+{}
 
 // This should never be spawned.
 Class D4HealthBonusUpgraded : D4HealthBonus
@@ -155,7 +235,6 @@ Class D4ArmorBasePickup : CustomInventory
 		Inventory.PickupMessage "";
 		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
 		DistanceCheck "D4D_MaxDrawDistance";
-		Scale 0.5;
 	}
 	States
 	{
@@ -231,7 +310,6 @@ Class D4ArmorBonus : ArmorBonus
 		Armor.SaveAmount 3;
 		DistanceCheck "D4D_MaxDrawDistance";
 		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
-		Scale 0.55;
 		+ALLOWPAIN
 	}
 	States
@@ -254,7 +332,6 @@ Class D4ArmorBonusPickup : D4ArmorBasePickup replaces ArmorBonus
 		D4ArmorBasePickup.MaxFullAbsorb 200;
 		DistanceCheck "D4D_MaxDrawDistance";
 		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
-		Scale 0.55;
 		+INVENTORY.ALWAYSPICKUP
 	}
 	States
@@ -328,7 +405,6 @@ Class D4GreenArmor : D4ArmorBasePickup replaces GreenArmor
 		Inventory.PickUpSound "Doom4/Pickups/ArmorMed";
 		Inventory.PickUpMessage "Medium Armor Chunk";
 		DistanceCheck "D4D_MaxDrawDistance";
-		Scale 0.5;
 	}
 	States
 	{
@@ -351,7 +427,6 @@ Class D4BlueArmor : D4ArmorBasePickup replaces BlueArmor
 		Inventory.PickUpSound "Doom4/Pickups/Armor";
 		Inventory.PickUpMessage "Full Armor Casing";
 		DistanceCheck "D4D_MaxDrawDistance";
-		Scale 0.75;
 	}
 	States
 	{
@@ -372,7 +447,7 @@ Class D4Backpack : BackpackItem replaces Backpack
 	int user_rangle;
 	Default 
 	{
-		Scale 0.7;
+		Scale 1.5;
 		Inventory.PickupMessage "Picked up a backpack";
 		Height 26;
 	}

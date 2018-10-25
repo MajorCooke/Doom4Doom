@@ -564,7 +564,9 @@ Model "SNLightningBeam"
 	FrameIndex LNBW H 0 0
 }
 */
-
+//------------------------------------------------------------------------------
+// Weapons
+//------------------------------------------------------------------------------
 Model "D4GrenadeLauncher"
 {
 	Model 0 "Models/GrenadeLauncher.md3"
@@ -578,7 +580,9 @@ Model "D4GrenadeLauncher"
 	
 	Rotation-Speed 50
 }
-
+//------------------------------------------------------------------------------
+// Ammo
+//------------------------------------------------------------------------------
 Model "D4BFGAmmo"
 {
 	Scale 1.0 1.0 1.2
@@ -672,4 +676,99 @@ Model D4FuelSmall
 	Model 0 "Models/GasCan.md3"
 	Skin 0 "GasCanSkin"
 	FrameIndex AMGS A 0 0
+}
+Model D4Backpack
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/AmmoCube.md3"
+	Skin 0 "AmmoCubeSkin"
+	FrameIndex BPAK A 0 0
+}
+//------------------------------------------------------------------------------
+// Health
+//------------------------------------------------------------------------------
+
+Model D4HealthBonus
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/HealthSmall.md3"
+	Skin 0 "HealthSkin"
+	FrameIndex D4HL C 0 0
+}
+
+Model D4Stimpack
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/HealthMedium.md3"
+	Skin 0 "HealthSkin"
+	FrameIndex D4HL A 0 0
+}
+
+Model D4Medikit
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/HealthBig.md3"
+	Skin 0 "HealthSkin"
+	FrameIndex D4HL B 0 0
+}
+
+Model D4HealthBonusGlass
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/HealthSmallGlass.md3"
+	Skin 0 "HealthGlassSkin"
+	FrameIndex M666 A 0 0	
+}
+Model D4StimpackGlass
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/HealthMediumGlass.md3"
+	Skin 0 "HealthGlassSkin"
+	FrameIndex M666 A 0 0
+}
+Model D4MedikitGlass
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/HealthBigGlass.md3"
+	Skin 0 "HealthGlassSkin"
+	FrameIndex M666 A 0 0
+}
+//------------------------------------------------------------------------------
+// Armor
+//------------------------------------------------------------------------------
+Model D4BlueArmor
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/ArmorBig.md3"
+	Skin 0 "ArmorBigSkin"
+	FrameIndex D4AR A 0 0
+	FrameIndex D4AR B 0 0
+	FrameIndex D4AR C 0 0
+}
+Model D4GreenArmor
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/ArmorMedium.md3"
+	Skin 0 "ArmorMediumSkin"
+	FrameIndex D4AR A 0 0
+	FrameIndex D4AR B 0 0
+	FrameIndex D4AR C 0 0
+}
+Model D4ArmorBonusPickup
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/ArmorSmall.md3"
+	Skin 0 "ArmorSmallSkin"
+	FrameIndex D4AR A 0 0
+	FrameIndex D4AR B 0 0
+	FrameIndex D4AR C 0 0
+}
+Model D4ArmorBonus
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/ArmorSmall.md3"
+	Skin 0 "ArmorSmallSkin"
+	FrameIndex D4AR A 0 0
+	FrameIndex D4AR B 0 0
+	FrameIndex D4AR C 0 0
 }
