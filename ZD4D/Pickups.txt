@@ -322,6 +322,7 @@ Class D4ArmorBonus : ArmorBonus
 
 Class D4ArmorBonusPickup : D4ArmorBasePickup replaces ArmorBonus
 {
+	Vector2 OldPos;
 	Default 
 	{
 		D4ArmorBasePickup.SavePercent 100;
@@ -337,8 +338,27 @@ Class D4ArmorBonusPickup : D4ArmorBasePickup replaces ArmorBonus
 	States
 	{
 	Spawn:
-		D4AR B -1 NODELAY A_SetAngle(random(0,359));
-		Stop;
+		D4AR B 0 NODELAY A_SetAngle(random(0,359));
+		---- A 1
+		{
+			// Thanks to ZZYZX for this. Tilts the object to slopes.
+			if (Invoker.OldPos != Invoker.Pos.XY)
+			{
+				double dang = angle;
+				vector3 fnormal = CurSector.floorplane.normal;
+				vector2 fnormalp1 = (fnormal.x != 0 || fnormal.y != 0) ? (fnormal.x, fnormal.y).Unit() : (0, 0);
+				vector2 fnormalp2 = ((fnormal.x, fnormal.y).Length(), fnormal.z);
+				double fang = atan2(fnormalp1.y, fnormalp1.x); // floor angle (not pitch!)
+				double fpitch = atan2(fnormalp2.x, fnormalp2.y); // floor pitch
+				double ddiff1 = cos(fang-(dang-90));
+				double ddiff2 = cos(fang-dang);
+				pitch = fpitch*ddiff2;
+				roll = -fpitch*ddiff1;
+				angle = dang;
+				Invoker.OldPos = Invoker.Pos.XY;
+			}
+		}
+		Wait;
 	}
 }
 
