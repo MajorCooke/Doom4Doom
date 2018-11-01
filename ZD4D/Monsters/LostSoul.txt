@@ -72,10 +72,9 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 	override int ChoosePowerLevel() { return 0; }
 	override void Tick()
 	{
-		if (health < 1)	return Super.Tick();
-		
 		Super.Tick();
-		
+		if (health < 1)	return;
+				
 		if (WaitTics > 0)
 			WaitTics--;
 		else if (health > 0)

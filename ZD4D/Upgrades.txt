@@ -197,12 +197,10 @@ Class UpgradeItemSpecial : UpgradeItem
 	override void DepleteOrDestroy()
 	{
 		if (GetClass() == "UpgradeItemSpecial")
-			return Super.DepleteOrDestroy();
+		{	Super.DepleteOrDestroy(); return;	}
 		if (Owner)
-		{
 			Owner.A_SetInventory(RealItem,0);
-		}
-		return Super.DepleteOrDestroy();
+		Super.DepleteOrDestroy();
 	}
 }
 

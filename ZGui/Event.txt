@@ -123,7 +123,8 @@ Class D4DHandler : EventHandler
 		int num = e.Player;
 		let plr = players[num].mo;
 		
-		if (!plr)	return Console.Printf("No player found");
+		if (!plr)	
+		{	Console.Printf("No player found");	return;	}
 		
 		static const String KeyWords[] =
 		{
@@ -295,7 +296,7 @@ Class D4DHandler : EventHandler
 		
 		Class<Inventory> check = suffix;
 		if (!check)
-			return Console.Printf("%s is not a demon rune", suffix);
+		{	Console.Printf("%s is not a demon rune", suffix);	return;	}
 		
 		double rad = player.radius;
 		double ang = player.angle;

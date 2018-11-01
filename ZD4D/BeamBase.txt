@@ -180,7 +180,7 @@ Class D4DBeamSpawnerBase : D4DFX
 		else // Ensure the sprite/model is valid.
 		{
 			if (!Beam)
-				return ThrowAbortException("Beam actor is null or not inheriting from D4DBeamBase");
+			{	ThrowAbortException("Beam actor is null or not inheriting from D4DBeamBase");	return;	}
 				
 			let Defaults = GetDefaultByType(Beam);
 			int t = GetSpriteIndex(Defaults.SpriteName);
@@ -276,10 +276,10 @@ Class D4DBeamSpawnerBase : D4DFX
 		---- A 0 NoDelay
 		{
 			if (!EndPuff)
-				return ThrowAbortException("EndPuff is invalid! Make sure the class is defined!");
+			{	ThrowAbortException("EndPuff is invalid! Make sure the class is defined!");	return; }
 				
 			if (!Beam)
-				return ThrowAbortException("Beam is invalid! Make sure the class is defined!");
+			{	ThrowAbortException("Beam is invalid! Make sure the class is defined!");	return;	}
 			
 			Delay = random(DelayMin,DelayMax);
 			Steps = random(StepMin, StepMax);
@@ -523,23 +523,23 @@ Class D4DBeamBase : D4DFX
 		int t = GetSpriteIndex(SpriteName);
 		
 		if (t < 0)
-			return ThrowAbortException("SpriteName is bad! Check to make sure it's defined!");
+		{	ThrowAbortException("SpriteName is bad! Check to make sure it's defined!");	return;	}
 		
 		Sprite = t;
 		if (IsEnding > 0)
 		{
 			if (StartFrame < Fr_A || StartFrame > Fr_Z)
-				return ThrowAbortException("StartFrame must be in range [Fr_A, Fr_Z]");
+			{	ThrowAbortException("StartFrame must be in range [Fr_A, Fr_Z]");	return;	}
 			Frame = StartFrame;
 		}
 		else if (IsEnding < 0)
 		{
 			if (EndFrame < Fr_A || EndFrame > Fr_Z)
-				return ThrowAbortException("EndFrame must be in range [Fr_A, Fr_Z]");
+			{	ThrowAbortException("EndFrame must be in range [Fr_A, Fr_Z]");	return;	}
 			Frame = EndFrame;
 		}
 		else if (FrameMin < Fr_A || FrameMin > Fr_Z || FrameMax < Fr_A || FrameMax > Fr_Z)
-			return ThrowAbortException("Frames parameters must be in range [Fr_A, Fr_Z]");
+		{	ThrowAbortException("Frames parameters must be in range [Fr_A, Fr_Z]");	return; }
 		else
 			Frame = random(FrameMin, FrameMax);
 			
@@ -572,7 +572,10 @@ Class D4DBeamBase : D4DFX
 		// Don't waste time if no master or not desired. Also take into account
 		// regular time freezing.
 		if (!MoveWithSource || !Master || (!bNOTIMEFREEZE && (level.frozen || globalfreeze)))
-			return Super.Tick();
+		{
+			Super.Tick();
+			return;
+		}
 		
 		// Perform movement code here.
 		if (MoveWithSource)

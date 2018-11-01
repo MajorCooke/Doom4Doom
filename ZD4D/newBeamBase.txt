@@ -77,7 +77,7 @@ Class D4DNewBeamBase : Actor
 				if (Child)		Child.Die(null, null);
 				SetState(ResolveState("Death"));
 			}
-			else return Destroy();
+			else	{ 	Destroy(); return;	}
 		}
 	}
 	
@@ -99,11 +99,11 @@ Class D4DNewBeamBase : Actor
 		{
 			int check = GetSpriteIndex(SpriteName);
 			if (check < 0)
-				return ThrowAbortException("SpriteName is bad! Check to make sure it's defined!");
+			{	ThrowAbortException("SpriteName is bad! Check to make sure it's defined!");	return;	}
 			Sprite = check;
 			
 			if (FrameMin < Fr_A || FrameMin > Fr_Z || FrameMax < Fr_A || FrameMax > Fr_Z)
-				return ThrowAbortException("Frames parameters must be in range [Fr_A, Fr_Z]");
+			{	ThrowAbortException("Frames parameters must be in range [Fr_A, Fr_Z]");	return;	}
 			
 			Frame = random(FrameMin, FrameMax);
 		

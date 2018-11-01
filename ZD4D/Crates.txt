@@ -180,7 +180,6 @@ Class CrateItemSpawner1 : RandomSpawner
 		DropItem "D4ExtraLife",		 255, 2;
 		DropItem "D4DoomDoll", 		255,  1;
 
-		DropItem "BlurSphere", 	255, 10;
 		DropItem "D4QuadDamage",255,  6;
 		DropItem "RadSuit", 	255,  5;
 		DropItem "Infrared", 	255,  5;
@@ -212,7 +211,6 @@ Class CrateItemSpawner1BFG : RandomSpawner
 		DropItem "D4ExtraLife",		255,  2;
 		DropItem "D4DoomDoll", 		255,  1;
 
-		DropItem "BlurSphere", 	255, 10;
 		DropItem "D4QuadDamage",255,  6;
 		DropItem "RadSuit", 	255,  5;
 		DropItem "Infrared", 	255,  5;
@@ -635,9 +633,7 @@ Class CrateItemSpawner3 : Actor
 				if(random(0,100) < 60)
 				{ A_SpawnItemEx("SoulSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 				else if (random(0,100) < 50)
-				{ A_SpawnItemEx("D4MegaSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
-				else if (random(0, 100) < 20)
-				{ A_SpawnItemEx("D4ExtraLife",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				{ A_SpawnItemEx("Megasphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 				else if (random(0,100) < 30)
 				{ A_SpawnItemEx("InvulnerabilitySphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 				else if (random(0,100) < 30)
@@ -756,9 +752,7 @@ Class CrateItemSpawner3 : Actor
 				if(random(0,100) < 20)
 				{ A_SpawnItemEx("SoulSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 				else if(random(0,100) < 20)
-				{ A_SpawnItemEx("D4MegaSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
-				else if (random(0,100) < 20)
-				{ A_SpawnItemEx("D4ExtraLife",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+				{ A_SpawnItemEx("MegaSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 				else if(random(0,100) < 20)
 				{ A_SpawnItemEx("InvulnerabilitySphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 				else if(random(0,100) < 20)
@@ -805,7 +799,6 @@ Class CrateItemSpawner3 : Actor
 			if (random(0,1000) < 2)
 			{
 				A_SpawnItemEx("D4QuadDamage"			,random(-5,5),random(-5,5),0,random(-5,5),random(-5,5),0,0,SXF_NOCHECKPOSITION,128);
-				A_SpawnItemEx("D4Regeneration"			,random(-5,5),random(-5,5),0,random(-5,5),random(-5,5),0,0,SXF_NOCHECKPOSITION,128);
 				A_SpawnItemEx("D4Haste"					,random(-5,5),random(-5,5),0,random(-5,5),random(-5,5),0,0,SXF_NOCHECKPOSITION,128);
 				A_SpawnItemEx("SoulSphere"				,random(-5,5),random(-5,5),0,random(-5,5),random(-5,5),0,0,SXF_NOCHECKPOSITION,128);
 				A_SpawnItemEx("BlurSphere"				,random(-5,5),random(-5,5),0,random(-5,5),random(-5,5),0,0,SXF_NOCHECKPOSITION,128);

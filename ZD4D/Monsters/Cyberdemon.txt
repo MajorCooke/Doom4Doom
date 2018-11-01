@@ -438,7 +438,7 @@ Class CyberdemonRailPuff : NoBloodPuff
 			double ang = target ? target.angle : angle;
 			tracer.DamageMobj(self, target, dmg, "Hitscan", DMG_USEANGLE, ang);
 		}
-		return Destroy();
+		Destroy();
 	}
 }
 

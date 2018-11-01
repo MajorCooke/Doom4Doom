@@ -21,7 +21,7 @@ Class D4NoiseMaker : Actor
 	override void PostBeginPlay()
 	{		
 		if (GetClass() == "D4NoiseMaker")
-			return Destroy();
+		{	Destroy(); return;	}
 		
 		Super.PostBeginPlay();
 	}
@@ -392,7 +392,7 @@ Class PowerD4QuadDamage : PowerDamage
 	override void DoEffect()
 	{
 		if (!Owner || Owner.Health < 1)
-			return EndEffect();
+		{	EndEffect();	return;	}
 		
 		if (globalfreeze || level.Frozen)
 		{
@@ -574,7 +574,7 @@ Class PowerD4Regen : PowerRegeneration
 	override void DoEffect()
 	{
 		if (!Owner || Owner.Health < 1)
-			return EndEffect();
+		{	EndEffect();	return;	}
 		
 		if (Owner.CountInv("D4RegenUpgrade3"))
 			GiverTic = 15;
@@ -747,7 +747,7 @@ Class PowerD4Money : Powerup
 	override void DoEffect()
 	{
 		if (!Owner || Owner.Health < 1)
-			return EndEffect();
+		{	EndEffect();	return;	}
 
 		if (globalfreeze || level.Frozen)
 		{
@@ -924,7 +924,7 @@ Class PowerD4Haste : PowerSpeed
 	override void DoEffect()
 	{
 		if (!Owner || Owner.Health < 1)
-			return EndEffect();
+		{	EndEffect();	return;	}
 		
 		if (globalfreeze || level.Frozen)
 		{

@@ -82,7 +82,7 @@ Class D4PainElemental : D4AbstractBiggie
 		PAIN F 0 BRIGHT
 		{
 			A_FaceTarget();
-			A_PainAttack2("D4LostSoulNoCash",0,0,21);
+			A_PainAttack2("D4LostSoulNoCash");
 		}
 		Goto See;
 	Pain.StunBomb:
@@ -338,7 +338,7 @@ extend class D4PainElemental
 				{
 					// kill it immediately
 					other.ClearCounters();
-					other.DamageMobj(self, self, TELEFRAG_DAMAGE, 'None');
+					other.DamageMobj(self, self, TELEFRAG_DAMAGE, 'Telefrag');
 					bSolid = savedsolid;
 					other.bNoTeleport = savednoteleport;
 					return;
@@ -378,7 +378,7 @@ extend class D4PainElemental
 		if (target)
 		{
 			A_FaceTarget();
-			return A_PainShootSkull2(spawntype, angle + addangle, flags, limit);
+			A_PainShootSkull2(spawntype, angle + addangle, flags, limit);
 		}
 	}
 }

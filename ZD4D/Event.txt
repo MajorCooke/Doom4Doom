@@ -294,7 +294,7 @@ extend class D4DHandler
 		}
 		
 		if (mo.bNOINTERACTION || mo.bNOSECTOR || mo.bNOBLOCKMAP || mo.player || 
-			mo is "Inventory")
+			mo is "Inventory" || mo is "RandomSpawner")
 			return;
 		
 		if ((mo.bISMONSTER || mo.bSHOOTABLE) && mo.health > 0)
@@ -340,7 +340,7 @@ extend class D4DHandler
 	override void WorldThingDestroyed(WorldEvent e)
 	{
 		Actor mo = e.Thing;
-		if (mo is "Inventory")	return;
+		if (mo is "Inventory" || mo is "RandomSpawner")	return;
 		if (mo.bISMONSTER || mo.bSHOOTABLE)
 		{
 			Monsters.Delete(Monsters.Find(mo));
@@ -1049,8 +1049,10 @@ Struct D4DropList play
 			
 		// Make sure the item's valid first.
 		if (!newthing)
-			return Console.Printf("Error: %s is not a valid item!", newthing);
-		
+		{
+			Console.Printf("Error: %s is not a valid item!", newthing);
+			return;
+		}
 		// Search the array first for something, if its size is > 0. Otherwise,
 		// add it in if not found.
 		int size = ItemName.Size();

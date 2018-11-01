@@ -434,8 +434,9 @@ Class CarrionTrail : CarrionBeam
 {
 	Default
 	{
+		D4DBeamBase.Widths 0.06, 0.06;
 		D4DBeamBase.SineScale true;
-		D4DBeamBase.ScaleTime 0, 3;
+		D4DBeamBase.ScaleTime 0, 4;
 		D4DBeamBase.WaitTime 1;
 	}
 }

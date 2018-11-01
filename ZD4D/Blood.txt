@@ -172,7 +172,7 @@ Class MCBloodFXTrail : MCBloodFXMain
 		{
 			BC = spawner.BC;
 		}
-		return Super.PostBeginPlay();		
+		Super.PostBeginPlay();		
 	}
 	States
 	{
@@ -670,7 +670,7 @@ Class NewMeat : FlyingFlesh replaces Meat
 	void GibTick (int TimeLimit = 172)
 	{
 		if (Timer++ > TimeLimit || pos.z <= GetZAt())
-			return ExplodeMissile(null, null);
+		{	ExplodeMissile(null, null);	return;	}
 		else if (!A_CheckSightOrRange(BloodDistanceLimit,"Null"))
 			A_SpawnItemEx("GibBloodSmall",0,0,0,0,0,-1.5,0,SXF_TRANSFERTRANSLATION|SXF_SETTRACER|SXF_ORIGINATOR);
 	}

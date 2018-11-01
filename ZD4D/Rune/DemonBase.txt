@@ -64,17 +64,17 @@ Class DemonPlayerBase : Doom4Player
 	
 	override void Die(Actor source, Actor inflictor, int dmgflags, Name MeansOfDeath)
 	{
-		return PlayerPawn.Die(source, inflictor, dmgflags, MeansOfDeath);
+		PlayerPawn.Die(source, inflictor, dmgflags, MeansOfDeath);
 	}
 		
 	// Only ever called once.
 	override void PostBeginPlay()
 	{
+		// Skip the Doom4Player's version of PostBeginPlay. We dont need that stuff.
+		PlayerPawn.PostBeginPlay(); 
 		if (!player || !player.mo || player.mo != self)
-		{
-			return PlayerPawn.PostBeginPlay();
-		}
-		PlayerPawn.PostBeginPlay();	//Always call the super version to ensure everything's in working order.
+			return;		
+		
 		MaxHealth = Health;
 		static const String Demons[] =
 		{
@@ -495,7 +495,7 @@ Class DemonRuneBase : CustomInventory
 	override void PostBeginPlay()
 	{
 		if (GetClassName() == 'DemonRuneBase' || !Morph)
-			return Destroy();
+		{	Destroy();	return;	}
 		
 		bool limit = true;
 		for (int i = 0; i < MAXPLAYERS; i++)
@@ -514,16 +514,15 @@ Class DemonRuneBase : CustomInventory
 		// Only check for the same type.
 		if (limit)
 		{
-			Class<Inventory> RuneName = GetClass();
-			ThinkerIterator it = ThinkerIterator.Create("DemonRuneBase", STAT_RUNEPICKUPS);
+			ThinkerIterator it = ThinkerIterator.Create(GetClass(), STAT_RUNEPICKUPS);
 			DemonRuneBase mo;
 			while (mo = DemonRuneBase(it.Next()))
 			{
 				if (mo == self)
 					continue;
 				
-				if (mo.GetClass() == GetClass() && mo.PowerLevel == PowerLevel)
-					return Destroy();
+				if (mo.PowerLevel == PowerLevel)
+				{	Destroy();	return;	}
 			}
 		}
 		Name trans = 'None';
@@ -596,9 +595,7 @@ Class DemonRuneBase : CustomInventory
 					A_SetTranslucent((invoker.timer % 35.0) / 35.0); // blink before time-out
 			}
 			if (invoker.timer < 1)
-			{
-				return Destroy();
-			}
+			{	Destroy();	return;	}
 		}
 		Wait;
 	Pickup:
@@ -651,7 +648,8 @@ Class PowerRuneBase : PowerMorph
 		if (GetClass() == "PowerRuneBase")
 		{
 			bInitEffectFailed = true;
-			return Destroy();
+			Destroy();	
+			return;
 		}
 		
 		if (CountInv("D4RuneUpgrade4"))

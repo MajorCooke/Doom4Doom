@@ -1194,12 +1194,13 @@ Class BulletSmallTracer : Actor
 	}
 	
 	override void Tick()
-	{		
+	{	
+		Super.Tick();
 		if (DestroyMe)	
-			return Super.Tick();
+			return;
 			
 		if (!bNOTIMEFREEZE && (globalfreeze || level.frozen))
-			return Super.Tick();
+			return;
 		
 		//vel = (0,0,0);
 		//A_Stop();
@@ -1209,18 +1210,16 @@ Class BulletSmallTracer : Actor
 			double CurDist = Distance3DSquared(Puff);
 			if (CurDist <= (RealSpeed ** 2))
 			{
-				//Speed = sqrt(CurDist);
-				double root = sqrt(CurDist);
 				DestroyMe = true;
 				A_Stop();
-				Warp(self, cos(pitch) * root, 0, -sin(pitch) * root, flags: WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
+				SetXYZ(Puff.pos);
 				ExplodeMissile(null, null);
-				return Super.Tick();
+				return;
 			}
 		}
 	//	Vel3DFromAngle(200.0, angle, pitch);
 		Warp(Self, _cos, 0, _sin, 0, WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
-		Super.Tick();
+		
 	}
 	
 	States
@@ -1441,7 +1440,8 @@ class D4D_Projectile : FastProjectile
 	
 	override void Tick() 
 	{
-		if (exploded)	return Actor.Tick();
+		if (exploded)	
+		{	Actor.Tick();	return;	}
 		
 		if (!self)
             return;

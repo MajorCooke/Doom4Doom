@@ -84,8 +84,10 @@ Class PlayerMastermind : DemonPlayerBase
 	{
 		// Ignore voodoo dolls.
 		if (!player || !player.mo || player.mo != self || health < 1)
-			return Super.Tick();
-	
+		{
+			Super.Tick();
+			return;
+		}
 		// The bigger the power, the smaller the size.
 		// Grab the 
 		if (PrevPowerLevel != PowerLevel && PowerLevel > 0)

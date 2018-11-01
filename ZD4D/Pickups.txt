@@ -648,7 +648,7 @@ Class D4UpgradePickupSpawner : Actor
 		else
 		{
 			Console.Printf("ERROR: Couldn't find player!");
-			return Destroy();
+			Destroy(); return;
 		}
 		
 		// The weapons needed for the soviet chaingun have all been filled.
@@ -677,13 +677,13 @@ Class D4UpgradePickupSpawner : Actor
 				ItemToSpawn.target = target;
 				ItemToSpawn.master = master;
 				ItemToSpawn.tracer = tracer;
-				return Destroy();
+				Destroy(); return;
 			}
 		}
 		//======================================================================
 		// Weapons
 		//======================================================================
-		return Destroy();		
+		Destroy(); return;		
 	}
 	
 	Default

@@ -346,7 +346,8 @@ Class D4AbstractMonster : Actor
 			
 			if (!Target || Target.bKilled)
 			{
-				return A_Chase(null,null);
+				A_Chase(null, null);
+				return;
 			}
 			
 			if (Target && Target.Health > 0 && CheckSight(Target,SF_IGNOREVISIBILITY)) // Use regular A_Chase if cannot see.
