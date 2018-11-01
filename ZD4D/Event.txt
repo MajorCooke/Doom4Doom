@@ -8,18 +8,18 @@ enum ERestrictFlags
 {
 	RF_NONE =			0,
 	RF_NOHEALTH = 		1,
-	RF_NOARMOR = 		1 << 1,
-	RF_NOBULLETS =		1 << 2,
-	RF_NOSHELLS =		1 << 3,
-	RF_NOROCKETS =		1 << 4,
-	RF_NOCELLS =		1 << 5,
-	RF_NOBFGAMMO =		1 << 6,
-	RF_NOCARRION =		1 << 7,
-	RF_NOCREDITS =		1 << 8,
-	RF_NOCRATES =		1 << 9,
-	RF_NOUPGRADES =		1 << 10,	// Has no effect in credit mode.
+	RF_NOARMOR = 		1 << 1,	//2
+	RF_NOBULLETS =		1 << 2,	//4
+	RF_NOSHELLS =		1 << 3,	//8
+	RF_NOROCKETS =		1 << 4,	//16
+	RF_NOCELLS =		1 << 5,	//32
+	RF_NOBFGAMMO =		1 << 6,	//64
+	RF_NOCARRION =		1 << 7,	//128
+	RF_NOCREDITS =		1 << 8,	//256
+	RF_NOCRATES =		1 << 9,	//512
+	RF_NOUPGRADES =		1 << 10, //1024	- Has no effect in credit mode.
 	
-	RF_NOCURRENCY = (RF_NOCREDITS|RF_NOCRATES),
+	RF_NOCURRENCY = (RF_NOCREDITS|RF_NOCRATES),	
 	RF_NOREGAMMO = (RF_NOBULLETS|RF_NOSHELLS|RF_NOROCKETS|RF_NOCELLS),
 	RF_NOSPECAMMO = (RF_NOBFGAMMO|RF_NOCARRION),
 	RF_NOAMMO = (RF_NOREGAMMO|RF_NOSPECAMMO),
@@ -369,9 +369,9 @@ extend class D4DHandler
 	{
 		// First, make sure it exists and it's a monster.
 		// Abort if they're set to not drop anything.
-		if (!mo || !mo.bISMONSTER || mo.bNOINTERACTION) return false;
+		if (!mo || !mo.bISMONSTER || mo.bNOINTERACTION)	return false;
 		int Restrictions = GetRestrictions(mo.GetClass());
-		if (Restrictions & RF_NOTHING)	return true;
+		if (Restrictions >= RF_NOTHING)					return true;
 		
 		D4DropList Pinatas;
 		bool Armor[4];		for (int i = 0; i < Armor.Size(); i++)	Armor[i] = false;
@@ -413,23 +413,24 @@ extend class D4DHandler
 			if (!(Restrictions & RF_NOCARRION) &&
 				(inf && 
 					!inf.bNOEXTREMEDEATH &&
-					(inf.bEXTREMEDEATH || 
-					inf.DamageType == "Extreme" || 
-					inf.DeathType == "Extreme")) ||
+						(inf.bEXTREMEDEATH || 
+						inf.DamageType == "Extreme" || 
+						inf.DeathType == "Extreme")) ||
 				(MOD == 'Extreme' ||
 					MOD == 'BerserkKill' || 
 					MOD == 'ChainsawKill' || 
 					MOD == 'MeleePunch' ||
 					MOD == 'GloryKill') ||
-				(mo.InStateSequence(mo.CurState, mo.FindState("XDeathNoDrops"))) ||
-				(mo.InStateSequence(mo.CurState, mo.FindState("XDeath"))) ||
+				(mo.InStateSequence(mo.CurState, mo.ResolveState("XDeathNoDrops"))) ||
+				(mo.InStateSequence(mo.CurState, mo.ResolveState("XDeath"))) ||
 				(mo.health < mo.GetGibHealth()))
 			{
 				Pinatas.AddItem("D4PinataCarrion", 1 * TotalMul);
-			}
+			}	
 		}
+		
 		// First set up the base multiplier upon damage type when killed.
-		if (mod == 'ChainsawPinata' && !(Restrictions & RF_NOREGAMMO))
+		if (mod == 'ChainsawPinata')
 		{
 			CashMul *= 4;
 			if (!(Restrictions & RF_NOBULLETS))	Pinatas.AddItem("D4PinataBulletsBig", 	LootDrop ? 4 : 1);
@@ -768,12 +769,9 @@ extend class D4DHandler
 			}
 		}
 		
-		if (!(Restrictions & RF_NOPINATAS))
-		{
-			if (TotalMul > 0)	
-				Pinatas.Multiply(TotalMul);
-			Pinatas.DropItemsPos(pos);
-		}
+		if (TotalMul > 0)	
+			Pinatas.Multiply(TotalMul);
+		Pinatas.DropItemsPos(pos);
 		return true;
 	}
 	
