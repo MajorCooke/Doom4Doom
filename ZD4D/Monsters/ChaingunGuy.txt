@@ -83,45 +83,38 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 		HRZR AABBCCDD 3 D4Chase();
 		Loop;
 	Missile:
-		HRZR E 5 
+		HRZR E 1 
 		{
 			A_FaceTarget();
 			A_PlaySound("Doom4/Monsters/LaserStart",CHAN_AUTO);
 			A_PlaySound("Doom4/Monsters/Razer/Attack",CHAN_AUTO);
+			A_StartBeam("RevenantLaserRed", (4, 3, 30), 1, "NoBloodPuff");
 		}
-		HRZR EEEEEEEEEEEEEEE 2 BRIGHT 	//prepares the beam
+		HRZR EEEEEEEEEEEEEEEEE 2 BRIGHT 	//prepares the beam
 		{
+			A_UpdateBeamTracer("PacifistPuff");
 			A_FaceTarget(0,0,0,0,FAF_MIDDLE);
-			A_CustomRailgun(0,2,"","Red",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT|RGF_CENTERZ,0,0,"PacifistPuff",0,0,2048,3);	
+			//A_CustomRailgun(0,2,"","Red",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT|RGF_CENTERZ,0,0,"PacifistPuff",0,0,2048,3);
+			
 		}
-		HRZR E 0 A_FaceTarget(0,0,0,0,FAF_MIDDLE);
 		HRZR EEEEEEEEEEEEEEEEE 1
 		{
 			A_FaceTarget(1,1,0,0,FAF_MIDDLE);
-			if (!CheckClass("PlayerPawn",TargetPtr,true))
-			{	return ResolveState("Burning");	}
-			/*
-			if (GetCvar("vid_renderer") && GetCvar("D4D_MonsterLasers"))
-			{	
-				A_CustomBulletAttack(0,0,1,0,"PacifistPuff",32767,CBAFlags,TargetPtr,"WhiteLaser",32,4);
-				A_SpawnItemEx("LaserPowerUpSpark",8,4,32,frandom(-1,1),frandom(-1,1),frandom(-1,1),0,SXF_NOCHECKPOSITION);
-			}
-			else
-			{	A_CustomRailgun(0,2,"","Red",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"PacifistPuff",0,0,2048,3);	}
-			*/
-			A_CustomRailgun(0,2,"","Red",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT|RGF_CENTERZ,0,0,"PacifistPuff",0,0,2048,3);
-			
+			if (target && !(target is "PlayerPawn"))
+				return ResolveState("Burning");
+			A_UpdateBeamTracer("PacifistPuff");
+			A_SpawnItemEx("LaserPowerUpSpark",8,4,32,frandom(-1,1),frandom(-1,1),frandom(-1,1),0,SXF_NOCHECKPOSITION);
 			return ResolveState(null);
 		}
 		HRZR E 0 A_PlaySound("Doom4/Monsters/ElectricDischarge",CHAN_AUTO);
 	Burning:
 		HRZR E 0 
 		{
-			if (!CheckClass("PlayerPawn",TargetPtr,true))
-			{	A_FaceTarget(0,0,0,0,FAF_MIDDLE);	}
+			if (target && !(target is "PlayerPawn"))
+				A_FaceTarget(0,0,0,0,FAF_MIDDLE);	
 			count = 0;
 			vangle = pitch;
-			
+			A_StopBeam();
 		}
 		HRZR E 1 Bright		//fires the damaging one
 		{
@@ -129,6 +122,7 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 			if (!count)
 				A_CustomBulletAttack(0,0,1,0,"PacifistPuffSMM",SMMLaserRange,CBAFlags,TargetPtr,"BigRedLaserDrillChaingunnerSpawner",30,4);
 			
+			A_SpawnItemEx("LaserPowerUpSpark",8,4,28,frandom(-1,1),frandom(-1,1),frandom(-1,1),0,SXF_NOCHECKPOSITION);
 			if ((count > 0) && (count % 5 == 0))
 			{
 				int dmg = random(3,8); 
@@ -143,6 +137,7 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 		HRZR G 3
 		{
 			if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+			A_StopBeam();
 		}
 		HRZR G 3 
 		{
@@ -151,7 +146,7 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 		}
 		Goto See;
 	Pain.StunBomb:
-		HRZR G 0 { bNoPain = true; }
+		HRZR G 0 { bNoPain = true; A_StopBeam();	}
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
@@ -162,11 +157,7 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 	Death:
 		"####" "#" 0  //loot drop
 		{
-			if (Event) Event.DestroyBeams(self);
 			bThruActors = true;
-			//D4SetupLoot();
-			//D4DropItems();
-			//"ChainguyCashGiver");
 		}
 		HRZR I 5 ;
 		HRZR J 5 A_Scream();

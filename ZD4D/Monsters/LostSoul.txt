@@ -250,16 +250,30 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 					A_Explode(dmg,rad,XF_NOTMISSILE);
 			}
 			bNOINTERACTION = true;
-			if (DamageTypeReceived != 'Massacre')
-			{
-				A_SpawnItemEx("LostSoulExploParticle",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("LostSoulExploParticle",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("LostSoulExploParticle",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("LostSoulExploParticle",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("LostSoulExploParticle",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
-			}
+			
+			A_SpawnItemEx("LostSoulExploParticle",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("LostSoulExploParticle",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("LostSoulExploParticle",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("LostSoulExploParticle",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("LostSoulExploParticle",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
 			A_Scream();
 			XDeathGush(simple: true);
+		}
+		Stop;
+	Death.Massacre:
+	Death.BFGExploder:
+	Death.BFGBeam:
+		TNT1 A 10
+		{
+			A_SpawnItemEx("LostSoulExploParticle",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("LostSoulExploParticle",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("LostSoulExploParticle",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("LostSoulExploParticle",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("LostSoulExploParticle",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+			A_Scream();
+			XDeathGush(simple: true);
+			A_Stop();
+			bNOINTERACTION = true;
 		}
 		Stop;
 	Death:
@@ -270,6 +284,8 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 			DeathSkull = Spawn("D4LostSoulDead", pos, ALLOW_REPLACE);
 			if (DeathSkull)
 			{
+				DeathSkull.Angle = Angle;
+				DeathSkull.Pitch = Pitch;
 				DeathSkull.tracer = self;
 				DeathSkull.vel = vel;
 			}

@@ -338,7 +338,7 @@ extend class D4PainElemental
 				{
 					// kill it immediately
 					other.ClearCounters();
-					other.DamageMobj(self, self, TELEFRAG_DAMAGE, 'Telefrag');
+					other.DamageMobj(self, self, other.Health, 'BFGBeam', DMG_FORCED);
 					bSolid = savedsolid;
 					other.bNoTeleport = savednoteleport;
 					return;

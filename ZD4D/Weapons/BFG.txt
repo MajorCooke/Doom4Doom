@@ -427,10 +427,10 @@ Class BFG9000Shot : BFGProjectile
 				BFGBeams(5);
 			
 			A_SpawnItemEx("BFGTrailSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_TRANSFERSCALE|SXF_TRANSFERSPRITEFRAME|SXF_TRANSFERPITCH|SXF_TRANSFERROLL);
-			A_Explode((boosted ? random(10,20) : random(3,6)),BFG_LaserRadius,0,0,BFG_LaserRadius);
+			int dmg = (boosted ? random[rng](10,20) : random[rng](3,6));
+			A_Explode(dmg,BFG_LaserRadius,0,0,BFG_LaserRadius,damagetype: 'BFGBeam');
 			
-			if (GetCvar("HQEffectsWeapons"))	{	A_SpawnItemEx("BFGLightningGenerator",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION,192);	}
-			
+			if (GetCvar("HQEffectsWeapons"))	{	A_SpawnItemEx("BFGLightningGenerator",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION,192);	}			
 		}
 		Loop;
 	Death:

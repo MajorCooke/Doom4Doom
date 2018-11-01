@@ -94,6 +94,7 @@ Class D4SpiderMastermind : D4AbstractBoss
 		PainChance 30;
 		Monster;
 		MinMissileChance 160;
+		MissileHeight 40;
 		SeeSound "Doom4/SpiderMastermind/Sight";
 		//AttackSound "spider/attack";
 		PainSound "Doom4/SpiderMastermind/Pain";
@@ -160,13 +161,16 @@ Class D4SpiderMastermind : D4AbstractBoss
 	LaserShotFast:
 		SPID A 0 
 		{
+			A_FaceTarget(0,0,0,0,FAF_MIDDLE);
 			A_SpawnItemEx("LaserChargeIndicator",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION);
 			A_PlaySound("Doom4/SpiderMastermind/LaserCharge",5,1,0,(target is "PlayerPawn" ? ATTN_NONE : ATTN_NORM));
+			A_StartBeam("SMMBeamWarning",(10,0,40),1,"PacifistPuff", dist: 32766);
 		}
 		SPID GGGGGGGGGG 2 
 		{
 			A_FaceTarget(0,0,0,0,FAF_MIDDLE);
 		//	A_CustomBulletAttack(0,0,1,0,"PacifistPuff",32767,CBAFlags,TargetPtr,"WhiteLaser",40,0);
+			A_UpdateBeamTracer("PacifistPuff", dist: 32766);
 		}
 		SPID G 3 //gives you a tiny bit of chance to run away
 		{
@@ -177,9 +181,11 @@ Class D4SpiderMastermind : D4AbstractBoss
 			A_PlaySound("Doom4/SpiderMastermind/LaunchPlasma",7,1,0,attn);
 			UPitch = pitch;
 			count = 0;
+			A_UpdateBeamTracer("PacifistPuff", dist: 32766);
 		}
 		SPID H 1 bright
 		{
+			A_StopBeam();
 			if (!count)
 				A_CustomBulletAttack(0,0,1,0,"PacifistPuffSMM",SMMLaserRange,CBAFlags,TargetPtr,"BigRedLaserDrillSMMSpawner",40,0);
 			
@@ -194,6 +200,7 @@ Class D4SpiderMastermind : D4AbstractBoss
 	EndLaserShot:
 		SPID G 4 
 		{
+			A_StopBeam();
 			bNOPAIN = false; 
 			A_StopSound(6); 
 			count = 0; 
@@ -250,6 +257,7 @@ Class D4SpiderMastermind : D4AbstractBoss
 	Pain:
 		SPID I 3 
 		{
+			A_StopBeam();
 			if (Event) Event.DestroyBeams(self);
 			A_StopSound(6);
 		}
@@ -309,6 +317,7 @@ Class D4SpiderMastermind : D4AbstractBoss
 	Wound:
 		"####" "#" 1
 		{
+			A_StopBeam();
 			if(GetCvar("D4D_ExecutionsON"))
 			{
 				if(countinv("FinisherToken")==0) //if it isnt healing already
