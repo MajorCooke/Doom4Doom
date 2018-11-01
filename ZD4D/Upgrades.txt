@@ -630,9 +630,54 @@ Class D4DoomDollUpgrade1 : UpgradeItem			{ Default { UpgradeItem.Cost 15000; }}	
 Class D4DoomDollUpgrade2 : UpgradeItem			{ Default { UpgradeItem.Cost 20000; }}	// powerful explosion on fist bump
 Class D4RuneUpgrade1 : UpgradeItem				{ Default { UpgradeItem.Cost 5000; }}	// Identifiable runes
 Class D4RuneUpgrade2 : UpgradeItem				{ Default { UpgradeItem.Cost 15000; }}	// same type demon runes refresh current rune
-Class D4RuneUpgrade3 : UpgradeItem				{ Default { UpgradeItem.Cost 20000; }}	// delimited spawning
+Class D4RuneUpgrade3 : UpgradeItem				{ Default { UpgradeItem.Cost 20000; }}	// Unlimited spawning
 Class D4RuneUpgrade4 : UpgradeItem				{ Default { UpgradeItem.Cost 10000; }}	// Damage restores health
 Class D4PentagramUpgrade1 : UpgradeItem			{ Default { UpgradeItem.Cost 6666; }}	// Reflect projectiles
 Class D4PentagramUpgrade2 : UpgradeItem			{ Default { UpgradeItem.Cost 6666; }}	// Move through monsters
 Class D4PentagramUpgrade3 : UpgradeItem			{ Default { UpgradeItem.Cost 6666; }}	// Thorns
 Class D4PentagramUpgrade4 : UpgradeItem			{ Default { UpgradeItem.Cost 9999; }}	// Unkillable
+Class D4HasteUpgrade1 : UpgradeItem				{ Default { UpgradeItem.Cost 11000; }}	// Invisibility
+Class D4HasteUpgrade2 : UpgradeItem				{ Default { UpgradeItem.Cost 11000; }}	// Triple speed
+Class D4QuadUpgrade1 : UpgradeItem				{ Default { UpgradeItem.Cost 15000; }}	// Combine quad + berserk
+Class D4QuadUpgrade2 : UpgradeItem				{ Default { UpgradeItem.Cost 15000; 
+														DamageFactor "Normal", 5;	}}	// Penta damage
+
+extend Class D4QuadUpgrade1
+{
+	override bool TryPickup(in out Actor toucher)
+	{
+		bool res = Super.TryPickup(toucher);
+		if (res && toucher.FindInventory("PowerD4QuadDamage"))
+			toucher.A_GiveInventory("D4DBerserk",1);
+			
+		let it = ThinkerIterator.Create("D4DBerserk", STAT_DEFAULT);
+		D4DBerserk mo;
+		while (mo = D4DBerserk(it.Next(true)))
+		{
+			if (mo.Owner)	continue;
+			let quad = D4QuadDamage(Spawn("D4QuadDamage", mo.pos, ALLOW_REPLACE));
+			if (quad)
+			{
+				quad.ChangeTID(mo.TID);
+				quad.A_SetSpecial(mo.Special, mo.args[0], mo.args[1], mo.args[2], mo.args[3], mo.args[4]);
+				quad.A_ChangeCountFlags(FLAG_NO_CHANGE, mo.bCOUNTITEM, mo.bCOUNTSECRET);
+				quad.ObtainInventory(mo);
+				quad.Vel = mo.Vel;
+				quad.Angle = mo.Angle;
+				quad.Pitch = mo.Pitch;
+				quad.SpawnPoint = mo.SpawnPoint;
+				quad.ActivationType = mo.ActivationType;
+				quad.BlockingMobj = mo.BlockingMobj;
+				quad.BlockingLine = mo.BlockingLine;
+				quad.FloorZ = mo.FloorZ;
+				quad.CeilingZ = mo.CeilingZ;
+				quad.DropoffZ = mo.DropoffZ;
+				quad.Target = mo.Target;
+				quad.Master = mo.Master;
+				quad.Tracer = mo.Tracer;
+				mo.Destroy();
+			}
+		}
+		return res;
+	}
+}

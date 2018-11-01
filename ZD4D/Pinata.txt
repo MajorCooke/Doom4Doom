@@ -92,6 +92,7 @@ Class D4PinataBase : Actor
 		+CANBOUNCEWATER
 		-BOUNCEAUTOOFF
 		+SKYEXPLODE
+		+SEEINVISIBLE
 	}
 	
 	//==========================================================================
@@ -365,6 +366,7 @@ Class D4PinataBase : Actor
 				{
 					bNOINTERACTION = false;
 					A_Face(Tracer, 0.001, 0, 0, 0, FAF_MIDDLE);
+					
 					Vel3DFromAngle(PSpeed, AngleTo(Tracer), pitch);
 				}
 				
@@ -409,6 +411,7 @@ Class D4PinataParticles : Actor
 		+NOTONAUTOMAP
 		+BRIGHT
 		+FORCEXYBILLBOARD
+		+SEEINVISIBLE
 		Scale 0.3;
 		DistanceCheck "D4D_MaxDrawDistance";
 	}
@@ -514,8 +517,11 @@ Struct PlrCheck play
 		if (trc)
 		{
 			if (trc is "PlayerPawn" && !trc.FindInventory("PowerMorph",true) &&
-				trc.health > 0)
+				trc.health > 0 && trc.player)
+			{
+				if (!(trc.player.cheats & (CF_NOCLIP|CF_NOCLIP2)))
 					return trc;
+			}
 		}
 		
 		if (distance <= 0) distance = RadiusPull;
@@ -526,8 +532,10 @@ Struct PlrCheck play
 			{
 				Actor plr = players[i].mo;
 				if (plr && !plr.FindInventory("PowerMorph",true) && plr.health > 0 && 
-					checkee.Distance3D(plr) <= distance)
+					checkee.Distance3DSquared(plr) <= distance ** 2)
 				{
+					if (plr.player.cheats & (CF_NOCLIP|CF_NOCLIP2))
+						continue;
 					return plr;
 				}
 			}
@@ -636,6 +644,7 @@ Class D4PinataArmor : D4ArmorBasePickup
 		+BOUNCEONWALLS
 		+BOUNCEONCEILINGS
 		+NOBLOCKMONST
+		+SEEINVISIBLE
 		+INVENTORY.ALWAYSPICKUP
 		BounceFactor 0.5;
 		DistanceCheck "D4D_MaxDrawDistance";
@@ -668,7 +677,7 @@ Class D4PinataArmor : D4ArmorBasePickup
 				PlrCheck.SetFlying(invoker, true);
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-				if (Distance3D(invoker.tracer) <= 32)
+				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
 				{	SetOrigin(invoker.tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false);	}
 			}
 			else
@@ -703,12 +712,14 @@ Class D4PinataHealth : D4Stimpack
 		Radius 8;
 		Height 16;
 		Gravity 0.4;
+		BounceFactor 0.5;
 		+BRIGHT
 		+BOUNCEONFLOORS
 		+BOUNCEONWALLS
 		+BOUNCEONCEILINGS
-		BounceFactor 0.5;
 		+NOBLOCKMONST
+		+SEEINVISIBLE
+		+NOTELESTOMP
 		Inventory.Amount 8;
 		DistanceCheck "D4D_MaxDrawDistance";
 	}
@@ -737,7 +748,7 @@ Class D4PinataHealth : D4Stimpack
 				PlrCheck.SetFlying(self, true);
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-				if (Distance3D(tracer) <= 32)
+				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
 				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
 			}
 			else
@@ -778,6 +789,7 @@ Class D4PinataBullets : D4Bullets
 		+BOUNCEONCEILINGS
 		+NOBLOCKMONST
 		+NOTELESTOMP
+		+SEEINVISIBLE
 		BounceFactor 0.5;
 		DistanceCheck "D4D_MaxDrawDistance";
 	}
@@ -807,7 +819,7 @@ Class D4PinataBullets : D4Bullets
 				PlrCheck.SetFlying(self, true);
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-				if (Distance3D(tracer) <= 32)
+				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
 				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
 			}
 			else
@@ -857,6 +869,8 @@ Class D4PinataShells : D4Shells
 		+BOUNCEONCEILINGS
 		BounceFactor 0.5;
 		+NOBLOCKMONST
+		+SEEINVISIBLE
+		+NOTELESTOMP
 		DistanceCheck "D4D_MaxDrawDistance";
 	}
 		
@@ -885,7 +899,7 @@ Class D4PinataShells : D4Shells
 				PlrCheck.SetFlying(self, true);
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-				if (Distance3D(tracer) <= 32)
+				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
 				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
 			}
 			else
@@ -938,6 +952,8 @@ Class D4PinataCells : D4Cells
 		+BOUNCEONCEILINGS
 		BounceFactor 0.5;
 		+NOBLOCKMONST
+		+SEEINVISIBLE
+		+NOTELESTOMP
 	}
 	States
 	{
@@ -964,7 +980,7 @@ Class D4PinataCells : D4Cells
 				PlrCheck.SetFlying(self, true);
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-				if (Distance3D(tracer) <= 32)
+				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
 				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
 			}
 			else
@@ -1013,6 +1029,8 @@ Class D4PinataRockets : D4Rockets
 		+BOUNCEONCEILINGS
 		BounceFactor 0.5;
 		+NOBLOCKMONST
+		+SEEINVISIBLE
+		+NOTELESTOMP
 	}
 	
 	States
@@ -1040,7 +1058,7 @@ Class D4PinataRockets : D4Rockets
 				PlrCheck.SetFlying(self, true);
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-				if (Distance3D(tracer) <= 32)
+				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
 				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
 			}
 			else
@@ -1089,6 +1107,8 @@ Class D4PinataBFG : D4BFGAmmo
 		+BOUNCEONCEILINGS
 		BounceFactor 0.5;
 		+NOBLOCKMONST
+		+SEEINVISIBLE
+		+NOTELESTOMP
 	}
 	
 	States
@@ -1116,7 +1136,7 @@ Class D4PinataBFG : D4BFGAmmo
 				PlrCheck.SetFlying(self, true);
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-				if (Distance3D(tracer) <= 32)
+				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
 				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
 			}
 			else
@@ -1157,6 +1177,8 @@ Class D4PinataBulletsZombieman : D4Bullets	//only dropped by these guys, and the
 		+BOUNCEONCEILINGS
 		BounceFactor 0.5;
 		+NOBLOCKMONST
+		+SEEINVISIBLE
+		+NOTELESTOMP
 	}
 	States
 	{
@@ -1205,6 +1227,8 @@ Class D4PinataShellsShotgunGuy : D4Shells	//only dropped by these guys, and they
 		+BOUNCEONCEILINGS
 		BounceFactor 0.5;
 		+NOBLOCKMONST
+		+SEEINVISIBLE
+		+NOTELESTOMP
 	}
 	States
 	{
@@ -1247,7 +1271,7 @@ Class D4PinataBulletsChaingunGuy : D4PinataBulletsZombieman	//only dropped by th
 
 //---------------------------------
 // Le cash!
-
+// Unused.
 
 Class D4Cash : Actor 
 {

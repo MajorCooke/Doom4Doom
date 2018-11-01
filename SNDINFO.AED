@@ -558,14 +558,17 @@ Doom4/Pickups/BFGAmmo			"Sounds/Pickups/BFGAmmo.ogg"
 Doom4/Pickups/KeySkull			"Sounds/Pickups/KeySkull.ogg"
 Doom4/Pickups/KeyCard			"Sounds/Pickups/KeyCard.ogg"
 
+$volume Doom4/Pickups/AmmoSmall 0.6
+$volume Doom4/Pickups/AmmoBig 0.6
+
 //==============================================================================================
 //==============================================================================================
 //		Player sounds
 //==============================================================================================
 //==============================================================================================
 Doom4/Player/LowHealth			"sounds/Player/LowHealth.ogg"
-Doom4/Player/Nope			"sounds/Player/Beep.ogg"
-Doom4/Player/Climb			"sounds/Player/Climbing.ogg"
+Doom4/Player/Nope				"sounds/Player/Beep.ogg"
+Doom4/Player/Climb				"sounds/Player/Climbing.ogg"
 $random Doom4/Player/DoubleJump 	{Doom4/Player/DJump1 Doom4/Player/DJump2}
 $random Doom4/Player/Land		{Doom4/Player/Land1 Doom4/Player/Land2 Doom4/Player/Land3 }
 

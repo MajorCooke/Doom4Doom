@@ -700,6 +700,12 @@ Class D4Carrion : Ammo
 		Ammo.BackpackAmount 0;
 		Ammo.BackpackMaxAmount D4Carrion_MaxAmount;
 	}
+	States
+	{
+	Spawn:
+		TNT1 A 0;
+		Stop;
+	}
 }
 
 Class D4CarrionToken : Inventory
@@ -754,6 +760,7 @@ Class D4PinataCarrion : CustomInventory
 		+BOUNCEONWALLS
 		+BOUNCEONCEILINGS
 		+NOBLOCKMONST
+		+SEEINVISIBLE
 		+NOTELESTOMP
 		+INVENTORY.TRANSFER
 		BounceFactor 0.5;
@@ -867,7 +874,7 @@ Class D4PinataCarrion : CustomInventory
 					PlrCheck.SetFlying(self, true);
 					A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 					A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-					if (Distance3D(tracer) <= 32)
+					if (Distance3DSquared(tracer) <= 32 ** 2)
 					{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
 				}
 				else

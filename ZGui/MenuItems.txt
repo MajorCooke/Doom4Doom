@@ -763,7 +763,9 @@ class OptionMenuItemCreditDisplay : OptionMenuItemDisplayInt
 	OptionMenuItemCreditDisplay Init (String command = "")
 	{
 		Super.Init("Credits", "");
-		grayed = buyable = full = false;
+		grayed = false;
+		buyable = false;
+		full = false;
 		toCheck = command;
 		return self;
 	}

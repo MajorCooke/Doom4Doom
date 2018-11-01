@@ -157,8 +157,8 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 				A_OverlayFlags(RGun,WeapMove,true);
 				A_Overlay(GunWatcher,"SSG.Listen",true);
 				
-				bool SSL = (CountInv("SSLSecondShotToken") > 1);
-				bool SSR = (CountInv("SSRSecondShotToken") > 1);
+				bool SSL = (CountInv("SSLSecondShotToken") < 2);
+				bool SSR = (CountInv("SSRSecondShotToken") < 2);
 				A_OverlayFlags(LGun,WeapBob,SSL);
 				A_OverlayFlags(RGun,WeapBob,SSR);	
 				

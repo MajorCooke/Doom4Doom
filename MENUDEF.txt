@@ -66,7 +66,6 @@ OptionMenu "D4DOptions"
 	Submenu "Weapon Options",				"D4DWeaponOptions"
 	StaticText ""
 	StaticText "Gameplay Options", 1
-	Option "Haste Spawn Frequency",			"D4D_HasteSpawn",		"HasteSpawn"
 	Option "Monster type",					"D4D_MonsterType",		"DemonType"
 	Option "Monsters drop loot",			"D4D_LootDrop",		"LootType"
 	Option "Double jump",					"D4D_MultiJump",		"OnOff"
@@ -1672,7 +1671,6 @@ OptionMenu "D4DUpgrade.Powerups"
 {
 	Class "D4DOptionMenuUpgrades"
 	Title "Powerups"
-	
 	Submenu "Megacharge",					"D4DUpgrade.Megacharge"
 	StaticText ""
 	Submenu "Doom Doll",					"D4DUpgrade.DoomDoll"
@@ -1682,21 +1680,14 @@ OptionMenu "D4DUpgrade.Powerups"
 	Submenu "Pentagram of Protection", 		"D4DUpgrade.PentagramOfProtection"
 	StaticText ""
 	Submenu "Demon Runes", 					"D4DUpgrade.DemonRunes"
-	/*
 	StaticText ""
-	Command "Berserk", 						"openmenu D4DUpgrade.Berserk"
+	Submenu "Quad Damage", 					"D4DUpgrade.QuadDamage"
 	StaticText ""
-	Command "Quad Damage", 					"openmenu D4DUpgrade.QuadDamage"
-	StaticText ""
-	Command "Blur Sphere",	 				"openmenu D4DUpgrade.BlurSphere"
-	StaticText ""
-	Command "Haste",		 				"openmenu D4DUpgrade.Haste"
-	
-	*/
+	Submenu "Haste",		 				"D4DUpgrade.Haste"
 }
 
 //==============================================================================
-// Megacharge
+// Powerup Submenus
 //==============================================================================
 OptionMenu "D4DUpgrade.Megacharge"
 {
@@ -1704,9 +1695,9 @@ OptionMenu "D4DUpgrade.Megacharge"
 	Title "Megacharge"
 	StaticText "Choose An Upgrade"
 	StaticText ""
-	SubmenuReqs "$D4MegachargeUpgrade1", 		"D4MegachargeUpgrade1", "D4MegachargeUpgrade1"
+	SubmenuReqs "$D4MegachargeUpgrade1", "D4MegachargeUpgrade1", "D4MegachargeUpgrade1"
 	StaticText ""
-	SubmenuReqs "$D4MegachargeUpgrade2", 		"D4MegachargeUpgrade2", "D4MegachargeUpgrade2"
+	SubmenuReqs "$D4MegachargeUpgrade2", "D4MegachargeUpgrade2", "D4MegachargeUpgrade2"
 }
 
 OptionMenu "D4DUpgrade.DoomDoll"
@@ -1765,13 +1756,36 @@ OptionMenu "D4DUpgrade.DemonRunes"
 	SubmenuReqs "$D4RuneUpgrade4", "D4RuneUpgrade4", "D4RuneUpgrade4"
 }
 
+OptionMenu "D4DUpgrade.QuadDamage"
+{
+	Class "D4DOptionMenuUpgrades"
+	Title "Quad Damage"
+	StaticText "Choose An Upgrade"
+	StaticText ""
+	SubmenuReqs "$D4QuadUpgrade1", "D4QuadUpgrade1", "D4QuadUpgrade1"
+	StaticText ""
+	SubmenuReqs "$D4QuadUpgrade2", "D4QuadUpgrade2", "D4QuadUpgrade2"
+}
+
+OptionMenu "D4DUpgrade.Haste"
+{
+	Class "D4DOptionMenuUpgrades"
+	Title "Haste"
+	StaticText "Choose An Upgrade"
+	StaticText ""
+	SubmenuReqs "$D4HasteUpgrade1", "D4HasteUpgrade1", "D4HasteUpgrade1"
+	StaticText ""
+	SubmenuReqs "$D4HasteUpgrade2", "D4HasteUpgrade2", "D4HasteUpgrade2"
+}
+
+//==============================================================================
+// Megacharge
+//==============================================================================
 OptionMenu "D4MegachargeUpgrade1"
 {
 	Class "D4DOptionMenuUpgrades"
 	Title "$D4MegachargeUpgrade1"
-	StaticText "On Pickup: Grants +1% Damage Reduction", GREEN
-	StaticText ""
-	StaticText "Stacks to maximum 25%", GREEN
+	StaticText "$D4MegachargeUpgrade1D1", GREEN
 	StaticText ""
 	Purchase D4MegachargeUpgrade1
 	StaticText ""
@@ -1786,7 +1800,7 @@ OptionMenu "D4MegachargeUpgrade2"
 {
 	Class "D4DOptionMenuUpgrades"
 	Title "$D4MegachargeUpgrade2"
-	StaticText "On Pickup: Freezes time for 5 seconds", GREEN
+	StaticText "$D4MegachargeUpgrade2D1", GREEN
 	StaticText ""
 	Purchase D4MegachargeUpgrade2
 	StaticText ""
@@ -1797,14 +1811,14 @@ OptionMenu "D4MegachargeUpgrade2"
 	StaticText "$D4MegachargeUpgrade2F1", WHITE
 }
 
+//==============================================================================
+// Doom Doll
+//==============================================================================
 OptionMenu "D4DoomDollUpgrade1"
 {
 	Class "D4DOptionMenuUpgrades"
 	Title "$D4DoomDollUpgrade1"
-	StaticText "On Use:", GOLD
-	StaticText "+100% Movement Speed", GREEN
-	StaticText "+100% Jump Height", GREEN
-	StaticText "Stacks with other movement powerups", GREEN
+	StaticText "$D4DoomDollUpgrade1D1"
 	Purchase D4DoomDollUpgrade1
 	StaticText ""
 	CostDisplay D4DoomDollUpgrade1
@@ -1818,7 +1832,7 @@ OptionMenu "D4DoomDollUpgrade2"
 {
 	Class "D4DOptionMenuUpgrades"
 	Title "$D4DoomDollUpgrade2"
-	StaticText "+1000% Explosion Damage", GREEN
+	StaticText "D4DoomDollUpgrade2D1", GREEN
 	StaticText ""
 	Purchase D4DoomDollUpgrade2
 	StaticText ""
@@ -1829,11 +1843,14 @@ OptionMenu "D4DoomDollUpgrade2"
 	StaticText "$D4DoomDollUpgrade2F1", WHITE
 }
 
+//==============================================================================
+// Regeneration Soul Sphere
+//==============================================================================
 OptionMenu "D4RegenUpgrade1"
 {
 	Class "D4DOptionMenuUpgrades"
 	Title "$D4RegenUpgrade1"
-	StaticText "Armor regenerates when health is full"
+	StaticText "$D4RegenUpgrade1D1"
 	StaticText ""
 	Purchase D4RegenUpgrade1 
 	StaticText ""
@@ -1848,7 +1865,7 @@ OptionMenu "D4RegenUpgrade2"
 {
 	Class "D4DOptionMenuUpgrades"
 	Title "$D4RegenUpgrade2"
-	StaticText "Armor regenerates with health"
+	StaticText "$D4RegenUpgrade2D1"
 	StaticText ""
 	Purchase D4RegenUpgrade2
 	StaticText ""
@@ -1863,7 +1880,7 @@ OptionMenu "D4RegenUpgrade2NA"
 {
 	Class "D4DOptionMenuUpgrades"
 	Title "$D4RegenUpgrade2"
-	StaticText "Armor regenerates with health"
+	StaticText "$D4RegenUpgrade2D1"
 	StaticText ""
 	StaticText "Pre-requisites not met.", RED
 	StaticText "You must have the following upgrades:", ORANGE
@@ -1875,7 +1892,7 @@ OptionMenu "D4RegenUpgrade3"
 {
 	Class "D4DOptionMenuUpgrades"
 	Title "$D4RegenUpgrade3"
-	StaticText "-50% Regen Time Delay"
+	StaticText "$D4RegenUpgrade3D1"
 	StaticText ""
 	Purchase D4RegenUpgrade3 //Command "Buy", "test <= $Cost_U3Regen $D4DCash \"D4RegenUpgrade3 1; CTake $Cost_U3Regen; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
@@ -1890,7 +1907,7 @@ OptionMenu "D4RegenUpgrade4"
 {
 	Class "D4DOptionMenuUpgrades"
 	Title "$D4RegenUpgrade4"
-	StaticText "+100 Health Overheal + Regeneration Capacity"
+	StaticText "$D4RegenUpgrade4D1"
 	StaticText ""
 	Purchase D4RegenUpgrade4 //Command "Buy", "test <= $Cost_U4Regen $D4DCash \"D4RegenUpgrade4 1; CTake $Cost_U4Regen; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
@@ -1901,6 +1918,9 @@ OptionMenu "D4RegenUpgrade4"
 	StaticText "$D4RegenUpgrade4F1", WHITE
 }
 
+//==============================================================================
+// Pentagram of Protection
+//==============================================================================
 OptionMenu "D4PentagramUpgrade1"
 {
 	Class "D4DOptionMenuUpgrades"
@@ -1971,7 +1991,9 @@ OptionMenu "D4PentagramUpgrade4"
 	StaticText ""
 	StaticText "$D4PentagramUpgrade4F1", WHITE
 }
-
+//==============================================================================
+// Demon Runes
+//==============================================================================
 OptionMenu "D4RuneUpgrade1"
 {
 	Class "D4DOptionMenuUpgrades"
@@ -1983,7 +2005,7 @@ OptionMenu "D4RuneUpgrade1"
 	StaticText "$D4RuneUpgrade1D3"
 	StaticText "$D4RuneUpgrade1D4"
 	*/
-	StaticText "This one needs a new effect..."
+	StaticText "$D4RuneUpgrade1D1"
 	StaticText ""
 	Purchase D4RuneUpgrade1 //Command "Buy", "test <= $Cost_U1Rune $D4DCash \"D4RuneUpgrade1 1; CTake $Cost_U1Rune; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
@@ -2008,7 +2030,7 @@ OptionMenu "D4RuneUpgrade2"
 	StaticText "$D4RuneUpgrade2D5"
 	StaticText "$D4RuneUpgrade2D6"
 	*/
-	StaticText "While active: Picking up same-type runes adds to duration"
+	StaticText "$D4RuneUpgrade2D1"
 	StaticText ""
 	Purchase D4RuneUpgrade2 //Command "Buy", "test <= $Cost_U2Rune $D4DCash \"D4RuneUpgrade2 1; CTake $Cost_U2Rune; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
@@ -2032,7 +2054,7 @@ OptionMenu "D4RuneUpgrade3"
 	StaticText "$D4RuneUpgrade3D5"
 	StaticText "$D4RuneUpgrade3D6"
 	*/
-	StaticText "Delimits rune creation"
+	StaticText "$D4RuneUpgrade3D1"
 	StaticText ""
 	Purchase D4RuneUpgrade3 //Command "Buy", "test <= $Cost_U3Rune $D4DCash \"D4RuneUpgrade3 1; CTake $Cost_U3Rune; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
@@ -2057,7 +2079,7 @@ OptionMenu "D4RuneUpgrade4"
 	StaticText "$D4RuneUpgrade4D6"
 	StaticText "$D4RuneUpgrade4D7"
 	*/
-	StaticText "While active: Attacks heal"
+	StaticText "$D4RuneUpgrade4D1"
 	StaticText ""
 	Purchase D4RuneUpgrade4 //Command "Buy", "test <= $Cost_U4Rune $D4DCash \"D4RuneUpgrade4 1; CTake $Cost_U4Rune; BuyUpgradePowerup;\" \"NEC\""
 	StaticText ""
@@ -2068,17 +2090,68 @@ OptionMenu "D4RuneUpgrade4"
 	StaticText "$D4RuneUpgrade4F1", WHITE
 }
 
-/*
-OptionMenu "D4DUpgrade.Berserk"
+//==============================================================================
+// Quad Damage
+//==============================================================================
+OptionMenu "D4QuadUpgrade1"
 {
+	Class "D4DOptionMenuUpgrades"
+	Title "$D4QuadUpgrade1"
+	StaticText "$D4QuadUpgrade1D1", GREEN
+	StaticText ""
+	Purchase D4QuadUpgrade1
+	StaticText ""
+	CostDisplay D4QuadUpgrade1
+	StaticText ""
+	CreditDisplay D4QuadUpgrade1
+	StaticText ""
+	StaticText "$D4QuadUpgrade1F1", WHITE
 }
-OptionMenu "D4DUpgrade.QuadDamage"
+
+OptionMenu "D4QuadUpgrade2"
 {
+	Class "D4DOptionMenuUpgrades"
+	Title "$D4QuadUpgrade2"
+	StaticText "$D4QuadUpgrade2D1", GREEN
+	StaticText ""
+	Purchase D4QuadUpgrade2
+	StaticText ""
+	CostDisplay D4QuadUpgrade2
+	StaticText ""
+	CreditDisplay D4QuadUpgrade2
+	StaticText ""
+	StaticText "$D4QuadUpgrade2F1", WHITE
 }
-OptionMenu "D4DUpgrade.BlurSphere"
+
+//==============================================================================
+// Haste/Blur Sphere
+//==============================================================================
+OptionMenu "D4HasteUpgrade1"
 {
+	Class "D4DOptionMenuUpgrades"
+	Title "$D4HasteUpgrade1"
+	StaticText "$D4HasteUpgrade1D1", GREEN
+	StaticText ""
+	Purchase D4HasteUpgrade1
+	StaticText ""
+	CostDisplay D4HasteUpgrade1
+	StaticText ""
+	CreditDisplay D4HasteUpgrade1
+	StaticText ""
+	StaticText "$D4HasteUpgrade1F1", WHITE
 }
-OptionMenu "D4DUpgrade.Haste"
+
+OptionMenu "D4HasteUpgrade2"
 {
+	Class "D4DOptionMenuUpgrades"
+	Title "$D4HasteUpgrade2"
+	StaticText "$D4HasteUpgrade2D1", GREEN
+	StaticText ""
+	Purchase D4HasteUpgrade2
+	StaticText ""
+	CostDisplay D4HasteUpgrade2
+	StaticText ""
+	CreditDisplay D4HasteUpgrade2
+	StaticText ""
+	StaticText "$D4HasteUpgrade2F1", WHITE
 }
-*/

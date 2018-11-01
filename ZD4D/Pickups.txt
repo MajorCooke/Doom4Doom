@@ -136,7 +136,7 @@ Class D4HealthBonus : D4Stimpack replaces HealthBonus
 		Inventory.PickupMessage "Health bonus";
 		Inventory.PickupSound "Doom4/Pickups/HealthBonus";
 		Inventory.Amount 3;
-		
+		Inventory.MaxAmount 200;
 		DistanceCheck "D4D_MaxDrawDistance";
 	}
 	States
@@ -630,7 +630,11 @@ Class D4UpgradePickupSpawner : Actor
 				// !plr.CountInv("D4RuneUpgrade1") || 
 				!plr.CountInv("D4RuneUpgrade2") ||
 				!plr.CountInv("D4RuneUpgrade3") ||
-				!plr.CountInv("D4RuneUpgrade4"))
+				!plr.CountInv("D4RuneUpgrade4") ||
+				!plr.CountInv("D4QuadUpgrade1") ||
+				!plr.CountInv("D4QuadUpgrade2") ||
+				!plr.CountInv("D4HasteUpgrade1") ||
+				!plr.CountInv("D4HasteUpgrade2"))
 				items.Push("D4PowerUpgradePickup");
 			
 		
@@ -761,6 +765,10 @@ Class D4PowerUpgradePickup : CustomInventory
 			if (!CountInv("D4RuneUpgrade2"))		items.Push("D4RuneUpgrade2");
 			if (!CountInv("D4RuneUpgrade3"))		items.Push("D4RuneUpgrade3");
 			if (!CountInv("D4RuneUpgrade4"))		items.Push("D4RuneUpgrade4");
+			if (!CountInv("D4QuadUpgrade1"))		items.Push("D4QuadUpgrade1");
+			if (!CountInv("D4QuadUpgrade2"))		items.Push("D4QuadUpgrade2");
+			if (!CountInv("D4HasteUpgrade1"))		items.Push("D4HasteUpgrade1");
+			if (!CountInv("D4HasteUpgrade2"))		items.Push("D4HasteUpgrade2");
 			if (items.Size() > 0)
 			{
 				int rng = random(0, items.Size() - 1);
