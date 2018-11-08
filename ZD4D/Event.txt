@@ -317,22 +317,6 @@ extend class D4DHandler
 			DeadMonsters.Delete(DeadMonsters.Find(mo));
 			Monsters.Push(mo);
 		}
-		if (mo && mo.bFRIENDLY && mo is "D4AbstractMonster")
-		{
-			for (int i = 0; i < MAXPLAYERS; i++)
-			{
-				if (!playeringame[i]) continue;
-				let plr = players[i].mo;
-				if (!plr || plr.CountInv("D4MonsterUpgrader")) continue;
-				
-				if (plr is "PlayerArchvile")
-				{
-					mo.species = plr.species;
-					mo.bTHRUSPECIES = true;
-					mo.bMTHRUSPECIES = true;
-				}
-			}
-		}
 	}
 	
 	//--------------------------------------------------------------------------

@@ -57,6 +57,7 @@ Class D4Cyberdemon : D4AbstractBoss
 	
 	Default 
 	{
+		D4AbstractMonster.ResurrectCvar 'D4D_ResCyberdemon';
 		D4AbstractMonster.Rune "CyberdemonRune", RuneChance_Cyber;
 		D4AbstractMonster.UpgradeDropChance 5;
 		D4AbstractMonster.CrateDropAmount 3;
@@ -178,14 +179,10 @@ Class D4Cyberdemon : D4AbstractBoss
 			StreamLoop:
 				CYBR E 0
 				{
-					if(rocketcount>=12)	//it shall fire 12 rockets max
+					if (rocketcount++ >= 12)	//it shall fire 12 rockets max
 					{
 						rocketcount = 0; //resets the counter
-						return ResolveState ("see");
-					}
-					else
-					{
-						rocketcount++;
+						return ResolveState("See");
 					}
 					return ResolveState(null);
 				}
@@ -294,12 +291,27 @@ Class D4Cyberdemon : D4AbstractBoss
 		CYBR M 10 A_NoBlocking();
 		CYBR NO 10;
 		CYBR P 30;
-		CYBR P -1 
+	DeathStateCheck:
+		CYBR P 0
 		{
 			bCorpse = true;
+			if (CheckResurrectable())
+				return ResolveState("DeadResurrectable");
+			return ResolveState("Dead");
 		}
-		Stop;
-
+	DeadResurrectable:
+		---- A 35 CanRaise;
+		Goto DeathStateCheck;
+	Dead:
+		---- A 35;
+		Goto DeathStateCheck;
+		
+	Raise:
+		---- A 0 PostResurrect();
+		CYBR ONMLKJIH 10 { bNOPAIN = true; }
+		---- A 0 { bNOPAIN = false; }
+		Goto See;
+		
 	GloryEnd:
 		TNT1 A 0 A_Die("MeleePunch");
 	Death.BerserkKill:
@@ -651,26 +663,18 @@ Class CyberdemonRocket : D4AbstractMissile
 		Decal "D4ExploScorch";
 	}
 	
-	
-	
 	States
 	{
 	Spawn:
-		MICR A 3 Light("YellowMediumPoint3") Bright NoDelay A_PlaySound("Doom4/Monsters/RocketFlyLoop",7,0.7,1);
+		MICR A 0 Light("RedMediumPoint3") Bright NoDelay A_PlaySound("Doom4/Monsters/RocketFlyLoop",7,0.7,1);
 	Moving:
-		MICR A 1 Light("YellowMediumPoint3") Bright
-		{
-			if (HQ)
-			{
-				A_SpawnItemEx("D4RocketTrailFire1",-5,0,0,0,frandom(0.3,-0.3),frandom(0.3,-0.3),0,SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketTrailSmoke",-5,random(5,-5),random(5,-5),0,0,0,0,SXF_NOCHECKPOSITION);	
-			}
-			A_SpawnItemEx("D4RocketTrailFire2",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	//spawns even if HQ effects are off, for visibility
-		}
+		MICR A 1 Light("RedMediumPoint3") Bright SpawnRocketFX();
 		Loop;
 	Death:
 		TNT1 A 0 
 		{
+			DestroyFX();
+			bNOINTERACTION = true;
 			A_Explode(128,128);	//deals good damage to player. But less than vanilla's doom
 			if(GetCvar("D4D_quakexplosions")==1)
 			{
@@ -687,10 +691,7 @@ Class CyberdemonRocket : D4AbstractMissile
 			}
 			A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 		}
-		TNT1 A 50
-		{
-			bNOINTERACTION = true;
-		}
+		TNT1 A 50;
 		Stop;
 	}
 }
@@ -701,6 +702,7 @@ Class CyberDemonRocketStream : D4AbstractMissile
 {
 	Default 
 	{
+		D4AbstractMissile.FXVelMul 0.5;
 		Projectile;
 		+EXTREMEDEATH
 		Speed 21;
@@ -713,26 +715,24 @@ Class CyberDemonRocketStream : D4AbstractMissile
 		DeathSound "Doom4/Weapon/RocketLauncher/HRExplo";
 		Decal "D4ExploScorchSmall";
 	}
+	override void SpawnRocketFX()
+	{
+		bool g; Actor FX;
+		[g, FX] = A_SpawnItemEx("CDRocketFlare",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION, (HQ) ? 0 : 64);
+		if (FX)	FX.vel = vel * FXVelMul;
+	}
 	States
 	{
 	Spawn:
-		MICR A 3 Light("YellowMediumPoint3") Bright NoDelay A_PlaySound("Doom4/Monsters/RocketFlyLoop",7,0.7,1);
+		MICR A 3 Light("RedMediumPoint3") Bright NoDelay A_PlaySound("Doom4/Monsters/RocketFlyLoop",7,0.7,1);
 	Moving:
-		MICR A 1 Light("YellowMediumPoint3") Bright 
-		{
-			if (HQ)
-			{
-				A_SpawnItemEx("CDRocketFlare",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-			}
-			else
-			{
-				A_SpawnItemEx("CDRocketFlare",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION,64); //still spawns constantly for visibility
-			}
-		}
+		MICR A 1 Light("RedMediumPoint3") Bright SpawnRocketFX();
 		Loop;
 	Death:
 		TNT1 A 0 
 		{
+			DestroyFX();
+			bNOINTERACTION = true;
 			A_Explode(32,80,0);
 			A_QuakeEx(2,2,2,10,0,160,"",QF_SCALEDOWN,0,0,0,1);
 			if (HQ)
@@ -743,15 +743,12 @@ Class CyberDemonRocketStream : D4AbstractMissile
 			}
 			A_SpawnItemEx("CyberdemonRocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 		}
-		TNT1 A 50
-		{
-			bNOINTERACTION = true;
-		}
+		TNT1 A 50;
 		Stop;
 	}
 }
 
-Class CDRocketFlare : Actor //centered flare behind the rocket
+Class CDRocketFlare : D4RocketTrailFire2 //centered flare behind the rocket
 {
 	Default 
 	{
@@ -760,7 +757,7 @@ Class CDRocketFlare : Actor //centered flare behind the rocket
 		+FORCEXYBILLBOARD
 		RenderStyle "Add";
 		Alpha 0.7;
-		Scale 0.14;
+		Scale 0.15;
 	}
 	States
 	{
@@ -816,9 +813,7 @@ Class CyberdemonRocketExplosion : Actor
 //================================================================================================================
 Class D4OldCyberdemon : D4AbstractBoss // : Cyberdemon
 {
-	
 	int staggertimer;
-	
 	Default 
 	{
 		D4AbstractMonster.Rune "CyberdemonRune", RuneChance_Cyber;
@@ -1049,23 +1044,24 @@ Class OldCyberdemonRocket : D4AbstractMissileQuake replaces Rocket //replaces ro
 	States
 	{
 	Spawn:
-		MICR A 3 Light("YellowMediumPoint3") Bright NoDelay 
+		MICR A 3 Light("RedMediumPoint3") Bright NoDelay 
 		{
 			A_PlaySound("Doom4/Monsters/RocketFlyLoop",7,0.7,1);
 		}
 	Moving:
-		MICR A 1 Light("YellowMediumPoint3") Bright
+		MICR A 1 Light("RedMediumPoint3") Bright
 		{
+			bool g;	Actor FX[2];
 			if (HQ)
 			{
-				A_SpawnItemEx("D4RocketTrailFire1",-5,0,0,0,frandom(0.3,-0.3),frandom(0.3,-0.3),0,SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketTrailSmoke",-5,random(5,-5),random(5,-5),0,0,0,0,SXF_NOCHECKPOSITION);
+				[g, FX[0]] = A_SpawnItemEx("D4RocketTrailFire1",-5,0,0,0,frandom(0.3,-0.3),frandom(0.3,-0.3),0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
+				A_SpawnItemEx("D4RocketTrailSmoke",-5,random(5,-5),random(5,-5),0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
 			}
-			else
-			{
-				A_SetTics(2);
-			}
-			//A_SpawnItemEx("D4RocketTrailFire2",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION); //still spawns for visibility
+			[g, FX[1]] = A_SpawnItemEx("D4RocketTrailFire2",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
+			
+			for (int i = 0; i < FX.Size(); i++)
+				if (FX[i])
+					FX[i].vel = vel * 0.85;
 		}
 		Loop;
 	Death:

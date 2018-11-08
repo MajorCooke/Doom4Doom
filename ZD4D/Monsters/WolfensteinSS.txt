@@ -70,6 +70,7 @@ Class D4OldWolfensteinSS : D4AbstractMonster replaces WolfensteinSS // : Wolfens
 		SSWV H 3 A_Pain();
 		Goto See;
 	Raise:
+		---- A 0 PostResurrect();
 		SSWV M 5;
 		SSWV LKJI 5;
 		Goto See ;

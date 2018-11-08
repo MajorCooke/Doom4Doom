@@ -151,7 +151,7 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 			A_FaceTarget();
 		}
 	SkipWarning:
-		PSUL B 0 BRIGHT A_SkullAttack;	//attack frame
+		PSUL B 0 BRIGHT A_SkullAttack(DefSkullSpeed);	//attack frame
 		PSUL B 2 BRIGHT Light("RedMediumFlicker3")
 		{
 			charging = true;
@@ -160,8 +160,15 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 				A_FaceTarget(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch) * 30, 0, -sin(pitch) * 30,CVF_RELATIVE|CVF_REPLACE);
 				if (!target || target.health < 1)
+				{
+					A_Stop();
 					return ResolveState("See");
-								
+				}				
+			}
+			else
+			{
+				A_FaceTarget(2,2,0,0,FAF_MIDDLE);
+				Vel3DFromAngle(DefSkullSpeed, Angle, Pitch);
 			}
 			return A_JumpIfTargetInsideMeleeRange("Melee");
 		}

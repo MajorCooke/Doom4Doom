@@ -17,49 +17,9 @@
     **    misrepresented as being the original software.
     ** 3. This notice may not be removed or altered from any source distribution.
     */
-    
-    
-
+#include "ZD4D/Libraries/PhantomBeta/Extended.txt"
 Class D4D_Intercept play
-{
-	//[MC] A simple wrapper function
-	static bool, Vector3 InterceptActor(Actor Interceptor, Actor Intercepting, bool Aim = false, double Accuracy = 100.0)
-	{
-		if (!Interceptor || !Intercepting || Intercepting.Vel == (0,0,0))
-			return false, (double.NaN, double.NaN, double.NaN);
-			
-		bool ret1; Vector3 ret2;
-		[ret1, ret2] = D4D_Intercept.ShotPos(Interceptor.Pos, Intercepting.Pos + (0,0,Intercepting.Height), 
-											Intercepting.Vel, Interceptor.Speed);
-		
-		if (!ret1)
-			return ret1, ret2;
-		
-		if (Aim)
-		{
-			Accuracy = Clamp(Accuracy, 0.0, 100.0);
-			if (Accuracy > 0.0)
-			{
-				Vector2 Prev = (Interceptor.Angle, Interceptor.Pitch);
-				Vector2 Next = (VectorAngle(ret2.X, ret2.Y), -VectorAngle(ret2.XY.Length(), ret2.Z));
-				
-				if (Accuracy < 100.0)
-				{
-					Interceptor.Angle = D4D_GlobalMaths.LerpDouble(Prev.X, Next.X, Accuracy * 0.01);
-					Interceptor.Pitch = D4D_GlobalMaths.LerpDouble(Prev.Y, Next.Y, Accuracy * 0.01);
-				}
-				else
-				{
-					Interceptor.Angle = Next.X;
-					Interceptor.Pitch = Next.Y;
-				}
-				Interceptor.Vel3DFromAngle(Interceptor.Vel.Length(), Interceptor.Angle, Interceptor.Pitch);
-			}
-		}
-		
-		return ret1, ret2;
-	}
-	
+{	
 	/* Summary:
     **  Calculates the future position of a moving target so that a projectile launched immediately can hit it.
     **  Taken from the GameDev.net article "Shooting at stuff" (https://www.gamedev.net/articles/programming/math-and-physics/shooting-at-stuff-r3884/)
@@ -81,7 +41,7 @@ Class D4D_Intercept play
 	{
 	// This formulation uses the quadratic equation to solve
 	// the intercept position.
-		Vector3 R = targetPos - projPos;
+		Vector3 R = level.Vec3Diff (projPos, targetPos);
 		double a = (targetVel dot targetVel) - (projSpeed ** 2.);
 		double b = 2. * (R dot targetVel);
 		double c = R dot R;

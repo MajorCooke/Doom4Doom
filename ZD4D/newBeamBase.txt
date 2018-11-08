@@ -132,7 +132,7 @@ Class D4DNewBeamBase : Actor
 			Translation = Parent.Translation;
 			double PSY = Parent.Scale.Y * 100.0;
 			double pit = Parent.Pitch - 90;
-			Warp(Parent, cos(pit) * PSY, 0, -sin(pit) * PSY, 0, WARPF_NOCHECKPOSITION);
+			Warp(Parent, cos(pit) * PSY, 0, -sin(pit) * PSY, 0, WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
 		//	Warp(Parent, cos(pit) * PSY, 0, -sin(pit) * PSY, 0, WarpFlags);
 		//	if (Target)	vel = Target.vel;
 		//	Prev = Parent.Vec3Angle(cos(pit) * PSY, Parent.angle, -sin(pit) * PSY);

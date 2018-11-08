@@ -253,7 +253,7 @@ Class D4CarrionCannon : Doom4Weapon
 			int total = 0;
 			while (mo = Actor(it.Next()))
 			{
-				if (Distance3D(mo) > 1024) continue;
+				if (Distance3DSquared(mo) > (1024 ** 2)) continue;
 				if (mo.bNOINTERACTION) continue;
 				if (mo.bSPECIAL) continue;
 				if (mo.bMISSILE) continue;

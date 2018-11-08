@@ -84,3 +84,15 @@ View Vector
 Mainly useful for getting an actor's angle and pitch for LineTracer class.
 
 Vector3 viewVector = (cos(angle)*cos(pitch),sin(angle)*cos(pitch),-sin(pitch));
+
+================================================================================
+Manual Aiming
+================================================================================
+Basically A_Face(actor, 0, 0, 0, 0, FAF_MIDDLE) in a nutshell. Useful for avoiding
+spawning things unnecessarily at positions.
+
+Vector3 Calc = level.Vec3Diff(Aiming.pos, AimAt.pos);
+Vector2 Next = (VectorAngle(Calc.X, Calc.Y), -VectorAngle(Calc.XY.Length(), Calc.Z));
+Aiming.Angle = Next.X;
+Aiming.Pitch = Next.Y;
+

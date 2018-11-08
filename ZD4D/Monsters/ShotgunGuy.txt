@@ -200,6 +200,7 @@ Class D4ShotgunGuy : D4AbstractMonster
 		}
 		Stop;
 	Raise:
+		---- A 0 PostResurrect();
 		BBRG NML 3;
 		BBRG KJIH 3;
 		Goto See;

@@ -641,34 +641,26 @@ Class D4BFGAmmoPart : D4DFX
 Class D4BFGAmmoEffects : D4DFX
 {
 	int ID;
-	double RollAmt, Scalar;
+	double Scalar;
 	Default
 	{
+		D4DFX.AutoRoll 2, 10, true;
+		D4DFX.RandomRoll true;
 		+RELATIVETOFLOOR
 		+NOTONAUTOMAP
 		+ROLLSPRITE
 		RenderStyle "Add";
 		Translation "0:255=%[0,0,0]:[0.5,2,0.5]";
-		Alpha 1.0;
+		Alpha 1;
 	}
 	override void PostBeginPlay()
 	{
 		bSPRITEFLIP = random(false, true);
-		Roll = random[rng](0,359);
-		RollAmt = frandom[rng](2,10) * randompick[rng](-1,1);
 		Super.PostBeginPlay();
 		
 		Scalar = 0.1675;
 		if (ID == 1)	Scalar = 0.8;
 		if (Master) 	Scale = Master.Scale * Scalar;
-	}
-	
-	override void Tick()
-	{
-		if (!bNOTIMEFREEZE && (level.frozen || globalfreeze))
-			return;
-		A_SetRoll(roll + RollAmt, SPF_INTERPOLATE);
-		Super.Tick();
 	}
 	States
 	{

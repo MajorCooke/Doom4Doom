@@ -72,6 +72,7 @@ Class D4SpiderMastermind : D4AbstractBoss
 	
 	Default 
 	{
+		D4AbstractMonster.ResurrectCvar 'D4D_ResSpiderMastermind';
 		D4AbstractMonster.Rune "MastermindRune", RuneChance_Master;
 		D4AbstractMonster.UpgradeDropChance 5;
 		D4AbstractMonster.CrateDropAmount 3;
@@ -279,8 +280,26 @@ Class D4SpiderMastermind : D4AbstractBoss
 		}
 		SPID NOPQR 10;
 		SPID S 30;
-		SPID S -1 { bCorpse = true;	} 
-		Stop;
+	DeathStateCheck:
+		---- A 0
+		{
+			bCorpse = true;
+			if (CheckResurrectable())
+				return ResolveState("DeadResurrectable");
+			return ResolveState("Dead");
+		}
+	DeadResurrectable:
+		---- A 35 CanRaise;
+		Goto DeathStateCheck;
+	Dead:
+		---- A 35;
+		Goto DeathStateCheck;
+		
+	Raise:
+		SPID SRQPONMLJI 10 { bNOPAIN = true; }
+		---- A 0 { bNOPAIN = false; }
+		Goto Spawn;
+		
 	GloryEnd:
 		TNT1 A 0 A_Die("MeleePunch");
 	Death.BerserkKill:
@@ -309,8 +328,7 @@ Class D4SpiderMastermind : D4AbstractBoss
 		}	}
 		SPID NOPQR 10;
 		SPID S 30;
-		SPID S -1 {	bCorpse = true; }
-		Stop;
+		Goto DeathStateCheck;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states
 	//------------------------------------------------------------------------

@@ -147,6 +147,7 @@ Class D4Cacodemon : D4AbstractBiggie
 		Stop;
 		
 	Raise:
+		---- A 0 PostResurrect();
 		CAC2 L 8 A_UnSetFloorClip();
 		CAC2 KJIHG 8;
 		Goto See;

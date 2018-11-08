@@ -431,6 +431,7 @@ Class D4HellKnight : D4AbstractBiggie
 		Stop;
 		
 	Raise:
+		---- A 0 PostResurrect();
 		E02D I 3;
 		E02D HGFEDCBA  3;
 		Goto See;

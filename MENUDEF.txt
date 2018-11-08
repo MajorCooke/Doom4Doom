@@ -64,6 +64,7 @@ OptionMenu "D4DOptions"
 	Submenu "Glory Kill Options",			"D4DGloryKillOptions"
 	Submenu "Gore Options",					"D4DGoreOptions"
 	Submenu "Weapon Options",				"D4DWeaponOptions"
+	Submenu "Monster Options",				"D4DMonsterOptions"
 	StaticText ""
 	StaticText "Gameplay Options", 1
 	Option "Monster type",					"D4D_MonsterType",		"DemonType"
@@ -73,11 +74,6 @@ OptionMenu "D4DOptions"
 	Option "Syphon strength",				"D4D_SyphonStrength",	"SyphonStrength"
 	Option "Berserk Switch On Pickup",		"D4D_BerserkAutoSwitch","YesNo"
 	Option "Nightmare Grenade Starts",		"D4D_NMGrenades","NMGrenade"
-	StaticText ""
-	StaticText "Monster Behaviour", 1
-	Option "Enhanced Monster Chasing",		"D4D_EnhancedChase",	"OnOff"
-	Option "Archvile monster infights",		"D4D_ArchvileInfighting",	"YesNo"
-	Option "D4D HellKnight melee only",		"D4D_HKMeleeOnly",			"OnOff"
 	StaticText ""
 	StaticText "Demon Runes", 1
 	Option "Spawn Demon Runes",					"D4D_DemonRunes",		"DemonRunes"
@@ -275,6 +271,19 @@ OptionMenu "D4DGoreOptions"
 	StaticText " "
 	NumberField "Bullet Giblets Unleashed",		"D4D_Giblets",	0, 10000, 1
 	NumberField "Splatter Giblets Unleashed",	"D4D_SplatterGiblets",	0, 10000, 1
+}
+
+OptionMenu "D4DMonsterOptions"
+{
+	Option "Smarter Aiming",				"D4D_MonProjIntercept", "OnOff"
+	Option "Enhanced Monster Chasing",		"D4D_EnhancedChase",	"OnOff"
+	Option "D4 Hell Knight melee only",		"D4D_HKMeleeOnly",		"OnOff"
+	StaticText ""
+	StaticText "Welcome to Hell.", RED
+	StaticText "Resurrectable Monsters", ORANGE
+	Option "Archvile",						"D4D_ResArchvile",			"OnOff"
+	Option "Cyberdemon",					"D4D_ResCyberdemon",		"OnOff"
+	Option "Spider Mastermind",				"D4D_ResSpiderMastermind",	"OnOff"
 }
 
 OptionValue "UpgradeMode"

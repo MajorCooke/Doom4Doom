@@ -23,7 +23,7 @@ enum RuneChances
 Class D4AbstractMonster : Actor 
 {
 	Array<D4DNewBeamBase> Beams;
-	Name PowerColor;
+	Name PowerColor, ResurrectCvar;
 	Class<DemonRuneBase> RuneItem;
 	int RuneDropChance;
 	D4DHandler Event;
@@ -38,6 +38,7 @@ Class D4AbstractMonster : Actor
 	bool HQ;
 	transient CVar HighQuality, EnhancedChase, ExecuteCheck, StaggerCheck;
 	
+	Property ResurrectCvar: ResurrectCvar;
 	Property PowerColor: PowerColor;
 	Property Rune: RuneItem, RuneDropChance;
 	property BC: BC;
@@ -50,6 +51,7 @@ Class D4AbstractMonster : Actor
 	property CashChainsawFinisher: CashChainsawPinata;
 	Default
 	{
+		D4AbstractMonster.ResurrectCvar '';
 		D4AbstractMonster.PowerColor 'D4D';
 		D4AbstractMonster.UpgradeDropChance -1;
 		D4AbstractMonster.UpgradeDropAlways 0;
@@ -75,6 +77,11 @@ Class D4AbstractMonster : Actor
 	//	ExecuteCheck = Cvar.FindCvar("D4D_ExecutionsON");
 	//	StaggerCheck = Cvar.FindCvar("D4D_MonsterStagger");
 		oldLeap = false;
+	}
+	
+	bool CheckResurrectable()
+	{
+		return (ResurrectCvar != '' && GetCvar(ResurrectCvar));
 	}
 	
 	void AimHead(Actor mo)
@@ -176,40 +183,64 @@ Class D4AbstractMonster : Actor
 	}
 	int SetupPowerLevel(int amt = -1)
 	{	
+		int PrevAmt = CountInv("D4MonsterUpgrader");
 		if (amt < 0) amt = ChoosePowerLevel();
+		
+		A_SetInventory("D4MonsterUpgrader",Max(0,amt));
+			
 		if (amt > 0)
 		{
-			A_SetInventory("D4MonsterUpgrader",amt);
 			int hp = GetSpawnHealth();
 			int amp = amt + 1;
-			
 			if (hp < 1000)	amp += 1;
 			if (hp <= 500) 	amp += 1;
 			if (hp <= 400) 	amp += 1;
 			if (hp <= 300) 	amp += 1;
 			if (hp <= 200) 	amp += 1;
 			if (hp <= 100) 	amp += 1;
-			
-			
 			A_SetHealth(hp * amp);
 			Mass *= (amt + 1);
-			
-			Name suffix = PowerColor;
-			Switch(amt)
-			{
-				Default: return amt;
-				Case 1:	suffix = suffix.."_Green";	BC = "Green";	break;
-				Case 2: suffix = suffix.."_Blue";	BC = "Blue";	break;
-				Case 3: suffix = suffix.."_Purple";	BC = "Purple";	break;
-				Case 4: suffix = suffix.."_Orange";	BC = "Orange";	break;
-				Case 5: suffix = suffix.."_Red";	BC = "Red";		break;
-				Case 6: suffix = suffix.."_Black";	BC = "Black";	break;
-				Case 7:	suffix = suffix.."_White";	BC = "White";	break;
-			}
-			A_SetTranslation(suffix);				
-			
 		}
+		Name suffix = PowerColor;
+		Switch(amt)
+		{
+			Default: 
+			{
+				if (PrevAmt > 0 && amt < 1)
+					Translation = Default.Translation;
+				return amt;
+			}
+			Case 1:	suffix = suffix.."_Green";	BC = "Green";	break;
+			Case 2: suffix = suffix.."_Blue";	BC = "Blue";	break;
+			Case 3: suffix = suffix.."_Purple";	BC = "Purple";	break;
+			Case 4: suffix = suffix.."_Orange";	BC = "Orange";	break;
+			Case 5: suffix = suffix.."_Red";	BC = "Red";		break;
+			Case 6: suffix = suffix.."_Black";	BC = "Black";	break;
+			Case 7:	suffix = suffix.."_White";	BC = "White";	break;
+		}
+		A_SetTranslation(suffix);
 		return amt;
+	}
+	
+	void PostResurrect()
+	{
+		SetupPowerLevel();
+		if (bFRIENDLY)
+		{
+			for (int i = 0; i < MAXPLAYERS; i++)
+			{
+				if (!playeringame[i]) continue;
+				let plr = players[i].mo;
+				if (!plr || plr.CountInv("D4MonsterUpgrader")) continue;
+				
+				if (plr is "PlayerArchvile")
+				{
+					species = plr.species;
+					bTHRUSPECIES = true;
+					bMTHRUSPECIES = true;
+				}
+			}
+		}
 	}
 	
 	//--------------------------------------------------------------------------
@@ -509,53 +540,7 @@ Class D4AbstractMonster : Actor
 		JF_ALL = JF_FORWARD|JF_UP
 	}
 	
-	// Thanks go out to Gutawer for this wonderful function.
-	// Modified by Major Cooke.
-	double, bool GutaLeap(Actor who, double _speed = 40.0, double _grav = 1.0, bool restorePitchAngle = false)
-	{
-		double firePitch = 0.0;
-		bool good = false;
-		if (who)
-		{
-			double _p = pitch;
-			double _a = angle;
-			A_Face(who,0,0,0,0,FAF_TOP);
-			
-			double v = _speed;
-			double g = _grav;
-			
-			Vector3 vecto = vec3To(who);
-			Vector2 lvec = (vecto.xy.length(), vecto.z + 16);
-
-			double discriminant = (v ** 4) - g * (g * lvec.x * lvec.x + 2 * lvec.y * v * v);
-			if (discriminant >= 0) 
-			{
-				// we can hit the target at this range, so finish the calculation
-				double newPitch0 = atan2(v * v + sqrt(discriminant), g * lvec.x);
-				double newPitch1 = atan2(v * v - sqrt(discriminant), g * lvec.x);
-				firePitch = (min(newPitch0, newPitch1));
-				// Can leap.
-				good = true;
-				
-			}
-			else 
-			{
-				// we can't hit, so aim at the maximum possible distance instead
-				lvec.x = sqrt(((v ** 4) / g - 2 * lvec.y * v * v) / g);
-				double discriminant = v ** 4 - g * (g * lvec.x * lvec.x + 2 * lvec.y * v * v);
-				double newPitch0 = atan2(v * v + sqrt(discriminant), g * lvec.x);
-				double newPitch1 = atan2(v * v - sqrt(discriminant), g * lvec.x);
-				// Not a good leap but it at least tells us what it was we left off at.
-				firePitch = (min(newPitch0, newPitch1));
-			}
-			if (restorePitchAngle)
-			{
-				pitch = _p;
-				angle = _a;
-			}
-		}
-		return firePitch, good;
-	}
+	
 
 	int oldLeap;
 	double leapDistance;
@@ -568,7 +553,7 @@ Class D4AbstractMonster : Actor
 		bool ok; Actor pOnmobj;
 		[ok, pOnmobj] = TestMobjZ(true);
 		if (!pOnmobj) return _floorz;
-		double _actorz = pOnmobj.pos.z+pOnmobj.height;
+		double _actorz = pOnmobj.pos.z + pOnmobj.height;
 		return max(_floorz, _actorz);
 	}
 	
@@ -587,6 +572,74 @@ Class D4AbstractMonster : Actor
 		double GroundHeight = max(_floorz, _actorz);
 		return (abs(GroundHeight - pos.z) < 1);
 	}
+	
+	double A_PrepareDrop()
+	{
+		vector2 aimbak = (angle, pitch);
+		A_FaceTarget(0,0);
+		angle = aimbak.x;
+		pitch = aimbak.y;
+		
+		double targdist = (target ? Distance3D(target) : 4096);
+		vector2 leadoffset;
+		
+		if (targdist > 2000) 
+			leadoffset = (frandom(-2.,2),frandom(-1.,1.));
+		else 
+			leadoffset = (deltaangle(aimbak.x, aimbak.x), deltaangle(aimbak.y, aimbak.y)) * targdist * frandom(0.055,0.067);
+
+		angle += leadoffset.x;
+		pitch += leadoffset.y;
+		return targdist;
+	}
+
+	void A_DropAdjust(class<actor> MissileType, class<actor> MissileType2,double offX, double offY, double offZ,
+						double Distance = 0, double speedmult = 1.0, double gravity = -1.0, actor target=null)
+	{
+		if (!target) target = self.target;
+		if (!target) return;
+		double ceil = CeilingZ - pos.z;
+		
+		double tarDist = A_PrepareDrop();
+		if (ceil < 80 || tarDist > 1000)
+		{
+			A_SpawnProjectile(MissileType2, offZ);
+			return;
+		}
+		let defs = GetDefaultByType(MissileType);
+		if (Distance < 1) 
+			Distance = Max(1, (target ? Distance2D(target) : 1));
+		if (Gravity < 0.0) 
+			Gravity = defs.Gravity;
+			
+		double NewSpeed = defs.Speed * speedmult;
+		if (defs.Gravity && Distance > NewSpeed)
+		{
+			int TicDistance = Distance / NewSpeed;
+            int DropAmount = 0;
+            for (int i = 1; i <= TicDistance; i++)
+			{
+                DropAmount += i;
+            }
+            pitch -= min(atan(DropAmount * Gravity / Distance), 30);
+        }
+
+        //because we don't shoot from height 32 but 42
+        if (Distance > 0) Pitch += atan(10 / Distance);
+		
+		A_DropProjectile(missiletype,offX,offY,offZ,tarDist);
+    }
+	
+	void A_DropProjectile(class<actor> missiletype, double offX, double offY, double offZ, double targdist)
+	{
+		A_SpawnItemEx(
+			missiletype, offX, offY, offZ,
+			cos(pitch) * offY, 0, -sin(pitch) * offY,
+			atan(offY / targdist),
+			flags: SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_TRANSFERPITCH
+		);
+	}
+	
 	/*
 	void A_Leap(StateLabel EndState = "See")
 	{

@@ -186,6 +186,7 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 		}
 		Stop;
 	Raise:
+		---- A 0 PostResurrect();
 		HRZR M 3;
 		HRZR LKJI 3;
 		Goto See;
@@ -359,6 +360,7 @@ Class D4SergeantShield : D4AbstractMonster
 		CPOS G 3 A_Pain();
 		Goto See;
 	Raise:
+		---- A 0 PostResurrect();
 		CPOS N 5;
 		CPOS MLKJIH 5;
 		Goto See;

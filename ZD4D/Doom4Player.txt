@@ -398,7 +398,7 @@ Class Doom4Player : PlayerPawn
 		M666 A 1
 		{
 			StateLabel next = "Overlay.DashManager";
-			if (!bONMOBJ && pos.z > GetZAt() && !BlockingLine && !BlockingMobj)
+			if (!bONMOBJ && pos.z > GetZAt() && !A_CheckBlock("Null",CBF_ABSOLUTEANGLE,AAPTR_DEFAULT,30,0,0,DashAngle) && !BlockingMobj)
 			{
 				next = null;
 				double vz = vel.z;

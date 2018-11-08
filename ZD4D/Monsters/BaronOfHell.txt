@@ -476,6 +476,7 @@ Class D4BaronOfHell : D4AbstractBiggie
 		Stop;
 		
 	Raise:
+		---- A 0 PostResurrect();
 		E01D I 3;
 		E01D HGFEDCBA 3;
 		Goto See;

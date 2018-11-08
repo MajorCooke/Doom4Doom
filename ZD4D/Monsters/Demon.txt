@@ -201,6 +201,7 @@ Class D4Demon : D4AbstractMonster
 		}
 		Stop;
 	Raise:
+		---- A 0 PostResurrect();
 		D4DG N 5;
 		D4DG MLKJI 5;
 		Goto See;

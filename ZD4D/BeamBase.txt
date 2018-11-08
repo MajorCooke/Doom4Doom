@@ -36,38 +36,6 @@ TO DO: Make the SPAWNERS set the MoveWithSource flag and perform the following.
 
 
 
-Class D4DFX : Actor
-{
-	Default
-	{
-		+NOINTERACTION
-	}
-	
-	override void BeginPlay()
-	{
-		ChangeStatNum(Thinker.STAT_USER);
-		Super.BeginPlay();
-	}
-	
-	// Rotates the vector around (0,0,0). Like Earth orbiting the Sun.
-	static Vector3 RotateVector3D(Vector3 vec, double angle, double Pitch = -360.0)
-	{
-		Vector2 rot;
-		if (Pitch > -270.0)
-		{
-			rot = (vec.x, vec.z);
-			rot = RotateVector(rot, -Pitch);
-			vec = (rot.x, vec.y, rot.y);
-		}
-		rot = (vec.x, vec.y);
-		rot = RotateVector(rot, angle);
-		return (rot.x, rot.y, vec.z);
-	}
-	
-}
-
-
-
 //==============================================================================
 // The beam spawner. Does the movement and positioning of the beams.
 //==============================================================================

@@ -191,6 +191,7 @@ Class D4Zombieman : D4AbstractMonster // : Zombieman //replaces Zombieman
 		}
 		Stop;
 	Raise:
+		---- A 0 PostResurrect();
 		RFTR LK 3;
 		RFTR JIH 3;
 		Goto See;

@@ -1,0 +1,128 @@
+// All the code in here is not under any sort of release license whatsoever.
+// Just give credit where it's due, is all I ask. You'll find credits above the
+// functions below.
+
+enum EArcAimFlags
+{
+	AAF_LOWESTSPEED = 1,
+	AAF_RESTOREANGLEPITCH,
+};
+extend Class D4D_Intercept
+{
+	//==========================================================================
+	// InterceptActor by Major Cooke
+	// 
+	// A simple wrapper function for ShotPos in Intercept.txt to make it easy 
+	// for passing in two actors and letting it deal with the rest.
+	//==========================================================================
+	static bool, Vector3 InterceptActor(Actor Interceptor, Actor Intercepting, bool Aim = false, double Accuracy = 100.0)
+	{
+		if (!Interceptor || !Intercepting || Intercepting.Vel == (0,0,0))
+			return false, (double.NaN, double.NaN, double.NaN);
+			
+		bool ret1; Vector3 ret2;
+		double len = Interceptor.Vel.Length();
+		[ret1, ret2] = D4D_Intercept.ShotPos(Interceptor.Pos, Intercepting.Pos + (0,0,Intercepting.Height), 
+											Intercepting.Vel, len);
+		
+		if (!ret1)
+			return ret1, ret2;
+		
+		if (Aim)
+		{
+			Accuracy = Clamp(Accuracy, 0.0, 100.0);
+			if (Accuracy > 0.0)
+			{
+				Vector2 Prev = (Interceptor.Angle, Interceptor.Pitch);
+				Vector3 Calc = level.Vec3Diff(Interceptor.pos, ret2);
+				Vector2 Next = (VectorAngle(Calc.X, Calc.Y), -VectorAngle(Calc.XY.Length(), Calc.Z));
+				
+				if (Accuracy < 100.0)
+				{
+					Interceptor.Angle = D4D_GlobalMaths.LerpDouble(Prev.X, Next.X, Accuracy * 0.01);
+					Interceptor.Pitch = D4D_GlobalMaths.LerpDouble(Prev.Y, Next.Y, Accuracy * 0.01);
+				}
+				else
+				{
+					Interceptor.Angle = Next.X;
+					Interceptor.Pitch = Next.Y;
+				}
+				Interceptor.Vel3DFromAngle(len, Interceptor.Angle, Interceptor.Pitch);
+			}
+		}
+		
+		return ret1, ret2;
+	}
+	//==========================================================================
+	// ArcAim by Gutawer
+	// Modified by Major Cooke.
+	//==========================================================================
+	// double, bool GutaLeap(Actor who, double _speed = 40.0, double _grav = 1.0, bool restorePitchAngle = false)
+	static double, bool ArcAim( 
+		Actor who,
+		Vector3 TargetTop, // Make sure to add in the height!
+		double _speed = 0.0, double _grav = 0.0, 
+		int flags = 0)
+	{
+		if (!who)	return -91.0, false;
+
+		if (_speed <= 0.0)	_speed = who.Speed;
+		if (_grav <= 0.0)	_grav = who.Gravity;
+		
+		if (_speed <= 0.0 || _grav <= 0.0)
+			return -91.0, false;
+		
+		double firePitch = 0.0;
+		bool good = false;
+		double _p = who.pitch;
+		double _a = who.angle;
+		
+		double v = _speed;
+		double g = _grav;
+		
+		Vector3 vecto = level.Vec3Diff(who.Vec3Offset(0,0,who.MissileHeight), TargetTop);
+		Vector2 lvec = (vecto.xy.length(), vecto.z + 16);
+		double discriminant = (v ** 4) - g * (g * lvec.x * lvec.x + 2 * lvec.y * v * v);
+		
+		who.Angle = VectorAngle(vecto.X, vecto.Y);
+		who.Pitch = -VectorAngle(vecto.XY.Length(), vecto.Z);
+		
+		
+		if ((flags & AAF_LOWESTSPEED) && discriminant >= 0)
+		{
+			for (v = 2.0; v < _speed; v += 2.0)
+			{
+				discriminant = (v ** 4) - g * (g * lvec.x * lvec.x + 2 * lvec.y * v * v);
+				if (discriminant >= 0.0)
+					break;
+			}
+		}
+		
+		if (discriminant >= 0) 
+		{
+			// we can hit the target at this range, so finish the calculation
+			double disc = sqrt(discriminant);
+			double newPitch0 = atan2(v * v + disc, g * lvec.x);
+			double newPitch1 = atan2(v * v - disc, g * lvec.x);
+			firePitch = (min(newPitch0, newPitch1));
+			good = true;
+		}
+		else 
+		{
+			// we can't hit, so aim at the maximum possible distance instead
+			lvec.x = sqrt(((v ** 4) / g - 2 * lvec.y * v * v) / g);
+			double discriminant = v ** 4 - g * (g * lvec.x * lvec.x + 2 * lvec.y * v * v);
+			double disc = sqrt(discriminant);
+			double newPitch0 = atan2(v * v + disc, g * lvec.x);
+			double newPitch1 = atan2(v * v - disc, g * lvec.x);
+			// Not a good leap but it at least tells us what it was we left off at.
+			firePitch = (min(newPitch0, newPitch1));
+		}
+		if (flags & AAF_RESTOREANGLEPITCH)
+		{
+			who.pitch = _p;
+			who.angle = _a;
+		}
+		return firePitch, good;
+	}
+}

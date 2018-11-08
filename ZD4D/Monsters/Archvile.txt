@@ -40,6 +40,7 @@ Class D4Archvile : D4AbstractBiggie
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.ResurrectCvar 'D4D_ResArchvile';
 		D4AbstractMonster.Rune "ArchvileRune", RuneChance_Archie;
 		D4AbstractMonster.BC "Black";
 		D4AbstractMonster.CrateDropAmount 3;
@@ -79,6 +80,7 @@ Class D4Archvile : D4AbstractBiggie
 			bNoPain = false;
 			bFrightened = false;
 		}
+	Looking:
 		DIAB AB 10 A_Look();
 		Loop;
 	SeeAfterWound:
@@ -203,9 +205,27 @@ Class D4Archvile : D4AbstractBiggie
 		}
 		DIAB R 7 A_Scream();
 		DIAB S 7 A_NoBlocking();
-		DIAB TUVWXY 7;
-		DIAB Z -1 {bCorpse = true;}
-		Stop;
+		DIAB TUVWXYZ 7;
+	DeathStateCheck:
+		---- A 0
+		{
+			bCorpse = true;
+			if (CheckResurrectable())
+				return ResolveState("DeadResurrectable");
+			return ResolveState("Dead");
+		}
+	DeadResurrectable:
+		---- A 35 CanRaise;
+		Goto DeathStateCheck;
+	Dead:
+		---- A 35;
+		Goto DeathStateCheck;
+		
+	Raise:
+		---- A 0 PostResurrect();
+		DIAB ZYXWVUTSRQ 8 { bNOPAIN = true; }
+		---- A 0 { bNOPAIN = false; }
+		Goto See;
 
 	GloryEnd:
 		TNT1 A 0 A_Die("MeleePunch");

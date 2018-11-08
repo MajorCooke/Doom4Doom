@@ -7,6 +7,67 @@ Class TracerFXToken : Inventory
 	}
 }
 
+Class D4DFX : Actor
+{
+	double RollAmt;
+	double AutoRollMin, AutoRollMax;
+	bool AutoRollFlip, RandomRoll;
+	Property AutoRoll: AutoRollMin, AutoRollMax, AutoRollFlip;
+	Property RandomRoll: RandomRoll;
+	Default 
+	{
+		D4DFX.AutoRoll 0, 0, false;
+		D4DFX.RandomRoll false;
+		+NOINTERACTION
+	}
+	
+	override void BeginPlay()
+	{
+		ChangeStatNum(Thinker.STAT_USER);
+		Super.BeginPlay();
+	}
+	
+	bool TimeFreeze()
+	{
+		return (!bNOTIMEFREEZE && (level.frozen || globalfreeze));
+	}
+	
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		RollAmt = frandom[rng](AutoRollMin, AutoRollMax);
+		if (AutoRollFlip)
+			RollAmt * frandompick[rng](-1.0, 1.0);
+		if (RandomRoll)
+			Roll = random[rng](0,359);
+	}
+	
+	override void Tick()
+	{
+		if (TimeFreeze())
+			return;
+		
+		if (bROLLSPRITE && RollAmt != 0.0)
+			A_SetRoll(Roll + RollAmt, SPF_INTERPOLATE);
+		Super.Tick();
+	}
+	
+	// Rotates the vector around (0,0,0). Like Earth orbiting the Sun.
+	static Vector3 RotateVector3D(Vector3 vec, double angle, double Pitch = -360.0)
+	{
+		Vector2 rot;
+		if (Pitch > -270.0)
+		{
+			rot = (vec.x, vec.z);
+			rot = RotateVector(rot, -Pitch);
+			vec = (rot.x, vec.y, rot.y);
+		}
+		rot = (vec.x, vec.y);
+		rot = RotateVector(rot, angle);
+		return (rot.x, rot.y, vec.z);
+	}
+}
+
 
 //---------------------------------------------------------------
 //---------------------------------------------------------------
@@ -27,11 +88,7 @@ Class D4RocketExplosion : Actor
 	States
 	{
 	Spawn:
-		X126 A 0 NoDelay 
-		{
-			A_SetRoll(random(0,359));
-			A_SpawnItemEx("D4RocketExplosionBloom",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERROLL|SXF_SETMASTER|SXF_TRANSFERTRANSLATION);
-		}
+		X126 A 0 NoDelay A_SetRoll(random(0,359));
 		X126 AA 1 Bright Light("YellowBigPoint3") A_SetScale(Scale.X+0.07);
 		X126 BB 1 Bright Light("YellowBigPoint3") A_SetScale(Scale.X+0.07);
 		X126 CC 1 Bright Light("YellowMediumPoint1") A_SetScale(Scale.X+0.07);

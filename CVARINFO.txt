@@ -19,7 +19,6 @@ server bool user_MonsterQuota = true;
 server bool user_SecretQuota = true;
 server int D4D_MenuMouseSpeed = 70;
 server bool D4D_CamRoll = true;
-server bool D4D_ArchvileInfighting = true;
 server bool D4D_BloodScreen = true;
 server int D4D_SSGGib = 1;	//0=none, 1=some, 2=all
 server int D4D_SyphonStrength = 2;
@@ -59,6 +58,14 @@ server bool D4D_NoisyStagger = true;
 server bool D4D_ExecutionAnimation = true;
 server int D4D_StaggerLenght = 4;
 server bool D4D_PitchCompat = true;
+
+server bool D4D_MonProjIntercept = false;
+//server float D4D_MonProjPercent = 100.0;
+//server float D4D_MonProjError = 0.0;
+
+server bool D4D_ResArchvile = false;
+server bool D4D_ResCyberdemon = false;
+server bool D4D_ResSpiderMastermind = false;
 
 server int LOfx = 0;
 server int LOfy = 0;

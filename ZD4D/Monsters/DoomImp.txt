@@ -157,6 +157,7 @@ Class D4DoomImp : D4AbstractMonster
 		}
 		Stop;
 	Raise:
+		---- A 0 PostResurrect();
 		ROAC MLKJI 8;
 		Goto See;
 	//------------------------------------------------------------------------
