@@ -638,7 +638,7 @@ Class D4HasteUpgrade1 : UpgradeItem				{ Default { UpgradeItem.Cost 11000; }}	//
 Class D4HasteUpgrade2 : UpgradeItem				{ Default { UpgradeItem.Cost 11000; }}	// Triple speed
 Class D4QuadUpgrade1 : UpgradeItem				{ Default { UpgradeItem.Cost 15000; }}	// Combine quad + berserk
 Class D4QuadUpgrade2 : UpgradeItem				{ Default { UpgradeItem.Cost 15000; 
-														DamageFactor "Normal", 5;	}}	// Penta damage
+														DamageFactor "Normal", 5.0;	}}	// Penta damage
 
 extend Class D4QuadUpgrade1
 {

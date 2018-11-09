@@ -118,6 +118,7 @@ Struct ItemsToSave
 
 Class Doom4Player : PlayerPawn
 {
+	const DashSpeed = 30.0;
 	const DamageDegree = 8;
 	const ZFlagCheck =	CLOFF_ALLOWNULL|CLOFF_SKIPTARGET|CLOFF_FROMBASE|
 							CLOFF_JUMPENEMY|CLOFF_JUMPFRIEND|CLOFF_JUMPOBJECT|
@@ -311,6 +312,12 @@ Class Doom4Player : PlayerPawn
 	// Overlay:			Dash Manager
 	// Deals with fast movement in a direction, horizontally.
 	//==========================================================================
+	Overlay.ResetDash:
+		M666 A 0
+		{
+			DashTimer = 0;
+			DashAngle = 0;
+		}
 	Overlay.DashManager:
 		M666 A 1
 		{
@@ -392,17 +399,22 @@ Class Doom4Player : PlayerPawn
 		M666 AAAAAA 1
 		{
 			double vz = Max(0.0, vel.z);
-			Vel3DFromAngle(30, DashAngle, 0);
+			Vel3DFromAngle(DashSpeed, DashAngle, 0);
 			vel.z = vz;
 		}
 		M666 A 1
 		{
 			StateLabel next = "Overlay.DashManager";
-			if (!bONMOBJ && pos.z > GetZAt() && !A_CheckBlock("Null",CBF_ABSOLUTEANGLE,AAPTR_DEFAULT,30,0,0,DashAngle) && !BlockingMobj)
+			
+			// If not teleported (xy will 0 out... I think), not on something 
+			// and not blocked, keep boosting the player in the direction.
+			if (Vel.XY != (0,0) &&
+				!bONMOBJ && (pos.z > GetZAt()) && 
+				!A_CheckBlock("Null",CBF_ABSOLUTEANGLE,AAPTR_DEFAULT,DashSpeed,0,0,DashAngle))
 			{
 				next = null;
 				double vz = vel.z;
-				Vel3DFromAngle(30, DashAngle, 0);
+				Vel3DFromAngle(DashSpeed, DashAngle, 0);
 				vel.z = vz;
 			}
 			return ResolveState(next);
@@ -1033,24 +1045,33 @@ extend class Doom4Player
 			inv.SavePercent = 100.0;
 		}
 		
-		if (source && source == self && CountInv("PowerD4QuadDamage"))
+		
+		
+		
+		/*
+		if ((source && source == self) ||
+			(inflictor && (inflictor == self || inflictor.target == self))
+			&& FindInventory("PowerDamage",true))
 		{
-			
-			damage *= 0.25;
+			damage *= CountInv("D4QuadUpgrade2") ? 0.20 : 0.25;
 		}
+		*/
+		
 		
 		// Handle Pentagram of Protection effects here. Pretty much a copy/pasta
 		// of the internal damage, including thrusting since it's needless to call
 		// P_DamageMobj.
 		if (bNODAMAGE || CountInv("CantTouchThis") ||
-			((damage < TELEFRAG_DAMAGE || bLAXTELEFRAGDMG) && 
+			(((damage < TELEFRAG_DAMAGE) || bLAXTELEFRAGDMG) && 
 			 (bINVULNERABLE || FindInventory("PowerInvulnerable",true))))
 		{
 			if (!(flags & DMG_NO_PROTECT))
 				damage = GetModifiedDamage(mod, damage, true);
 			if (!(flags & DMG_NO_FACTOR))
 				damage = ApplyDamageFactor(mod, damage);
-				
+			
+			flags |= (DMG_NO_PROTECT|DMG_NO_FACTOR);
+			
 			if (damage < 1 && (!inflictor || (!inflictor.bCAUSEPAIN && !bALLOWPAIN)))
 				return 0;
 				
@@ -1120,7 +1141,7 @@ extend class Doom4Player
 		else if (bLAXTELEFRAGDMG || (damage < TELEFRAG_DAMAGE))
 		{
 			// Reduce by 1% for every megasphere we've picked up.
-			// DoomDoll does not give this bonus.
+			// DoomDoll does not give this bonus. 
 			let inv = FindInventory("D4MegasphereDamageReducer");
 			if (inv)
 			{
@@ -1129,6 +1150,22 @@ extend class Doom4Player
 				{
 					double dmg = Max(0,damage * (1.0 - (0.01 * pc1)));
 					damage = int(floor(dmg));
+				}
+			}
+			
+			// If the player hurts himself, negate self damage by taking the
+			// enhanced damage and use that to divide the current damage.
+			// This gives us the amount to nuke the damage by, that way
+			// the internal function will kick it back up again.
+			if (damage > 0 && (
+				(source && source == self) ||
+				(inflictor && (inflictor == self || inflictor.target == self))))
+			{
+				int newdamage = GetModifiedDamage(mod, damage, false);
+				if (newdamage > damage)
+				{
+					double mul = double(damage) / double(Max(1.0,newdamage));
+					damage = int(floor(damage * mul));
 				}
 			}
 		}
