@@ -1267,9 +1267,10 @@ Class D4AbstractMissile : Actor
 			Tracer = Target.Target;
 		}
 		
-		if (Tracer && Tracer.Vel != (0,0,0) && GetCvar("D4D_MonProjIntercept"))
+		if (Tracer && Tracer.Vel != (0,0,0) && !Tracer.FindInventory("PowerInvisibility",true) && 
+			GetCvar("D4D_MonProjIntercept"))
 		{
-			A_Face(Tracer,0,0,0,0,FAF_MIDDLE);
+			
 			D4D_Intercept.InterceptActor(self, Tracer, true);
 			//VelIntercept(Tracer);
 		}
