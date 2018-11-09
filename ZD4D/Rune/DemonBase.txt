@@ -279,6 +279,19 @@ Class DemonPlayerBase : Doom4Player
 		}
 	}
 	
+	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
+	{
+		if (!bNODAMAGE && !bINVULNERABLE && !FindInventory("PowerInvulnerable",true))
+		{
+			if (damage < TELEFRAG_DAMAGE || bLAXTELEFRAGDMG)
+			{
+				if (mod == 'Fire' && !inflictor && !source)
+					return 0;
+			}
+		}
+		return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+	}
+	
 	// Skip the Doom4Player's version.
 	override void CheckJump()
 	{
@@ -556,6 +569,8 @@ Class DemonRuneBase : CustomInventory
 	
 	override bool TryPickup(in out Actor toucher)
 	{
+		if (toucher.FindInventory("PowerMorph",true))
+			return false;
 		PickerUpper = toucher;
 		return Super.TryPickup(toucher);
 	}
