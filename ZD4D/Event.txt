@@ -805,6 +805,33 @@ extend class D4DHandler
 		if (!mo || Tracker.Size() < 1)	return;
 		Tracker.Delete(Tracker.Find(mo));
 	}
+	
+	static void ConvertBerserkToQuad(D4DBerserk mo)
+	{
+		if (!mo)	return;
+		let quad = D4QuadDamage(Actor.Spawn("D4QuadDamage", mo.pos, ALLOW_REPLACE));
+		if (quad)
+		{
+			quad.ChangeTID(mo.TID);
+			quad.A_SetSpecial(mo.Special, mo.args[0], mo.args[1], mo.args[2], mo.args[3], mo.args[4]);
+			quad.A_ChangeCountFlags(FLAG_NO_CHANGE, mo.bCOUNTITEM, mo.bCOUNTSECRET);
+			quad.ObtainInventory(mo);
+			quad.Vel = mo.Vel;
+			quad.Angle = mo.Angle;
+			quad.Pitch = mo.Pitch;
+			quad.SpawnPoint = mo.SpawnPoint;
+			quad.ActivationType = mo.ActivationType;
+			quad.BlockingMobj = mo.BlockingMobj;
+			quad.BlockingLine = mo.BlockingLine;
+			quad.FloorZ = mo.FloorZ;
+			quad.CeilingZ = mo.CeilingZ;
+			quad.DropoffZ = mo.DropoffZ;
+			quad.Target = mo.Target;
+			quad.Master = mo.Master;
+			quad.Tracer = mo.Tracer;
+			mo.Destroy();
+		}
+	}
 }
 
 //------------------------------------------------------------------------------

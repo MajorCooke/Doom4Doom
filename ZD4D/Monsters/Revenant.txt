@@ -421,6 +421,7 @@ Class RevenantRocketSpinning : D4AbstractMissile
 	property Simple: simple;
 	Default 
 	{
+		D4AbstractMissile.FXVelMul 0.5;
 		RevenantRocketSpinning.Simple false;
 		Projectile;
 		Speed 25;
@@ -452,8 +453,11 @@ Class RevenantRocketSpinning : D4AbstractMissile
 		SWMS A 1 Bright Light("OrangeSmallPoint1")
 		{
 			A_Weave(2,2,1.0,1.0);
+			SpawnRocketFXSmall();
+			/*
 			A_SpawnItemEx("RocketGasTrail",-4,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 			A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+			*/
 			
 		}
 		Wait;
@@ -491,7 +495,8 @@ Class RevenantRocketSpinningSimple : RevenantRocketSpinning
 		SWMS A 1
 		{
 			A_Weave(2, 2, 1.0, 1.0);
-			A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION,192);
+			SpawnRocketFXSmall();
+			//A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION,192);
 		}
 		Wait;
 	Death:

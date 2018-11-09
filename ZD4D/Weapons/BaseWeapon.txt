@@ -1269,6 +1269,7 @@ Class D4AbstractMissile : Actor
 		
 		if (Tracer && Tracer.Vel != (0,0,0) && GetCvar("D4D_MonProjIntercept"))
 		{
+			A_Face(Tracer,0,0,0,0,FAF_MIDDLE);
 			D4D_Intercept.InterceptActor(self, Tracer, true);
 			//VelIntercept(Tracer);
 		}
@@ -1315,6 +1316,13 @@ Class D4AbstractMissile : Actor
 				SFX.Push(mo);
 			}
 		}
+	}
+	
+	virtual void SpawnRocketFXSmall()
+	{
+		bool g; Actor FX;
+		[g, FX] = A_SpawnItemEx("CDRocketFlare",-10,0,0,0,0,0,0,SXF_NOCHECKPOSITION, (HQ) ? 0 : 64);
+		if (FX)	FX.vel = vel * FXVelMul;
 	}
 	
 	virtual void DestroyFX()

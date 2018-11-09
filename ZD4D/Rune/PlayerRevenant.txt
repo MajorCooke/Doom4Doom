@@ -402,7 +402,7 @@ Class JetpackCooling : Inventory
 	}
 }
 
-Class PlayerRevRocket : Actor 
+Class PlayerRevRocket : D4AbstractMissilePlayer 
 {
 	int user_value1;
 	int user_value2;
@@ -411,6 +411,7 @@ Class PlayerRevRocket : Actor
 	
 	Default 
 	{
+		D4AbstractMissile.FXVelMul 0.5;
 		Projectile;
 		Speed 22;
 		Damage 15;
@@ -426,19 +427,10 @@ Class PlayerRevRocket : Actor
 	States
 	{
 	Spawn:
-		SWMS A 1 Bright Light("OrangeSmallPoint1")
+		SWMS A 1 Bright Light("RedSmallPoint1") 
 		{
 			A_Weave(random(0,2), random(0,2), frandom(0,2), frandom(0,2));
-			if (GetCvar("HQEffects"))
-			{
-				//A_SpawnItemEx("RocketGasTrail",-4,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketTrailSmokeSmaller",-5,random(5,-5),random(5,-5),0,0,0,0,SXF_NOCHECKPOSITION);	
-				A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-			}
-			else
-			{
-				A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION,128);
-			}
+			SpawnRocketFXSmall();
 		}
 		Wait;
 	Death:

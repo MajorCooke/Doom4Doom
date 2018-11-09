@@ -22,7 +22,7 @@ extend Class D4D_Intercept
 			
 		bool ret1; Vector3 ret2;
 		double len = Interceptor.Vel.Length();
-		[ret1, ret2] = D4D_Intercept.ShotPos(Interceptor.Pos, Intercepting.Pos + (0,0,Intercepting.Height), 
+		[ret1, ret2] = D4D_Intercept.ShotPos(Interceptor.Pos, Intercepting.Pos + (0,0,Intercepting.Height * 0.5), 
 											Intercepting.Vel, len);
 		
 		if (!ret1)

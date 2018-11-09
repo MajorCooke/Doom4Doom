@@ -306,6 +306,10 @@ Class ShotgunnerPlasmaBall : ZombiemanPlasmaBall // the only difference is the f
 		FastSpeed 36;
 		SeeSound "";
 	}
+	override void PostBeginPlay()
+	{
+		Actor.PostBeginPlay();
+	}
 	States
 	{
 	Spawn:

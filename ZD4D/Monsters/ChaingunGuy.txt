@@ -498,6 +498,10 @@ Class ChaingunnerPlasmaBall : ZombiemanPlasmaBall
 		FastSpeed 36;
 		SeeSound "";
 	}
+	override void PostBeginPlay()
+	{
+		Actor.PostBeginPlay();
+	}
 	States
 	{
 	Spawn:
