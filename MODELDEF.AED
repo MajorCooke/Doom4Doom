@@ -9,8 +9,16 @@ Model "D4DBeamBase"
 	Skin 0 "Graphics/BulletTex.png"
 	FrameIndex X202 B 0 0
 	
-	Skin 0 "Graphics/LtBmBlu1.png"
+	Skin 0 "LtBmBlu1"
 	FrameIndex X206 F 0 0
+	FrameIndex X206 G 0 0
+	FrameIndex X206 H 0 0
+	FrameIndex X206 I 0 0
+	FrameIndex X206 J 0 0
+	FrameIndex X206 K 0 0
+	FrameIndex X206 L 0 0
+	FrameIndex X206 M 0 0
+	/*
 	Skin 0 "LtBmBlu2"
 	FrameIndex X206 G 0 0
 	Skin 0 "LtBmBlu3"
@@ -25,6 +33,7 @@ Model "D4DBeamBase"
 	FrameIndex X206 L 0 0
 	Skin 0 "LtBmBlu8"
 	FrameIndex X206 M 0 0
+	*/
 }
 
 //------------------------------------------------------------------------------
@@ -169,21 +178,14 @@ Model "LightningBeamPrimary"
 	USEACTORPITCH
 	
 	Model 0 "Models/BeamOffset8.md3"
-	Skin 0 "Graphics/LtBmBlu1.png"
+	Skin 0 "LtBmBlu1"
 	FrameIndex X206 F 0 0
-	Skin 0 "LtBmBlu2"
 	FrameIndex X206 G 0 0
-	Skin 0 "LtBmBlu3"
 	FrameIndex X206 H 0 0
-	Skin 0 "LtBmBlu4"
 	FrameIndex X206 I 0 0
-	Skin 0 "LtBmBlu5"
 	FrameIndex X206 J 0 0
-	Skin 0 "LtBmBlu6"
 	FrameIndex X206 K 0 0
-	Skin 0 "LtBmBlu7"
 	FrameIndex X206 L 0 0
-	Skin 0 "LtBmBlu8"
 	FrameIndex X206 M 0 0
 }
 
@@ -195,22 +197,16 @@ Model "NewLightningBeamPrimary"
 	USEACTORPITCH
 	
 	Model 0 "Models/BeamOffset8.md3"
-	Skin 0 "Graphics/LtBmBlu1.png"
+	Skin 0 "LtBmBlu1"
 	FrameIndex X206 F 0 0
-	Skin 0 "LtBmBlu2"
 	FrameIndex X206 G 0 0
-	Skin 0 "LtBmBlu3"
 	FrameIndex X206 H 0 0
-	Skin 0 "LtBmBlu4"
 	FrameIndex X206 I 0 0
-	Skin 0 "LtBmBlu5"
 	FrameIndex X206 J 0 0
-	Skin 0 "LtBmBlu6"
 	FrameIndex X206 K 0 0
-	Skin 0 "LtBmBlu7"
 	FrameIndex X206 L 0 0
-	Skin 0 "LtBmBlu8"
 	FrameIndex X206 M 0 0
+	
 }
 //------------------------------------------------------------------------------
 Model "BFGBeam"
@@ -221,21 +217,14 @@ Model "BFGBeam"
 	USEACTORPITCH
 	
 	Model 0 "Models/BeamOffset8.md3"
-	Skin 0 "Graphics/LtBmBlu1.png"
+	Skin 0 "LtBmBlu1"
 	FrameIndex X206 F 0 0
-	Skin 0 "LtBmBlu2"
 	FrameIndex X206 G 0 0
-	Skin 0 "LtBmBlu3"
 	FrameIndex X206 H 0 0
-	Skin 0 "LtBmBlu4"
 	FrameIndex X206 I 0 0
-	Skin 0 "LtBmBlu5"
 	FrameIndex X206 J 0 0
-	Skin 0 "LtBmBlu6"
 	FrameIndex X206 K 0 0
-	Skin 0 "LtBmBlu7"
 	FrameIndex X206 L 0 0
-	Skin 0 "LtBmBlu8"
 	FrameIndex X206 M 0 0
 }
 
@@ -504,7 +493,7 @@ Model "SNLightningBeam"
 	USEACTORPITCH
 	
 	// Blue
-	Skin 0 "Graphics/LtBmBlu1.png"
+	Skin 0 "LtBmBlu1"
 	FrameIndex LNBB A 0 0
 	Skin 0 "LtBmBlu2"
 	FrameIndex LNBB B 0 0
