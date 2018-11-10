@@ -181,10 +181,11 @@ Class D4AbstractMonster : Actor
 		if (rng <= 200)	return 1;
 		return 0;
 	}
-	int SetupPowerLevel(int amt = -1)
+	int SetupPowerLevel(int amt = -1, bool nochange = false)
 	{	
 		int PrevAmt = CountInv("D4MonsterUpgrader");
-		if (amt < 0) amt = ChoosePowerLevel();
+		if (nochange) amt = PrevAmt;
+		else if (amt < 0) amt = ChoosePowerLevel();
 		
 		A_SetInventory("D4MonsterUpgrader",Max(0,amt));
 			
@@ -199,7 +200,7 @@ Class D4AbstractMonster : Actor
 			if (hp <= 200) 	amp += 1;
 			if (hp <= 100) 	amp += 1;
 			A_SetHealth(hp * amp);
-			Mass *= (amt + 1);
+			Mass = Default.Mass * (amt + 1);
 		}
 		Name suffix = PowerColor;
 		Switch(amt)
@@ -207,7 +208,10 @@ Class D4AbstractMonster : Actor
 			Default: 
 			{
 				if (PrevAmt > 0 && amt < 1)
+				{
 					Translation = Default.Translation;
+					BC = Default.BC;
+				}
 				return amt;
 			}
 			Case 1:	suffix = suffix.."_Green";	BC = "Green";	break;
@@ -224,7 +228,7 @@ Class D4AbstractMonster : Actor
 	
 	void PostResurrect()
 	{
-		SetupPowerLevel();
+		SetupPowerLevel(-1, true);
 		if (bFRIENDLY)
 		{
 			for (int i = 0; i < MAXPLAYERS; i++)
