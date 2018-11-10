@@ -4,9 +4,16 @@
 
 enum EArcAimFlags
 {
-	AAF_LOWESTSPEED = 1,
-	AAF_RESTOREANGLEPITCH,
-};
+	AAF_LOWESTSPEED = 		1,
+	AAF_RESTOREANGLEPITCH = 1 << 1,
+}
+
+enum EInterceptActorFlags
+{
+	IAF_AIM = 		1,			// Aim the Interceptor at the Intercepting's predicted position
+	IAF_CLIPZ = 	1 << 1,		// Force the predicted Z position to range [floorz, ceilingz]
+}
+
 extend Class D4D_Intercept
 {
 	//==========================================================================
@@ -15,7 +22,7 @@ extend Class D4D_Intercept
 	// A simple wrapper function for ShotPos in Intercept.txt to make it easy 
 	// for passing in two actors and letting it deal with the rest.
 	//==========================================================================
-	static bool, Vector3 InterceptActor(Actor Interceptor, Actor Intercepting, bool Aim = false, double Accuracy = 100.0)
+	static bool, Vector3 InterceptActor(Actor Interceptor, Actor Intercepting, int Flags = 0, double Accuracy = 100.0)
 	{
 		if (!Interceptor || !Intercepting || Intercepting.Vel == (0,0,0))
 			return false, (double.NaN, double.NaN, double.NaN);
@@ -28,29 +35,48 @@ extend Class D4D_Intercept
 		if (!ret1)
 			return ret1, ret2;
 		
-		if (Aim)
+		// Keep accuracy clamped between 0-100%. Don't bother aiming if it is 0,
+		// however.
+		Accuracy = Clamp(Accuracy, 0.0, 100.0);
+		if ((Flags & IAF_AIM) && Accuracy > 0.0)
 		{
-			Accuracy = Clamp(Accuracy, 0.0, 100.0);
-			if (Accuracy > 0.0)
+			// Adjust the predicted Z position to be no lower than the floor
+			// and no higher than the ceiling.
+			if ((Flags & IAF_CLIPZ) && Intercepting.Vel.Z != 0.0)
 			{
-				Vector2 Prev = (Interceptor.Angle, Interceptor.Pitch);
-				Vector3 Calc = level.Vec3Diff(Interceptor.pos, ret2);
-				Vector2 Next = (VectorAngle(Calc.X, Calc.Y), -VectorAngle(Calc.XY.Length(), Calc.Z));
-				
-				if (Accuracy < 100.0)
+				Vector2 check = ret2.XY;
+				Sector s = Sector.PointInSector(check);
+				if (s)
 				{
-					Interceptor.Angle = D4D_GlobalMaths.LerpDouble(Prev.X, Next.X, Accuracy * 0.01);
-					Interceptor.Pitch = D4D_GlobalMaths.LerpDouble(Prev.Y, Next.Y, Accuracy * 0.01);
+					double Highest = s.HighestCeilingAt(check);
+					double Lowest = s.LowestFloorAt(check);
+					double AimHeight = Intercepting.Height * 0.5;
+					if (Highest > (Lowest + AimHeight))
+					{
+						if (ret2.Z > (Highest - AimHeight))	ret2.Z = Highest - AimHeight;
+						if (ret2.Z < (Lowest + AimHeight))	ret2.Z = Lowest + AimHeight;
+					}
 				}
-				else
-				{
-					Interceptor.Angle = Next.X;
-					Interceptor.Pitch = Next.Y;
-				}
-				Interceptor.Vel3DFromAngle(len, Interceptor.Angle, Interceptor.Pitch);
 			}
+			
+			// Now calculate the angle and pitch to face the spot.
+			Vector2 Prev = (Interceptor.Angle, Interceptor.Pitch);
+			Vector3 Calc = level.Vec3Diff(Interceptor.pos, ret2);
+			Vector2 Next = (VectorAngle(Calc.X, Calc.Y), -VectorAngle(Calc.XY.Length(), Calc.Z));
+			
+			if (Accuracy < 100.0)
+			{
+				Accuracy *= 0.01;
+				Interceptor.Angle = D4D_GlobalMaths.LerpUnclampedDouble(Prev.X, Next.X, Accuracy);
+				Interceptor.Pitch = D4D_GlobalMaths.LerpUnclampedDouble(Prev.Y, Next.Y, Accuracy);
+			}
+			else
+			{
+				Interceptor.Angle = Next.X;
+				Interceptor.Pitch = Next.Y;
+			}
+			Interceptor.Vel3DFromAngle(len, Interceptor.Angle, Interceptor.Pitch);
 		}
-		
 		return ret1, ret2;
 	}
 	//==========================================================================

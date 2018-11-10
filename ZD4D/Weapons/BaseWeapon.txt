@@ -1271,7 +1271,7 @@ Class D4AbstractMissile : Actor
 			GetCvar("D4D_MonProjIntercept"))
 		{
 			
-			D4D_Intercept.InterceptActor(self, Tracer, true);
+			D4D_Intercept.InterceptActor(self, Tracer, IAF_AIM|IAF_CLIPZ);
 			//VelIntercept(Tracer);
 		}
 		
