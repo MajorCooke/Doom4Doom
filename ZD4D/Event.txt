@@ -174,9 +174,10 @@ extend class D4DHandler
 			// Go through the lists
 			int i = 0;
 			for (i = 0; i < Monsters.Size(); i++)		if (!Monsters[i])		{	Monsters.Delete(i); i--;		}
+			for (i = 0; i < DeadMonsters.Size(); i++)	if (!DeadMonsters[i])	{	DeadMonsters.Delete(i); i--;	}
 			for (i = 0; i < Beams.Size(); i++)			if (!Beams[i])			{	Beams.Delete(i); i--;			}
 			for (i = 0; i < Tracker.Size(); i++) 		if (!Tracker[i])		{	Tracker.Delete(i); i--;			}
-			for (i = 0; i < DeadMonsters.Size(); i++)	if (!DeadMonsters[i])	{	DeadMonsters.Delete(i); i--;	}
+			
 			
 			Monsters.ShrinkToFit();
 			Beams.ShrinkToFit();

@@ -676,10 +676,7 @@ Class CyberdemonRocket : D4AbstractMissile
 			DestroyFX();
 			bNOINTERACTION = true;
 			A_Explode(128,128);	//deals good damage to player. But less than vanilla's doom
-			if(GetCvar("D4D_quakexplosions")==1)
-			{
-				A_QuakeEx(2,2,2,15,0,256,"",QF_SCALEDOWN,0,0,0,1);
-			}
+			A_QuakeEx(2,2,2,15,0,256,"",QF_SCALEDOWN,0,0,0,1);			
 			
 			if (HQ)
 			{

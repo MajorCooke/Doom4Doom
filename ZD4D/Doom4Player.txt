@@ -1046,18 +1046,6 @@ extend class Doom4Player
 		}
 		
 		
-		
-		
-		/*
-		if ((source && source == self) ||
-			(inflictor && (inflictor == self || inflictor.target == self))
-			&& FindInventory("PowerDamage",true))
-		{
-			damage *= CountInv("D4QuadUpgrade2") ? 0.20 : 0.25;
-		}
-		*/
-		
-		
 		// Handle Pentagram of Protection effects here. Pretty much a copy/pasta
 		// of the internal damage, including thrusting since it's needless to call
 		// P_DamageMobj.

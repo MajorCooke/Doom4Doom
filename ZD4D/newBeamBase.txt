@@ -74,7 +74,7 @@ Class D4DNewBeamBase : Actor
 				
 			if (UseDeathState)
 			{
-				if (Child)		Child.Die(null, null);
+				if (Child)		Child.Die(source, inflictor, dmgflags, MeansOfDeath);
 				SetState(ResolveState("Death"));
 			}
 			else	{ 	Destroy(); return;	}
@@ -216,7 +216,7 @@ Class D4DNewBeamBase : Actor
 			}
 			
 			if (Tracer)
-				Scale.Y = Distance3D(Tracer) * 0.01;
+				Scale.Y = sqrt(Dist) * 0.01;
 		}
 	}
 	
