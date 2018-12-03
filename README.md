@@ -45,7 +45,7 @@ These rules are for contributing directly towards Doom4Doom via pull requests.
   * While I do have the email system set up, sometimes I miss the notification from being gone. 
 
 # Requirements
-GZDoom 3.5.x
+GZDoom latest release
 
 # Changes
 See the Changelog inside the Docs tab for the most up-to-date changes.
