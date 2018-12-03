@@ -514,6 +514,7 @@ Class Doom4Player : PlayerPawn
 				if (gren)
 				{
 					gren.A_PlaySound("Doom4/Weapon/Grenade/ThrowGren",5);
+					gren.master = self;
 					gren.target = self;
 					gren.angle = angle;
 					gren.Vel3DFromAngle(gren.speed, angle, pitch);

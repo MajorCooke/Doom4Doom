@@ -702,7 +702,14 @@ Class PowerRuneBase : PowerMorph
 	}
 	override void EndEffect()
 	{
-		if (Owner)	Owner.A_SetInventory("D4MonsterUpgrader",0);
+		if (Owner)	
+		{
+			Owner.A_SetInventory("D4MonsterUpgrader",0);
+			if (Owner.Alternative)
+				Owner.Alternative.A_GiveInventory("Invul3s");
+			else
+				Owner.A_GiveInventory("Invul3s");
+		}
 		Super.EndEffect();
 	}
 }
@@ -916,7 +923,6 @@ Class HealthArmorRestorer : CustomInventory
 	Pickup:
 		TNT1 A 0 
 		{
-			A_GiveInventory("Invul3s");
 			A_SetHealth(CountInv("DHealthCount",Player1));
 			
 			int armcount = CountInv("DArmorCount");
