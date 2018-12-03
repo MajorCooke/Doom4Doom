@@ -73,6 +73,7 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 		PainChance "GloryKill", 255;
 		WoundHealth 20;
 		+DOHARMSPECIES
+		Tag "Hell Razor";
 	}
 	States
 	{
@@ -186,9 +187,9 @@ Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
 		}
 		Stop;
 	Raise:
-		---- A 0 PostResurrect();
-		HRZR M 3;
+		HRZR M 3 DoResurrect();
 		HRZR LKJI 3;
+		---- A 0 DoResurrect(1);
 		Goto See;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states
@@ -319,12 +320,13 @@ Class D4SergeantShield : D4AbstractMonster
 		DeathSound "chainguy/death";
 		ActiveSound "chainguy/active";
 		AttackSound "chainguy/attack";
-		Obituary "$OB_CHAINGUY";
+		Obituary "%o was pummeled by a possessed sergeant.";
 		Dropitem "ChaingunAmmoOrWep";
 		DamageFactor "PlasmaExploder", 0.3;	//because otherwise, zombiemen would be killing everyone else easily
 		PainChance "StunBomb", 255;
 		PainChance "GloryKill", 255;
 		WoundHealth 20;
+		Tag "Possessed Sergeant";
 	}
 	
 	void A_PlasmaAttack()
@@ -360,9 +362,9 @@ Class D4SergeantShield : D4AbstractMonster
 		CPOS G 3 A_Pain();
 		Goto See;
 	Raise:
-		---- A 0 PostResurrect();
-		CPOS N 5;
+		CPOS N 5 DoResurrect();
 		CPOS MLKJIH 5;
+		---- A 0 DoResurrect(1);
 		Goto See;
 		
 	Pain.StunBomb:

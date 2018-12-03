@@ -66,9 +66,10 @@ Class D4Archvile : D4AbstractBiggie
 		MeleeSound "vile/Stop";
 		Obituary "$OB_VILE";
 		MeleeRange 256;
-		PainChance "GloryKill", 255;
 		WoundHealth 150;
+		PainChance "GloryKill", 255;
 		PainChance "StunBomb", 255;
+		Tag "Summoner";
 	}
 	States
 	{
@@ -222,9 +223,9 @@ Class D4Archvile : D4AbstractBiggie
 		Goto DeathStateCheck;
 		
 	Raise:
-		---- A 0 PostResurrect();
-		DIAB ZYXWVUTSRQ 8 { bNOPAIN = true; }
-		---- A 0 { bNOPAIN = false; }
+		---- A 0 DoResurrect(0);
+		DIAB ZYXWVUTSRQ 8;
+		---- A 0 DoResurrect(1);
 		Goto See;
 
 	GloryEnd:

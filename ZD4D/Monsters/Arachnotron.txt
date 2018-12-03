@@ -60,6 +60,7 @@ Class D4Arachnotron : D4AbstractBiggie // : Arachnotron	//to be edited
 		PainChance "GloryKill", 255;
 		WoundHealth 100;
 		Radius 48;
+		Tag "Arachnotron";
 	}
 	States
 	{
@@ -136,9 +137,9 @@ Class D4Arachnotron : D4AbstractBiggie // : Arachnotron	//to be edited
 		
 		Stop;
     Raise:
-		---- A 0 PostResurrect();
-		ARAC P 5;
+		ARAC P 5 DoResurrect(0);
 		ARAC ONMLKJ 5;
+		---- A 0 DoResurrect(1);
 		Goto See+1;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states

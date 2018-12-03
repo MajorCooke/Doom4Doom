@@ -65,6 +65,7 @@ Class D4ShotgunGuy : D4AbstractMonster
 		PainChance "GloryKill", 255;
 		WoundHealth 10;
 		Scale 0.93;
+		Tag "Possessed Lieutenant";
 	}
 	States
 	{
@@ -200,9 +201,9 @@ Class D4ShotgunGuy : D4AbstractMonster
 		}
 		Stop;
 	Raise:
-		---- A 0 PostResurrect();
-		BBRG NML 3;
-		BBRG KJIH 3;
+		BBRG N 3 DoResurrect();
+		BBRG MLKJIH 3;
+		---- A 0 DoResurrect(1);
 		Goto See;
 		
 	//------------------------------------------------------------------------

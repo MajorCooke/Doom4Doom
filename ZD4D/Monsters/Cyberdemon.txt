@@ -89,6 +89,7 @@ Class D4Cyberdemon : D4AbstractBoss
 		DamageFactor "BFGExploder", 0.0;
 		PainChance "GloryKill", 255;
 		WoundHealth 150;
+		Tag "Cyberdemon";
 	}
 	
 	override void PostBeginPlay()
@@ -307,9 +308,9 @@ Class D4Cyberdemon : D4AbstractBoss
 		Goto DeathStateCheck;
 		
 	Raise:
-		---- A 0 PostResurrect();
-		CYBR ONMLKJIH 10 { bNOPAIN = true; }
-		---- A 0 { bNOPAIN = false; }
+		CYBR O 10 DoResurrect();
+		CYBR NMLKJIH 10;
+		---- A 0 DoResurrect(1);
 		Goto See;
 		
 	GloryEnd:

@@ -65,6 +65,7 @@ Class D4Revenant : D4AbstractBiggie
 		PainChance "StunBomb", 255;
 		PainChance "GloryKill", 255;
 		WoundHealth 80;
+		Tag "Revenant";
 	}
 	
 	States
@@ -233,9 +234,9 @@ Class D4Revenant : D4AbstractBiggie
 		}
 		Stop;
 	Raise:
-		---- A 0 PostResurrect();
-		SKEL Q 5;
+		SKEL Q 5 DoResurrect();
 		SKEL PONML 5;
+		---- A 0 DoResurrect(1);
 		Goto See;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states

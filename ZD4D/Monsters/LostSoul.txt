@@ -68,6 +68,7 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 		+DONTCORPSE
 		//Cash drops = 1
 		DropItem "C1";
+		Tag "Lost Soul";
 	}
 	override int ChoosePowerLevel() { return 0; }
 	override void Tick()

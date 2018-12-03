@@ -64,6 +64,7 @@ Class D4FatsoTech : D4AbstractBiggie
 		Species "Fatty";
 		PainChance "GloryKill", 255;
 		WoundHealth 120;
+		Tag "Cyber Mancubus";
 	}
 	States
 	{
@@ -205,9 +206,9 @@ Class D4FatsoTech : D4AbstractBiggie
 		}
 		Stop;
 	 Raise:
-		---- A 0 PostResurrect();
-		FATT R 5;
+		FATT R 5 DoResurrect();
 		FATT QPONMLK 5;
+		---- A 0 DoResurrect(1);
 		Goto See;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states
@@ -623,6 +624,7 @@ Class D4FatsoHell : D4AbstractBiggie
 		Species "Fatty";
 		PainChance "GloryKill", 255;
 		WoundHealth 120;
+		Tag "Flame Mancubus";
 	}
 	States
 	{
@@ -794,9 +796,9 @@ Class D4FatsoHell : D4AbstractBiggie
 		}
 		Stop;
 	 Raise:
-		---- A 0 PostResurrect();
-		FAT2 R 5;
+		FAT2 R 5 DoResurrect();
 		FAT2 QPONMLK 5;
+		---- A 0 DoResurrect(1);
 		Goto See;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states

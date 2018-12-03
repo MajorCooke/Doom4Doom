@@ -61,6 +61,7 @@ Class D4Cacodemon : D4AbstractBiggie
 		PainChance "GloryKill", 255;
 		WoundHealth 80;
 		BloodColor "Blue";
+		Tag "Cacodemon";
 	}
 	States
 	{
@@ -147,9 +148,10 @@ Class D4Cacodemon : D4AbstractBiggie
 		Stop;
 		
 	Raise:
-		---- A 0 PostResurrect();
+		---- A 0 DoResurrect();
 		CAC2 L 8 A_UnSetFloorClip();
 		CAC2 KJIHG 8;
+		---- A 0 DoResurrect(1);
 		Goto See;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states

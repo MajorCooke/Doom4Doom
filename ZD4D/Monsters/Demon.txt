@@ -67,6 +67,7 @@ Class D4Demon : D4AbstractMonster
 		Scale 0.75;
 		PainChance "GloryKill", 255;
 		WoundHealth 50;
+		Tag "Pinky";
 	}
 	
 	// Mitigate the damage if attack is originating from the front half, and only if
@@ -201,9 +202,9 @@ Class D4Demon : D4AbstractMonster
 		}
 		Stop;
 	Raise:
-		---- A 0 PostResurrect();
-		D4DG N 5;
+		D4DG N 5 DoResurrect();
 		D4DG MLKJI 5;
+		---- A 0 DoResurrect(1);
 		Goto See;
 		
 		

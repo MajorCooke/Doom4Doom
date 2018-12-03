@@ -24,13 +24,13 @@ BLESSED (White)
 * 
 */
 
-Class D4OldWolfensteinSS : D4AbstractMonster replaces WolfensteinSS // : WolfensteinSS replaces WolfensteinSS
+// Prophesized to rule for a millenium, they only lasted for a decade+.
+Class D4OldWolfensteinSS : D4AbstractMonster replaces WolfensteinSS
 {
-	
-	Default 
+	Default
 	{
 		D4AbstractMonster.CrateDropAlways 1; //Intentional. Secret is secret.
-		D4AbstractMonster.CashAmount 40;
+		D4AbstractMonster.CashAmount 100;
 		Health 50;
 		Radius 20;
 		Height 56;
@@ -38,16 +38,16 @@ Class D4OldWolfensteinSS : D4AbstractMonster replaces WolfensteinSS // : Wolfens
 		PainChance 170;
 		Monster;
 		+FLOORCLIP
+		+DONTCORPSE
 		SeeSound "wolfss/sight";
 		PainSound "wolfss/pain";
 		DeathSound "wolfss/death";
 		ActiveSound "wolfss/active";
 		AttackSound "wolfss/attack";
-		Obituary "$OB_WOLFSS";
+		Obituary "%o fell victim to the cruelty of the Millenium.";
 		Dropitem "Clip";
-		
-		+DONTCORPSE
 		PainChance "StunBomb", 255;
+		Tag "Millenium Soldier";
 	}
 	States
 	{
@@ -70,10 +70,10 @@ Class D4OldWolfensteinSS : D4AbstractMonster replaces WolfensteinSS // : Wolfens
 		SSWV H 3 A_Pain();
 		Goto See;
 	Raise:
-		---- A 0 PostResurrect();
-		SSWV M 5;
+		SSWV M 5 DoResurrect();
 		SSWV LKJI 5;
-		Goto See ;
+		---- A 0 DoResurrect(1);
+		Goto See;
 		
 	Pain.StunBomb:
 		SSWV H 0 { bNoPain = true; }

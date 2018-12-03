@@ -106,6 +106,7 @@ Class D4SpiderMastermind : D4AbstractBoss
 		DamageFactor "CyberdemonFireWave", 0.2;	//for if there's infight, otherwise cyberdemons rape this guy so easily
 		PainChance "GloryKill", 255;
 		WoundHealth 150;
+		Tag "Spider Mastermind";
 	}
 	States
 	{
@@ -296,8 +297,9 @@ Class D4SpiderMastermind : D4AbstractBoss
 		Goto DeathStateCheck;
 		
 	Raise:
-		SPID SRQPONMLJI 10 { bNOPAIN = true; }
-		---- A 0 { bNOPAIN = false; }
+		---- A 0 DoResurrect();
+		SPID SRQPONMLJI 10;
+		---- A 0 DoResurrect(1);
 		Goto Spawn;
 		
 	GloryEnd:

@@ -60,6 +60,7 @@ Class D4DoomImp : D4AbstractMonster
 		PainChance "StunBomb", 255;
 		PainChance "GloryKill", 255;
 		WoundHealth 20;
+		Tag "Imp";
 	}
 	States
 	{
@@ -157,8 +158,9 @@ Class D4DoomImp : D4AbstractMonster
 		}
 		Stop;
 	Raise:
-		---- A 0 PostResurrect();
-		ROAC MLKJI 8;
+		ROAC M 8 DoResurrect();
+		ROAC LKJI 8;
+		---- A 0 DoResurrect(1);
 		Goto See;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states

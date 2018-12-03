@@ -1251,9 +1251,16 @@ Class D4AbstractMissile : Actor
 		D4AbstractMissile.FXVelMul 0.5;
 	}
 	
+	override void BeginPlay()
+	{
+		SFX.Clear();
+		Timer = 0;
+		Super.BeginPlay();
+	}
+	
 	override void PostBeginPlay()
 	{
-		HQ = GetCvar("HQEffects");		
+		HQ = GetCvar("HQEffects");
 		if (Target)
 		{
 			if (Target.bISMONSTER)
@@ -1278,41 +1285,47 @@ Class D4AbstractMissile : Actor
 		Super.PostBeginPlay();
 	}
 	
+	void ClearNulls()
+	{
+		int OldSize = SFX.Size();
+		for (int i = 0; i < SFX.Size(); i++)
+		{
+			if (!SFX[i])
+			{	SFX.Delete(i);	i--;	}
+		}
+		if (OldSize != SFX.Size())
+			SFX.ShrinkToFit();
+	}
+	
+	// Clean out the array every second of all non-existant actors, conserving
+	// memory.
 	override void Tick()
 	{
 		Timer = (Timer + 1) % ClearDelay;
 		if (Timer < 1 && SFX.Size() > 0)
-		{
-			int OldSize = SFX.Size();
-			for (int i = 0; i < SFX.Size(); i++)
-			{
-				if (!SFX[i])
-				{
-					SFX.Delete(i);
-					i--;
-				}
-			}
-			if (OldSize != SFX.Size())
-				SFX.ShrinkToFit();
-		}
+			ClearNulls();
 		Super.Tick();
 	}
 	
+	// Spawns rocket fire and smoke. Smoke is not tracked because it doesn't fly
+	// through walls, but the fire can.
 	virtual void SpawnRocketFX()
 	{
-		bool g;	Actor FX[2];
-		for (int i = 0; i < FX.Size(); i++)	FX[i] = null;
+		// Remember kids! Function-local variables need initializing!
+		bool g[2];	Actor FX[2];
+		for (int i = 0; i < FX.Size(); i++)	{	FX[i] = null;	g[i] = false; }
+		
 		if (HQ)
 		{
-			[g, FX[0]] = A_SpawnItemEx("D4RocketTrailFire1",-10,0,0,0,frandom(0.3,-0.3),frandom(0.3,-0.3),0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
+			[g[0], FX[0]] = A_SpawnItemEx("D4RocketTrailFire1",-10,0,0,0,frandom(0.3,-0.3),frandom(0.3,-0.3),0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
 			A_SpawnItemEx("D4RocketTrailSmoke",-5,random(5,-5),random(5,-5),0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
 		}
-		[g, FX[1]] = A_SpawnItemEx("D4RocketTrailFire2",-15,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
+		[g[1], FX[1]] = A_SpawnItemEx("D4RocketTrailFire2",-15,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
 		
 		for (int i = 0; i < FX.Size(); i++)
 		{
 			Actor mo = FX[i];
-			if (mo)
+			if (g[i] && mo)
 			{
 				mo.vel = vel * FXVelMul;
 				SFX.Push(mo);
@@ -1322,11 +1335,12 @@ Class D4AbstractMissile : Actor
 	
 	virtual void SpawnRocketFXSmall()
 	{
-		bool g; Actor FX;
-		[g, FX] = A_SpawnItemEx("CDRocketFlare",-15,0,0,0,0,0,0,SXF_NOCHECKPOSITION, (HQ) ? 0 : 64);
-		if (FX)	FX.vel = vel * FXVelMul;
+		bool good; Actor FX;
+		[good, FX] = A_SpawnItemEx("CDRocketFlare",-15,0,0,0,0,0,0,SXF_NOCHECKPOSITION, (HQ) ? 0 : 64);
+		if (good && FX)	FX.vel = vel * FXVelMul;
 	}
 	
+	// Removes all recorded SFX>
 	virtual void DestroyFX()
 	{
 		for (int i = 0; i < SFX.Size(); i++)

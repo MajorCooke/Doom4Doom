@@ -70,6 +70,7 @@ Class D4BaronOfHell : D4AbstractBiggie
 		PainChance "StunBomb", 255;
 		PainChance "GloryKill", 255;
 		WoundHealth 150;
+		Tag "Baron of Hell";
 	}
 	
 	void BaronFlame(bool big, int count, Vector3 sp = (0,0,0), Vector3 vp = (0,0,0), double ang = 0)
@@ -476,9 +477,9 @@ Class D4BaronOfHell : D4AbstractBiggie
 		Stop;
 		
 	Raise:
-		---- A 0 PostResurrect();
-		E01D I 3;
+		E01D I 3 DoResurrect();
 		E01D HGFEDCBA 3;
+		---- A 0 DoResurrect(1);
 		Goto See;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states

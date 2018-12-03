@@ -79,6 +79,17 @@ Class D4AbstractMonster : Actor
 		oldLeap = false;
 	}
 	
+	void DoResurrect(int stage = 0)
+	{
+		if (stage == 0)
+			bNOPAIN = true;
+		else
+		{
+			PostResurrect();
+			bNOPAIN = false;
+		}
+	}
+	
 	bool CheckResurrectable()
 	{
 		return (ResurrectCvar != '' && GetCvar(ResurrectCvar));

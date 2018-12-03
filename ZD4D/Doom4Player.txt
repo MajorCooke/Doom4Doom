@@ -323,9 +323,10 @@ Class Doom4Player : PlayerPawn
 		{
 			if (!player)	return ResolveState("Null");
 			
-			DashForward = DashSide = DashAngle = 0;
+			DashAngle = 0;
 			if (!CountInv("D4Dash"))
 			{
+				DashTimer = 1;
 				A_OverlayFlags(OverlayID(), PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
 				A_SetTics(17);
 				return ResolveState(null);
@@ -377,6 +378,7 @@ Class Doom4Player : PlayerPawn
 					{
 						return ResolveState(null);
 					}
+					
 					// Finally, check to make sure our desired angle isn't already
 					// going the speed of stupid - NASCAR style. =B
 					if (Vel.XY.Length() > 30.0)
@@ -425,15 +427,14 @@ Class Doom4Player : PlayerPawn
 	// Deals with grenades, flame thrower, etc.
 	//==========================================================================
 	Overlay.UtilityManager:
-		M201 A 1
+		M666 A 1
 		{
 			let plr = player;
 			if (!plr)	return ResolveState("Null");
 			
 			bool ThrowGrenade = (plr.cmd.buttons & BT_RELOAD) && !(plr.oldbuttons & BT_RELOAD);
-			int MaxAmt = 0;
 			let inv = GetDefaultByType("GrenadeCharge");
-			MaxAmt = inv.MaxAmount;
+			int MaxAmt = inv.MaxAmount;
 			
 			int OID = OverlayID();
 			A_OverlayFlags(OID, PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
@@ -478,35 +479,36 @@ Class Doom4Player : PlayerPawn
 			return ResolveState(null);
 		}
 		Loop;
-	DeployCannon:
+	DeployCannon: // Extend the cannon into view.
 		M201 A 1 
 		{
 			int OID = OverlayID();
 			double divisor = 2.0;
 			double offx = (CannonArmX / divisor);
-			double offy = (CannonArmY / divisor);
+			
 			if (OverlayX(OID) + offx >= 0)
-			{
 				return ResolveState("LaunchGrenade");
-			}
+			
+			
+			double offy = (CannonArmY / divisor);
 			A_OverlayOffset(OID, offx, offy, WOF_ADD|WOF_INTERPOLATE);
 			return ResolveState(null);
 		}
 		Wait;
-	LaunchGrenade:
+	LaunchGrenade: // Lob the grenade.
 		M201 A 12
 		{
-			int OID = OverlayID();
-			A_OverlayOffset(OID, 0, 0, WOF_INTERPOLATE);
+			A_OverlayOffset(OverlayID(), 0, 0, WOF_INTERPOLATE);
 			if (GrenadeToFire)
 			{
-				let inv = GetDefaultByType("GrenadeCharge");
-				int Amt = inv.MaxAmount;
-				A_TakeInventory("GrenadeCharge", Amt, 0);
-			//	A_FireProjectile(GrenadeToFire, 0, false, -8, 6);
 				Vector3 px, py, pz, origin;
+				double OffsetForward = -1.0;
+				double OffsetRight = -15.0;
+				double OffsetUp = 5.0;
 				[px, py, pz] = Matrix4.GetAxes(Pitch,Angle,Roll);
-				origin = Vec2OffsetZ(0,0,player.viewz) - 1.0 * px + -15.0 * py + 5.0 * pz;
+				
+				origin = Vec2OffsetZ(0,0,player.viewz) + 
+					OffsetForward * px + OffsetRight * py + OffsetUp * pz;
 				
 				let gren = Spawn(GrenadeToFire, origin, ALLOW_REPLACE);
 				if (gren)
@@ -515,6 +517,9 @@ Class Doom4Player : PlayerPawn
 					gren.target = self;
 					gren.angle = angle;
 					gren.Vel3DFromAngle(gren.speed, angle, pitch);
+					
+					let inv = GetDefaultByType("GrenadeCharge");
+					A_TakeInventory("GrenadeCharge", inv.MaxAmount, 0);
 				}
 			}
 		}
@@ -661,8 +666,8 @@ Class Doom4Player : PlayerPawn
 			else
 			{
 				if (pitch >= 0)	return;
-				if (vel.XY dot vel.XY > 4) return;
-				if (!((GetPlayerInput(MODINPUT_BUTTONS) == BT_FORWARD) &&
+				if (vel.XY dot vel.XY > (4 ** 2)) return;
+				if (!((GetPlayerInput(MODINPUT_BUTTONS) == BT_FORWARD) ||
 					(GetPlayerInput(MODINPUT_OLDBUTTONS) == BT_FORWARD)))
 					return;
 					
@@ -673,25 +678,21 @@ Class Doom4Player : PlayerPawn
 				// if player is below new floor by no more than ledgedist units
 				// and can actually fit inside of it, mantle over.
 				
-				if ((ledgedist > 0) && (ledgedist <= 24) 
-					&&
-					(newfloor + height < ceilingz) &&
+				if ((ledgedist > 0) && (ledgedist <= DistCheck) &&
+					(newfloor + height <= ceilingz) &&
 					(newceiling - newfloor >= height))
 				{
 					bSlidesOnWalls = false;
-					for (int i = 0; i < 21; i += 2)
+					
+					Vector3 np = Vec3Angle(DistCheck,angle,0);
+					np.z = newfloor;
+					
+					if (D4D_Utility.AdjustToLedge(self, np, DistCheck * 2))
 					{
-						Vector3 np = Vec3Angle(DistCheck - i,angle,newfloor);
-						if (!A_CheckBlock("Null",CBF_ABSOLUTEPOS,DefPtr,np.x,np.y,np.z,0))
-						{
-							A_Warp(DefPtr,np.x,np.y,np.z,0,WARPF_ABSOLUTEPOSITION|WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_STOP);
-							A_Warp(DefPtr,flags: WARPF_TOFLOOR|WARPF_NOCHECKPOSITION);
-							break;
-						}
+						vel.z = 0;
 					}
-						
-					bSlidesOnWalls = true;
 					A_SetTics(waitTics);
+					bSlidesOnWalls = true;
 				}
 			}
 		}

@@ -1,0 +1,69 @@
+// All code by Major Cooke. Please give credit if used.
+
+Class D4D_Utility play
+{
+	//==========================================================================
+	// AdjustToLedge
+	// 
+	// Attempts to fit an actor into a new position. Used by ledge grabbing
+	// to make sure the player doesn't get stuck in places they can't fit.
+	//==========================================================================
+	static bool AdjustToLedge(Actor mo, Vector3 p, double stepadd = 0.0, bool checkonly = false)
+	{
+		if (!mo || mo.Radius < 1.0)	return false;
+		
+		Vector3 old = mo.pos;
+		double GridIncrement = 1.0;
+		double Radius = mo.Radius / 2.0;
+		double MaxStepHeight = mo.MaxStepHeight + stepadd;
+		int GZFlags = GZF_ABSOLUTEPOS|GZF_ABSOLUTEANG;
+		
+		// Iterate through the radius of the actor, finding the highest position
+		// available.
+		
+		double newz = p.z;
+		double ceil = 32767.0;
+		for (double xx = p.x - Radius; xx <= p.x + Radius; xx += GridIncrement)
+		{
+			for (double yy = p.y - Radius; yy <= p.y + Radius; yy += GridIncrement)
+			{
+				newz = Max(newz, mo.GetZAt(xx, yy, 0, GZFlags));
+				ceil = Min(ceil, mo.GetZAt(xx, yy, 0, GZFlags|GZF_CEILING));
+			}
+		}
+		
+		if ((newz - p.z >= MaxStepHeight) ||	// Out of range.
+			(ceil - newz < mo.Height) ||		// Won't fit.
+			(!mo.CheckPosition(p.XY))) 			// Not a good position.
+			return false;
+		
+		if (!checkonly)
+		{
+			mo.SetOrigin((p.x, p.y, newz), true);
+			mo.floorz = newz;
+		}
+		return true;
+	}
+	
+	//==========================================================================
+	// CheckTouching
+	// 
+	// Checks if the overlapping radius and height of two are touching each other.
+	// Based on cubes.
+	//==========================================================================
+	static bool CheckTouching(Actor caller, Actor other)
+	{
+		if (!caller || !other)	return false;
+		
+		double blockdist = caller.radius + other.radius;
+		if (abs(other.pos.x - caller.pos.x) < blockdist ||
+			abs(other.pos.y - caller.pos.y) < blockdist)
+			return false; // Not touching horizontally.
+			
+		if (caller.pos.z > other.pos.z + other.height ||
+			caller.pos.z + caller.height < other.pos.z)
+			return false; // Not touching vertically.
+		
+		return true;
+	}
+}

@@ -68,6 +68,7 @@ Class D4HellKnight : D4AbstractBiggie
 		PainChance "StunBomb", 255;
 		PainChance "GloryKill", 255;
 		WoundHealth 80;
+		Tag "Hell Knight";
 	}
 	States
 	{
@@ -431,9 +432,9 @@ Class D4HellKnight : D4AbstractBiggie
 		Stop;
 		
 	Raise:
-		---- A 0 PostResurrect();
-		E02D I 3;
+		E02D I 3 DoResurrect();
 		E02D HGFEDCBA  3;
+		---- A 0 DoResurrect(1);
 		Goto See;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states
