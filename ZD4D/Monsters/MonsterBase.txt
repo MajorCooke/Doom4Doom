@@ -256,6 +256,12 @@ Class D4AbstractMonster : Actor
 				}
 			}
 		}
+		else
+		{
+			Species = Default.Species;
+			bTHRUSPECIES = false;
+			bMTHRUSPECIES = false;
+		}
 	}
 	
 	//--------------------------------------------------------------------------
