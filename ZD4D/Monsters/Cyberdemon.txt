@@ -1041,20 +1041,7 @@ Class OldCyberdemonRocket : D4AbstractMissileQuake replaces Rocket //replaces ro
 			A_PlaySound("Doom4/Monsters/RocketFlyLoop",7,0.7,1);
 		}
 	Moving:
-		MICR A 1 Light("RedMediumPoint3") Bright
-		{
-			bool g;	Actor FX[2];
-			if (HQ)
-			{
-				[g, FX[0]] = A_SpawnItemEx("D4RocketTrailFire1",-5,0,0,0,frandom(0.3,-0.3),frandom(0.3,-0.3),0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
-				A_SpawnItemEx("D4RocketTrailSmoke",-5,random(5,-5),random(5,-5),0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
-			}
-			[g, FX[1]] = A_SpawnItemEx("D4RocketTrailFire2",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
-			
-			for (int i = 0; i < FX.Size(); i++)
-				if (FX[i])
-					FX[i].vel = vel * 0.85;
-		}
+		MICR A 1 Light("RedMediumPoint3") Bright SpawnRocketFX();
 		Loop;
 	Death:
 		TNT1 A 50 

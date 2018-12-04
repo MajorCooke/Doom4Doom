@@ -1263,25 +1263,23 @@ Class D4AbstractMissile : Actor
 		HQ = GetCvar("HQEffects");
 		if (Target)
 		{
-			if (Target.bISMONSTER)
+			if (Target.bISMONSTER && Target.Species == 'DemonPlayerBase')
 			{
-				if (Target.Species == 'DemonPlayerBase')
-				{
-					Species = Target.Species;
-					bTHRUSPECIES = bMTHRUSPECIES = true;
-				}
+				Species = Target.Species;
+				bTHRUSPECIES = bMTHRUSPECIES = true;			
 			}
 			Tracer = Target.Target;
-		}
-		
-		if (Tracer && Tracer.Vel != (0,0,0) && !Tracer.FindInventory("PowerInvisibility",true) && 
-			GetCvar("D4D_MonProjIntercept"))
-		{
 			
-			D4D_Intercept.InterceptActor(self, Tracer, IAF_AIM|IAF_CLIPZ);
-			//VelIntercept(Tracer);
+			if (Tracer && Tracer.Vel != (0,0,0) && !Tracer.FindInventory("PowerInvisibility",true) && 
+				GetCvar("D4D_MonProjIntercept"))
+			{
+				
+				D4D_Intercept.InterceptActor(self, Tracer, IAF_AIM|IAF_CLIPZ);
+				
+				// Note to self: when GZDoom 3.7 releases, use this instead.
+				//VelIntercept(Tracer);
+			}
 		}
-		
 		Super.PostBeginPlay();
 	}
 	
@@ -1340,7 +1338,7 @@ Class D4AbstractMissile : Actor
 		if (good && FX)	FX.vel = vel * FXVelMul;
 	}
 	
-	// Removes all recorded SFX>
+	// Removes all recorded SFX.
 	virtual void DestroyFX()
 	{
 		for (int i = 0; i < SFX.Size(); i++)
@@ -1356,6 +1354,8 @@ Class D4AbstractMissilePlayer : D4AbstractMissile
 {
 	override void PostBeginPlay()
 	{
+		// Don't call the super function. This is obviously a player missile
+		// so no need for the species assignment and stuff.
 		Actor.PostBeginPlay();
 		HQ = GetCvar("HQEffectsWeapons");
 	}
