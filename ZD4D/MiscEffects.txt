@@ -511,10 +511,10 @@ Class PacifistPuff : Actor
 		+PUFFONACTORS
 		+SKYEXPLODE
 		+DONTSPLASH
+		+INVISIBLE
 		Radius 1;
 		Height 1;
 		DamageType "AimingLaser";
-		RenderStyle "None";
 	}
 	States
 	{

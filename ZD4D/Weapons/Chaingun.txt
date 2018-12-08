@@ -872,16 +872,29 @@ Class GatlingRotatorExplosivePuff : Actor
 		Projectile;
 		+FORCEXYBILLBOARD
 		+NOINTERACTION
+		+NOBLOCKMAP
 		+ALWAYSPUFF
+		+SKYEXPLODE
 		+PUFFONACTORS
 		+PUFFGETSOWNER
+		-ALLOWPARTICLES
+		+ROLLSPRITE
 		Scale 0.1;
+		Alpha 1.0;
 		Decal "D4ExploScorchChaingun";
 	}
+	
+	override void PostBeginPlay()
+	{
+		roll = random(0,359);
+		if (random(0,1)) bSPRITEFLIP = true;
+		Super.PostBeginPlay();
+	}
+	
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_Explode(24,24,0);
+		X132 A 0 NODELAY A_Explode(24,24,0);
 		X132 AABBCC 1 Bright A_SetScale(Scale.X+0.02);
 		X132 DEFGHIJKLMNOPQR 2 Bright
 		{
@@ -891,6 +904,7 @@ Class GatlingRotatorExplosivePuff : Actor
 		Stop;
 	}
 }
+
 
 Class NoPuff : Actor 
 {

@@ -348,6 +348,7 @@ Class BerserkSpawner : RandomSpawner replaces Berserk
 			}
 		}
 	}
+	
 }
 
 Class PowerD4QuadDamage : PowerDamage
@@ -1225,12 +1226,15 @@ Class Invulnerability : PowerupGiver
 	}
 }
 
+Class D4ExtraLifeProtection : PowerProtection { Default { Powerup.Duration -5; DamageFactor "Normal", 1.0; } }
+
 Class Invul3s : Invulnerability	{ Default {	Powerup.Duration 107; } }
 Class Invul5s : Invulnerability	{ Default {	Powerup.Duration -5; } }
 
 Class PowerInvulBase : PowerInvulnerable
 {
-	int PrevTic;
+	const WaitTimer = 70;
+	private int PentaNoiseWait;
 	Default 
 	{
 		+INVENTORY.NOSCREENBLINK;
@@ -1244,12 +1248,18 @@ Class PowerInvulBase : PowerInvulnerable
 		A_PlaySound("PentagramOfProtection/Pickup");
 		if (Owner.CountInv("D4PentagramUpgrade1"))	Owner.bREFLECTIVE = true;
 		if (Owner.CountInv("D4PentagramUpgrade4"))	Owner.bNODAMAGE = true;
+		bNOINTERACTION = true;
+		PentaNoiseWait = 0;
+		if (Owner.Player)	Owner.Player.DamageCount = 0;
 	}
 	
 	override void DoEffect()
 	{
 		if (Owner)
 		{
+			SetXYZ(Owner.pos);
+			Prev = Owner.Prev;
+			Vel = Owner.Vel;
 			if (Owner.CountInv("D4PentagramUpgrade1"))	Owner.bREFLECTIVE = true;
 			if (Owner.CountInv("D4PentagramUpgrade4"))	Owner.bNODAMAGE = true;
 			if (globalfreeze || level.Frozen)
@@ -1278,6 +1288,7 @@ Class PowerInvulBase : PowerInvulnerable
 	{
 		if (Owner)	
 		{
+			if (Owner.Player)	Owner.Player.DamageCount = 0;
 			Owner.bREFLECTIVE = false;
 			Owner.bNODAMAGE = false;
 		}

@@ -37,10 +37,10 @@ Class D4Restriction play
 
 extend class D4DHandler
 {
-	enum EWeaponAmmo
+	enum EObjectIndex
 	{
 		BFGAmmo = 0,
-		ChainsawAmmo = 1
+		ChainsawAmmo = 1,
 	};
 	private bool Spawnable[2];
 	const DefaultDropChance = 250;
@@ -52,112 +52,12 @@ extend class D4DHandler
 	Array<D4DBeamBase> Beams;
 	Array<D4Restriction> RestrictList;
 	D4ManualLootList LootList;
+	D4DDeathStorage Storage[MAXPLAYERS];
 	private int UpgradeMode;
 	private int CurrentUpgradeMode;
 	
-	bool CheckAmmoSpawn(EWeaponAmmo index)			{	return Spawnable[index];	}
-	void SetAmmoSpawn(EWeaponAmmo index, bool can) 	{	Spawnable[index] = can; 	}
-	
-	//--------------------------------------------------------------------------
-	//--------------------------------------------------------------------------
-	// Restrictions
-	//--------------------------------------------------------------------------
-	//--------------------------------------------------------------------------
-	
-	//==========================================================================
-	// ClearAllRestrictions
-	// 
-	// Removes all item drop restrictions.
-	//==========================================================================
-	void ClearAllRestrictions()
-	{
-		if (RestrictList.Size() < 1)	return;
-		
-		
-		for (int i = 0; i < RestrictList.Size(); i++)
-		{
-			D4Restriction res = RestrictList[i];
-			if (res) res.Destroy();
-		}
-		RestrictList.Clear();
-	}
-	
-	//==========================================================================
-	// SetRestrictions
-	// 
-	// Sets restrictions on what a monster can drop when they die.
-	// No flags means it will delete whatever context there is that was 
-	// previously established.
-	//==========================================================================
-	
-	void SetRestrictions(Class<Actor> mo, int flags, bool parent = false)
-	{
-		if (!mo)	return;
-		bool SizeChanged = false;
-		for (int i = 0; i < RestrictList.Size(); i++)
-		{
-			D4Restriction res = RestrictList[i];
-			if (!res)
-			{
-				SizeChanged = true;
-				RestrictList.Delete(i);
-				i--;
-				continue;
-			}
-			
-			if (res.mo == mo)
-			{
-				if (flags <= 0)
-				{
-					SizeChanged = true;
-					res.Destroy();
-					RestrictList.Delete(i);
-					continue; // Just to be safe, make sure there's no duplicates.
-				}
-				res.Restrictions = flags;
-				if (SizeChanged)	RestrictList.ShrinkToFit();
-				return;
-			}
-		}
-		if (SizeChanged)	RestrictList.ShrinkToFit();
-		// Do nothing if the object isn't found and we want to erase it.
-		if (flags <= 0)	
-			return;
-		
-		// None found, so make a new one.
-		D4Restriction res = new('D4Restriction');
-		res.mo = mo;
-		res.Restrictions = flags;
-		res.parent = parent;
-		RestrictList.Push(res);
-	}
-	
-	//==========================================================================
-	// GetRestrictions
-	// 
-	// Checks for restrictions on monsters and returns the bytes.
-	//==========================================================================
-	
-	int GetRestrictions(Class<Actor> mo)
-	{
-		if (!mo || RestrictList.Size() < 1)
-			return RF_NONE;
-		
-		int size = RestrictList.Size();
-		for (int i = 0; i < RestrictList.Size(); i++)
-		{
-			D4Restriction res = RestrictList[i];
-			if (!res)	continue;
-			
-			// Check if the class is directly that, or a child, if the parent 
-			// boolean is set in the restriction class.
-			if ((mo == res.mo) || (res.parent && CheckParent(mo, res.mo)))
-			{
-				return res.Restrictions;
-			}
-		}
-		return RF_NONE;
-	}
+	bool CheckActorSpawn(EObjectIndex index)			{	return Spawnable[index];	}
+	void SetActorSpawn(EObjectIndex index, bool can) 	{	Spawnable[index] = can; 	}
 	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
@@ -759,10 +659,119 @@ extend class D4DHandler
 		Pinatas.DropItemsPos(pos);
 		return true;
 	}
-	
+	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
 	// Custom functions
 	//--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	
+	static D4DHandler Fetch()
+	{
+		return D4DHandler(StaticEventHandler.Find("D4DHandler"));
+	}
+	
+	//==========================================================================
+	// Item Restrictions
+	//==========================================================================
+	
+	//--------------------------------------------------------------------------
+	// ClearAllRestrictions
+	// 
+	// Removes all item drop restrictions.
+	//--------------------------------------------------------------------------
+	void ClearAllRestrictions()
+	{
+		if (RestrictList.Size() < 1)	return;
+		
+		
+		for (int i = 0; i < RestrictList.Size(); i++)
+		{
+			D4Restriction res = RestrictList[i];
+			if (res) res.Destroy();
+		}
+		RestrictList.Clear();
+	}
+	
+	//--------------------------------------------------------------------------
+	// SetRestrictions
+	// 
+	// Sets restrictions on what a monster can drop when they die.
+	// No flags means it will delete whatever context there is that was 
+	// previously established.
+	//--------------------------------------------------------------------------
+	
+	void SetRestrictions(Class<Actor> mo, int flags, bool parent = false)
+	{
+		if (!mo)	return;
+		bool SizeChanged = false;
+		for (int i = 0; i < RestrictList.Size(); i++)
+		{
+			D4Restriction res = RestrictList[i];
+			if (!res)
+			{
+				SizeChanged = true;
+				RestrictList.Delete(i);
+				i--;
+				continue;
+			}
+			
+			if (res.mo == mo)
+			{
+				if (flags <= 0)
+				{
+					SizeChanged = true;
+					res.Destroy();
+					RestrictList.Delete(i);
+					continue; // Just to be safe, make sure there's no duplicates.
+				}
+				res.Restrictions = flags;
+				if (SizeChanged)	RestrictList.ShrinkToFit();
+				return;
+			}
+		}
+		if (SizeChanged)	RestrictList.ShrinkToFit();
+		// Do nothing if the object isn't found and we want to erase it.
+		if (flags <= 0)	
+			return;
+		
+		// None found, so make a new one.
+		D4Restriction res = new('D4Restriction');
+		res.mo = mo;
+		res.Restrictions = flags;
+		res.parent = parent;
+		RestrictList.Push(res);
+	}
+	
+	//--------------------------------------------------------------------------
+	// GetRestrictions
+	// 
+	// Checks for restrictions on monsters and returns the bytes.
+	//--------------------------------------------------------------------------
+	
+	int GetRestrictions(Class<Actor> mo)
+	{
+		if (!mo || RestrictList.Size() < 1)
+			return RF_NONE;
+		
+		int size = RestrictList.Size();
+		for (int i = 0; i < RestrictList.Size(); i++)
+		{
+			D4Restriction res = RestrictList[i];
+			if (!res)	continue;
+			
+			// Check if the class is directly that, or a child, if the parent 
+			// boolean is set in the restriction class.
+			if ((mo == res.mo) || (res.parent && CheckParent(mo, res.mo)))
+			{
+				return res.Restrictions;
+			}
+		}
+		return RF_NONE;
+	}
+	
+	//==========================================================================
+	// Misc
+	//==========================================================================
 	static clearscope bool CheckParent(Class<Object> child, Class<Object> parent)
 	{
 		if (!child)	return false;
@@ -833,13 +842,224 @@ extend class D4DHandler
 			mo.Destroy();
 		}
 	}
+	
+	//==========================================================================
+	// Death Storage
+	//
+	// The purpose of these is to store the player's items when they die in
+	// death exits, and restore them on the other side.
+	//==========================================================================
+	
+	override void PlayerRespawned(PlayerEvent e)
+	{
+		
+	}
+	
+	int FetchPlayerNumber(Actor mo)
+	{
+		if (!mo || !mo.player)	return-1;
+		
+		int i = 0;
+		for (i = 0; i < MAXPLAYERS; i++)
+			if (playeringame[i] && players[i].mo == mo)
+				return i;
+		
+		return -1;
+	}
+	
+	//--------------------------------------------------------------------------
+	// Stores the players items into D4DDeathStorage, a static thinker that
+	// crosses levels and remembers their inventory. This doesn't take into
+	// account any novelties - only the items they had and their amount.
+	void StorePlayerItems(Actor mo)
+	{
+		int i = FetchPlayerNumber(mo);
+		if (i < 0)	return;
+		
+		if (!Storage[i])	Storage[i] = new("D4DDeathStorage");
+		Storage[i].Init();
+		
+		for (let probe = mo.Inv; probe != null; probe = probe.Inv)
+		{
+			// Powerups, weapons, armor and health don't transfer over since they
+			// were dead.
+			if (!probe || probe is "Powerup" || probe is "Weapon" || probe is "BasicArmor" ||
+				probe is "Health")
+				continue;
+			
+			// Save it.
+			Storage[i].SetItem(probe.GetClass(), probe.Amount);
+			CVar debug = CVar.FindCVar("D4Debug");
+			if (debug && debug.GetInt() > 0)
+			{
+				String msg = String.Format("%s : %d ", probe.GetClassName(), probe.Amount);
+				Console.Printf("%s", msg);
+			}
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+	// 
+	void ReturnPlayerItems(Actor mo)
+	{
+		int i = FetchPlayerNumber(mo);
+		if (i < 0 || !Storage[i])	return;
+		
+		let store = D4DDeathStorage(Storage[i]);
+		Class<Inventory> item = null;	int amt = 0;
+		
+		do
+		{
+			[item, amt] = store.GetNextItem();
+			if (item)
+			{
+				if (amt > 0)
+					mo.SetInventory(item, amt);
+				else
+				{
+					mo.SetInventory(item, 1);
+					mo.SetInventory(item, 0);
+				}
+					
+			}
+		}
+		while (amt > -1);
+	}
 }
 
-//------------------------------------------------------------------------------
+//==============================================================================
+// D4DDeathStorage
 //
-//
-//
-//------------------------------------------------------------------------------
+// The main storage of items, particularly for death exits.
+// This class is heavily protected to prevent accidental misaligned index arrays
+// and giving incorrect amounts.
+//==============================================================================
+
+class D4DDeathStorage : Thinker
+{
+	private bool first;
+	bool died;
+	private Array<Class<Inventory> > ItemList;
+	private Array<Int> ItemCount;
+	
+	//--------------------------------------------------------------------------
+	// Functions
+	//--------------------------------------------------------------------------
+	
+	void SetStatic()
+	{
+		if (!first)
+		{
+			ChangeStatNum(STAT_STATIC);
+			first = true;
+		}
+	}
+	
+	D4DDeathStorage Init()
+	{
+		died = false;
+		SetStatic();
+		ItemList.Clear();
+		ItemCount.Clear();
+		return self;
+	}
+	
+	void SetItem(Class<Inventory> item, int count)
+	{
+		if (item)	PushItem(item, Max(0,count));
+	}
+	
+	private void PushItem(Class<Inventory> item, int count)
+	{
+		if (ItemList.Size() < 1)
+			ItemCount.Clear();
+			
+		int pos = ItemList.Find(item);
+		if (pos < ItemList.Size())
+			ItemCount[pos] = count;
+		else
+		{
+			ItemList.Push(item);
+			ItemCount.Push(count);
+		}
+	}
+	
+	Class<Inventory>, int GetNextItem()
+	{
+		// If empty signify with -1.
+		if (ItemList.Size() < 1)
+			return null, -1;
+		
+		// Extract the item...
+		Class<Inventory> ret1 = ItemList[0];
+		int ret2 = ItemCount[0];
+		
+		// Make sure it's a good item.
+		if (!ret1)
+		{
+			// Remove any nulls. If it empties out, no need to continue.
+			if (DeleteItem(null) < 0)
+				return null, -1;
+			
+			// This should be valid since all the nulls were cleared out.
+			ret1 = ItemList[0];
+			ret2 = ItemCount[0];
+		}
+		// ...then delete the entry and return it.
+		DeleteItem(null, 0);
+		ShrinkWrap();
+		return ret1, ret2;
+	}
+	
+	//==========================================================================
+	// DeleteItem
+	//
+	// Deletes a specified item, or if pos > -1, a specific position.
+	//==========================================================================
+	int DeleteItem(Class<Inventory> item, int pos = -1)
+	{
+		if (ItemList.Size() < 1) // List is empty.
+		{
+			ItemCount.Clear();
+			return -1;
+		}
+		if (pos >= 0) // Delete a specific position.
+		{
+			ItemList.Delete(pos);
+			ItemCount.Delete(pos);
+			return 1;
+		}
+		if (item == null) // Delete all nulls.
+		{
+			for (int i = 0; i < ItemList.Size(); i++)
+			{
+				if (ItemList[i] == null)
+				{
+					ItemList.Delete(i);
+					ItemCount.Delete(i);
+					i--;
+				}
+			}
+			return (ItemList.Size() > 0) ? 1 : -1;
+		}
+		
+		// Find and delete an item. The item count must have matching index.
+		int i = ItemList.Find(item);
+		if (pos < ItemList.Size())
+		{
+			ItemList.Delete(i);
+			ItemCount.Delete(i);
+			return 1;
+		}
+		return 0;
+	}
+	
+	private void ShrinkWrap()
+	{
+		ItemList.ShrinkToFit();
+		ItemCount.ShrinkToFit();
+	}
+}
 
 //------------------------------------------------------------------------------
 //

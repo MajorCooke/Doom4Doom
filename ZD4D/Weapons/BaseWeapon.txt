@@ -1175,7 +1175,11 @@ Class BulletSmallTracer : Actor
 	}
 	override void OnDestroy()
 	{
-		if (Puff)	Puff.Destroy();
+		if (Puff)	
+		{
+			if (Puff.bINVISIBLE)
+				Puff.Destroy();
+		}
 		Super.OnDestroy();
 	}
 	

@@ -34,7 +34,7 @@ Class D4BFG : Doom4Weapon
 	override void EnableAmmoSpawn()
 	{
 		if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
-		if (Event)	Event.SetAmmoSpawn(D4DHandler.BFGAmmo, true);
+		if (Event)	Event.SetActorSpawn(D4DHandler.BFGAmmo, true);
 	}
 	
 	override bool TryPickup (in out Actor toucher)

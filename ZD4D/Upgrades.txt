@@ -655,6 +655,7 @@ extend Class D4QuadUpgrade1
 	override void Travelled()
 	{
 		ConvertBerserkToQuad();
+		Super.Travelled();
 	}
 	
 	void ConvertBerserkToQuad()
@@ -666,5 +667,73 @@ extend Class D4QuadUpgrade1
 			if (mo.Owner)	continue;
 			D4DHandler.ConvertBerserkToQuad(mo);
 		}
+	}
+}
+
+//==============================================================================
+
+Class D4UpgradeDrone : Actor
+{
+	D4D_Quaternion SpinAngle, SpinTilt;
+	Default
+	{
+		Health 1;
+		Monster;
+		-COUNTKILL
+		+NOGRAVITY
+		+DONTTHRUST
+		+NOBLOOD
+		+DONTGIB
+		+DONTBLAST
+		+NOICEDEATH
+		-SOLID
+		+DONTDRAIN
+		+NEVERTARGET
+		+NOPAIN
+	}
+	
+	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
+	{
+		if (mod == 'Melee' || mod == 'BerserkKill')
+		{
+			bDONTTHRUST = false;
+			return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+		}
+		return damage;
+	}
+	
+	override bool CanCollideWith(Actor other, bool passive)
+	{
+		return false;
+	}
+	
+	
+	
+	States
+	{
+	Spawn:
+		D4DR A -1;
+	Death:
+		---- A 0
+		{
+			SpinAngle.InitFromAngles(angle, pitch, roll);
+			SpinTilt.InitFromAngles(angle, pitch, roll);
+		}
+		#### ABCDEFGHI 1
+		{
+			// Something goes here between this and the multiplying part. But that's
+			// what I don't know about. THIS is the section where help is required.
+			//
+			// SpinTilt will be the tilt that must be done first, then the angle.
+			
+			
+			D4D_Quaternion Combined = SpinAngle.MultiplyQuat(SpinTilt);
+			[angle, pitch, roll] = Combined.ToAngles();
+		}
+		---- A 1
+		{
+		}
+		---- A 50;
+		Stop;
 	}
 }

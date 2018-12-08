@@ -128,6 +128,7 @@ Class Doom4Player : PlayerPawn
 	const CannonArmY = 23.0;
 	const CannonDestX = 83.0;
 	const CannonDestY = 23.0;
+	D4DHandler Event;
 	double UVel;
 	double UZvel;
 	double UHold;
@@ -209,39 +210,41 @@ Class Doom4Player : PlayerPawn
 		Player.AttackZOffset 11; //13 is perfect, but makes projectiles hit below. so A middle point to fix the hitscan attacks not hitting where they should
 		Player.ViewHeight 41;
 
+		Player.DamageScreenColor "White", 1.0, "WhiteFlashDamage";
+		DamageFactor "WhiteFlashDamage", 1.0;
 		DamageFactor "HoloAttract", 0;
 		PainChance "HoloAttract", 0;
 		
-		damagefactor "FriendBullet", 0.0;
-		damagefactor "Taunt", 0.0;
-		damagefactor "KillMe", 0.0;
-		damagefactor "Shotgun", 0.7;
-		damagefactor "Shrapnel", 0.0;
-		damagefactor "Blood", 0.5;
-		damagefactor "BlueBlood", 0.5;
-		damagefactor "GreenBlood", 0.5;
-		damagefactor "MinorHead", 0.0;
-		damagefactor "Decaptate", 0.0;
-		damagefactor "MonsterKnocked", 0.0;
-		damagefactor "MonsterBullet", 0.33;
-		damagefactor "MonsterShotgunBullet", 0.33;
-		damagefactor "MonsterCutless", 0.33;
-		damagefactor "CancelTeleportFog", 0.0;
-		damagefactor "BHFTOnBarrel", 0.0;
-		damagefactor "GibRemoving", 0.0;
-		damagefactor "HelperMarineFatallity", 0.0;
-		damagefactor "Leg", 0.0;
-		damagefactor "SpawnMarine", 0.0;
-		damagefactor "TeleportRemover", 0.0;
+		DamageFactor "FriendBullet", 0.0;
+		DamageFactor "Taunt", 0.0;
+		DamageFactor "KillMe", 0.0;
+		DamageFactor "Shotgun", 0.7;
+		DamageFactor "Shrapnel", 0.0;
+		DamageFactor "Blood", 0.5;
+		DamageFactor "BlueBlood", 0.5;
+		DamageFactor "GreenBlood", 0.5;
+		DamageFactor "MinorHead", 0.0;
+		DamageFactor "Decaptate", 0.0;
+		DamageFactor "MonsterKnocked", 0.0;
+		DamageFactor "MonsterBullet", 0.33;
+		DamageFactor "MonsterShotgunBullet", 0.33;
+		DamageFactor "MonsterCutless", 0.33;
+		DamageFactor "CancelTeleportFog", 0.0;
+		DamageFactor "BHFTOnBarrel", 0.0;
+		DamageFactor "GibRemoving", 0.0;
+		DamageFactor "HelperMarineFatallity", 0.0;
+		DamageFactor "Leg", 0.0;
+		DamageFactor "SpawnMarine", 0.0;
+		DamageFactor "TeleportRemover", 0.0;
 		DamageFactor "CauseObjectsToSplash", 0.0;
-		damagefactor "Shotgun", 0.0;
-		damagefactor "Cutless", 0.0;
-		damagefactor "SSG", 0.0;
-		damagefactor "Trample", 0.0;
-		damagefactor "bullet", 0.0;
-		damagefactor "cutless", 0.0;
-		damagefactor "shotgun", 0.0;
-		damagefactor "ssg", 0.0;
+		DamageFactor "Shotgun", 0.0;
+		DamageFactor "Cutless", 0.0;
+		DamageFactor "SSG", 0.0;
+		DamageFactor "Trample", 0.0;
+		DamageFactor "bullet", 0.0;
+		DamageFactor "cutless", 0.0;
+		DamageFactor "shotgun", 0.0;
+		DamageFactor "ssg", 0.0;
 		PainChance "SpawnMarine", 0;
 		PainChance "Leg", 0;
 		PainChance "Taunt", 0;
@@ -381,7 +384,8 @@ Class Doom4Player : PlayerPawn
 					
 					// Finally, check to make sure our desired angle isn't already
 					// going the speed of stupid - NASCAR style. =B
-					if (Vel.XY.Length() > 30.0)
+					double NewDashSpeed = FindInventory("PowerSpeed", true) ? DashSpeed * 1.5 : DashSpeed;
+					if (Vel.XY.Length() > NewDashSpeed)
 					{
 						double VelAng = VectorAngle(vel.x, vel.y);
 						DashAngle = Normalize180(DashAngle);
@@ -401,7 +405,8 @@ Class Doom4Player : PlayerPawn
 		M666 AAAAAA 1
 		{
 			double vz = Max(0.0, vel.z);
-			Vel3DFromAngle(DashSpeed, DashAngle, 0);
+			double NewDashSpeed = FindInventory("PowerSpeed", true) ? DashSpeed * 1.5 : DashSpeed;
+			Vel3DFromAngle(NewDashSpeed, DashAngle, 0);
 			vel.z = vz;
 		}
 		M666 A 1
@@ -416,7 +421,8 @@ Class Doom4Player : PlayerPawn
 			{
 				next = null;
 				double vz = vel.z;
-				Vel3DFromAngle(DashSpeed, DashAngle, 0);
+				double NewDashSpeed = FindInventory("PowerSpeed", true) ? DashSpeed * 1.5 : DashSpeed;
+				Vel3DFromAngle(NewDashSpeed, DashAngle, 0);
 				vel.z = vz;
 			}
 			return ResolveState(next);
@@ -597,7 +603,7 @@ Class Doom4Player : PlayerPawn
 		}
 		Loop;
 	//==========================================================================
-	// Overlay: 		Ledge Climbing
+	// Overlay: 		Old Ledge Climbing
 	// Monitors edge closeness and grabbing so the player can attempt mantling
 	// up over them.
 	//==========================================================================
@@ -1029,15 +1035,29 @@ extend class Doom4Player
 	double effectSize;
 	int PentaNoiseWait;
 	
+	// Double down on the DamageCount fade.
+	override void PlayerThink()
+	{
+		Super.PlayerThink();
+		
+		let player = self.player;
+		if (player && player.DamageCount > 0)
+		{
+			let invul = FindInventory("PowerInvulnerable");
+			if (invul)
+				player.DamageCount = Max(0, player.DamageCount - 3);
+		}
+	}
+	
 	//--------------------------------------------------------------------------
 	// Damage Control
 	//--------------------------------------------------------------------------
 	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{
-		if (mod == 'HoloAttract')	return 0;
-		
 		if (!player || !player.mo)
 			return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+		
+		bool TelefragDamage = (!bLAXTELEFRAGDMG && damage >= TELEFRAG_DAMAGE);
 		
 		let inv = BasicArmor(FindInventory("BasicArmor"));
 		if (inv)
@@ -1047,13 +1067,11 @@ extend class Doom4Player
 			inv.SavePercent = 100.0;
 		}
 		
-		
 		// Handle Pentagram of Protection effects here. Pretty much a copy/pasta
 		// of the internal damage, including thrusting since it's needless to call
 		// P_DamageMobj.
 		if (bNODAMAGE || CountInv("CantTouchThis") ||
-			(((damage < TELEFRAG_DAMAGE) || bLAXTELEFRAGDMG) && 
-			 (bINVULNERABLE || FindInventory("PowerInvulnerable",true))))
+			(!TelefragDamage && (bINVULNERABLE || FindInventory("PowerInvulnerable",true))))
 		{
 			if (!(flags & DMG_NO_PROTECT))
 				damage = GetModifiedDamage(mod, damage, true);
@@ -1061,7 +1079,7 @@ extend class Doom4Player
 				damage = ApplyDamageFactor(mod, damage);
 			
 			flags |= (DMG_NO_PROTECT|DMG_NO_FACTOR);
-			
+		
 			if (damage < 1 && (!inflictor || (!inflictor.bCAUSEPAIN && !bALLOWPAIN)))
 				return 0;
 				
@@ -1079,19 +1097,20 @@ extend class Doom4Player
 				}
 			}
 			
-			double alfa = Clamp(0.01 + damage * 0.02, 0.01, 0.6);
-			int fadetime = Clamp(damage * 0.1, 2, 70);
-			A_SetBlend("White",alfa,fadetime);
+			DamageTypeReceived = "WhiteFlashDamage";
+			player.DamageCount = Min(100, player.DamageCount + int(damage * 0.5));
 			
 			if (PentaNoiseWait < 1)
 			{
-				A_PlaySound("PentagramOfProtection/Protect",CHAN_VOICE);
+				let invul = FindInventory("PowerInvulnerable", true);
+				if (invul)	invul.A_PlaySound("PentagramOfProtection/Protect",CHAN_VOICE);
+				else 		A_PlaySound("PentagramOfProtection/Protect",CHAN_VOICE);
 				PentaNoiseWait = 70;
 			}
 			
 			if (!bNODAMAGE)
 			{
-				Actor origin = (source && (flags & DMG_INFLICTOR_IS_PUFF))? source : inflictor;
+				Actor origin = (source && (flags & DMG_INFLICTOR_IS_PUFF)) ? source : inflictor;
 				
 				if (origin && !origin.bNODAMAGETHRUST && !bDONTTHRUST)
 				{
@@ -1126,9 +1145,10 @@ extend class Doom4Player
 			bNODAMAGE = true;
 			flags &= ~DMG_FORCED;
 			damage = Clamp(damage, 0, TELEFRAG_DAMAGE - 1);
+			TelefragDamage = false;
 		}
 		// Don't negate stuff if it's telefrag damage, unless LAXTELEFRAGDMG is used.
-		else if (bLAXTELEFRAGDMG || (damage < TELEFRAG_DAMAGE))
+		else if (!TelefragDamage)
 		{
 			// Reduce by 1% for every megasphere we've picked up.
 			// DoomDoll does not give this bonus. 
@@ -1167,75 +1187,21 @@ extend class Doom4Player
 		
 		int finaldamage = damage;
 		
-		// Don't consume extra lives inside of a sector meant to end the level.
+		// Don't consume extra lives inside of a sector meant to end the level,
+		// or the player has buddha (doom doll), provided they can survive it.
 		// Otherwise, respawn the player if they were to die and consume a life.
-		// Give the BUDDHA2 cheat temporarily, damage the player and restore
-		// their previous cheats.
-		int LifeCount = CountInv("D4ExtraLife");
-		if (UseLives && LifeCount > 0 && player && !(CurSector.Flags & Sector.SECF_ENDLEVEL))
+		
+		if (UseLives && CountInv("D4ExtraLife") > 0 && !(CurSector.Flags & Sector.SECF_ENDLEVEL))
 		{
 			int prev = health;
-			int temp = player.cheats;
-			player.cheats |= CF_BUDDHA2;
 			finaldamage = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
-			player.cheats = temp;
 			
-			// The player has an extra life. Gives 5 seconds of invulnerability,
-			// teleports (and telefrags anything in the way) to one of the three 
-			// prior positions if possible. If not, check if currently blocked.
-			// Move back to the start of the map if so.
-			if (finaldamage >= prev)
+			// If the player still has health due to regular buddha or flag buddha,
+			// don't use the life since they're still alive. Cheat buddha is
+			// exempt from this and will still consume lives.
+			if (finaldamage >= prev && health > 0 && (!FindInventory("PowerBuddha", true) || !bBUDDHA))
 			{
-				A_GiveInventory("Invul5s",1);
-				A_SetInventory("LifeRedFlash",LifeCount,beyondMax: true);
-				A_TakeInventory("D4ExtraLife",1);
-				A_SetHealth(GetMaxHealth(true));
-				int LastIndex = LifePos.Size() - 1;
-				bool good = false;
-				bool thru = bTHRUACTORS;
-				Vector3 lpos = pos;
-				
-				// Iterate through each position. See if it's blocked or not.
-				for (int i = LastIndex; i > -1; i++)
-				{
-					if (TeleportMove(LifePos[LastIndex], bTELESTOMP))
-					{
-						bTHRUACTORS = true;
-						good = !(A_CheckBlock("Null"));
-					}
-					bTHRUACTORS = thru;
-					if (good)		break;
-				}
-				
-				// If none of the previous spots work, see if anything is blocking
-				// the player where they stand, ignoring all actors. If so,
-				// force them back to the spawn point.
-				if (!good)
-				{
-					bTHRUACTORS = true;
-					good = !(A_CheckBlock("Null"));
-					bTHRUACTORS = thru;
-					if (!good)
-					{
-						good = true;
-						TeleportMove(SpawnPoint, bTELESTOMP);
-						SetXYZ(SpawnPoint);
-					}
-				}
-				
-				bTHRUACTORS = thru;
-				
-				if (good)
-				{
-					Vel = LifeVel[LastIndex];
-					Angle = LifeAP[LastIndex].X;
-					Pitch = LifeAP[LastIndex].Y;
-					Actor fr = Spawn(TeleFogSourceType, lpos, ALLOW_REPLACE);
-					if (fr)	fr.target = self;
-					Actor to = Spawn(TeleFogDestType, pos, ALLOW_REPLACE);
-					if (to)	to.target = self;
-				}
-				A_Overlay(Overlay_LifeRecorder, "Overlay.LifeRecorder"); // Reset all the data.
+				UseLife();
 			}
 		}
 		else finaldamage = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
@@ -1250,6 +1216,99 @@ extend class Doom4Player
 			effectSize += log(ArmorBefore - ArmorAfter) / 25.0;
 		}
 		return finaldamage;
+	}
+	
+	//==========================================================================
+	override void Die(Actor source, Actor inflictor, int dmgflags)
+	{
+		if (!player || !player.mo || player.mo != self)
+		{	Super.Die(source, inflictor, dmgflags);		return;		}
+		
+		// If the player has an extra life, abort dying.
+		if (UseLife())
+			return;
+		
+		if (!Event)	Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+		if (Event) Event.StorePlayerItems(self);
+		
+		Super.Die(source, inflictor, dmgflags);
+		
+		A_RadiusGive("SyphonDestroyer",16386,RGF_MISSILES,1,"D4SyphonGrenade");
+		for (int i = 1; i < 9; i++)
+			A_StopSound(i);
+		A_Overlay(1,"Null");
+		A_ClearOverlays();
+	}
+	
+	bool UseLife()
+	{
+		if (!player || !UseLives)
+			return false;
+		int LifeCount = CountInv("D4ExtraLife");
+		if (LifeCount > 0 || CountInv("D4ExtraLifeProtection"))
+		{
+			if (health < GetMaxHealth(true))
+			{
+				health = GetMaxHealth(true);
+				player.health = health;
+			}
+			
+			if (CountInv("D4ExtraLifeProtection"))
+				return true;
+			
+			A_GiveInventory("Invul5s",1);
+			A_GiveInventory("D4ExtraLifeProtection");
+			A_SetInventory("LifeRedFlash", LifeCount, beyondMax: true);
+			A_TakeInventory("D4ExtraLife",1);
+			int LastIndex = LifePos.Size() - 1;
+			bool good = false;
+			bool thru = bTHRUACTORS;
+			Vector3 lpos = pos;
+			
+			// Iterate through each position. See if it's blocked or not.
+			for (int i = LastIndex; i > -1; i--)
+			{
+				if (TeleportMove(LifePos[LastIndex], bTELESTOMP))
+				{
+					bTHRUACTORS = true;
+					good = !(A_CheckBlock("Null"));
+				}
+				bTHRUACTORS = thru;
+				if (good)		break;
+			}
+			
+			// If none of the previous spots work, see if anything is blocking
+			// the player where they stand, ignoring all actors. If so,
+			// force them back to the spawn point.
+			if (!good)
+			{
+				bTHRUACTORS = true;
+				good = !(A_CheckBlock("Null"));
+				bTHRUACTORS = thru;
+				if (!good)
+				{
+					good = true;
+					TeleportMove(SpawnPoint, bTELESTOMP);
+					SetXYZ(SpawnPoint);
+				}
+			}
+			
+			bTHRUACTORS = thru;
+			
+			if (good)
+			{
+				Vel = LifeVel[LastIndex];
+				Angle = LifeAP[LastIndex].X;
+				Pitch = LifeAP[LastIndex].Y;
+				Actor fr = Spawn(TeleFogSourceType, lpos, ALLOW_REPLACE);
+				Actor to = Spawn(TeleFogDestType, pos, ALLOW_REPLACE);
+				if (fr)	fr.target = self;
+				if (to)	to.target = self;
+			}
+			A_Overlay(Overlay_LifeRecorder, "Overlay.LifeRecorder"); // Reset all the data.
+			return true;
+		}
+		return false;
 	}
 	
 	//==========================================================================
@@ -1351,7 +1410,7 @@ extend class Doom4Player
 		//======================================================================
 		if (effectSize > 0) {
 			Shader.SetEnabled(player, "damageshader", true);
-			Shader.SetUniform1f(player, "damageshader", "damageFactor", effectSize);
+			Shader.SetUniform1f(player, "damageshader", "DamageFactor", effectSize);
 		}
 		else Shader.SetEnabled(player, "damageshader", false);
 		
@@ -1372,23 +1431,8 @@ extend class Doom4Player
 		if (PentaNoiseWait > 0)	PentaNoiseWait--;
 		if (level.maptime <= 1)	
 		{
-			let Tracker = D4DDeathStorage.Get();
-		
-			if (Tracker)
-			{
-				if (Tracker.died)
-				{
-					for (int i = 0; i < Tracker.ItemList.Size(); i++)
-					{
-						Class<Inventory> checker = Tracker.ItemList[i];
-						if (checker != null)
-							A_SetInventory(checker, Tracker.ItemCount[i]);
-						else
-							A_Log(Tracker.ItemList[i].." is invalid");
-					}
-				}
-				Tracker.Destroy();
-			}
+			if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+			if (Event)	Event.ReturnPlayerItems(self);
 			
 			InitPlayer();
 		}
@@ -1602,58 +1646,6 @@ extend class Doom4Player
 	//--------------------------------------------------------------------------
 	//
 	//--------------------------------------------------------------------------
-	override void Die(Actor source, Actor inflictor, int dmgflags)
-	{
-		if (!player || !player.mo || player.mo != self)
-		{	Super.Die(source, inflictor, dmgflags);		return;		}	
-		
-		
-		ItemsToSave ITS;
-		
-		if (ITS.ItemList.Size() < 1)
-			ITS.Init();
-		
-		let Tracker = D4DDeathStorage.Get();
-		if (Tracker)
-		{
-			Tracker.died = true;
-			Tracker.ItemList.Clear();
-			Tracker.ItemCount.Clear();
-			for (int i = 0; i < ITS.ItemList.Size(); i++)
-			{
-				// Make sure the item is a real one. Otherwise, notify the players
-				// to report this to developers.
-				Class<Inventory> checker = ITS.ItemList[i];
-				if (checker == null)
-				{
-					A_Log(ITS.ItemList[i].." is not an item! Report to devs!");
-					continue;
-				}
-				
-				
-				// Either save or restore it.
-				int amt = CountInv(checker);
-				//mCheck.SetInt(amt);
-				
-				Tracker.ItemList.Push(ITS.ItemList[i]);
-				Tracker.ItemCount.Push(amt);
-				CVar debug = CVar.FindCVar("D4Debug");
-				if (debug && debug.GetInt() > 0)
-				{
-					String msg = String.Format("%s : %d ", ITS.ItemList[i], amt);
-					A_Log(msg);
-				}
-			}
-		}
-		
-		Super.Die(source, inflictor, dmgflags);
-		
-		A_RadiusGive("SyphonDestroyer",16386,RGF_MISSILES,1,"D4SyphonGrenade");
-		for (int i = 1; i < 9; i++)
-			A_StopSound(i);
-		A_Overlay(1,"Null");
-		A_ClearOverlays();
-	}
 	
 	void TryDash()
 	{
@@ -1666,30 +1658,3 @@ extend class Doom4Player
 
 
 ==============================================================================*/
-
-class D4DDeathStorage : Thinker
-{
-	bool died;
-	Array<String> ItemList;
-	Array<Int> ItemCount;
-	//--------------------------------------------------------------------------
-	// Functions
-	//--------------------------------------------------------------------------
-	
-	D4DDeathStorage Init()
-	{
-		ChangeStatNum(STAT_STATIC);
-		return self;
-	}
-
-	static D4DDeathStorage Get()
-	{
-		ThinkerIterator it = ThinkerIterator.Create("D4DDeathStorage",STAT_STATIC);
-		let p = D4DDeathStorage(it.Next());
-		if (p == null)
-		{
-			p = new("D4DDeathStorage").Init();
-		}
-		return p;
-	}
-}

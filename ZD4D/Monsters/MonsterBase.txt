@@ -358,23 +358,6 @@ Class D4AbstractMonster : Actor
 		Super.OnDestroy();
 	}
 	
-	void SpawnRune()
-	{
-		if (!RuneItem || RuneDropChance < 1)
-			return;
-			
-		if (RuneChance(RuneDropChance))
-		{
-			let Rune = DemonRuneBase(Spawn(RuneItem, pos, ALLOW_REPLACE));
-			Class<Inventory> Token = "D4MonsterUpgrader";
-			int Count = CountInv(Token);
-			if (Rune && Token && Count > 0)
-			{
-				Rune.PowerLevel = Count;
-			}
-		}
-	}
-	
 	//--------------------------------------------------------------------------
 	//
 	// D4Chase(melee, missile, flags, max turn)
@@ -447,29 +430,66 @@ Class D4AbstractMonster : Actor
 	
 	//==========================================================================
 	//
-	// RuneChance(id)
+	// SpawnRune
 	//
-	// Determines the chance of a rune dropping.
+	// Spawns the rune after calling RuneChance, 
 	//==========================================================================
+	
+	void SpawnRune()
+	{
+		if (!RuneItem || RuneDropChance < 1)
+			return;
+			
+		if (RuneChance(RuneDropChance))
+		{
+			let Rune = DemonRuneBase(Spawn(RuneItem, pos, ALLOW_REPLACE));
+			Class<Inventory> Token = "D4MonsterUpgrader";
+			int Count = CountInv(Token);
+			if (Rune && Token && Count > 0)
+			{
+				Rune.PowerLevel = Count;
+			}
+		}
+	}
 	
 	int RuneChance(int id)
 	{
 		int rarity = int(GetCvar("D4D_DemonRunes"));
-		
-		if (!rarity)	return 0;
+		if (rarity < 1)	return 0;
 		
 		int upgrade = CountInv("D4MonsterUpgrader");
 		
 		// Black and white monsters always drop demon runes.
-		if (upgrade >= 6)
-			return 1;
-			
+		if (upgrade >= 6)	return 1;
+		int originalID = id;
 		id = Max(1, id - upgrade);
 		// Spider masterminds are the rarest of enemies. Give them special 
 		// treatment so players can enjoy playing the hell out of them.
-		if (CheckClass("D4SpiderMastermind") || CheckClass("D4OldSpiderMastermind"))
+		if (self is "D4SpiderMastermind" || self is "D4OldSpiderMastermind" || 
+			self is "D4Cyberdemon" || self is "D4OldCyberdemon")
 		{
 			// Only check for live ones.
+			int howmany = 1;
+			if (!Event)	Event = D4DHandler.Fetch();
+			if (Event)
+			{
+				Array<Actor> Monsters; Monsters.Copy(Event.Monsters);
+				for (int i = 0; i < Monsters.Size(); i++)
+				{
+					Actor mo = Monsters[i];
+					if (mo && (mo is GetClass()) && mo.CountInv("D4MonsterUpgrader") == upgrade)
+					{
+						if (howmany++ >= originalID)
+							break;
+					}
+				}
+			}
+			
+			return (random(1, Max(1, howmany / rarity)) == 1) ? 1 : 0;
+		}
+		/*
+		if (self is "D4SpiderMastermind" || self is "D4OldSpiderMastermind")
+		{
 			int howmany = Max(1,CountProximity("D4SpiderMastermind",32767) + CountProximity("D4OldSpiderMastermind",32767) + 1);
 			howmany -= upgrade;
 			howmany = Clamp(howmany,1,RuneChance_Master);
@@ -496,6 +516,7 @@ Class D4AbstractMonster : Actor
 				return (random(1,howmany) == 1) ? 1 : 0;
 			}
 		}
+		*/
 		else if (rarity == 2)		// Common
 		{
 			return (random(1, (id / 2)) == 1) ? 1 : 0;

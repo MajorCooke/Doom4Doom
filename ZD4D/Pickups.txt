@@ -510,10 +510,7 @@ Class D4UpgradePickupSpawner : Actor
 	Array<String> items;
 	override void PostBeginPlay()
 	{
-		Actor temp = tracer;
-		A_TransferPointer(Player1,DefPtr,DefPtr,TracerPtr,4);
-		let plr = PlayerPawn(tracer);
-		tracer = temp;
+		let plr = PlayerPawn(players[0].mo);
 		
 		int filled = 0;
 		items.Clear();
