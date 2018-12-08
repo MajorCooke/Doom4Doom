@@ -765,11 +765,10 @@ Class CDRocketFlare : D4RocketTrailFire2 //centered flare behind the rocket
 		Stop;		
 	}
 }
-Class CyberdemonRocketExplosion : Actor 
+Class CyberdemonRocketExplosion : D4RocketExplosion 
 {
 	Default 
 	{
-		+NOINTERACTION
 		Scale 0.15;
 		+FORCEXYBILLBOARD
 		+ROLLSPRITE
@@ -781,7 +780,7 @@ Class CyberdemonRocketExplosion : Actor
 		X126 AA 1 Bright Light("YellowBigPoint3") A_SetScale(Scale.X+0.07);
 		X126 BB 1 Bright Light("YellowBigPoint3") A_SetScale(Scale.X+0.07);
 		X126 CC 1 Bright Light("YellowMediumPoint1") A_SetScale(Scale.X+0.07);
-		X126 DD 1 Bright Light("YellowMediumPoint1")A_SetScale(Scale.X+0.07);
+		X126 DD 1 Bright Light("YellowMediumPoint1") A_SetScale(Scale.X+0.07);
 		X126 E 2 Bright Light("YellowMediumPoint2") A_SetScale(Scale.X+0.03);
 		X126 F 2 Bright Light("YellowMediumPoint3") A_SetScale(Scale.X+0.03);
 		X126 G 2 Bright Light("YellowSmallPoint1") A_SetScale(Scale.X+0.03);

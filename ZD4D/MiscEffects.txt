@@ -19,6 +19,9 @@ Class D4DFX : Actor
 		D4DFX.AutoRoll 0, 0, false;
 		D4DFX.RandomRoll false;
 		+NOINTERACTION
+		+NOBLOCKMAP
+		Radius 1;
+		Height 1;
 	}
 	
 	override void BeginPlay()
@@ -76,11 +79,11 @@ Class D4DFX : Actor
 //---------------------------------------------------------------
 
 
-Class D4RocketExplosion : Actor 
+Class D4RocketExplosion : D4DFX 
 {
 	Default 
 	{
-		+NOINTERACTION
+		D4DFX.RandomRoll true;
 		+FORCEXYBILLBOARD
 		+ROLLSPRITE
 		Scale 0.4;
@@ -88,7 +91,6 @@ Class D4RocketExplosion : Actor
 	States
 	{
 	Spawn:
-		X126 A 0 NoDelay A_SetRoll(random(0,359));
 		X126 AA 1 Bright Light("YellowBigPoint3") A_SetScale(Scale.X+0.07);
 		X126 BB 1 Bright Light("YellowBigPoint3") A_SetScale(Scale.X+0.07);
 		X126 CC 1 Bright Light("YellowMediumPoint1") A_SetScale(Scale.X+0.07);
@@ -108,11 +110,10 @@ Class D4RocketExplosion : Actor
 	}
 }
 
-Class D4RocketExplosionBloom : Actor 
+Class D4RocketExplosionBloom : D4RocketExplosion 
 {
 	Default 
 	{
-		+NOINTERACTION
 		+FORCEXYBILLBOARD
 		+ROLLSPRITE
 		Scale 0.55;
@@ -141,11 +142,10 @@ Class D4RocketExplosionBloom : Actor
 	}
 }
 
-Class D4RocketExplosionNoGL : Actor 
+Class D4RocketExplosionNoGL : D4RocketExplosion 
 {
 	Default 
 	{
-		+NOINTERACTION
 		+FORCEXYBILLBOARD
 		+ROLLSPRITE
 		Scale 0.4;
@@ -154,11 +154,7 @@ Class D4RocketExplosionNoGL : Actor
 	States
 	{
 	Spawn:
-		X126 A 0 NoDelay 
-		{
-			A_SetRoll(random(0,359));
-			A_SpawnItemEx("D4RocketExplosionBloom",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERROLL|SXF_SETMASTER|SXF_TRANSFERTRANSLATION);
-		}
+		X126 A 0 NoDelay A_SetRoll(random(0,359));
 		X126 AA 1 Bright A_SetScale(Scale.X+0.07);
 		X126 BB 1 Bright A_SetScale(Scale.X+0.07);
 		X126 CC 1 Bright A_SetScale(Scale.X+0.07);
