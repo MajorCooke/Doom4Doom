@@ -47,12 +47,13 @@ Class D4DKeeperItem : Inventory
 	{
 		+INVENTORY.UNDROPPABLE
 		+INVENTORY.UNTOSSABLE
+		+INVENTORY.KEEPDEPLETED
 	}
 	
 	// NEVER let this item be picked up raw.
 	override bool TryPickup(in out Actor toucher)
 	{
-		if (!toucher || D4DHandler.IsUpgradeBlacklisted(GetClass()));
+		if (!toucher || D4DHandler.IsUpgradeBlacklisted(GetClass()))
 			return false;
 			
 		return Super.TryPickup(toucher);

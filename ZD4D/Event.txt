@@ -671,13 +671,14 @@ extend class D4DHandler
 	// Global function. Checks if the item is directly a set of blacklisted
 	// items. Blacklisted items should never be given.
 	//--------------------------------------------------------------------------
-	static bool IsUpgradeBlacklisted(Class<UpgradeItem> Item)
+	static bool IsUpgradeBlacklisted(Class<D4DKeeperItem> Item)
 	{
 		if (!Item)	return true;
 		static const Name Blacklist[] =
 		{
 			'UpgradeItem',
 			'UpgradeItemSpecial',
+			'D4DKeeperItem',
 			'D4RuneUpgrade1',
 			'CashPercentBonus'
 		};
