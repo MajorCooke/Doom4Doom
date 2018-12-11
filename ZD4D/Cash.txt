@@ -3,7 +3,16 @@
 //==============================================================================
 // Cost of upgrades moved to Upgrades.txt.
 
-Class D4DCash : Inventory
+Class FreeUpgradeToken : D4DKeeperItem
+{
+	Default
+	{
+		Inventory.MaxAmount 500000000;
+		Inventory.InterhubAmount 500000000;
+	}
+}
+
+Class D4DCash : D4DKeeperItem
 {
 	Default
 	{
@@ -15,7 +24,7 @@ Class D4DCash : Inventory
 	}
 }
 
-Class D4DCashCent : Inventory
+Class D4DCashCent : D4DKeeperItem
 {
 	Default
 	{

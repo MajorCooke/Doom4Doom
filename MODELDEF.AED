@@ -775,6 +775,9 @@ Model D4ArmorBonus
 	FrameIndex D4AR C 0 0
 }
 
+
+//------------------------------------------------------------------------------
+// Upgrades + Drones
 Model D4UpgradeDrone
 {
 	Scale 1.0 1.0 1.2
@@ -790,4 +793,12 @@ Model D4UpgradeDrone
 	FrameIndex D4DR H 0 7
 	FrameIndex D4DR I 0 8
 	FrameIndex D4DR J 0 9
+}
+
+Model D4UpgradeCase
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/UpgradeCrate.md3"
+	Skin 0 "CrateMaxSkin"
+	FrameIndex MICR A 0 0
 }

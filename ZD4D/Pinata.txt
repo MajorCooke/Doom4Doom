@@ -472,8 +472,10 @@ Class D4PinataParticles : Actor
 		"####" "#" 1
 		{
 			if (!master)
-				return Destroy();
-			
+			{
+				Destroy();
+				return;
+			}
 			if (cv == CV_Border || cv == CV_BorderParticle)
 			{
 				bINVISIBLE = (cv == CV_Particle);
@@ -556,7 +558,7 @@ Struct PlrCheck play
 
 Class UpgradePinataFlier : Thinker
 {
-	Actor 				Spawner;			// The main actor to move and monitor.
+	Inventory			Spawner;			// The main actor to move and monitor.
 	PlayerPawn			Target;				// The target to fly after.
 	Class<Inventory> 	Item;				// The item to check for < max
 	Class<Inventory>	Condition;			// Other item to check
@@ -586,7 +588,7 @@ Class UpgradePinataFlier : Thinker
 	
 	override void Tick()
 	{
-		if (DestroyMe || !Spawner || (!NoItem && !Item))
+		if (DestroyMe || !Spawner || Spawner.Owner || (!NoItem && !Item))
 		{	Destroy(); return;	}
 			
 		Inventory it = Inventory(Spawner);

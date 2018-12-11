@@ -129,9 +129,10 @@ Class D4DMonsterSpawner : Actor
 		bool test = false;
 		[test, mon] = A_SpawnItemEx(toSpawn,0,0,0,0,0,0,0,MonsterSpawnFlags,0,tid);
 		
-		if (mon)
+		if (mon && test)
 		{
-			
+			mon.lastheard = target;
+			mon.target = target;
 			if (isStealth)	mon.bSTEALTH = true;
 			
 			if (bBossSpawned)

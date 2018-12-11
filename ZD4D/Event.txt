@@ -659,10 +659,45 @@ extend class D4DHandler
 		Pinatas.DropItemsPos(pos);
 		return true;
 	}
-	//--------------------------------------------------------------------------
-	//--------------------------------------------------------------------------
+	//==========================================================================
+	//==========================================================================
 	// Custom functions
+	//==========================================================================
+	//==========================================================================
+	
 	//--------------------------------------------------------------------------
+	// IsUpgradeBlacklisted
+	//
+	// Global function. Checks if the item is directly a set of blacklisted
+	// items. Blacklisted items should never be given.
+	//--------------------------------------------------------------------------
+	static bool IsUpgradeBlacklisted(Class<UpgradeItem> Item)
+	{
+		if (!Item)	return true;
+		static const Name Blacklist[] =
+		{
+			'UpgradeItem',
+			'UpgradeItemSpecial',
+			'D4RuneUpgrade1',
+			'CashPercentBonus'
+		};
+		
+		// Make sure it's not directly a blacklisted item.
+		String Check = Item.GetClassName();
+		for (int j = 0; j < Blacklist.Size(); j++)
+			if (Check == Blacklist[j])
+				return true;
+		
+		// UpgradeBase derived items should never be given. They are merely
+		// there for the sake of giving the hint for which weapon they belong to.
+		if (Check.IndexOf("UpgradeBase") >= 0)
+			return true;
+		
+		return false;
+	}
+	
+	//--------------------------------------------------------------------------
+	//
 	//--------------------------------------------------------------------------
 	
 	static D4DHandler Fetch()

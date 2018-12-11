@@ -380,7 +380,7 @@ Class OptionMenuItemSubmenuWeapon : OptionMenuItemSubmenu
 	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
 	{
 		if (!started)	OnMenuCreatedOld();
-		drawLabel(indent, y, selected? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColorMore, greyed);
+		drawLabel(indent, y, selected ? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColorMore, greyed);
 		return indent;
 	}
 
@@ -396,6 +396,11 @@ Class OptionMenuItemSubmenuWeapon : OptionMenuItemSubmenu
 		Menu.MenuSound("menu/choose");
 		Menu.SetMenu(mAction, mParam);
 		return true;
+	}
+	
+	override bool Selectable()
+	{
+		return !greyed;
 	}
 }
 

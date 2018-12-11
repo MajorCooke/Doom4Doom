@@ -1,46 +1,43 @@
 
 Class UpgradeRequirementChecker
 {
-	const Total = 4;
-	Class<UpgradeItem> Item;
-	Array<Class<UpgradeItem> > ReqList;
-	
-	int CheckItem(Class<UpgradeItem> Check, Actor Plr)
-	{
-		Item = Check;
-		ReqList.Clear();
-		
+	const Total = 4;	
+	static int CheckItem(Class<UpgradeItem> Item, Actor Plr)
+	{		
 		if (!Item || !Plr)	return -1;
+		
+		let def = GetDefaultByType(Item);
+		
+		// Already has it.
+		if (Plr.CountInv(Item) >= def.MaxAmount)
+			return -1;
+		
+		// Missing the gun.
+		if (def.GunNeeded && !Plr.FindInventory(def.GunNeeded))
+			return -1;
 		
 		String Reqs[Total];
 		int ReqQ[Total];
-		Class<Inventory> Checks[Total];
-		let def = GetDefaultByType(Item);
 		
 		Reqs[0] = def.Req1;	ReqQ[0] = def.ReqQ1;
 		Reqs[1] = def.Req2;	ReqQ[1] = def.ReqQ2;
 		Reqs[2] = def.Req3;	ReqQ[2] = def.ReqQ3;
 		Reqs[3] = def.Req4;	ReqQ[3] = def.ReqQ4;
-		
+		int Requirements = 0;
 		for (int i = 0; i < Reqs.Size(); i++)
 		{
-			if (Reqs[i].Length() < 1)
+			Class<Inventory> Check = Reqs[i];
+			if (!Check)
 			{
-				Checks[i] = null;
+				if (Reqs[i].Length() > 0)
+					Console.Printf("Bad item: %s", Reqs[i]);
 				continue;
 			}
-			
-			Checks[i] = Reqs[i];
-			if (Checks[i])
-			{
-				let inv = Plr.FindInventory(Checks[i]);
-				if (!inv || inv.Amount < inv.MaxAmount)
-					ReqList.Push(Checks[i]);
-			}
-			else Console.Printf("Bad item: %s", Reqs[i]);
+			let inv = Plr.FindInventory(Check);
+			if (!inv || inv.Amount < ReqQ[i])
+				Requirements++;
 		}
-		
-		return ReqList.Size();
+		return Requirements;
 	}
 }
 
@@ -55,8 +52,7 @@ Class D4DKeeperItem : Inventory
 	// NEVER let this item be picked up raw.
 	override bool TryPickup(in out Actor toucher)
 	{
-		let Cls = GetClass();
-		if (!toucher || Cls == "UpgradeItem" || Cls == "D4DKeeperItem")
+		if (!toucher || D4DHandler.IsUpgradeBlacklisted(GetClass()));
 			return false;
 			
 		return Super.TryPickup(toucher);
@@ -73,6 +69,8 @@ Class UpgradeItem : D4DKeeperItem
 	String Attach1, Attach2, Attach3, Attach4;
 	int Attamt1, Attamt2, Attamt3, Attamt4;
 	String Desc, Desc1, Desc2, Desc3, Desc4;
+	Class<Doom4Weapon> GunNeeded;
+	property GunNeeded: GunNeeded;
 	property Desc: Desc;
 	property Desc1: Desc1;
 	property Desc2: Desc2;
@@ -133,7 +131,7 @@ Class UpgradeItem : D4DKeeperItem
 	virtual void PrintDesc()
 	{
 		if (Desc.Length() < 1)
-			Desc = "Insert description for "..GetClassName().." here";
+			Desc = StringTable.Localize("$"..GetClassName());
 			
 		if (Owner)
 			Owner.A_Print(Desc);
@@ -247,8 +245,8 @@ Class CashPercentBonus : UpgradeItem
 		UpgradeItem.Quantity2 20;
 		UpgradeItem.Quantity3 30;
 		UpgradeItem.Quantity4 40;
-		Inventory.MaxAmount 1000000;
-		Inventory.InterhubAmount 1000000;
+		Inventory.MaxAmount 40;
+		Inventory.InterhubAmount 40;
 		+INVENTORY.IGNORESKILL
 	}
 }
@@ -306,85 +304,65 @@ Class ProtectionBonus3Real : PowerProtection
 //	Weapon Upgrades
 //==============================================================================
 //==============================================================================
-
-Class AssaultRifleMod1 : UpgradeItem 			{ Default {	UpgradeItem.Cost 3000;	}}	// Scope mod
-Class AssaultRifleMod2 : UpgradeItem 			{ Default {	UpgradeItem.Cost 4000;	}}	// mini missiles mod
-Class BFGUpgrade1 : UpgradeItem	// Ammo Capacity
-{
-	Default 
-	{
-		UpgradeItem.Cost 10000;
-	}
-	
-	// Up the max amount.
-	override void UpdateItem()
-	{
-		if (Owner)
-		{
-			let inv = Owner.FindInventory("D4BFGAmmo");
-			if (inv)
-			{
-				inv.MaxAmount = inv.Default.MaxAmount + Amount;
-				inv.InterHubAmount = inv.Default.InterHubAmount + Amount;
-			}
-		}
-	}
-	override void DepleteOrDestroy()
-	{
-		if (Owner)
-		{
-			let inv = Owner.FindInventory("D4BFGAmmo");
-			if (inv)
-			{
-				inv.MaxAmount = inv.Default.MaxAmount;
-				inv.InterHubAmount = inv.Default.InterHubAmount;
-			}
-		}
-		Super.DepleteOrDestroy();
-	}
-}
-Class BFGUpgrade2 : UpgradeItem 				{ Default { UpgradeItem.Cost 20000; }} 	// Alt Fire
-Class BFGUpgrade3 : UpgradeItem 				{ Default { UpgradeItem.Cost 10000; }}	// Projectile; Speed
-Class BFGUpgrade4 : UpgradeItem 				{ Default { UpgradeItem.Cost 10000; }}	// Redirector
-Class CarrionUpgradePickup : UpgradeItem 		{ Default { UpgradeItem.Cost 6666; }}
-Class CarrionUpgradeAmmo : UpgradeItem 			{ Default { UpgradeItem.Cost 6666; }}
-Class CarrionUpgradeStun : UpgradeItem 			{ Default { UpgradeItem.Cost 6666; }}
-Class CarrionUpgradeTime : UpgradeItem 			{ Default { UpgradeItem.Cost 6666; }}
-Class ChaingunMod1 : UpgradeItem				{ Default { UpgradeItem.Cost 6000; }}	// rotator
-Class ChaingunMod2 : UpgradeItem				{ Default { UpgradeItem.Cost 8000; }}	// turret
-Class GaussCannonMod1 : UpgradeItem 			{ Default { UpgradeItem.Cost 8000; }}	// precision shot
-Class GaussCannonMod2 : UpgradeItem				{ Default { UpgradeItem.Cost 10000; }}	// siege mode
-Class LGUpgradeRange : UpgradeItem				{ Default { UpgradeItem.Cost 4000; }}
-Class LGUpgradeAmmo : UpgradeItem				{ Default { UpgradeItem.Cost 2000; }}
-Class LGUpgradeDamage : UpgradeItem				{ Default { UpgradeItem.Cost 9000; }}
-Class LGUpgradeAltFire : UpgradeItem			{ Default { UpgradeItem.Cost 9000; }}
-Class PistolUpgradeAutomatic : UpgradeItem		{ Default { UpgradeItem.Cost 2000; }}
-Class PistolUpgradeAltDamage : UpgradeItem		{ Default { UpgradeItem.Cost 4000; }}
-Class PistolUpgradeAltCharge : UpgradeItem		{ Default { UpgradeItem.Cost 4000; }}
-Class PistolUpgradeDamage : UpgradeItem			{ Default { UpgradeItem.Cost 2500; }}
-Class PistolUpgradeLance : UpgradeItem			{ Default { UpgradeItem.Cost 12000; UpgradeItem.Requirements2 "PistolUpgradeAltCharge", 1, "PistolUpgradeAltDamage", 1; }}
-Class PlasmaRifleMod1 : UpgradeItem				{ Default { UpgradeItem.Cost 5000; }}	// heat shot upgrade
-Class PlasmaRifleMod2 : UpgradeItem 			{ Default { UpgradeItem.Cost 3000; }}	// electric grenade upgrade
-Class RepeaterUpgradePiercing : UpgradeItem 	{ Default { UpgradeItem.Cost 4000; }}	// Upgrade 1: Bullets pierce 1 Monster;
-Class RepeaterUpgradeDamage : UpgradeItem 		{ Default { UpgradeItem.Cost 4000; }}	// Upgrade 2: increased primary fire damage
-Class RepeaterUpgradeAltDamage : UpgradeItem 	{ Default { UpgradeItem.Cost 3000; }}	// Upgrade 3: increased alt fire burn damage
-Class RepeaterUpgradeAltAmmo : UpgradeItem		{ Default { UpgradeItem.Cost 3000; }}	// Upgrade 4: Decrease ammo requirement for alt fire
-Class RocketLauncherMod1 : UpgradeItem			{ Default { UpgradeItem.Cost 5000; }}	// detonate
-Class RocketLauncherMod2 : UpgradeItem 			{ Default { UpgradeItem.Cost 5000; }}	// lock on
-Class ShotgunMod1 : UpgradeItem 				{ Default { UpgradeItem.Cost 3000; }}	// Triple shot
-Class ShotgunMod2 : UpgradeItem 				{ Default { UpgradeItem.Cost 3000; }}	// grenade mod
-Class StaticUpgrade1 : UpgradeItem 				{ Default { UpgradeItem.Cost 2500; }}
-Class StaticUpgrade2 : UpgradeItem 				{ Default { UpgradeItem.Cost 5000;	UpgradeItem.Requirements1 "StaticUpgrade1", 1; }}
-Class StaticUpgrade3 : UpgradeItem 				{ Default { UpgradeItem.Cost 7500;	UpgradeItem.Requirements1 "StaticUpgrade2", 1; }}
-Class StaticUpgrade4 : UpgradeItem 				{ Default { UpgradeItem.Cost 10000;	UpgradeItem.Requirements1 "StaticUpgrade3", 1; }}
-Class SSGUpgrade1 : UpgradeItem					{ Default { UpgradeItem.Cost 2000; }}
-Class SSGUpgrade2 : UpgradeItem					{ Default { UpgradeItem.Cost 2500; }}
-Class SSGUpgrade3 : UpgradeItem					{ Default { UpgradeItem.Cost 4000; }}
-Class SSGUpgrade4 : UpgradeItem					{ Default { UpgradeItem.Cost 10000;	UpgradeItem.Requirements2 "SSGUpgrade1", 1, "SSGUpgrade2", 1; }}
-Class VortexUpgradeDamage : UpgradeItem 		{ Default { UpgradeItem.Cost 4000; }}
-Class VortexUpgradeAmmo : UpgradeItem 			{ Default { UpgradeItem.Cost 6000; }}
-Class VortexUpgradeAltSpeed : UpgradeItem 		{ Default { UpgradeItem.Cost 2500; }}
-Class VortexUpgradeAltPierce : UpgradeItem 		{ Default { UpgradeItem.Cost 3500; }}
+Class AssaultRifleUpgradeBase : UpgradeItem 			{ Default { UpgradeItem.GunNeeded "D4AssaultRifle"; } }
+Class AssaultRifleMod1 : AssaultRifleUpgradeBase 		{ Default {	UpgradeItem.Cost 3000;	}}	// Scope mod
+Class AssaultRifleMod2 : AssaultRifleUpgradeBase 		{ Default {	UpgradeItem.Cost 4000;	}}	// mini missiles mod
+Class BFGUpgradeBase : UpgradeItem 						{ Default { UpgradeItem.GunNeeded "D4BFG"; } }
+Class BFGUpgrade1 : BFGUpgradeBase						{ Default {	UpgradeItem.Cost 10000;	}}	// Ammo Capacity
+Class BFGUpgrade2 : BFGUpgradeBase 						{ Default { UpgradeItem.Cost 20000; }} 	// Alt Fire
+Class BFGUpgrade3 : BFGUpgradeBase 						{ Default { UpgradeItem.Cost 10000; }}	// Projectile; Speed
+Class BFGUpgrade4 : BFGUpgradeBase 						{ Default { UpgradeItem.Cost 10000; }}	// Redirector
+Class CarrionUpgradeBase : UpgradeItem 					{ Default { UpgradeItem.GunNeeded "D4CarrionCannon"; } }
+Class CarrionUpgradePickup : CarrionUpgradeBase 		{ Default { UpgradeItem.Cost 6666; }}
+Class CarrionUpgradeAmmo : CarrionUpgradeBase 			{ Default { UpgradeItem.Cost 6666; }}
+Class CarrionUpgradeStun : CarrionUpgradeBase 			{ Default { UpgradeItem.Cost 6666; }}
+Class CarrionUpgradeTime : CarrionUpgradeBase 			{ Default { UpgradeItem.Cost 6666; }}
+Class ChaingunUpgradeBase : UpgradeItem 				{ Default { UpgradeItem.GunNeeded "D4Chaingun"; } }
+Class ChaingunMod1 : ChaingunUpgradeBase				{ Default { UpgradeItem.Cost 6000; }}	// rotator
+Class ChaingunMod2 : ChaingunUpgradeBase				{ Default { UpgradeItem.Cost 8000; }}	// turret
+Class GaussCannonUpgradeBase : UpgradeItem 				{ Default { UpgradeItem.GunNeeded "D4GaussCannon"; } }
+Class GaussCannonMod1 : GaussCannonUpgradeBase 			{ Default { UpgradeItem.Cost 8000; }}	// precision shot
+Class GaussCannonMod2 : GaussCannonUpgradeBase			{ Default { UpgradeItem.Cost 10000; }}	// siege mode
+Class LGUpgradeBase : UpgradeItem 						{ Default { UpgradeItem.GunNeeded "D4LightningGun"; } }
+Class LGUpgradeRange : LGUpgradeBase					{ Default { UpgradeItem.Cost 4000; }}
+Class LGUpgradeAmmo : LGUpgradeBase						{ Default { UpgradeItem.Cost 2000; }}
+Class LGUpgradeDamage : LGUpgradeBase					{ Default { UpgradeItem.Cost 9000; }}
+Class LGUpgradeAltFire : LGUpgradeBase					{ Default { UpgradeItem.Cost 9000; }}
+Class PistolUpgradeBase : UpgradeItem 					{ Default { UpgradeItem.GunNeeded "D4Pistol"; } }
+Class PistolUpgradeAutomatic : PistolUpgradeBase		{ Default { UpgradeItem.Cost 2000; }}
+Class PistolUpgradeAltDamage : PistolUpgradeBase		{ Default { UpgradeItem.Cost 4000; }}
+Class PistolUpgradeAltCharge : PistolUpgradeBase		{ Default { UpgradeItem.Cost 4000; }}
+Class PistolUpgradeDamage : PistolUpgradeBase			{ Default { UpgradeItem.Cost 2500; }}
+Class PistolUpgradeLance : PistolUpgradeBase			{ Default { UpgradeItem.Cost 12000; UpgradeItem.Requirements2 "PistolUpgradeAltCharge", 1, "PistolUpgradeAltDamage", 1; }}
+Class PlasmaRifleUpgradeBase : UpgradeItem 				{ Default { UpgradeItem.GunNeeded "D4PlasmaRifle"; } }
+Class PlasmaRifleMod1 : PlasmaRifleUpgradeBase			{ Default { UpgradeItem.Cost 5000; }}	// heat shot upgrade
+Class PlasmaRifleMod2 : PlasmaRifleUpgradeBase 			{ Default { UpgradeItem.Cost 3000; }}	// electric grenade upgrade
+Class RepeaterUpgradeBase : UpgradeItem 				{ Default { UpgradeItem.GunNeeded "D4Repeater"; } }
+Class RepeaterUpgradePiercing : RepeaterUpgradeBase 	{ Default { UpgradeItem.Cost 4000; }}	// Upgrade 1: Bullets pierce 1 Monster;
+Class RepeaterUpgradeDamage : RepeaterUpgradeBase 		{ Default { UpgradeItem.Cost 4000; }}	// Upgrade 2: increased primary fire damage
+Class RepeaterUpgradeAltDamage : RepeaterUpgradeBase 	{ Default { UpgradeItem.Cost 3000; }}	// Upgrade 3: increased alt fire burn damage
+Class RepeaterUpgradeAltAmmo : RepeaterUpgradeBase		{ Default { UpgradeItem.Cost 3000; }}	// Upgrade 4: Decrease ammo requirement for alt fire
+Class RocketLauncherUpgradeBase : UpgradeItem 			{ Default { UpgradeItem.GunNeeded "D4RocketLauncher"; } }
+Class RocketLauncherMod1 : RocketLauncherUpgradeBase	{ Default { UpgradeItem.Cost 5000; }}	// detonate
+Class RocketLauncherMod2 : RocketLauncherUpgradeBase 	{ Default { UpgradeItem.Cost 5000; }}	// lock on
+Class ShotgunUpgradeBase : UpgradeItem					{ Default { UpgradeItem.GunNeeded "D4Shotgun"; } }
+Class ShotgunMod1 : ShotgunUpgradeBase 					{ Default { UpgradeItem.Cost 3000; }}	// Triple shot
+Class ShotgunMod2 : ShotgunUpgradeBase 					{ Default { UpgradeItem.Cost 3000; }}	// grenade mod
+Class StaticUpgradeBase : UpgradeItem 					{ Default { UpgradeItem.GunNeeded "D4StaticRifle"; } }
+Class StaticUpgrade1 : StaticUpgradeBase 				{ Default { UpgradeItem.Cost 2500; }}
+Class StaticUpgrade2 : StaticUpgradeBase 				{ Default { UpgradeItem.Cost 5000;	UpgradeItem.Requirements1 "StaticUpgrade1", 1; }}
+Class StaticUpgrade3 : StaticUpgradeBase 				{ Default { UpgradeItem.Cost 7500;	UpgradeItem.Requirements1 "StaticUpgrade2", 1; }}
+Class StaticUpgrade4 : StaticUpgradeBase 				{ Default { UpgradeItem.Cost 10000;	UpgradeItem.Requirements1 "StaticUpgrade3", 1; }}
+Class SSGUpgradeBase : UpgradeItem 						{ Default { UpgradeItem.GunNeeded "D4SuperShotgun"; } }
+Class SSGUpgrade1 : SSGUpgradeBase						{ Default { UpgradeItem.Cost 2000; }}
+Class SSGUpgrade2 : SSGUpgradeBase						{ Default { UpgradeItem.Cost 2500; }}
+Class SSGUpgrade3 : SSGUpgradeBase						{ Default { UpgradeItem.Cost 4000; }}
+Class SSGUpgrade4 : SSGUpgradeBase						{ Default { UpgradeItem.Cost 10000;	UpgradeItem.Requirements2 "SSGUpgrade1", 1, "SSGUpgrade2", 1; }}
+Class VortexUpgradeBase : UpgradeItem 					{ Default { UpgradeItem.GunNeeded "D4VortexRifle"; } }
+Class VortexUpgradeDamage : VortexUpgradeBase 			{ Default { UpgradeItem.Cost 4000; }}
+Class VortexUpgradeAmmo : VortexUpgradeBase 			{ Default { UpgradeItem.Cost 6000; }}
+Class VortexUpgradeAltSpeed : VortexUpgradeBase 		{ Default { UpgradeItem.Cost 2500; }}
+Class VortexUpgradeAltPierce : VortexUpgradeBase 		{ Default { UpgradeItem.Cost 3500; }}
 
 //==============================================================================
 //==============================================================================
@@ -447,21 +425,23 @@ Class ProtectionBonus : UpgradeItem
 	}
 }
 
-Class D4HigherJump : UpgradeItem 				{ Default { UpgradeItem.Cost 6000;	}}
-Class D4MultiJump : UpgradeItem 				{ Default { UpgradeItem.Cost 8000;	Inventory.MaxAmount 3; }}
-Class D4AirControl : UpgradeItem 				{ Default { UpgradeItem.Cost 10000;	}}
-Class D4Dash : UpgradeItem 						{ Default { UpgradeItem.Cost 12000;	}}
+Class D4HigherJump : D4DKeeperItem {}
+Class D4MultiJump : D4DKeeperItem 	{ Default { Inventory.MaxAmount 3; Inventory.InterhubAmount 3; }}
+Class D4AirControl : D4DKeeperItem {}
+Class D4Dash : D4DKeeperItem {}
 
 Class D4AirUpgrade : UpgradeItem
-{
+{	
 	Default
 	{
 		UpgradeItem.Cost 6000;
 		UpgradeItem.Cost2 8000;
 		UpgradeItem.Cost3 10000;
+		UpgradeItem.Cost4 12000;
 		UpgradeItem.Quantity 1;
 		UpgradeItem.Quantity2 2;
 		UpgradeItem.Quantity3 3;
+		UpgradeItem.Quantity4 4;
 		UpgradeItem.Desc1 "$AirUpgrade1";
 		UpgradeItem.Desc2 "$AirUpgrade2";
 		UpgradeItem.Desc3 "$AirUpgrade3";
@@ -639,6 +619,36 @@ Class D4HasteUpgrade2 : UpgradeItem				{ Default { UpgradeItem.Cost 11000; }}	//
 Class D4QuadUpgrade1 : UpgradeItem				{ Default { UpgradeItem.Cost 15000; }}	// Combine quad + berserk
 Class D4QuadUpgrade2 : UpgradeItem				{ Default { UpgradeItem.Cost 15000; 
 														DamageFactor "Normal", 5.0;	}}	// Penta damage
+
+extend class BFGUpgrade1
+{
+	// Up the max amount.
+	override void UpdateItem()
+	{
+		if (Owner)
+		{
+			let inv = Owner.FindInventory("D4BFGAmmo");
+			if (inv)
+			{
+				inv.MaxAmount = inv.Default.MaxAmount + Amount;
+				inv.InterHubAmount = inv.Default.InterHubAmount + Amount;
+			}
+		}
+	}
+	override void DepleteOrDestroy()
+	{
+		if (Owner)
+		{
+			let inv = Owner.FindInventory("D4BFGAmmo");
+			if (inv)
+			{
+				inv.MaxAmount = inv.Default.MaxAmount;
+				inv.InterHubAmount = inv.Default.InterHubAmount;
+			}
+		}
+		Super.DepleteOrDestroy();
+	}
+}
 
 extend Class D4QuadUpgrade1
 {
