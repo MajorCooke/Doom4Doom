@@ -677,7 +677,9 @@ Class PowerRuneBase : PowerMorph
 	{	
 		if (Owner)
 		{
-			if (globalfreeze || level.frozen)
+			if (globalfreeze || level.frozen || bINVULNERABLE || 
+				FindInventory("PowerInvulnerable", true) ||
+				(alternative && alternative.FindInventory("PowerInvulnerable",true)))
 			{
 				EffectTics++; //'Freeze' the timer.
 			}

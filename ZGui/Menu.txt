@@ -102,6 +102,8 @@ Class MenuItemList : Object ui
 	// Finds the required inventory amount of an item, via a subitem.
 	int FindRequirementCount(String item, int which = 0)
 	{
+		if (item == "")
+			return 0;
 		if (item.Length() > 0)
 		{
 			Class<Inventory> check = item;

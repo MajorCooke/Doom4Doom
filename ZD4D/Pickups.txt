@@ -57,11 +57,10 @@ Class D4Stimpack : Health replaces Stimpack
 	
 	void CheckParts()
 	{
-		if (Glass && OldPos != Pos)
+		if (Glass && Glass.Pos != Pos)
 		{
 			Glass.SetXYZ(pos);
 			Glass.Angle = Angle;
-			OldPos = Pos;
 		}
 	}
 	
@@ -579,7 +578,7 @@ Class D4UpgradeCase : CustomInventory
 					// while not being UpgradeItem and special 'abstract' classes
 					// in-between.
 					Class<UpgradeItem> Check1 = (Class<UpgradeItem>)(AllActorClasses[i]);
-					if (D4DHandler.IsUpgradeBlacklisted(Check1))
+					if (D4DHandler.IsUpgradeBlacklisted(Check1, true))
 						continue;
 					
 					// Checks for missing requirements. I.e. mods cannot drop

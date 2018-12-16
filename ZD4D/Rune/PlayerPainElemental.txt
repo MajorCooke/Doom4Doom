@@ -114,9 +114,37 @@ Class D4DPainElementalWeapon : DemonWeaponBase
 	{
 		Tag "Internal Inferno";
 	}
+	
+	action bool FireLostSoul(bool cooldown = true)
+	{
+		A_PlaySound("Player/Demon/LostSoul/Attack",CHAN_WEAPON);
+		if (cooldown)
+		{
+			Actor b; bool a;
+			[a, b] = A_SpawnItemEx("LostSoulFriend",20*cos(pitch),0,5-sin(pitch)*20,cos(-pitch)*22,0,-sin(pitch)*22,0,SXF_SETMASTER);
+			if (a && b)	//if succesful spawn
+			{
+				if (invoker.target && !invoker.target.bFRIENDLY)
+					b.target = invoker.target;
+				invoker.cooldown = 25;	//long cool off
+				return true;
+			}		
+			A_SpawnItemEx("LostSoulDeatherer",0,0,0,22,0,0,0,SXF_SETMASTER);	//this is if failed spawn
+			invoker.cooldown = 10;		//slight cool off 
+			return false;
+		}
+		Actor b; bool a;
+		[a, b] = A_SpawnItemEx("LostSoulFriend",20*cos(pitch),0,5-sin(pitch)*20,cos(-pitch)*22,0,-sin(pitch)*22,0,SXF_SETMASTER);
+		if (a && b)
+		{
+			if (invoker.target && !invoker.target.bFRIENDLY)
+				b.target = invoker.target;
+		}
+		return true;
+	}
+	
 	States
 	{
-	
 	Overlay.LostSoulCooler:
 		M666 A 1
 		{
@@ -132,7 +160,13 @@ Class D4DPainElementalWeapon : DemonWeaponBase
 			A_GiveInventory("FlyingMonsterPowerup",1);
 			
 		}
-		TNT1 A 1 A_WeaponReady(WRF_DISABLESWITCH);
+		TNT1 A 1 
+		{
+			int flags = WRF_DISABLESWITCH;
+			if (invoker.cooldown > 0)
+				flags |= WRF_NOPRIMARY;
+			A_WeaponReady(flags);
+		}
 		Wait;
 	Deselect:
 		TNT1 A 1 A_Lower;
@@ -141,35 +175,44 @@ Class D4DPainElementalWeapon : DemonWeaponBase
 		TNT1 A 1 A_Raise;
 		Wait;
 	Fire:
-		---- A 1 CheckPrimary();
+		---- A 1 
+		{
+			let o = invoker.owner;
+			if (o)
+			{
+				FTranslatedLineTarget t;
+				let o = invoker.owner;
+				LineAttack(angle, 32766, pitch, 0, 'Normal', "LSTargetPuff", LAF_NOINTERACT|LAF_OVERRIDEZ, t, invoker.owner.player.viewz);
+				invoker.target = t.linetarget;
+				if (!invoker.target)
+					invoker.target = o.target;
+			}
+			return CheckPrimary();
+		}
+		
 		Goto Ready;
 	AltFire:
 		---- A 1 CheckSecondary();
 		Goto Ready;
-	FireP1:
-	FireP2:
-	FireP3:
-	FireP4:
-	FireP5:
-	FireP6:
 	FireP7:
+		---- A 1 FireLostSoul();
+	FireP6:
+		---- A 1 FireLostSoul();
+	FireP5:
+		---- A 1 FireLostSoul();
+	FireP4:
+		---- A 1 FireLostSoul();
+	FireP3:
+		---- A 1 FireLostSoul();
+	FireP2:
+		---- A 1 FireLostSoul();
+	FireP1:
+		---- A 1 FireLostSoul();
 	FireP0:
 		TNT1 A 1 
 		{
 			A_Overlay(6010,"Overlay.LostSoulCooler",true);
-			if (invoker.cooldown < 1)
-			{
-				A_PlaySound("Player/Demon/LostSoul/Attack",CHAN_WEAPON);
-				if (A_SpawnItemEx("LostSoulFriend",20*cos(pitch),0,5-sin(pitch)*20,cos(-pitch)*22,0,-sin(pitch)*22,0,SXF_SETMASTER)==1)	//if succesful spawn
-				{
-					invoker.cooldown = 25;	//long cool off
-				}
-				else
-				{
-					A_SpawnItemEx("LostSoulDeatherer",0,0,0,22,0,0,0,SXF_SETMASTER);	//this is if failed spawn
-					invoker.cooldown = 10;		//slight cool off 
-				}
-			}
+			FireLostSoul();
 		}
 		Goto Ready+1;
 	AltFireP1:
@@ -232,7 +275,46 @@ Class LostSoulFriend : D4LostSoulNoCash
 		+FRIENDLY	
 		-COUNTKILL
 		+THRUSPECIES
+		+MTHRUSPECIES
 		Species "PlayerPElemental";
+	}
+	
+	override bool CanCollideWith(Actor other, bool passive)
+	{
+		if (!passive && bFRIENDLY)
+		{
+			if (other.bFRIENDLY)
+				return false;
+			else if (other.bISMONSTER && other.health > 0)
+			{
+				target = other;
+			}
+			
+		}
+		return true;
+		
+	}
+}
+
+Class LSTargetPuff : Actor
+{
+	Default
+	{
+		+ALLOWTHRUFLAGS
+		+THRUSPECIES
+		+MTHRUSPECIES
+		+PUFFONACTORS
+		+BLOODLESSIMPACT
+		+PAINLESS
+		+PUFFGETSOWNER
+		+INVISIBLE
+	}
+	
+	States
+	{
+	Spawn:
+		TNT1 A 1;
+		Stop;
 	}
 }
 
@@ -240,26 +322,27 @@ Class LostSoulDeatherer : Actor
 {
 	Default 
 	{
+		Projectile;
 		+NOINTERACTION
 	}
 	States
 	{
 	Spawn:
 		TNT1 A 10 NODELAY
+		{
+			A_PlaySound("skull/death");
+			A_Explode(random(30,50),64,0);
+			if (GetCvar("HQEffectsWeapons"))
 			{
-				A_PlaySound("skull/death");
-				A_Explode(random(30,50),64,0);
-				if (GetCvar("HQEffectsWeapons"))
-				{
-					A_SpawnItemEx("LostSoulExploParticle",5,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
-					A_SpawnItemEx("LostSoulExploParticle",5,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
-					A_SpawnItemEx("LostSoulExploParticle",5,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
-					A_SpawnItemEx("LostSoulExploParticle",5,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
-				}
+				A_SpawnItemEx("LostSoulExploParticle",5,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("LostSoulExploParticle",5,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("LostSoulExploParticle",5,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("LostSoulExploParticle",5,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
 			}
+			A_SpawnItemEx("LostSoulExploParticle",5,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("LostSoulExploParticle",5,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("LostSoulExploParticle",5,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
+		}
 		Stop;
 	}
 }

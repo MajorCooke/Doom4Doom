@@ -260,7 +260,7 @@ class OptionMenuItemPurchase : OptionMenuItem
 			Console.Printf("ERROR: UpgradeItem costs not set!");
 			return;
 		}
-		else if (amt >= cost)
+		else if (amt >= cost || m.plr.CountInv("FreeUpgradeToken"))
 		{
 			badItem = false;
 			mLabel = "Purchase";
@@ -315,7 +315,10 @@ class OptionMenuItemPurchase : OptionMenuItem
 			{
 				// It worked. Update the object.
 				m.SetItem(toCheck, toGive);
-				m.SetItem("D4DCash", -abs(cost), true);
+				if (m.plr.CountInv("FreeUpgradeToken"))
+					m.SetItem("FreeUpgradeToken", -1, true);
+				else
+					m.SetItem("D4DCash", -abs(cost), true);
 				Menu.MenuSound("Menu/Activate");
 			}
 			// ...and close it. Means it'll go back up a level.
@@ -552,7 +555,7 @@ class OptionMenuItemSubmenuReqs : OptionMenuItemSubmenu
 		{
 			if (toCheck.Length() > 0)	// Shuts up the whining if nothing was in there.
 			{
-				Console.Printf("ERROR: "..toCheck.." not found! To fix: Add the class to the ItemToSave struct found in ZD4D/Doom4Player.txt. Make sure it inherits from UpgradeItem! See Upgrades.txt for details.");
+				Console.Printf("ERROR: "..toCheck.." not found! Does it inherits from UpgradeItem class?");
 			}
 			else
 			{
@@ -622,11 +625,10 @@ class OptionMenuItemDisplayInt : OptionMenuFieldBase
 {
 	String toCheck;
 	Class<Inventory> check;
-	int amt, cost, quan, maxinv;
+	int tokens, amt, cost, quan, maxinv, buyable;
 	Menu current;
 	MenuItemList m;
-	
-	bool buyable, full;
+	bool full;
 	
 	OptionMenuItemDisplayInt Init (String label, String command, CVar graycheck = null)
 	{
@@ -659,6 +661,12 @@ class OptionMenuItemDisplayInt : OptionMenuFieldBase
 		{
 			if (m.plr)
 			{
+				tokens = m.FindItem("FreeUpgradeToken", true);
+				if (tokens < 0)
+				{
+					tokens = m.plr.CountInv("FreeUpgradeToken");
+					m.SetItem("FreeUpgradeToken", tokens);
+				}
 				amt = m.FindItem("D4DCash", true);
 				if (amt < 0)
 				{
@@ -716,7 +724,8 @@ class OptionMenuItemDisplayInt : OptionMenuFieldBase
 				}
 			}
 		}
-		buyable = (amt >= cost);
+		if (tokens)	buyable = 2;
+		else		buyable = (amt >= cost) ? 1 : 0;
 	}
 	
 	//==========================================================================
@@ -769,7 +778,7 @@ class OptionMenuItemCreditDisplay : OptionMenuItemDisplayInt
 	{
 		Super.Init("Credits", "");
 		grayed = false;
-		buyable = false;
+		buyable = 0;
 		full = false;
 		toCheck = command;
 		return self;
@@ -778,7 +787,12 @@ class OptionMenuItemCreditDisplay : OptionMenuItemDisplayInt
 	//==========================================================================
 	override String Represent()
 	{
-		return String.format("%d", amt);
+		String cash = String.Format("%d", amt);
+		
+		if (tokens > 0)
+			cash.AppendFormat(" (%d FREE upgrade(s) remaining)", tokens);
+		
+		return cash;
 	}
 	
 	//==========================================================================
@@ -791,10 +805,12 @@ class OptionMenuItemCreditDisplay : OptionMenuItemDisplayInt
 		Super.Draw(d, y, indent, selected);
 		
 		int col = OptionMenuSettings.mFontColorValue;
-		if (buyable)
-			col = Font.CR_GREEN;
-		else
-			col = Font.CR_RED;
+		Switch (buyable)
+		{
+			Default:	col = Font.CR_GOLD;	break;
+			Case 1: 	col = Font.CR_GREEN; break;
+			Case 0: 	col = Font.CR_RED; break;
+		}
 		screen.DrawText(SmallFont, col, indent + CursorSpace(), y, Represent(), DTA_CleanNoMove_1, true);
 		return indent;
 	}

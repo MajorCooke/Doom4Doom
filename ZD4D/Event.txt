@@ -671,7 +671,7 @@ extend class D4DHandler
 	// Global function. Checks if the item is directly a set of blacklisted
 	// items. Blacklisted items should never be given.
 	//--------------------------------------------------------------------------
-	static bool IsUpgradeBlacklisted(Class<D4DKeeperItem> Item)
+	static bool IsUpgradeBlacklisted(Class<D4DKeeperItem> Item, bool crate = false)
 	{
 		if (!Item)	return true;
 		static const Name Blacklist[] =
@@ -679,8 +679,7 @@ extend class D4DHandler
 			'UpgradeItem',
 			'UpgradeItemSpecial',
 			'D4DKeeperItem',
-			'D4RuneUpgrade1',
-			'CashPercentBonus'
+			'D4RuneUpgrade1'
 		};
 		
 		// Make sure it's not directly a blacklisted item.
@@ -688,6 +687,11 @@ extend class D4DHandler
 		for (int j = 0; j < Blacklist.Size(); j++)
 			if (Check == Blacklist[j])
 				return true;
+		
+		if (crate)
+		{
+			if (Check == 'CashPercentBonus')	return true;
+		}
 		
 		// UpgradeBase derived items should never be given. They are merely
 		// there for the sake of giving the hint for which weapon they belong to.
