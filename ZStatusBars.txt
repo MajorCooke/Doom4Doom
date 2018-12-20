@@ -58,7 +58,7 @@ Class Doom4StatusBar : BaseStatusBar
 	HUDFont mIndexFont;
 	HUDFont mBigFont;
 	HUDFont mConsoleFont;
-	HUDFont	mQ4SmallHudFont;
+	HUDFont	mQ4HudFont;
 	
 	// Life counter
 	double LifeCounterFade;
@@ -101,8 +101,8 @@ Class Doom4StatusBar : BaseStatusBar
 		mBigFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true, 2, 2);
 		fnt = "CONFONT";
 		mConsoleFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
-		fnt = "Q4SMALLHUDFONT";
-		mQ4SmallHudFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
+		fnt = "Q4HUDFONT";
+		mQ4HudFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
 		mHealthInterpolator = DynamicValueInterpolator.Create(0, 0.25, 1, 20);
 		mHealthInterpolator2 = DynamicValueInterpolator.Create(0, 0.25, 1, 20);
 		mHealthInterpolator3 = DynamicValueInterpolator.Create(0, 0.25, 1, 20);
@@ -415,7 +415,7 @@ Class Doom4StatusBar : BaseStatusBar
 			if (DoomDollCount > 0)
 			{
 				DrawImage("Ddoll", (1024, 727), imageAlignmentLeft);
-				DrawStringScaled(mQ4SmallHudFont, FormatNumber(DoomDollCount, 1, 2), (1008, 733), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 1.5);
+				DrawStringScaled(mQ4HudFont, FormatNumber(DoomDollCount, 1, 2), (1008, 733), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 0.75);
 			}
 			
 			// Credits, lives and resistance counters
@@ -424,11 +424,12 @@ Class Doom4StatusBar : BaseStatusBar
 			{
 				String which = (UpgradeMode) ? "Crates:" : "Credits:";
 				DrawString(mConsoleFont, which, (1024, 8), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
-				DrawStringScaled(mQ4SmallHudFont, FormatNumber(Cash, 1), (1024, 24), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 2);
+				//DrawStringScaled(mQ4HudFont, FormatNumber(Cash, 1), (1024, 24), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 2);
+				DrawString(mQ4HudFont, FormatNumber(Cash, 1), (1024, 24), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
 				
 				if (FakeCash && FakeCashTimer > 0)
 				{
-					DrawStringScaled(mQ4SmallHudFont, "+"..FormatNumber(FakeCash, 1), (1024, 56), DI_TEXT_ALIGN_RIGHT, Font.CR_ORANGE, alpha: fadeamt, scaling: 1.5);
+					DrawStringScaled(mQ4HudFont, "+"..FormatNumber(FakeCash, 1), (1024, 56), DI_TEXT_ALIGN_RIGHT, Font.CR_ORANGE, alpha: fadeamt, scaling: 0.75);
 				}
 			}
 			Vector2 LifePos = (1024, 100);
@@ -438,13 +439,13 @@ Class Doom4StatusBar : BaseStatusBar
 				LifePos.Y += 92;
 				int colRes = (MegasphereCount >= MegasphereMax) ? Font.CR_GREEN : Font.CR_WHITE;
 				DrawString(mConsoleFont, "Resistance:", (1024, 100), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
-				DrawStringScaled(mQ4SmallHudFont, FormatNumber(MegasphereCount, 1), (1024, 116), DI_TEXT_ALIGN_RIGHT, colRes, scaling: 2);
+				DrawString(mQ4HudFont, FormatNumber(MegasphereCount, 1), (1024, 116), DI_TEXT_ALIGN_RIGHT, colRes);
 			}
 			// Lives
 			// Whenever a life is lost, flash it red for a moment and fade it out.
 			int LifeCounterColor = (LifeCount[0] > 0) ? Font.CR_WHITE : Font.CR_RED;
 			DrawString(mConsoleFont, "Lives:", LifePos, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
-			DrawStringScaled(mQ4SmallHudFont, FormatNumber(LifeCount[0], 1), LifePos + (0, 16), DI_TEXT_ALIGN_RIGHT, LifeCounterColor, scaling: 2);
+			DrawString(mQ4HudFont, FormatNumber(LifeCount[0], 1), LifePos + (0, 16), DI_TEXT_ALIGN_RIGHT, LifeCounterColor);
 			
 			int PrevLives = GetAmountOnly("LifeRedFlash");
 			if (PrevLives)
@@ -455,8 +456,8 @@ Class Doom4StatusBar : BaseStatusBar
 			
 			if (LifeCounterFade > 0.0)
 			{
-				DrawStringScaled(mQ4SmallHudFont, FormatNumber(LifeCount[1], 1), LifePos + (0, 16), DI_TEXT_ALIGN_RIGHT, Font.CR_RED, 
-					Clamp(LifeCounterFade, 0.0, 1.0), scaling: 2);
+				DrawString(mQ4HudFont, FormatNumber(LifeCount[1], 1), LifePos + (0, 16), DI_TEXT_ALIGN_RIGHT, Font.CR_RED, 
+					Clamp(LifeCounterFade, 0.0, 1.0));
 				double sub = 1.0 / 60.0;
 				LifeCounterFade -= sub;
 			}
@@ -489,11 +490,11 @@ Class Doom4StatusBar : BaseStatusBar
 				if (invul && invul.EffectTics > 0)
 				{
 					double invulalpha = GetPowerFadeAlpha("PowerInvulnerable");
-					DrawString(mQ4SmallHudFont, FormatNumber(armorAmount, 1, 3), 	(-4, 679), DI_TEXT_ALIGN_RIGHT, colArmor, 1.0 - invulalpha);
-					DrawString(mQ4SmallHudFont, FormatNumber(666),					(-4, 679), DI_TEXT_ALIGN_RIGHT, colArmorInvul, invulalpha);
+					DrawStringScaled(mQ4HudFont, FormatNumber(armorAmount, 1, 3), 	(-4, 679), DI_TEXT_ALIGN_RIGHT, colArmor, 1.0 - invulalpha, scaling: 0.5);
+					DrawStringScaled(mQ4HudFont, FormatNumber(666),					(-4, 679), DI_TEXT_ALIGN_RIGHT, colArmorInvul, invulalpha, scaling: 0.5);
 				}
 				else
-					DrawString(mQ4SmallHudFont, FormatNumber(armorAmount, 1, 3), 	(-4, 679), DI_TEXT_ALIGN_RIGHT, colArmor);
+					DrawStringScaled(mQ4HudFont, FormatNumber(armorAmount, 1, 3), 	(-4, 679), DI_TEXT_ALIGN_RIGHT, colArmor, scaling: 0.5);
 				
 				
 				
@@ -502,7 +503,7 @@ Class Doom4StatusBar : BaseStatusBar
 				int hpi = mHealthInterpolator.GetValue();
 				DrawBar("BODYHEL1", "BODYHEL0", hpi, 				100, (18, 694), 0, 0, imageAlignmentLeft);
 				DrawBar("BODYHEL2", "BODYHEL0", Max(0, hpi - 100), 	100, (18, 694), 0, 0, imageAlignmentLeft);
-				DrawString(mQ4SmallHudFont, FormatNumber(hp, 1, 3), 			(-4, 697), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
+				DrawStringScaled(mQ4HudFont, FormatNumber(hp, 1, 3), 			(-4, 697), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 0.5);
 				
 				DrawImage ("BODYHELC", (0, 697), imageAlignmentLeft);
 			}
@@ -569,7 +570,7 @@ Class Doom4StatusBar : BaseStatusBar
 				AmmoClamp = (ammo1.MaxAmount > 999) ? 4 : 3;
 				DrawBar("AMMOBAR1", "AMMOBAR0", ac1, ammo1.Default.MaxAmount, (881, 693), 0, SHADER_REVERSE, imageAlignmentLeft);
 				DrawBar("AMMOBAR2", "AMMOBAR0", ac1 - ammo1.Default.MaxAmount, ammo1.BackpackMaxAmount - ammo1.Default.MaxAmount, (881, 693), 0, SHADER_REVERSE, imageAlignmentLeft);
-				DrawString(mQ4SmallHudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (983,676), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
+				DrawStringScaled(mQ4HudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (983,676), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 0.5);
 			}			
 			
 			if (GetAmountOnly("D4BFG"))
