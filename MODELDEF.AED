@@ -568,7 +568,7 @@ Model "SNLightningBeam"
 //------------------------------------------------------------------------------
 // Weapons
 //------------------------------------------------------------------------------
-Model "D4GrenadeLauncher"
+Model D4GrenadeLauncher
 {
 	Model 0 "Models/GrenadeLauncher.md3"
 	Scale 1.0 1.0 1.2
@@ -581,6 +581,74 @@ Model "D4GrenadeLauncher"
 	
 	Rotation-Speed 50
 }
+
+// Skin is not needed as the files are named appropriately to the materials
+// and set up via TEXTURES lump.
+Model D4PlasmaRifle
+{
+	Model 0 "Models/PlasmaRifle.md3"
+	Scale 1.0 1.0 1.2
+
+	DONTCULLBACKFACES
+	ROTATING
+	
+	FrameIndex WPPK H 0 0
+	
+	Rotation-Speed 50
+}
+
+Model D4AssaultRifle
+{
+	Model 0 "Models/AssaultRifle.md3"
+	Scale 1.0 1.0 1.2
+
+	DONTCULLBACKFACES
+	ROTATING
+	
+	FrameIndex WPPK E 0 0
+	
+	Rotation-Speed 50
+}
+
+Model D4RocketLauncher
+{
+	Model 0 "Models/RocketLauncher.md3"
+	Scale 1.0 1.0 1.2
+
+	DONTCULLBACKFACES
+	ROTATING
+	
+	FrameIndex WPPK G 0 0
+	
+	Rotation-Speed 50
+}
+
+Model D4Chaingun
+{
+	Model 0 "Models/Chaingun.md3"
+	Scale 1.0 1.0 1.2
+
+	DONTCULLBACKFACES
+	ROTATING
+	
+	FrameIndex WPPK F 0 0
+	
+	Rotation-Speed 50
+}
+
+Model D4BFG
+{
+	Model 0 "Models/BFG.md3"
+	Scale 1.0 1.0 1.2
+
+	DONTCULLBACKFACES
+	ROTATING
+	
+	FrameIndex WPPK I 0 0
+	
+	Rotation-Speed 50
+}
+
 //------------------------------------------------------------------------------
 // Ammo
 //------------------------------------------------------------------------------

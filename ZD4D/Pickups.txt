@@ -29,8 +29,12 @@ Class D4Stimpack : Health replaces Stimpack
 	Vector3 OldPos;
 	Class<Actor> GlassType;
 	Property GlassType: GlassType;
+	Name SpriteName;
+	int SpriteIndex;
+	Property SpawnSprite: SpriteName, SpriteIndex;
 	Default 
 	{
+		D4StimPack.SpawnSprite 'D4HL', Fr_A;
 		D4StimPack.GlassType "D4StimpackGlass";
 		Inventory.PickupMessage "Stimpack";
 		Inventory.Amount 10;
@@ -55,9 +59,9 @@ Class D4Stimpack : Health replaces Stimpack
 		Super.Hide();
 	}
 	
-	void CheckParts()
+	void CheckParts(bool forced = false)
 	{
-		if (Glass && Glass.Pos != Pos)
+		if (Glass && (forced || Glass.Pos != Pos))
 		{
 			Glass.SetXYZ(pos);
 			Glass.Angle = Angle;
@@ -87,10 +91,14 @@ Class D4Stimpack : Health replaces Stimpack
 	Spawn:
 		D4HL A 0 NODELAY 
 		{
+			Sprite = GetSpriteIndex(SpriteName);
+			Frame = SpriteIndex;
 			bNOTIMEFREEZE = false;
 			A_SetAngle(random(0,359));
 			SpawnParts();
 		}
+	Teleport:
+		---- A 0 CheckParts(true);
 		---- A 1 CheckParts();
 		Wait;
 	HoldAndDestroy:
@@ -125,22 +133,12 @@ Class D4Medikit : D4Stimpack replaces Medikit
 {	
 	Default 
 	{
+		D4StimPack.SpawnSprite 'D4HL', Fr_B;
 		D4StimPack.GlassType "D4MedikitGlass";
 		Inventory.PickupMessage "Medikit";
 		Inventory.PickUpSound "Doom4/Pickups/HealthLarge";
 		Inventory.Amount 30;
 		DistanceCheck "D4D_MaxDrawDistance";
-	}
-	States
-	{
-	Spawn:
-		D4HL B 0 NODELAY
-		{
-			A_SetAngle(random(0,359));
-			SpawnParts();
-		}
-		---- A 1 CheckParts();
-		Wait;
 	}
 }
 
@@ -152,23 +150,13 @@ Class D4HealthBonus : D4Stimpack replaces HealthBonus
 	Default 
 	{
 		+INVENTORY.ALWAYSPICKUP
+		D4StimPack.SpawnSprite 'D4HL', Fr_C;
 		D4Stimpack.GlassType "D4HealthBonusGlass";
 		Inventory.PickupMessage "Health bonus";
 		Inventory.PickupSound "Doom4/Pickups/HealthBonus";
 		Inventory.Amount 3;
 		Inventory.MaxAmount 200;
 		DistanceCheck "D4D_MaxDrawDistance";
-	}
-	States
-	{
-	Spawn:
-		D4HL C 0 NODELAY
-		{
-			A_SetAngle(random(0,359));
-			SpawnParts();
-		}
-		---- A 1 CheckParts();
-		Wait;
 	}
 }
 

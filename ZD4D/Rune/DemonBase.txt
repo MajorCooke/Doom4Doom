@@ -103,7 +103,7 @@ Class DemonPlayerBase : Doom4Player
 		{
 			currTic = inv.EffectTics;
 			//Strangely, the timer visual runs out at least a few seconds before.
-			A_SetInventory("DemonTimerToken",inv.EffectTics + 70, DefPtr, true);
+			SetInventory("DemonTimerToken",inv.EffectTics + 70, true);
 		}
 		
 		PowerLevel = Clamp(abs(PowerLevel), 0, MaxRunePower);
@@ -582,6 +582,7 @@ Class DemonRuneBase : CustomInventory
 		{
 			bool d;
 			[d, invoker.ring] = A_SpawnItemEx("DemonRuneBackground",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_TRANSFERSCALE|SXF_ORIGINATOR|SXF_TRANSFERTRANSLATION);
+			invoker.timer *= Max(1, invoker.PowerLevel + 1);
 		}
 		Goto Idle;
 	Idle:
@@ -616,10 +617,12 @@ Class DemonRuneBase : CustomInventory
 	Pickup:
 		TNT1 A 0 
 		{
-			if (CountInv("IamADemonToken") || CountInv("PowerInvulBase") || CountInv("D4DoomDollHands") || CountInv("BusyToken")) //if already a demon...
-			{
+			if (FindInventory("PowerMorph", true) || 
+				CountInv("IamADemonToken") || 
+				CountInv("PowerInvulBase") || 
+				CountInv("D4DoomDollHands") || 
+				CountInv("BusyToken")) //if already a demon...
 				return false;	//...cant pickup
-			}
 			else	//otherwise..
 			{	
 				GiveMorph();

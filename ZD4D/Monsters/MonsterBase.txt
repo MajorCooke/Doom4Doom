@@ -462,13 +462,15 @@ Class D4AbstractMonster : Actor
 		// Black and white monsters always drop demon runes.
 		if (upgrade >= 6)	return 1;
 		int originalID = id;
-		id = Max(1, id - upgrade);
+		id = Max(1, id - (upgrade * 2));
 		// Spider masterminds are the rarest of enemies. Give them special 
 		// treatment so players can enjoy playing the hell out of them.
 		if (self is "D4SpiderMastermind" || self is "D4OldSpiderMastermind" || 
 			self is "D4Cyberdemon" || self is "D4OldCyberdemon")
 		{
 			// Only check for live ones.
+			// The event handler automatically transfers dead monsters from the
+			// Monsters to DeadMonsters array inside of it.
 			int howmany = 1;
 			if (!Event)	Event = D4DHandler.Fetch();
 			if (Event)

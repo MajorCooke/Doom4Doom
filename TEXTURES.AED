@@ -2976,13 +2976,50 @@ Sprite "CG3FD0", 146, 417
 //------------------------------------------------------------------------------
 Graphic "GrenadeLauncherDiffuse", 960, 960
 {
-	Offset 0, 0
 	Patch "models/grenadelauncher_diffuse_small.jpg", 0, 0
 	{
-		//Rotate 90
 		FlipY
 	}
 }
+Graphic "PlasmaRifleBaseSkin", 960, 480
+{
+	Patch "Materials/PlasmaRifleBaseSkin.jpg", 0, 0
+}
+Graphic "PlasmaRiflePlateSkin", 240, 120
+{
+	Patch "Materials/PlasmaRiflePlateSkin.jpg", 0, 0
+}
+Graphic "PlasmaRifleStunSkin", 480, 480
+{
+	Patch "Materials/PlasmaRifleStunSkin.jpg", 0, 0
+}
+
+Graphic "BFGSkin", 960, 960
+{
+	Patch "Materials/BFGSkin.jpg", 0, 0
+}
+
+Graphic "ChaingunSkin", 960, 960
+{
+	Patch "Materials/ChaingunSkin.jpg", 0, 0
+}
+
+Graphic "HARSkin", 960, 960
+{
+	Patch "Materials/HARSkin.jpg", 0, 0
+}
+
+Graphic "RocketLauncherSkin", 960, 960
+{
+	Patch "Materials/RocketLauncherSkin.jpg", 0, 0
+}
+/*
+Graphic "Skin", 960, 960
+{
+	Patch "Materials/Skin.jpg", 0, 0
+}
+*/
+
 //------------------------------------------------------------------------------
 Graphic "BFGAMM01", 30, 7
 {
