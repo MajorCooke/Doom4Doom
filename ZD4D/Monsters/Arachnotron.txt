@@ -32,7 +32,7 @@ BLESSED (White)
 * Like cursed but shoots multiple.
 */
 
-Class D4Arachnotron : D4AbstractBiggie // : Arachnotron	//to be edited
+Class D4Arachnotron : D4AbstractBiggie //replaces Arachnotron // : Arachnotron	//to be edited
 {
 	int staggertimer;
 	Default 
@@ -507,7 +507,7 @@ Class D4OldArachnotron : D4AbstractBiggie //  : Arachnotron
 	}
 }
 
-Class OldArachnotronPlasma : D4AbstractMissile replaces ArachnotronPlasma
+Class OldArachnotronPlasma : D4AbstractMissile //replaces ArachnotronPlasma
 {
 	
 	Default 

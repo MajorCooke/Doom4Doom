@@ -32,7 +32,7 @@ Class D4NoiseMaker : Actor
 // MegaHealth
 //=======================================================================
 //=======================================================================
-Class MegaSphereReplacer : RandomSpawner replaces Megasphere
+Class MegaSphereReplacer : RandomSpawner //replaces Megasphere
 {
 	Default 
 	{
@@ -42,7 +42,7 @@ Class MegaSphereReplacer : RandomSpawner replaces Megasphere
 	}
 }
 
-Class D4BlueArmorMegasphere : ArmorBonus replaces BlueArmorForMegasphere 
+Class D4BlueArmorMegasphere : ArmorBonus //replaces BlueArmorForMegasphere 
 {
 	Default 
 	{
@@ -152,11 +152,49 @@ Class D4TimeFreezeGiver : PowerupGiver
 	}
 }
 
+Class NoTimeFreezeToken : Inventory { }
+
 Class D4TimeFreeze : PowerTimeFreezer
 {
 	Default
 	{
 		Powerup.Duration -5;
+	}
+	
+	override void InitEffect()
+	{
+		let it = ThinkerIterator.Create("Actor", Thinker.STAT_DEFAULT);
+		Actor mo;
+		while (mo = Actor(it.Next()))
+		{
+			if (!mo || mo is 'D4DNewBeamBase' || mo is 'D4DBeamBase' || mo is 'PentaShadow')
+				continue;
+				
+			if (mo.player)
+				continue;
+				
+			if (mo.bNOTIMEFREEZE)
+			{
+				mo.SetInventory("NoTimeFreezeToken",1);
+				mo.bNOTIMEFREEZE = false;
+			}
+		}
+		Super.InitEffect();
+	}
+	
+	override void EndEffect()
+	{
+		let it = ThinkerIterator.Create("Actor", Thinker.STAT_DEFAULT);
+		Actor mo;
+		while (mo = Actor(it.Next()))
+		{
+			if (mo && mo.CountInv("NoTimeFreezeToken"))
+			{
+				mo.SetInventory("NoTimeFreezeToken",0);
+				mo.bNOTIMEFREEZE = true;
+			}
+		}
+		Super.EndEffect();
 	}
 	
 	override void DoEffect()
@@ -235,7 +273,7 @@ Class PowerRadSuit : PowerProtection
 	}
 }
 
-Class D4RadSuit : RadSuit replaces RadSuit
+Class D4RadSuit : RadSuit //replaces RadSuit
 {
 	Default 
 	{
@@ -258,7 +296,7 @@ Class D4RadBoots : RadSuit { States { Spawn: TNT1 A -1; Stop; } }
 // Allmap
 //=======================================================================
 //=======================================================================
-Class D4AllMap : AllMap replaces AllMap
+Class D4AllMap : AllMap //replaces AllMap
 {
 	Default 
 	{
@@ -282,7 +320,7 @@ Class D4AllMap : AllMap replaces AllMap
 	}
 }
 
-Class MapScanner : PowerupGiver replaces Scanner
+Class MapScanner : PowerupGiver //replaces Scanner
 {
 	Default 
 	{
@@ -299,7 +337,7 @@ Class MapScanner : PowerupGiver replaces Scanner
 // light amp
 //=======================================================================
 //=======================================================================
-Class D4Infrared : Infrared replaces Infrared
+Class D4Infrared : Infrared //replaces Infrared
 {
 	Default 
 	{
@@ -322,7 +360,7 @@ Class D4Infrared : Infrared replaces Infrared
 //=======================================================================
 //=======================================================================
 
-Class BerserkSpawner : RandomSpawner replaces Berserk
+Class BerserkSpawner : RandomSpawner //replaces Berserk
 {
 	Default 
 	{
@@ -609,11 +647,11 @@ Class PowerD4Regen : PowerRegeneration
 		{
 			if (Owner.CountInv("D4RegenUpgrade2"))
 			{
-				Owner.A_GiveInventory("D4ArmorBonusPickup");
+				Owner.A_GiveInventory("D4ArmorBonus");
 				GiveHealth();
 			}
 			else if (Owner.CountInv("D4RegenUpgrade1") && Owner.health >= (100 + Owner.stamina))
-				Owner.A_GiveInventory("D4ArmorBonusPickup");
+				Owner.A_GiveInventory("D4ArmorBonus");
 			else
 				GiveHealth();
 		}
@@ -632,7 +670,7 @@ Class RegenerationGiver : PowerupGiver
 	}
 }
 
-Class SoulSphereReplacer : RandomSpawner replaces SoulSphere
+Class SoulSphereReplacer : RandomSpawner //replaces SoulSphere
 {
 	Default
 	{
@@ -874,7 +912,7 @@ Class QuadMoneyLight : Actor
 
 Class D4BlurSphere : BlurSphere {}
 /*
-Class BlurSphereSpawner : CustomInventory replaces BlurSphere
+Class BlurSphereSpawner : CustomInventory //replaces BlurSphere
 {
 	const SpawnFlags = SXF_NOCHECKPOSITION|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL|SXF_CLEARCALLERTID;
 	Default 
@@ -910,15 +948,27 @@ Class PowerD4Haste : PowerSpeed
 {
 	int Timer;
 	D4NoiseMaker NoiseMaker;
-	PowerD4DFS DFS;
+	PowerDoubleFiringSpeed DFS;
 	PowerD4Invis Invis;
 	override void InitEffect()
 	{
 		if (!Owner || Owner.Health < 1)
 			return;
 		
-		Owner.A_GiveInventory("PowerD4DFS");
-		DFS = PowerD4DFS(Owner.FindInventory("PowerD4DFS"));
+		let pwr = FindInventory("PowerDoubleFiringSpeed", true);
+		if (!pwr)
+		{
+			Owner.A_GiveInventory("PowerD4DFS");
+			DFS = PowerDoubleFiringSpeed(Owner.FindInventory("PowerD4DFS"));
+		}
+		else DFS = PowerDoubleFiringSpeed(pwr);
+		
+		if (DFS)
+		{
+			if (DFS is "PowerD4DFS")
+				DFS.EffectTics = EffectTics;
+		}
+		
 		if (Owner.CountInv("D4HasteUpgrade1"))
 		{
 			Owner.A_GiveInventory("PowerD4Invis");
@@ -974,10 +1024,18 @@ Class PowerD4Haste : PowerSpeed
 		// is active, and invisibility if the upgrade is found.
 		if (!DFS)	
 		{
-			DFS = PowerD4DFS(Owner.FindInventory("PowerD4DFS"));
-			if (!DFS)		Owner.A_GiveInventory("PowerD4DFS");
+			DFS = PowerDoubleFiringSpeed(Owner.FindInventory("PowerDoubleFiringSpeed", true));
+			if (!DFS)		
+			{
+				let pwr = Owner.FindInventory("PowerDoubleFiringSpeed",true);
+				if (!pwr)
+					Owner.A_GiveInventory("PowerD4DFS");
+			}
 		}
-		else		DFS.EffectTics = EffectTics;
+		else if (DFS is "PowerD4DFS")
+		{
+			DFS.EffectTics = EffectTics;
+		}
 		
 		if (Owner.CountInv("D4HasteUpgrade1") > 0)
 		{
@@ -1023,7 +1081,7 @@ Class HasteGiver : PowerupGiver
 Class DoubleFiringSpeedGiver : HasteGiver
 {	Default {	Powerup.Type "PowerD4DFS";	}}
 
-Class D4Haste : CustomInventory replaces BlurSphere
+Class D4Haste : CustomInventory //replaces BlurSphere
 {
 	Default 
 	{
@@ -1163,7 +1221,7 @@ Class PentaShadow : Actor
 	}
 }
 
-Class PentagramOfProtection : CustomInventory replaces InvulnerabilitySphere
+Class PentagramOfProtection : CustomInventory //replaces InvulnerabilitySphere
 {
 	Default 
 	{
@@ -1238,6 +1296,7 @@ Class PowerInvulBase : PowerInvulnerable
 	Default 
 	{
 		+INVENTORY.NOSCREENBLINK;
+		+INVENTORY.ADDITIVETIME
 		Inventory.InterhubAmount 0; 
 	}
 	

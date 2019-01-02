@@ -329,7 +329,7 @@ Class SovietActive : Inventory	{ Default { Inventory.InterhubAmount 1; +INVENTOR
 //		Puff
 //---------------------------------------------------------------
 
-Class D4BulletPuff : Actor replaces BulletPuff
+Class D4BulletPuff : Actor //replaces BulletPuff
 {
 	Default 
 	{

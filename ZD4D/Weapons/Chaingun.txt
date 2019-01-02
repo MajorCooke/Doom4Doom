@@ -30,8 +30,9 @@ Class D4Chaingun : Doom4Weapon
 		Weapon.AmmoType1 "D4Bullets";
 		Weapon.AmmoGive1 20;
 		Weapon.AmmoUse1 1;
-		Scale 0.7;
 		Weapon.SelectionOrder 30;
+		Weapon.SlotNumber 4;
+		Weapon.SlotPriority 0.0;
 		+DONTGIB
 	}
 	States
@@ -197,7 +198,7 @@ Class D4Chaingun : Doom4Weapon
 			}
 			A_SetBlend("orange",0.03,6);
 			
-			if (CountInv("PowerD4DFS"))
+			if (IsDoubleSpeed())
 			{	return ResolveState("Null");	}
 			A_SetPitch(pitch-0.8);
 			return ResolveState(null);
@@ -218,7 +219,7 @@ Class D4Chaingun : Doom4Weapon
 			}
 			TNT1 A 0
 			{
-				if (CountInv("PowerD4DFS"))
+				if (IsDoubleSpeed())
 				{	A_SetPitch(pitch + 1);	return ResolveState("Null");	}
 				return ResolveState(null);
 			}
@@ -376,7 +377,7 @@ Class D4Chaingun : Doom4Weapon
 				
 				// Slowly climb up. Or... quickly.
 				if (CountInv("SpinUpCount") < SpinMax)
-				{	A_GiveInventory("SpinUpCount",1 + CountInv("PowerD4DFS"));	}
+				{	A_GiveInventory("SpinUpCount",1 + IsDoubleSpeed());	}
 				// Now at full speed. If both buttons are held, open fire.
 				// Otherwise, Stop; shooting.
 				
@@ -401,7 +402,7 @@ Class D4Chaingun : Doom4Weapon
 			{
 				A_Overlay(PrepLayer,"Null");
 				A_Overlay(NoiseLayer,"Null");
-				if (!A_TakeInventory("SpinUpCount",1 + CountInv("PowerD4DFS"),0))
+				if (!A_TakeInventory("SpinUpCount",1 + IsDoubleSpeed(),0))
 				{
 					return ResolveState("Null");
 				}
@@ -481,7 +482,7 @@ Class D4Chaingun : Doom4Weapon
 		{
 			if (CountInv("SpinUpCount") >= SpinMax)
 			{
-				if (CountInv("PowerD4DFS") || (CountInv("ChaingunFireTracker") % 2 > 0))
+				if (IsDoubleSpeed() || (CountInv("ChaingunFireTracker") % 2 > 0))
 				{ 
 					A_GunFlash("Null");
 					A_Overlay(ChaingunFlash, "Overlay.Flash");
@@ -493,7 +494,7 @@ Class D4Chaingun : Doom4Weapon
 				A_Overlay(ChaingunFlash, "Overlay.Flash");
 				A_PlaySound("Doom4/Weapon/Chaingun/Fire",CHAN_WEAPON,0.8);
 				
-				if (CountInv("SpinUpCount") < 30 && !CountInv("PowerD4DFS"))
+				if (CountInv("SpinUpCount") < 30 && !IsDoubleSpeed())
 				{	A_SetTics(2);	}
 			}
 			//A_WeaponOffset(frandom(1,2.5),frandom(33,34.5));
@@ -542,12 +543,12 @@ Class D4Chaingun : Doom4Weapon
 			A_GiveInventory("ChaingunFireTracker",1);
 			if (CountInv("ChaingunFireTracker") == 1)
 			{	A_PlaySound("Doom4/Weapon/Chaingun/Fire",5,0.8);	}
-			else if (CountInv("ChaingunFireTracker") == (4 - CountInv("PowerD4DFS")))
+			else if (CountInv("ChaingunFireTracker") == (4 - IsDoubleSpeed()))
 			{	A_PlaySound("Doom4/Weapon/Chaingun/Fire",6,0.8);	}
-			else if (CountInv("ChaingunFireTracker") == (7 - CountInv("PowerD4DFS") * 2))
+			else if (CountInv("ChaingunFireTracker") == (7 - IsDoubleSpeed() * 2))
 			{	A_PlaySound("Doom4/Weapon/Chaingun/Fire",7,0.8);	}
 			
-			if (CountInv("ChaingunFireTracker") >= (CountInv("PowerD4DFS") ? 6 : 10))
+			if (CountInv("ChaingunFireTracker") >= (IsDoubleSpeed() ? 6 : 10))
 			{	A_TakeInventory("ChaingunFireTracker",1000);	}
 			return ResolveState(null);
 		}
@@ -621,7 +622,7 @@ Class D4Chaingun : Doom4Weapon
 				double offsz = (offsxy) ? -1.0 : -4.0;
 			
 			// The damage here is done in the puff itself, NOT here!
-				if (i > 0 || CountInv("PowerD4DFS"))
+				if (i > 0 || IsDoubleSpeed())
 					A_FireBullets(0,0,1,0,"D4BulletPuffTurret",FBF_USEAMMO|FBF_PUFFTRACER,0,"BulletSmallTracer",offsz,offsxy);
 			}
 			if (GetCvar("D4D_Casings") > 0) 	{	A_SpawnItemEx("TurretCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER); }
@@ -645,7 +646,7 @@ Class D4Chaingun : Doom4Weapon
 				double offsz = -1.0;
 			
 				// Do not use the damage parameter. The puff does it instead.
-				if (i > 0 || CountInv("PowerD4DFS"))
+				if (i > 0 || IsDoubleSpeed())
 					A_FireBullets(0,0,1,0,"D4BulletPuffTurret",FBF_USEAMMO|FBF_PUFFTRACER,0,"BulletSmallTracer",offsz,offsxy);
 			}
 			

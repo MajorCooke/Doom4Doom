@@ -232,7 +232,7 @@ Class RocketLauncherSpawner : CustomInventory replaces RocketLauncher
 			if (GetCvar("MPWeapons"))
 			{
 				Class<Inventory> wep;
-				int rng = random(0,1);
+				int rng = random[rng](0,1);
 				Switch(rng)
 				{
 					Default:	wep = "D4RocketLauncher";	break;

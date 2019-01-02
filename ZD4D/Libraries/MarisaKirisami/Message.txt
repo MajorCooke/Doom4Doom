@@ -1,0 +1,288 @@
+//==============================================================================
+// I Can't Believe It's Not Hud Message
+//
+// By Marisa Kirisame
+// Fade In + Out by Major Cooke
+//==============================================================================
+
+Class notHudMessage : HUDMessageBase
+{
+	BrokenLines lines;
+	Font fnt;
+	double alpha;
+	int wrap, talign, tics, holdtics, intics, outtics, color, layer;
+	Vector2 balign, pos, vsize, bsize;
+	string txt;
+
+	// calculate alignment of text box
+	Vector2 CalculateBoxAlignment()
+	{
+		vector2 base;
+		if ( balign.x < 0 ) base.x = pos.x;
+		else if ( balign.x > 0 ) base.x = pos.x-bsize.x;
+		else base.x = pos.x-bsize.x/2.0;
+		if ( balign.y < 0 ) base.x = pos.y;
+		else if ( balign.y > 0 ) base.y = pos.y-bsize.y;
+		else base.y = pos.y-bsize.y/2.0;
+		return base;
+	}
+
+	// draw a line of text
+	virtual void DrawLine( double x, double y, string line )
+	{
+		double vw = (vsize.x>0)?vsize.x:Screen.GetWidth();
+		double vh = (vsize.y>0)?vsize.y:Screen.GetHeight();
+		Screen.DrawText(fnt,color,x,y,line,DTA_VirtualWidthF,vw,DTA_VirtualHeightF,vh,DTA_Alpha,alpha);
+	}
+
+	override void Draw( int bottom, int visibility )
+	{
+		if ( visibility & layer ) return;
+		Vector2 base = CalculateBoxAlignment();
+		if ( !lines )
+		{
+			DrawLine(base.x,base.y,txt);
+			return;
+		}
+		double linex, liney = base.y, len;
+		String line;
+		for ( int i=0; i<lines.Count(); i++ )
+		{
+			line = lines.StringAt(i);
+			len = fnt.StringWidth(line);
+			// calculate text alignment
+			if ( talign < 0 ) linex = base.x;
+			else if ( talign > 0 ) linex = base.x+(bsize.x-len);
+			else linex = base.x+(bsize.x-len)/2.0;
+			DrawLine(linex,liney,line);
+			liney += fnt.GetHeight();
+		}
+	}
+
+	virtual bool DoTick()
+	{
+		uint total = holdtics + intics + outtics;
+		if (total && (tics > total)) return true;	// Message expired.
+		int inhold = holdtics + intics;
+		if (total <= 0)
+			alpha = 1.0;
+		else if (tics < intics) // Fade in
+			alpha = Min(1.0, (1.0 / intics) * tics);
+		else if ((outtics > 0) && (tics > inhold) && (tics <= total)) // Fade out
+			alpha = 1.0 - (1.0 / outtics) * (tics - inhold);
+		else	// Holding
+			alpha = 1.0;
+		return false; // Message still ongoing.
+	}
+
+	override bool Tick()
+	{
+		tics++;
+		return DoTick();
+	}
+
+	virtual void Setup()
+	{
+		lines = fnt.BreakLines(txt,(wrap<=0)?int.max:wrap);
+		double longest = 0, len;
+		for ( int i=0; i<lines.Count(); i++ )
+		{
+			len = fnt.StringWidth(lines.StringAt(i));
+			if ( len > longest ) longest = len;
+		}
+		bsize = (longest,fnt.GetHeight()*lines.Count());
+	}
+
+	void Init()
+	{
+		tics = 0;
+		Setup();
+	}
+
+	static clearscope QueuedMsg Create( Font fnt, string txt, Vector2 pos, Vector2 vsize = (0,0), int talign = -1, Vector2 balign = (0,0), int color = Font.CR_UNTRANSLATED, Vector3 time = (0,0,0), int wrap = 0, uint id = 0, int layer = BaseStatusBar.HUDMSGLayer_OverHUD )
+	{
+		let msg = new("QueuedMsg");
+		msg.fnt = fnt;
+		msg.txt = txt;
+		msg.pos = pos;
+		msg.vsize = vsize;
+		msg.talign = talign;
+		msg.balign = balign;
+		msg.color = color;
+		msg.intics = int(time.x * Thinker.TICRATE);
+		msg.holdtics = int(time.y * Thinker.TICRATE);
+		msg.outtics = int(time.z * Thinker.TICRATE);
+		msg.wrap = wrap;
+		msg.id = id;
+		msg.layer = layer;
+		msg.timestamp = gametic;
+		return msg;
+	}
+}
+
+Class notHudMessageWaggle : notHudMessage
+{
+	double phase, speed, strength, frequency;
+
+	override void DrawLine( double x, double y, string line )
+	{
+		double vw = (vsize.x>0)?vsize.x:Screen.GetWidth();
+		double vh = (vsize.y>0)?vsize.y:Screen.GetHeight();
+		double cphase = phase;
+		for ( int i=0; i<line.length(); i++ )
+		{
+			Screen.DrawChar(fnt,color,x,y+sin(cphase)*strength,line.CharCodeAt(i),DTA_VirtualWidthF,vw,DTA_VirtualHeightF,vh,DTA_Alpha,alpha);
+			x += fnt.GetCharWidth(line.CharCodeAt(i));
+			cphase += frequency;
+		}
+	}
+
+	override bool DoTick()
+	{
+		phase += speed;
+		return Super.DoTick();
+	}
+
+	override void Setup()
+	{
+		Super.Setup();
+		phase = 0;
+	}
+
+	static clearscope QueuedMsgWaggle Create( Font fnt, string txt, Vector2 pos, Vector2 vsize = (0,0), int talign = -1, Vector2 balign = (0,0), int color = Font.CR_UNTRANSLATED, Vector3 time = (0,0,0), double speed = 1.0, double strength = 1.0, double frequency = 1.0, int wrap = 0, uint id = 0, int layer = BaseStatusBar.HUDMSGLayer_OverHUD )
+	{
+		let msg = new("QueuedMsgWaggle");
+		msg.fnt = fnt;
+		msg.txt = txt;
+		msg.pos = pos;
+		msg.vsize = vsize;
+		msg.talign = talign;
+		msg.balign = balign;
+		msg.color = color;
+		msg.intics = int(time.x * Thinker.TICRATE);
+		msg.holdtics = int(time.y * Thinker.TICRATE);
+		msg.outtics = int(time.z * Thinker.TICRATE);
+		msg.speed = speed * Thinker.TICRATE;
+		msg.strength = strength;
+		msg.frequency = frequency;
+		msg.wrap = wrap;
+		msg.id = id;
+		msg.layer = layer;
+		msg.timestamp = gametic;
+		return msg;
+	}
+}
+
+Class QueuedMsg
+{
+	Font fnt;
+	TextureID tex;
+	string txt;
+	Vector2 pos, vsize, balign;
+	int holdtics, intics, outtics;
+	int layer, color, wrap, talign;
+	int timestamp;
+	uint id;
+
+	virtual ui void AddSelf()
+	{
+		let msg = new("notHudMessage");
+		msg.fnt = fnt;
+		msg.txt = txt;
+		msg.pos = pos;
+		msg.vsize = vsize;
+		msg.talign = talign;
+		msg.balign = balign;
+		msg.color = color;
+		msg.intics = intics;
+		msg.holdtics = holdtics;
+		msg.outtics = outtics;
+		msg.wrap = wrap;
+		msg.layer = layer;
+		msg.Init();
+		StatusBar.AttachMessage(msg,id,layer);
+	}
+}
+
+Class QueuedMsgWaggle : QueuedMsg
+{
+	double speed, strength, frequency;
+
+	override void AddSelf()
+	{
+		let msg = new("notHudMessageWaggle");
+		msg.fnt = fnt;
+		msg.txt = txt;
+		msg.pos = pos;
+		msg.vsize = vsize;
+		msg.talign = talign;
+		msg.balign = balign;
+		msg.color = color;
+		msg.intics = intics;
+		msg.holdtics = holdtics;
+		msg.outtics = outtics;
+		msg.wrap = wrap;
+		msg.layer = layer;
+		msg.speed = speed;
+		msg.strength = strength;
+		msg.frequency = frequency;
+		msg.Init();
+		StatusBar.AttachMessage(msg,id,layer);
+	}
+}
+
+// this event handler serves as a proxy between play and ui for adding messages
+// [MC] Note for Time: It's a Vector3. X = fade in, Y = hold time, Z = fade out time.
+// This is all added together to make the total time.
+Class notHudMessageHandler : EventHandler
+{
+	Array <QueuedMsg> queue;
+
+	override void PostUiTick()
+	{
+		// load 'em up
+		for ( int i=0; i<queue.size(); i++ )
+			if ( queue[i].timestamp >= gametic )
+				queue[i].AddSelf();
+	}
+
+	override void WorldTick()
+	{
+		for ( int i=0; i<queue.size(); i++ )
+		{
+			if ( queue[i].timestamp >= gametic ) continue;
+			queue.Delete(i);
+			i--;
+		}
+	}
+
+	static play void QueueMsg( QueuedMsg tosend )
+	{
+		notHudMessageHandler local = notHudMessageHandler(Find("notHudMessageHandler"));
+		if ( !local ) return;
+		local.queue.Push(tosend);
+	}
+
+	// test functions
+	override void NetworkProcess( ConsoleEvent e )
+	{
+		if ( e.Name ~== "TestMsg" )
+		{
+			Vector2 midscr = (Screen.GetWidth(),Screen.GetHeight())*0.5;
+			WaggleMsg(smallfont,"How did this get here I am not good with computer",(160,180),(320,200),time:(1,3,1), frequency:60.0);
+			PlainMsg(Font.GetFont('STFOUCH0'),"A A A",(80,50),(160,100),time:(1,3,1));
+		}
+	}
+
+	static void PlainMsg( Font fnt, string txt, Vector2 pos, Vector2 vsize = (0,0), int talign = -1, Vector2 balign = (0,0), int color = Font.CR_UNTRANSLATED, Vector3 time = (0,0,0), int wrap = 0, uint id = 0, int layer = BaseStatusBar.HUDMSGLayer_OverHUD )
+	{
+		QueuedMsg tosend = notHudMessage.Create(fnt,txt,pos,vsize,talign,balign,color,time,wrap,id,layer);
+		QueueMsg(tosend);
+	}
+
+	static void WaggleMsg( Font fnt, string txt, Vector2 pos, Vector2 vsize = (0,0), int talign = -1, Vector2 balign = (0,0), int color = Font.CR_UNTRANSLATED, Vector3 time = (0,0,0), double speed = 1.0, double strength = 1.0, double frequency = 1.0, int wrap = 0, uint id = 0, int layer = BaseStatusBar.HUDMSGLayer_OverHUD )
+	{
+		QueuedMsg tosend = notHudMessageWaggle.Create(fnt,txt,pos,vsize,talign,balign,color,time,speed,strength,frequency,wrap,id,layer);
+		QueueMsg(tosend);
+	}
+}

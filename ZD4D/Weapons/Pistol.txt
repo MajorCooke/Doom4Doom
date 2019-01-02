@@ -42,6 +42,8 @@ Class D4Pistol : Doom4Weapon
 		//Decal "D4Pistol"
 		Scale 0.5;
 		Weapon.SelectionOrder 100;
+		Weapon.SlotNumber 2;
+		Weapon.SlotPriority 0.0;
 	}
 	States
 	{
@@ -155,11 +157,11 @@ Class D4Pistol : Doom4Weapon
 					break;
 			}
 		}
-		"####" B 1 Bright {	A_WeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); if (CountInv("PowerD4DFS")) { A_SetTics(0); }	}
+		"####" B 1 Bright {	A_WeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); if (IsDoubleSpeed()) { A_SetTics(0); }	}
 		"####" C 1 { A_WeaponOffset(3,30); A_WeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); }
-		"####" C 1 { A_WeaponOffset(6,27); A_WeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); if (CountInv("PowerD4DFS")) { A_SetTics(0); } }
+		"####" C 1 { A_WeaponOffset(6,27); A_WeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); if (IsDoubleSpeed()) { A_SetTics(0); } }
 		"####" C 1 { A_WeaponOffset(8,30); A_WeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); }
-		"####" A 1 { A_WeaponOffset(2,33); A_WeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); if (CountInv("PowerD4DFS")) { A_SetTics(0); } }
+		"####" A 1 { A_WeaponOffset(2,33); A_WeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); if (IsDoubleSpeed()) { A_SetTics(0); } }
 		"####" A 1 { A_WeaponOffset(0,32); A_WeaponReady(WRF_NOSECONDARY|WRF_NOSWITCH|WRF_NOBOB); }
 		"####" A 1 
 		{
@@ -167,7 +169,7 @@ Class D4Pistol : Doom4Weapon
 			if (CountInv("PistolUpgradeAutomatic"))		
 			{	A_Refire("Fire");	}
 			A_WeaponReady(WRF_NOSWITCH|WRF_NOBOB);
-			if (CountInv("PowerD4DFS")) { A_SetTics(0); }
+			if (IsDoubleSpeed()) { A_SetTics(0); }
 		}
 		Goto Ready;
 
@@ -191,7 +193,7 @@ Class D4Pistol : Doom4Weapon
 				//------------
 				//charge speed upgrade check
 				
-				A_GiveInventory("PistolAltFireCounter",1 + CountInv("PistolUpgradeAltCharge") + (CountInv("PowerD4DFS") * 1));
+				A_GiveInventory("PistolAltFireCounter",1 + CountInv("PistolUpgradeAltCharge") + (IsDoubleSpeed() * 1));
 								
 				if (counter[1] >= 52)
 				{
@@ -206,7 +208,7 @@ Class D4Pistol : Doom4Weapon
 					A_WeaponOffset(frandom(-2.0,2.0),32+frandom(-2.0,2.0));
 					if (CountInv("PistolLanceActive"))
 				    {
-					    A_GiveInventory("PistolLanceCounter",4 + (CountInv("PowerD4DFS") * 2)); 
+					    A_GiveInventory("PistolLanceCounter",4 + (IsDoubleSpeed() * 2)); 
 			     	}
 				}
 				else if ((counter[0] >= 35) || (counter[0] >= 20 && random(0,1))) 
@@ -269,15 +271,15 @@ Class D4Pistol : Doom4Weapon
 					break;
 			}
 		}
-		"####" C 1 { A_WeaponOffset(3,30); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+		"####" C 1 { A_WeaponOffset(3,30); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 		"####" C 1 { A_WeaponOffset(6,27); }
-		"####" D 1 { A_WeaponOffset(6,27); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+		"####" D 1 { A_WeaponOffset(6,27); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 		"####" D 1 { A_WeaponOffset(8,25); }
-		"####" D 1 { A_WeaponOffset(6,27); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+		"####" D 1 { A_WeaponOffset(6,27); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 		"####" D 1 { A_WeaponOffset(3,30); }
-		"####" C 1 { A_WeaponOffset(2,32); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+		"####" C 1 { A_WeaponOffset(2,32); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 		"####" C 1 { A_WeaponOffset(1,33); }
-		"####" A 1 { A_WeaponOffset(1,32); A_WeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_NOSWITCH);	A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+		"####" A 1 { A_WeaponOffset(1,32); A_WeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_NOSWITCH);	A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 		"####" A 1 { A_Refire("AltFire"); A_WeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_NOSWITCH);	}
 		Goto Ready;				
 	ReleaseLance:	
@@ -300,17 +302,17 @@ Class D4Pistol : Doom4Weapon
 			}
 		}
 		"####" BBBBB 2 Bright;
-		"####" C 1 { A_WeaponOffset(3,30); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+		"####" C 1 { A_WeaponOffset(3,30); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 		"####" C 1 { A_WeaponOffset(6,27); }
-		"####" D 1 { A_WeaponOffset(6,27); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+		"####" D 1 { A_WeaponOffset(6,27); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 		"####" D 1 { A_WeaponOffset(8,25); }
-		"####" D 1 { A_WeaponOffset(6,27); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+		"####" D 1 { A_WeaponOffset(6,27); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 		"####" D 1 { A_WeaponOffset(3,30); }
 		"####" D 1 A_PlaySound("Doom4/Weapon/PistolL/Smoke",CHAN_WEAPON,1);
 		"####" DDDDDDDD 3 A_FireProjectile("SGSmokeSpawner",0,0,6,2);
-		"####" C 1 { A_WeaponOffset(2,32); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+		"####" C 1 { A_WeaponOffset(2,32); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 		"####" C 1 { A_WeaponOffset(1,33); }
-		"####" A 1 { A_WeaponOffset(1,32); A_WeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_NOSWITCH);	A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+		"####" A 1 { A_WeaponOffset(1,32); A_WeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_NOSWITCH);	A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 		"####" A 1 { A_Refire("AltFire"); A_WeaponReady(WRF_NOSECONDARY|WRF_NOBOB|WRF_NOSWITCH);	}
 		Goto Ready;
 	User1:

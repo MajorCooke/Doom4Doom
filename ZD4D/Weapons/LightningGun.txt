@@ -19,6 +19,7 @@ Class D4LightningGun : Doom4Weapon
 {
 	Default 
 	{
+		Doom4Weapon.MultiplayerWeapon true;
 		+FLOORCLIP
 		+DONTGIB
 		+INVENTORY.UNDROPPABLE
@@ -30,6 +31,8 @@ Class D4LightningGun : Doom4Weapon
 		Weapon.AmmoGive1 40;
 		Weapon.AmmoUse1 1;
 		Weapon.AmmoUse2 1;
+		Weapon.SlotNumber 6;
+		Weapon.SlotPriority 0.0;
 		
 		Obituary "%o was left thunder struck by %k's lightning gun.";
 		Inventory.PickupMessage "Lightning gun! The firepower is shocking!";
@@ -157,7 +160,7 @@ Class D4LightningGun : Doom4Weapon
 			
 			A_FireBullets(0,0,1,dmg,"LightningPuffV3",Flags,Dist,"LightningBeamSecondarySpawner",LGHeight,LGDist);
 			
-			if (CountInv("PowerD4DFS"))
+			if (IsDoubleSpeed())
 				A_FireBullets(0,0,1,dmg,"LightningPuffV3",Flags,Dist,"LightningBeamSecondarySpawner",LGHeight,LGDist);
 			
 		}
@@ -344,313 +347,6 @@ Class LGPuffNoPain : LGPuff
 	}
 }
 
-//-----------------------------------------------------------------------
-Class D4LGTrail : Actor 
-{
-	double dist;
-	
-	Default 
-	{
-		+NOINTERACTION
-		//+NOTIMEFREEZE
-		Scale 0.16;
-		RenderStyle "Add";
-
-		Translation "0:255=%[0,0,0]:[0.3,0.6,1.4]";
-		+FORCEXYBILLBOARD
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay 
-		{
-			//Get the pitch. Only need to do this once.
-			if (target)		{	pitch = target.pitch;	}
-			dist = GetDistance(true,AAPTR_TARGET);
-			
-			if(GetCvar("HQEffectsWeapons"))
-			{
-				A_SpawnItemEx("ElectDrSpark",0,0,0,frandom(2.0,-2.0),frandom(2.0,-2.0),frandom(2.0,-2.0),0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,224);
-			}
-			
-			return A_Jump(256,1,2,3,4,5,6,7,8);
-		}
-		HSP2 ABCDEFGH 0 A_Jump(256,"Play");
-	Play:
-		"####" "#" 1 BRIGHT
-		{
-			A_FadeOut(0.125);
-			A_Warp(AAPTR_TARGET,cos(pitch)*dist,8+frandom(-1,1),frandom(-1,1)+32+sin(-pitch)*dist,0,WARPF_NOCHECKPOSITION|WARPF_COPYPITCH|WARPF_COPYVELOCITY|WARPF_INTERPOLATE);
-			
-		}
-		Wait;
-	}
-}
-
-Class ElectDrSpark : Actor 
-{
-	Default 
-	{
-		Translation "0:255=%[0,0,0]:[0.75,0.75,2.0]";
-		+NOINTERACTION
-		Scale 0.08;
-		RenderStyle "Add";
-		+FORCEXYBILLBOARD
-		Alpha 1.0;
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay A_Jump(256,1,2,3,4,5,6,7,8);
-		X079 ABCDEFGH 0	{ return ResolveState("Perform"); }
-	Perform:
-		"####" "#" 1 Bright 
-		{
-			A_SetScale(Scale.X+0.0025);
-			A_FadeOut(0.07);
-		}
-		Wait;
-	}
-}
-
-
-//-----------------------------------------------------------------------
-Class D4LGTrailAltFire : Actor 
-{
-	double  dist;
-	int t;
-	Default 
-	{
-		+NOINTERACTION
-		+FORCEXYBILLBOARD
-		//+NOTIMEFREEZE
-		Scale 0.11;
-		RenderStyle "Add";
-		Translation "0:255=%[0,0,0]:[0.7,0.4,1.5]";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay 
-		{
-			if (tid > 0)
-			{	t = tid; Thing_ChangeTID(0,0);	}
-			//Get the pitch. Only need to do this once.
-			
-			if (t == 0)
-			{
-				if (target) { pitch = target.pitch; }
-				dist = GetDistance(true,AAPTR_TARGET);
-			}
-			
-			if(GetCvar("HQEffectsWeapons")) 
-			{
-				A_SpawnItemEx("ElectDrSpark",0,0,0,frandom(2.0,-2.0),frandom(2.0,-2.0),frandom(2.0,-2.0),0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);	
-			}
-			
-			return A_Jump(256,1,2,3,4,5,6,7,8);
-		}
-		HSP2 ABCDEFGH 0 A_Jump(256,"Play");
-	Play:
-		"####" "#" 1 BRIGHT
-		{
-			A_FadeOut(0.125);
-			//This gathers the new pitch every other time.
-			if (t == 0)	{ A_Warp(AAPTR_TARGET,cos(pitch)*dist,8+frandom(-1,1),frandom(-1,1)+32+sin(-pitch)*dist,0,WARPF_NOCHECKPOSITION|WARPF_COPYPITCH|WARPF_COPYVELOCITY|WARPF_INTERPOLATE); }
-		}
-		Wait;
-	}
-}
-
-Class LGAltPuff : Actor 
-{
-	const SpawnDistance = 10;
-	int c;
-	int count;
-	double  distance;
-	Default 
-	{
-		Projectile;
-		+HITTRACER
-		+CLIENTSIDEONLY
-		+NOINTERACTION
-		+ALWAYSPUFF
-		+PUFFGETSOWNER
-		+FORCEXYBILLBOARD
-		+BRIGHT
-		Radius 10;
-		Scale 0.35;
-		RenderStyle "Add";
-		Obituary "%o was electrocuted by %k's lightning gun.";
-		Translation "0:255=%[0,0,0]:[0.7,0.4,1.5]";
-		//Alpha 0.6;
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 0 NODELAY 
-		{
-			A_RearrangePointers(DefPtr,TargetPtr,DefPtr,4);
-			return A_Jump(256,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24);
-		}
-		DB08 ABCDEFGHIJLKMNOPQRSTUVWXYZ 0 BRIGHT { return ResolveState("Play"); }
-	Play:
-		"####" "#" 1 Bright
-		{
-			if (tracer && tracer.bShootable)
-			{
-				A_GiveInventory("ChainToken",1,TracerPtr);
-				return ResolveState("Looping");
-			}
-			return ResolveState(null);
-		}
-		"####" "#" 1 Bright;
-		Stop;
-	Looping:
-		"####" "#" 1 bright
-		{
-			if (A_RadiusGive("ChainChecker",384,RGF_MONSTERS|RGF_NOTRACER,1,null,"",0,1))
-			{
-				if (A_CheckProximity("Null","LightningChainTargeter",768,1,CPXF_SETTRACER|CPXF_CLOSEST))
-				{
-					//A_RadiusGive("ChainRemover",1024,RGF_MISSILES|RGF_NOTRACER,1,"LightningChainTargeter");
-					A_TransferPointer(DefPtr,TracerPtr,MasterPtr,MasterPtr,4);
-					A_FaceTracer(0,0,0,0,FAF_BOTTOM);
-					distance = GetDistance(true,TracerPtr);
-					return ResolveState("MiniLoop");
-				}
-			}
-			if (count > 0)
-			{	A_RadiusGive("ChainClearer",4096,RGF_MONSTERS,1);	}
-			return ResolveState(null);
-		}
-		Stop;
-	MiniLoop:
-		"####" "#" 0
-		{
-			A_SpawnItemEx("D4LGTrailAltFire",cos(pitch)*c,0,-sin(pitch)*c,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH,0,1);
-			c = c + 10;
-			if (c >= distance)
-			{
-				A_Warp(TracerPtr,0,0,0,0,WARPF_NOCHECKPOSITION);
-				A_GiveInventory("ChainDamager",1,TracerPtr);
-				c = 0;
-				count++;
-				if (count > 2)	
-				{
-					A_RadiusGive("ChainClearer",4096,RGF_MONSTERS|RGF_OBJECTS,1);
-					return ResolveState("Null"); 
-				}
-				
-			}
-			return ResolveState("Looping");
-		}
-		Goto Looping;
-	}
-}
-
-Class ChainChecker : CustomInventory
-{
-	States
-	{
-	Pickup:
-		TNT1 A 0
-		{
-			if (CountInv("ChainToken") || !tracer || tracer.bKilled ||
-				CheckClass("DemonShield"))	
-			{	return false;	}
-			
-			A_SpawnItemEx("LightningChainTargeter",0,0,height/2.0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTRACER);
-			A_GiveInventory("ChainToken",1);
-			return true;
-		}
-		Stop;
-	}
-}
-
-Class LGAltPuffNoPain : LGAltPuff
-{	Default { +PAINLESS	+BLOODLESSIMPACT	}}
-
-Class LightningChainTargeter : Actor 
-{
-	Default 
-	{
-		Projectile;
-		+NOINTERACTION
-		+NOTONAUTOMAP
-		RenderStyle "None";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 1;
-		Stop;
-	}
-}
-
-Class ChainDamager : CustomInventory
-{
-	Default 
-	{
-		+INVENTORY.ALWAYSPICKUP
-	}
-	States
-	{
-	Pickup:
-		TNT1 A 0
-		{
-			if (CheckClass("LightningChainTargeter"))
-			{
-				//Make sure to pass the appropriate damaging Class for the inflictor so PAINLESS can be respected.
-				if (A_CheckProximity("Null","LGAltPuff",512,1,CPXF_ANCESTOR|CPXF_SETTARGET))
-				{	A_DamageTracer(random(LGDmgMin,LGDmgMax)*random(1,3),"Electric",DMSS_AFFECTARMOR,null,"",MasterPtr,TargetPtr);	}
-				else
-				{	A_DamageTracer(random(LGDmgMin,LGDmgMax)*random(1,3),"Electric",DMSS_AFFECTARMOR,null,"",MasterPtr);	}
-				A_Remove(DefPtr,RMVF_EVERYTHING);
-				return true;
-			}
-			return false;
-		}
-		Stop;
-	}
-}
-
-Class ChainRemover : CustomInventory
-{
-	Default 
-	{
-		+INVENTORY.ALWAYSPICKUP
-	}
-	States
-	{
-	Pickup:
-		TNT1 A 0
-		{
-			if (CheckClass("LightningChainTargeter"))
-			{	
-				A_Remove(DefPtr,RMVF_EVERYTHING);	
-				return true;
-			}
-			return false;
-		}
-		Stop;
-	}
-}
-
-Class ChainClearer : CustomInventory
-{
-	Default 
-	{
-		+INVENTORY.ALWAYSPICKUP
-	}
-	States
-	{
-	Pickup:
-		TNT1 A 0 A_TakeInventory("ChainToken",32767);
-		Stop;
-	}
-}
-
 Class ChainToken : Inventory {}
 
 Class LGChainToggle : Inventory
@@ -662,3 +358,6 @@ Class LGChainToggle : Inventory
 		Inventory.InterhubAmount 1;
 	}
 }
+
+Class LGAltPuff : Nothing {}
+Class D4LGTrailAltFire : Nothing {}

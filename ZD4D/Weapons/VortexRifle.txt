@@ -54,6 +54,7 @@ Class D4VortexRifle : Doom4Weapon
 	*/
 	Default 
 	{
+		Doom4Weapon.MultiplayerWeapon true;
 		+FLOORCLIP
 		+INVENTORY.UNDROPPABLE
 		+INVENTORY.UNTOSSABLE
@@ -66,7 +67,8 @@ Class D4VortexRifle : Doom4Weapon
 		Weapon.AmmoGive1 350;
 		Weapon.AmmoUse1 12;	//doesnt matter, since it's taken manually in the weapon code
 		Weapon.AmmoUse2 0;
-		
+		Weapon.SlotNumber 7;
+		Weapon.SlotPriority 0.01;
 		Obituary "%k's mad sniper skills are too much for %o.";
 		Inventory.PickupMessage "Vortex Rifle! A sniper's delight!";
 		Tag "Vortex Rifle";
@@ -175,7 +177,7 @@ Class D4VortexRifle : Doom4Weapon
 			A_OverlayOffset(1,-4,-3,WOF_Add);
 			//A_WeaponOffset(-4,-3,WOF_Add);
 		}
-		VTXG A 27 { A_WeaponReady(WRF_NOFIRE|WRF_NOSWITCH); A_SetTics(CountInv("PowerD4DFS") ? 15 : 27); }	//it's a one second delay
+		VTXG A 27 { A_WeaponReady(WRF_NOFIRE|WRF_NOSWITCH); A_SetTics(IsDoubleSpeed() ? 15 : 27); }	//it's a one second delay
 		Goto Ready;
 		
 	FireZoomed:
@@ -220,7 +222,7 @@ Class D4VortexRifle : Doom4Weapon
 			A_SetPitch(pitch-1.5);
 			A_TakeInventory("VortexCharges",32768);
 			A_TakeInventory("VortexEnoughAmmo",32768); //given during the charge-up
-			return A_JumpIf(CountInv("PowerD4DFS"),"FireZoomedFast");
+			return A_JumpIf(IsDoubleSpeed(),"FireZoomedFast");
 		}
 		R016 NNNNNN 1 
 		{

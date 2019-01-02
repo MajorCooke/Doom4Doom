@@ -286,7 +286,7 @@ Class D4ArmorBasePickup : CustomInventory
 	}
 }
 
-Class D4ArmorPickup : BasicArmorPickup replaces BasicArmorPickup
+Class D4ArmorPickup : BasicArmorPickup //replaces BasicArmorPickup
 {	
 	Default 
 	{
@@ -297,7 +297,7 @@ Class D4ArmorPickup : BasicArmorPickup replaces BasicArmorPickup
 	}
 }
 
-Class D4BasicArmorBonus : BasicArmorBonus replaces BasicArmorBonus
+Class D4BasicArmorBonus : BasicArmorBonus //replaces BasicArmorBonus
 {
 	Default 
 	{
@@ -308,27 +308,7 @@ Class D4BasicArmorBonus : BasicArmorBonus replaces BasicArmorBonus
 	}
 }
 
-Class D4ArmorBonus : ArmorBonus
-{
-	Default
-	{
-		Armor.SavePercent 100;
-		Armor.MaxAbsorb 200;
-		Armor.MaxFullAbsorb 200;
-		Armor.SaveAmount 3;
-		DistanceCheck "D4D_MaxDrawDistance";
-		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
-		+ALLOWPAIN
-	}
-	States
-	{
-	Spawn:
-		D4AR B -1 NODELAY A_SetAngle(random(0,359));
-		Stop;
-	}
-}
-
-Class D4ArmorBonusPickup : D4ArmorBasePickup replaces ArmorBonus
+Class D4ArmorBonus : D4ArmorBasePickup //replaces ArmorBonus
 {
 	Vector2 OldPos;
 	Default 
@@ -416,11 +396,11 @@ Class ArmorSinglePoint : D4ArmorBonus
 	{
 		+INVENTORY.ALWAYSPICKUP
 		+INVENTORY.IGNORESKILL
-		Armor.SaveAmount 1;
+		D4ArmorBasePickup.SaveAmount 1;
 	}
 }
 
-Class D4GreenArmor : D4ArmorBasePickup replaces GreenArmor
+Class D4GreenArmor : D4ArmorBasePickup //replaces GreenArmor
 {
 	Default 
 	{
@@ -442,7 +422,7 @@ Class D4GreenArmor : D4ArmorBasePickup replaces GreenArmor
 	}
 }
 
-Class D4BlueArmor : D4ArmorBasePickup replaces BlueArmor
+Class D4BlueArmor : D4ArmorBasePickup //replaces BlueArmor
 {
 	Default
 	{
@@ -470,7 +450,7 @@ Class D4BlueArmor : D4ArmorBasePickup replaces BlueArmor
 // Backpack
 //=======================================================================
 //=======================================================================
-Class D4Backpack : BackpackItem replaces Backpack 
+Class D4Backpack : BackpackItem //replaces Backpack 
 {
 	Default 
 	{

@@ -25,9 +25,11 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 		Weapon.AmmoType2 "D4Shells";
 		Weapon.AmmoGive1 8;
 		Weapon.AmmoUse1 1;
+		Weapon.SelectionOrder 20;
+		Weapon.SlotNumber 3;
+		Weapon.SlotPriority 0.01;
 		Tag "Shotgun";
 		Scale 0.6;
-		Weapon.SelectionOrder 20;
 		+DONTGIB
 	}
 	States
@@ -151,15 +153,15 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 			A_ZoomFactor(1,ZOOM_NOSCALETURNING);
 			A_WeaponOffset(12,41);
 		}
-		"####" A 3 { A_WeaponOffset(18,44); A_SetTics(CountInv("PowerD4DFS") ? 0 : 3); A_WeaponReady(WRF_NOFIRE|WRF_NOBOB); }
+		"####" A 3 { A_WeaponOffset(18,44); A_SetTics(IsDoubleSpeed() ? 0 : 3); A_WeaponReady(WRF_NOFIRE|WRF_NOBOB); }
 		"####" A 1 { A_WeaponOffset(15,41); A_WeaponReady(WRF_NOFIRE|WRF_NOBOB); }
-		"####" A 1 { A_WeaponOffset(12,38); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); A_WeaponReady(WRF_NOFIRE|WRF_NOBOB); }
+		"####" A 1 { A_WeaponOffset(12,38); A_SetTics(IsDoubleSpeed() ? 0 : 1); A_WeaponReady(WRF_NOFIRE|WRF_NOBOB); }
 		"####" A 1 { A_WeaponOffset(10,37); A_WeaponReady(WRF_NOFIRE|WRF_NOBOB); }
-		"####" A 1 { A_WeaponOffset( 8,36); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); A_WeaponReady(WRF_NOFIRE|WRF_NOBOB); }
+		"####" A 1 { A_WeaponOffset( 8,36); A_SetTics(IsDoubleSpeed() ? 0 : 1); A_WeaponReady(WRF_NOFIRE|WRF_NOBOB); }
 		"####" A 1 { A_WeaponOffset( 6,35); A_WeaponReady(WRF_NOFIRE|WRF_NOBOB); }
-		"####" A 1 { A_WeaponOffset( 4,34); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); A_WeaponReady(WRF_NOFIRE|WRF_NOBOB); }
+		"####" A 1 { A_WeaponOffset( 4,34); A_SetTics(IsDoubleSpeed() ? 0 : 1); A_WeaponReady(WRF_NOFIRE|WRF_NOBOB); }
 		"####" A 1 { A_WeaponOffset( 2,33); A_WeaponReady(WRF_NOFIRE|WRF_NOBOB); }
-		"####" A 1 { A_WeaponOffset( 0,32.01); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); A_WeaponReady(WRF_NOFIRE|WRF_NOBOB); }
+		"####" A 1 { A_WeaponOffset( 0,32.01); A_SetTics(IsDoubleSpeed() ? 0 : 1); A_WeaponReady(WRF_NOFIRE|WRF_NOBOB); }
 		//pump start
 		"####" DFHI 1 
 		{
@@ -169,7 +171,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 		"####" H 2 
 		{
 			if (GetCvar("D4D_Casings"))	{ A_SpawnItemEx("ShotgunCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER); }
-			A_SetTics(CountInv("PowerD4DFS") ? 0 : 2);
+			A_SetTics(IsDoubleSpeed() ? 0 : 2);
 			A_WeaponReady(WRF_NOFIRE|WRF_NOBOB);
 		}
 		"####" HHHHGFED 1 
@@ -313,7 +315,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 			}
 			DW3E B 1 Bright A_WeaponOffset(3,34);
 			DW3D B 1        A_WeaponOffset(2,33);
-			DW3D B 2 A_SetTics(CountInv("PowerD4DFS") ? 0 : 2);
+			DW3D B 2 A_SetTics(IsDoubleSpeed() ? 0 : 2);
 			DW3E C 1 Bright 
 			{
 				A_FireProjectile("SGSmokeSpawner",0,0,6,2);
@@ -329,7 +331,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 			}
 			DW3E D 1 Bright A_WeaponOffset(9,38);
 			DW3D A 1        A_WeaponOffset(7,37);
-			DW3D A 2 A_SetTics(CountInv("PowerD4DFS") ? 0 : 2);
+			DW3D A 2 A_SetTics(IsDoubleSpeed() ? 0 : 2);
 			DW3E E 1 Bright
 			{
 				
@@ -348,13 +350,13 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 			}
 			DW3E F 1 Bright;
 			DW3b A 1 { A_WeaponOffset(12,40); A_ZoomFactor(1,ZOOM_NOSCALETURNING); }
-			DW3b A 3 { A_WeaponOffset(18,44); A_SetTics(CountInv("PowerD4DFS") ? 0 : 3); }
+			DW3b A 3 { A_WeaponOffset(18,44); A_SetTics(IsDoubleSpeed() ? 0 : 3); }
 			DW3b A 1   A_WeaponOffset(15,41);
-			DW3b A 1 { A_WeaponOffset(12,38); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			DW3b A 1 { A_WeaponOffset(12,38); A_SetTics(IsDoubleSpeed() ? 0 : 1); }
 			DW3b A 1   A_WeaponOffset(10,37);
-			DW3b A 1 { A_WeaponOffset( 8,36); A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+			DW3b A 1 { A_WeaponOffset( 8,36); A_SetTics(IsDoubleSpeed() ? 0 : 1); }
 			DW3b A 1   A_WeaponOffset( 5,34);
-			DW3b A 2 { A_WeaponOffset( 1,33); A_SetTics(CountInv("PowerD4DFS") ? 0 : 2); }
+			DW3b A 2 { A_WeaponOffset( 1,33); A_SetTics(IsDoubleSpeed() ? 0 : 2); }
 			
 			DW3c DFHI 1 A_WeaponOffset(3,2,WOF_ADD); //+12 + 8
 			DW3c H 2

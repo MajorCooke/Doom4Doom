@@ -18,6 +18,8 @@ Class Doom4Weapon : Weapon
 	Inventory Modules[2];
 	Inventory ActiveMod;
 	Array<D4DNewBeamBase> Beams;
+	meta bool MultiplayerWeapon;
+	Property MultiplayerWeapon: MultiplayerWeapon;
 	
 	override void BeginPlay()
 	{
@@ -29,6 +31,16 @@ Class Doom4Weapon : Weapon
 	{
 		Super.Travelled();
 		EnableAmmoSpawn();
+	}
+	
+	action Actor GetPlayerTarget()
+	{
+		FTranslatedLineTarget t;
+		let o = invoker.owner;
+		if (!o)	return null;
+		
+		BulletSlope(t, ALF_PORTALRESTRICT);
+		return t.linetarget;
 	}
 	
 	virtual void EnableAmmoSpawn() { }
@@ -113,12 +125,11 @@ Class Doom4Weapon : Weapon
 	
 	override bool CheckAmmo(int firemode, bool autoswitch, bool requireAmmo, int ammocount)
 	{
-		if (ammocount == 0)
+		if (ammocount == 0 || sv_infiniteammo || owner.FindInventory("PowerInfiniteAmmo",true))
 			return true;
 		else if (ammocount < 0)
-		{
 			return Super.CheckAmmo(firemode, autoswitch, requireammo);
-		}
+		
 		int temp = AmmoUse1;
 		AmmoUse1 = ammocount;
 		bool check = Super.CheckAmmo(firemode, autoswitch, requireammo);
@@ -131,6 +142,9 @@ Class Doom4Weapon : Weapon
 	
 	action bool IsDoubleSpeed()
 	{	return (invoker.owner.FindInventory("PowerDoubleFiringSpeed", true) != null);	}
+	
+	static bool IsDoubleSpeedGlobal(Actor mo)
+	{	return (mo && mo.FindInventory("PowerDoubleFiringSpeed", true));	}
 	
 	action Actor FireProjectile(Class<Actor> proj, Vector3 off, bool useammo = true)
 	{
@@ -167,6 +181,7 @@ Class Doom4Weapon : Weapon
 	
 	Default 
 	{
+		Doom4Weapon.MultiplayerWeapon false;
 		+INVENTORY.UNDROPPABLE
 		+INVENTORY.UNTOSSABLE
 		+DONTGIB
@@ -188,6 +203,9 @@ Class Doom4Weapon : Weapon
 	Pickup:
 		TNT1 A 0 ACS_NamedExecuteAlways("UpdateWeaponList",0,0,0,0);
 		Stop;
+	// This is now handled in the player itself, though I might move it to
+	// CustomInventory so it can be applied across classes... Maybe.
+	/*
 	Reload:	//since there's no reload, we used this key to throw grenades
 		"####" "#" 1
 		{
@@ -261,7 +279,7 @@ Class Doom4Weapon : Weapon
 		D4GR AAA 1 A_OverlayOffset(GrenadeOverlay,20,10,WOF_ADD);
 		D4GR BBB 1 A_OverlayOffset(GrenadeOverlay,20,10,WOF_ADD);
 		Stop;
-		
+	*/
 	//--------------------------------------------------------------
 	//	Quick melee / Glory kill
 	//--------------------------------------------------------------

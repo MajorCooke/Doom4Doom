@@ -214,10 +214,6 @@ Class D4DHandler : EventHandler
 		{
 			RemoveAmmoActors();
 		}
-		else if (e.Name == 'DestroySpawners')
-		{
-			DestroySpawners();
-		}
 		else if (e.Name == 'FindLiveTID')
 		{
 			FindLiveTID(e);
@@ -380,20 +376,6 @@ Class D4DHandler : EventHandler
 			
 		}
 		Console.Printf("%d ammo actors destroyed", count);
-	}
-	
-	void DestroySpawners()
-	{
-		let it = ThinkerIterator.Create("D4DMonsterSpawner");
-		Actor mo;
-		int count;
-		while (mo = Actor(it.Next()))
-		{
-			Console.Printf("%s", mo.GetClassName());
-			count++;
-			mo.Destroy();
-		}
-		Console.Printf("%d spawners destroyed", count);
 	}
 	
 	void FindLiveTID(ConsoleEvent e)

@@ -32,7 +32,7 @@ BLESSED (White)
 * 
 */
 
-Class D4Cacodemon : D4AbstractBiggie 
+Class D4Cacodemon : D4AbstractBiggie //replaces Cacodemon
 {
 	int staggertimer;
 	
@@ -434,7 +434,7 @@ Class D4CacoBallTrailMini : Actor
 //================================================================================================================
 //================================================================================================================
 
-Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon //replaces Cacodemon
+Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon ////replaces Cacodemon
 {
 	
 	int staggertimer;
@@ -648,7 +648,7 @@ Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon //replaces Cacodemon
 
 
 
-Class OldCacodemonBall : D4AbstractMissile replaces CacodemonBall
+Class OldCacodemonBall : D4AbstractMissile //replaces CacodemonBall
 {
 	Default 
 	{

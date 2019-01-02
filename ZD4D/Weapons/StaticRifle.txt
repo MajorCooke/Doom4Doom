@@ -30,6 +30,7 @@ Class D4StaticRifle : Doom4Weapon
 	*/
 	Default 
 	{
+		Doom4Weapon.MultiplayerWeapon true;
 		+FLOORCLIP
 		+INVENTORY.UNDROPPABLE
 		+INVENTORY.UNTOSSABLE
@@ -41,6 +42,8 @@ Class D4StaticRifle : Doom4Weapon
 		Inventory.PickupMessage "Static Rifle, move to charge!";
 		Decal "D4RailgunOrange";
 		Weapon.SelectionOrder 110;
+		Weapon.SlotNumber 7;
+		Weapon.SlotPriority 0.02;
 		+DONTGIB
 	}
 	States

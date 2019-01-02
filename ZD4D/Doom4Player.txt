@@ -149,6 +149,7 @@ Class Doom4Player : PlayerPawn
 	int UclimbBouncePrevention;
 	int GrenChargeCurrent;
 	int DashTimer;
+	int CurInputCmds, OldInputCmds;
 	double DashForward, DashSide, DashAngle;
 	double UOffsets;
 	bool spawned;
@@ -187,15 +188,7 @@ Class Doom4Player : PlayerPawn
 		Player.StartItem "TrishotClip", 3;
 		Player.StartItem "D4MultiJump", 2;
 		Player.JumpZ 7.0;
-		Player.WeaponSlot 1, "D4DFist", "D4Chainsaw";
-		Player.WeaponSlot 2, "D4Pistol";
-		Player.WeaponSlot 3, "D4Shotgun", "D4SuperShotgun";	
-		Player.WeaponSlot 4, "D4Repeater", "D4AssaultRifle", "D4Chaingun";
-		Player.WeaponSlot 5, "D4GrenadeLauncher", "D4RocketLauncher";	
-		Player.WeaponSlot 6, "D4LightningGun", "D4PlasmaRifle";
-		Player.WeaponSlot 7, "D4StaticRifle", "D4VortexRifle", "D4GaussCannon";
-		Player.WeaponSlot 8, "D4BFG", "D4CarrionCannon";
-		Player.WeaponSlot 9, "AkimboWeapon";
+		
 		Player.ColorRange 112, 127;
 		Player.ColorSet 0, "Green",         0x70, 0x7F,  0x72;
 		Player.ColorSet 1, "Gray",          0x60, 0x6F,  0x62; // Called "Indigo" originally so as to have a unique initial
@@ -245,6 +238,17 @@ Class Doom4Player : PlayerPawn
 		DamageFactor "cutless", 0.0;
 		DamageFactor "shotgun", 0.0;
 		DamageFactor "ssg", 0.0;
+		DamageFactor "Player", 0.0;
+		DamageFactor "Players", 0.0;
+		DamageFactor "PlayerDevBall", 0.0;
+		DamageFactor "PlayerDevBall2", 0.0;
+		DamageFactor "PlayerDevTracer", 0.0;
+		DamageFactor "PlayerExplosive", 0.0;
+		DamageFactor "PlayerDTRG", 0.0;
+		DamageFactor "PDTBFG", 0.0;
+		DamageFactor "PDTBFGTracer", 0.0;
+		DamageFactor "LegendaryPlayer", 0.0;
+		DamageFactor "LegendaryGuruPlayer", 0.0;
 		PainChance "SpawnMarine", 0;
 		PainChance "Leg", 0;
 		PainChance "Taunt", 0;
@@ -270,7 +274,7 @@ Class Doom4Player : PlayerPawn
 	Spawn:
 		PLAY A -1 NoDelay
 		{
-			if (player && player.mo && player.mo == self)
+			if (player && player.mo && player.mo == self && level.mapname != 'TITLEMAP')
 			{
 				A_Overlay(Overlay_DashManager, "Overlay.DashManager", true);
 				A_Overlay(Overlay_UtilityManager, "Overlay.UtilityManager", true);
@@ -438,6 +442,7 @@ Class Doom4Player : PlayerPawn
 			let plr = player;
 			if (!plr)	return ResolveState("Null");
 			
+			
 			bool ThrowGrenade = (plr.cmd.buttons & BT_RELOAD) && !(plr.oldbuttons & BT_RELOAD);
 			let inv = GetDefaultByType("GrenadeCharge");
 			int MaxAmt = inv.MaxAmount;
@@ -449,27 +454,27 @@ Class Doom4Player : PlayerPawn
 			if (GrenChargeCurrent >= MaxAmt)
 			{
 				if (ThrowGrenade)
-				{
-					static const Class<Inventory> GrenadeSelected[] =
+				{					
+					static const Class<D4DGrenadeItem> GrenadeSelected[] =
 					{
-						"FragGrenadeSelected",
-						"SyphonGrenadeSelected",
-						"MarineHoloSelected"
+						"FragGrenadePickup",
+						"SyphonGrenadePickup",
+						"HoloGrenadePickup",
+						"PersonalPortalPickup",
+						"KineticMinePickup",
+						"TeslaRocketPickup",
+						"ThreatSensorPickup",
+						"ThreatScannerPickup"
 					};
-					
-					static const Class<Actor> GrenadeTypes[] =
-					{
-						"D4FragGrenade",
-						"D4SyphonGrenade",
-						"D4PlayerHolograph"
-					};
-					
+				
 					int size = GrenadeSelected.Size();
 					for (int i = 0; i < size; i++)
 					{
-						if (CountInv(GrenadeSelected[i]))
+						let gren = D4DGrenadeItem(FindInventory(GrenadeSelected[i]));
+						if (gren && gren.Amount > 0 && gren.Selected)
 						{
-							GrenadeToFire = GrenadeTypes[i];
+							
+							GrenadeToFire = gren.Grenade;
 							return ResolveState("DeployCannon");
 						}
 					}
@@ -975,17 +980,6 @@ extend class Doom4Player
 			tl;dr the item's there for the menu while not being active until
 			the player has 1+, nuff sed
 			*/
-			/*
-			for (int i = 1; i < ITS.ItemList.Size(); i++)
-			{
-				Class<Inventory> check = ITS.ItemList[i];
-				if (check && !CountInv(check))
-				{
-					A_SetInventory(check,1);
-					A_SetInventory(check,0);	
-				}
-			}
-			*/
 			
 			for (int i = 0; i < AllActorClasses.Size(); ++i)
 			{
@@ -1013,6 +1007,52 @@ extend class Doom4Player
 	//
 	//==========================================================================
 	
+	PlayerInfo GetRealPlayer()
+	{
+		let plr = player;
+		return (plr && plr.mo && plr.mo == self) ? plr : null;
+	}
+	
+	int CheckEquipmentCharge(bool checkready = false)
+	{
+		let charge = FindInventory("GrenadeCharge");
+		if (checkready)	
+			return (charge) ? (charge.Amount >= charge.Default.MaxAmount) : 0;
+		return (charge) ? charge.Amount : 0;
+	}
+	
+	// Sets all equipment as unselected, while the desired item becomes selected.
+	bool SelectEquipment(Class<D4DGrenadeItem> item)
+	{
+		if (!item || !CountInv(item))	return false;
+		
+		bool ret;
+		for (let probe = Inv; probe != null; probe = probe.Inv)
+		{
+			let cls = D4DGrenadeItem(probe);
+			if (!cls)	continue;
+			cls.Selected = (cls.GetClass() == item && cls.Amount > 0);
+			ret = (!ret && cls.Selected);
+		}
+		return ret;
+	}
+	
+	bool CheckGrenadeButton(bool cooldown)
+	{
+		let plr = GetRealPlayer();
+		if (plr && (plr.cmd.buttons & BT_RELOAD) && !(plr.oldbuttons & BT_RELOAD))
+			return (cooldown) ? CheckEquipmentCharge(true) : true;
+		return false;
+	}
+	
+	
+	
+	//==========================================================================
+	//
+	//
+	//
+	//==========================================================================
+	
 	// [Gutawer]
 	// I can never get the ** operator to actually work, so i'm using a function to do it
 	double pow(double base, double power) { return exp(power * log(base)); }
@@ -1029,7 +1069,7 @@ extend class Doom4Player
 		{
 			let invul = FindInventory("PowerInvulnerable");
 			if (invul)
-				player.DamageCount = Max(0, player.DamageCount - 3);
+				player.DamageCount = Max(0, player.DamageCount - 4);
 		}
 	}
 	
@@ -1336,7 +1376,7 @@ extend class Doom4Player
 					{	
 						A_SetInventory("GrenadeCharge", 350);
 						A_SetInventory("FragGrenadePickup",1);
-						A_SetInventory("FragGrenadeSelected",1);
+						SelectEquipment("FragGrenadePickup");
 					}
 				}
 				if (GetCvar("D4D_NMGrenades") >= 2) // Give the rest and select syphon if the setting is "All"
@@ -1351,8 +1391,8 @@ extend class Doom4Player
 						A_SetInventory("GrenadeCharge", 350);
 						A_GiveInventory("GrenadeSelectedStripper",1); //Just in case
 						A_SetInventory("SyphonGrenadePickup",1);
-						A_SetInventory("SyphonGrenadeSelected",1); 
 					}
+					SelectEquipment("SyphonGrenadePickup");
 				}
 			}
 		}
@@ -1377,7 +1417,7 @@ extend class Doom4Player
 	override void Tick()
 	{
 		Super.Tick();
-		if ((!player || !player.mo || player.mo != self) || health <= 0)	
+		if ((!player || !player.mo || player.mo != self) || health <= 0 || level.mapname == 'TITLEMAP')	
 			return;
 		
 		//======================================================================

@@ -32,7 +32,7 @@ BLESSED (White)
 * 
 */
 
-Class D4Revenant : D4AbstractBiggie
+Class D4Revenant : D4AbstractBiggie //replaces Revenant
 {
 	int wep;
 	int counter;
@@ -565,7 +565,7 @@ Class RocketGasTrail : Actor
 //================================================================================================================
 //================================================================================================================
 
-Class D4OldRevenant : D4AbstractBiggie // : Revenant //replaces Revenant
+Class D4OldRevenant : D4AbstractBiggie // : Revenant ////replaces Revenant
 {
 	int staggertimer;
 	Default 
@@ -773,7 +773,7 @@ Class D4OldRevenant : D4AbstractBiggie // : Revenant //replaces Revenant
 	}
 }
 
-Class OldRevenantTracer : D4AbstractMissile replaces RevenantTracer
+Class OldRevenantTracer : D4AbstractMissile //replaces RevenantTracer
 {
 	Default 
 	{

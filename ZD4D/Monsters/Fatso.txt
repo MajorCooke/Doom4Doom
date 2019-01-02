@@ -33,7 +33,7 @@ BLESSED (White)
 * 
 */
 
-Class D4FatsoTech : D4AbstractBiggie 
+Class D4FatsoTech : D4AbstractBiggie
 {
 	
 	int staggertimer;
@@ -594,7 +594,7 @@ Class PoisonAcidGas : Actor
 // Mancubus
 //
 //===========================================================================
-Class D4FatsoHell : D4AbstractBiggie
+Class D4FatsoHell : D4AbstractBiggie //replaces Fatso
 {
 	int staggertimer;
 	Default 
@@ -1064,7 +1064,7 @@ Class FatsoFireTrail : Actor
 //================================================================================================================
 //================================================================================================================
 
-Class D4OldFatso : D4AbstractBiggie // : Fatso //replaces Fatso
+Class D4OldFatso : D4AbstractBiggie // : Fatso ////replaces Fatso
 {
 	int staggertimer;
 	Default 
@@ -1269,7 +1269,7 @@ Class D4OldFatso : D4AbstractBiggie // : Fatso //replaces Fatso
 	}
 }
 
-Class OldFatShot : D4AbstractMissile Replaces FatShot
+Class OldFatShot : D4AbstractMissile //replaces FatShot
 {
 	Default 
 	{

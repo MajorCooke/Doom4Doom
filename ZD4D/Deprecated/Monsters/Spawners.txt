@@ -207,7 +207,7 @@ Class D4DMonsterSpawner : Actor
 //===============================================================================
 //===============================================================================
 
-Class ZombiemanReplacer : D4DMonsterSpawner replaces Zombieman
+Class ZombiemanReplacer : D4DMonsterSpawner //replaces Zombieman
 {
 	Default 
 	{
@@ -220,7 +220,7 @@ Class ZombiemanReplacer : D4DMonsterSpawner replaces Zombieman
 	}
 }
 
-Class StealthZombiemanReplacer : ZombiemanReplacer  replaces StealthZombieman
+Class StealthZombiemanReplacer : ZombiemanReplacer //replaces StealthZombieman
 {	Default	{	D4DMonsterSpawner.isStealth true;	}	}
 
 //===============================================================================
@@ -229,7 +229,7 @@ Class StealthZombiemanReplacer : ZombiemanReplacer  replaces StealthZombieman
 //===============================================================================
 //===============================================================================
 
-Class ShotgunGuyReplacer : D4DMonsterSpawner replaces ShotgunGuy
+Class ShotgunGuyReplacer : D4DMonsterSpawner //replaces ShotgunGuy
 {
 	Default 
 	{
@@ -240,7 +240,7 @@ Class ShotgunGuyReplacer : D4DMonsterSpawner replaces ShotgunGuy
 	}
 }
 
-Class StealthShotgunGuyReplacer : ShotgunGuyReplacer  replaces StealthShotgunGuy
+Class StealthShotgunGuyReplacer : ShotgunGuyReplacer //replaces StealthShotgunGuy
 { Default	{ D4DMonsterSpawner.isStealth true;	} }
 //===============================================================================
 //===============================================================================
@@ -248,7 +248,7 @@ Class StealthShotgunGuyReplacer : ShotgunGuyReplacer  replaces StealthShotgunGuy
 //===============================================================================
 //===============================================================================
 
-Class ChaingunGuyReplacer : D4DMonsterSpawner replaces ChaingunGuy
+Class ChaingunGuyReplacer : D4DMonsterSpawner //replaces ChaingunGuy
 {
 	Default 
 	{
@@ -265,7 +265,7 @@ Class ChaingunGuyReplacer : D4DMonsterSpawner replaces ChaingunGuy
 	}
 }
 
-Class StealthChaingunGuyReplacer : ChaingunGuyReplacer  replaces StealthChaingunGuy
+Class StealthChaingunGuyReplacer : ChaingunGuyReplacer //replaces StealthChaingunGuy
 { Default	{ D4DMonsterSpawner.isStealth true;	} }
 
 //===============================================================================
@@ -273,7 +273,7 @@ Class StealthChaingunGuyReplacer : ChaingunGuyReplacer  replaces StealthChaingun
 //	Demon
 //===============================================================================
 //===============================================================================
-Class DemonReplacer : D4DMonsterSpawner replaces Demon
+Class DemonReplacer : D4DMonsterSpawner// replaces Demon
 {
 	Default 
 	{
@@ -284,7 +284,7 @@ Class DemonReplacer : D4DMonsterSpawner replaces Demon
 	}
 }
 
-Class DemonStealthReplacer : DemonReplacer  replaces StealthDemon
+Class DemonStealthReplacer : DemonReplacer //replaces StealthDemon
 { Default	{ D4DMonsterSpawner.isStealth true;	} }
 
 //===============================================================================
@@ -292,7 +292,7 @@ Class DemonStealthReplacer : DemonReplacer  replaces StealthDemon
 //	Spectre
 //===============================================================================
 //===============================================================================
-Class SpectreReplacer : D4DMonsterSpawner replaces Spectre
+Class SpectreReplacer : D4DMonsterSpawner //replaces Spectre
 {
 	Default 
 	{
@@ -307,7 +307,7 @@ Class SpectreReplacer : D4DMonsterSpawner replaces Spectre
 //	DoomImp
 //===============================================================================
 //===============================================================================
-Class DoomImpReplacer : D4DMonsterSpawner replaces DoomImp
+Class DoomImpReplacer : D4DMonsterSpawner //replaces DoomImp
 {
 	Default 
 	{
@@ -318,7 +318,7 @@ Class DoomImpReplacer : D4DMonsterSpawner replaces DoomImp
 	}
 }
 
-Class StealthDoomImpReplacer : DoomImpReplacer  replaces StealthDoomImp
+Class StealthDoomImpReplacer : DoomImpReplacer //replaces StealthDoomImp
 { Default	{ D4DMonsterSpawner.isStealth true;	} }
 
 //===============================================================================
@@ -326,7 +326,7 @@ Class StealthDoomImpReplacer : DoomImpReplacer  replaces StealthDoomImp
 //	LostSoul
 //===============================================================================
 //===============================================================================
-Class LostSoulReplacer : D4DMonsterSpawner replaces LostSoul
+Class LostSoulReplacer : D4DMonsterSpawner //replaces LostSoul
 {
 	Default 
 	{
@@ -341,7 +341,7 @@ Class LostSoulReplacer : D4DMonsterSpawner replaces LostSoul
 //	Cacodemon
 //===============================================================================
 //===============================================================================
-Class CacodemonReplacer : D4DMonsterSpawner replaces Cacodemon
+Class CacodemonReplacer : D4DMonsterSpawner //replaces Cacodemon
 {
 	Default 
 	{
@@ -352,14 +352,14 @@ Class CacodemonReplacer : D4DMonsterSpawner replaces Cacodemon
 	}
 }
 
-Class StealthCacodemonReplacer : CacodemonReplacer  replaces StealthCacodemon
+Class StealthCacodemonReplacer : CacodemonReplacer //replaces StealthCacodemon
 { Default	{ D4DMonsterSpawner.isStealth true;	} }
 //===============================================================================
 //===============================================================================
 //	PainElemental
 //===============================================================================
 //===============================================================================
-Class PainElementalReplacer : D4DMonsterSpawner replaces PainElemental
+Class PainElementalReplacer : D4DMonsterSpawner //replaces PainElemental
 {
 	Default 
 	{
@@ -375,7 +375,7 @@ Class PainElementalReplacer : D4DMonsterSpawner replaces PainElemental
 //	Revenant
 //===============================================================================
 //===============================================================================
-Class RevenantReplacer : D4DMonsterSpawner replaces Revenant
+Class RevenantReplacer : D4DMonsterSpawner //replaces Revenant
 {
 	Default 
 	{
@@ -386,7 +386,7 @@ Class RevenantReplacer : D4DMonsterSpawner replaces Revenant
 	}
 }
 
-Class StealthRevenantReplacer : RevenantReplacer  replaces StealthRevenant
+Class StealthRevenantReplacer : RevenantReplacer //replaces StealthRevenant
 { Default	{ D4DMonsterSpawner.isStealth true;	} }
 
 
@@ -395,7 +395,7 @@ Class StealthRevenantReplacer : RevenantReplacer  replaces StealthRevenant
 //	HellKnight
 //===============================================================================
 //===============================================================================
-Class HellKnightReplacer : D4DMonsterSpawner replaces HellKnight
+Class HellKnightReplacer : D4DMonsterSpawner //replaces HellKnight
 {
 	Default 
 	{
@@ -406,7 +406,7 @@ Class HellKnightReplacer : D4DMonsterSpawner replaces HellKnight
 	}
 }
 
-Class StealthHellKnightReplacer : HellKnightReplacer  replaces StealthHellKnight
+Class StealthHellKnightReplacer : HellKnightReplacer //replaces StealthHellKnight
 { Default	{ D4DMonsterSpawner.isStealth true;	} }
 
 //===============================================================================
@@ -414,7 +414,7 @@ Class StealthHellKnightReplacer : HellKnightReplacer  replaces StealthHellKnight
 //	BaronOfHell
 //===============================================================================
 //===============================================================================
-Class BaronOfHellReplacer : D4DMonsterSpawner replaces BaronOfHell
+Class BaronOfHellReplacer : D4DMonsterSpawner //replaces BaronOfHell
 {
 	Default 
 	{
@@ -428,7 +428,7 @@ Class BaronOfHellReplacer : D4DMonsterSpawner replaces BaronOfHell
 	}
 }
 
-Class StealthBaronReplacer : BaronOfHellReplacer  replaces StealthBaron
+Class StealthBaronReplacer : BaronOfHellReplacer //replaces StealthBaron
 { Default	{ D4DMonsterSpawner.isStealth true;	} }
 
 
@@ -437,7 +437,7 @@ Class StealthBaronReplacer : BaronOfHellReplacer  replaces StealthBaron
 //	Fatso
 //===============================================================================
 //===============================================================================
-Class FatsoReplacer : D4DMonsterSpawner replaces Fatso
+Class FatsoReplacer : D4DMonsterSpawner //replaces Fatso
 {
 	Default 
 	{
@@ -464,7 +464,7 @@ Class FatsoReplacer : D4DMonsterSpawner replaces Fatso
 	}
 }
 
-Class StealthFatsoReplacer : FatsoReplacer  replaces StealthFatso
+Class StealthFatsoReplacer : FatsoReplacer //replaces StealthFatso
 { Default	{ D4DMonsterSpawner.isStealth true;	} }
 
 //===============================================================================
@@ -472,7 +472,7 @@ Class StealthFatsoReplacer : FatsoReplacer  replaces StealthFatso
 //	Arachnotron
 //===============================================================================
 //===============================================================================
-Class ArachnotronReplacer : D4DMonsterSpawner replaces Arachnotron
+Class ArachnotronReplacer : D4DMonsterSpawner //replaces Arachnotron
 {
 	Default 
 	{
@@ -484,7 +484,7 @@ Class ArachnotronReplacer : D4DMonsterSpawner replaces Arachnotron
 	}
 }
 
-Class StealthArachnotronReplacer : ArachnotronReplacer  replaces StealthArachnotron
+Class StealthArachnotronReplacer : ArachnotronReplacer //replaces StealthArachnotron
 { Default	{ D4DMonsterSpawner.isStealth true;	} }
 
 
@@ -493,7 +493,7 @@ Class StealthArachnotronReplacer : ArachnotronReplacer  replaces StealthArachnot
 //	Archvile
 //===============================================================================
 //===============================================================================
-Class ArchvileReplacer : D4DMonsterSpawner replaces Archvile
+Class ArchvileReplacer : D4DMonsterSpawner //replaces Archvile
 {
 	Default 
 	{
@@ -504,7 +504,7 @@ Class ArchvileReplacer : D4DMonsterSpawner replaces Archvile
 	}
 }
 
-Class StealthArchvileReplacer : ArchvileReplacer  replaces StealthArchvile
+Class StealthArchvileReplacer : ArchvileReplacer //replaces StealthArchvile
 { Default	{ D4DMonsterSpawner.isStealth true;	} }
 
 //===============================================================================
@@ -512,7 +512,7 @@ Class StealthArchvileReplacer : ArchvileReplacer  replaces StealthArchvile
 //	Cyberdemon
 //===============================================================================
 //===============================================================================
-Class CyberdemonReplacer : D4DMonsterSpawner replaces Cyberdemon
+Class CyberdemonReplacer : D4DMonsterSpawner //replaces Cyberdemon
 {
 	Default 
 	{
@@ -529,7 +529,7 @@ Class CyberdemonReplacer : D4DMonsterSpawner replaces Cyberdemon
 //	SpiderMastermind 
 //===============================================================================
 //===============================================================================
-Class SpiderMastermindReplacer : D4DMonsterSpawner replaces SpiderMastermind
+Class SpiderMastermindReplacer : D4DMonsterSpawner //replaces SpiderMastermind
 {
 	Default 
 	{

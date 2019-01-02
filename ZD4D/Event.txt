@@ -1,4 +1,5 @@
 #include "ZD4D/HUD.txt"
+#include "ZD4D/Spawners.txt"
 
 Class D4bum : D4Zombieman
 {
@@ -43,7 +44,7 @@ extend class D4DHandler
 		ChainsawAmmo = 1,
 	};
 	private bool Spawnable[2];
-	const DefaultDropChance = 250;
+	const DefaultDropChance = 200;
 	const TimeTrigger = 35 * 10;
 	bool FirstTime;
 	uint Timer;
@@ -58,6 +59,8 @@ extend class D4DHandler
 	
 	bool CheckActorSpawn(EObjectIndex index)			{	return Spawnable[index];	}
 	void SetActorSpawn(EObjectIndex index, bool can) 	{	Spawnable[index] = can; 	}
+	
+	
 	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
@@ -203,7 +206,12 @@ extend class D4DHandler
 			Monsters.Push(mo);
 		
 			let mon = D4AbstractMonster(mo);
-			if (mon)	mon.Event = self;
+			if (mon && D4D_MonsterType >= 2)	
+			{
+				mon.Event = self;
+				int amt = mon.ChoosePowerLevel();
+				if (amt)  mon.SetupPowerLevel(amt);
+			}
 		}
 	}
 	

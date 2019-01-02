@@ -32,7 +32,7 @@ BLESSED (White)
 * 
 */
 
-Class D4Demon : D4AbstractMonster 
+Class D4Demon : D4AbstractMonster //replaces Demon
 {
 	int staggertimer;
 	int Shielded;
@@ -359,7 +359,7 @@ Class DemonShield : Actor
 // Spectre
 //
 //===========================================================================
-Class D4Spectre : D4Demon //replaces Spectre
+Class D4Spectre : D4Demon ////replaces Spectre
 {
 	Default 
 	{
@@ -424,7 +424,7 @@ Class D4Spectre : D4Demon //replaces Spectre
 //================================================================================================================
 //================================================================================================================
 
-Class D4OldDemon : D4AbstractMonster // : Demon //replaces Demon
+Class D4OldDemon : D4AbstractMonster // : Demon ////replaces Demon
 {
 	int staggertimer;
 	Default 
@@ -617,7 +617,7 @@ Class D4OldDemon : D4AbstractMonster // : Demon //replaces Demon
 	}
 }
 
-Class D4OldSpectre : D4OldDemon //replaces Spectre
+Class D4OldSpectre : D4OldDemon ////replaces Spectre
 {
 	Default 
 	{

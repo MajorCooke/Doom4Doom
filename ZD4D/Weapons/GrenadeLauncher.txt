@@ -16,6 +16,7 @@ Class D4GrenadeLauncher : Doom4Weapon
 	Default
 	{
 	//	Scale 0.5;
+		Doom4Weapon.MultiplayerWeapon true;
 		Tag "Grenade Launcher";
 		Inventory.PickupMessage "Grenade Launcher! Trickshot time!";
 		Weapon.SlotNumber 1;
@@ -24,6 +25,8 @@ Class D4GrenadeLauncher : Doom4Weapon
 		Weapon.AmmoGive1 4;
 		Weapon.AmmoUse1 1;
 		Weapon.SelectionOrder 79;
+		Weapon.SlotNumber 5;
+		Weapon.SlotPriority 0.01;
 	}
 	States
 	{

@@ -32,10 +32,12 @@ Class D4GaussCannon : Doom4Weapon
 		Weapon.AmmoType1 "D4Cells";
 		Weapon.AmmoGive1 60;
 		Weapon.AmmoUse1 20;
+		Weapon.SelectionOrder 70;
+		Weapon.SlotNumber 7;
+		Weapon.SlotPriority 0.0;
 		Tag "Gauss Cannon";
 		Scale 0.7;
 		Decal "D4GaussPrimary";
-		Weapon.SelectionOrder 70;
 		+DONTGIB
 	}
 	States
@@ -165,11 +167,11 @@ Class D4GaussCannon : Doom4Weapon
 		"####" EEEFF 1 { A_WeaponOffset(-3,-2,WOF_ADD); A_SetPitch(pitch+1.0); }
 		"####" FGGG 1 { A_WeaponOffset(-3,-2,WOF_ADD); }
 		"####" HI 4;
-		"####" J 30 { A_SetTics(CountInv("PowerD4DFS") ? 11 : 30); } //9 above. Take off 4 here instead, much easier and less code bloat.
+		"####" J 30 { A_SetTics(IsDoubleSpeed() ? 11 : 30); } //9 above. Take off 4 here instead, much easier and less code bloat.
 		"####" K 1;
-		"####" L 1 { A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+		"####" L 1 { A_SetTics(IsDoubleSpeed() ? 0 : 1); }
 		"####" M 1;
-		"####" N 1 { A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+		"####" N 1 { A_SetTics(IsDoubleSpeed() ? 0 : 1); }
 		"####" O 1;
 		Goto Ready;
 
@@ -221,7 +223,7 @@ Class D4GaussCannon : Doom4Weapon
 						if (CountInv("PrecisionShotChargesCounter") == 20)
 						{	A_PlaySound("Doom4/Weapon/GaussGun/Charge2Loop",6,1.0,1);	}
 						if (CountInv("PrecisionShotChargesCounter") < 60)
-						{	A_GiveInventory("PrecisionShotChargesCounter",1 + CountInv("PowerD4DFS"));	}
+						{	A_GiveInventory("PrecisionShotChargesCounter",1 + IsDoubleSpeed());	}
 						
 					}
 					R016 N 1 A_WeaponReady(WRF_NOSECONDARY|WRF_NOBOB);
@@ -406,7 +408,7 @@ Class D4GaussCannon : Doom4Weapon
 				GCSM CD 2 Bright;
 				GCSC IHG 1 { A_WeaponOffset(-3,-2,WOF_ADD); A_SetPitch(pitch+1.0); }
 				GCSC FEDDD 1 { A_WeaponOffset(-3,-2,WOF_ADD); A_SetPitch(pitch+1.0); }
-				GCSC D 20 { A_SetTics(CountInv("PowerD4DFS") ? 6 : 20); }
+				GCSC D 20 { A_SetTics(IsDoubleSpeed() ? 6 : 20); }
 				GCSC CBA 1;
 				GCSI A 1;
 				Goto Ready;
@@ -435,9 +437,9 @@ Class D4GaussCannon : Doom4Weapon
 						A_SetSpeed(1);
 					}
 					GCSC D 1;
-					GCSC C 1 { A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+					GCSC C 1 { A_SetTics(IsDoubleSpeed() ? 0 : 1); }
 					GCSC B 1;
-					GCSI A 1 { A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+					GCSI A 1 { A_SetTics(IsDoubleSpeed() ? 0 : 1); }
 					GCSI A 1;
 					Goto Ready;
 				SiegeUnzoom3:
@@ -452,11 +454,11 @@ Class D4GaussCannon : Doom4Weapon
 						A_SetSpeed(1);
 					}
 					GCSC E 1;
-					GCSC E 1 { A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+					GCSC E 1 { A_SetTics(IsDoubleSpeed() ? 0 : 1); }
 					GCSC D 1;
-					GCSC C 1 { A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+					GCSC C 1 { A_SetTics(IsDoubleSpeed() ? 0 : 1); }
 					GCSC B 1;
-					GCSI A 1 { A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); }
+					GCSI A 1 { A_SetTics(IsDoubleSpeed() ? 0 : 1); }
 					GCSI A 1;
 					Goto Ready;
 				

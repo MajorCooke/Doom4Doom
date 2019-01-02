@@ -32,7 +32,7 @@ BLESSED (White)
 * 
 */
 
-Class D4ChaingunGuy : D4AbstractMonster // : ChaingunGuy
+Class D4ChaingunGuy : D4AbstractMonster //replaces Chaingunguy // : ChaingunGuy
 {
 	
 	const CBAFlags = CBAF_AIMFACING|CBAF_PUFFTRACER|CBAF_NORANDOMPUFFZ|CBAF_NORANDOM;
@@ -658,7 +658,7 @@ Class ElectricRailTrail : Actor
 //================================================================================================================
 //================================================================================================================
 
-Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy //replaces ChaingunGuy
+Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy ////replaces ChaingunGuy
 {
 	int staggertimer;
 	Default 

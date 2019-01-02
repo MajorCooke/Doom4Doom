@@ -32,7 +32,7 @@ BLESSED (White)
 * 
 */
 
-Class D4HellKnight : D4AbstractBiggie
+Class D4HellKnight : D4AbstractBiggie //replaces HellKnight
 {
 	
 	int timer;
@@ -258,19 +258,25 @@ Class D4HellKnight : D4AbstractBiggie
 		}
 		E02L A 1 
 		{
-			if (A_JumpIfHigherOrLower("Null",null)) //Target is below
+			StateLabel next = null;
+			if (target)
 			{
-				A_FaceTarget(0,0,0,0,FAF_TOP,-4);
+				if (A_JumpIfHigherOrLower("Null",null)) //Target is below
+				{
+					A_FaceTarget(0,0,0,0,FAF_TOP,-4);
+				}
+				else if (A_JumpIfHigherOrLower(null,"Null")) //Target is above
+				{
+					A_FaceTarget(0,0,0,0,FAF_TOP,10 + Distance3D(target)/5.0);
+				}
+				else //Target's on (near) equal z
+				{
+					A_FaceTarget(0,0,0,0,FAF_TOP,Distance3D(target)/5.0);
+				}
+				A_ChangeVelocity(cos(pitch)*(Distance3D(target)/25) ,0, -sin(pitch)*(Distance3D(target)/11)  ,CVF_RELATIVE|CVF_REPLACE);
 			}
-			else if (A_JumpIfHigherOrLower(null,"Null")) //Target is above
-			{
-				A_FaceTarget(0,0,0,0,FAF_TOP,10 + GetDistance(true)/5.0);
-			}
-			else //Target's on (near) equal z
-			{
-				A_FaceTarget(0,0,0,0,FAF_TOP,GetDistance(true)/5.0);
-			}
-			A_ChangeVelocity(cos(pitch)*(GetDistance(true)/25) ,0, -sin(pitch)*(GetDistance(true)/11)  ,CVF_RELATIVE|CVF_REPLACE);
+			else next = "See";
+			return ResolveState(next);
 		}
 		E02L A 1;
 		
@@ -694,7 +700,7 @@ Class D4HellKnightBall : D4AbstractMissile
 //================================================================================================================
 //================================================================================================================
 
-Class D4OldHellKnight : D4AbstractBiggie // : HellKnight //replaces HellKnight
+Class D4OldHellKnight : D4AbstractBiggie // : HellKnight ////replaces HellKnight
 {
 	int staggertimer;
 	Default 

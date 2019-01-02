@@ -1,5 +1,5 @@
 /*
-Class D4BossEye : Actor replaces BossEye
+Class D4BossEye : Actor //replaces BossEye
 {
 	Default
 	{
@@ -19,7 +19,7 @@ Class D4BossEye : Actor replaces BossEye
 	}
 }
 */
-Class D4BossBrain : BossBrain replaces BossBrain
+Class D4BossBrain : BossBrain //replaces BossBrain
 {
 	double bat;
 	bool seeBase;

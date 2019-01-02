@@ -27,11 +27,13 @@ Class D4AbstractMonster : Actor
 	Class<DemonRuneBase> RuneItem;
 	int RuneDropChance;
 	D4DHandler Event;
-	int PrevWoundHealth;
-	int UpgradeDropChance, UpgradeDropAlways;
+	uint PrevWoundHealth;
+	uint UpgradeDropChance, UpgradeDropAlways;
 	uint CrateDropChance, CrateDropAmount, CrateDropAlways;
 	uint CashAmount, CashChainsawPinata;
-	int CashMultiplier;
+	uint CashMultiplier;
+	bool ResurrectCheck;
+	uint ResurrectCheckTimer;
 	Name MOD;
 	Actor Spawner;
 	Color BC;
@@ -77,6 +79,19 @@ Class D4AbstractMonster : Actor
 	//	ExecuteCheck = Cvar.FindCvar("D4D_ExecutionsON");
 	//	StaggerCheck = Cvar.FindCvar("D4D_MonsterStagger");
 		oldLeap = false;
+	}
+	
+	override bool CanResurrect(Actor other, bool passive)
+	{
+		if (!passive)
+		{
+			if (ResurrectCvar == '')
+				return true;
+			
+			Cvar check = Cvar.FindCVar(ResurrectCvar);
+			return (check && check.GetBool());
+		}
+		return true;
 	}
 	
 	void DoResurrect(int stage = 0)
@@ -328,11 +343,6 @@ Class D4AbstractMonster : Actor
 		{
 			Spawner.bVULNERABLE = true;
 			Spawner.A_Die();
-		}
-		else if (master && (master is "D4DMonsterSpawner" || master is master.GetReplacee("D4DMonsterSpawner")))
-		{
-			master.bVULNERABLE = true;
-			master.A_Die();
 		}
 		Super.Die(source, inflictor, dmgflags);
 		
@@ -1136,3 +1146,20 @@ Class D4MonsterUpgrader : Inventory
 		Inventory.MaxAmount MaxRunePower;
 	}
 }
+
+
+Class D4StealthArachnotron : D4Arachnotron { Default { +STEALTH } }
+Class D4StealthArchvile : D4Archvile { Default { +STEALTH } }
+Class D4StealthBaronOfHell : D4BaronOfHell { Default { +STEALTH } }
+Class D4StealthHellKnight : D4HellKnight { Default { +STEALTH } }
+Class D4StealthCacoDemon : D4CacoDemon { Default { +STEALTH } }
+Class D4StealthChaingunGuy : D4ChaingunGuy { Default { +STEALTH } }
+
+Class D4StealthSergeantShield : D4SergeantShield { Default { +STEALTH } }
+Class D4StealthDemon : D4Demon { Default { +STEALTH } }
+Class D4StealthDoomImp : D4DoomImp { Default { +STEALTH } }
+Class D4StealthFatsoTech : D4FatsoTech { Default { +STEALTH } }
+Class D4StealthFatsoHell : D4FatsoHell { Default { +STEALTH } }
+Class D4StealthRevenant : D4Revenant { Default { +STEALTH } }
+Class D4StealthShotgunGuy : D4ShotgunGuy { Default { +STEALTH } }
+Class D4StealthZombieMan : D4ZombieMan { Default { +STEALTH } }

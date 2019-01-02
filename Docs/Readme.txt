@@ -42,9 +42,9 @@ Other files required    : D4DResources.pk3 (DO NOT LOAD THIS FILE MANUALLY.)
 Game                    : Doom 2 (compatible with Ultimate Doom, Plutonia, TNT, etc.)
 Map #                   : N/A
 Single Player           : Designed for
-Cooperative 2-4 Player  : No (Eventually)
+Cooperative 2-4 Player  : Not yet
 Deathmatch 2-4 Player   : No
-Other game styles       : No
+Other game styles       : Not yet
 Difficulty Settings     : Yes, a lot of them
 
 
@@ -63,16 +63,16 @@ Known Bugs              : * Sometimes glory kills will only do a quick punch
                           through walls, floors or celings while being
                           executed.
 Might Not Work With     : GZDoom devbuilds, unless mentioned otherwise.
-Will NOT Work With 		: Zandronum. ZDoom. GZDoom v3.5 and older.
-Tested With             : GZDoom v3.6
+Will NOT Work With 		: Zandronum. ZDoom. GZDoom v3.6 and older.
+Tested With             : GZDoom v3.7
 
 ===========================================================================
 
 
 
 ===========================================================================
-* Credits *
-
+	***** Credits *****
+	 *** Main Team ***
 						  
 Major Cooke             : Current owner. Project idea and direction. 
 						  Design, creation and implementation of the "Holo
@@ -110,7 +110,7 @@ ZZYZX                   : Making shaders for glory kill effect, shaders for
 Neccronixis             : Creator of all the Doom 4 weapon sprites (until 3.0+) 						  
 						  & doomdoll pickup and animation.
 
-* Special Credits *
+	** Individual Credits **
 
 DBThanatos              : Ex-author as of 2.0.3.
                           Import, offseting, renaming all of Neccronixis' weapon
@@ -160,6 +160,7 @@ Gutawer					: Player damage shader effect
 						  Gutamatics library
 
 Marisa Kirisami			: Matrix4 class and tips on producing better lightning.
+						  NotHudMessage utility.
 
 PhantomBeta				: Providing the intercepting projectile code.
 
@@ -167,17 +168,6 @@ Cactus Hege				: Inspiration for the Rainbow Doom(4) monsters. Concept
 						  (no code) taken from Colorful Hell with permission.
 						  
 Nev3r					: Shoulder cannon sprite.
-
-* Other credits *
-
-Legendary				: Sound effects for some forthcoming powerups.
-
-DoomKrakken				: Sound effects for single player weapons.
-
-Death Foretold			: Sound effects for multiplayer weapons. Extra reticles.
-
-OpenGameArt				: Lots of effects from here.
-						  https://opengameart.org/content/2d-effects
 
 Amuscaria               : Monster sprites for Arachnotron, Archvile, Hell
                           Mancubus, Baron of Hell, Pain Elemental. All from
@@ -188,6 +178,32 @@ Voxelbro                : AllMap, RadSuit & Berserk voxels
 ScubaSteve              : First person Mancubus weapons
 
 Mike12                  : First person Revenant cannons
+
+Legendary				: Sound effects for some forthcoming powerups.
+
+DoomKrakken				: Sound effects for single player weapons.
+
+Tormentor667,
+SolarSnowfall,
+GhastlyDragon			: Spark sprite for lightning gun puffs. Taken from 
+						  S.U.P.E.R. Natural.
+						  
+Phobos867				: "Phobos867's Add-ons for D4D" addon content.
+
+Beed28					: Stealth monster replacements. Flexible monster type 
+						  idea that turned into "mod compatibility" idea to 
+						  allow playing with another monster replacement mod 
+						  such as Complex Doom.
+						  
+VICE					: "D4DHF" addon content.
+
+
+	** Other credits **
+
+Death Foretold			: Sound effects for multiplayer weapons. Extra reticles.
+
+OpenGameArt				: Lots of effects from here.
+						  https://opengameart.org/content/2d-effects
 
 id Software             : Quake 4 / Doom 2016 sounds, graphics, and models
 
@@ -203,14 +219,11 @@ Xeotroid				: Ripping Doom 4 Cyberdemon sounds
 
 Croteam					: Serious Sam's Serious Damage sound
 
-Tormentor667,
-SolarSnowfall,
-GhastlyDragon			: Spark sprite for lightning gun puffs. Taken from 
-						  S.U.P.E.R. Natural.
 
 
 
-* Beta Testers *
+
+	*** Beta Testers ***
 
 - 3xlneet
 - Colossus
@@ -228,7 +241,7 @@ GhastlyDragon			: Spark sprite for lightning gun puffs. Taken from
 - Syrix
 - Iamcarrotmaster
 
-* Retired Testers *
+	** Retired Testers **
 
 - BeardedDoomGuy		(2.0.3)
 - DrPyspy				(2.0.3)

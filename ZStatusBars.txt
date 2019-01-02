@@ -478,12 +478,13 @@ Class Doom4StatusBar : BaseStatusBar
 				Vector2 ArmorTextPos = (-4, 679);
 				int colArmor = Font.CR_WHITE;
 				int colArmorInvul = Font.CR_RED;
-				int armorAmount = GetArmorAmount();
+				int armorAmount = Clamp(GetArmorAmount(), 0, 200);
 				
 				
 				// Armor
-				DrawBar("BODYARM1", "BODYARM0", GetArmorAmount(), 				100, (18, 676), 0, 0, imageAlignmentLeft);
-				DrawBar("BODYARM2", "BODYARM0", Max(0, GetArmorAmount() - 100), 100, (18, 676), 0, 0, imageAlignmentLeft);
+				
+				DrawBar("BODYARM1", "BODYARM0", armorAmount, 				100, (18, 676), 0, 0, imageAlignmentLeft);
+				DrawBar("BODYARM2", "BODYARM0", Max(0, armorAmount - 100), 	100, (18, 676), 0, 0, imageAlignmentLeft);
 				
 				
 				let invul = Powerup(CPlayer.mo.FindInventory("PowerInvulnerable",true));
@@ -500,7 +501,7 @@ Class Doom4StatusBar : BaseStatusBar
 				
 				// Health
 				// This variable is the means of doing interpolation with the health bar.
-				int hpi = mHealthInterpolator.GetValue();
+				int hpi = Clamp(mHealthInterpolator.GetValue(), 0, 200);
 				DrawBar("BODYHEL1", "BODYHEL0", hpi, 				100, (18, 694), 0, 0, imageAlignmentLeft);
 				DrawBar("BODYHEL2", "BODYHEL0", Max(0, hpi - 100), 	100, (18, 694), 0, 0, imageAlignmentLeft);
 				DrawStringScaled(mQ4HudFont, FormatNumber(hp, 1, 3), 			(-4, 697), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 0.5);
@@ -547,13 +548,36 @@ Class Doom4StatusBar : BaseStatusBar
 				String GrenadeImageBar = (GrenCharge < GrenChargeMax) ? "KEYSLOT0" : "KEYSLOT1";
 				
 				[GrenCharge, GrenChargeMax] = GetAmount("GrenadeCharge");
-				if (GetAmountOnly("FragGrenadeSelected"))
-					DrawImage((GrenCharge < GrenChargeMax) ? "FragGre0" : "FragGren", (828, 682), imageAlignmentLeft);
-				else if (GetAmountOnly("SyphonGrenadeSelected"))
-					DrawImage((GrenCharge < GrenChargeMax) ? "SyphGre0" : "SyphGren", (827, 679), imageAlignmentLeft);
-				else if (GetAmountOnly("MarineHoloSelected"))
-					DrawImage((GrenCharge < GrenChargeMax) ? "HoloGre0" : "HoloGren", (827, 681), imageAlignmentLeft);
 				
+				static const Class<D4DGrenadeItem> Grenades[] =
+				{
+					"FragGrenadePickup",
+					"HoloGrenadePickup",
+					"SyphonGrenadePickup",
+					"PersonalPortalPickup",
+					"KineticMinePickup",
+					"TeslaRocketPickup",
+					"ThreatSensorPickup",
+					"ThreatScannerPickup"
+				};
+				
+				for (int i = 0; i < Grenades.Size(); i++)
+				{
+					let gren = D4DGrenadeItem(CPlayer.mo.FindInventory(Grenades[i]));
+					if (gren && gren.Selected)
+					{
+						DrawImage((GrenCharge < GrenChargeMax) ? gren.IconCooldown : gren.IconReady, (gren.PX, gren.PY), imageAlignmentLeft, 1.0, (-1,-1), (gren.SX, gren.SY));
+						break;
+					}
+				}
+				/*
+				if (GetAmountOnly("FragGrenadePickup"))
+					DrawImage((GrenCharge < GrenChargeMax) ? "FragGre0" : "FragGren", (828, 682), imageAlignmentLeft);
+				else if (GetAmountOnly("SyphonGrenadePickup"))
+					DrawImage((GrenCharge < GrenChargeMax) ? "SyphGre0" : "SyphGren", (827, 679), imageAlignmentLeft);
+				else if (GetAmountOnly("HoloGrenadePickup"))
+					DrawImage((GrenCharge < GrenChargeMax) ? "HoloGre0" : "HoloGren", (827, 681), imageAlignmentLeft);
+				*/
 				DrawBar("KEYSLOTR", "KEYSLOT0", GrenChargeMax - GrenCharge, GrenChargeMax, (825, 680), 0, SHADER_VERT|SHADER_REVERSE, imageAlignmentLeft);
 				DrawImage((GrenCharge < GrenChargeMax) ? "KEYSLOT0" : "KEYSLOT1", (825, 860), imageAlignmentLeft);
 			}

@@ -859,13 +859,13 @@ Class AkimboWeapon : Weapon
 	//==========================================================================
 	//==========================================================================
 	D4Repeater.Select:
-		REPG A 0 { UpdateStates(ID_D4Repeater); }
+		M021 A 0 { UpdateStates(ID_D4Repeater); }
 		Goto CommonSelect;
 	D4Repeater.Ready:
-		REPG A 1 { AkWeaponReady(0, true); }
+		M021 A 1 { AkWeaponReady(0, true); }
 		Loop;
 	D4Repeater.Fire:
-		REPG B 0 
+		M021 B 0 
 		{
 			/*
 			invoker.AmmoUse1 = CountInv("RepeaterUpgradeDamage") ? 3 : 2;
@@ -917,13 +917,13 @@ Class AkimboWeapon : Weapon
 			return ResolveState(null);
 			
 		}
-		REPG C 1 
+		M021 C 1 
 		{
 			//A_SetPitch(pitch+0.4);
 			AkOffsetD(-3,-3,WOF_ADD);
 			A_SetTics(CountInv("PowerD4DFS") ? 0 : 1); 
 		}
-		REPG D 1 
+		M021 D 1 
 		{
 			//A_SetPitch(pitch+0.4);
 			AkOffsetD(-3,-3,WOF_ADD);
@@ -931,15 +931,15 @@ Class AkimboWeapon : Weapon
 		Loop;
 		
 	D4Repeater.EndFire:
-		REPG C 1 { AkOffsetD(6,6); }
-		REPG C 1 { AkOffsetD(5,5,0,false,OverlayID(),0); }
-		REPG A 1 { AkOffsetD(4,4); }
-		REPG A 1 { AkOffsetD(3,3,0,false,OverlayID(),0); }
-		REPG A 1 { AkOffsetD(2,2); }
-		REPG A 1 { AkOffsetD(1,1,0,false,OverlayID(),0); }
-		REPG A 0 { AkOffsetD(0.5,0.5); }
+		M021 C 1 { AkOffsetD(6,6); }
+		M021 C 1 { AkOffsetD(5,5,0,false,OverlayID(),0); }
+		M021 A 1 { AkOffsetD(4,4); }
+		M021 A 1 { AkOffsetD(3,3,0,false,OverlayID(),0); }
+		M021 A 1 { AkOffsetD(2,2); }
+		M021 A 1 { AkOffsetD(1,1,0,false,OverlayID(),0); }
+		M021 A 0 { AkOffsetD(0.5,0.5); }
 		
-		REPG AAAAAAAAAAAAAAAAAA 1 AkWeaponReady(WRF_NOBOB,true); // half a second without bob, to avoid jerkiness when running and firing
+		M021 AAAAAAAAAAAAAAAAAA 1 AkWeaponReady(WRF_NOBOB,true); // half a second without bob, to avoid jerkiness when running and firing
 		Goto D4Repeater.Ready;
 		
 	D4Repeater.Flash:
@@ -949,7 +949,7 @@ Class AkimboWeapon : Weapon
 		Stop;
 		
 	D4Repeater.AltFire:
-		REPG B 2 Bright
+		M021 B 2 Bright
 		{
 			int s = Side();
 			AkPlaySound("Doom4/Weapon/Repeater/FireSingle",CHAN_WEAPON);
@@ -987,25 +987,25 @@ Class AkimboWeapon : Weapon
 			A_Light2();
 			A_AlertMonsters();
 		}
-		REPG C 0 
+		M021 C 0 
 		{
 			A_Light0();
 			return A_JumpIf(CountInv("PowerD4DFS"),"D4Repeater.AltFast");
 		}
-		REPG CCDDCC 1 
+		M021 CCDDCC 1 
 		{
 			//A_SetPitch(pitch+0.3);
 			AkOffsetD(-2,-2,WOF_ADD);
 		}
-		REPG AAAAAAAA 1 AkOffsetD(-1,-1,WOF_ADD);
+		M021 AAAAAAAA 1 AkOffsetD(-1,-1,WOF_ADD);
 		Goto D4Repeater.Ready;
 	D4Repeater.AltFast:
-		REPG CDC 1 
+		M021 CDC 1 
 		{
 			//A_SetPitch(pitch+0.6);
 			AkOffsetD(-4,-4,WOF_ADD);
 		}
-		REPG AAAA 1 AkOffsetD(-2,-2,WOF_ADD);
+		M021 AAAA 1 AkOffsetD(-2,-2,WOF_ADD);
 		Goto D4Repeater.Ready;
 		
 	NotEnoughAmmo:

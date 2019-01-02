@@ -849,3 +849,88 @@ class OptionMenuItemCostDisplay : OptionMenuItemDisplayInt
 	}
 }
 
+/*==============================================================================
+	OptionCvarRange
+		Like Option, but takes two additional parameters to indicate the range
+		where its active. Outside of that, greyed out.
+
+ Parameters:
+	String label:
+		Self explanatory.
+	Cvar command:
+		The cvar to manipulate when scrolling left and right.
+	Name values:
+		The list of OptionValue defined in MenuDef to scroll through. 
+		See "YesNo", "OnOff", etc.
+	Cvar graycheck: 
+		If the cvar exists and is outside the next two parameters, darkens the 
+		whole region.
+	Int lo:
+		The low end of the range which graycheck must be outside of to deactivate.
+	Int hi:
+		Same as lo, but the high end.
+	Int inverse:
+		Flips the check - inactive if inside the range instead of active.
+		
+==============================================================================*/
+
+Class OptionMenuItemOptionRange : OptionMenuItemOption
+{
+	int lo, hi;
+	bool Inverse;
+	OptionMenuItemOptionRange Init(String label, Name command, Name values, CVar graycheck = null, int low = 0, int high = 0, int inverse = 0, int center = 0)
+	{
+		Super.Init(label, command, values, graycheck, center);
+		lo = low;
+		hi = high;
+		if (hi < lo)	hi = lo;
+		mCVar = CVar.FindCVar(mAction);
+		self.Inverse = (inverse != 0);
+		return self;
+	}
+	
+	override bool isGrayed()
+	{
+		if (mGrayCheck)
+		{
+			int value = mGrayCheck.GetInt();
+			bool ret = (value >= lo && value <= hi);
+			return (Inverse) ? !ret : ret;
+		}
+		return false;
+	}
+}
+
+Class OptionMenuItemSliderRange : OptionMenuItemSlider
+{
+	int lo, hi;
+	bool Inverse;
+	CVar mGrayCheck;
+	OptionMenuItemSliderRange Init(String label, Name command, double min, double max, double step, int showval = 1, CVar graycheck = null, int low = 0, int high = 0)
+	{
+		Super.Init(label, command, min, max, step, showval);
+		mCVar = CVar.FindCVar(command);
+		mGrayCheck = graycheck;
+		lo = low;
+		hi = high;
+		if (hi < lo)	hi = lo;
+		return self;
+	}
+	
+	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
+	{
+		return Selectable() ? Super.Draw(desc, y, indent, selected) : indent;
+	}
+	
+	override bool Selectable()
+	{
+		if (mGrayCheck)
+		{
+			int check = mGrayCheck.GetInt();
+			
+			if (check < lo || check > hi)
+				return false;
+		}
+		return true;
+	}
+}

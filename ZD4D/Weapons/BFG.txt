@@ -23,11 +23,13 @@ Class D4BFG : Doom4Weapon
 		Weapon.AmmoUse1 1;
 		Weapon.AmmoUse2 1;
 		Weapon.AmmoGive1 3;
+		Weapon.SelectionOrder 130;
+		Weapon.SlotNumber 8;
+		Weapon.SlotPriority 0.0;
 		Inventory.PickupMessage "BFG 9000! HELL YES!";
 		Inventory.PickupSound "";
 		Obituary "%o felt the wrath of %k's beautiful greenliness.";
 		Tag "BFG 9000";
-		Weapon.SelectionOrder 130;
 		+DONTGIB
 	}
 	
@@ -224,7 +226,7 @@ Class BFGRedirector : CustomInventory
 	Pickup:
 		TNT1 A 0
 		{
-			if (CheckClass("BFG9000Shot",DefPtr,true))
+			if (GetClass() is "BFG9000Shot")
 			{
 				if (!CountInv("RedirectedToken"))
 				{
@@ -383,6 +385,7 @@ Class BFG9000Shot : BFGProjectile
 		+CANNOTPUSH
 		+SKYEXPLODE
 		+EXPLODEONWATER
+		+DONTREFLECT
 		Radius 8;
 		Height 12;
 		Speed 20;

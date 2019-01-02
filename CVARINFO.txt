@@ -2,13 +2,16 @@ user bool D4D_SecondaryPriming = false;
 server bool D4D_DTMode = false;
 
 server noarchive bool D4D_NetEventDebug = false;
+
+server int D4D_MonsterType = 1;
+server bool D4D_LootDrop = true;
+server int D4D_CustomSpawnBias = 50;
+
 server bool D4Debug = false;
 server int D4D_ShortGibLives = 0;
 server int D4D_BloodSprites = 1;
 server int D4D_MaxDrawDistance = 2048;
 server bool D4D_MultiJump = true;
-server int D4D_MonsterType = 1;
-server bool D4D_LootDrop = true;
 server int D4D_Giblets = 1;
 server int D4D_BloodClouds = 2;
 server int D4D_SplatterGiblets = 5;
@@ -21,7 +24,6 @@ server int D4D_MenuMouseSpeed = 70;
 server bool D4D_CamRoll = true;
 server bool D4D_BloodScreen = true;
 server int D4D_SSGGib = 1;	//0=none, 1=some, 2=all
-server int D4D_SyphonStrength = 2;
 server bool D4D_Casings = true;
 server bool D4D_ShortCasingLives = false;
 server bool D4D_SilentCasings = false;
@@ -29,7 +31,6 @@ server bool D4D_quakexplosions = true;
 server bool HQEffects = true;
 server bool HQEffectsWeapons = true;
 server bool MPWeapons = true;
-server bool MPSpawnProgressive = True;
 server bool D4D_AllowClimbing = true;
 server bool D4D_PitchMod = false;
 server bool D4D_TurningBehavior = false;

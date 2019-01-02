@@ -31,7 +31,8 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 		Weapon.AmmoGive1 4;
 		Weapon.AmmoUse1 1;
 		Weapon.SelectionOrder 80;
-		Scale 0.6;
+		Weapon.SlotNumber 5;
+		Weapon.SlotPriority 0.0;
 	}
 	
 	override void OwnerDied()
@@ -326,9 +327,9 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 				LockOnSpriteFlashReload:
 					RLLR A 0;
 					Goto ResumeFlashSequenceReload;
-			//A_SetTics(CountInv("PowerD4DFS") ? 0 : 1);
+			//A_SetTics(IsDoubleSpeed() ? 0 : 1);
 	ResumeFlashSequenceReload:
-		"####" "#" 0 A_JumpIf(CountInv("PowerD4DFS"),"RFSFast");
+		"####" "#" 0 A_JumpIf(IsDoubleSpeed(),"RFSFast");
 		"####" AA 1 A_WeaponOffset(-2,-1,WOF_ADD); //-4 -2
 		"####" AA 1 A_WeaponOffset(-2,-1,WOF_ADD);							//-8 -4
 		"####" CC 1 A_WeaponOffset(-2,-1,WOF_ADD);							//-12 -6 
@@ -526,7 +527,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			A_WeaponOffset(2,0,WOF_ADD); //for recoil effect
 		}
 		"####" CDE 1 bright A_WeaponOffset(1,1,WOF_ADD);
-		RLLI A 2 A_SetTics(CountInv("PowerD4DFS") ? 0 : 1);
+		RLLI A 2 A_SetTics(IsDoubleSpeed() ? 0 : 1);
 		RLLF B 1 bright  
 		{
 			if (A_JumpIfNoAmmo("Null"))
@@ -543,7 +544,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			return ResolveState(null);
 		}
 		"####" CDE 1 bright  A_WeaponOffset(1,1,WOF_ADD);
-		RLLI A 2 A_SetTics(CountInv("PowerD4DFS") ? 0 : 1);
+		RLLI A 2 A_SetTics(IsDoubleSpeed() ? 0 : 1);
 		RLLF B 1 bright 
 		{
 			if (A_JumpIfNoAmmo("Null"))
@@ -719,7 +720,7 @@ Class RLDetonatorSecondary : CustomInventory
 	Pickup:
 		TNT1 A 0
 		{
-			if (!CheckClass("D4Rocket") || CountInv("DetonateToken"))
+			if (GetClass() != "D4Rocket" || CountInv("DetonateToken"))
 			{
 				return false;
 			}

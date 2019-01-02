@@ -32,7 +32,7 @@ BLESSED (White)
 * 
 */
 
-Class D4DoomImp : D4AbstractMonster 
+Class D4DoomImp : D4AbstractMonster //replaces DoomImp
 {
 	
 	int staggertimer;
@@ -681,7 +681,7 @@ Class FireballDebrisTrail : Actor
 //================================================================================================================
 //================================================================================================================
 
-Class D4OldDoomImp : D4AbstractMonster // : DoomImp //replaces DoomImp
+Class D4OldDoomImp : D4AbstractMonster // : DoomImp ////replaces DoomImp
 {
 	int staggertimer;
 	Default 
@@ -874,7 +874,7 @@ Class D4OldDoomImp : D4AbstractMonster // : DoomImp //replaces DoomImp
 }
 
 
-Class OldDoomImpBall : D4AbstractMissile replaces DoomImpBall
+Class OldDoomImpBall : D4AbstractMissile //replaces DoomImpBall
 {
 	Default 
 	{

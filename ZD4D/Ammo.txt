@@ -19,7 +19,7 @@ enum D4AmmoConstants
 // Special ammo spawners
 //=======================================================================
 //=======================================================================
-Class ClipReplacer : CustomInventory replaces Clip
+Class ClipReplacer : CustomInventory //replaces Clip
 {
 	Default
 	{
@@ -49,7 +49,7 @@ Class ClipReplacer : CustomInventory replaces Clip
 	}
 }
 
-Class ClipBoxReplacer : CustomInventory replaces ClipBox
+Class ClipBoxReplacer : CustomInventory //replaces ClipBox
 {
 	Default
 	{
@@ -79,7 +79,7 @@ Class ClipBoxReplacer : CustomInventory replaces ClipBox
 	}
 }
 
-Class ShellReplacer : CustomInventory replaces Shell
+Class ShellReplacer : CustomInventory //replaces Shell
 {
 	Default
 	{
@@ -109,7 +109,7 @@ Class ShellReplacer : CustomInventory replaces Shell
 	}
 }
 
-Class ShellBoxReplacer : CustomInventory replaces ShellBox
+Class ShellBoxReplacer : CustomInventory //replaces ShellBox
 {
 	Default
 	{
@@ -140,7 +140,7 @@ Class ShellBoxReplacer : CustomInventory replaces ShellBox
 }
 
 
-Class RocketAmmoReplacer : CustomInventory replaces RocketAmmo
+Class RocketAmmoReplacer : CustomInventory //replaces RocketAmmo
 {
 	Default
 	{
@@ -170,7 +170,7 @@ Class RocketAmmoReplacer : CustomInventory replaces RocketAmmo
 	}
 }
 
-Class RocketBoxReplacer : CustomInventory replaces RocketBox
+Class RocketBoxReplacer : CustomInventory //replaces RocketBox
 {
 	Default
 	{
@@ -201,7 +201,7 @@ Class RocketBoxReplacer : CustomInventory replaces RocketBox
 }
 
 
-Class CellReplacer : CustomInventory replaces Cell
+Class CellReplacer : CustomInventory //replaces Cell
 {
 	Default
 	{
@@ -237,7 +237,7 @@ Class CellReplacer : CustomInventory replaces Cell
 		Stop;
 	}
 }
-Class CellPackReplacer : CustomInventory replaces CellPack
+Class CellPackReplacer : CustomInventory //replaces CellPack
 {
 	Default
 	{
@@ -313,7 +313,7 @@ Class D4FuelSmall : D4Fuel
 //=============================================================================
 //
 //=============================================================================
-Class D4Bullets : Ammo replaces ClipBox
+Class D4Bullets : Ammo //replaces ClipBox
 {
 	
 	Default
@@ -339,7 +339,7 @@ Class D4Bullets : Ammo replaces ClipBox
 	}
 }
 
-Class D4BulletsSmall : D4Bullets replaces clip
+Class D4BulletsSmall : D4Bullets //replaces clip
 {
 	
 	Default
@@ -359,7 +359,7 @@ Class D4BulletsSmall : D4Bullets replaces clip
 //=============================================================================
 //
 //=============================================================================
-Class D4Shells : Ammo replaces ShellBox
+Class D4Shells : Ammo //replaces ShellBox
 {
 	Default
 	{
@@ -385,7 +385,7 @@ Class D4Shells : Ammo replaces ShellBox
 	}
 }
 
-Class D4ShellsSmall : D4Shells replaces Shell
+Class D4ShellsSmall : D4Shells //replaces Shell
 {
 	
 	Default

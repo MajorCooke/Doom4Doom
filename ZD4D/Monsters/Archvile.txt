@@ -33,7 +33,7 @@ BLESSED (White)
 */
 
 Class ArchAttacking : Inventory {}
-Class D4Archvile : D4AbstractBiggie
+Class D4Archvile : D4AbstractBiggie //replaces Archvile
 {
 	
 	int flee;	
@@ -207,21 +207,8 @@ Class D4Archvile : D4AbstractBiggie
 		DIAB R 7 A_Scream();
 		DIAB S 7 A_NoBlocking();
 		DIAB TUVWXYZ 7;
-	DeathStateCheck:
-		---- A 0
-		{
-			bCorpse = true;
-			if (CheckResurrectable())
-				return ResolveState("DeadResurrectable");
-			return ResolveState("Dead");
-		}
-	DeadResurrectable:
-		---- A 35 CanRaise;
-		Goto DeathStateCheck;
-	Dead:
-		---- A 35;
-		Goto DeathStateCheck;
-		
+		---- A -1 CanRaise { bCorpse = true; }
+		Stop;
 	Raise:
 		---- A 0 DoResurrect(0);
 		DIAB ZYXWVUTSRQ 8;
@@ -663,7 +650,7 @@ Class SummonerHandSparks : Actor //spawned in the hands of the archvile
 //
 //================================================================================================================
 //================================================================================================================
-Class D4OldArchVile : D4AbstractBiggie // ArchVile replaces ArchVile
+Class D4OldArchVile : D4AbstractBiggie // ArchVile //replaces ArchVile
 {	
 	int staggertimer;
 	Default 
@@ -867,7 +854,7 @@ Class D4OldArchVile : D4AbstractBiggie // ArchVile replaces ArchVile
 }
 
 
-Class DBTArchvileFire : D4AbstractMissile replaces ArchvileFire
+Class DBTArchvileFire : D4AbstractMissile //replaces ArchvileFire
 {
 	Default 
 	{

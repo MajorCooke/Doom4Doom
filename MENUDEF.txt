@@ -60,24 +60,21 @@ OptionMenu "D4DOptions"
 	Title "D4D Mod Options"
 	Submenu "Display Options",				"D4DDisplayOptions"
 	SubMenu "Upgrade Mode",					"D4DUpgradeMode"
-	SubMenu "Customize Keybinds",			"D4DKeybinds"
-	Submenu "Glory Kill Options",			"D4DGloryKillOptions"
 	Submenu "Gore Options",					"D4DGoreOptions"
 	Submenu "Weapon Options",				"D4DWeaponOptions"
 	Submenu "Monster Options",				"D4DMonsterOptions"
+	SubMenu "Customize Keybinds",			"D4DKeybinds"
+	Submenu "Glory Kill Options",			"D4DGloryKillOptions"
 	StaticText ""
 	StaticText "Gameplay Options", 1
-	Option "Monster type",					"D4D_MonsterType",		"DemonType"
-	Option "Monsters drop loot",			"D4D_LootDrop",		"LootType"
 	Option "Double jump",					"D4D_MultiJump",		"OnOff"
-	Option "Ledge grabbing",				"d4d_allowClimbing",	"OnOff"
-	Option "Syphon strength",				"D4D_SyphonStrength",	"SyphonStrength"
+	Option "Ledge grabbing",				"D4D_AllowClimbing",	"OnOff"
 	Option "Berserk Switch On Pickup",		"D4D_BerserkAutoSwitch","YesNo"
 	Option "Nightmare Grenade Starts",		"D4D_NMGrenades","NMGrenade"
 	StaticText ""
 	StaticText "Demon Runes", 1
-	Option "Spawn Demon Runes",					"D4D_DemonRunes",		"DemonRunes"
-	Option "Silent idle demon-player",			"D4D_SilentMorphs",		"YesNo"
+	Option "Spawn Demon Runes",				"D4D_DemonRunes",		"DemonRunes"
+	Option "Silent idle demon-player",		"D4D_SilentMorphs",		"YesNo"
 	Option "Show HUD Demon Name",			"D4D_DemonNameDisplay",		"YesNo"
 	StaticText ""
 	StaticText "Footsteps", 1
@@ -95,7 +92,6 @@ OptionMenu "D4DWeaponOptions"
 	StaticText ""
 	StaticText "Multiplayer Weapons", GOLD
 	Option "Spawn MP weapons",				"MPWeapons",			"OnOff"
-	Option "Spawn style",					"MPSpawnProgressive",	"MPProg"
 }
 
 OptionMenu "D4DUpgradeMode"
@@ -139,7 +135,7 @@ OptionMenu "D4DGloryKillOptions"
 OptionMenu "D4DKeybinds"
 {
 	Title "D4D Keybinds"
-	Control "Upgrade Menu",			"UpgradeMenu"
+	Control "Upgrade Menu",					"UpgradeMenu"
 	StaticText ""
 	Control "Switch Weapon Mods",			"+user1"
 	Control "Melee Attack",					"+user2"
@@ -183,6 +179,7 @@ OptionMenu "D4DWeaponsMenu"
 	Control		"Repeater",					"use D4Repeater"
 	Control		"Chaingun",					"use D4Chaingun"
 	Control		"Rocket Launcher",			"use D4RocketLauncher"
+	Control		"Grenade Launcher",			"use D4GrenadeLauncher"
 	Control		"Plasma Rifle",				"use D4PlasmaRifle"
 	Control		"Lightning Gun",			"use D4LightningGun"
 	Control		"Static Rifle",				"use D4StaticRifle"
@@ -275,12 +272,19 @@ OptionMenu "D4DGoreOptions"
 
 OptionMenu "D4DMonsterOptions"
 {
-	Option "Smarter Aiming",				"D4D_MonProjIntercept", "OnOff"
-	Option "Enhanced Monster Chasing",		"D4D_EnhancedChase",	"OnOff"
-	Option "D4 Hell Knight melee only",		"D4D_HKMeleeOnly",		"OnOff"
+	Title "Monster Options"
+	StaticText "Monster Type Selection", GOLD
+	Option "Monster type",					"D4D_MonsterType",			"EnemyType"
+	SliderRange "D4D <-> Custom Spawn Ratio", "D4D_CustomSpawnBias",  0, 100, 1, 1, D4D_MonsterType, 3, 3
+	StaticText "Options", YELLOW
+	Option "Monsters drop loot",			"D4D_LootDrop",				"LootType"
+	Option "Smarter Aiming",				"D4D_MonProjIntercept", 	"OnOff"
+	Option "Enhanced Monster Chasing",		"D4D_EnhancedChase",		"OnOff"
+	Option "D4 Hell Knight melee only",		"D4D_HKMeleeOnly",			"OnOff"
 	StaticText ""
 	StaticText "Welcome to Hell.", RED
 	StaticText "Resurrectable Monsters", ORANGE
+	StaticText "(D4D Monsters Only)", GOLD
 	Option "Archvile",						"D4D_ResArchvile",			"OnOff"
 	Option "Cyberdemon",					"D4D_ResCyberdemon",		"OnOff"
 	Option "Spider Mastermind",				"D4D_ResSpiderMastermind",	"OnOff"
@@ -364,11 +368,12 @@ OptionValue "SprPar"
 	2, "Sprites & Particles"
 }
 
-OptionValue "DemonType"
+OptionValue "EnemyType"
 {
 	0, "Original Doom"
 	1, "Doom(4) for Doom"
 	2, "Rainbow Doom(4) (Alpha)"
+	3, "Custom (See D4D Guide)"
 }
 OptionValue "LootType"
 {

@@ -173,13 +173,19 @@ Class DemonPlayerBase : Doom4Player
 		
 		if (EndMe || GetPlayerInput(MODINPUT_BUTTONS) & BT_USER4)
 		{
-			let inv = PowerMorph(FindInventory("PowerMorph",true));
-			if (inv)
+			for (let probe = player.mo.Inv; probe != null; probe = probe.Inv)
+			{
+				let invul = PowerInvulnerable(probe);
+				if (invul)	invul.EndEffect();
+			}
+			let ins = PowerMorph(FindInventory("PowerMorph",true));
+			if (ins)
 			{
 				EndMe = true;
 				A_SetInventory("DemonTimerToken",0);
+				
 				TicDelay = -1;
-				inv.EffectTics = 1;
+				ins.EffectTics = 1;
 				return;
 			}
 		}
@@ -619,7 +625,7 @@ Class DemonRuneBase : CustomInventory
 		{
 			if (FindInventory("PowerMorph", true) || 
 				CountInv("IamADemonToken") || 
-				CountInv("PowerInvulBase") || 
+				FindInventory("PowerInvulnerable", true) || 
 				CountInv("D4DoomDollHands") || 
 				CountInv("BusyToken")) //if already a demon...
 				return false;	//...cant pickup
@@ -680,9 +686,9 @@ Class PowerRuneBase : PowerMorph
 	{	
 		if (Owner)
 		{
-			if (globalfreeze || level.frozen || bINVULNERABLE || 
-				FindInventory("PowerInvulnerable", true) ||
-				(alternative && alternative.FindInventory("PowerInvulnerable",true)))
+			if (globalfreeze || level.frozen || Owner.bINVULNERABLE || 
+				Owner.FindInventory("PowerInvulnerable", true) ||
+				(Owner.alternative && Owner.alternative.FindInventory("PowerInvulnerable",true)))
 			{
 				EffectTics++; //'Freeze' the timer.
 			}
@@ -870,6 +876,28 @@ Class DemonRuneMorphOff : Actor
 	}
 }
 
+Class Enemifier : Actor 
+{
+	Default 
+	{
+		Monster;
+		+NOINTERACTION
+		-COUNTKILL
+		+NODAMAGE
+		+THRUACTORS
+		-FRIENDLY
+		+NOTRIGGER
+		+NOTELEPORT
+		Renderstyle "None";
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 3;
+		Stop;
+	}
+}
+
 //-------------------------------------------------------------------
 // Cleans the overlays called by demons
 //-------------------------------------------------------------------
@@ -983,87 +1011,6 @@ Class DemonWarpersCleaner : CustomInventory
 		Stop;
 	}
 }
-
-//-------------------------------------------------------------------
-// To make all summoned monsters (by pain elem or summoner)
-// enemies to player after player unmorphs 
-//-------------------------------------------------------------------
-// Given to the player by the fog
-Class MinionsTurner : CustomInventory
-{
-	Default 
-	{
-		+INVENTORY.ALWAYSPICKUP
-	}
-	States
-	{
-	Pickup:
-		TNT1 A 0 
-		{
-			A_SpawnItemEx("Enemifier",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_NOPOINTERS|SXF_SETTARGET);
-			A_GiveToChildren("MinionsTurner2",1);
-		}
-		Stop;
-	}
-}
-
-Class Enemifier : Actor 
-{
-	Default 
-	{
-		Monster;
-		+NOINTERACTION
-		-COUNTKILL
-		+NODAMAGE
-		+THRUACTORS
-		-FRIENDLY
-		+NOTRIGGER
-		+NOTELEPORT
-		Renderstyle "None";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 2;
-		TNT1 A 1 Thing_Remove(0);
-		Stop;
-	}
-}
-
-//given to the monsters to make them unfriendly
-Class MinionsTurner2 : CustomInventory
-{
-	Default 
-	{
-		Inventory.MaxAmount 1;
-		Inventory.Amount 1;
-		+INVENTORY.ALWAYSPICKUP
-		+INVENTORY.AUTOACTIVATE
-		+NOTIMEFREEZE
-	}
-	States
-	{
-	Spawn:
-		BOS2 A 10 Bright;
-		Loop;
-	Pickup:
-		TNT1 A 0 
-		{
-			if (CheckClass("D4AbstractMonster",DefPtr,True))
-			{
-				bFriendly = bDontHarmSpecies = bThruSpecies = bMThruSpecies = bNoBlockMonst = false;
-				Species = Default.Species;
-				A_CheckProximity("Null","Enemifier",32767,1,CPXF_SETTRACER);
-				A_CopyFriendliness(TracerPtr);
-				A_ChangeCountFlags(true);
-				return true;
-			}
-			return false;
-		}
-		Stop;
-	}
-}
-
 
 //-------------------------------------------------------------------
 // Fog for when you become a demon

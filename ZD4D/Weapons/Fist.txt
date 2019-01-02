@@ -44,6 +44,8 @@ Class D4DFist : Doom4Weapon
 		+WEAPON.MELEEWEAPON
 		+WEAPON.NOALERT
 		Weapon.SelectionOrder 120;
+		Weapon.SlotNumber 1;
+		Weapon.SlotPriority 0.01;
 	}
 	States
 	{
@@ -90,7 +92,7 @@ Class D4DFist : Doom4Weapon
 			A_TakeInventory("PunchedAlready",32767);
 		}
 		MELE "]" 1 A_WeaponOffset(10,10,WOF_ADD); //lowers the idle fist
-		MELE "]" 1 { A_WeaponOffset(10,10,WOF_ADD); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+		MELE "]" 1 { A_WeaponOffset(10,10,WOF_ADD); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 		MELE "]" 1 A_WeaponOffset(10,10,WOF_ADD);
 		
 		FireSkipLowerFist:
@@ -129,17 +131,17 @@ Class D4DFist : Doom4Weapon
 					}
 				}
 				MELE C 1 { A_WeaponOffset(0,36); }
-				MELE C 1 { A_WeaponOffset(2,40); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				MELE C 1 { A_WeaponOffset(2,40); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 				
 				MELE B 1 { A_WeaponOffset(3,42); }
-				MELE B 1 { A_WeaponOffset(6,45); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				MELE B 1 { A_WeaponOffset(6,45); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 				MELE B 1 { A_WeaponOffset(8,48); }
 				
-				MELE A 1 { A_WeaponOffset(10,44); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				MELE A 1 { A_WeaponOffset(10,44); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 				MELE A 1 { A_WeaponOffset(15,50); }
-				MELE A 1 { A_WeaponOffset(20,55); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				MELE A 1 { A_WeaponOffset(20,55); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 				MELE A 1 { A_WeaponOffset(30,65); }
-				MELE A 1 { A_WeaponOffset(40,75); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				MELE A 1 { A_WeaponOffset(40,75); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 				MELE A 1 { A_WeaponOffset(50,85); }
 				Goto CommonPrimaryFireEnder;
 				
@@ -161,17 +163,17 @@ Class D4DFist : Doom4Weapon
 					}
 				}
 				MELE F 1 { A_WeaponOffset(0,36); }
-				MELE F 1 { A_WeaponOffset(-2,40); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				MELE F 1 { A_WeaponOffset(-2,40); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 				
 				MELE E 1 { A_WeaponOffset(-3,42); }
-				MELE E 1 { A_WeaponOffset(-6,45); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				MELE E 1 { A_WeaponOffset(-6,45); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 				MELE E 1 { A_WeaponOffset(-8,48); }
 				
-				MELE D 1 { A_WeaponOffset(-10,44); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				MELE D 1 { A_WeaponOffset(-10,44); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 				MELE D 1 { A_WeaponOffset(-15,50); }
-				MELE D 1 { A_WeaponOffset(-20,55); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				MELE D 1 { A_WeaponOffset(-20,55); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 				MELE D 1 { A_WeaponOffset(-30,65); }
-				MELE D 1 { A_WeaponOffset(-40,75); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+				MELE D 1 { A_WeaponOffset(-40,75); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 				MELE D 1 { A_WeaponOffset(-50,85); }
 				Goto CommonPrimaryFireEnder;
 				
@@ -192,13 +194,13 @@ Class D4DFist : Doom4Weapon
 		
 		
 	Overlay.PunchSwayEffect2:
-			W666 A 1 {  A_SetAngle(angle+1); A_SetRoll(+1.25,SPF_INTERPOLATE); A_SetPitch(pitch-0.5); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+			W666 A 1 {  A_SetAngle(angle+1); A_SetRoll(+1.25,SPF_INTERPOLATE); A_SetPitch(pitch-0.5); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 			W666 A 1 {  A_SetAngle(angle+1); A_SetRoll(+2.5,SPF_INTERPOLATE); A_SetPitch(pitch-0.5); }
-			W666 A 1 A_SetTics((CountInv("PowerD4DFS") ? 0 : 1));
+			W666 A 1 A_SetTics((IsDoubleSpeed() ? 0 : 1));
 			W666 A 1 ;
-			W666 A 1 { A_SetAngle(angle-1); A_SetRoll(+1.5,SPF_INTERPOLATE); A_SetPitch(pitch+0.5); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+			W666 A 1 { A_SetAngle(angle-1); A_SetRoll(+1.5,SPF_INTERPOLATE); A_SetPitch(pitch+0.5); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 			W666 A 1 { A_SetAngle(angle-0.5); A_SetRoll(+0.75,SPF_INTERPOLATE); A_SetPitch(pitch+0.5); }
-			W666 A 1 { A_SetAngle(angle-0.5); A_SetRoll(0,SPF_INTERPOLATE); A_SetTics((CountInv("PowerD4DFS") ? 0 : 1)); }
+			W666 A 1 { A_SetAngle(angle-0.5); A_SetRoll(0,SPF_INTERPOLATE); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 			Stop;
 	}
 }

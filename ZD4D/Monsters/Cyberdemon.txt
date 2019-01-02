@@ -32,7 +32,7 @@ BLESSED (White)
 * 
 */
 
-Class D4Cyberdemon : D4AbstractBoss
+Class D4Cyberdemon : D4AbstractBoss //replaces Cyberdemon
 {
 	const LaserDistance = 2048.0;
 	const ProjOffset = 22.0;
@@ -284,7 +284,7 @@ Class D4Cyberdemon : D4AbstractBoss
 		{
 			bThruActors = true;
 			A_SpawnItemEx("CyberdemonDeathFX",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTRACER|SXF_ORIGINATOR|SXF_TRANSFERTRANSLATION);
-			A_SpawnItemEx("BossExploderSFX",0,0,0,0,0,0,0,32|SXF_SETTRACER|SXF_ORIGINATOR);
+			A_SpawnItemEx("BossExploderSFX",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTRACER|SXF_ORIGINATOR);
 			
 		}
 		CYBR I 10 A_Scream();
@@ -292,20 +292,9 @@ Class D4Cyberdemon : D4AbstractBoss
 		CYBR M 10 A_NoBlocking();
 		CYBR NO 10;
 		CYBR P 30;
-	DeathStateCheck:
-		CYBR P 0
-		{
-			bCorpse = true;
-			if (CheckResurrectable())
-				return ResolveState("DeadResurrectable");
-			return ResolveState("Dead");
-		}
-	DeadResurrectable:
-		---- A 35 CanRaise;
-		Goto DeathStateCheck;
 	Dead:
-		---- A 35;
-		Goto DeathStateCheck;
+		---- A -1 CanRaise { bCorpse = true; }
+		Stop;
 		
 	Raise:
 		CYBR O 10 DoResurrect();
@@ -334,11 +323,7 @@ Class D4Cyberdemon : D4AbstractBoss
 		CYBR M 10 A_NoBlocking();
 		CYBR NO 10;
 		CYBR P 30;
-		CYBR P -1 
-		{
-			bCorpse = true;	
-		}
-		Stop;
+		Goto Dead;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states
 	//------------------------------------------------------------------------
@@ -1003,7 +988,7 @@ Class D4OldCyberdemon : D4AbstractBoss // : Cyberdemon
 	}
 }
 
-Class OldCyberdemonRocket : D4AbstractMissileQuake replaces Rocket //replaces rocket since this is the only actor in all D4D who uses "rocket"
+Class OldCyberdemonRocket : D4AbstractMissileQuake //replaces Rocket ////replaces rocket since this is the only actor in all D4D who uses "rocket"
 {
 	Default 
 	{

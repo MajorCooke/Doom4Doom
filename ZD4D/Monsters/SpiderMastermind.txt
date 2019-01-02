@@ -45,7 +45,7 @@ BLESSED (White)
 * Deals extra damage to demon runes
 */
 const SMMLaserRange = 32766;
-Class D4SpiderMastermind : D4AbstractBoss
+Class D4SpiderMastermind : D4AbstractBoss //replaces SpiderMastermind
 {
 	const SRailFlags = RGF_SILENT|RGF_FULLBRIGHT|RGF_NORANDOMPUFFZ|RGF_CENTERZ;
 	const CBAFlags = CBAF_AIMFACING|CBAF_PUFFTRACER|CBAF_NORANDOMPUFFZ|CBAF_NORANDOM;
@@ -277,24 +277,13 @@ Class D4SpiderMastermind : D4AbstractBoss
 		SPID M 10
 		{
 			A_SpawnItemEx("SpiderMasterMindDeathFX",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTRACER|SXF_ORIGINATOR|SXF_TRANSFERTRANSLATION);
-			A_SpawnItemEx("BossExploderSFX",0,0,0,0,0,0,0,32|SXF_SETTRACER|SXF_ORIGINATOR);
+			A_SpawnItemEx("BossExploderSFX",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTRACER|SXF_ORIGINATOR);
 		}
 		SPID NOPQR 10;
 		SPID S 30;
-	DeathStateCheck:
-		---- A 0
-		{
-			bCorpse = true;
-			if (CheckResurrectable())
-				return ResolveState("DeadResurrectable");
-			return ResolveState("Dead");
-		}
-	DeadResurrectable:
-		---- A 35 CanRaise;
-		Goto DeathStateCheck;
 	Dead:
-		---- A 35;
-		Goto DeathStateCheck;
+		---- A -1 CanRaise { bCorpse = true; }
+		Stop;
 		
 	Raise:
 		---- A 0 DoResurrect();
@@ -314,7 +303,6 @@ Class D4SpiderMastermind : D4AbstractBoss
 		{
 			bThruActors = true;
 			XDeathGush();
-			
 			A_StopSound(6);	
 			A_Scream(); 
 		}
@@ -330,7 +318,7 @@ Class D4SpiderMastermind : D4AbstractBoss
 		}	}
 		SPID NOPQR 10;
 		SPID S 30;
-		Goto DeathStateCheck;
+		Goto Dead;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states
 	//------------------------------------------------------------------------
