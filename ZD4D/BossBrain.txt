@@ -150,7 +150,7 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 						}						
 					}
 					plr = players[i].mo;
-					if (plr) plr.A_GiveInventory("PentagramOfProtection");
+					if (plr) plr.A_GiveInventory("D4PentagramOfProtection");
 				}
 			}
 			KillEverything();

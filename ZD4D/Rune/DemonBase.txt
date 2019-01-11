@@ -304,6 +304,11 @@ Class DemonPlayerBase : Doom4Player
 		PlayerPawn.CheckJump();
 	}
 	
+	action void NoFastOverlay(int oid)
+	{
+		A_OverlayFlags(oid, PSPF_POWDOUBLE|PSPF_CVARFAST, false);
+	}
+	
 	Default
 	{
 		Doom4Player.UseLives false;
@@ -327,6 +332,11 @@ Class DemonPlayerBase : Doom4Player
 Class DemonWeaponBase : DoomWeapon
 {	
 	Array<D4DNewBeamBase> Beams;
+
+	action void NoFastOverlay(int oid)
+	{
+		A_OverlayFlags(oid, PSPF_POWDOUBLE|PSPF_CVARFAST, false);
+	}
 
 	// Fetches the power level of the morph. I.e. 0 = normal, 1 = uncommon, 2 = rare, etc.
 	action int GetPowerLevel()

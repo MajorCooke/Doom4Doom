@@ -106,7 +106,8 @@ Class PlayerFatso : DemonPlayerBase
 	Overlay.Steps:
 		TNT1 A 5
 		{
-			USpeed = (vel.x*vel.x + vel.y*vel.y);
+			NoFastOverlay(OverlayID());
+			USpeed = vel.XY dot vel.XY;
 			if(A_CheckFloor("Null"))
 			{
 				if(USpeed > 10 )

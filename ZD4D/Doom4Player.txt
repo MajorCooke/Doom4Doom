@@ -1,3 +1,5 @@
+#include "ZD4D/Doom4PlayerExtra.txt"
+
 Struct ItemsToSave
 {
 	Array<String> ItemList;
@@ -149,6 +151,7 @@ Class Doom4Player : PlayerPawn
 	int UclimbBouncePrevention;
 	int GrenChargeCurrent;
 	int DashTimer;
+	int CountTimer;
 	int CurInputCmds, OldInputCmds;
 	double DashForward, DashSide, DashAngle;
 	double UOffsets;
@@ -187,6 +190,7 @@ Class Doom4Player : PlayerPawn
 	//	Player.StartItem "AkimboWeapon";
 		Player.StartItem "TrishotClip", 3;
 		Player.StartItem "D4MultiJump", 2;
+		Player.StartItem "GrenadeCharge", 350;
 		Player.JumpZ 7.0;
 		
 		Player.ColorRange 112, 127;
@@ -269,6 +273,7 @@ Class Doom4Player : PlayerPawn
 		+THRUSPECIES
 		+MTHRUSPECIES
 	}
+	
 	States
 	{
 	Spawn:
@@ -855,18 +860,7 @@ Class Doom4Player : PlayerPawn
 				//Just like Quake. Only happens once per two seconds.
 			}
 			else
-			{
-				Ucurrenthp = health + CountInv("BasicArmor");
-				if (Ulasthp != Ucurrenthp)
-				{
-					A_SetBlend("99 00 00", .3, 5);
-					Ulasthp = Ucurrenthp;
-				}
-				if ((GetCvar("D4D_BloodScreen")) && (Ulasthp - Ucurrenthp >= DamageDegree))
-				{
-					ACS_NamedExecuteAlways("Blood",0, int(floor((Ulasthp - Ucurrenthp) / DamageDegree)),0,0);
-				}
-				
+			{				
 				if (health <= 40)
 				{
 					if (Ulowhp == 0)
@@ -876,7 +870,7 @@ Class Doom4Player : PlayerPawn
 					}
 				}
 				else
-				{	Ulowhp = 0;	}
+					Ulowhp = 0;	
 			}
 		}
 		Goto Spawn;
@@ -950,7 +944,7 @@ extend class Doom4Player
 	override void PostBeginPlay()
 	{
 		Super.PostBeginPlay();
-		if (!player || !player.mo || player.mo != self)
+		if (!GetRealPlayer())
 			return;
 		
 		
@@ -1001,17 +995,25 @@ extend class Doom4Player
 		}
 	}
 	
-	//==========================================================================
-	//
-	//
-	//
-	//==========================================================================
-	
 	PlayerInfo GetRealPlayer()
 	{
 		let plr = player;
 		return (plr && plr.mo && plr.mo == self) ? plr : null;
 	}
+	
+	//==========================================================================
+	//
+	// Weapon switching
+	//
+	//==========================================================================
+	
+	
+	
+	//==========================================================================
+	//
+	// Equipment stuff
+	//
+	//==========================================================================
 	
 	int CheckEquipmentCharge(bool checkready = false)
 	{
@@ -1069,7 +1071,7 @@ extend class Doom4Player
 		{
 			let invul = FindInventory("PowerInvulnerable");
 			if (invul)
-				player.DamageCount = Max(0, player.DamageCount - 4);
+				player.DamageCount = Max(0, player.DamageCount - 6);
 		}
 	}
 	
@@ -1078,10 +1080,17 @@ extend class Doom4Player
 	//--------------------------------------------------------------------------
 	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{
-		if (!player || !player.mo)
+		if (!player || !player.mo || player.mo != self)
 			return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
 		
 		bool TelefragDamage = (!bLAXTELEFRAGDMG && damage >= TELEFRAG_DAMAGE);
+		
+		if (inflictor && inflictor.bPIERCEARMOR)
+			inflictor.bPIERCEARMOR = false;
+		if (source && source.bPIERCEARMOR)
+			source.bPIERCEARMOR = false;
+			
+		flags &= ~DMG_NO_ARMOR;
 		
 		let inv = BasicArmor(FindInventory("BasicArmor"));
 		if (inv)
@@ -1097,15 +1106,15 @@ extend class Doom4Player
 		if (bNODAMAGE || CountInv("CantTouchThis") ||
 			(!TelefragDamage && (bINVULNERABLE || FindInventory("PowerInvulnerable",true))))
 		{
-			if (!(flags & DMG_NO_PROTECT))
-				damage = GetModifiedDamage(mod, damage, true);
+			// Mainly just doing this to play the sound effect of the pentagram.
+			GetModifiedDamage(mod, damage, true);
 			if (!(flags & DMG_NO_FACTOR))
 				damage = ApplyDamageFactor(mod, damage);
 			
 			flags |= (DMG_NO_PROTECT|DMG_NO_FACTOR);
 		
 			if (damage < 1 && (!inflictor || (!inflictor.bCAUSEPAIN && !bALLOWPAIN)))
-				return 0;
+				return -1;
 				
 			if (CountInv("D4PentagramUpgrade3") && mod != 'Reflection' && damage > 0)
 			{
@@ -1123,7 +1132,7 @@ extend class Doom4Player
 			
 			DamageTypeReceived = "WhiteFlashDamage";
 			player.DamageCount = Min(100, player.DamageCount + int(damage * 0.5));
-			
+			/*
 			if (PentaNoiseWait < 1)
 			{
 				let invul = FindInventory("PowerInvulnerable", true);
@@ -1131,7 +1140,7 @@ extend class Doom4Player
 				else 		A_PlaySound("PentagramOfProtection/Protect",CHAN_VOICE);
 				PentaNoiseWait = 70;
 			}
-			
+			*/
 			if (!bNODAMAGE)
 			{
 				Actor origin = (source && (flags & DMG_INFLICTOR_IS_PUFF)) ? source : inflictor;
@@ -1234,6 +1243,11 @@ extend class Doom4Player
 		if (finaldamage > 0)
 		{
 			effectSize += log(finaldamage) / 25.0;
+			
+			Cvar CV = Cvar.GetCvar('D4D_BloodScreen', player);
+			if (CV && CV.GetBool())
+				ACS_NamedExecuteAlways("Blood",0, int(finaldamage / DamageDegree),0,0);
+			
 		}
 		else if (ArmorBefore > ArmorAfter)
 		{
@@ -1374,7 +1388,6 @@ extend class Doom4Player
 				{
 					if (!CountInv("FragGrenadePickup"))
 					{	
-						A_SetInventory("GrenadeCharge", 350);
 						A_SetInventory("FragGrenadePickup",1);
 						SelectEquipment("FragGrenadePickup");
 					}
@@ -1383,13 +1396,11 @@ extend class Doom4Player
 				{
 					if (!CountInv("HoloGrenadePickup"))
 					{
-						A_SetInventory("GrenadeCharge", 350);
 						A_GiveInventory("HoloGrenadePickup",1);
 					}
 					if (!CountInv("SyphonGrenadePickup"))
 					{   
-						A_SetInventory("GrenadeCharge", 350);
-						A_GiveInventory("GrenadeSelectedStripper",1); //Just in case
+					//	A_GiveInventory("GrenadeSelectedStripper",1); //Just in case
 						A_SetInventory("SyphonGrenadePickup",1);
 					}
 					SelectEquipment("SyphonGrenadePickup");
@@ -1432,6 +1443,7 @@ extend class Doom4Player
 		}
 		GrenChargeCurrent = (inv) ? inv.Amount : 0;
 		//======================================================================
+		// Case sensitivity is important here for the shader strings, i.e. "damageFactor"
 		if (effectSize > 0) 
 		{
 			Shader.SetEnabled(player, "damageshader", true);
@@ -1462,85 +1474,13 @@ extend class Doom4Player
 			InitPlayer();
 		}
 		A_SetInventory("LifeRedFlash",0);
-		//======================================================================
-		//	Cooldowns
-		//======================================================================
-		
-		int timer = level.maptime % 30;
-		// No need to check for StaticChargeDrain since the upgrade alone
-		// shuts this off.
-		if (!(timer % 3))
-		{
-			if (!CountInv("StaticUpgrade4"))
-			{
-					 if (CountInv("StaticUpgrade3"))
-					A_TakeInventory("StaticRifleChargingToken",1);	
-				else if (CountInv("StaticUpgrade2"))
-					A_TakeInventory("StaticRifleChargingToken",2);	
-				else
-					A_TakeInventory("StaticRifleChargingToken",3);	
-			}
-			A_TakeInventory("PlasmaStunBombCounter",1);
-			Ulasthp = health + CountInv("BasicArmor");
-		}
-		
-		if (!(timer % 2))
-		{
-			A_TakeInventory("SGTripleShotTimer",1);
-			A_TakeInventory("SGGrenadeTimer",1);
-		}
-		/*
-		if (!(timer % 10))
-		{
-			if (CountInv("GrenadeCooldown"))
-			{
-				A_TakeInventory("GrenadeCooldown",1);
-				if (!CountInv("GrenadeCooldown"))
-				{
-					A_PlaySound("Doom4/Weapon/Grenade/GrenadeRegen");
-				}
-			}
-		}
-		*/
 		//----------------------------------------------------------------------
-		
+		/*
 		if (GetClass() == "Doom4Player")
 		{
-			let p = self.player;
-			let wep = p.ReadyWeapon;
-			if (wep && wep.GetClass() == "D4StaticRifle")
-			{
-				if (CountInv("StaticChargeDrain"))
-				{
-					if (CountInv("StaticRifleChargingToken") > 540)
-					{
-						A_SetInventory("StaticRifleChargingToken",540);
-					}
-					else if (CountInv("StaticRifleChargingToken"))
-					{
-						A_TakeInventory("StaticRifleChargingToken",32);
-						if (!CountInv("StaticRifleChargingToken"))
-						{	A_SetInventory("StaticChargeDrain",0);	}
-					}
-					else
-					{	A_SetInventory("StaticChargeDrain",0);	}
-				}
-				else if (CountInv("StaticRifleChargingToken") < 540)
-				{
-					UVel = vel.Length();
-					if (CountInv("StaticRifleActive") && (UVel * 0.25) >= 1.0)
-					{
-							 if (CountInv("StaticUpgrade4"))		A_GiveInventory("StaticRifleChargingToken", int((UVel * 2.9) * 0.25));	
-						else if (CountInv("StaticUpgrade3"))		A_GiveInventory("StaticRifleChargingToken", int((UVel * 2.55) * 0.25));	
-						else if (CountInv("StaticUpgrade2"))		A_GiveInventory("StaticRifleChargingToken", int((UVel * 2.2) * 0.25));	
-						else if (CountInv("StaticUpgrade1"))		A_GiveInventory("StaticRifleChargingToken", int((UVel * 1.85) * 0.25));	
-						else										A_GiveInventory("StaticRifleChargingToken", int((UVel * 1.5) * 0.25));	
-					}
-				}
-			}
-			
 			if (CountInv("D4IdfaTrap")) { A_GiveInventory("IdfaStamp"); A_SetInventory("D4IdfaTrap",0); }
 		}
+		*/
 	}
 	
 	//----------------------------------------------------------------------------

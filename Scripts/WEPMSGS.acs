@@ -174,7 +174,7 @@ Script "ToggleDoubleTrouble" (void)
 		
 		SetHUDSize(800,600,1);
 		SetFont("SMALLFONT");
-		HudMessage(s:ModTextArray[14];HUDMSG_PLAIN,101,CR_WHITE,790.2,573.0,0);
+		HudMessage(s:ModTextArray[14];HUDMSG_PLAIN,101,CR_WHITE,790.2,573.0,0); // Single Barrel
 	}
 	else
 	{
@@ -183,7 +183,7 @@ Script "ToggleDoubleTrouble" (void)
 		
 		SetHUDSize(800,600,1);
 		SetFont("SMALLFONT");
-		HudMessage(s:ModTextArray[13];HUDMSG_PLAIN,101,CR_WHITE,790.2,573.0,0);
+		HudMessage(s:ModTextArray[13];HUDMSG_PLAIN,101,CR_WHITE,790.2,573.0,0); // Double Barrel
 	}
 }
 

@@ -478,13 +478,14 @@ Class Doom4StatusBar : BaseStatusBar
 				Vector2 ArmorTextPos = (-4, 679);
 				int colArmor = Font.CR_WHITE;
 				int colArmorInvul = Font.CR_RED;
-				int armorAmount = Clamp(GetArmorAmount(), 0, 200);
+				int armorAmount = GetArmorAmount(); 
+				int armorDisplay = Clamp(armorAmount, 0, 200);
 				
 				
 				// Armor
 				
-				DrawBar("BODYARM1", "BODYARM0", armorAmount, 				100, (18, 676), 0, 0, imageAlignmentLeft);
-				DrawBar("BODYARM2", "BODYARM0", Max(0, armorAmount - 100), 	100, (18, 676), 0, 0, imageAlignmentLeft);
+				DrawBar("BODYARM1", "BODYARM0", armorDisplay, 				100, (18, 676), 0, 0, imageAlignmentLeft);
+				DrawBar("BODYARM2", "BODYARM0", Max(0, armorDisplay - 100), 	100, (18, 676), 0, 0, imageAlignmentLeft);
 				
 				
 				let invul = Powerup(CPlayer.mo.FindInventory("PowerInvulnerable",true));

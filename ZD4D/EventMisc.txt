@@ -1,0 +1,429 @@
+//==============================================================================
+// D4DDeathStorage
+//
+// The main storage of items, particularly for death exits.
+// This class is heavily protected to prevent accidental misaligned index arrays
+// and giving incorrect amounts.
+//==============================================================================
+
+class D4DDeathStorage : Thinker
+{
+	private bool first;
+	bool died;
+	private Array<Class<Inventory> > ItemList;
+	private Array<Int> ItemCount;
+	
+	//--------------------------------------------------------------------------
+	// Functions
+	//--------------------------------------------------------------------------
+	
+	void SetStatic()
+	{
+		if (!first)
+		{
+			ChangeStatNum(STAT_STATIC);
+			first = true;
+		}
+	}
+	
+	D4DDeathStorage Init()
+	{
+		died = false;
+		SetStatic();
+		ItemList.Clear();
+		ItemCount.Clear();
+		return self;
+	}
+	
+	void SetItem(Class<Inventory> item, int count)
+	{
+		if (item)	PushItem(item, Max(0,count));
+	}
+	
+	private void PushItem(Class<Inventory> item, int count)
+	{
+		if (ItemList.Size() < 1)
+			ItemCount.Clear();
+			
+		int pos = ItemList.Find(item);
+		if (pos < ItemList.Size())
+			ItemCount[pos] = count;
+		else
+		{
+			ItemList.Push(item);
+			ItemCount.Push(count);
+		}
+	}
+	
+	Class<Inventory>, int GetNextItem()
+	{
+		// If empty signify with -1.
+		if (ItemList.Size() < 1)
+			return null, -1;
+		
+		// Extract the item...
+		Class<Inventory> ret1 = ItemList[0];
+		int ret2 = ItemCount[0];
+		
+		// Make sure it's a good item.
+		if (!ret1)
+		{
+			// Remove any nulls. If it empties out, no need to continue.
+			if (DeleteItem(null) < 0)
+				return null, -1;
+			
+			// This should be valid since all the nulls were cleared out.
+			ret1 = ItemList[0];
+			ret2 = ItemCount[0];
+		}
+		// ...then delete the entry and return it.
+		DeleteItem(null, 0);
+		ShrinkWrap();
+		return ret1, ret2;
+	}
+	
+	//==========================================================================
+	// DeleteItem
+	//
+	// Deletes a specified item, or if pos > -1, a specific position.
+	//==========================================================================
+	int DeleteItem(Class<Inventory> item, int pos = -1)
+	{
+		if (ItemList.Size() < 1) // List is empty.
+		{
+			ItemCount.Clear();
+			return -1;
+		}
+		if (pos >= 0) // Delete a specific position.
+		{
+			ItemList.Delete(pos);
+			ItemCount.Delete(pos);
+			return 1;
+		}
+		if (item == null) // Delete all nulls.
+		{
+			for (int i = 0; i < ItemList.Size(); i++)
+			{
+				if (ItemList[i] == null)
+				{
+					ItemList.Delete(i);
+					ItemCount.Delete(i);
+					i--;
+				}
+			}
+			return (ItemList.Size() > 0) ? 1 : -1;
+		}
+		
+		// Find and delete an item. The item count must have matching index.
+		int i = ItemList.Find(item);
+		if (pos < ItemList.Size())
+		{
+			ItemList.Delete(i);
+			ItemCount.Delete(i);
+			return 1;
+		}
+		return 0;
+	}
+	
+	private void ShrinkWrap()
+	{
+		ItemList.ShrinkToFit();
+		ItemCount.ShrinkToFit();
+	}
+}
+
+//------------------------------------------------------------------------------
+//
+//
+//
+//------------------------------------------------------------------------------
+
+Struct D4ManualLootParameters
+{
+	private bool initialized;
+	Class<Actor> mo;
+	int UpgradeDropChance, UpgradeDropAlways;
+	int CrateDropChance, CrateDropAmount, CrateDropAlways;
+	int CashChainsawPinata, CashAmount;
+
+	void Init(Class<Actor> th = null, int upchance = -1, int updrop = 0, int cdchance = 0, int cdamt = 0, int cddrop = 0, int ccp = 0, int ca = 0)
+	{
+		mo = th;
+		UpgradeDropChance = upchance;
+		UpgradeDropAlways = updrop;
+		CrateDropChance = cdchance;
+		CrateDropAmount = cdamt;
+		CrateDropAlways = cddrop;
+		CashChainsawPinata = ccp;
+		CashAmount = ca;
+		initialized = true;
+	}
+	
+	bool CheckInit()
+	{
+		return initialized;
+	}
+}
+
+//------------------------------------------------------------------------------
+
+Class D4ManualLootList : Thinker
+{
+	Array<Class<Actor> > Actors;
+	Array<Int> CrateDropChance, CrateDropAmount, CrateDropAlways;
+	Array<Int> CashAmount, CashChainsawPinata;
+	Array<Int> UpgradeDropChance, UpgradeDropAlways;
+	
+	bool CheckActor(Class<Actor> mo)
+	{
+		int size = Actors.Size();
+		return (mo && (size > 0) && (Actors.Find(mo) < size));
+	}
+	
+	int GetSize()
+	{
+		return Actors.Size();
+	}
+		
+	//--------------------------------------------------------------------------
+	// Adds an actor to the list of overrides for modders usage.
+	void Add(in D4ManualLootParameters Loot)
+	{
+		if (!Loot.CheckInit())
+		{
+			Console.Printf("Error: D4ManualLootParameters must call Init() function before use!");
+			return;
+		}
+		Class<Actor> check = Loot.mo;
+		if (!check)	
+		{
+			Console.Printf("Error: %s is not a proper actor. Check spelling!", Loot.mo);
+			return;
+		}
+		
+		// If we already have an actor, just update it. No need to be bloating
+		// arrays relentlessly, that'll just cause memory management issues.
+		int size = Actors.Size();
+		if (size > 0)
+		{
+			int i = Actors.Find(Loot.mo);
+			if (i < size)
+			{
+				CrateDropChance[i] = Loot.CrateDropChance;
+				CrateDropAmount[i] = Loot.CrateDropAmount;
+				CrateDropAlways[i] = Loot.CrateDropAlways;
+				CashAmount[i] = Loot.CashAmount;
+				CashChainsawPinata[i] = Loot.CashChainsawPinata;
+				UpgradeDropChance[i] = Loot.UpgradeDropChance;
+				UpgradeDropAlways[i] = Loot.UpgradeDropAlways;
+				return;
+			}
+		}
+		
+		// The actor doesn't exist, so it's all clear to add it to the array.
+		Actors.Push(Loot.mo);
+		CrateDropChance.Push(Loot.CrateDropChance);
+		CrateDropAmount.Push(Loot.CrateDropAmount);
+		CrateDropAlways.Push(Loot.CrateDropAlways);
+		CashAmount.Push(Loot.CashAmount);
+		CashChainsawPinata.Push(Loot.CashChainsawPinata);
+		UpgradeDropChance.Push(Loot.UpgradeDropChance);
+		UpgradeDropAlways.Push(Loot.UpgradeDropAlways);
+	}
+	
+	//--------------------------------------------------------------------------
+	// Removes an actor and associated reservations.
+	bool Remove(Class<Actor> mo)
+	{
+		if (!mo)	return false;
+		
+		int size = Actors.Size();
+		if (size > 0)
+		{
+			int i = Actors.Find(mo);
+			if (i < size)
+			{
+				Actors.Delete(i);
+				CrateDropChance.Delete(i);
+				CrateDropAmount.Delete(i);
+				CrateDropAlways.Delete(i);
+				CashAmount.Delete(i);
+				CashChainsawPinata.Delete(i);
+				UpgradeDropChance.Delete(i);
+				UpgradeDropAlways.Delete(i);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	//--------------------------------------------------------------------------
+	// Retrieves the data.
+	void Retrieve(Class<Actor> mo, in out D4ManualLootParameters Loot)
+	{
+		int size = Actors.Size();
+		if (size > 0)
+		{
+			int i = Actors.Find(mo);
+			if (i < size)
+			{
+				Loot.Init	(Actors[i], 
+							UpgradeDropChance[i], 
+							UpgradeDropAlways[i], 
+							CrateDropChance[i], 
+							CrateDropAmount[i], 
+							CrateDropAlways[i], 
+							CashChainsawPinata[i], 
+							CashAmount[i]);
+			}
+		}
+	}
+
+	//--------------------------------------------------------------------------
+	// Initializer stuff. Don't touch.
+	D4ManualLootList Init()
+	{
+		CrateDropChance.Clear();
+		CrateDropAmount.Clear();
+		CrateDropAlways.Clear();
+		CashAmount.Clear();
+		CashChainsawPinata.Clear();
+		UpgradeDropChance.Clear();
+		UpgradeDropAlways.Clear();
+		ChangeStatNum(STAT_STATIC);
+		return self;
+	}
+
+	static D4ManualLootList Get()
+	{
+		ThinkerIterator it = ThinkerIterator.Create("D4ManualLootList",STAT_STATIC);
+		let p = D4ManualLootList(it.Next());
+		if (p == null)
+		{
+			p = new("D4ManualLootList").Init();
+		}
+		return p;
+	}
+}
+
+//==============================================================================
+//==============================================================================
+//
+//	Base items
+//
+//==============================================================================
+//==============================================================================
+
+// Defines how many pinatas to drop.
+
+Struct D4DropList play
+{
+	Array<Class<Inventory> > ItemName;
+	Array<Int> ItemCount;
+	Array<Double> ItemAmountMul;
+	
+	//--------------------------------------------------------------------------
+	// ResetList()
+	//
+	// Wipes out all items on the drop list and sets all counts to 0.
+	//--------------------------------------------------------------------------
+	
+	void ResetList()
+	{
+		ItemName.Clear();
+		ItemCount.Clear();
+		ItemAmountMul.Clear();
+	}
+	
+	//--------------------------------------------------------------------------
+	// AddItem(actor, count, amount, adding?)
+	//
+	// Adds an item to the list and how many to spawn.
+	//--------------------------------------------------------------------------
+	
+	void AddItem(Class<Inventory> newthing, int count = 1, double amountMul = 1.0, 
+				bool adding = true, int res = 0)
+	{
+		// Don't bother if the value is 0. 
+		if (count == 0) 
+			return;
+			
+		// Make sure the item's valid first.
+		if (!newthing)
+		{
+			Console.Printf("Error: %s is not a valid item!", newthing);
+			return;
+		}
+		// Search the array first for something, if its size is > 0. Otherwise,
+		// add it in if not found.
+		int size = ItemName.Size();
+		if (size > 0)
+		{
+			int i = ItemName.Find(newthing);
+			if (i < size)
+			{
+				ItemCount[i] = adding ? ItemCount[i] + count : count;
+				
+				if (amountMul > 0.0)
+					ItemAmountMul[i] = Max(1.0, amountMul);
+				return;
+			}
+		}
+		ItemName.Push(newthing);
+		ItemCount.Push(count);
+		ItemAmountMul.Push(Max(1.0, amountMul));
+	}
+	
+	//--------------------------------------------------------------------------
+	// Multiply(amount)
+	// 
+	// Multiplies the amount on all drops.
+	//--------------------------------------------------------------------------
+	
+	void Multiply(double amt)
+	{
+		if (amt <= 0.0)	return;
+		
+		if (ItemAmountMul.Size() > 0)
+		{
+			for (int i = 0; i < ItemAmountMul.Size(); i++)
+				ItemAmountMul[i] *= amt;
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+	// DropItemsPos(actor)
+	//
+	// Causes an actor to spawn its entire list of items.
+	//--------------------------------------------------------------------------
+	
+	void DropItemsPos(Vector3 mpos)
+	{
+		int size = ItemName.Size();
+		if (size > 0)
+		{
+			for (int i = 0; i < size; i++)
+			{
+				Class<Inventory> check = ItemName[i];
+				if (check == null)	continue;
+				for (int j = 0; j < ItemCount[i]; j++)
+				{
+					Inventory it = Inventory(Actor.Spawn(check, mpos + (0, 0, 32)));
+					
+					if (it)
+					{
+						it.bTHRUACTORS = true;
+						it.amount = int(it.amount * ItemAmountMul[i]);
+						it.bTHRUACTORS = false;
+						it.VelFromAngle(frandom[a](3,6),random[a](0,359));
+						it.vel.Z += frandom[a](1,5);
+						it.A_FaceMovementDirection(0,0);
+						
+					}
+				}
+			}
+			ItemName.Clear();
+			ItemCount.Clear();
+		}
+	}
+}

@@ -32,6 +32,21 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 		Scale 0.6;
 		+DONTGIB
 	}
+	
+	int Timer;
+	override void DoEffect()
+	{
+		Super.DoEffect();
+		if (!Owner)	return;
+		
+		if (++Timer > 1)
+		{
+			Timer = 0;
+			Owner.A_TakeInventory("SGTripleShotTimer",1);
+			Owner.A_TakeInventory("SGGrenadeTimer",1);
+		}
+	}
+	
 	States
 	{
 	Spawn:

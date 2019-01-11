@@ -107,20 +107,16 @@ Class CrateItemSpawner : RandomSpawner
 		DropItem "D4CellsSmall", 	255, 30;
 		DropItem "D4RocketsSmall", 	255, 30;
 		
-		DropItem "Allmap", 				 255, 10;
-		DropItem "BlurSphere", 			 255, 10;
-		DropItem "RadSuit", 			 255, 10;
-		DropItem "Infrared", 			 255, 10;
-		DropItem "D4Regeneration", 		 255, 10;
-		DropItem "D4Haste", 			 255, 10;
-		DropItem "Berserk", 			 255, 5;
-		DropItem "InvulnerabilitySphere",255, 5;
-		DropItem "D4QuadDamage",		 255, 5;
-		DropItem "SoulSphere",			 255, 5;
-		DropItem "D4QuadMoney",			 255, 3;
-		DropItem "D4Megasphere",		 255, 3;
-		DropItem "D4DoomDoll",			 255, 1;
-		DropItem "D4ExtraLife",			 255, 1;
+		DropItem "Allmap", 					255, 10;
+		DropItem "BlurSphere", 				255, 10;
+		DropItem "RadSuit", 				255, 10;
+		DropItem "Infrared", 				255, 10;
+		DropItem "D4Haste", 				255, 10;
+		DropItem "D4BerserkSpawner",		255, 5;
+		DropItem "D4PentagramOfProtection",	255, 5;
+		DropItem "D4SoulSphereReplacer",	255, 5;
+		DropItem "D4QuadMoney",				255, 3;
+		DropItem "D4MegasphereReplacer",	255, 3;
 	}
 }
 
@@ -147,16 +143,13 @@ Class CrateItemSpawnerBFG : RandomSpawner
 		DropItem "BlurSphere", 			 255, 10;
 		DropItem "RadSuit", 			 255, 10;
 		DropItem "Infrared", 			 255, 10;
-		DropItem "D4Regeneration", 		 255, 10;
 		DropItem "D4Haste", 			 255, 10;
-		DropItem "Berserk", 			 255, 5;
-		DropItem "InvulnerabilitySphere",255, 5;
-		DropItem "D4QuadDamage",		 255, 5;
-		DropItem "SoulSphere",			 255, 5;
 		DropItem "D4QuadMoney",			 255, 3;
-		DropItem "D4Megasphere",		 255, 3;
-		DropItem "D4DoomDoll",			 255, 1;
-		DropItem "D4ExtraLife",			 255, 1;
+		DropItem "D4BerserkSpawner",		255, 5;
+		DropItem "D4PentagramOfProtection",	255, 5;
+		DropItem "D4SoulSphereReplacer",	255, 5;
+		DropItem "D4QuadMoney",				255, 3;
+		DropItem "D4MegasphereReplacer",	255, 3;
 	}
 }
 

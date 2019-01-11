@@ -32,7 +32,7 @@ Class D4NoiseMaker : Actor
 // MegaHealth
 //=======================================================================
 //=======================================================================
-Class MegaSphereReplacer : RandomSpawner //replaces Megasphere
+Class D4MegaSphereReplacer : RandomSpawner //replaces Megasphere
 {
 	Default 
 	{
@@ -116,7 +116,21 @@ Class D4Megasphere : Megasphere
 				A_GiveInventory("D4MegasphereDamageReducer",1);
 			}
 			if (CountInv("D4MegachargeUpgrade2"))
-				A_GiveInventory("D4TimeFreeze",1);
+			{
+				let inv = PowerTimeFreezer(FindInventory("PowerTimeFreezer", true));
+				if (inv)
+				{
+					if (inv.GetClass() != "D4TimeFreeze")
+					{
+						inv.EndEffect();
+						A_GiveInventory("D4TimeFreeze",1);
+					}
+					else
+						inv.EffectTics = 35 * 5;
+				}
+				else
+					A_GiveInventory("D4TimeFreeze",1);
+			}
 				
 			return true;
 		}
@@ -161,7 +175,7 @@ Class D4TimeFreeze : PowerTimeFreezer
 		Powerup.Duration -5;
 	}
 	
-	override void InitEffect()
+	static void FreezeEverything()
 	{
 		let it = ThinkerIterator.Create("Actor", Thinker.STAT_DEFAULT);
 		Actor mo;
@@ -179,10 +193,9 @@ Class D4TimeFreeze : PowerTimeFreezer
 				mo.bNOTIMEFREEZE = false;
 			}
 		}
-		Super.InitEffect();
 	}
 	
-	override void EndEffect()
+	static void UnfreezeEverything()
 	{
 		let it = ThinkerIterator.Create("Actor", Thinker.STAT_DEFAULT);
 		Actor mo;
@@ -194,6 +207,17 @@ Class D4TimeFreeze : PowerTimeFreezer
 				mo.bNOTIMEFREEZE = true;
 			}
 		}
+	}
+	
+	override void InitEffect()
+	{
+		D4TimeFreeze.FreezeEverything();
+		Super.InitEffect();
+	}
+	
+	override void EndEffect()
+	{
+		D4TimeFreeze.UnfreezeEverything();
 		Super.EndEffect();
 	}
 	
@@ -360,7 +384,7 @@ Class D4Infrared : Infrared //replaces Infrared
 //=======================================================================
 //=======================================================================
 
-Class BerserkSpawner : RandomSpawner //replaces Berserk
+Class D4BerserkSpawner : RandomSpawner //replaces Berserk
 {
 	Default 
 	{
@@ -670,7 +694,7 @@ Class RegenerationGiver : PowerupGiver
 	}
 }
 
-Class SoulSphereReplacer : RandomSpawner //replaces SoulSphere
+Class D4SoulSphereReplacer : RandomSpawner //replaces SoulSphere
 {
 	Default
 	{
@@ -1067,7 +1091,7 @@ Class PowerD4Haste : PowerSpeed
 }
 
 
-Class HasteGiver : PowerupGiver
+Class D4HasteGiver : PowerupGiver
 {
 	Default 
 	{
@@ -1078,7 +1102,7 @@ Class HasteGiver : PowerupGiver
 	}
 }
 
-Class DoubleFiringSpeedGiver : HasteGiver
+Class D4DoubleFiringSpeedGiver : D4HasteGiver
 {	Default {	Powerup.Type "PowerD4DFS";	}}
 
 Class D4Haste : CustomInventory //replaces BlurSphere
@@ -1124,8 +1148,8 @@ Class D4Haste : CustomInventory //replaces BlurSphere
 				return;
 			}
 			
-			A_GiveInventory("HasteGiver", 1);
-			A_GiveInventory("DoubleFiringSpeedGiver", 1);
+			A_GiveInventory("D4HasteGiver", 1);
+			A_GiveInventory("D4DoubleFiringSpeedGiver", 1);
 		}
 		Stop;
 	}
@@ -1221,7 +1245,7 @@ Class PentaShadow : Actor
 	}
 }
 
-Class PentagramOfProtection : CustomInventory //replaces InvulnerabilitySphere
+Class D4PentagramOfProtection : CustomInventory //replaces InvulnerabilitySphere
 {
 	Default 
 	{
@@ -1292,9 +1316,10 @@ Class Invul5s : Invulnerability	{ Default {	Powerup.Duration -5; } }
 Class PowerInvulBase : PowerInvulnerable
 {
 	const WaitTimer = 70;
-	private int PentaNoiseWait;
+	private uint PentaNoiseTimer;
 	Default 
 	{
+		ActiveSound "PentagramOfProtection/Protect";
 		+INVENTORY.NOSCREENBLINK;
 		+INVENTORY.ADDITIVETIME
 		Inventory.InterhubAmount 0; 
@@ -1308,7 +1333,7 @@ Class PowerInvulBase : PowerInvulnerable
 		if (Owner.CountInv("D4PentagramUpgrade1"))	Owner.bREFLECTIVE = true;
 		if (Owner.CountInv("D4PentagramUpgrade4"))	Owner.bNODAMAGE = true;
 		bNOINTERACTION = true;
-		PentaNoiseWait = 0;
+		PentaNoiseTimer = 0;
 		if (Owner.Player)	Owner.Player.DamageCount = 0;
 	}
 	
@@ -1316,7 +1341,8 @@ Class PowerInvulBase : PowerInvulnerable
 	{
 		if (Owner)
 		{
-			SetXYZ(Owner.pos);
+			if (PentaNoiseTimer > 0)	PentaNoiseTimer--;
+			SetOrigin(Owner.pos, false);
 			Prev = Owner.Prev;
 			Vel = Owner.Vel;
 			if (Owner.CountInv("D4PentagramUpgrade1"))	Owner.bREFLECTIVE = true;
@@ -1327,20 +1353,32 @@ Class PowerInvulBase : PowerInvulnerable
 			}
 			else
 			{
-				SetXYZ(Owner.pos);
 				Switch (EffectTics)
 				{
 					Case 105:
 						A_PlaySound("PentagramOfProtection/Warning",5,1,0,ATTN_NONE);
 					Case 70:
 					Case 35:
-						Owner.A_SetBlend("Gold",0.4,12);
+						Owner.A_SetBlend("Gold",0.45,12);
 					Default:
 						break;
 				}
 			}
 		}
 		Super.DoEffect();
+	}
+	
+	override void ModifyDamage(int damage, Name damageType, out int newdamage, bool passive)
+	{
+		if (passive && damage > 0)
+		{
+			newdamage = damage;
+			if (Owner && PentaNoiseTimer < 1)
+			{
+				PentaNoiseTimer = WaitTimer;
+				A_PlaySound(ActiveSound, CHAN_VOICE, 1.0, false, ATTN_NONE);
+			}
+		}
 	}
 	
 	override void EndEffect()

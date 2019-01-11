@@ -465,6 +465,19 @@ Class GibSpawnerBase : D4DFX
 		if (!simple && A_CheckSightOrRange(BloodDistanceLimit,"Null"))
 			simple = true;
 		
+		Actor trc = tracer; 
+		if (!trc)	trc = self;
+		int Clouds = D4D_BloodClouds * 2;
+		for (int i = 0; i < Clouds; i++)
+		{
+			let cloud = D4BloodCloud(Spawn("D4BloodCloud", pos + (0,0, random[rng](20,40)), ALLOW_REPLACE));
+			if (cloud)
+			{
+				cloud.tracer = trc;
+				cloud.Translation = (trc.CountInv("D4MonsterUpgrader") ? trc.Translation : trc.BloodTranslation);
+			}
+		}
+		
 		bool first = true;
 		int GibMax = (simple) ? 1 : D4D_SplatterGiblets;
 		for (di = drop; di != null; di = di.Next)
@@ -515,7 +528,15 @@ Class GibSpawnerBase : D4DFX
 							tvel.Y * frandom(MulMin,MulMax) + frandom(-RAdd,RAdd),
 							tvel.Z * frandom(MulMin,MulMax) + frandom(-RAdd,RAdd),
 							CVF_REPLACE);
-						if (target)	spawned.BC = (target.bloodcolor & 0xffffff);
+						if (tracer)	
+						{
+							if (tracer is "D4AbstractMonster")
+								spawned.BC = Bc;
+							else
+								spawned.BC = (tracer.bloodcolor & 0xffffff);
+								
+							spawned.Translation = Translation;
+						}
 						else		spawned.BC = Color(255, 255, 0, 0);
 					}
 				}

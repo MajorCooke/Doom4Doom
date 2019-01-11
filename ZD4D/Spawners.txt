@@ -9,17 +9,15 @@ extend class D4DHandler
 	override void CheckReplacement(ReplaceEvent e)
 	{
 		Class<Actor> rep = e.Replacee;
+		
 		if (!rep || rep is 'Nothing')	return;
-		//e.IsFinal = true;
 		
-			 if (rep is 'Blood')				e.Replacement = 'MCBloodFXMain';
-		else if (rep == 'BulletPuff')			e.Replacement = 'D4BulletPuff';
-		else if (rep is 'ExplosiveBarrel')		e.Replacement = 'D4ExplosiveBarrel';
-		else if (rep == 'BossBrain')			e.Replacement = 'D4BossBrain';
-		else if (rep is 'PowerInvulnerable' && rep != 'PowerInvulBase')		
-												e.Replacement = 'PowerInvulBase';
+		let defs = GetDefaultByType(rep);
+		if (defs.bNOINTERACTION)	return;
 		
-		else if (rep is 'Inventory')
+		e.Replacement = rep;
+		
+		if (rep is 'Inventory')
 		{
 				 if (rep == 'Clip')				e.Replacement = 'ClipReplacer';
 			else if (rep == 'ClipBox')			e.Replacement = 'ClipBoxReplacer';
@@ -63,12 +61,12 @@ extend class D4DHandler
 			else if (rep == 'Medikit')			e.Replacement = 'D4Medikit';
 			else if (rep == 'Stimpack') 		e.Replacement = 'D4Stimpack';
 			else if (rep == 'HealthBonus')		e.Replacement = 'D4HealthBonus';
-			else if (rep == 'SoulSphere')		e.Replacement = 'SoulSphereReplacer';
+			else if (rep == 'SoulSphere')		e.Replacement = 'D4SoulSphereReplacer';
 			else if (rep == 'ArmorBonus') 		e.Replacement = 'D4ArmorBonus';
 			else if (rep == 'BlueArmor')		e.Replacement = 'D4BlueArmor';
 			else if (rep == 'GreenArmor')		e.Replacement = 'D4GreenArmor';
-			else if (rep == 'Berserk')			e.Replacement = 'BerserkSpawner';
-			else if (rep == 'MegaSphere')		e.Replacement = 'MegaSphereReplacer';
+			else if (rep == 'Berserk')			e.Replacement = 'D4BerserkSpawner';
+			else if (rep == 'MegaSphere')		e.Replacement = 'D4MegaSphereReplacer';
 			
 			// Keys
 			else if (rep == 'RedCard') 			e.Replacement = 'D4RedCard';
@@ -78,19 +76,18 @@ extend class D4DHandler
 			else if (rep == 'YellowSkull')		e.Replacement = 'D4YellowSkull';
 			else if (rep == 'BlueSkull') 		e.Replacement = 'D4BlueSkull';
 			else if (rep == 'BlurSphere')				e.Replacement = 'D4Haste';
-			else if (rep is 'InvulnerabilitySphere')	e.Replacement = 'PentagramOfProtection';
+			else if (rep is 'InvulnerabilitySphere')	e.Replacement = 'D4PentagramOfProtection';
 			else if (rep == 'AllMap') 					e.Replacement = 'D4AllMap';
 			else if (rep == 'RadSuit') 					e.Replacement = 'D4RadSuit';
 			else if (rep == 'Infrared') 				e.Replacement = 'D4Infrared';
 		}
-		else
+		else if (defs.bISMONSTER)
 		{
 			int rng = random[rngg](1,100);
 			int chance = D4D_CustomSpawnBias;
-			let defs = GetDefaultByType(rep);
 			int type = D4D_MonsterType;
 			
-			if (defs.bISMONSTER && (type < 3 || rng > chance))
+			if (type < 3 || rng > chance)
 			{
 					 if (rep == 'StealthArachnotron')	e.Replacement = 'D4StealthArachnotron';
 				else if (rep == 'StealthArchvile')		e.Replacement = 'D4StealthArchvile';
@@ -138,10 +135,15 @@ extend class D4DHandler
 				else if (rep == 'SpiderMastermind')		e.Replacement = 'D4SpiderMastermind';
 				else if (rep == 'WolfensteinSS')		e.Replacement = 'D4OldWolfensteinSS';
 				else if (rep == 'ZombieMan')			e.Replacement = 'D4ZombieMan';
-				else e.IsFinal = false;
-				return;
 			}
 		}
-		return;
+		else if (rep is 'Blood')				e.Replacement = 'MCBloodFXMain';
+		else if (rep == 'BulletPuff')			e.Replacement = 'D4BulletPuff';
+		else if (rep is 'ExplosiveBarrel')		e.Replacement = 'D4ExplosiveBarrel';
+		else if (rep == 'BossBrain')			e.Replacement = 'D4BossBrain';
+		else if (rep is 'PowerInvulnerable' && rep != 'PowerInvulBase')		
+												e.Replacement = 'PowerInvulBase';
+												
+		if (e.Replacement != rep)	e.IsFinal = true;
 	}
 }

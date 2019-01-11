@@ -394,9 +394,9 @@ Class D4SyphonGrenade : D4EquipmentProjectile
 	Death:
 		TNT1 A 12 
 		{
-			bNOINTERACTION = true;
 			A_Stop();
-			if (pos.z <= floorz + 1)	SetXYZ(pos + (0, 0, floorz + 1));
+			bNOINTERACTION = true;
+			//if (pos.z <= floorz + 1)	SetXYZ(pos + (0, 0, floorz + 1));
 			A_SpawnItemEx("SyphonShockwaveBig",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 			A_SpawnItemEx("SyphonShockwaveBigFlat",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH);
 			A_PlaySound("Doom4/Weapon/Grenade/FragArm",5);
@@ -427,7 +427,7 @@ Class D4SyphonGrenade : D4EquipmentProjectile
 					bool HasArmor = (target.CountInv("BasicArmor") > 0);	
 					if (!HasArmor)	target.A_GiveInventory("SyphonArmor", 1);
 					let inv = BasicArmor(target.FindInventory("BasicArmor"));
-					int cap = ArmorCapGreen + CountInv("D4ArmorCapRaiser");
+					int cap = ArmorCapGreen + target.CountInv("D4ArmorCapRaiser");
 					if (inv && inv.Amount < cap)
 					{
 						if (!HasArmor)	inv.Amount = 3;

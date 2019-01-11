@@ -66,6 +66,7 @@ Class D4DHandler : EventHandler
 	clearscope private void ResetKNM(int which) 	{ D4DHandler.SendNetworkEvent("D4D_KNM0", which); }
 	clearscope private int GetKNM(int which) 		{ return KNMInput[which]; }
 	
+	// Tremendous thanks to Phantombeta for helping me out with this.
 	override bool InputProcess(InputEvent ev)
 	{
 		if (ev.Type == InputEvent.Type_KeyDown)
@@ -74,17 +75,44 @@ Class D4DHandler : EventHandler
 			let plr = players[index].mo;
 			if (!plr || plr.health < 1 || plr.FindInventory("PowerMorph",true))
 				return false;
+				
+			int bind1, bind2;
+			/*
+			static const String KeyBindsCCMDs [] = {
+				"slot 1", "slot 2", "slot 3", "slot 4", "slot 5",
+				"slot 6", "slot 7", "slot 8", "slot 9", "slot 0",
+				"weapnext", "weapprev"	};
+			static const String KeyBindsNetEvents [] = {
+				"slot:1", "slot:2", "slot:3", "slot:4", "slot:5",
+				"slot:6", "slot:7", "slot:8", "slot:9", "slot:0",
+				"next", "prev"	};
 			
-			static const String KeyBindsCCMDs[] =
+			// Find the key and translate it from the raw command to an 
+			// event-friendly string. Makes splitting it easier.
+			
+			for (int i = 0; i < KeyBindsCCMDs.Size(); i++) 
+			{
+				// Bindings is a global struct. Definition in menu.txt inside GZDoom.pk3.
+				// Get the keys that are bound to this action.
+				[bind1, bind2] = Bindings.GetKeysForCommand (KeyBindsCCMDs [i]);
+				
+				if (ev.KeyScan == bind1 || ev.KeyScan == bind2) 
+				{
+				//	EventHandler.SendNetworkEvent (String.Format ("ScrollWheelHijack:%s", KeyBindsNetEvents [i]));
+					EventHandler.SendNetworkEvent(String.Format("D4D_SelectWeapon:%s", KeyBindsNetEvents[i]));
+					return true;
+				}
+			}
+			*/
+			static const String KeyBindsCCMDs2[] =
 			{
 				"+forward", "+back", "+moveleft", "+moveright", 
 				"+attack", "+altattack"
 			};
 			
-			int bind1, bind2;
-			for (int i = 0; i < KeyBindsCCMDs.Size(); i++) 
+			for (int i = 0; i < KeyBindsCCMDs2.Size(); i++) 
 			{
-				[bind1, bind2] = Bindings.GetKeysForCommand (KeyBindsCCMDs [i]);
+				[bind1, bind2] = Bindings.GetKeysForCommand (KeyBindsCCMDs2[i]);
 				
 				if (ev.KeyScan == bind1 || ev.KeyScan == bind2) 
 				{
@@ -125,6 +153,15 @@ Class D4DHandler : EventHandler
 		
 		if (!plr)	
 		{	Console.Printf("No player found");	return;	}
+		
+		Array<String> strings;
+		e.Name.Split (strings, ":");
+
+		if (strings.Size() > 1)
+		{
+			if (strings[0] == 'D4D_SelectWeapon')
+				ChangeWeapons(e);
+		}
 		
 		static const String KeyWords[] =
 		{
@@ -218,6 +255,10 @@ Class D4DHandler : EventHandler
 		{
 			FindLiveTID(e);
 		}
+		else if (e.Name == 'PrintSlots')
+		{
+			PrintSlots(e);
+		}
 		else
 		{
 			int size = KeyWords.Size();
@@ -272,6 +313,32 @@ Class D4DHandler : EventHandler
 	
 	//==========================================================================
 	// Functions
+	
+	void PrintSlots(ConsoleEvent e)
+	{
+		if (!e.IsManual)	return;
+		let plr = players[e.Player].mo.player;
+		if (!plr)	return;
+		
+
+		for (int i = 0; i < AllActorClasses.Size(); ++i)
+		{
+			let wep = (Class<Weapon>)(AllActorClasses[i]);
+			if (!wep)	continue;
+			
+			bool found = false;
+			int slot = -1; 
+			double index = -1;
+			[found, slot, index] = plr.weapons.LocateWeapon(wep);
+			String fnd = (found) ? "Ye" : "No";
+			
+			let defs = GetDefaultByType(wep);
+			slot = Max(0, defs.SlotNumber);
+			index = defs.SlotPriority;
+			if (index > 1.0)	index = 0.0;
+			Console.Printf("%s %d %.2f - %s", fnd, slot, index, wep.GetClassName());
+		}
+	}
 	
 	// Sets the light level of the current sector the player is in.
 	void SetSectorLight(ConsoleEvent e)

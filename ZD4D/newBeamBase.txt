@@ -123,7 +123,9 @@ Class D4DNewBeamBase : Actor
 		double SY2 = SY ** 2;
 		double RealPitch = Pitch - 90.0;
 		double Dist = 0;
-		int WarpFlags = WARPF_NOCHECKPOSITION|WARPF_COPYINTERPOLATION;
+		//int WarpFlags = WARPF_NOCHECKPOSITION|WARPF_COPYINTERPOLATION;
+		int WarpFlags = WARPF_NOCHECKPOSITION;
+		if (!bDONTINTERPOLATE)	WarpFlags |= WARPF_INTERPOLATE;
 		if (Parent)
 		{
 			Scale.X = Parent.Scale.X;
@@ -132,8 +134,10 @@ Class D4DNewBeamBase : Actor
 			Translation = Parent.Translation;
 			double PSY = Parent.Scale.Y * 100.0;
 			double pit = Parent.Pitch - 90;
-			Warp(Parent, cos(pit) * PSY, 0, -sin(pit) * PSY, 0, WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
-		//	Warp(Parent, cos(pit) * PSY, 0, -sin(pit) * PSY, 0, WarpFlags);
+			
+			
+		//	Warp(Parent, cos(pit) * PSY, 0, -sin(pit) * PSY, 0, WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
+			Warp(Parent, cos(pit) * PSY, 0, -sin(pit) * PSY, 0, WarpFlags);
 		//	if (Target)	vel = Target.vel;
 		//	Prev = Parent.Vec3Angle(cos(pit) * PSY, Parent.angle, -sin(pit) * PSY);
 		//	SetOrigin(Parent.Vec3Angle(cos(pit) * PSY, Parent.angle, -sin(pit) * PSY), true);

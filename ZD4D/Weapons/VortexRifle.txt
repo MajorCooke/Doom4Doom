@@ -246,11 +246,10 @@ Class D4VortexRifle : Doom4Weapon
 		{
 			StateLabel next = null;
 			
-			if (!(GetPlayerInput(MODINPUT_BUTTONS|MODINPUT_OLDBUTTONS) & BT_ALTATTACK)) //if holding alt fire
-				A_GiveInventory("VortexReloadPositionTracker",1);	//does nothing
+			if (GetPlayerInput(MODINPUT_BUTTONS|MODINPUT_OLDBUTTONS) & BT_ALTATTACK) //if holding alt fire
+				return ResolveState(null);	//does nothing
 			else //if alt fire released
-				next = "UnzoomWhileReloading";
-			return ResolveState(next); //goes to unzoom where it tracks the reload position
+				return ResolveState("UnzoomWhileReloading"); //goes to unzoom where it tracks the reload position
 			
 		}
 		Goto ZoomInSounds;

@@ -29,6 +29,20 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 		Weapon.SlotPriority 0.0;
 		+DONTGIB
 	}
+	
+	int Timer;
+	override void DoEffect()
+	{
+		Super.DoEffect();
+		if (!Owner)	return;
+		
+		if (++Timer >= 3)
+		{
+			Timer = 0;
+			Owner.A_TakeInventory("PlasmaStunBombCounter",1);
+		}
+	}
+	
 	States
 	{
 	Spawn:

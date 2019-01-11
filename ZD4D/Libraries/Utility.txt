@@ -6,6 +6,11 @@ Class D4Msg play
 	{
 		notHudMessageHandler.PlainMsg(fnt, txt, pos, vsize, talign, balign, color, time, wrap, id, layer);
 	}
+	
+	static void ClearMsg(uint id)
+	{
+		notHudMessageHandler.PlainMsg("smallfont", "", (0,0), id: id);
+	}
 }
 
 Class D4D_Utility play

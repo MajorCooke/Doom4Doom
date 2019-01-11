@@ -96,6 +96,7 @@ Class PlayerCyberdemon : DemonPlayerBase
 		TNT1 A 35;
 		TNT1 A 0 
 		{
+			NoFastOverlay(OverlayID());
 			if (!GetCvar("D4D_SilentMorphs") && random(1,5)==5)
 			{
 				A_PlaySound("Doom4/Monsters/Cyberdemon/Idle",5);
@@ -105,15 +106,16 @@ Class PlayerCyberdemon : DemonPlayerBase
 	Overlay.Steps:
 		TNT1 A 5
 		{
-			USpeed = vel.Length();
+			NoFastOverlay(OverlayID());
+			USpeed = vel.XY dot vel.XY;
 			if (A_CheckFloor("Null"))
 			{
-				if(USpeed > 10)
+				if(USpeed > 10 ** 2)
 				{
 					A_PlaySound("Doom4/Cyberdemon/Step",CHAN_AUTO);
 					A_SetTics(14);
 				}
-				else if(USpeed > 5)
+				else if(USpeed > 5 ** 2)
 				{
 					A_PlaySound("Doom4/Cyberdemon/Step",CHAN_AUTO);
 					A_SetTics(18);
@@ -215,7 +217,7 @@ Class D4DCyberdemonWeapon : DemonWeaponBase
 				A_FireProjectile("PlayerCyberDemonRocketStream",frandom(-spread, spread),0,0,10,FPF_NOAUTOAIM,frandom(-spread,spread));
 			A_KickPitchSmall();
 		}
-		M023 A 0 A_ReFire("MiniRocketsP0");
+		M023 A 0 A_ReFire("MiniRockets");
 		Goto Ready;
 	
 	//==========================================================================

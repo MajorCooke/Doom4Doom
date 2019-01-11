@@ -99,6 +99,7 @@ Class PlayerBaron : DemonPlayerBase
 		TNT1 A 35;
 		TNT1 A 0
 		{
+			NoFastOverlay(OverlayID());
 			if (!GetCvar("D4D_SilentMorphs") && random(1,7)==7)
 			{
 				A_PlaySound("Doom4/Monsters/Baron/Idle",5);

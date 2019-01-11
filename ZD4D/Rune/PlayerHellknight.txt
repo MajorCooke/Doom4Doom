@@ -114,6 +114,7 @@ Class PlayerKnight : DemonPlayerBase
 		TNT1 A 35;
 		TNT1 A 0
 		{
+			NoFastOverlay(OverlayID());
 			if (!GetCvar("D4D_SilentMorphs") && random(1,5)==5)
 			{
 				A_PlaySound("Doom4/Monsters/HellKnight/Idle",5);
@@ -123,7 +124,8 @@ Class PlayerKnight : DemonPlayerBase
 	Overlay.Steps:
 		TNT1 A 5
 		{
-			USpeed = (vel.x*vel.x + vel.y*vel.y);
+			NoFastOverlay(OverlayID());
+			USpeed = vel.XY dot vel.XY;
 			if(A_CheckFloor("Null"))
 			{
 				if(USpeed > 150)

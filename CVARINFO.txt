@@ -1,5 +1,6 @@
 user bool D4D_SecondaryPriming = false;
-server bool D4D_DTMode = false;
+user bool D4D_BloodScreen = true;
+user bool D4D_DTMode = false;
 
 server noarchive bool D4D_NetEventDebug = false;
 
@@ -13,7 +14,7 @@ server int D4D_BloodSprites = 1;
 server int D4D_MaxDrawDistance = 2048;
 server bool D4D_MultiJump = true;
 server int D4D_Giblets = 1;
-server int D4D_BloodClouds = 2;
+server int D4D_BloodClouds = 1;
 server int D4D_SplatterGiblets = 5;
 server bool D4D_BloodTrails = true;
 server bool D4D_BiggerFont = false;
@@ -21,9 +22,7 @@ server int user_Completionist = 2;
 server bool user_MonsterQuota = true;
 server bool user_SecretQuota = true;
 server int D4D_MenuMouseSpeed = 70;
-server bool D4D_CamRoll = true;
-server bool D4D_BloodScreen = true;
-server int D4D_SSGGib = 1;	//0=none, 1=some, 2=all
+
 server bool D4D_Casings = true;
 server bool D4D_ShortCasingLives = false;
 server bool D4D_SilentCasings = false;
@@ -41,12 +40,10 @@ server int D4D_BeamTexture = 0;
 server bool D4D_BloodGiblets = true;
 server bool D4D_HKMeleeOnly = false;
 server bool D4D_RepeaterMode = false;
-server bool D4D_JumpExploit = true;
 server int D4D_DemonRunes = 1; 
 server bool D4D_SilentMorphs = false;
 server bool D4D_DemonWarning = false;
 server bool D4D_DemonNameDisplay  = True;
-server int D4D_HasteSpawn = 1; //Sometimes
 server bool D4D_EnhancedChase = true;
 server bool D4D_BerserkAutoSwitch = true;
 server int D4D_NMGrenades = 2; // [0,1,2] = [none,frag,all]
@@ -68,6 +65,7 @@ server bool D4D_ResArchvile = false;
 server bool D4D_ResCyberdemon = false;
 server bool D4D_ResSpiderMastermind = false;
 
+// Debug stuff, mainly was used for hud positioning.
 server int LOfx = 0;
 server int LOfy = 0;
 server int ROfx = 0;
@@ -81,11 +79,8 @@ server float fs_delay_mul = 1.05;
 
 //==============================================================================
 // Misc crap. Mainly used for removing credit errors.
-
+// Deprecated.
 server noarchive cheat bool Adjustable = false; //Keep this false.
 server noarchive bool UpgradeUpdating = false;
 server noarchive int CTake = 0;
-
-//==============================================================================
-// Deprecated.
 server bool user_SecondaryExit = true;

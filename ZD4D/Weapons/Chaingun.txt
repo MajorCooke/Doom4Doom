@@ -880,6 +880,7 @@ Class GatlingRotatorExplosivePuff : Actor
 		+PUFFGETSOWNER
 		-ALLOWPARTICLES
 		+ROLLSPRITE
+		+FORCERADIUSDMG
 		Scale 0.1;
 		Alpha 1.0;
 		Decal "D4ExploScorchChaingun";
@@ -895,7 +896,7 @@ Class GatlingRotatorExplosivePuff : Actor
 	States
 	{
 	Spawn:
-		X132 A 0 NODELAY A_Explode(24,24,0);
+		X132 A 0 NODELAY A_Explode(32,36,0,0,24);
 		X132 AABBCC 1 Bright A_SetScale(Scale.X+0.02);
 		X132 DEFGHIJKLMNOPQR 2 Bright
 		{

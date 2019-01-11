@@ -3517,7 +3517,7 @@ Class AkimboWeapon : Weapon
 		{
 			AkOffsetD(7,47-32);
 			A_GunFlash("Null");
-			A_FireProjectile("BFG9000Shot",0,1,Side(3));
+			A_FireProjectile("D4BFG9000Shot",0,1,Side(3));
 			A_ZoomFactor(1,ZOOM_NOSCALETURNING);
 			//A_SetPitch(pitch-6.0);
 		}
@@ -3560,7 +3560,7 @@ Class AkimboWeapon : Weapon
 			}
 			else
 			{
-				A_SpawnItemEx("BFG9000Orbiter",0,0,32,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
+				A_SpawnItemEx("D4BFG9000Orbiter",0,0,32,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
 				//A_FireProjectile("AmmoWaster",0,1);
 				A_GiveInventory("OrbiterActive");
 			}

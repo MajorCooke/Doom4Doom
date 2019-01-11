@@ -61,6 +61,18 @@ Class notHudMessage : HUDMessageBase
 
 	virtual bool DoTick()
 	{
+		if (holdtics == -Thinker.TICRATE)
+		{
+			if (tics < intics)	
+				alpha = Min(1.0, (1.0 / intics) * tics);
+			else
+			{
+				alpha = 1.0;
+				tics = intics;
+			}
+			return false;
+		}
+		
 		uint total = holdtics + intics + outtics;
 		if (total && (tics > total)) return true;	// Message expired.
 		int inhold = holdtics + intics;
@@ -237,7 +249,7 @@ Class QueuedMsgWaggle : QueuedMsg
 Class notHudMessageHandler : EventHandler
 {
 	Array <QueuedMsg> queue;
-
+	Array <Int> cleaner;
 	override void PostUiTick()
 	{
 		// load 'em up
