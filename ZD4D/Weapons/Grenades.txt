@@ -809,7 +809,6 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 		+DONTTHRUST
 		+FRIENDLY
 		+FORCERADIUSDMG
-		+THRUACTORS
 		+FOILINVUL
 		-COUNTKILL
 		+OLDRADIUSDMG
@@ -826,28 +825,54 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 		DamageFactor 0;
 	}
 	
-	void DrawAttention()
+	override bool CanCollideWith(Actor other, bool passive)
+	{
+		if (passive)
+		{
+			if (bISMONSTER || player)
+				return false;
+		}
+		return true;
+	}
+	
+	void DrawAttention(bool justmissiles = false)
 	{
 		if (!Event)	Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
-		if (!Event || Event.Monsters.Size() < 1)	return;
-		Array<Actor> Monsters; 
-		Monsters.Clear();
-		Monsters.Copy(Event.Monsters);
-		for (int i = 0; i < Monsters.Size(); i++)
+		if (!Event)	return;
+		if (!justmissiles)
 		{
-			// Skip players, the dead, friendly or infighting monsters.
-			Actor mo = Monsters[i];
-			if (!mo || mo.bFRIENDLY || mo.health < 1 || mo.player ||
-				(mo.target && !mo.target.player) ||
-				!CheckSight(mo, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
+			Array<Actor> Monsters; 
+			Monsters.Clear();	
+			Monsters.Copy(Event.Monsters);
+			for (int i = 0; i < Monsters.Size(); i++)
+			{
+				// Skip players, the dead, friendly or infighting monsters.
+				Actor mo = Monsters[i];
+				if (!mo || mo.bFRIENDLY || mo.health < 1 || mo.player ||
+					(mo.target && !mo.target.player) ||
+					!CheckSight(mo, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
+					continue;
+				
+				if (!mo.LastHeard)
+					if (master)	mo.LastHeard = master;
+					else		mo.LastHeard = self;
+				
+				mo.target = self;
+				mo.Threshold = mo.DefThreshold;
+			}
+		}
+		Array<Actor> Missiles;
+		Missiles.Clear();
+		Missiles.Copy(Event.Missiles);
+		// Redirect seeking missiles to this guy instead.
+		for (int i = 0; i < Missiles.SIze(); i++)
+		{
+			Actor mo = Missiles[i];
+			if (!mo || !CheckSight(mo, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
 				continue;
 			
-			if (!mo.LastHeard)
-				if (master)	mo.LastHeard = master;
-				else		mo.LastHeard = self;
-			
-			mo.target = self;
-			mo.Threshold = mo.DefThreshold;
+			if (mo.tracer == master)
+				mo.tracer = self;
 		}
 	}
 	
@@ -863,6 +888,7 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 	Idle:
 		PLAZ E 2 
 		{
+			DrawAttention(true);
 			A_ClearTarget();
 			A_LookEx(0,0,0,0,360,"TickTock");
 			countdowntimer += 2;

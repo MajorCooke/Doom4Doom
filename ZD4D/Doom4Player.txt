@@ -1084,6 +1084,13 @@ extend class Doom4Player
 			return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
 		
 		bool TelefragDamage = (!bLAXTELEFRAGDMG && damage >= TELEFRAG_DAMAGE);
+		bool IsInvul = (FindInventory("PowerInvulnerable", true) || bINVULNERABLE);
+		if (TelefragDamage)
+		{
+			if (bNODAMAGE)	TelefragDamage = false;
+			else if (IsInvul &&	CountInv("D4PentagramUpgrade4"))
+				TelefragDamage = false;
+		}
 		
 		if (inflictor && inflictor.bPIERCEARMOR)
 			inflictor.bPIERCEARMOR = false;
@@ -1103,8 +1110,8 @@ extend class Doom4Player
 		// Handle Pentagram of Protection effects here. Pretty much a copy/pasta
 		// of the internal damage, including thrusting since it's needless to call
 		// P_DamageMobj.
-		if (bNODAMAGE || CountInv("CantTouchThis") ||
-			(!TelefragDamage && (bINVULNERABLE || FindInventory("PowerInvulnerable",true))))
+		
+		if (bNODAMAGE || CountInv("CantTouchThis") || (!TelefragDamage && IsInvul))
 		{
 			// Mainly just doing this to play the sound effect of the pentagram.
 			GetModifiedDamage(mod, damage, true);

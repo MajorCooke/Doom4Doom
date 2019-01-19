@@ -420,8 +420,7 @@ Class D4PinataParticles : Actor
 		if (!master)
 		{	Destroy(); return;	}
 		Super.PostBeginPlay();
-		cv = GetCvar("D4D_PinataParticles");
-		ChangeTID(0);
+		cv = D4D_PinataParticles;
 		
 		if (NoSetup)
 			return;
@@ -679,7 +678,12 @@ Class D4PinataArmor : D4ArmorBasePickup
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
 				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
-				{	SetOrigin(invoker.tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false);	}
+				{	
+					SetOrigin(tracer.pos, true); 
+					A_Stop(); 
+					PlrCheck.SetFlying(invoker, false); 
+					invoker.Touch(Tracer);	
+				}
 			}
 			else
 			{
@@ -730,7 +734,7 @@ Class D4PinataHealth : D4Stimpack
 	Spawn:
 		PIN2 B 0 NoDelay 
 		{
-			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER,0,Color_Blue);
+			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			flier = new("UpgradePinataFlier");
 			if (flier)
 			{
@@ -750,7 +754,7 @@ Class D4PinataHealth : D4Stimpack
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
 				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
-				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
+				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false); Touch(Tracer);	}
 			}
 			else
 			{
@@ -821,7 +825,7 @@ Class D4PinataBullets : D4Bullets
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
 				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
-				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
+				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false); Touch(Tracer);	}
 			}
 			else
 			{
@@ -901,7 +905,7 @@ Class D4PinataShells : D4Shells
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
 				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
-				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
+				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false); Touch(Tracer);	}
 			}
 			else
 			{
@@ -982,7 +986,7 @@ Class D4PinataCells : D4Cells
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
 				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
-				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
+				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false); Touch(Tracer);	}
 			}
 			else
 			{
@@ -1060,7 +1064,7 @@ Class D4PinataRockets : D4Rockets
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
 				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
-				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
+				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false); Touch(Tracer);	}
 			}
 			else
 			{
@@ -1117,7 +1121,7 @@ Class D4PinataBFG : D4BFGAmmo
 	Spawn:
 		PIN2 H 0 NoDelay 
 		{
-			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER,0,Color_Green);
+			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER,0);
 			flier = new("UpgradePinataFlier");
 			if (flier)
 			{
@@ -1138,7 +1142,7 @@ Class D4PinataBFG : D4BFGAmmo
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
 				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
-				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
+				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false); Touch(Tracer);	}
 			}
 			else
 			{

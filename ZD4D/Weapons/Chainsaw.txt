@@ -475,9 +475,13 @@ Class ChainsawPuffPinata : ChainsawPuff
 				return ResolveState("ShreddingTime");
 			}
 			
-			A_DamageTracer(1 + (count * 200 * quad),"ChainsawPinata",DMSS_NOFACTOR,null,"None",TargetPtr);
+			if (tracer)
+			{
+				int dmg = 1 + (count * 200 * quad);
+				tracer.SpawnBlood(pos, tracer.AngleTo(self), dmg);
+				tracer.DamageMobj(self, target, dmg, "ChainsawPinata", DMG_NO_FACTOR);
+			}
 			
-			A_SpawnItemEx("MCBloodFXMain",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 			if (!tracer || tracer.health < 1)
 			{
 				A_GiveInventory("ChainsawKill",1,TargetPtr);

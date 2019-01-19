@@ -7,8 +7,8 @@
 
 Class notHudMessage : HUDMessageBase
 {
-	BrokenLines lines;
-	Font fnt;
+	transient BrokenLines lines;
+	HUDFont fnt;
 	double alpha;
 	int wrap, talign, tics, holdtics, intics, outtics, color, layer;
 	Vector2 balign, pos, vsize, bsize;
@@ -32,30 +32,26 @@ Class notHudMessage : HUDMessageBase
 	{
 		double vw = (vsize.x>0)?vsize.x:Screen.GetWidth();
 		double vh = (vsize.y>0)?vsize.y:Screen.GetHeight();
-		Screen.DrawText(fnt,color,x,y,line,DTA_VirtualWidthF,vw,DTA_VirtualHeightF,vh,DTA_Alpha,alpha);
+		Screen.DrawText(fnt.mFont,color,x,y,line,DTA_VirtualWidthF,vw,DTA_VirtualHeightF,vh,DTA_Alpha,alpha);
 	}
 
 	override void Draw( int bottom, int visibility )
 	{
 		if ( visibility & layer ) return;
 		Vector2 base = CalculateBoxAlignment();
-		if ( !lines )
-		{
-			DrawLine(base.x,base.y,txt);
-			return;
-		}
+		if ( !lines ) Setup();
 		double linex, liney = base.y, len;
 		String line;
 		for ( int i=0; i<lines.Count(); i++ )
 		{
 			line = lines.StringAt(i);
-			len = fnt.StringWidth(line);
+			len = fnt.mFont.StringWidth(line);
 			// calculate text alignment
 			if ( talign < 0 ) linex = base.x;
 			else if ( talign > 0 ) linex = base.x+(bsize.x-len);
 			else linex = base.x+(bsize.x-len)/2.0;
 			DrawLine(linex,liney,line);
-			liney += fnt.GetHeight();
+			liney += fnt.mFont.GetHeight();
 		}
 	}
 
@@ -72,7 +68,7 @@ Class notHudMessage : HUDMessageBase
 			}
 			return false;
 		}
-		
+	
 		uint total = holdtics + intics + outtics;
 		if (total && (tics > total)) return true;	// Message expired.
 		int inhold = holdtics + intics;
@@ -95,20 +91,19 @@ Class notHudMessage : HUDMessageBase
 
 	virtual void Setup()
 	{
-		lines = fnt.BreakLines(txt,(wrap<=0)?int.max:wrap);
+		lines = fnt.mFont.BreakLines(txt,(wrap<=0)?int.max:wrap);
 		double longest = 0, len;
 		for ( int i=0; i<lines.Count(); i++ )
 		{
-			len = fnt.StringWidth(lines.StringAt(i));
+			len = fnt.mFont.StringWidth(lines.StringAt(i));
 			if ( len > longest ) longest = len;
 		}
-		bsize = (longest,fnt.GetHeight()*lines.Count());
+		bsize = (longest,fnt.mFont.GetHeight()*lines.Count());
 	}
 
 	void Init()
 	{
 		tics = 0;
-		Setup();
 	}
 
 	static clearscope QueuedMsg Create( Font fnt, string txt, Vector2 pos, Vector2 vsize = (0,0), int talign = -1, Vector2 balign = (0,0), int color = Font.CR_UNTRANSLATED, Vector3 time = (0,0,0), int wrap = 0, uint id = 0, int layer = BaseStatusBar.HUDMSGLayer_OverHUD )
@@ -143,8 +138,8 @@ Class notHudMessageWaggle : notHudMessage
 		double cphase = phase;
 		for ( int i=0; i<line.length(); i++ )
 		{
-			Screen.DrawChar(fnt,color,x,y+sin(cphase)*strength,line.CharCodeAt(i),DTA_VirtualWidthF,vw,DTA_VirtualHeightF,vh,DTA_Alpha,alpha);
-			x += fnt.GetCharWidth(line.CharCodeAt(i));
+			Screen.DrawChar(fnt.mFont,color,x,y+sin(cphase)*strength,line.CharCodeAt(i),DTA_VirtualWidthF,vw,DTA_VirtualHeightF,vh,DTA_Alpha,alpha);
+			x += fnt.mFont.GetCharWidth(line.CharCodeAt(i));
 			cphase += frequency;
 		}
 	}
@@ -199,7 +194,7 @@ Class QueuedMsg
 	virtual ui void AddSelf()
 	{
 		let msg = new("notHudMessage");
-		msg.fnt = fnt;
+		msg.fnt = HUDFont.Create(fnt);
 		msg.txt = txt;
 		msg.pos = pos;
 		msg.vsize = vsize;
@@ -223,7 +218,7 @@ Class QueuedMsgWaggle : QueuedMsg
 	override void AddSelf()
 	{
 		let msg = new("notHudMessageWaggle");
-		msg.fnt = fnt;
+		msg.fnt = HUDFont.Create(fnt);
 		msg.txt = txt;
 		msg.pos = pos;
 		msg.vsize = vsize;
@@ -249,7 +244,7 @@ Class QueuedMsgWaggle : QueuedMsg
 Class notHudMessageHandler : EventHandler
 {
 	Array <QueuedMsg> queue;
-	Array <Int> cleaner;
+
 	override void PostUiTick()
 	{
 		// load 'em up
@@ -278,7 +273,7 @@ Class notHudMessageHandler : EventHandler
 	// test functions
 	override void NetworkProcess( ConsoleEvent e )
 	{
-		if ( e.Name ~== "TestMsg" )
+		if ( e.Name == 'TestMsg' )
 		{
 			Vector2 midscr = (Screen.GetWidth(),Screen.GetHeight())*0.5;
 			WaggleMsg(smallfont,"How did this get here I am not good with computer",(160,180),(320,200),time:(1,3,1), frequency:60.0);

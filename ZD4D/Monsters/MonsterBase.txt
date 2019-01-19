@@ -36,14 +36,12 @@ Class D4AbstractMonster : Actor
 	uint ResurrectCheckTimer;
 	Name MOD;
 	Actor Spawner;
-	Color BC;
 	bool HQ;
 	transient CVar HighQuality, EnhancedChase, ExecuteCheck, StaggerCheck;
 	
 	Property ResurrectCvar: ResurrectCvar;
 	Property PowerColor: PowerColor;
 	Property Rune: RuneItem, RuneDropChance;
-	property BC: BC;
 	property UpgradeDropChance: UpgradeDropChance;
 	property UpgradeDropAlways: UpgradeDropAlways;
 	property CrateDropChance: CrateDropChance;
@@ -62,7 +60,6 @@ Class D4AbstractMonster : Actor
 		D4AbstractMonster.CrateDropAlways 0;
 		D4AbstractMonster.CashAmount -1;
 		D4AbstractMonster.CashChainsawFinisher -1;
-		D4AbstractMonster.BC "Red";
 		BloodColor "Red";
 		DamageFactor "Crush", 15.0;
 	}
@@ -236,17 +233,16 @@ Class D4AbstractMonster : Actor
 				if (PrevAmt > 0 && amt < 1)
 				{
 					Translation = Default.Translation;
-					BC = Default.BC;
 				}
 				return amt;
 			}
-			Case 1:	suffix = suffix.."_Green";	BC = "Green";	break;
-			Case 2: suffix = suffix.."_Blue";	BC = "Blue";	break;
-			Case 3: suffix = suffix.."_Purple";	BC = "Purple";	break;
-			Case 4: suffix = suffix.."_Orange";	BC = "Orange";	break;
-			Case 5: suffix = suffix.."_Red";	BC = "Red";		break;
-			Case 6: suffix = suffix.."_Black";	BC = "Black";	break;
-			Case 7:	suffix = suffix.."_White";	BC = "White";	break;
+			Case 1:	suffix = suffix.."_Green";	break;
+			Case 2: suffix = suffix.."_Blue";	break;
+			Case 3: suffix = suffix.."_Purple";	break;
+			Case 4: suffix = suffix.."_Orange";	break;
+			Case 5: suffix = suffix.."_Red";	break;
+			Case 6: suffix = suffix.."_Black";	break;
+			Case 7:	suffix = suffix.."_White";	break;
 		}
 		A_SetTranslation(suffix);
 		return amt;
@@ -292,7 +288,12 @@ Class D4AbstractMonster : Actor
 	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{
 		// Don't run this if dead or not shootable.
-		if (health < 1 || (!bSHOOTABLE && !bVULNERABLE))	return 0;
+		if (health < 1)
+		{
+			return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+		}
+		
+		if (!bSHOOTABLE && !bVULNERABLE)	return 0;
 		
 		// Do nothing further if no wound state is found, let the engine handle it instead.
 		let WoundState = ResolveState("Wound");
@@ -338,14 +339,13 @@ Class D4AbstractMonster : Actor
 	{
 		SpawnRune();
 		A_StopBeam();
-		bTHRUACTORS = true;
 		if (Spawner && Spawner.health > 0)
 		{
 			Spawner.bVULNERABLE = true;
 			Spawner.A_Die();
 		}
 		Super.Die(source, inflictor, dmgflags);
-		
+		bSOLID = false;
 		if (DamageTypeReceived == 'Crush')
 		{
 			let next = FindState("XDeath", true);
@@ -378,6 +378,13 @@ Class D4AbstractMonster : Actor
 	//--------------------------------------------------------------------------
 	void D4Chase(statelabel melee = "Melee", statelabel missile = "Missile", int flags = 0, double maxturn = 30.0)
 	{
+		//Fuckin' STAY DOWN!!!
+		if (health < 1)
+		{
+			SetState(ResolveState("Death"));
+			return;
+		}
+	
 		int newflags = 0;
 		
 		if (!EnhancedChase)
@@ -548,8 +555,9 @@ Class D4AbstractMonster : Actor
 	// for blood colors on the gib dropper.
 	//==========================================================================
 	
-	void XDeathGush(int bcolor = 0, bool simple = false)
+	void XDeathGush(bool simple = false)
 	{
+		bTHRUACTORS = true;
 		MOD = DamagetypeReceived;
 		if ((MOD != 'Massacre'))
 		{
@@ -573,8 +581,6 @@ Class D4AbstractMonster : Actor
 					gibs.tracer = self;
 					gibs.vel = vel;
 					int tier = CountInv("D4MonsterUpgrader");
-					int toSend = (tier) ? Translation : BloodTranslation;
-					gibs.BC = BC;
 					gibs.Translation = ((tier) ? Translation : BloodTranslation);
 				}
 			}

@@ -66,15 +66,6 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 				
 				// Make it look like a monster with this blood color was going to spawn.
 				let splatter = mo.Spawn("BloodGibDropper",mo.pos);
-				if (splatter)
-				{
-					int col = 0;
-					if (random(1,4) == 1)
-					{
-						col = randompick(Color_Green, Color_Blue, Color_Black);
-					}
-					splatter.ChangeTID(col);
-				}
 				mo.Destroy();
 				continue;
 			}

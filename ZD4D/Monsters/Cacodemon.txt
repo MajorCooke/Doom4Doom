@@ -39,7 +39,6 @@ Class D4Cacodemon : D4AbstractBiggie //replaces Cacodemon
 	Default 
 	{
 		D4AbstractMonster.Rune "CacodemonRune", RuneChance_Caco;
-		D4AbstractMonster.BC "Blue";
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 28;
 		D4AbstractMonster.CashAmount 40;
@@ -139,7 +138,7 @@ Class D4Cacodemon : D4AbstractBiggie //replaces Cacodemon
 		TNT1 A 10
 		{
 			bThruActors = true;
-			XDeathGush(Color_Blue);
+			XDeathGush();
 			//D4DropItems();
 			//"CacoCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
@@ -441,7 +440,6 @@ Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon ////replaces Cacodemon
 	Default 
 	{
 		D4AbstractMonster.Rune "CacodemonRune", RuneChance_Caco;
-		D4AbstractMonster.BC "Blue";
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 28;
 		D4AbstractMonster.CashAmount 40;
@@ -537,7 +535,7 @@ Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon ////replaces Cacodemon
 		TNT1 A 0
 		{
 			bThruActors = true;
-			XDeathGush(Color_Blue);
+			XDeathGush();
 			//D4DropItems();
 			//"CacoCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");

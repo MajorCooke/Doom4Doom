@@ -1,204 +1,20 @@
 //================================================================
 //================================================================
 //
-//	6.X New Blood Effects
+//	3.X New Blood Effects
 //
 //================================================================
 //================================================================
 
-/*	Currently available blood colors based on what's been used:
-
-	Primary Color		Darker Color
-	----------------------------------
-	Red					DarkRed
-	Blue 				DarkBlue
-	Green				DarkGreen
-
-================================================================================
-						How to add new blood colors
-================================================================================
-1.	Add the new colors if they're not already defined in AEoDdat.pk3 -> 
-	X11R6RGB.txt. Name it "AE<Color>".
-	
-2.	Make a duplicate entry called "AE<Color>D2" and assign half the RGB values.
-	D2 stands for 'divide by 2', or half the color.
-	
-3.	Add "Color_<NameOfBloodColor>" to the enum below.
-	This is only needed for the name itself -- do not define one for the D2
-	since it's just there for adding extra tidbits and variance.
-	
-	Find Step 4+ down below.
-*/
-
-Struct BloodParticleSpawner play
-{
-	static void Bleed(Actor caller, Color BC, Vector3 pos = (0, 0, 0), Vector3 vel = (0, 0, 0), double angle = 0)
-	{
-		if (!caller)
-		{
-			//Console.Printf("Caller didn't exist");
-			return;
-		}
-		Actor temp;	bool test;
-		//[test, temp] = caller.A_SpawnItemEx("MCBloodParticle",pos.x,pos.y,pos.z,vel.x,vel.y,vel.z,angle,SXF_NOCHECKPOSITION|SXF_SETTRACER|SXF_ORIGINATOR);
-		let part = MCBloodParticle(Actor.Spawn("MCBloodParticle", caller.pos + pos));
-		if (part)	
-		{
-			part.BC = BC;
-			part.vel = vel;
-			part.angle = angle;
-			part.target = caller;
-			part.master = caller;
-			part.tracer = caller;
-		}
-	}
-}
-
 Class ShortGibToken		: Inventory { Default { +INVENTORY.IGNORESKILL } }
 Class BloodSpriteToken	: Inventory { Default { +INVENTORY.IGNORESKILL Inventory.MaxAmount 2;	Inventory.InterHubAmount 2; } }
-
-enum EColors//TIDs ONLY. DO NOT USE IN THE TRANSLATIONS PROPERTY.
-{
-	Color_NULL				= 0, //
-	Color_Blue				= 7,
-	Color_Green				= 12,
-	Color_Black				= 13,
-	Color_Red,
-	//STEP 3 RIGHT HERE.
-};
-
-Class MCBloodFXMain : Actor //replaces Blood
-{
-	const VelMul = 1.0;
-	Vector3 tvel;
-	double UXv;
-	double UYv;
-	double UZv;
-	int BloodSprites;
-	int Count;
-	int user_gib;
-	Color BC;
-	Default
-	{
-		//+MISSILE
-		+NOBLOCKMAP
-		+THRUACTORS
-		//+NOTIMEFREEZE
-		+DONTSPLASH
-		+NOTELESTOMP
-		+NOTONAUTOMAP
-		+PUFFGETSOWNER
-		//+ALWAYSPUFF
-		-ALLOWPARTICLES
-		+NOINTERACTION
-		+NOTELESTOMP
-		+FORCEXYBILLBOARD
-		//+HITTRACER
-		RenderStyle "None";
-		Radius 1;
-		Height 1;
-	}
-	override void PostBeginPlay()
-	{
-		Super.PostBeginPlay();
-		let spawner = D4AbstractMonster(target);
-		if (spawner)	BC = (spawner.BC);
-		
-	}
-	States
-	{
-	Spawn:
-		// DO NOT REMOVE THESE. According to Graf, two tics are required in order
-		// for some internal crap to process as P_SpawnBlood has a special priority.
-		// So... LEAVE THESE IN AND DON'T TOUCH THEM.
-		TNT1 AAA 0 ;
-		TNT1 A 0
-		{	// Make sure its in range and visible to the player. Don't spawn blood if behind the player.
-			if (A_CheckSightOrRange(BloodDistanceLimit,"Null"))
-			{
-				return ResolveState("Null");
-			}
-			
-			user_gib = D4D_Giblets;
-			BloodSprites = D4D_BloodSprites;
-			tvel = vel;
-			return ResolveState("SpawnBlood");
-		}
-		Goto SpawnBlood;
-	SpawnBloodColored:
-		TNT1 A 0 
-		{ 
-			BloodSprites = D4D_BloodSprites; 
-			return ResolveState("SpawnBlood");
-		}
-		Goto SpawnBlood;
-	SpawnBlood:
-		TNT1 AA 1 
-		{
-			//A_LogInt(2);
-			if (BloodSprites >= 1)
-			{	A_SpawnItemEx("MCBloodSprite",frandom(0,2),0,random(1,4),frandom(0,1.5),0,frandom(0.1,2.0),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,0);	}
-			if (BloodSprites != 1)
-			{	
-				BC.a = 255;
-				BloodParticleSpawner.Bleed(self, BC, (frandom(0,2), 0, random(1,4)), tvel);
-			}
-		}
-		
-		TNT1 A 1
-		{
-			if (GetCvar("D4D_BloodGiblets"))
-			{
-				for (int i = 0; i < user_gib; i++)
-				{
-					A_SpawnItemEx("BloodGiblet",0,0,0,frandom(2,5),0,frandom(2.5,6.0),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION|SXF_SETTRACER|SXF_ORIGINATOR,64);
-				}
-			}
-		}
-		
-		Stop;
-	}
-}
-
-Class MCBloodFXTrail : MCBloodFXMain
-{
-	override void PostBeginPlay()
-	{
-		let spawner = FlyingFlesh(tracer);
-		if (spawner) 
-		{
-			BC = spawner.BC;
-		}
-		Super.PostBeginPlay();		
-	}
-	States
-	{
-	SpawnBlood:
-		TNT1 A 1
-		{
-			if (GetCvar("D4D_BloodTrails") > 0)
-			{
-				if (BloodSprites >= 1)
-				{	A_SpawnItemEx("MCBloodSprite",frandom(0,2),0,random(1,4),frandom(0,1.5),0,-1.5,random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION,0);	}
-				if (BloodSprites <= 0 || BloodSprites >= 2)
-				{	
-					BloodParticleSpawner.Bleed(self, BC, (frandom(0,2), 0, random(1,4)), tvel);
-				}
-			}
-		}
-		Stop;
-	}
-}
-
-Class GibBloodSmall : MCBloodFXTrail {}
 
 Class MCBloodSprite : Actor
 {
 	double RollAmt;
 	Default
 	{
-		Projectile;
-		+THRUACTORS
+		+NOINTERACTION
 		+DONTSPLASH
 		+ROLLSPRITE
 		//+NOTIMEFREEZE
@@ -206,6 +22,7 @@ Class MCBloodSprite : Actor
 		+NOTONAUTOMAP
 		+PUFFGETSOWNER
 		+FORCEXYBILLBOARD
+		-NOGRAVITY;
 		RenderStyle "Translucent";
 		Radius 1;
 		Height 1;
@@ -217,7 +34,10 @@ Class MCBloodSprite : Actor
 	override void PostBeginPlay()
 	{
 		Super.PostBeginPlay();
-		RollAmt = frandom(-10.0, 10.0);
+		RollAmt = frandom[r](2.0, 10.0) * frandompick[r](-1, 1);
+		bSPRITEFLIP = random[r](0,1);
+		Scale.X *= frandompick[r](-1.0, 1.0);
+		Scale.Y *= frandompick[r](-1.0, 1.0);
 	}
 	
 	override void Tick()
@@ -229,144 +49,32 @@ Class MCBloodSprite : Actor
 		}
 		Super.Tick();
 		A_SetRoll(roll + RollAmt, SPF_INTERPOLATE);
+		if (!bNOGRAVITY)
+			vel.z -= abs(Gravity);
 	}
 	
 	
 	States
 	{
 	Spawn:
-		TNT1 A 0 NoDelay 
-		{
-			bSPRITEFLIP = random(0,1);
-			ChangeTID(0);
-			A_SetScale(Scale.X*randompick(-1,1),Scale.Y*randompick(-1,1));
-			return A_Jump(256,"B11","B12","B13","B14","B21","B22","B23","B24","B31","B32","B33","B34");
-		}
-	B11:	X057 A 0 A_Jump(256,"B1Play");
-	B12:	XA57 A 0 A_Jump(256,"B1Play");
-	B13:	XB57 A 0 A_Jump(256,"B1Play");
-	B14:	XC57 A 0 A_Jump(256,"B1Play");
+		TNT1 A 0 A_Jump(256,"B1Play","B2Play","B3Play");
 	B1Play:
-		"####" ABCDEF 2 A_FadeOut(0.05);
+		X057 ABCDEF 2 A_FadeOut(0.05);
 		"####" GHIJK 1 A_FadeOut(0.05);
 		"####" LMNOPQRS 1 A_FadeOut(0.03);
 		Wait;
-	B21:	X058 A 0 A_Jump(256,"B2Play");
-	B22:	XA58 A 0 A_Jump(256,"B2Play");
-	B23:	XB58 A 0 A_Jump(256,"B2Play");
-	B24:	XC58 A 0 A_Jump(256,"B2Play");
 	B2Play:
-		"####" ABCDEF 2 A_FadeOut(0.05);
+		X058 ABCDEF 2 A_FadeOut(0.05);
 		"####" GHIJK 1 A_FadeOut(0.05);
 		"####" LMNOPQR 1 A_FadeOut(0.03);
 		Wait;
-	
-	B31:	X059 A 0 A_Jump(256,"B3Play");
-	B32:	XA59 A 0 A_Jump(256,"B3Play");
-	B33:	XB59 A 0 A_Jump(256,"B3Play");
-	B34:	XC59 A 0 A_Jump(256,"B3Play");
 	B3Play:
-		"####" ABCD 2 A_FadeOut(0.03);
+		X059 ABCD 2 A_FadeOut(0.03);
 		"####" EFGHIJ 1 A_FadeOut(0.04);
 		"####" KLM 1 A_FadeOut(0.05);
 		Wait;
 	}
 }
-
-Class MCBloodParticle : Actor
-{
-	// Take note, enums are for integers only. Thus, flags and regular numbers
-	// can fit inside them, but floats cannot.
-	// Do not add color_ definitions here. The scope is inside the actor for a 
-	// reason. To find out more on how enums work, see
-	// http://zdoom.org/wiki/Constants#DECORATE_usage
-	enum MCB
-	{
-		PFlag = SPF_Relative,
-		Lifetime = 		35,		//Self explanatory.
-		Size1Min = 		10,		//Size of bigger particle
-		Size1Max = 		20,
-		Size2Min = 		5,		//Size of smaller particle
-		Size2Max = 		10,
-		AOff = 			15,		//Angle
-		MaxCount1 =		3,		//Max number of big particles
-		MaxCount2 =		9,		//Max number of smaller particles
-	};
-	//Ones without the '2' at the end are for the big particles.
-	//Those with the '2' are for the small particles. The default is
-	//just to copy them.
-	const XOffMin1 = 		1.0;	const XOffMin2 = 		XOffMin1;
-	const XOffMax1 = 		-1.0;	const XOffMax2 = 		XOffMax1;
-	const XVelMin1 = 		0.5;	const XVelMin2 = 		XVelMin1;
-	const XVelMax1 = 		3.0;	const XVelMax2 = 		XVelMax1;
-	const XAccMin1 = 		-0.01;	const XAccMin2 = 		XAccMin1;
-	const XAccMax1 = 		-0.01;	const XAccMax2 = 		XAccMax1;
-	const ZOffMin1 = 		-1.0;	const ZOffMin2 = 		ZOffMin1;
-	const ZOffMax1 = 		1.0;	const ZOffMax2 = 		ZOffMax1;
-	const ZVelMin1 = 		-0.5;	const ZVelMin2 = 		ZVelMin1;
-	const ZVelMax1 = 		2.5;	const ZVelMax2 = 		ZVelMax1;
-	const ZAccMin1 = 		-0.36;	const ZAccMin2 = 		ZAccMin1;
-	const ZAccMax1 = 		-0.48;	const ZAccMax2 = 		ZAccMax1;
-	const StartAlpha1 =		1.0;	const StartAlpha2 =		StartAlpha1;
-	const FadeMin1 =		0.04;	const FadeMin2 =		FadeMin1;
-	const FadeMax1 =		0.06;	const FadeMax2 =		FadeMax1;
-	const PitchOff =		5.0;
-	// Multiplies the velocity of the gib-spawned blood by this much. 
-	// Has no effect on bullet spawned blood, etc.
-	const VelMul = 0.75;
-	const YVelMul = VelMul;
-	const VelAccel = -0.15;
-	int Count;
-	double  UVel;
-	double  UAngle;
-	double  UPitch;
-	bool other;
-	Color BC;
-	Default
-	{
-		Projectile;
-		+THRUACTORS
-		+DONTSPLASH
-		//+NOTIMEFREEZE
-		+NOTELESTOMP
-		+NOTONAUTOMAP
-		+PUFFGETSOWNER
-		//Translation "0:255=%[0,0,0]:[1,0,0]"
-		RenderStyle "None";
-		Radius 1;
-		Height 1;
-		Gravity 0.20;
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay 
-		{
-			ChangeTID(0);
-			A_FaceMovementDirection();
-			//Vector2 ve2 = (vel.x, vel.y);
-			//UVel = ve2.Length() * VelMul;
-			UVel = vel.XY.Length() * VelMul;
-			UPitch = pitch;
-			UAngle = angle;
-		}
-	Particle:
-		TNT1 A 1
-		{
-			int mx = MaxCount1 + MaxCount2;
-			for (int i = 0; i < mx; i += randompick(1,1,1,2,3))
-			{
-				A_SetPitch(UPitch + frandom(-AOff, AOff));
-				A_SpawnParticle(BC, PFlag, Lifetime, random(Size1Min,Size1Max), frandom(-AOff, AOff), frandom(XOffMin1,XOffMax1), 0, frandom(ZOffMin1,ZOffMax1), (cos(-pitch) * UVel) + (frandom(XVelMin1,XVelMax1)), frandom(XVelMin1,XVelMax1) * randompick(-1,1), (((sin(-pitch) * vel.z) * VelMul) + (frandom(-ZVelMax1,ZVelMax1)))/2, frandom(XAccMin1,XAccMax1), 0, frandom(ZAccMin1,ZAccMax1), StartAlpha1, frandom(FadeMin1,FadeMax1));
-			}
-		}
-		Stop;
-	}
-}
-
-
-Class MCBloodSplatter : MCBloodSprite //replaces BloodSplatter
-{}
 
 //--------------------------------
 Class D4BloodCloud : Actor
@@ -528,16 +236,9 @@ Class GibSpawnerBase : D4DFX
 							tvel.Y * frandom(MulMin,MulMax) + frandom(-RAdd,RAdd),
 							tvel.Z * frandom(MulMin,MulMax) + frandom(-RAdd,RAdd),
 							CVF_REPLACE);
-						if (tracer)	
-						{
-							if (tracer is "D4AbstractMonster")
-								spawned.BC = Bc;
-							else
-								spawned.BC = (tracer.bloodcolor & 0xffffff);
-								
-							spawned.Translation = Translation;
-						}
-						else		spawned.BC = Color(255, 255, 0, 0);
+						
+						spawned.Translation = (tracer) ? tracer.Translation : Translation;
+						//else		spawned.BC = Color(255, 255, 0, 0);
 					}
 				}
 			}
@@ -602,12 +303,6 @@ Class BloodGibDropperOld : Actor
 		+NOTONAUTOMAP
 		+NOTELESTOMP
 		RenderStyle "None";
-	}
-	override void PostBeginPlay()
-	{
-		Super.PostBeginPlay();
-		let spawner = D4AbstractMonster(tracer);
-		if (spawner) BC = spawner.BC;
 	}
 	States
 	{
@@ -700,13 +395,23 @@ Class BloodGibDropperOld : Actor
 //==============================================================================
 Class FlyingFlesh : Actor
 {
-	Color BC;
 	bool ShortGibTime;
 	double RollAmt;
 	
+	void SpawnBloodTrail()
+	{
+		let blood = Actor(Spawn("MCBloodSprite", pos));
+		if (blood)
+		{
+			blood.vel = vel * frandom(0.2, 0.4);
+			blood.Translation = Translation;
+			blood.A_FaceMovementDirection();			
+		}
+	}
+	
 	override void PostBeginPlay()
 	{
-		Super.PostBeginPlay();
+		Actor.PostBeginPlay();
 		Roll = random(0,359);
 		RollAmt = frandom(-10.0, 10.0);
 	}
@@ -726,7 +431,6 @@ Class FlyingFlesh : Actor
 Class BloodGiblet : FlyingFlesh
 {
 	bool other;				// External reasons, nothing to see here! >.>;
-	int BloodSprites;
 	
 	Default
 	{
@@ -746,29 +450,20 @@ Class BloodGiblet : FlyingFlesh
 	override void PostBeginPlay()
 	{
 		Super.PostBeginPlay();
-		let spawner = MCBloodFXMain(tracer);
-		if (spawner)	BC = spawner.BC;
 	}
+	
 	States
 	{
 	Spawn:
 		TNT1 A 0 NoDelay
 		{
-			BloodSprites = D4D_BloodSprites;
 			return ResolveState("Moving");
 		}
 	Moving:
 		ANYG PQRS 2 
 		{
 			if (D4D_BloodTrails > 0)
-			{
-				if (BloodSprites >= 1)
-				{	A_SpawnItemEx("MCBloodSprite",0,0,0,0,0,-1.5,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);	}
-				if (BloodSprites >= 2 || BloodSprites <= 0)
-				{	
-					BloodParticleSpawner.Bleed(self, BC, (0,0,0), (0,0,-1.5));
-				}
-			}
+				SpawnBloodTrail();
 		}
 		Loop;
 	Death:
@@ -808,8 +503,6 @@ Class NewMeat : FlyingFlesh //replaces Meat
 	override void PostBeginPlay()
 	{
 		Super.PostBeginPlay();
-		let spawner = BloodGibDropper(tracer);
-		if (spawner)	BC = spawner.BC;
 	}
 	
 	void GibTick (int TimeLimit = 172)
@@ -817,7 +510,7 @@ Class NewMeat : FlyingFlesh //replaces Meat
 		if (Timer++ > TimeLimit || pos.z <= GetZAt())
 		{	ExplodeMissile(null, null);	return;	}
 		else if (!A_CheckSightOrRange(BloodDistanceLimit,"Null"))
-			A_SpawnItemEx("GibBloodSmall",0,0,0,0,0,-1.5,0,SXF_TRANSFERTRANSLATION|SXF_SETTRACER|SXF_ORIGINATOR);
+			SpawnBloodTrail();
 	}
 	
 	void GibDeath()
@@ -885,16 +578,6 @@ Class BloodGib1 : NewMeat
 		DistanceCheck "D4D_MaxDrawDistance";
 		Decal "BloodSplat";
 	}
-	
-	override void PostBeginPlay()
-	{
-		Super.PostBeginPlay();
-	//	let spawner = BloodGibDropper(tracer);
-	//	if (spawner)	BC = spawner.BC;
-		
-	}
-	
-	
 	
 	States
 	{

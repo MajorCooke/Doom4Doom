@@ -75,7 +75,7 @@ Class D4Demon : D4AbstractMonster //replaces Demon
 	// DMG_NO_FACTOR/DMG_FORCED flags or ripper missiles are involved.
 	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{
-		if (health < 1)	return 0;
+		if (health < 1)	return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
 		
 		Actor inf = inflictor;
 		if (inf && damage > 1)

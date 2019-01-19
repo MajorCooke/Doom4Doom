@@ -70,7 +70,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			Vector3 forw = ( cos(angle) * cos(pitch), sin(angle) * cos(pitch), -sin(pitch) );
 			Vector3 offs = Vec2OffsetZ(0, 0, player.viewz);		// Account for the view height
 			Vector3 epos = mo.pos + (0, 0, mo.height * 0.5);
-			Vector3 diff = LevelLocals.Vec3Diff(offs, epos);	// Internally does v2 - v1.
+			Vector3 diff = level.Vec3Diff(offs, epos);	// Internally does v2 - v1.
 			double cone = (forw dot diff) / diff.length();
 			if (cone > LockOnCone) //0.93969262078
 			{

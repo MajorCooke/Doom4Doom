@@ -250,6 +250,9 @@ Class D4CarrionCannon : Doom4Weapon
 			{
 				if (Distance3DSquared(mo) > (1024 ** 2)) continue;
 				if (mo.bSPECIAL || mo.bMISSILE) continue;
+				if (mo.CurState && mo.CurState.Tics > -1 && !mo.CurState.bCanRaise)
+					continue;
+				
 				static const Class<Actor> id[] =
 				{
 					"BrainStem",

@@ -42,7 +42,6 @@ Class D4HellKnight : D4AbstractBiggie //replaces HellKnight
 	Default 
 	{
 		D4AbstractMonster.Rune "KnightRune", RuneChance_Knight;
-		D4AbstractMonster.BC "Green";
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 16;
 		D4AbstractMonster.CashAmount 60;
@@ -433,7 +432,7 @@ Class D4HellKnight : D4AbstractBiggie //replaces HellKnight
 		TNT1 A 10
 		{
 			bThruActors = true;
-			XDeathGush(Color_Green);
+			XDeathGush();
 		}
 		Stop;
 		
@@ -706,7 +705,6 @@ Class D4OldHellKnight : D4AbstractBiggie // : HellKnight ////replaces HellKnight
 	Default 
 	{
 		D4AbstractMonster.Rune "KnightRune", RuneChance_Knight;
-		D4AbstractMonster.BC "Green";
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 16;
 		D4AbstractMonster.CashAmount 60;
@@ -801,7 +799,7 @@ Class D4OldHellKnight : D4AbstractBiggie // : HellKnight ////replaces HellKnight
 		TNT1 A 0
 		{
 			bThruActors = true;
-			XDeathGush(Color_Green);
+			XDeathGush();
 			//D4DropItems();
 			//"HellKnightCashGiver");
 			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");

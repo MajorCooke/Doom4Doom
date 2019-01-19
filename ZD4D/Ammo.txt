@@ -867,7 +867,7 @@ Class D4PinataCarrion : CustomInventory
 					A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 					A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
 					if (Distance3DSquared(tracer) <= 32 ** 2)
-					{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(self, false);	}
+					{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false); invoker.Touch(Tracer);	}
 				}
 				else
 				{

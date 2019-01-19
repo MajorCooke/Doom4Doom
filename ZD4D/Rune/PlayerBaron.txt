@@ -109,6 +109,7 @@ Class PlayerBaron : DemonPlayerBase
 	Overlay.Steps:
 		TNT1 A 5
 		{
+			NoFastOverlay(OverlayID());
 			USpeed = (vel.x*vel.x + vel.y*vel.y);
 			if (A_CheckFloor("Null"))
 			{

@@ -521,34 +521,35 @@ Class CrateItemSpawner3 : Actor
 	Death:
 		TNT1 A 0 NoDelay
 		{
-			user_bfg = (CountInv("D4BFG", Player1));
-			user_cs = (CountInv("D4Chainsaw",Player1));
+			if (!target)	return;
+		
+			user_bfg = (target.CountInv("D4BFG"));
+			user_cs = (target.CountInv("D4Chainsaw"));
 			user_missilesAround = CountProximity("D4AbstractMissile", 1024);
 			user_monstersAround = CountProximity("D4AbstractMonster", 1024);
 			user_biggiesAround 	= CountProximity("D4AbstractBiggie", 1024);
 			user_bossesAround 	= CountProximity("D4AbstractBoss", 2048);
 			
-			user_ammoScore =CountInv("D4Bullets", TargetPtr) 	+
-							CountInv("D4Shells", TargetPtr) *2	+
-							CountInv("D4Cells", TargetPtr) 	+
-							CountInv("D4Rockets", TargetPtr)*3;
+			user_ammoScore =target.CountInv("D4Bullets") 	+
+							target.CountInv("D4Shells") *2	+
+							target.CountInv("D4Cells") 	+
+							target.CountInv("D4Rockets")*3;
 			
-			user_money = CountInv("D4DCash", TargetPtr);
+			user_money = target.CountInv("D4DCash");
 			
-			user_weapons =	CountInv("D4Pistol",  		TargetPtr)+
-							CountInv("D4Shotgun", 		TargetPtr)+
-							CountInv("D4AssaultRifle",	TargetPtr)+
-							CountInv("D4Chainsaw",		TargetPtr)+
-							CountInv("D4Repeater",		TargetPtr)+
-							CountInv("D4StaticRifle",	TargetPtr)+
-							CountInv("D4SuperShotgun", 	TargetPtr)+
-							CountInv("D4Chaingun",		TargetPtr)+
-							CountInv("D4PlasmaRifle",	TargetPtr)+
-							CountInv("D4VortexRifle",	TargetPtr)+
-							CountInv("D4RocketLauncher",TargetPtr)+
-							CountInv("D4LightningGun",	TargetPtr)+
-							CountInv("D4GaussCannon",	TargetPtr)+
-							CountInv("D4BFG",			TargetPtr);
+			user_weapons =	target.CountInv("D4Pistol")+
+							target.CountInv("D4Shotgun")+
+							target.CountInv("D4AssaultRifle")+
+							target.CountInv("D4Chainsaw")+
+							target.CountInv("D4Repeater")+
+							target.CountInv("D4StaticRifle")+
+							target.CountInv("D4SuperShotgun")+
+							target.CountInv("D4Chaingun")+
+							target.CountInv("D4PlasmaRifle")+
+							target.CountInv("D4VortexRifle")+
+							target.CountInv("D4LightningGun")+
+							target.CountInv("D4GaussCannon")+
+							target.CountInv("D4BFG");
 			
 			
 			
@@ -673,7 +674,7 @@ Class CrateItemSpawner3 : Actor
 			// 6. I've got a sunshine in my: how comes you're so deep and don't have one yet?
 			
 			
-			if (countInv("D4Backpack", TargetPtr) <= 0 &&
+			if (!target.FindInventory("BackpackItem", true) &&
 				random(0,100) < 60 )
 			{
 				A_SpawnItemEx("D4CellsSmall", 20,  0,0,0,0,0,0,SXF_NOCHECKPOSITION);

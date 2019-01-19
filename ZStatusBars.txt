@@ -54,11 +54,7 @@ Class Doom4StatusBar : BaseStatusBar
 	DynamicValueInterpolator mTimeInterpolator;
 	
 	// Fonts for HUDS
-	HUDFont mHUDFont;
-	HUDFont mIndexFont;
-	HUDFont mBigFont;
-	HUDFont mConsoleFont;
-	HUDFont	mQ4HudFont;
+	transient HUDFont mHUDFont, mIndexFont, mBigFont, mConsoleFont, mQ4HudFont;
 	
 	// Life counter
 	double LifeCounterFade;
@@ -590,13 +586,8 @@ Class Doom4StatusBar : BaseStatusBar
 			[ammo1, ammo2, ac1, ac2] = GetCurrentAmmo();
 			DrawImage("AMMOPANE", (866, 669), imageAlignmentLeft);
 			
-			if (ammo1)
-			{
-				AmmoClamp = (ammo1.MaxAmount > 999) ? 4 : 3;
-				DrawBar("AMMOBAR1", "AMMOBAR0", ac1, ammo1.Default.MaxAmount, (881, 693), 0, SHADER_REVERSE, imageAlignmentLeft);
-				DrawBar("AMMOBAR2", "AMMOBAR0", ac1 - ammo1.Default.MaxAmount, ammo1.BackpackMaxAmount - ammo1.Default.MaxAmount, (881, 693), 0, SHADER_REVERSE, imageAlignmentLeft);
-				DrawStringScaled(mQ4HudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (983,676), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 0.5);
-			}			
+			bool DrawAmmoStandard = true;
+						
 			
 			if (GetAmountOnly("D4BFG"))
 			{
@@ -1024,6 +1015,49 @@ Class Doom4StatusBar : BaseStatusBar
 			{
 				if (!noReticle)	DrawImage("rBFG", (464,336), imageAlignmentLeft);
 				DrawImage("bfg", (983,676), imageAlignmentLeft);
+			}
+			else DrawAmmoStandard = false;
+			
+			if (DrawAmmoStandard)
+			{
+				if (ammo1)
+				{	
+					AmmoClamp = (ammo1.MaxAmount > 999) ? 4 : 3;
+					DrawBar("AMMOBAR1", "AMMOBAR0", ac1, ammo1.Default.MaxAmount, (881, 693), 0, SHADER_REVERSE, imageAlignmentLeft);
+					DrawBar("AMMOBAR2", "AMMOBAR0", ac1 - ammo1.Default.MaxAmount, ammo1.BackpackMaxAmount - ammo1.Default.MaxAmount, (881, 693), 0, SHADER_REVERSE, imageAlignmentLeft);
+					DrawStringScaled(mQ4HudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (983,676), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 0.5);
+				}
+			}
+			else
+			{
+				double posx = 1038;
+				double scale = 0.35;
+				
+				if (ammo1 && ammo1 == ammo2)
+				{
+					if (ammo1) // Bottom
+					{
+						AmmoClamp = (ammo1.MaxAmount > 999) ? 4 : 3;
+						DrawBar("AMMOBAR1", "AMMOBAR0", ac1, ammo1.Default.MaxAmount, (881, 693), 0, SHADER_REVERSE, imageAlignmentLeft);
+						DrawBar("AMMOBAR2", "AMMOBAR0", ac1 - ammo1.Default.MaxAmount, ammo1.BackpackMaxAmount - ammo1.Default.MaxAmount, (881, 693), 0, SHADER_REVERSE, imageAlignmentLeft);
+						DrawStringScaled(mQ4HudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (posx,694), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: scale);
+					}
+				}
+				else
+				{
+					if (ammo1) // Top
+					{
+						AmmoClamp = (ammo1.MaxAmount > 999) ? 4 : 3;
+						DrawBar("AMMOBAR1", "AMMOBAR0", ac1, ammo1.MaxAmount, (881, 678), 0, SHADER_REVERSE, imageAlignmentLeft);
+						DrawStringScaled(mQ4HudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (posx,679), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: scale);
+					}
+					if (ammo2) // Bottom
+					{
+						int AmmoClamp2 = (ammo2.MaxAmount > 999) ? 4 : 3;
+						DrawBar("AMMOBAR2", "AMMOBAR0", ac2, ammo2.MaxAmount, (881, 693), 0, SHADER_REVERSE, imageAlignmentLeft);
+						DrawStringScaled(mQ4HudFont, FormatNumber(ammo2.Amount, 1, AmmoClamp2), (posx,694), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: scale);
+					}
+				}
 			}
 		}
 	}

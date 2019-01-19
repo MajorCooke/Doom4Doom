@@ -19,69 +19,90 @@ extend class D4DHandler
 		
 		if (rep is 'Inventory')
 		{
-				 if (rep == 'Clip')				e.Replacement = 'ClipReplacer';
-			else if (rep == 'ClipBox')			e.Replacement = 'ClipBoxReplacer';
-			else if (rep == 'Shell') 			e.Replacement = 'ShellReplacer';
-			else if (rep == 'ShellBox') 		e.Replacement = 'ShellBoxReplacer';
-			else if (rep == 'RocketAmmo')		e.Replacement = 'RocketAmmoReplacer';
-			else if (rep == 'RocketBox')		e.Replacement = 'RocketBoxReplacer';
-			else if (rep == 'Cell')				e.Replacement = 'CellReplacer';
-			else if (rep == 'CellPack')			e.Replacement = 'CellPackReplacer';
-			else if (rep == 'Backpack')			e.Replacement = 'D4Backpack';
-			// Weapons
-			else if (rep == 'Chainsaw')			e.Replacement = 'D4Chainsaw';
-			else if (rep == 'Shotgun') 			
+			if (rep is 'Ammo')
 			{
-				if (random[rngg](0,1))			e.Replacement = 'D4StaticRifle';
-				else							e.Replacement = 'D4Shotgun';
+					 if (rep == 'Clip')				e.Replacement = 'ClipReplacer';
+				else if (rep == 'ClipBox')			e.Replacement = 'ClipBoxReplacer';
+				else if (rep == 'Shell') 			e.Replacement = 'ShellReplacer';
+				else if (rep == 'ShellBox') 		e.Replacement = 'ShellBoxReplacer';
+				else if (rep == 'RocketAmmo')		e.Replacement = 'RocketAmmoReplacer';
+				else if (rep == 'RocketBox')		e.Replacement = 'RocketBoxReplacer';
+				else if (rep == 'Cell')				e.Replacement = 'CellReplacer';
+				else if (rep == 'CellPack')			e.Replacement = 'CellPackReplacer';
 			}
-			else if (rep == 'SuperShotgun') 	e.Replacement = 'D4SuperShotgun';
-			else if (rep == 'Chaingun') 		
+			else if (rep is 'Health')
 			{
-				int rng = random[rngg](0,6);
-				
-				if (rng == 0)					e.Replacement = 'D4Chaingun';
-				else if (rng <= 3)				e.Replacement = 'D4AssaultRifle';
-				else							e.Replacement = 'D4Repeater';
+					 if (rep == 'Medikit')			e.Replacement = 'D4Medikit';
+				else if (rep == 'Stimpack') 		e.Replacement = 'D4Stimpack';
+				else if (rep == 'HealthBonus')		e.Replacement = 'D4HealthBonus';
+				else if (rep == 'SoulSphere')		e.Replacement = 'D4SoulSphereReplacer';
 			}
-			else if (rep == 'RocketLauncher')	
+			else if (rep is 'Armor')
 			{
-				if (random[rngg](0,1))			e.Replacement = 'D4GrenadeLauncher';
-				else							e.Replacement = 'D4RocketLauncher';
+					 if (rep == 'ArmorBonus') 		e.Replacement = 'D4ArmorBonus';
+				else if (rep == 'BlueArmor')		e.Replacement = 'D4BlueArmor';
+				else if (rep == 'GreenArmor')		e.Replacement = 'D4GreenArmor';
 			}
-			else if (rep == 'PlasmaRifle')		
-			{
-				int rng = random[rngg](0,3);
-				if (rng == 3)					e.Replacement = 'D4GaussCannon';
-				else if (rng == 2)				e.Replacement = 'D4VortexRifle';
-				else if (rng == 1)				e.Replacement = 'D4LightningGun';
-				else							e.Replacement = 'D4PlasmaRifle';
-			}
-			else if (rep == 'BFG9000')			e.Replacement = 'D4BFG';
-			else if (rep == 'Medikit')			e.Replacement = 'D4Medikit';
-			else if (rep == 'Stimpack') 		e.Replacement = 'D4Stimpack';
-			else if (rep == 'HealthBonus')		e.Replacement = 'D4HealthBonus';
-			else if (rep == 'SoulSphere')		e.Replacement = 'D4SoulSphereReplacer';
-			else if (rep == 'ArmorBonus') 		e.Replacement = 'D4ArmorBonus';
-			else if (rep == 'BlueArmor')		e.Replacement = 'D4BlueArmor';
-			else if (rep == 'GreenArmor')		e.Replacement = 'D4GreenArmor';
-			else if (rep == 'Berserk')			e.Replacement = 'D4BerserkSpawner';
-			else if (rep == 'MegaSphere')		e.Replacement = 'D4MegaSphereReplacer';
+			else if (rep == 'Backpack')				e.Replacement = 'D4Backpack';
 			
+			// Weapons
+			else if (rep is 'Weapon')
+			{
+				if (rep == 'Chainsaw')				e.Replacement = 'D4Chainsaw';
+				else if (rep == 'Shotgun') 			
+				{
+					if (random[rngg](0,1))			e.Replacement = 'D4StaticRifle';
+					else							e.Replacement = 'D4Shotgun';
+				}
+				else if (rep == 'SuperShotgun') 	e.Replacement = 'D4SuperShotgun';
+				else if (rep == 'Chaingun') 		
+				{
+					int rng = random[rngg](0,6);
+					
+					if (rng == 0)					e.Replacement = 'D4Chaingun';
+					else if (rng <= 3)				e.Replacement = 'D4AssaultRifle';
+					else							e.Replacement = 'D4Repeater';
+				}
+				else if (rep == 'RocketLauncher')	
+				{
+					if (random[rngg](0,1))			e.Replacement = 'D4GrenadeLauncher';
+					else							e.Replacement = 'D4RocketLauncher';
+				}
+				else if (rep == 'PlasmaRifle')		
+				{
+					int rng = random[rngg](0,3);
+						 if (rng == 3)				e.Replacement = 'D4GaussCannon';
+					else if (rng == 2)				e.Replacement = 'D4VortexRifle';
+					else if (rng == 1)				e.Replacement = 'D4LightningGun';
+					else							e.Replacement = 'D4PlasmaRifle';
+				}
+				else if (rep == 'BFG9000')			e.Replacement = 'D4BFG';
+			}
+			
+			// Powerups
+			else if (rep is 'PowerupGiver')
+			{
+					 if (rep == 'BlurSphere')				e.Replacement = 'D4Haste';
+				else if (rep is 'InvulnerabilitySphere')	e.Replacement = 'D4PentagramOfProtection';
+				
+				else if (rep == 'RadSuit') 					e.Replacement = 'D4RadSuit';
+				else if (rep == 'Infrared') 				e.Replacement = 'D4Infrared';
+			}
+			else if (rep == 'Berserk')						e.Replacement = 'D4BerserkSpawner';
+			else if (rep == 'MegaSphere')					e.Replacement = 'D4MegaSphereReplacer';
 			// Keys
-			else if (rep == 'RedCard') 			e.Replacement = 'D4RedCard';
-			else if (rep == 'YellowCard') 		e.Replacement = 'D4YellowCard';
-			else if (rep == 'BlueCard') 		e.Replacement = 'D4BlueCard';
-			else if (rep == 'RedSkull') 		e.Replacement = 'D4RedSkull';
-			else if (rep == 'YellowSkull')		e.Replacement = 'D4YellowSkull';
-			else if (rep == 'BlueSkull') 		e.Replacement = 'D4BlueSkull';
-			else if (rep == 'BlurSphere')				e.Replacement = 'D4Haste';
-			else if (rep is 'InvulnerabilitySphere')	e.Replacement = 'D4PentagramOfProtection';
+			else if (rep is 'DoomKey')
+			{
+					 if (rep == 'RedCard') 			e.Replacement = 'D4RedCard';
+				else if (rep == 'YellowCard') 		e.Replacement = 'D4YellowCard';
+				else if (rep == 'BlueCard') 		e.Replacement = 'D4BlueCard';
+				else if (rep == 'RedSkull') 		e.Replacement = 'D4RedSkull';
+				else if (rep == 'YellowSkull')		e.Replacement = 'D4YellowSkull';
+				else if (rep == 'BlueSkull') 		e.Replacement = 'D4BlueSkull';
+			}
 			else if (rep == 'AllMap') 					e.Replacement = 'D4AllMap';
-			else if (rep == 'RadSuit') 					e.Replacement = 'D4RadSuit';
-			else if (rep == 'Infrared') 				e.Replacement = 'D4Infrared';
 		}
-		else if (defs.bISMONSTER)
+		if (defs.bISMONSTER)
 		{
 			int rng = random[rngg](1,100);
 			int chance = D4D_CustomSpawnBias;
@@ -137,7 +158,7 @@ extend class D4DHandler
 				else if (rep == 'ZombieMan')			e.Replacement = 'D4ZombieMan';
 			}
 		}
-		else if (rep is 'Blood')				e.Replacement = 'MCBloodFXMain';
+		else if (rep is 'Blood')				e.Replacement = 'MCBloodSprite';
 		else if (rep == 'BulletPuff')			e.Replacement = 'D4BulletPuff';
 		else if (rep is 'ExplosiveBarrel')		e.Replacement = 'D4ExplosiveBarrel';
 		else if (rep == 'BossBrain')			e.Replacement = 'D4BossBrain';

@@ -66,7 +66,7 @@ Class D4DHandler : EventHandler
 	clearscope private void ResetKNM(int which) 	{ D4DHandler.SendNetworkEvent("D4D_KNM0", which); }
 	clearscope private int GetKNM(int which) 		{ return KNMInput[which]; }
 	
-	// Tremendous thanks to Phantombeta for helping me out with this.
+	
 	override bool InputProcess(InputEvent ev)
 	{
 		if (ev.Type == InputEvent.Type_KeyDown)
@@ -77,33 +77,6 @@ Class D4DHandler : EventHandler
 				return false;
 				
 			int bind1, bind2;
-			/*
-			static const String KeyBindsCCMDs [] = {
-				"slot 1", "slot 2", "slot 3", "slot 4", "slot 5",
-				"slot 6", "slot 7", "slot 8", "slot 9", "slot 0",
-				"weapnext", "weapprev"	};
-			static const String KeyBindsNetEvents [] = {
-				"slot:1", "slot:2", "slot:3", "slot:4", "slot:5",
-				"slot:6", "slot:7", "slot:8", "slot:9", "slot:0",
-				"next", "prev"	};
-			
-			// Find the key and translate it from the raw command to an 
-			// event-friendly string. Makes splitting it easier.
-			
-			for (int i = 0; i < KeyBindsCCMDs.Size(); i++) 
-			{
-				// Bindings is a global struct. Definition in menu.txt inside GZDoom.pk3.
-				// Get the keys that are bound to this action.
-				[bind1, bind2] = Bindings.GetKeysForCommand (KeyBindsCCMDs [i]);
-				
-				if (ev.KeyScan == bind1 || ev.KeyScan == bind2) 
-				{
-				//	EventHandler.SendNetworkEvent (String.Format ("ScrollWheelHijack:%s", KeyBindsNetEvents [i]));
-					EventHandler.SendNetworkEvent(String.Format("D4D_SelectWeapon:%s", KeyBindsNetEvents[i]));
-					return true;
-				}
-			}
-			*/
 			static const String KeyBindsCCMDs2[] =
 			{
 				"+forward", "+back", "+moveleft", "+moveright", 
@@ -139,177 +112,13 @@ Class D4DHandler : EventHandler
 						Default:
 							ResetKNM(index);
 					}
-					return false;
+					return false; // No need to keep scanning.
 				}
 			}
 		}
 		return false;
 	}
 	
-	override void NetworkProcess(ConsoleEvent e)
-	{
-		int num = e.Player;
-		let plr = players[num].mo;
-		
-		if (!plr)	
-		{	Console.Printf("No player found");	return;	}
-		
-		Array<String> strings;
-		e.Name.Split (strings, ":");
-
-		if (strings.Size() > 1)
-		{
-			if (strings[0] == 'D4D_SelectWeapon')
-				ChangeWeapons(e);
-		}
-		
-		static const String KeyWords[] =
-		{
-			'D4DAddon_',
-			'Akimbo_SetLeft_',
-			'Akimbo_SetRight_',
-			'Rune_'
-		};
-		
-		// Blocks execution of certain netevent commands that can and will
-		// destabilize the game if used improperly. These should only be
-		// called from code like the menu.
-		if (e.isManual)
-		{
-			static const Name ProtectedCommands[] =
-			{
-				//'AkimboSystem'
-				'DisableReception',
-				'EnableReception',
-				'UpdateItems'
-			};
-			int size = ProtectedCommands.Size();
-			for (int i = 0; i < size; i++)
-			{
-				if (e.Name == ProtectedCommands[i])
-				{
-					Console.Printf(e.Name.." cannot be called by console.");
-					return;
-				}
-			}
-		}
-		else
-		{
-			int arg = e.Args[0];
-			if (e.Name == 'D4D_KNM++')			{	KNMInput[arg]++;	return;	}
-			else if (e.Name == 'D4D_KNM0')		{	KNMInput[arg] = 0;	return;	}
-			else if (e.Name == 'D4D_KNM')		{	KNM(e);				return;	}
-		}
-		if (e.Name == 'Dash')
-		{
-			let pl = Doom4Player(plr);
-			if (pl)	pl.TryDash();
-		}
-		else if (e.Name == 'DisableReception')
-		{
-			deltas[num].receiving = false;
-			//Console.Printf("Disabled receiving.");
-		}
-		else if (deltas[num].receiving)
-		{
-			deltas[num].SetItem(e.Name, e.Args[0], e.Args[1]);
-			//Console.Printf("%s, %d, %d", e.Name, e.Args[0], e.Args[1]);
-		}
-		else if (e.Name == 'EnableReception')
-		{
-			deltas[num].receiving = true;
-			//Console.Printf("Enabled receiving.");
-		}
-		else if (e.Name == 'UpdateItems')
-		{
-			if (deltas[num].ItemName.Size() > 0)
-			{
-				for (int i = 0; i < deltas[num].ItemName.Size(); i++)
-				{
-					Class<Inventory> item = deltas[num].ItemName[i];
-					if (item)
-					{
-						plr.A_SetInventory(item, deltas[num].Count[i]);
-						let it = UpgradeItem(plr.FindInventory(item));
-						
-						if (it)
-						{
-							it.UpdateItem();
-						}
-					}
-				}
-			}
-			deltas[num].ItemName.Clear();
-			deltas[num].Count.Clear();			
-		}
-		else if (e.Name == 'SectorLight')		{	SetSectorLight(e);	}
-		else if (e.Name == 'ClearFakeCash')
-		{
-			plr.A_SetInventory("D4DCashFake",0);
-		}
-		else if (e.Name == 'RemoveAmmo')
-		{
-			RemoveAmmoActors();
-		}
-		else if (e.Name == 'FindLiveTID')
-		{
-			FindLiveTID(e);
-		}
-		else if (e.Name == 'PrintSlots')
-		{
-			PrintSlots(e);
-		}
-		else
-		{
-			int size = KeyWords.Size();
-			for (int i = 0; i < size; i++)
-			{
-				// If it doesn't have the matching command, next please.
-				
-				
-				Name check1 = e.Name.Left(Keywords[i].Length());
-				Name check2 = KeyWords[i];
-				if (check1 != check2)
-					continue;
-					
-				// It's one of the keywords. Process it.
-				String suffix = e.Name.Mid(KeyWords[i].Length(), e.Name.Length());
-				//Console.Printf(suffix);
-				
-				Switch(i)
-				{
-					// For external mods to use as they please using their own handlers
-					// without interrupting this one.
-					Case 0:		// D4DAddon_
-						return;
-					
-					Case 1:		// Akimbo_SetLeft_
-					Case 2:		// Akimbo_SetRight_
-					{
-						bool IsRight = (i == 2);
-						let ak = AkimboWeapon(plr.FindInventory("AkimboWeapon",true));
-						if (ak)	ak.SetWeaponSide(suffix, IsRight);
-						return;
-					}
-					
-					Case 3:
-					{
-						SummonRune(plr, suffix, e.Args[0]);
-						return;
-					}
-					
-					Default:	// Some other command that's not viable.
-						break;
-				}
-			}
-			CVar EventPrint = CVar.FindCVar("D4D_NetEventDebug");
-			if (EventPrint && EventPrint.GetBool())
-			{
-				Console.Printf(e.Name..": Undefined net event");
-			}
-		}
-		
-	}
 	
 	//==========================================================================
 	// Functions
