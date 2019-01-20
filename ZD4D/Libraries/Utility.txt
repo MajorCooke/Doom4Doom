@@ -2,7 +2,7 @@
 
 Class D4Msg play
 {
-	static void PlainMsg( Font fnt, string txt, Vector2 pos, Vector2 vsize = (0,0), int talign = -1, Vector2 balign = (0,0), int color = Font.CR_UNTRANSLATED, Vector3 time = (0,0,0), int wrap = 0, uint id = 0, int layer = BaseStatusBar.HUDMSGLayer_OverHUD )
+	static void PlainMsg( Name fnt, string txt, Vector2 pos, Vector2 vsize = (0,0), int talign = -1, Vector2 balign = (0,0), int color = Font.CR_UNTRANSLATED, Vector3 time = (0,0,0), int wrap = 0, uint id = 0, int layer = BaseStatusBar.HUDMSGLayer_OverHUD )
 	{
 		notHudMessageHandler.PlainMsg(fnt, txt, pos, vsize, talign, balign, color, time, wrap, id, layer);
 	}
