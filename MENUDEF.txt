@@ -257,7 +257,6 @@ OptionMenu "D4DGoreOptions"
 	Option "Blood Splatters",				"D4D_BloodSplatters",	"OnOff"
 	NumberField "Blood Splatter Timer",		"D4D_BloodTime", 0, 150, 1, "D4D_BloodSplatters"
 	Option "Blood Trails",					"D4D_BloodTrails",		"OnOff"
-	Option "Blood FX Type",					"D4D_BloodSprites", 	"SprPar"
 	Option "Short Gib Life",				"D4D_ShortGibLives", 	"OnOff"
 	SafeCommand "Restore Giblet Defaults",	"D4D_Giblets 1; D4D_SplatterGiblets 3; D4D_BloodClouds 3;"
 	StaticText " "
@@ -350,22 +349,6 @@ OptionValue "CompletionistStyle"
 	0.0, "None"
 	1.0, "Arcade"
 	2.0, "Doom-esque"
-}
-
-OptionValue "TracerMode"
-{
-	0.0, "None"
-	1.0, "Model"
-	2.0, "Particle"
-	3.0, "Particle Trail"
-	4.0, "Trail"
-}
-
-OptionValue "SprPar"
-{
-	0, "Particles"
-	1, "Sprites"
-	2, "Sprites & Particles"
 }
 
 OptionValue "EnemyType"
