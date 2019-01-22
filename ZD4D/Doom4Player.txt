@@ -1,122 +1,6 @@
 #include "ZD4D/Doom4PlayerExtra.txt"
 
-Struct ItemsToSave
-{
-	Array<String> ItemList;
-	bool Init(bool chain = false, Actor plr = null)
-	{
-		static const String SavedItemsStr[] =
-		{	
-			"D4DCash",
-			"AssaultRifleMod1", //1
-			"AssaultRifleMod2",
-			"ChaingunMod1",
-			"ChaingunMod2",
-			"GaussCannonMod1",
-			"GaussCannonMod2",
-			"PlasmaRifleMod1",
-			"PlasmaRifleMod2",
-			"RocketLauncherMod1",
-			"RocketLauncherMod2",
-			"ShotgunMod1",
-			"ShotgunMod2",
-			"SSGUpgrade1",
-			"SSGUpgrade2",
-			"SSGUpgrade3",
-			"SSGUpgrade4",
-			"PistolUpgradeAutomatic",
-			"PistolUpgradeAltDamage",
-			"PistolUpgradeAltCharge",
-			"PistolUpgradeDamage",
-			"PistolUpgradeLance",
-			"BFGUpgrade1",
-			"BFGUpgrade2",
-			"BFGUpgrade3",
-			"BFGUpgrade4", // 25
-			"StaticUpgrade1",
-			"StaticUpgrade2",
-			"StaticUpgrade3",
-			"StaticUpgrade4",
-			"SovietActive",
-			"SovietToken",
-			"LGUpgradeAmmo",
-			"LGUpgradeRange",
-			"LGUpgradeDamage",
-			"LGUpgradeAltFire",
-			"VortexUpgradeDamage",
-			"VortexUpgradeAmmo",
-			"VortexUpgradeAltSpeed",
-			"VortexUpgradeAltPierce",
-			"RepeaterUpgradePiercing",
-			"RepeaterUpgradeDamage",
-			"RepeaterUpgradeAltDamage",
-			"RepeaterUpgradeAltAmmo",
-			"D4CarrionCannon",
-			"D4CarrionToken",
-			"CarrionLevel",
-			"CarrionUpgradePickup",
-			"CarrionUpgradeAmmo",
-			"CarrionUpgradeStun",
-			"CarrionUpgradeTime",
-			"DollUses",
-			"FragGrenadePickup",
-			"HoloGrenadePickup",
-			"SyphonGrenadePickup",
-			"FragGrenadeSelected",
-			"MarineHoloSelected",
-			"SyphonGrenadeSelected",
-			"D4Stamina",
-			"ProtectionBonus",
-			"ProtectionBonus1Real",
-			"ProtectionBonus2",
-			"ProtectionBonus3Real",
-			"D4ArmorCapRaiser",
-			"D4AirUpgrade",
-			"D4AirControl",
-			"D4HigherJump",
-			"D4MultiJump",
-			"D4CrateUpgrade",
-			"CashPercentBonus",
-			"D4MegasphereDamageReducer",
-			"D4MegachargeUpgrade1",
-			"D4MegachargeUpgrade2",
-			"D4DoomDollUpgrade1",
-			"D4DoomDollUpgrade2",
-			"D4RegenUpgrade1",
-			"D4RegenUpgrade2",
-			"D4RegenUpgrade3",
-			"D4RegenUpgrade4", // 77
-			"D4PentagramUpgrade1",
-			"D4PentagramUpgrade2",
-			"D4PentagramUpgrade3",
-			"D4PentagramUpgrade4",
-			"D4RuneUpgrade1",
-			"D4RuneUpgrade2",
-			"D4RuneUpgrade3",
-			"D4RuneUpgrade4" // 85
-		};
-		ItemList.Clear();
-		
-		if (chain)
-		{
-			if (!plr) return false;
-			int amt;
-			for (int i = 1; i < 26; i++)
-			{
-				Class<Inventory> check = SavedItemsStr[i];
-				if (check && plr.CountInv(check))
-					amt++;
-			}
-			return (amt >= 25);
-		}
-		
-		for (int i = 0; i < SavedItemsStr.Size(); i++)
-		{
-			ItemList.Push (SavedItemsStr[i]);
-		}
-		return false;
-	}
-};
+
 
 Class Doom4Player : PlayerPawn
 {
@@ -1092,11 +976,18 @@ extend class Doom4Player
 				TelefragDamage = false;
 		}
 		
-		if (inflictor && inflictor.bPIERCEARMOR)
+		if (inflictor)
+		{
 			inflictor.bPIERCEARMOR = false;
-		if (source && source.bPIERCEARMOR)
+			if (inflictor == self || inflictor.target == self)
+				flags |= DMG_NO_ENHANCE;
+		}
+		if (source)
+		{
 			source.bPIERCEARMOR = false;
-			
+			if (source == self)
+				flags |= DMG_NO_ENHANCE;
+		}	
 		flags &= ~DMG_NO_ARMOR;
 		
 		let inv = BasicArmor(FindInventory("BasicArmor"));
@@ -1121,7 +1012,7 @@ extend class Doom4Player
 			flags |= (DMG_NO_PROTECT|DMG_NO_FACTOR);
 		
 			if (damage < 1 && (!inflictor || (!inflictor.bCAUSEPAIN && !bALLOWPAIN)))
-				return -1;
+				return 0;
 				
 			if (CountInv("D4PentagramUpgrade3") && mod != 'Reflection' && damage > 0)
 			{
@@ -1192,32 +1083,7 @@ extend class Doom4Player
 		{
 			// Reduce by 1% for every megasphere we've picked up.
 			// DoomDoll does not give this bonus. 
-			let inv = FindInventory("D4MegasphereDamageReducer");
-			if (inv)
-			{
-				int pc1 = Clamp(inv.Amount, 0, inv.MaxAmount);
-				if (pc1 > 0)
-				{
-					double dmg = Max(0,damage * (1.0 - (0.01 * pc1)));
-					damage = int(floor(dmg));
-				}
-			}
-			
-			// If the player hurts himself, negate self damage by taking the
-			// enhanced damage and use that to divide the current damage.
-			// This gives us the amount to nuke the damage by, that way
-			// the internal function will kick it back up again.
-			if (damage > 0 && (
-				(source && source == self) ||
-				(inflictor && (inflictor == self || inflictor.target == self))))
-			{
-				int newdamage = GetModifiedDamage(mod, damage, false);
-				if (newdamage > damage)
-				{
-					double mul = double(damage) / double(Max(1.0,newdamage));
-					damage = int(floor(damage * mul));
-				}
-			}
+			damage = AdjustMegasphereDamage(damage);
 		}
 		
 		int ArmorBefore = 0;
@@ -1231,7 +1097,8 @@ extend class Doom4Player
 		// or the player has buddha (doom doll), provided they can survive it.
 		// Otherwise, respawn the player if they were to die and consume a life.
 		
-		if (UseLives && CountInv("D4ExtraLife") > 0 && !(CurSector.Flags & Sector.SECF_ENDLEVEL))
+		if (!FindInventory("PowerMorph",true) && 
+			UseLives && CountInv("D4ExtraLife") > 0 && !(CurSector.Flags & Sector.SECF_ENDLEVEL))
 		{
 			int prev = health;
 			finaldamage = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
@@ -1239,7 +1106,7 @@ extend class Doom4Player
 			// If the player still has health due to regular buddha or flag buddha,
 			// don't use the life since they're still alive. Cheat buddha is
 			// exempt from this and will still consume lives.
-			if (finaldamage >= prev && health > 0 && (!FindInventory("PowerBuddha", true) || !bBUDDHA))
+			if (finaldamage >= prev && health > 0 && !FindInventory("PowerBuddha", true) && !bBUDDHA)
 			{
 				UseLife();
 			}
@@ -1247,26 +1114,48 @@ extend class Doom4Player
 		else finaldamage = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
 		
 		if (arm)	ArmorAfter = arm.Amount;
-		if (finaldamage > 0)
+		
+		DamageScreenEffects(finaldamage, ArmorBefore, ArmorAfter);
+		
+		return finaldamage;
+	}
+	
+	int AdjustMegasphereDamage(int damage)
+	{
+		let inv = FindInventory("D4MegasphereDamageReducer");
+		if (inv)
 		{
-			effectSize += log(finaldamage) / 25.0;
+			int pc1 = Clamp(inv.Amount, 0, inv.MaxAmount);
+			if (pc1 > 0)
+			{
+				double dmg = Max(0,damage * (1.0 - (0.01 * pc1)));
+				damage = int(floor(dmg));
+			}
+		}
+		return damage;
+	}
+	
+	void DamageScreenEffects(int damage, int ArmorBefore, int ArmorAfter)
+	{
+		if (damage > 0)
+		{
+			effectSize += log(damage) / 25.0;
 			
 			Cvar CV = Cvar.GetCvar('D4D_BloodScreen', player);
 			if (CV && CV.GetBool())
-				ACS_NamedExecuteAlways("Blood",0, int(finaldamage / DamageDegree),0,0);
+				ACS_NamedExecuteAlways("Blood",0, int(damage / DamageDegree),0,0);
 			
 		}
 		else if (ArmorBefore > ArmorAfter)
 		{
 			effectSize += log(ArmorBefore - ArmorAfter) / 25.0;
 		}
-		return finaldamage;
 	}
 	
 	//==========================================================================
 	override void Die(Actor source, Actor inflictor, int dmgflags)
 	{
-		if (!player || !player.mo || player.mo != self)
+		if (!player || !player.mo || player.mo != self || FindInventory("PowerMorph", true))
 		{	Super.Die(source, inflictor, dmgflags);		return;		}
 		
 		// If the player has an extra life, abort dying.
@@ -1275,7 +1164,7 @@ extend class Doom4Player
 		
 		if (!Event)	Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
 		if (Event) Event.StorePlayerItems(self);
-		
+		effectSize = 0;
 		Super.Die(source, inflictor, dmgflags);
 		
 		A_RadiusGive("SyphonDestroyer",16386,RGF_MISSILES,1,"D4SyphonGrenade");

@@ -213,6 +213,11 @@ extend class D4DHandler
 	// Monster recording, for ease of tracking with lightning gun altfire and bfg
 	// so far.
 	
+	bool IsPlayerPawn(Actor mo)
+	{
+		return (!mo || mo is "PlayerPawn" || mo.player);
+	}
+	
 	override void WorldThingSpawned(WorldEvent e)
 	{
 		Actor mo = e.thing;
@@ -223,7 +228,7 @@ extend class D4DHandler
 			return;
 		}
 		
-		if (mo.bNOINTERACTION || mo.bNOSECTOR || mo.player || 
+		if (mo.bNOINTERACTION || mo.bNOSECTOR || IsPlayerPawn(mo) || 
 			mo is "Inventory" || mo is "RandomSpawner")
 			return;
 		
@@ -253,6 +258,7 @@ extend class D4DHandler
 	{
 		// Add the monster to the list if not already present.
 		Actor mo = e.Thing;
+		if (IsPlayerPawn(mo))	return;
 		if (Monsters.Find(mo) >= Monsters.Size())
 		{
 			DeadMonsters.Delete(DeadMonsters.Find(mo));
@@ -265,7 +271,7 @@ extend class D4DHandler
 	override void WorldThingDestroyed(WorldEvent e)
 	{
 		Actor mo = e.Thing;
-		if (mo is "Inventory" || mo is "RandomSpawner")	return;
+		if (mo is "Inventory" || mo is "RandomSpawner" || IsPlayerPawn(mo))	return;
 		if (mo.bISMONSTER || mo.bSHOOTABLE)
 		{
 			Monsters.Delete(Monsters.Find(mo));
@@ -280,6 +286,10 @@ extend class D4DHandler
 	override void WorldThingDied(WorldEvent e)
 	{
 		Actor mo = e.Thing;
+		
+		if (IsPlayerPawn(mo))
+			return;
+		
 		if (!DropPinatas(mo, e.Inflictor)) 
 			return;
 		
@@ -708,150 +718,150 @@ extend class D4DHandler
 		{
 			if (!playeringame[i]) continue;
 			let p = players[i].mo;
-			if (p)
+			if (!p)	continue;
+		
+			// Drop items first.
+			if (mod != 'Massacre')
 			{
-				// Drop items first.
-				if (mod != 'Massacre')
+				if (LootDrop)
 				{
-					if (LootDrop)
+					if (!(Restrictions & RF_NOARMOR))
 					{
-						if (!(Restrictions & RF_NOARMOR))
+						if (mod == 'ChainsawPinata')
 						{
-							if (mod == 'ChainsawPinata')
+							// Armor
+							if (!Armor[0] && p.CountInv("D4ArmorCapRaiser") >= 25)
 							{
-								// Armor
-								if (!Armor[0] && p.CountInv("D4ArmorCapRaiser") >= 25)
-								{
-									Armor[0] = true;
-									int rng[2];
-									rng[0] = random[drop](1,256) > 128 ? 1 : 0;
-									rng[1] = random[drop](1,256) > 128 ? 1 : 0;
-									Pinatas.AddItem("D4PinataArmor", rng[0] + rng[1]);
-								}
-								if (!Armor[1] && p.CountInv("D4ArmorCapRaiser") >= 50)
-								{
-									Armor[1] = true;
-									int rng[2];
-									rng[0] = random[drop](1,256) > 128 ? 1 : 0;
-									rng[1] = random[drop](1,256) > 128 ? 1 : 0;
-									Pinatas.AddItem("D4PinataArmor", rng[0] + rng[1]);
-								}
-								if (!Armor[2] && p.CountInv("D4ArmorCapRaiser") >= 100)
-								{
-									Armor[2] = true;
-									Pinatas.AddItem("D4PinataArmor", 2);
-								}
-							}
-							else 
-							{
-								if (!Armor[3] && p.CountInv("BasicArmor") < 200 && p.CountInv("D4ArmorCapRaiser") >= 25)	//only if player isnt at full armor and has upgraded his armor
-								{
-									Armor[3] = true;
-									int rng = random[drop](1,256) > 192 ? 1 : 0;
-									Pinatas.AddItem("D4PinataArmor", rng); //very rarely they will drop armor
-								}
-							}
-						}
-						//health giver
-						if (!HPPin && !(Restrictions & RF_NOHEALTH) && p.health < 60)
-						{
-							HPPin = true;
-							int rng = random[drop](1,256) > 192 ? 1 : 0;
-							Pinatas.AddItem("D4PinataHealth", 1 + rng);
-						}
-						if (!(Restrictions & RF_NOREGAMMO))
-						{
-							//bullets giver
-							if (!Bullets && !(Restrictions & RF_NOBULLETS) && 
-								(p.CountInv("D4AssaultRifle") || 
-								p.CountInv("D4Chaingun") ||
-								p.CountInv("D4Repeater")) && 
-								p.CountInv("D4Bullets") < 10)
-							{
-								Bullets = true;
-								int rng[2];
-								rng[0] = random[drop](1,256) > 128 ? 1 : 0;
-								rng[1] = random[drop](1,256) > 240 ? 1 : 0;
-								Pinatas.AddItem("D4PinataBullets", rng[0] + rng[1]);
-							}
-							
-							//Shells giver
-							if (!Shells && !(Restrictions & RF_NOSHELLS) &&
-								(p.CountInv("D4Shotgun") || 
-								p.CountInv("D4SuperShotgun")) && 
-								p.CountInv("D4Shells") < 5)
-							{
-								Shells = true;
+								Armor[0] = true;
 								int rng[2];
 								rng[0] = random[drop](1,256) > 128 ? 1 : 0;
 								rng[1] = random[drop](1,256) > 128 ? 1 : 0;
-								Pinatas.AddItem("D4PinataShells", rng[0] + rng[1]);
+								Pinatas.AddItem("D4PinataArmor", rng[0] + rng[1]);
 							}
-							
-							//Cells giver
-							if (!Cells && !(Restrictions & RF_NOCELLS) &&
-								(p.CountInv("D4PlasmaRifle") ||
-								p.CountInv("D4GaussCannon") ||
-								p.CountInv("D4LightningGun")) && 
-								p.CountInv("D4Cells") < 16)
+							if (!Armor[1] && p.CountInv("D4ArmorCapRaiser") >= 50)
 							{
-								Cells = true;
+								Armor[1] = true;
 								int rng[2];
 								rng[0] = random[drop](1,256) > 128 ? 1 : 0;
 								rng[1] = random[drop](1,256) > 128 ? 1 : 0;
-								Pinatas.AddItem("D4PinataCells", rng[0] + rng[1]);
+								Pinatas.AddItem("D4PinataArmor", rng[0] + rng[1]);
 							}
-							//Rockets giver
-							if (!Rockets && !(Restrictions & RF_NOROCKETS) &&
-								(p.CountInv("D4RocketLauncher") || 
-								p.CountInv("D4GrenadeLauncher")) &&
-								p.CountInv("D4Rockets") < 5)
+							if (!Armor[2] && p.CountInv("D4ArmorCapRaiser") >= 100)
 							{
-								Rockets = true;
-								int rng = random[drop](1,256) > 196 ? 1 : 0;
-								Pinatas.AddItem("D4PinataRockets", rng);
+								Armor[2] = true;
+								Pinatas.AddItem("D4PinataArmor", 2);
 							}
 						}
-						//BFG ammo giver, this one doesnt check for low ammo, but it does check for the weapon
-						if (!BFG && !(Restrictions & RF_NOBFGAMMO) && p.CountInv("D4BFG"))
+						else 
 						{
-							BFG = true;
-							if (random[drop](1,512) < 16)	Pinatas.AddItem("D4PinataBFG", 1);
+							if (!Armor[3] && p.CountInv("BasicArmor") < 200 && p.CountInv("D4ArmorCapRaiser") >= 25)	//only if player isnt at full armor and has upgraded his armor
+							{
+								Armor[3] = true;
+								int rng = random[drop](1,256) > 192 ? 1 : 0;
+								Pinatas.AddItem("D4PinataArmor", rng); //very rarely they will drop armor
+							}
 						}
 					}
-				}
-				
-				// -------------------------------------------------------------
-				// Drop the cash.
-				// -------------------------------------------------------------
-				// Crates
-				if (CurrentUpgradeMode)
-				{
-					if (!(Restrictions & RF_NOCRATES) && CrateDropAlways > 0)
-					{	// The multiplier is already calculated above so do nothing else.
-						p.A_GiveInventory("D4DCash",		CrateDropAlways);
-						p.A_GiveInventory("D4DCashFake",	CrateDropAlways);
-						p.A_GiveInventory("CashUpdater",	1);
-					}
-				}
-				else // Credits
-				{
-					if (!(Restrictions & RF_NOCREDITS) && CashAmount > 0)
+					//health giver
+					if (!HPPin && !(Restrictions & RF_NOHEALTH) && p.health < 60)
 					{
-						int OldMul = CashMul;
-						CashMul *= p.CountInv("PowerD4Money") ? 4 : 1;
-						int CPB1 = p.CountInv("CashPercentBonus");
-						int CPB2 = p.CountInv("CashPercentBonusTemp");
+						HPPin = true;
+						int rng = random[drop](1,256) > 192 ? 1 : 0;
+						Pinatas.AddItem("D4PinataHealth", 1 + rng);
+					}
+					if (!(Restrictions & RF_NOREGAMMO))
+					{
+						//bullets giver
+						if (!Bullets && !(Restrictions & RF_NOBULLETS) && 
+							(p.CountInv("D4AssaultRifle") || 
+							p.CountInv("D4Chaingun") ||
+							p.CountInv("D4Repeater")) && 
+							p.CountInv("D4Bullets") < 10)
+						{
+							Bullets = true;
+							int rng[2];
+							rng[0] = random[drop](1,256) > 128 ? 1 : 0;
+							rng[1] = random[drop](1,256) > 240 ? 1 : 0;
+							Pinatas.AddItem("D4PinataBullets", rng[0] + rng[1]);
+						}
 						
-						double CashAmtPercent = CashAmount * (CPB1 + CPB2);
-						CashAmount = (CashAmount + (CashAmtPercent / 100)) * CashMul;
-						p.A_GiveInventory("D4DCash",		CashAmount);
-						p.A_GiveInventory("D4DCashFake",	CashAmount);
-						p.A_GiveInventory("CashUpdater",	1);
-						CashMul = oldmul;
+						//Shells giver
+						if (!Shells && !(Restrictions & RF_NOSHELLS) &&
+							(p.CountInv("D4Shotgun") || 
+							p.CountInv("D4SuperShotgun")) && 
+							p.CountInv("D4Shells") < 5)
+						{
+							Shells = true;
+							int rng[2];
+							rng[0] = random[drop](1,256) > 128 ? 1 : 0;
+							rng[1] = random[drop](1,256) > 128 ? 1 : 0;
+							Pinatas.AddItem("D4PinataShells", rng[0] + rng[1]);
+						}
+						
+						//Cells giver
+						if (!Cells && !(Restrictions & RF_NOCELLS) &&
+							(p.CountInv("D4PlasmaRifle") ||
+							p.CountInv("D4GaussCannon") ||
+							p.CountInv("D4LightningGun")) && 
+							p.CountInv("D4Cells") < 16)
+						{
+							Cells = true;
+							int rng[2];
+							rng[0] = random[drop](1,256) > 128 ? 1 : 0;
+							rng[1] = random[drop](1,256) > 128 ? 1 : 0;
+							Pinatas.AddItem("D4PinataCells", rng[0] + rng[1]);
+						}
+						//Rockets giver
+						if (!Rockets && !(Restrictions & RF_NOROCKETS) &&
+							(p.CountInv("D4RocketLauncher") || 
+							p.CountInv("D4GrenadeLauncher")) &&
+							p.CountInv("D4Rockets") < 5)
+						{
+							Rockets = true;
+							int rng = random[drop](1,256) > 196 ? 1 : 0;
+							Pinatas.AddItem("D4PinataRockets", rng);
+						}
+					}
+					//BFG ammo giver, this one doesnt check for low ammo, but it does check for the weapon
+					if (!BFG && !(Restrictions & RF_NOBFGAMMO) && p.CountInv("D4BFG"))
+					{
+						BFG = true;
+						if (random[drop](1,512) < 16)	Pinatas.AddItem("D4PinataBFG", 1);
 					}
 				}
 			}
+			
+			// -------------------------------------------------------------
+			// Drop the cash.
+			// -------------------------------------------------------------
+			// Crates
+			if (CurrentUpgradeMode)
+			{
+				if (!(Restrictions & RF_NOCRATES) && CrateDropAlways > 0)
+				{	// The multiplier is already calculated above so do nothing else.
+					p.A_GiveInventory("D4DCash",		CrateDropAlways);
+					p.A_GiveInventory("D4DCashFake",	CrateDropAlways);
+					p.A_GiveInventory("CashUpdater",	1);
+				}
+			}
+			else // Credits
+			{
+				if (!(Restrictions & RF_NOCREDITS) && CashAmount > 0)
+				{
+					int OldMul = CashMul;
+					CashMul *= p.CountInv("PowerD4Money") ? 4 : 1;
+					int CPB1 = p.CountInv("CashPercentBonus");
+					int CPB2 = p.CountInv("CashPercentBonusTemp");
+					
+					double CashAmtPercent = CashAmount * (CPB1 + CPB2);
+					CashAmount = (CashAmount + (CashAmtPercent / 100)) * CashMul;
+					p.A_GiveInventory("D4DCash",		CashAmount);
+					p.A_GiveInventory("D4DCashFake",	CashAmount);
+					p.A_GiveInventory("CashUpdater",	1);
+					CashMul = oldmul;
+				}
+			}
+		
 		}
 		
 		if (TotalMul > 0)	

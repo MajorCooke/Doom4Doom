@@ -424,14 +424,18 @@ Class D4SyphonGrenade : D4EquipmentProjectile
 				}
 				else 
 				{
-					bool HasArmor = (target.CountInv("BasicArmor") > 0);	
-					if (!HasArmor)	target.A_GiveInventory("SyphonArmor", 1);
 					let inv = BasicArmor(target.FindInventory("BasicArmor"));
-					int cap = ArmorCapGreen + target.CountInv("D4ArmorCapRaiser");
+					if (!inv)	
+					{
+						target.A_GiveInventory("SyphonArmor", 1);
+						inv = BasicArmor(target.FindInventory("BasicArmor"));
+						inv.Amount = 3;
+					}
+					int cap = inv.MaxAmount - (100 - target.CountInv("D4ArmorCapRaiser"));
+					cap = Max(cap, ArmorGreenNormal);
 					if (inv && inv.Amount < cap)
 					{
-						if (!HasArmor)	inv.Amount = 3;
-						else			inv.Amount = min(inv.Amount + 3, cap);						
+						inv.Amount = min(inv.Amount + 3, cap);						
 					}
 					/*
 					if (target.CountInv("BasicArmor") < 100 + target.CountInv("D4ArmorCapRaiser"))

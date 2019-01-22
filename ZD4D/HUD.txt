@@ -21,7 +21,7 @@ extend class D4DHandler
 				continue;			
 			
 			// We have something. Do the thing!
-			Vector3 adjustedWorldPos = e.viewPos + LevelLocals.vec3Diff(e.viewPos, mo.pos);
+			Vector3 adjustedWorldPos = e.viewPos + /*e.camera.*/ level.vec3Diff(e.viewPos, mo.pos);
 			Vector3 ndcPos = worldToClip.multiplyVector3(adjustedWorldPos).asVector3();
 			if (ndcPos.z <= 1 && ndcPos.z >= -1) 
 			{
@@ -66,7 +66,7 @@ class ####_ProjectionTestHandler : StaticEventHandler {
 				while ((projActor = Actor(iter.next())) != NULL) {
 					// this moves the position of the actor into absolute coordinates relative to the viewPos
 					// (which the view matrix is expecting)
-					Vector3 adjustedWorldPos = e.viewPos + LevelLocals.vec3Diff(e.viewPos, projActor.pos);
+					Vector3 adjustedWorldPos = e.viewPos + e.camera.level.vec3Diff(e.viewPos, projActor.pos);
 					
 					Vector3 positions[8];
 					positions[0] = (adjustedWorldPos + ( projActor.radius,  projActor.radius, 0               ));

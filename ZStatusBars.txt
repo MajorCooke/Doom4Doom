@@ -475,14 +475,18 @@ Class Doom4StatusBar : BaseStatusBar
 				int colArmor = Font.CR_WHITE;
 				int colArmorInvul = Font.CR_RED;
 				int armorAmount = GetArmorAmount(); 
+				let armor = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
 				int armorDisplay = Clamp(armorAmount, 0, 200);
-				
+				int armorMax = 200;
+				if (armor)	
+				{
+					armorDisplay = armor.Amount;
+					armorMax = Max(armorMax, armor.MaxAmount);
+				}
 				
 				// Armor
-				
-				DrawBar("BODYARM1", "BODYARM0", armorDisplay, 				100, (18, 676), 0, 0, imageAlignmentLeft);
-				DrawBar("BODYARM2", "BODYARM0", Max(0, armorDisplay - 100), 	100, (18, 676), 0, 0, imageAlignmentLeft);
-				
+				DrawBar("BODYARM1", "BODYARM0", armorDisplay, 				armorMax - 100, (18, 676), 0, 0, imageAlignmentLeft);
+				DrawBar("BODYARM2", "BODYARM0", Max(0, armorDisplay - (armorMax - 100)), 100, (18, 676), 0, 0, imageAlignmentLeft);
 				
 				let invul = Powerup(CPlayer.mo.FindInventory("PowerInvulnerable",true));
 				if (invul && invul.EffectTics > 0)

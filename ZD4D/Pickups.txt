@@ -264,6 +264,7 @@ Class D4ArmorBasePickup : CustomInventory
 				return true;
 			}
 			int Cap = Min(invoker.BaseLimit + CountInv("D4ArmorCapRaiser"), invoker.MaxSaveAmount);
+			Cap = Max(Cap, inv.MaxAmount - (100 - CountInv("D4ArmorCapRaiser")), ArmorGreenNormal);
 			inv.SavePercent = invoker.SavePercent;
 			if (inv.Amount < Cap)
 			{
