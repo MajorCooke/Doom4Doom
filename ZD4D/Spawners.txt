@@ -122,11 +122,7 @@ extend class D4DHandler
 					else								e.Replacement = 'D4StealthChaingunGuy';
 				}
 				else if (rep == 'StealthDoomImp')		e.Replacement = 'D4StealthDoomImp';
-				else if (rep == 'StealthFatso')			
-				{
-					if (random[rng](0,1))				e.Replacement = 'D4StealthFatsoHell';
-					else								e.Replacement = 'D4StealthFatsoTech';
-				}
+				else if (rep == 'StealthFatso')			e.Replacement = 'D4StealthFatsoSpawner';
 				else if (rep == 'StealthRevenant')		e.Replacement = 'D4StealthRevenant';
 				else if (rep == 'StealthShotgunGuy')	e.Replacement = 'D4StealthShotgunGuy';
 				else if (rep == 'StealthZombieMan')		e.Replacement = 'D4StealthZombieMan';
@@ -144,11 +140,7 @@ extend class D4DHandler
 					else								e.Replacement = 'D4ChaingunGuy';
 				}
 				else if (rep == 'DoomImp')				e.Replacement = 'D4DoomImp';
-				else if (rep == 'Fatso')
-				{
-					if (random[rng](0,1))				e.Replacement = 'D4FatsoHell';
-					else								e.Replacement = 'D4FatsoTech';
-				}
+				else if (rep == 'Fatso')				e.Replacement = 'D4FatsoSpawner';
 				else if (rep == 'LostSoul')				e.Replacement = 'D4LostSoul';
 				else if (rep == 'PainElemental')		e.Replacement = 'D4PainElemental';
 				else if (rep == 'Revenant')				e.Replacement = 'D4Revenant';

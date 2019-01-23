@@ -173,17 +173,6 @@ Class D4ManualLootList : Thinker
 	Array<Int> CrateDropChance, CrateDropAmount, CrateDropAlways;
 	Array<Int> CashAmount, CashChainsawPinata;
 	Array<Int> UpgradeDropChance, UpgradeDropAlways;
-	
-	bool CheckActor(Class<Actor> mo)
-	{
-		int size = Actors.Size();
-		return (mo && (size > 0) && (Actors.Find(mo) < size));
-	}
-	
-	int GetSize()
-	{
-		return Actors.Size();
-	}
 		
 	//--------------------------------------------------------------------------
 	// Adds an actor to the list of overrides for modders usage.
@@ -197,7 +186,6 @@ Class D4ManualLootList : Thinker
 		Class<Actor> check = Loot.mo;
 		if (!check)	
 		{
-			Console.Printf("Error: %s is not a proper actor. Check spelling!", Loot.mo);
 			return;
 		}
 		

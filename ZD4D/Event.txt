@@ -1,6 +1,7 @@
 #include "ZD4D/HUD.txt"
 #include "ZD4D/Spawners.txt"
 #include "ZD4D/EventMisc.txt"
+#include "ZD4D/EventItemDrops.txt"
 
 Class D4bum : D4Zombieman
 {
@@ -53,7 +54,8 @@ extend class D4DHandler
 	Array<Actor> Tracker;
 	Array<D4DBeamBase> Beams;
 	Array<D4Restriction> RestrictList;
-	D4ManualLootList LootList;
+	//D4ManualLootList LootList;
+	D4LootContainer LootList;
 	D4DDeathStorage Storage[MAXPLAYERS];
 	private int UpgradeMode;
 	private int CurrentUpgradeMode;
@@ -155,51 +157,52 @@ extend class D4DHandler
 	{
 		SetOrder(1000);
 		for (int i = 0; i < MAXPLAYERS; i++)	KNMInput[i] = 0;
-		LootList = D4ManualLootList.Get();
-		if (LootList)
-		{
-			D4ManualLootParameters Loot;
-			/*
-			Init function parameters are as follows:
-				
-			Actor Class
-				The name of the class to add.
-				
-			UpgradeDropChance
-				The denominator of the chance to drop an upgrade 
-				(1 / UpgradeDropChance).
-				
-			UpgradeDropAlways
-				The number of upgrades that will drop upon death, guaranteed.
-				
-			CrateDropChance
-				The numerator of 256 (CrateDropChance / 256) for each crate to 
-				drop, individually.
-				
-			CrateDropAmount
-				The number of crates to roll against the RNG CrateDropChance.
-				
-				I.e. 3 crates with a CrateDropChance means the RNG will run three 
-				times for each.
-				
-			CrateDropAlways
-				Guaranteed dropped crate count.
-				
-			CashChainsawPinata
-				-1 by default. Overrides the chainsaw quadrupling bonus 
-				(mastermind & cyberdemon are both 2000).
-				
-			CashAmount
-				The normal amount of cash to drop.
-			*/
-			
-			// This D4bum class (see top of source) will drop a fuckton of crates/cash.
-			// Bear in mind, LootList.Add(Loot); must be performed after the 
-			// Loot.Init function because Loot is a struct, and LootList's Add 
-			// function takes that struct as its parameter. Keeps things clean 
-			// and organized.
-			Loot.Init("D4bum", -1, 1, 256, 666, 666, 999, 200);	LootList.Add(Loot);
-		}
+		
+		
+		LootList = D4LootContainer.Create();
+		LootList.SetEntry('LegendaryZombie',				64, 5, 2, 300,-1,10,0);
+		LootList.SetEntry('LegendaryAssaultCaptain',		64, 5, 3, 350,-1,10,0);
+		LootList.SetEntry('LegendaryStealthTrooper',		64, 6, 3, 400,-1,10,0);
+		LootList.SetEntry('LegendaryCommando',				64,10, 4, 500,-1,10,0);
+		LootList.SetEntry('LegendaryImp',					64, 8, 3, 400,-1,10,0);
+		LootList.SetEntry('LegendaryPhaseImp',				64, 5, 3, 400,-1,10,0);
+		LootList.SetEntry('LegendaryFiend',					64, 6, 4, 500,-1,10,0);
+		LootList.SetEntry('LegendaryApparition',			64,15,10, 750,-1,10,1); // Fuck this guy.
+		LootList.SetEntry('LegendarySoul',					64, 3, 3, 300,-1,10,0);
+		LootList.SetEntry('LegendaryRedeemer',				64,10, 5, 500,-1,10,0);
+		LootList.SetEntry('LegendaryNecromancer',			64, 7, 4, 450,-1,10,0);
+		LootList.SetEntry('LegendaryHellKnight',			64, 8, 4, 400,-1,10,0);
+		LootList.SetEntry('LegendaryCyberNoble',			64, 9, 4, 500,-1,10,0);
+		LootList.SetEntry('LegendaryAfrit',					64,10, 5, 450,-1,10,0);
+		LootList.SetEntry('LegendaryArchon',				64,10, 5, 600,-1,10,0);
+		LootList.SetEntry('LegendaryBehemoth',				64,10, 6, 550,-1,10,0);
+		LootList.SetEntry('LegendaryBabySentient',			64,10, 5, 450,-1,10,0);
+		LootList.SetEntry('LegendaryTormentor',				64,10, 7, 700,-1, 7,0);
+		LootList.SetEntry('LegendaryRevenant',				64,10, 6, 500,-1,12,0);
+		LootList.SetEntry('LegendaryVile',					64,10, 7, 800,-1,10,0);
+		LootList.SetEntry('LegendarySentient',				64,10,12,1000,-1, 4,0);
+		LootList.SetEntry('LegendaryCyberdemon',			64,10,10, 900,-1, 6,0);
+		LootList.SetEntry('LegendaryAnnihilator',			64,10,11,1100,-1, 5,0);
+		LootList.SetEntry('LegendaryCardinal',				64,10,12,1000,-1,10,1);
+		LootList.SetEntry('TrueLegendaryCardinal',			64,10,30,2000,-1,10,4);
+		LootList.SetEntry('TrueLegendaryCyberdemon',		64,10,25,2000,-1,10,3);
+		LootList.SetEntry('TrueLegendaryCyberdemonNormal',	64,10,20,2000,-1,10,2);
+		LootList.SetEntry('TrueLegendarySentient',			64,10,30,2000,-1,10,5);
+		LootList.SetEntry('TrueLegendaryBabySentient',		64,10,15, 500,-1,10,1);
+		LootList.SetEntry('EnragedLegendaryZombie',			64,10, 5, 400,-1, 7,0);
+		LootList.SetEntry('EnragedLegendaryAssaultCaptain',	64,10, 6, 450,-1, 7,0);
+		LootList.SetEntry('EnragedLegendaryStealthTrooper',	64,10, 6, 500,-1, 7,0);
+		LootList.SetEntry('EnragedLegendaryCommando',		64,10, 7, 500,-1, 6,0);
+		LootList.SetEntry('EnragedLegendaryFiend',			64,10, 7, 600,-1, 6,0);
+		LootList.SetEntry('EnragedLegendarySoul',			64,10, 5, 400,-1,10,0);
+		LootList.SetEntry('EnragedLegendaryRedeemer',		64,10,10, 600,-1, 8,0);
+		LootList.SetEntry('EnragedLegendaryHellKnight',		64,10, 8, 650,-1,10,0);
+		LootList.SetEntry('EnragedLegendaryCybruiser',		64,10,10, 700,-1,10,1);
+		LootList.SetEntry('EnragedLegendaryBehemoth',		64,10, 9, 800,-1, 4,0);
+		LootList.SetEntry('EnragedLegendaryBabySentient',	64,10, 8, 700,-1, 3,0);
+		LootList.SetEntry('EnragedLegendaryTormentor',		64,10,12, 900,-1, 2,0);
+		LootList.SetEntry('EnragedLegendaryRevenant',		64,10, 8, 700,-1, 5,0);
+		
 		// Use the ERestrictFlags at the top of the file to set restrictions.
 		// Most of them should be self explanatory.
 		int LostSoulRestrictions = (RF_NOHEALTH|RF_NOARMOR|RF_NOREGAMMO|RF_NOBFGAMMO|RF_NOUPGRADES);
@@ -550,18 +553,13 @@ extend class D4DHandler
 		Class<Actor> thing = mo.GetClass();
 		
 		//Is it manual? This is defined above (see D4bum example).
-		if (LootList && LootList.CheckActor(thing)) 
+		// Find the thing and snag its contents, if it has any.
+		let Loot = D4LootDef(LootList.FindEntry(mo.GetClassName()));
+		if (Loot)
 		{
-			// Find the thing and snag its contents, if it has any.
-			D4ManualLootParameters Loot;
-			LootList.Retrieve(thing, Loot);
-			CrateDropChance = 		Loot.CrateDropChance;
-			CrateDropAmount = 		Loot.CrateDropAmount;
-			CrateDropAlways = 		Loot.CrateDropAlways;
-			CashChainsawPinata = 	Loot.CashChainsawPinata;
-			CashAmount = 			Loot.CashAmount;
-			UpgradeDropChance =		Loot.UpgradeDropChance;
-			UpgradeDropAlways =		Loot.UpgradeDropAlways;
+			[CrateDropChance, CrateDropAmount, CrateDropAlways] = Loot.GetCrateDrops();
+			[CashAmount, CashChainsawPinata] = Loot.GetCashDrops();
+			[UpgradeDropChance, UpgradeDropAlways] = Loot.GetUpgradeDrops();
 		}
 		else if (d4m) // Not manually overridden -- D4D monster.
 		{

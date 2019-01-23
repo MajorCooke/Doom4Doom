@@ -462,7 +462,11 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 		E01D C 3 ;
 		E01D D 3 A_NoBlocking();
 		E01D EFGH 3 ;
-		E01D I -1 {bCorpse = true;}
+		E01D I -1 
+		{
+			bCorpse = true;
+			A_BossDeath();
+		}
 		Stop;
 
 	GloryEnd:
@@ -477,6 +481,7 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 		{
 			bThruActors = true;
 			XDeathGush();
+			A_BossDeath();
 			A_NoBlocking();	//just in case
 		}
 		Stop;

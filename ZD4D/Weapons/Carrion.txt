@@ -208,6 +208,7 @@ Class D4CarrionCannon : Doom4Weapon
 								ptl.target = invoker.Owner;
 								ptl.tracer = enemy;
 								enemy.A_GiveInventory("CarrionBombard");
+								Console.Printf("%s", enemy.GetClassName());
 								count++;
 							}
 							if (count > 4)

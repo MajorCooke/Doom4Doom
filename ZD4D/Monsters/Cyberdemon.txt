@@ -293,7 +293,11 @@ Class D4Cyberdemon : D4AbstractBoss //replaces Cyberdemon
 		CYBR NO 10;
 		CYBR P 30;
 	Dead:
-		---- A -1 CanRaise { bCorpse = true; }
+		---- A -1 CanRaise 
+		{
+			A_BossDeath();
+			bCorpse = true; 
+		}
 		Stop;
 		
 	Raise:

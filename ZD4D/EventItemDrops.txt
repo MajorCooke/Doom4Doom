@@ -1,0 +1,156 @@
+//==============================================================================
+//
+// D4D Loot Definitions
+//
+// The base class for defining crates/cash/upgrade drops.
+// 
+//==============================================================================
+
+Class D4LootContainer play
+{
+	private Array<D4LootDef> Defs;
+	
+	// Start-up functions.
+	static D4LootContainer Create()
+	{
+		let con = new('D4LootContainer').Init();
+		return con;
+	}
+	
+	protected D4LootContainer Init()
+	{
+		Defs.Clear();
+		return self;
+	}
+	
+	void SetEntry(Class<Actor> ClassName, 
+		uint CrateDropChance, uint CrateDropAmount, uint CrateDropAlways,
+		uint CashAmount, uint CashChainsawPinata,
+		uint UpgradeDropChance, uint UpgradeDropAlways)
+	{
+		if (!ClassName)	return;
+		
+		D4LootDef def;
+		for (int i = 0; i < Defs.Size(); i++)
+		{
+			def = D4LootDef(Defs[i]);
+			if (def && def.ClassName == ClassName)
+				break;
+			def = null;
+		}
+		
+		if (!def)
+		{
+			def = D4LootDef.Create(ClassName, CrateDropChance, CrateDropAmount, CrateDropAlways,
+				CashAmount, CashChainsawPinata, UpgradeDropChance, UpgradeDropAlways);
+			Defs.Push(def);
+		}
+	}
+	
+	D4LootDef FindEntry(Name cls)
+	{
+		for (int i = 0; i < Defs.Size(); i++)
+		{
+			let def = D4LootDef(Defs[i]);
+			if (!def)
+			{
+				Defs.Delete(i);	i--;
+				continue;
+			}
+			Class<Actor> check = cls;
+			if (def && def.ClassName == check)
+			return def;
+			
+		}
+		return null;
+	}
+	
+	bool DeleteEntry(Class<Actor> ClassName)
+	{
+		for (int i = 0; i < Defs.Size(); i++)
+		{
+			if (!Defs[i])
+			{
+				Defs.Delete(i);	i--;
+				continue;
+			}
+			if (Defs[i] && Defs[i].ClassName == ClassName)
+			{
+				Defs[i].Destroy();
+				Defs.Delete(i);
+				return true;
+			}
+		}
+		return false;
+	}
+}
+
+Class D4LootDef play
+{
+	const DONT_USE = 0;
+	Class<Actor> 	ClassName;
+	private uint	CrateDropChance, CrateDropAmount, CrateDropAlways,
+					CashAmount, CashChainsawPinata,
+					UpgradeDropChance, UpgradeDropAlways;
+	
+	protected D4LootDef Init()
+	{
+		CrateDropChance = 		-1;
+		CrateDropAmount =		0;
+		CrateDropAlways =		0;
+		CashAmount = 			-1;
+		CashChainsawPinata = 	-1;
+		UpgradeDropChance = 	-1;
+		UpgradeDropAlways = 	0;
+		return self;
+	}
+		
+	static D4LootDef Create( Class<Actor> ClassName, 
+		uint CrateDropChance, uint CrateDropAmount, uint CrateDropAlways,
+		uint CashAmount, uint CashChainsawPinata,
+		uint UpgradeDropChance, uint UpgradeDropAlways)
+	{
+		if (!ClassName)	return null;
+		
+		let loot = new('D4LootDef').Init();
+		loot.ClassName = ClassName;
+		loot.CrateDropChance = CrateDropChance;
+		loot.CrateDropAmount = CrateDropAmount;
+		loot.CrateDropAlways = CrateDropAlways;
+		loot.CashAmount = CashAmount;
+		loot.CashChainsawPinata = CashChainsawPinata;
+		loot.UpgradeDropChance = UpgradeDropChance;
+		loot.UpgradeDropAlways = UpgradeDropAlways;
+		return loot;
+	}
+	
+	void SetCrateDrops(uint CrateDropChance, uint CrateDropAmount, uint CrateDropAlways)
+	{
+		if (CrateDropChance >= 0)	self.CrateDropChance = CrateDropChance;
+		if (CrateDropAmount >= 0)	self.CrateDropAmount = CrateDropAmount;
+		if (CrateDropAlways >= 0)	self.CrateDropAlways = CrateDropAlways;
+	}
+	
+	void SetCashDrops(uint CashAmount, uint CashChainsawPinata)
+	{
+		if (CashAmount >= 0)		self.CashAmount = 			CashAmount;
+		if (CashChainsawPinata)		self.CashChainsawPinata = 	CashChainsawPinata;
+	}
+	
+	void SetUpgradeDrops(uint UpgradeDropChance, uint UpgradeDropAlways)
+	{
+		if (UpgradeDropChance)		self.UpgradeDropChance = UpgradeDropChance;
+		if (UpgradeDropAlways)		self.UpgradeDropAlways = UpgradeDropAlways;
+	}
+	
+	// The parameters are merely there to remind me of the order.
+	uint, uint, uint GetCrateDrops(int Chance = DONT_USE, int Amount = DONT_USE, int Always = DONT_USE)
+	{	return CrateDropChance, CrateDropAmount, CrateDropAlways;	}
+	
+	uint, uint GetCashDrops(int Amount = DONT_USE, int ChainsawPinata = DONT_USE)
+	{	return CashAmount, CashChainsawPinata;	}
+	
+	uint, uint GetUpgradeDrops(int Chance = DONT_USE, int Always = DONT_USE)
+	{	return UpgradeDropChance, UpgradeDropAlways;	}
+	
+}

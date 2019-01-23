@@ -112,7 +112,7 @@ Class D4Arachnotron : D4AbstractBiggie //replaces Arachnotron // : Arachnotron	/
 		ARAC LMNO 4;
 		ARAC P -1
 		{
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+			A_BossDeath();
 			bCORPSE = true;
 		}
 		Stop;
@@ -128,8 +128,9 @@ Class D4Arachnotron : D4AbstractBiggie //replaces Arachnotron // : Arachnotron	/
 		{
 			bThruActors = true;
 			XDeathGush();
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
+			A_BossDeath();
 			A_NoBlocking();	//just in case
+			
 			
 			if (RuneChance(RuneChance_Arach))
 			{	A_SpawnItemEx("ArachnotronRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }

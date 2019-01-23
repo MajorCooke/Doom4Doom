@@ -33,6 +33,24 @@ BLESSED (White)
 * 
 */
 
+Class D4FatsoSpawner : RandomSpawner
+{
+	Default
+	{
+		DropItem "D4FatsoTech", 255, 1;
+		DropItem "D4FatsoHell", 255, 1;
+	}
+}
+
+Class D4StealthFatsoSpawner : RandomSpawner
+{
+	Default
+	{
+		DropItem "D4StealthFatsoTech", 255, 1;
+		DropItem "D4StealthFatsoHell", 255, 1;
+	}
+}
+
 Class D4FatsoTech : D4AbstractBiggie
 {
 	
@@ -186,6 +204,7 @@ Class D4FatsoTech : D4AbstractBiggie
 		FATT NOPQRS 4;
 		FATT T -1
 		{
+			A_BossDeath();
 			bCorpse = true;
 		}
 	    Stop;
@@ -196,14 +215,15 @@ Class D4FatsoTech : D4AbstractBiggie
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-	XDeathNoDrops:	
-		TNT1 A 0;
+	XDeathNoDrops:
 		TNT1 A 10
 		{
 			bThruActors = true;
 			XDeathGush();
 			A_NoBlocking();	//just in case
+			
 		}
+		TNT1 A 10 A_BossDeath();
 		Stop;
 	 Raise:
 		FATT R 5 DoResurrect();
@@ -776,6 +796,7 @@ Class D4FatsoHell : D4AbstractBiggie //replaces Fatso
 		FAT2 T -1 
 		{			
 			bCorpse = true;
+			A_BossDeath();
 		}
 	    Stop;
 		
@@ -786,7 +807,7 @@ Class D4FatsoHell : D4AbstractBiggie //replaces Fatso
 	Death.ChainsawPinata:
 	XDeath:
 	XDeathNoDrops:	
-		TNT1 A 1
+		TNT1 A 10
 		{
 			bThruActors = true;
 			XDeathGush();
@@ -794,6 +815,7 @@ Class D4FatsoHell : D4AbstractBiggie //replaces Fatso
 			A_NoBlocking();	//just in case
 			A_PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
 		}
+		TNT1 A 10 A_BossDeath();
 		Stop;
 	 Raise:
 		FAT2 R 5 DoResurrect();

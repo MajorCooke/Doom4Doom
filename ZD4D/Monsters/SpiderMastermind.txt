@@ -282,7 +282,11 @@ Class D4SpiderMastermind : D4AbstractBoss //replaces SpiderMastermind
 		SPID NOPQR 10;
 		SPID S 30;
 	Dead:
-		---- A -1 CanRaise { bCorpse = true; }
+		---- A -1 CanRaise 
+		{
+			bCorpse = true;
+			A_BossDeath();
+		}
 		Stop;
 		
 	Raise:
