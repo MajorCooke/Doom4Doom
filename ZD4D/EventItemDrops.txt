@@ -23,11 +23,12 @@ Class D4LootContainer play
 		return self;
 	}
 	
-	void SetEntry(Class<Actor> ClassName, 
+	void SetEntry(String cls, 
 		uint CrateDropChance, uint CrateDropAmount, uint CrateDropAlways,
 		uint CashAmount, uint CashChainsawPinata,
 		uint UpgradeDropChance, uint UpgradeDropAlways)
 	{
+		Class<Actor> ClassName = cls;
 		if (!ClassName)	return;
 		
 		D4LootDef def;
@@ -47,7 +48,7 @@ Class D4LootContainer play
 		}
 	}
 	
-	D4LootDef FindEntry(Name cls)
+	D4LootDef FindEntry(String cls)
 	{
 		for (int i = 0; i < Defs.Size(); i++)
 		{
@@ -65,8 +66,9 @@ Class D4LootContainer play
 		return null;
 	}
 	
-	bool DeleteEntry(Class<Actor> ClassName)
+	bool DeleteEntry(String cls)
 	{
+		Class<Actor> ClassName = cls;
 		for (int i = 0; i < Defs.Size(); i++)
 		{
 			if (!Defs[i])
