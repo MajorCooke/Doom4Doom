@@ -64,7 +64,6 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 					explo.A_PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
 				}
 				
-				// Make it look like a monster with this blood color was going to spawn.
 				let splatter = mo.Spawn("BloodGibDropper",mo.pos);
 				mo.Destroy();
 				continue;

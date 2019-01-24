@@ -20,9 +20,9 @@ enum PinataConstants
 
 //------------------------------------------------------------------------------
 // The base of all pinatas.
-// Contains all the work for determining
+// Contains all the work for determining what type of item to give.
 //------------------------------------------------------------------------------
-Class D4PinataBase : Actor
+Class D4PinataBase : CustomInventory
 {
 	enum BorderTypes
 	{
@@ -49,11 +49,10 @@ Class D4PinataBase : Actor
 	int						MainType, CR, CG, CB, Amount, MaxAmount, 
 							BorderFrame, Lifetime;
 	double 					MagnetDistance;
-	bool					Magnetic, AlwaysPickup, IgnoreSkill;
+	bool					Magnetic, InfPickup;
+	private bool			RandomAmmo;
 	Class<Inventory>		BaseType;
 	
-	Property IgnoreSkill:	IgnoreSkill;
-	Property AlwaysPickup:	AlwaysPickup;
 	Property Lifetime:		Lifetime;
 	Property Amount:		Amount;
 	Property MaxAmount:		MaxAmount;
@@ -65,14 +64,13 @@ Class D4PinataBase : Actor
 	
 	Default
 	{
-		D4PinataBase.IgnoreSkill false;
-		D4PinataBase.AlwaysPickup false;
+		Inventory.Amount 0;
+		Inventory.InterhubAmount 0;
+		Inventory.PickupSound "Doom4/Pickups/AmmoSmall";
 		D4PinataBase.Lifetime PinataLifetime;
-		D4PinataBase.Amount 1;
-		D4PinataBase.MaxAmount -1;
 		D4PinataBase.TrailColor -1, -1, -1;
 		D4PinataBase.MainType Pinata_Ammo;
-	//	D4PinataBase.BaseType "D4Bullets";
+		D4PinataBase.BaseType "Ammo";
 		D4PinataBase.Magnetic true;
 		D4PinataBase.Distance RadiusPull;
 		Scale 0.3;
@@ -80,9 +78,6 @@ Class D4PinataBase : Actor
 		Height 16;
 		Gravity 0.4;
 		BounceFactor 0.5;
-		Damage 0;
-		Projectile;
-		+PAINLESS
 		+BRIGHT
 		-NOGRAVITY
 		+NOBLOCKMONST
@@ -93,6 +88,7 @@ Class D4PinataBase : Actor
 		-BOUNCEAUTOOFF
 		+SKYEXPLODE
 		+SEEINVISIBLE
+		+DONTSPLASH
 	}
 	
 	//==========================================================================
@@ -113,18 +109,14 @@ Class D4PinataBase : Actor
 	}
 	override void PostBeginPlay()
 	{
-		if (MainType == Pinata_Ammo && (!BaseType || BaseType.GetParentClass() != "Ammo"))
-		{	Destroy(); return;	}
-			
-		if (!BaseType)
-		{
-			Switch (MainType)
-			{
-				Case Pinata_Health:	BaseType = "D4Stimpack"; break;
-				Case Pinata_Armor:	BaseType = "D4ArmorBasePickup"; break;
-				Default: break;
-			}			
-		}
+		if (!BaseType)		{	Destroy();	return;		}
+		
+			 if (BaseType is 'Armor')		BaseType = 'D4ArmorBasePickup';
+		else if (BaseType is 'Health')		BaseType = 'D4Stimpack';
+		else if (BaseType is 'Ammo')		RandomAmmo = (BaseType == 'Ammo');	
+		else { Destroy(); return; }
+		
+		MagnetDistance *= MagnetDistance;
 		
 		Super.PostBeginPlay();
 		Setup();
@@ -137,46 +129,6 @@ Class D4PinataBase : Actor
 		
 		if (SeekDelay > 0)	SeekDelay--;
 		Super.Tick();
-	}
-	
-	override int SpecialMissileHit(Actor victim)
-	{
-		if (!BaseType || !victim || !victim.bPICKUP || victim.health < 1) 
-			return 1;
-		// Pass through all but the tracer which will pick this thing up.
-		
-		if (SeekDelay)	Tracer = victim;
-		
-		let inv = Inventory(Spawn(BaseType, Tracer.pos));
-		if (inv)
-		{
-			let arm = D4ArmorBasePickup(inv);
-			if (arm)
-			{
-				arm.SaveAmount = Amount;
-				if (MaxAmount > -1)	arm.MaxSaveAmount = MaxAmount;
-			}
-			else
-			{
-				inv.Amount = Amount;
-				if (MaxAmount > -1)	inv.MaxAmount = MaxAmount;
-			}
-			inv.bDROPPED = true;
-			inv.ClearCounters();
-			if (AlwaysPickup)	inv.bALWAYSPICKUP = true;
-			if (IgnoreSkill)	Inv.bIGNORESKILL = true;
-			// Did it touch? Picked up?
-			inv.Touch(Tracer);
-			if (inv.bPICKUPGOOD)
-			{	
-				// Return contact and destroy this object.
-				bTHRUACTORS = bNOINTERACTION = true;
-				return 0;
-			}
-			// If not, destroy the item.
-			inv.Destroy();
-		}
-		return 1;
 	}
 	
 	//==========================================================================
@@ -192,117 +144,174 @@ Class D4PinataBase : Actor
 		// First check for a player to pull towards. If none is supplied,
 		// find one.
 		
-		bool InfPickup = (sv_unlimited_pickup || AlwaysPickup);
-		if (!mo || mo.health < 1 || !mo.bPICKUP)
+		InfPickup = (sv_unlimited_pickup || bAlwaysPickup);
+		mo = CheckReceiver(mo);
+		if (mo)	return mo;
+		
+		// Find the closest player.
+		double dist = MagnetDistance;
+		for (int i = 0; i < MAXPLAYERS; i++)
 		{
-			mo = null;
-			double dist = MagnetDistance;
-			for (int i = 0; i < MAXPLAYERS; i++)
-			{
-				if (!playeringame[i])	
-					continue;
+			if (!playeringame[i])	
+				continue;
+			
+			Actor plr = players[i].mo;
+			if (!plr)	continue;
+			
+			double curdist = Distance3DSquared(plr);
+			if (curdist > dist ** 2)
+				continue;
 				
-				Actor plr = players[i].mo;
-				if (!plr || plr.health < 1 || !plr.bPICKUP)
-					continue;
-					
-				double curdist = Distance3DSquared(plr);
-				if (curdist > dist ** 2)
-					continue;
-				//--------------------------------------------------------------
-				// Now we need to check for what type.
-				
-				if (MainType == Pinata_Ammo && BaseType)
-				{
-					if (!InfPickup)
-					{
-						let inv = plr.FindInventory(BaseType, true);
-						if (inv && inv.Amount >= inv.MaxAmount)
-							continue;
-					}
-				}
-				else if (MainType == Pinata_Health)
-				{
-					let pl = PlayerPawn(plr);
-					if (!pl || pl.Health >= pl.GetMaxHealth(true))
-						continue;
-				}
-				else if (MainType == Pinata_Armor)
-				{
-					if (!InfPickup)
-					{
-						let inv = BasicArmor(plr.FindInventory("BasicArmor",true));
-						if (inv && inv.Amount >= inv.MaxAmount)
-							continue;
-					}
-				}
-				else return null;
-				
-				//--------------------------------------------------------------
-				dist = curdist;
-				mo = plr;
-			}
-			return mo;
+			plr = CheckReceiver(plr);
+			if (!plr)	continue;
+			
+			//--------------------------------------------------------------
+			dist = curdist;
+			mo = plr;
 		}
-		else if (MainType == Pinata_Ammo && BaseType)
-		{
+			
+		return mo;
+	}
+	
+	Actor CheckReceiver(Actor mo)
+	{
+		if (!mo || mo.health < 1 || !mo.bPICKUP)
+			return null;
+			
+		if (mo.player && (mo.player.cheats & (CF_NOCLIP|CF_NOCLIP2)))
+			return null;
+		
+		if (BaseType is 'Ammo')
+		{			
 			if (!InfPickup)
 			{
+				if (RandomAmmo)
+				{
+					BaseType = PickAmmo(mo);
+					if (!BaseType || BaseType == 'Ammo')
+						return null;
+				}
+			
 				let inv = mo.FindInventory(BaseType, true);
-				if (inv && inv.Amount >= inv.MaxAmount)
+				if (!inv || inv.Amount >= inv.MaxAmount)
 					return null;
 			}
 		}
-		else if (MainType == Pinata_Health)
+		else if (BaseType is 'Health')
 		{
 			let pl = PlayerPawn(mo);
 			if (!pl || pl.Health >= pl.GetMaxHealth(true))
 				return null;
 		}
-		else if (MainType == Pinata_Armor)
+		else
 		{
-			if (!InfPickup)
+			let inv = BasicArmor(mo.FindInventory("BasicArmor",true));
+			if (!inv || inv.Amount >= inv.MaxAmount - (100 - mo.CountInv("D4ArmorCapRaiser")))
+				return null;
+		}
+		return mo;
+	}
+	
+	// Finds a random ammo class based on weapons owned that's not full.
+	private Class<Ammo> PickAmmo(Actor mo)
+	{
+		if (!mo)	return null;
+		
+		Array<Ammo> Ammos; Ammos.Clear();
+		
+		for (let probe = mo.Inv; probe != null; probe = probe.Inv)
+		{
+			let wep = Weapon(Probe);
+			if (!wep || wep.Amount < 1)	continue;
+			
+			if (wep is 'Doom4Weapon' || wep is 'AkimboWeapon' || wep is 'Fist')	continue;
+			
+			Class<Ammo> amo[2]; 
+			amo[0] = wep.AmmoType1;
+			amo[1] = wep.AmmoType2;
+			
+			for (int j = 0; j < amo.Size(); j++)
 			{
-				let inv = BasicArmor(mo.FindInventory("BasicArmor",true));
-				if (inv && inv.Amount >= inv.MaxAmount)
-					return null;
+				if (!amo[j])	continue;
+				let inv = Ammo(FindInventory(amo[j]));
+				if (!inv)		continue;
+				
+				if (Ammos.Find(inv) < Ammos.Size() && inv.Amount < inv.MaxAmount)
+					Ammos.Push(inv);
 			}
 		}
-		else return null;
 		
-		return mo;
+		if (Ammos.Size() < 1)
+			return null;
+			
+		int rng = random[r](0, Ammos.Size() - 1);
+		Ammo amm = Ammos[rng];
+		
+		int mx = amm.MaxAmount;
+		let defs = GetDefaultByType(amm.GetClass());
+		if (defs.Amount > 0)
+			Amount = Max(1, int(defs.Amount / 2));
+		else if (mx <= 200)	Amount = random[r](10,20);
+		else if (mx <= 100)	Amount = random[r](5, 10);
+		else if (mx <= 50)	Amount = random[r](2, 5);
+		else if (mx <= 10)	Amount = random[r](1, 3);
+		
+		return amm.GetClass();
+	}
+	
+	override String PickupMessage()
+	{
+		if (BaseType is 'Armor' || BaseType is 'D4ArmorBasePickup')	return 'Armor Shard';
+		else if (BaseType is 'Health') return 'Health Shard';
+		else
+		{
+			let defs = GetDefaultByType(BaseType);
+			return defs.PickupMsg;
+		}
 	}
 	
 	//--------------------------------------------------------------------------
 	void Setup()
 	{
 		SeekDelay = DelayVacuum;
-		Switch (MainType)
+		
+		if (BaseType is 'Armor' || BaseType is 'D4ArmorBasePickup')
 		{
-			Case Pinata_Armor:	BorderFrame = Frame = Fr_A;	Trail = "00FF00";	break;
-			Case Pinata_Health:	BorderFrame = Frame = Fr_B;	Trail = "29C9FF";	break;
-			Default:
+			PickupSound = "Doom4/Pickups/ArmorShard";
+			Frame = Fr_A;
+			BorderFrame = Frame;
+			Trail = "00FF00";
+		}
+		else if (BaseType is 'Health')
+		{
+			PickupSound = "Doom4/Pickups/Health";
+			Frame = Fr_B;	
+			BorderFrame = Frame;	
+			Trail = "29C9FF";	
+		}
+		else
+		{
+			Trail = "FFED29";
+			Frame = Fr_D;
+			BorderFrame = Frame;
+			if (BaseType == "D4Bullets")
+			{}
+			else if (BaseType == "D4Carrion")
+			{	Trail = "FF2846";	A_SetTranslation("CarrionBorder");	}
+			else if (BaseType == "D4Shells")
+				Frame = Fr_E;
+			else if (BaseType == "D4Cells")
+				Frame = Fr_F;
+			else if (BaseType == "D4Rockets")
+				Frame = Fr_G;
+			else if (BaseType == "D4BFGAmmo")
 			{
-				Trail = "FFED29";
-				BorderFrame = Frame = Fr_D;
-				
-				if (BaseType == "D4Bullets")
-				{ 	break;	}
-				else if (BaseType == "D4Carrion")
-				{	Trail = "FF2846";	A_SetTranslation("CarrionBorder");	}
-				else if (BaseType == "D4Shells")
-					Frame = Fr_E;
-				else if (BaseType == "D4Cells")
-					Frame = Fr_F;
-				else if (BaseType == "D4Rockets")
-					Frame = Fr_G;
-				else if (BaseType == "D4BFGAmmo")
-				{
-					BorderFrame = Frame = Fr_H;
-					Trail = "00FF00";
-				}
-				break;
+				BorderFrame = Fr_H;
+				Frame = BorderFrame;
+				Trail = "00FF00";
 			}
+			let defs = GetDefaultByType(BaseType);
+			PickupSound = defs.PickupSound;
 		}
 		
 		// If a custom trail color is defined, use that.
@@ -315,72 +324,79 @@ Class D4PinataBase : Actor
 		}
 	}
 	
+	override void Touch(Actor toucher)
+	{
+		if (toucher && toucher.A_GiveInventory(BaseType, Amount))
+			Super.Touch(toucher);
+	}
+	
 	States
 	{
 	Precache:
 		PIN2 A 0;
 		PIN3 A 0;
 	Spawn:
-		---- A 0 NoDelay
+		---- A DelayVacuum NoDelay
 		{
-			Border = D4PinataParticles(Spawn("D4PinataParticles", pos, ALLOW_REPLACE));
+			let Border = D4PinataParticles(Spawn("D4PinataParticles", pos, ALLOW_REPLACE));
 			if (Border)
 			{
-				Border.Master = self;
+				Border.Master = invoker;
 				Border.NoSetup = true;
-				Border.PT = Trail;
-				Border.frm = BorderFrame;
+				Border.PT = invoker.Trail;
+				Border.frm = invoker.BorderFrame;
 			}
+			invoker.Border = Border;
 		}
 	Looking:
 		---- A 2
 		{
-			if (Magnetic)	
+			let i = invoker;
+			Actor Trc = i.Tracer;
+			if (i.Magnetic)	
 			{
-				Tracer = FindPlayer(-1, Tracer);				
+				Trc = i.FindPlayer(-1, Trc);				
 			}
 			
-			if (Tracer)
+			if (Trc)
 			{
-				Lifetime = Default.Lifetime;
-				Alpha = 1.0;
-				bNOGRAVITY = true;
-				double dist = Distance3DSquared(Tracer);
-				double mdist = Max(1, Tracer.Height, Tracer.Radius) ** 2;
+				i.Lifetime = i.Default.Lifetime;
+				i.Alpha = 1.0;
+				double dist = Distance3DSquared(Trc);
+				double mdist = Max(1, Trc.Height, Trc.Radius) ** 2;
 				
 				if (dist <= mdist * 2)
 				{
 					if (dist <= mdist)
 					{
 						bNOINTERACTION = false;
-						Warp(Tracer, 0, 0, 0, 0, WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE, 0.5);
+						Warp(Trc, 0, 0, 0, 0, WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE|WARPF_STOP, 0.5);
+						i.Touch(Trc);
 					}
 					else
 					{
-						bNOINTERACTION = (!CheckSight(Tracer, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY|SF_SEEPASTSHOOTABLELINES));
+						bNOINTERACTION = (!CheckSight(Trc, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY|SF_SEEPASTSHOOTABLELINES));
 					}
 					
 				}
 				else
 				{
 					bNOINTERACTION = false;
-					A_Face(Tracer, 0.001, 0, 0, 0, FAF_MIDDLE);
-					
-					Vel3DFromAngle(PSpeed, AngleTo(Tracer), pitch);
+					double Ang = Angle;
+					A_Face(Trc, 0, 0, 0, 0, FAF_MIDDLE);
+					Vel3DFromAngle(PSpeed, Angle, Pitch);
+					Angle = Ang;
 				}
 				
 			}
-			else if (Lifetime-- < 1)
+			else if (i.Lifetime-- < 1)
 			{
-				bNOGRAVITY = bNOINTERACTION = false;
-				Lifetime = 0;
+				bNOINTERACTION = false;
+				i.Lifetime = 0;
 				A_FadeOut();
 			}
 		}
-		Wait;
-	Death:
-		TNT1 A 1;
-		Stop;
+		Wait;		
 	}
 }
 
@@ -468,9 +484,10 @@ Class D4PinataParticles : Actor
 	Spawn:
 		PIN3 A 0 NoDelay { Frame = frm; }
 	Looping:
-		"####" "#" 1
+		---- A 1
 		{
-			if (!master)
+			let m = Inventory(Master);
+			if (!m || m.Owner)
 			{
 				Destroy();
 				return;
