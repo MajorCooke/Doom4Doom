@@ -1,4 +1,5 @@
-HardwareShader PostProcess scene {
+HardwareShader PostProcess scene 
+{
 	Name "damageshader"
 	Shader "shaders/Damage.shader" 330
 	Uniform float damageFactor
@@ -11,6 +12,36 @@ Material Sprite BFGAmmoSkin
 	Glossiness 5.0
 }
 
+Material Sprite "Materials/HealthSkin.jpg"
+{
+	BrightMap	"Materials/BrightMaps/Auto/HealthSkin.jpg"
+	NormalMap	"Materials/NormalMaps/Auto/HealthSkin.jpg"
+	Specular	"Materials/Specular/Auto/HealthSkin.jpg"
+}
+
+Material Sprite "Materials/HealthGlassSkin.jpg" 
+{
+	BrightMap	"Materials/BrightMaps/Auto/HealthGlassSkin.jpg"
+}
+
+Material Sprite "Materials/PlasmaRifleBaseSkin.jpg"
+{
+	NormalMap	"Materials/NormalMaps/Auto/PlasmaRifleBaseSkin.jpg"
+	Specular	"Materials/Specular/Auto/PlasmaRifleBaseSkin.jpg"
+}
+
+Material Sprite "Materials/PlasmaRiflePlateSkin.jpg"
+{
+	NormalMap	"Materials/NormalMaps/Auto/PlasmaRiflePlateSkin.jpg"
+	Specular	"Materials/Specular/Auto/PlasmaRiflePlateSkin.jpg"
+}
+
+Material Sprite "Materials/PlasmaRifleStunSkin.jpg"
+{
+	NormalMap	"Materials/NormalMaps/Auto/PlasmaRifleStunSkin.jpg"
+	Specular	"Materials/Specular/Auto/PlasmaRifleStunSkin.jpg"
+}
+
 pointlight BFGAmmoLight
 {
 	color 0.0 1.0 0.0
@@ -18,7 +49,6 @@ pointlight BFGAmmoLight
     size 20
 	attenuate 1
 }
-
 
 pointlight PlayerLight1
 {

@@ -3104,14 +3104,20 @@ Graphic "ArmorSmallSkin", 480, 480
 {
 	Patch "Materials/ArmorSmallSkin.jpg", 0, 0
 }
+/*
 Graphic "HealthSkin", 1024, 1024
 {
 	Patch "Materials/HealthSkin.jpg", 0, 0
 }
-Graphic "HealthGlassSkin", 240, 240
+Graphic "Materials/HealthGlassSkin.png", 240, 240
 {
 	Patch "Materials/HealthGlassSkin.jpg", 0, 0
+	{
+		Style "Translucent"
+		Alpha 0.7
+	}
 }
+*/
 Graphic "CrateMaxSkin", 960, 960
 {
 	Patch "Materials/CrateMaxSkin.jpg", 0, 0

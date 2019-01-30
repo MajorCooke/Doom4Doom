@@ -760,7 +760,6 @@ Model D4HealthBonus
 {
 	Scale 1.0 1.0 1.2
 	Model 0 "Models/HealthSmall.md3"
-	Skin 0 "HealthSkin"
 	FrameIndex D4HL C 0 0
 }
 
@@ -768,7 +767,6 @@ Model D4Stimpack
 {
 	Scale 1.0 1.0 1.2
 	Model 0 "Models/HealthMedium.md3"
-	Skin 0 "HealthSkin"
 	FrameIndex D4HL A 0 0
 }
 
@@ -776,31 +774,9 @@ Model D4Medikit
 {
 	Scale 1.0 1.0 1.2
 	Model 0 "Models/HealthBig.md3"
-	Skin 0 "HealthSkin"
 	FrameIndex D4HL B 0 0
 }
 
-Model D4HealthBonusGlass
-{
-	Scale 1.0 1.0 1.2
-	Model 0 "Models/HealthSmallGlass.md3"
-	Skin 0 "HealthGlassSkin"
-	FrameIndex M666 A 0 0	
-}
-Model D4StimpackGlass
-{
-	Scale 1.0 1.0 1.2
-	Model 0 "Models/HealthMediumGlass.md3"
-	Skin 0 "HealthGlassSkin"
-	FrameIndex M666 A 0 0
-}
-Model D4MedikitGlass
-{
-	Scale 1.0 1.0 1.2
-	Model 0 "Models/HealthBigGlass.md3"
-	Skin 0 "HealthGlassSkin"
-	FrameIndex M666 A 0 0
-}
 //------------------------------------------------------------------------------
 // Armor
 //------------------------------------------------------------------------------
