@@ -182,7 +182,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 				Goto ResumeReadySequence;
 				
 	ResumeReadySequence:
-		"####" A 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWUSER2);
+		"####" A 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
 		Loop;
 	ReadyNoAmmo:
 		"####" A 1
@@ -585,7 +585,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	// Alt fire switcheroo
 	//-------------------------------------------------------
 	
-	User1:
+	Reload:
 		"####" "#" 0 
 		{
 			if(CountInv("RocketLauncherMod1")>=1) //if has Detonate

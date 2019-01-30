@@ -825,18 +825,10 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 		+NOPAIN
 		+NODAMAGETHRUST
 		+NOBLOOD
+		+NONSHOOTABLE
+		+THRUACTORS
 		DamageType "HoloAttract";
 		DamageFactor 0;
-	}
-	
-	override bool CanCollideWith(Actor other, bool passive)
-	{
-		if (passive)
-		{
-			if (bISMONSTER || player)
-				return false;
-		}
-		return true;
 	}
 	
 	void DrawAttention(bool justmissiles = false)

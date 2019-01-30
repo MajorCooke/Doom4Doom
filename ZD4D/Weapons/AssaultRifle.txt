@@ -1,7 +1,7 @@
 //===================================================================================================
 //===================================================================================================
 //
-//		Machinegun
+//	Heavy Assault Rifle
 //
 //	Sprites: Neccronixis
 //	MuzzleFlash sprite edit: DBThanatos
@@ -150,7 +150,7 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 	VeryReady:
 		"####" "#####" 1 
 		{
-			int WeapReadyFlags = WRF_ALLOWUSER1|WRF_ALLOWUSER2;
+			int WeapReadyFlags = WRF_ALLOWRELOAD|WRF_ALLOWUSER2;
 			
 			if (!CountInv("AssaultRifleMod1") && !CountInv("AssaultRifleMod2"))
 			{
@@ -569,7 +569,7 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 	//PlasmaRifleMod1 - HeatBlast - TacticalScope
 	//PlasmaRifleMod2 - StunBomb - MicroMissiles
 
-	User1:
+	Reload:
 		
 		"####" "#" 0 
 		{

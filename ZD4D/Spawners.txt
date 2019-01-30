@@ -6,17 +6,16 @@ extend class D4DHandler
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
 	
+	
 	override void CheckReplacement(ReplaceEvent e)
 	{
 		Class<Actor> rep = e.Replacee;
-		
+		Class<Actor> original = e.Replacement;
 		if (!rep || rep is 'Nothing')	return;
 		
 		let defs = GetDefaultByType(rep);
 		if (defs.bNOINTERACTION)	return;
-		
-		e.Replacement = rep;
-		
+				
 		if (rep is 'Inventory')
 		{
 			if (rep is 'Ammo')
@@ -102,7 +101,7 @@ extend class D4DHandler
 			}
 			else if (rep == 'AllMap') 					e.Replacement = 'D4AllMap';
 		}
-		if (defs.bISMONSTER)
+		else if (defs.bISMONSTER)
 		{
 			int rng = random[rngg](1,100);
 			int chance = D4D_CustomSpawnBias;
@@ -157,6 +156,5 @@ extend class D4DHandler
 		else if (rep is 'PowerInvulnerable' && rep != 'PowerInvulBase')		
 												e.Replacement = 'PowerInvulBase';
 												
-		if (e.Replacement != rep)	e.IsFinal = true;
 	}
 }

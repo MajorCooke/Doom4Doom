@@ -92,7 +92,7 @@ Class D4CarrionCannon : Doom4Weapon
 		"####" "#" 0 A_Lower(WeaponSwitchSpeed);
 		Loop;
 	Ready:
-		HELG H 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWUSER2);
+		HELG H 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
 		Loop;
 	/*==========================================================================
 	 Primary Fire
@@ -241,7 +241,7 @@ Class D4CarrionCannon : Doom4Weapon
 		}
 		HELG ABCDEABCDEABCDEABCDEABCDE 2 bright A_GunFlash("Null");
 		Goto Ready;
-	User1:
+	Reload:
 		HELG A 2 bright
 		{	
 			let it = ThinkerIterator.Create("Actor", STAT_DEFAULT);

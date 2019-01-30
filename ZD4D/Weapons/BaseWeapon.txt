@@ -21,6 +21,22 @@ Class Doom4Weapon : Weapon
 	meta bool MultiplayerWeapon;
 	Property MultiplayerWeapon: MultiplayerWeapon;
 	
+	Default 
+	{
+		Doom4Weapon.MultiplayerWeapon false;
+		+INVENTORY.UNDROPPABLE
+		+INVENTORY.UNTOSSABLE
+		+DONTGIB
+		Weapon.BobStyle "Alpha";
+		Weapon.BobSpeed 2.0;
+		Weapon.BobRangeX 0.7;
+		Weapon.BobRangeY 0.5;
+		Weapon.UpSound "Doom4/Weapons/WeaponSwitch";
+		Inventory.PickupSound "Doom4/Other/WeaponPickup";
+		Inventory.RespawnTics 175;
+		Tag "REPLACE ME YOU IDIOT!";
+	}
+	
 	override void BeginPlay()
 	{
 		Super.BeginPlay();
@@ -132,7 +148,7 @@ Class Doom4Weapon : Weapon
 		
 		int temp = AmmoUse1;
 		AmmoUse1 = ammocount;
-		bool check = Super.CheckAmmo(firemode, autoswitch, requireammo);
+		bool check = Super.CheckAmmo(firemode, autoswitch, requireammo, ammocount);
 		AmmoUse1 = temp;
 		return check;
 	}
@@ -177,22 +193,6 @@ Class Doom4Weapon : Weapon
 	{
 		A_StopBeam();
 		Super.OnDestroy();
-	}
-	
-	Default 
-	{
-		Doom4Weapon.MultiplayerWeapon false;
-		+INVENTORY.UNDROPPABLE
-		+INVENTORY.UNTOSSABLE
-		+DONTGIB
-		Weapon.BobStyle "Alpha";
-		Weapon.BobSpeed 2.0;
-		Weapon.BobRangeX 0.7;
-		Weapon.BobRangeY 0.5;
-		Weapon.UpSound "Doom4/Weapons/WeaponSwitch";
-		Inventory.PickupSound "Doom4/Other/WeaponPickup";
-		Inventory.RespawnTics 175;
-		Tag "REPLACE ME YOU IDIOT!";
 	}
 	
 	States
@@ -560,7 +560,7 @@ Class MeleePunchPuff : Actor
 // "Give weapons" identifier
 //=======================================================================
 //=======================================================================
-
+/*
 Class D4IdfaTrap : Weapon 
 {
 	Default 
@@ -572,7 +572,9 @@ Class D4IdfaTrap : Weapon
 		Ready: Deselect: Select: Fire: TNT1 A 1 A_Lower;
 	} 
 }
+*/
 Class IdfaStamp : Inventory {}
+
 
 //=======================================================================
 //=======================================================================

@@ -85,10 +85,10 @@ Class D4GaussCannon : Doom4Weapon
 			return ResolveState(null);
 		}
 	ReadyNormal:
-		"####" "##########" 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWUSER2);
+		"####" "##########" 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
 		Loop;
 	ReadyNoAlt:
-		"####" "##########" 1 A_WeaponReady(WRF_NOSECONDARY|WRF_ALLOWUSER1|WRF_ALLOWUSER2);
+		"####" "##########" 1 A_WeaponReady(WRF_NOSECONDARY|WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
 		Goto Ready;
 	Deselect:
 		"####" "#" 0 
@@ -465,7 +465,7 @@ Class D4GaussCannon : Doom4Weapon
 	//-------------------------------------------------------
 	// Alt fire switcheroo
 	//-------------------------------------------------------
-	User1:
+	Reload:
 		"####" "#" 0 
 		{
 			if (CountInv("GaussCannonMod1")) //if has Precision

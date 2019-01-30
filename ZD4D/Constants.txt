@@ -26,7 +26,7 @@ enum D4cns
 	GibFlags = 			SXF_TRANSFERTRANSLATION|SXF_NOCHECKPOSITION|SXF_ABSOLUTEVELOCITY|
 						SXF_SETTRACER|SXF_ORIGINATOR,
 						
-	CloudFlags = SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION|SXF_ABSOLUTEVELOCITY,
+	CloudFlags = 		SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION|SXF_ABSOLUTEVELOCITY,
 	
 	//A specific number for specific things. Means change the blood color 
 	//particles without affecting the duration of the actors.

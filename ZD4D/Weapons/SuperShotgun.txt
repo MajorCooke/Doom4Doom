@@ -244,8 +244,8 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			let plr = invoker.owner.player;
 			if (plr)
 			{
-				if ((plr.cmd.buttons & BT_USER1) &&
-					!(plr.oldbuttons & BT_USER1))
+				if ((plr.cmd.buttons & BT_RELOAD) &&
+					!(plr.oldbuttons & BT_RELOAD))
 					ToggleDoubleTrouble();
 			}
 		}

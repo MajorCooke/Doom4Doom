@@ -117,7 +117,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 	ReadyLoop:
 		"####" "#" 1 
 		{
-			A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWUSER2);
+			A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
 			return ResolveState(null);
 		}
 		Loop;
@@ -470,7 +470,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 	//-------------------------------------------------------
 	// Alt fire switcheroo
 	//-------------------------------------------------------
-	User1:
+	Reload:
 		"####" "#" 0 
 		{
 			A_ZoomFactor(1.0,ZOOM_NOSCALETURNING);

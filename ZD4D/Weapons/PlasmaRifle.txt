@@ -72,7 +72,7 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 			Goto ContinueReady;
 			
 	ContinueReady:
-		"####" AAAAAAAAA 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_ALLOWUSER2);
+		"####" AAAAAAAAA 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
 		Loop;
 	
 	Overlay.HeatGeneration:
@@ -332,7 +332,7 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 	//-------------------------------------------------------
 	// Alt fire switcheroo
 	//-------------------------------------------------------
-	User1:
+	Reload:
 		
 		"####" "#" 0 
 		{

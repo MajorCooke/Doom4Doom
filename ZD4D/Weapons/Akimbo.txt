@@ -3590,8 +3590,8 @@ Class AkimboWeapon : Weapon
 		{
 			if (CountInv("BFGUpgrade4"))
 			{
-				if ((GetPlayerInput(MODINPUT_BUTTONS) & BT_USER1) &&
-					!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_USER1))
+				if ((GetPlayerInput(MODINPUT_BUTTONS) & BT_RELOAD) &&
+					!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_RELOAD))
 				{
 					A_FireBullets(0,0,1,0,"BFGRedirectPuff",FBF_NORANDOMPUFFZ|FBF_NOFLASH,32766);
 					A_GiveToChildren("BFGRedirector",1);

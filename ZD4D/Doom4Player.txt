@@ -231,7 +231,8 @@ Class Doom4Player : PlayerPawn
 				DashTimer--; // Still waiting.
 			else if (DashTimer == 1)
 			{
-				if (bONMOBJ || pos.z <= GetZAt() || A_CheckFloor("Null"))
+				if (bONMOBJ || pos.z <= GetZAt() || A_CheckFloor("Null") ||
+					(player.cheats & (CF_FLY|CF_NOCLIP2)))
 					DashTimer = 0; // Can dash.
 			}
 			else if (DashTimer == -1)
@@ -310,7 +311,8 @@ Class Doom4Player : PlayerPawn
 			// and not blocked, keep boosting the player in the direction.
 			if (Vel.XY != (0,0) &&
 				!bONMOBJ && (pos.z > GetZAt()) && 
-				!A_CheckBlock("Null",CBF_ABSOLUTEANGLE,AAPTR_DEFAULT,DashSpeed,0,0,DashAngle))
+				!A_CheckBlock("Null",CBF_ABSOLUTEANGLE,AAPTR_DEFAULT,DashSpeed,0,0,DashAngle) &&
+				!(player.cheats & (CF_FLY|CF_NOCLIP2)))
 			{
 				next = null;
 				double vz = vel.z;
@@ -332,7 +334,7 @@ Class Doom4Player : PlayerPawn
 			if (!plr)	return ResolveState("Null");
 			
 			
-			bool ThrowGrenade = (plr.cmd.buttons & BT_RELOAD) && !(plr.oldbuttons & BT_RELOAD);
+			bool ThrowGrenade = (plr.cmd.buttons & BT_USER1) && !(plr.oldbuttons & BT_USER1);
 			let inv = GetDefaultByType("GrenadeCharge");
 			int MaxAmt = inv.MaxAmount;
 			
@@ -926,7 +928,7 @@ extend class Doom4Player
 	bool CheckGrenadeButton(bool cooldown)
 	{
 		let plr = GetRealPlayer();
-		if (plr && (plr.cmd.buttons & BT_RELOAD) && !(plr.oldbuttons & BT_RELOAD))
+		if (plr && (plr.cmd.buttons & BT_USER1) && !(plr.oldbuttons & BT_USER1))
 			return (cooldown) ? CheckEquipmentCharge(true) : true;
 		return false;
 	}
@@ -1500,6 +1502,61 @@ extend class Doom4Player
 				return;
 		}
 		Super.CheatTake(name, amount);
+	}
+	
+	override void CheatGive (String name, int amount)
+	{
+		Super.CheatGive(name, amount);
+		
+		int i;
+		Class<Inventory> type;
+		let player = self.player;
+		
+		if (player.mo == NULL || player.health <= 0)
+		{
+			return;
+		}
+		
+		int giveall = ALL_NO;
+		if (name ~== "all")
+		{
+			giveall = ALL_YES;
+		}
+		else if (name ~== "everything")
+		{
+			giveall = ALL_YESYES;
+		}
+		
+		if (giveall || name ~== "weapons")
+		{
+			let savedpending = player.PendingWeapon;
+			for (i = 0; i < AllActorClasses.Size(); ++i)
+			{
+				let type = (class<Weapon>)(AllActorClasses[i]);
+				if (!type || type == "Weapon")	continue;
+				
+				// Don't give replaced weapons unless the replacement was done by Dehacked.
+				let rep = GetReplacement(type);
+				if (rep != type && !(rep is "DehackedPickup"))	continue;
+				
+				// Give the weapon only if it is set in a weapon slot.
+				// Since the KEYCONF slots are taken care of in the super call,
+				// do actual slot numbers and priorities here instead.
+				readonly<Weapon> def = GetDefaultByType(type);
+				if (def.SlotNumber > -1 && def.SlotPriority <= 1.0)
+				{
+					if (giveall == ALL_YESYES || !def.bCheatNotWeapon)
+					{
+						GiveInventory(type, 1, true);
+					}
+				}
+			}
+			player.PendingWeapon = savedpending;
+
+			if (!giveall)
+				return;
+		}
+		
 	}
 	
 	//--------------------------------------------------------------------------

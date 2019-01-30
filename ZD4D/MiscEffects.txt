@@ -436,7 +436,7 @@ Class D4BulletPuffGibDistance : D4BulletPuff
 	{
 		Super.PostBeginPlay();
 			
-		if (tracer && tracer.health > 0 && (tracer.bSHOOTABLE || tracer.bVULNERABLE))
+		if (tracer && (tracer.bSHOOTABLE || tracer.bVULNERABLE))
 		{
 			if (target && Distance3DSquared(target) <= Range ** 2)
 				bEXTREMEDEATH = true;

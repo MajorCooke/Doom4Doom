@@ -71,8 +71,8 @@ Class D4Repeater : Doom4Weapon
 	SwitchWatcher:
 		M666 A 1
 		{
-			if ((GetPlayerInput(MODINPUT_BUTTONS) & BT_USER1) &&
-				!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_USER1))
+			if ((GetPlayerInput(MODINPUT_BUTTONS) & BT_RELOAD) &&
+				!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_RELOAD))
 			{
 				ACS_NamedExecute("ToggleRepeaterMode",0,0,0,0);
 			}
