@@ -137,11 +137,11 @@ OptionMenu "D4DKeybinds"
 	Title "D4D Keybinds"
 	Control "Upgrade Menu",					"UpgradeMenu"
 	StaticText ""
-	Control "Switch Weapon Mods",			"+user1"
+	Control "Switch Weapon Mods",			"+reload"
 	Control "Melee Attack",					"+user2"
 	Control "Cycle Grenade (Next)",			"Give GrenadeSwitchNext"
 	Control "Cycle Grenade (Prev)",			"Give GrenadeSwitchPrev"
-	Control "Throw Grenade",				"+reload"
+	Control "Throw Grenade",				"+user1"
 	Control "Cancel Demon Rune",			"+user4"
 	StaticText ""
 	StaticText "Special Use", 1
@@ -249,7 +249,7 @@ OptionMenu "D4DGoreOptions"
 {
 	Title "Gnash Gore"
 	StaticText "Disclaimer: Not Based On Nashgore.",1
-	Command "Panic Command",	"RemoveAllGibs"
+	Command "Panic Command",				"RemoveAllGibs"
 	Option "Spawn Bullet Giblets",			"D4D_BloodGiblets", "YesNo"
 	NumberField "Bullet Giblets",			"D4D_Giblets",	0, 10, 1
 	NumberField "Splatter Giblets",			"D4D_SplatterGiblets",	0, 10, 1
