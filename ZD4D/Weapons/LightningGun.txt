@@ -155,7 +155,7 @@ Class D4LightningGun : Doom4Weapon
 			A_WeaponOffset(frandom(1,3),frandom(33,35)); 
 			
 			int dmg = CountInv("LGUpgradeDamage") ? random(LGDmgMinUpgrade,LGDmgMaxUpgrade) : random(LGDmgMin,LGDmgMax);
-			int Flags = FBFlagsNoAmmo; 
+			int Flags = FBFlags; 
 			int Dist = CountInv("LGUpgradeRange") ? 1024 : 768;
 			
 			A_FireBullets(0,0,1,dmg,"LightningPuffV3",Flags,Dist,"LightningBeamSecondarySpawner",LGHeight,LGDist);
