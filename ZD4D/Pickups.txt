@@ -134,7 +134,9 @@ Class D4ArmorBasePickup : CustomInventory
 	int SaveAmount;
 	int MaxAbsorb;
 	int MaxFullAbsorb;
-	bool IgnoreSkill;
+	
+	int ArmorFlags;
+	flagdef IgnoreUpgrades : ArmorFlags, 0;
 	
 	property BaseLimit: BaseLimit;
 	property SavePercent: SavePercent;
@@ -142,7 +144,6 @@ Class D4ArmorBasePickup : CustomInventory
 	property MaxSaveAmount: MaxSaveAmount;
 	property MaxAbsorb: MaxAbsorb;
 	property MaxFullAbsorb: MaxFullAbsorb;
-	property IgnoreSkill: IgnoreSkill;
 	Default
 	{
 		D4ArmorBasePickup.SavePercent 100;
@@ -151,7 +152,6 @@ Class D4ArmorBasePickup : CustomInventory
 		D4ArmorBasePickup.MaxSaveAmount 200;
 		D4ArmorBasePickup.MaxAbsorb 200;
 		D4ArmorBasePickup.MaxFullAbsorb 200;
-		D4ArmorBasePickup.IgnoreSkill false;
 		Inventory.PickupMessage "";
 		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
 		DistanceCheck "D4D_MaxDrawDistance";
@@ -175,13 +175,14 @@ Class D4ArmorBasePickup : CustomInventory
 				}
 				return true;
 			}
-			int Cap = Min(invoker.BaseLimit + CountInv("D4ArmorCapRaiser"), invoker.MaxSaveAmount);
-			Cap = Max(Cap, inv.MaxAmount - (100 - CountInv("D4ArmorCapRaiser")), ArmorGreenNormal);
+			int raiser = (invoker.bIgnoreUpgrades) ? 100 : CountInv("D4ArmorCapRaiser");
+			int Cap = Min(invoker.BaseLimit + raiser, invoker.MaxSaveAmount);
+			Cap = Max(Cap, inv.MaxAmount - (100 - raiser), ArmorGreenNormal);
 			inv.SavePercent = invoker.SavePercent;
 			if (inv.Amount < Cap)
 			{
 				double SkillFactor = 1.0;
-				if (!invoker.IgnoreSkill)
+				if (!invoker.bIgnoreSkill)
 				{
 						 if (skill == 3) SkillFactor = 0.75;
 					else if (skill >= 4) SkillFactor = 0.5;
@@ -290,7 +291,11 @@ Class D4BlueArmorGiver : D4GreenArmorGiver
 }
 Class D4BlueArmor200 : D4BlueArmorGiver
 {
-	Default { +INVENTORY.IGNORESKILL }
+	Default 
+	{ 
+		+INVENTORY.IGNORESKILL
+		+D4ARMORBASEPICKUP.IGNOREUPGRADES
+	}
 }
 
 // Allow me to explain wtf is going on here...
