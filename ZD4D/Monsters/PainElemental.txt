@@ -264,7 +264,7 @@ extend class D4PainElemental
 		}
 
 		// [RH] make this optional
-		if (limit < 0 && compat_limitpain)
+		if (limit < 0 /*&& compat_limitpain()*/)
 			limit = 21;
 
 		if (limit > 0)
