@@ -201,6 +201,13 @@ Class UpgradeItemSpecial : UpgradeItem
 			Owner.A_SetInventory(RealItem,0);
 		Super.DepleteOrDestroy();
 	}
+	
+	override void OnDestroy()
+	{
+		if (Owner)
+			Owner.A_SetInventory(RealItem,0);
+		Super.OnDestroy();
+	}
 }
 
 //Strangely, this doesn't work the way it's supposed to. Oh well.
@@ -252,53 +259,7 @@ Class CashPercentBonus : UpgradeItem
 	}
 }
  
-// Environment protection
 
-Class ProtectionBonus1Real : PowerProtection
-{
-	Default 
-	{
-		DamageFactor "Normal", 	1.0;
-		DamageFactor "Drowning",0.5;
-		DamageFactor "Slime", 	0.5;
-		DamageFactor "Fire", 	0.5;	// for lava
-		DamageFactor "Crush", 	0.5;
-		DamageFactor "Falling", 0.0;
-		+INVENTORY.PERSISTENTPOWER
-		+INVENTORY.UNTOSSABLE
-		+INVENTORY.UNDROPPABLE
-		Powerup.Duration 1000000;
-		Inventory.InterhubAmount 1;
-		Inventory.MaxAmount 1;
-	}
-	
-	override void DoEffect()
-	{
-		Super.DoEffect();
-		EffectTics = 1000000;
-	}
-}
-
-// AoE damage protection
-Class ProtectionBonus3Real : PowerProtection
-{
-	Default 
-	{
-		DamageFactor "Normal", 1.0;
-		RadiusDamageFactor 0.5;
-		+INVENTORY.PERSISTENTPOWER
-		+INVENTORY.UNTOSSABLE
-		+INVENTORY.UNDROPPABLE
-		Powerup.Duration 1000000;
-		Inventory.InterhubAmount 1;
-		Inventory.MaxAmount 1;
-	}
-	override void DoEffect()
-	{
-		Super.DoEffect();
-		EffectTics = 1000000;
-	}
-}
 
 //==============================================================================
 //==============================================================================
@@ -370,12 +331,6 @@ Class VortexUpgradeAltPierce : VortexUpgradeBase 		{ Default { UpgradeItem.Cost 
 //	Suit Upgrades
 //==============================================================================
 //==============================================================================
-// Environmental Protection
-Class ProtectionBonus1 : UpgradeItemSpecial		{ Default {	UpgradeItem.Cost 5000; UpgradeItemSpecial.RealItem "ProtectionBonus1Real";	}}
-// Self Protection
-Class ProtectionBonus2 : UpgradeItem 			{ Default {	UpgradeItem.Cost 7500;	}}
-// AoE Protection
-Class ProtectionBonus3 : UpgradeItemSpecial		{ Default {	UpgradeItem.Cost 10000; UpgradeItemSpecial.RealItem "ProtectionBonus3Real";	}	}
 
 Class ProtectionBonus : UpgradeItem
 {
@@ -395,7 +350,7 @@ Class ProtectionBonus : UpgradeItem
 	
 	override void PrintDesc()
 	{
-		int amt = Owner.CountInv("ProtectionBonus");
+		int amt = Amount;
 		Switch (amt)
 		{
 			Case 1: Desc = Desc1; break;
@@ -408,21 +363,157 @@ Class ProtectionBonus : UpgradeItem
 	{
 		if (Owner)
 		{
-			int amt = Owner.CountInv("ProtectionBonus");
-			if (amt > 0)	{ Owner.A_SetInventory("ProtectionBonus1Real",1);	}
-			if (amt > 1)	{ Owner.A_SetInventory("ProtectionBonus2",1);		}
-			if (amt > 2)	{ Owner.A_SetInventory("ProtectionBonus3Real",1);	}
+			int amt = Amount;
+			if (amt > 0)	{ Owner.A_SetInventory("ProtectionBonus1",1);	}
+			if (amt > 1)	{ Owner.A_SetInventory("ProtectionBonus2",1);	}
+			if (amt > 2)	{ Owner.A_SetInventory("ProtectionBonus3",1);	}
 		}
+	}
+	
+	override void Travelled()
+	{
+		
 	}
 	override void DepleteOrDestroy()
 	{
 		if (Owner)
 		{
-			Owner.A_SetInventory("ProtectionBonus1Real",0);
+			Owner.A_SetInventory("ProtectionBonus1",0);
 			Owner.A_SetInventory("ProtectionBonus2",0);
-			Owner.A_SetInventory("ProtectionBonus3Real",0);
+			Owner.A_SetInventory("ProtectionBonus3",0);
 		}
 		Super.DepleteOrDestroy();
+	}
+}
+
+// Environment protection
+Class ProtectionBonus1 : PowerProtection
+{
+	Default 
+	{
+		DamageFactor "Normal", 	1.0;
+		DamageFactor "Drowning",0.5;
+		DamageFactor "Slime", 	0.5;
+		DamageFactor "Fire", 	0.5;	// for lava
+		DamageFactor "Crush", 	0.5;
+		DamageFactor "Falling", 0.0;
+		+INVENTORY.PERSISTENTPOWER
+		+INVENTORY.UNTOSSABLE
+		+INVENTORY.UNDROPPABLE
+		Inventory.InterhubAmount 1;
+		Inventory.MaxAmount 1;
+		Powerup.Duration 1000000;
+	}
+	
+	override void DoEffect()
+	{
+		Super.DoEffect();
+		EffectTics = 1000000;
+	}
+}
+
+// Self Protection
+// For this, we need to bear in mind 
+Class ProtectionBonus2 : PowerProtection
+{
+	bool reset;
+	double SDF;
+	Default 
+	{
+		DamageFactor "Normal", 1.0;
+		SelfDamageFactor 0.5;
+		+INVENTORY.PERSISTENTPOWER
+		+INVENTORY.UNTOSSABLE
+		+INVENTORY.UNDROPPABLE
+		Inventory.InterhubAmount 1;
+		Inventory.MaxAmount 1;
+		Powerup.Duration 1000000;
+	}
+	
+	override void InitEffect()
+	{
+		Super.InitEffect();
+		if (!Owner)	return;
+		SDF = Owner.SelfDamageFactor;
+		Owner.SelfDamageFactor *= SelfDamageFactor;
+	}
+	
+	override void DoEffect()
+	{
+		Super.DoEffect();
+		EffectTics = 1000000;
+		
+		if (SelfDamageFactor <= 0.0)
+		{
+			if (SDF != Owner.SelfDamageFactor && Owner.SelfDamageFactor > 0.0)
+				SDF = Owner.SelfDamageFactor;
+		}
+	}
+	
+	override void EndEffect()
+	{
+		if (Owner)
+		{
+			if (Owner.SelfDamageFactor <= 0.0 || SelfDamageFactor <= 0.0)
+				Owner.SelfDamageFactor = SDF;
+			else
+				Owner.SelfDamageFactor /= SelfDamageFactor;
+		}
+		Super.EndEffect();
+	}
+}
+
+// AoE damage protection
+Class ProtectionBonus3 : PowerProtection
+{
+	double RDF;
+	Default 
+	{
+		DamageFactor "Normal", 1.0;
+		RadiusDamageFactor 0.5;
+		+INVENTORY.PERSISTENTPOWER
+		+INVENTORY.UNTOSSABLE
+		+INVENTORY.UNDROPPABLE
+		Powerup.Duration 1000000;
+		Inventory.InterhubAmount 1;
+		Inventory.MaxAmount 1;
+	}
+	
+	override void InitEffect()
+	{
+		Super.InitEffect();
+		if (!Owner)	return;
+		
+		RDF = Owner.RadiusDamageFactor;
+		Owner.RadiusDamageFactor *= RadiusDamageFactor;
+	}
+	
+	override void DoEffect()
+	{
+		Super.DoEffect();
+		EffectTics = Default.EffectTics;
+		
+		if (RadiusDamageFactor <= 0.0)
+		{
+			if (RDF != Owner.RadiusDamageFactor && Owner.RadiusDamageFactor > 0.0)
+				RDF = Owner.RadiusDamageFactor;
+		}
+	}
+	
+	override void EndEffect()
+	{
+		if (Owner)
+		{
+			if (RadiusDamageFactor <= 0.0 || Owner.RadiusDamageFactor <= 0.0)
+				Owner.RadiusDamageFactor = RDF;
+			else
+			{
+				Owner.RadiusDamageFactor /= RadiusDamageFactor;
+				if (Owner.RadiusDamageFactor > 1.0)
+					Owner.RadiusDamageFactor = RDF;
+			}
+		}
+		Super.EndEffect();
 	}
 }
 

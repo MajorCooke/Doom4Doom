@@ -659,11 +659,11 @@ Class D4UpgradePickupSpawner : Actor
 				!plr.CountInv("D4HasteUpgrade2"))
 				{	SpawnCase = true; break;	}
 			
-			if (plr.CountInv("D4AirUpgrade") < 	GetDefaultByType("D4AirUpgrade").MaxAmount ||
-				plr.CountInv("D4Stamina") < GetDefaultByType("D4Stamina").MaxAmount ||
-				plr.CountInv("D4ArmorCapRaiser") < GetDefaultByType("D4ArmorCapRaiser").MaxAmount ||
-				plr.CountInv("D4CrateUpgrade") < GetDefaultByType("D4CrateUpgrade").MaxAmount ||
-				plr.CountInv("ProtectionBonus") < GetDefaultByType("ProtectionBonus").MaxAmount)
+			if (plr.CountInv("D4AirUpgrade") < 		GetDefaultByType("D4AirUpgrade").MaxAmount ||
+				plr.CountInv("D4Stamina") < 		GetDefaultByType("D4Stamina").MaxAmount ||
+				plr.CountInv("D4ArmorCapRaiser") < 	GetDefaultByType("D4ArmorCapRaiser").MaxAmount ||
+				plr.CountInv("D4CrateUpgrade") < 	GetDefaultByType("D4CrateUpgrade").MaxAmount ||
+				plr.CountInv("ProtectionBonus") < 	GetDefaultByType("ProtectionBonus").MaxAmount)
 				{	SpawnCase = true; break;	}
 		}
 				

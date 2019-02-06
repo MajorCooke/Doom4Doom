@@ -58,7 +58,8 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 		
 		let o = invoker.owner;
 		Actor closest = null;
-		double dist = 0;
+		//double dist = 0;			// old method
+		double dist = 32767 ** 2;	// new method
 		for (int i = 0; i < Monsters.Size(); i++)
 		{
 			Actor mo = Monsters[i];
@@ -75,11 +76,22 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			if (cone > LockOnCone) //0.93969262078
 			{
 				// Within 20 degrees.
+				// This method measures the distance from the player to the monster.
+				double distcheck = Distance3DSquared(mo);
+				if (!closest || distcheck < dist)
+				{
+					closest = mo;
+					dist = distcheck;
+				}
+				
+				/*
+				// This old method uses distance to the cone center.
 				if (!closest || (dist < cone))
 				{
 					closest = mo;
 					dist = cone;
 				}
+				*/
 			}
 		}
 		return closest;
@@ -116,8 +128,6 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	Deselect:
 		"####" "#" 0 
 		{
-			A_RemoveChildren(true,RMVF_EVERYTHING,"RLTargetChecker");
-			
 			ACS_NamedExecute("RemoveModText",0,0,0,0);
 			A_SetInventory("RLLockToken",0);
 			A_SetInventory("RLTargetToken",0);
@@ -428,15 +438,13 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 					if (!Targ || Targ.Health < 1)
 					{
 						A_SetInventory("RLLockToken",0);
-						let Reticle = invoker.Reticle;
-						if (Reticle)	Reticle.Destroy();
-						
+						ClearReticle();
 					}
 					else
 					{
 						A_SetInventory("TripleShot",1);
 						
-						let Reticle = Spawn("RLTargetChecker2", Targ.pos + (0,0,Targ.Height * 0.5), ALLOW_REPLACE);
+						let Reticle = Spawn("RLTargetChecker", Targ.pos + (0,0,Targ.Height * 0.5), ALLOW_REPLACE);
 						if (Reticle)
 						{
 							Reticle.Tracer = Targ;
@@ -444,8 +452,6 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 						}
 						invoker.Reticle = Reticle;
 						A_PlaySound("Doom4/Weapon/RocketLauncher/TargetLocked",7);
-						
-						
 					}
 				}
 				A_WeaponReady(WRF_NOSECONDARY);
@@ -460,7 +466,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 				
 				// First, check to see if we have a direct target to aim at.
 				FTranslatedLineTarget hit;
-				LineAttack(0, 32767, invoker.owner.pitch, 0, 'None', "PacifistPuffNoThru", LAF_NORANDOMPUFFZ|LAF_NOIMPACTDECAL, hit);
+				LineAttack(0, 1536, invoker.owner.pitch, 0, 'None', "PacifistPuffNoThru", LAF_NORANDOMPUFFZ|LAF_NOIMPACTDECAL|LAF_NOINTERACT, hit);
 				Targ = hit.linetarget;
 				
 				// If we don't, use the cone method.
@@ -725,16 +731,8 @@ Class RLDetonatorSecondary : CustomInventory
 				return false;
 			}
 			
-			if (Target && Target.CountInv("ProtectionBonus2"))
-			{			
-				A_Explode(15,128);	//deals low damage to player
-				A_Explode(145,180,0,0,60);	//then it deals a whole other bunch of damage at greater radius
-			}
-			else
-			{			
-				A_Explode(30,128);	
-				A_Explode(130,180,0,0,60);
-			}
+			A_Explode(130,180,0,0,60);	// High damage to enemies
+			A_Explode(30,128);			// Low damage to player
 			A_SpawnItemEx("ExploderDummy",0,0,0,0,0,0,0,32);	//had to, because this actor cannot a_quake since it disappears 
 			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
 			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
@@ -773,75 +771,7 @@ Class ExploderDummy : Actor
 //	Lock on related
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-Class RLTargetChecker : Actor 
-{
-	int c1, c0;
-	
-	Default 
-	{
-		Projectile;
-		+ALWAYSPUFF
-		+SKYEXPLODE
-		+PUFFONACTORS
-		+HITTRACER
-		+NOTONAUTOMAP
-		+NOINTERACTION
-		+PUFFGETSOWNER
-		+NOTIMEFREEZE
-		+BRIGHT
-		+BLOODLESSIMPACT
-		+PAINLESS
-		+NODECAL
-		Scale 1;
-		RenderStyle "Add";
-		+FORCEXYBILLBOARD
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay
-		{
-			if (!tracer || !tracer.bShootable || tracer.health < 1 ||
-			(CountInv("RLLockToken",TargetPtr) != CountInv("RLLockToken",TracerPtr)))
-			{
-				A_TakeInventory("RLLockToken",32767,0,TargetPtr);
-				A_TakeInventory("RLLockToken",32767,0,TracerPtr);
-				return ResolveState("Null");
-			}
-			A_RearrangePointers(DefPtr,TargetPtr,DefPtr,4);
-			c0 = CountInv("RLLockToken",MasterPtr);
-			c1 = CountInv("RLLockToken",MasterPtr);
-			if (c0 < 200)
-			{
-				A_GiveInventory("RLLockToken",30,MasterPtr);
-				A_GiveInventory("RLLockToken",30,TracerPtr);
-			}
-			c0 = CountInv("RLLockToken",MasterPtr);
-			c1 = CountInv("RLLockToken",TracerPtr);
-			return ResolveState(null);
-		}
-	Waiting:
-		TRGT A 1 bright;
-		TRGT A 0
-		{
-			if (CountInv("RLLockToken",MasterPtr) >= 200)
-			{
-				A_SetScale(1.5);
-				A_Warp(TracerPtr,0,0,0,-30,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",0.5);
-				A_TransferPointer(DefPtr,MasterPtr,TracerPtr,TracerPtr,4);
-			}
-			else
-			{
-				return ResolveState("Null");
-			}
-			return ResolveState(null);
-		}
-		Loop;
-		
-	}
-}
-
-Class RLTargetChecker2 : D4DFX
+Class RLTargetChecker : D4DFX
 {
 	Default
 	{
@@ -856,7 +786,7 @@ Class RLTargetChecker2 : D4DFX
 		TRGT A 1;
 		TRGT A 1
 		{
-			if (!Tracer)	return Destroy();
+			if (!Tracer || Tracer.Health < 1)	return Destroy();
 			Warp(Tracer, 0, 0, 0, -30, WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE, 0.5);
 		}
 		Wait;
@@ -930,24 +860,16 @@ Class D4Rocket : D4AbstractMissilePlayer
 	States
 	{
 	Spawn:
-		MICR A 1 Light("RedMediumPoint3") Bright NoDelay A_RearrangePointers(DefPtr,TargetPtr,DefPtr,4);
+		MICR A 1 Light("RedMediumPoint3") Bright NoDelay { master = target; }
 	Moving:
 		MICR A 1 Light("RedMediumPoint3") Bright SpawnRocketFX();
 		Loop;
 	Death:
 		TNT1 A 0 
 		{
-			DestroyFX();
-			if (CountInv("ProtectionBonus2", TargetPtr))
-			{			
-				A_Explode(15,128);
-				A_Explode(145,180,0,0,60);
-			}
-			else
-			{			
-				A_Explode(30,128);	
-				A_Explode(130,180,0,0,60);
-			}
+			//DestroyFX();
+			A_Explode(130,180,0,0,60);	// High damage to enemies
+			A_Explode(30,128);			// Low damage to player
 			A_RadiusThrust(180,180,RTF_THRUSTZ|RTF_AFFECTSOURCE|RTF_NOIMPACTDAMAGE,60);
 			
 			A_SpawnItemEx("PlayerRocketQuakeDummy",0,0,0,0,0,0,SXF_NOCHECKPOSITION);

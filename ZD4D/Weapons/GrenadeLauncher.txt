@@ -178,16 +178,8 @@ Class D4Grenade : Actor
 		{
 			bNOINTERACTION = true;
 			A_Stop();
-			if (Target && Target.CountInv("ProtectionBonus2"))
-			{			
-				A_Explode(15,128);
-				A_Explode(145,180,0,0,60);
-			}
-			else
-			{			
-				A_Explode(30,128);	
-				A_Explode(130,180,0,0,60);
-			}
+			A_Explode(130,180,0,0,60);	//Damage to enemies
+			A_Explode(30,128);			//Damage to shooter
 			ExplodeEffects();
 		}
 		Stop;

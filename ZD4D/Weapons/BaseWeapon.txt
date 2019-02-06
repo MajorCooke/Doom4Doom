@@ -1321,6 +1321,7 @@ Class D4AbstractMissile : Actor
 	
 	// Clean out the array every second of all non-existant actors, conserving
 	// memory.
+	/*
 	override void Tick()
 	{
 		Timer = (Timer + 1) % ClearDelay;
@@ -1328,6 +1329,7 @@ Class D4AbstractMissile : Actor
 			ClearNulls();
 		Super.Tick();
 	}
+	*/
 	
 	// Spawns rocket fire and smoke. Smoke is not tracked because it doesn't fly
 	// through walls, but the fire can.
@@ -1350,7 +1352,7 @@ Class D4AbstractMissile : Actor
 			if (g[i] && mo)
 			{
 				mo.vel = vel * FXVelMul;
-				SFX.Push(mo);
+				//SFX.Push(mo);
 			}
 		}
 	}
