@@ -833,7 +833,7 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 	
 	void DrawAttention(bool justmissiles = false)
 	{
-		if (!Event)	Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+		if (!Event)	Event = D4DHandler.Fetch();
 		if (!Event)	return;
 		if (!justmissiles)
 		{

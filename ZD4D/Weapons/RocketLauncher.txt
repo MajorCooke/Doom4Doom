@@ -49,7 +49,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	
 	action Actor LockOn()
 	{
-		let Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+		let Event = D4DHandler.Fetch();
 		
 		if (!Event)	return null;
 		Array<Actor> Monsters; Monsters.Copy(Event.Monsters);

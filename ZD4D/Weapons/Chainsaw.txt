@@ -36,7 +36,7 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 	
 	override void EnableAmmoSpawn()
 	{
-		if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+		if (!Event) Event = D4DHandler.Fetch();
 		if (Event)	Event.SetActorSpawn(D4DHandler.ChainsawAmmo, true);
 	}
 	

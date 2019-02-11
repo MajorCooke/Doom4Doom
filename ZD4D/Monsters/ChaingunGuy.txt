@@ -137,7 +137,7 @@ Class D4ChaingunGuy : D4AbstractMonster //replaces Chaingunguy // : ChaingunGuy
 	Pain:
 		HRZR G 3
 		{
-			if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+			if (!Event) Event = D4DHandler.Fetch();
 			A_StopBeam();
 		}
 		HRZR G 3 

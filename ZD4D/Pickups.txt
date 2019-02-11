@@ -453,7 +453,8 @@ Class D4UpgradeCase : CustomInventory
 	Pickup:
 		TNT1 A 0
 		{
-			let Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+			let Event = D4DHandler.Fetch();
+			if (!Event) { Console.Printf("Handler not found!");	return true; }
 			if (Event && Event.GetUpgradeMode() == 1) // Crates mode
 			{
 				Array<Class<Inventory> > Items; Items.Clear();

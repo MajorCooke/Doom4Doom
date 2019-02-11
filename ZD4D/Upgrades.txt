@@ -449,6 +449,19 @@ Class ProtectionBonus2 : PowerProtection
 				SDF = Owner.SelfDamageFactor;
 		}
 	}
+	/*
+	override void ModifyDamage(int damage, Name damageType, out int newdamage, bool passive, Actor inflictor, Actor source)
+	{
+		if (passive && damage > 0)
+		{
+			String s1, s2; s1 = "Null"; s2 = s1;
+			if (inflictor)	s1 = inflictor.GetClassName();
+			if (source)		s2 = source.GetClassName();
+			Console.Printf("%s %s", s1, s2);
+		}
+		Super.ModifyDamage(damage, damageType, damage, passive, inflictor, source);
+	}
+	*/
 	
 	override void EndEffect()
 	{

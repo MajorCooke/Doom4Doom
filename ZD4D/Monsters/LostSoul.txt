@@ -228,7 +228,7 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 							target.DamageMobj(master, master, rdmg, "Melee");
 						}
 					}
-					let e = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+					let e = D4DHandler.Fetch();
 					if (e)
 					{
 						Array<Actor> mon; mon.Copy(e.Monsters);

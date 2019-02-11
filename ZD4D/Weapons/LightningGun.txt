@@ -263,7 +263,7 @@ Class LightningPuffV3 : LightningPuffV2
 		{	
 			int maxcount = Tracer ? 5 : 4;
 			
-			let handler = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+			let handler = D4DHandler.Fetch();
 			if (handler && handler.Monsters.Size() > 0)
 			{
 				int dmg = random(LGChainDmgMin, LGChainDmgMax);

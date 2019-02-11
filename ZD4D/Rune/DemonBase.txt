@@ -848,7 +848,7 @@ Class DemonRuneMorphOff : Actor
 		}
 		
 		// Reset all D4D monsters back to normal.
-		let event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+		let event = D4DHandler.Fetch();
 		if (event)
 		{
 			let en = Spawn("Enemifier", (0,0,0));

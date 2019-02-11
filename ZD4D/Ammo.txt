@@ -40,7 +40,7 @@ Class ClipReplacer : CustomInventory //replaces Clip
 			D4DHandler Event;
 			if (random[rng](0,255) < (256 - 245))
 			{
-				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (!Event) Event = D4DHandler.Fetch();
 				if (Event && Event.CheckActorSpawn(D4DHandler.ChainsawAmmo))
 					A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
@@ -70,7 +70,7 @@ Class ClipBoxReplacer : CustomInventory //replaces ClipBox
 			D4DHandler Event;
 			if (random[rng](0,255) < (256 - 230))
 			{
-				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (!Event) Event = D4DHandler.Fetch();
 				if (Event && Event.CheckActorSpawn(D4DHandler.ChainsawAmmo))
 					A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
@@ -100,7 +100,7 @@ Class ShellReplacer : CustomInventory //replaces Shell
 			D4DHandler Event;
 			if (random[rng](0,255) < (256 - 245))
 			{
-				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (!Event) Event = D4DHandler.Fetch();
 				if (Event && Event.CheckActorSpawn(D4DHandler.ChainsawAmmo))
 					A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
@@ -130,7 +130,7 @@ Class ShellBoxReplacer : CustomInventory //replaces ShellBox
 			D4DHandler Event;
 			if (random[rng](0,255) < (256 - 230))
 			{
-				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (!Event) Event = D4DHandler.Fetch();
 				if (Event && Event.CheckActorSpawn(D4DHandler.ChainsawAmmo))
 					A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
@@ -161,7 +161,7 @@ Class RocketAmmoReplacer : CustomInventory //replaces RocketAmmo
 			D4DHandler Event;
 			if (random[rng](0,255) < (256 - 200))
 			{
-				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (!Event) Event = D4DHandler.Fetch();
 				if (Event && Event.CheckActorSpawn(D4DHandler.ChainsawAmmo))
 					A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
@@ -191,7 +191,7 @@ Class RocketBoxReplacer : CustomInventory //replaces RocketBox
 			D4DHandler Event;
 			if (random[rng](0,255) < (256 - 160))
 			{
-				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (!Event) Event = D4DHandler.Fetch();
 				if (Event && Event.CheckActorSpawn(D4DHandler.ChainsawAmmo))
 					A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
@@ -222,14 +222,14 @@ Class CellReplacer : CustomInventory //replaces Cell
 			D4DHandler Event;
 			if (random[rng](0,255) < (256 - 245))
 			{
-				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (!Event) Event = D4DHandler.Fetch();
 				if (Event && Event.CheckActorSpawn(D4DHandler.BFGAmmo))
 					A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
 			}
 			else A_SpawnItemEx("D4CellsSmall",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
 			if (random[rng](0,255) < (256 - 200))
 			{
-				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (!Event) Event = D4DHandler.Fetch();
 				if (Event && Event.CheckActorSpawn(D4DHandler.ChainsawAmmo))
 					A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
@@ -257,7 +257,7 @@ Class CellPackReplacer : CustomInventory //replaces CellPack
 			D4DHandler Event;
 			if (random[rng](0,255) < (256 - 220))
 			{
-				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (!Event) Event = D4DHandler.Fetch();
 				if (Event && Event.CheckActorSpawn(D4DHandler.BFGAmmo))
 					A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
 			}
@@ -265,7 +265,7 @@ Class CellPackReplacer : CustomInventory //replaces CellPack
 			
 			if (random[rng](0,255) < (256 - 160))
 			{
-				if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+				if (!Event) Event = D4DHandler.Fetch();
 				if (Event && Event.CheckActorSpawn(D4DHandler.ChainsawAmmo))
 					A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}

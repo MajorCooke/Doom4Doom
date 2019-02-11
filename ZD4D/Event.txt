@@ -915,7 +915,7 @@ extend class D4DHandler
 	
 	static D4DHandler Fetch()
 	{
-		return D4DHandler(StaticEventHandler.Find("D4DHandler"));
+		return D4DHandler(EventHandler.Find("D4DHandler"));
 	}
 	
 	//==========================================================================

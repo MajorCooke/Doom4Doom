@@ -1164,7 +1164,7 @@ extend class Doom4Player
 		if (UseLife())
 			return;
 		
-		if (!Event)	Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+		if (!Event)	Event = D4DHandler.Fetch();
 		if (Event) Event.StorePlayerItems(self);
 		effectSize = 0;
 		Super.Die(source, inflictor, dmgflags);
@@ -1366,7 +1366,7 @@ extend class Doom4Player
 		if (PentaNoiseWait > 0)	PentaNoiseWait--;
 		if (level.maptime <= 1)	
 		{
-			if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+			if (!Event) Event = D4DHandler.Fetch();
 			if (Event)	Event.ReturnPlayerItems(self);
 			
 			InitPlayer();
