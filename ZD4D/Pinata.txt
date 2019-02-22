@@ -533,7 +533,7 @@ Struct PlrCheck play
 		Actor trc = checkee.tracer;
 		if (trc)
 		{
-			if (trc is "PlayerPawn" && !trc.FindInventory("PowerMorph",true) &&
+			if (trc is "PlayerPawn" && trc.bPICKUP &&
 				trc.health > 0 && trc.player)
 			{
 				if (!(trc.player.cheats & (CF_NOCLIP|CF_NOCLIP2)))
@@ -548,7 +548,7 @@ Struct PlrCheck play
 			if (playeringame[i])
 			{
 				Actor plr = players[i].mo;
-				if (plr && !plr.FindInventory("PowerMorph",true) && plr.health > 0 && 
+				if (plr && plr.bPICKUP && plr.health > 0 && 
 					checkee.Distance3DSquared(plr) <= distance ** 2)
 				{
 					if (plr.player.cheats & (CF_NOCLIP|CF_NOCLIP2))

@@ -710,7 +710,7 @@ Class D4DoomDoll : CustomInventory
 	PickUp:
 		TNT1 A 0
 		{
-			if (CountInv("D4DoomDollHands"))
+			if (CountInv("D4DoomDollHands") || FindInventory("PowerMorph", true))
 			{
 				A_GiveInventory("DollUses",3);
 			}

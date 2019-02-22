@@ -34,7 +34,7 @@ Class D4BFG : Doom4Weapon
 	
 	override void EnableAmmoSpawn()
 	{
-		if (!Event) Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+		if (!Event) Event = D4DHandler.Fetch();
 		if (Event)	Event.SetActorSpawn(D4DHandler.BFGAmmo, true);
 	}
 	
@@ -267,7 +267,7 @@ Class D4BFGProjectile  : Actor
 		Super.PostBeginPlay();
 		Beamed.Clear();
 		Monsters.Clear();
-		handler = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+		handler = D4DHandler.Fetch();
 	}
 	
 	//--------------------------------------------------------------------------
@@ -276,7 +276,7 @@ Class D4BFGProjectile  : Actor
 	// without damage.
 	void BFGBeams(int maxtargets)
 	{
-		if (!handler)	handler = D4DHandler(StaticEventHandler.Find("D4DHandler"));
+		if (!handler)	handler = D4DHandler.Fetch();
 		if (handler && handler.Monsters.Size() > 0)
 		{
 			Monsters.Copy(handler.Monsters);

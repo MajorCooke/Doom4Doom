@@ -17,7 +17,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 {
 	Array<Actor> Targets;
 	Actor Reticle;
-	const LockOnCone = cos(20);
+	const LockOnCone = cos(20); //0.93969262078
 	const LockTokenTick = 30;
 	Default 
 	{
@@ -47,8 +47,26 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 		Super.OnDestroy();
 	}
 	
-	action Actor LockOn()
+	action bool, double CheckLockOn(Actor mo)
 	{
+		if (!mo || mo.health < 1 || (!mo.bSHOOTABLE && mo.bNONSHOOTABLE) || mo.bFRIENDLY || mo.bCORPSE)
+			return false, 0.0;
+		if (!CheckSight(mo, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
+			return false, 0.0;
+			
+		Vector3 forw = ( cos(angle) * cos(pitch), sin(angle) * cos(pitch), -sin(pitch) );
+		Vector3 offs = Vec2OffsetZ(0, 0, player.viewz);		// Account for the view height
+		Vector3 epos = mo.pos + (0, 0, mo.height * 0.5);
+		Vector3 diff = level.Vec3Diff(offs, epos);	// Internally does v2 - v1.
+		double cone = (forw dot diff) / diff.length();
+		return (cone > LockOnCone), cone;
+	}
+	
+	action Actor LockOn(Actor mon)
+	{
+		if (CheckLockOn(mon))
+			return mon;
+		
 		let Event = D4DHandler.Fetch();
 		
 		if (!Event)	return null;
@@ -58,40 +76,33 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 		
 		let o = invoker.owner;
 		Actor closest = null;
-		//double dist = 0;			// old method
-		double dist = 32767 ** 2;	// new method
+		double dist = 0;			// old method
+		//double dist = 32767 ** 2;	// new method
 		for (int i = 0; i < Monsters.Size(); i++)
 		{
 			Actor mo = Monsters[i];
-			if (!mo || mo.health < 1 || mo.bFRIENDLY || mo.bCORPSE)
-				continue;
-			if (!CheckSight(mo, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
+			bool check = false;
+			double cone = 0.0;
+			[check, cone] = CheckLockOn(mo);
+			if (!check)
 				continue;
 			
-			Vector3 forw = ( cos(angle) * cos(pitch), sin(angle) * cos(pitch), -sin(pitch) );
-			Vector3 offs = Vec2OffsetZ(0, 0, player.viewz);		// Account for the view height
-			Vector3 epos = mo.pos + (0, 0, mo.height * 0.5);
-			Vector3 diff = level.Vec3Diff(offs, epos);	// Internally does v2 - v1.
-			double cone = (forw dot diff) / diff.length();
-			if (cone > LockOnCone) //0.93969262078
+			
+			// Within 20 degrees.
+			// This method measures the distance from the player to the monster.
+			/*
+			double distcheck = Distance3DSquared(mo);
+			if (!closest || distcheck < dist)
 			{
-				// Within 20 degrees.
-				// This method measures the distance from the player to the monster.
-				double distcheck = Distance3DSquared(mo);
-				if (!closest || distcheck < dist)
-				{
-					closest = mo;
-					dist = distcheck;
-				}
-				
-				/*
-				// This old method uses distance to the cone center.
-				if (!closest || (dist < cone))
-				{
-					closest = mo;
-					dist = cone;
-				}
-				*/
+				closest = mo;
+				dist = distcheck;
+			}*/
+			
+			// This method uses distance to the cone center.
+			if (!closest || (dist < cone))
+			{
+				closest = mo;
+				dist = cone;
 			}
 		}
 		return closest;
@@ -435,7 +446,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 				{
 					let Targ = invoker.Target;
 					
-					if (!Targ || Targ.Health < 1)
+					if (!Targ || Targ.Health < 1 || Targ.bFRIENDLY)
 					{
 						A_SetInventory("RLLockToken",0);
 						ClearReticle();
@@ -458,9 +469,11 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			}
 			else
 			{	
-				//A_FireBullets(0,0,1,0,"RLTargetChecker",FBF_NOFLASH|FBF_NORANDOMPUFFZ|FBF_NORANDOM);
 				// Grab the target and tracer from the WEAPON, not the owner.
-				// The weapon pointers are never used, it appears.
+				// The weapon pointers are never used, it appears, so it should
+				// be relatively safe to do so.
+				
+				// For reference, invoker is the weapon. invoker.owner is the player.
 				Actor Targ = invoker.Target;
 				Actor Trac = invoker.Tracer;
 				
@@ -471,7 +484,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 				
 				// If we don't, use the cone method.
 				if (!Targ)
-					Targ = LockOn();
+					Targ = LockOn(Targ);
 				
 				// If switching targets...
 				if (Trac != Targ)
