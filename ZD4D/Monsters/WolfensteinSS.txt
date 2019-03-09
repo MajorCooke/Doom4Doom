@@ -29,6 +29,7 @@ Class D4OldWolfensteinSS : D4AbstractMonster //replaces WolfensteinSS
 {
 	Default
 	{
+		D4AbstractMonster.Replacing 'WolfensteinSS';
 		D4AbstractMonster.CrateDropAlways 1; //Intentional. Secret is secret.
 		D4AbstractMonster.CashAmount 100;
 		Health 50;

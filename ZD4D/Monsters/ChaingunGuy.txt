@@ -50,6 +50,7 @@ Class D4ChaingunGuy : D4AbstractMonster //replaces Chaingunguy // : ChaingunGuy
 	
 	Default 
 	{
+		D4AbstractMonster.Replacing 'ChaingunGuy';
 		D4AbstractMonster.UpgradeDropChance 260;
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 8;
@@ -303,6 +304,7 @@ Class D4SergeantShield : D4AbstractMonster
 	Property Armor: Armor;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'ChaingunGuy';
 		D4AbstractMonster.UpgradeDropChance 240;
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 8;
@@ -663,6 +665,7 @@ Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy ////replaces Chaingu
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'ChaingunGuy';
 		D4AbstractMonster.UpgradeDropChance 260;
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 8;
@@ -687,6 +690,7 @@ Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy ////replaces Chaingu
 		PainChance "GloryKill", 255;
 		WoundHealth 20;
 		+DONTCORPSE
+		Tag "Possessed Sergeant";
 	}
 	States
 	{

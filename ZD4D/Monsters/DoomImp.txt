@@ -38,6 +38,7 @@ Class D4DoomImp : D4AbstractMonster //replaces DoomImp
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'DoomImp';
 		D4AbstractMonster.UpgradeDropChance 285;
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 4;
@@ -686,6 +687,7 @@ Class D4OldDoomImp : D4AbstractMonster // : DoomImp ////replaces DoomImp
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'DoomImp';
 		D4AbstractMonster.UpgradeDropChance 285;
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 4;
@@ -709,6 +711,7 @@ Class D4OldDoomImp : D4AbstractMonster // : DoomImp ////replaces DoomImp
 		PainChance "GloryKill", 255;
 		WoundHealth 20;
 		+DONTCORPSE
+		Tag "Imp";
 	}
 	States
 	{

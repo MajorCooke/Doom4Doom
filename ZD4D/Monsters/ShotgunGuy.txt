@@ -39,6 +39,7 @@ Class D4ShotgunGuy : D4AbstractMonster //replaces ShotgunGuy
 	
 	Default 
 	{
+		D4AbstractMonster.Replacing 'ShotgunGuy';
 		D4AbstractMonster.UpgradeDropChance 290;
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 4;
@@ -348,6 +349,7 @@ Class D4OldShotgunGuy : D4AbstractMonster // : ShotgunGuy ////replaces ShotgunGu
 	
 	Default 
 	{
+		D4AbstractMonster.Replacing 'ShotgunGuy';
 		D4AbstractMonster.UpgradeDropChance 290;
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 4;
@@ -360,6 +362,7 @@ Class D4OldShotgunGuy : D4AbstractMonster // : ShotgunGuy ////replaces ShotgunGu
 		PainChance 170;
 		Monster;
 		+FLOORCLIP
+		+DONTCORPSE
 		SeeSound "shotguy/sight";
 		AttackSound "shotguy/attack";
 		PainSound "shotguy/pain";
@@ -367,11 +370,10 @@ Class D4OldShotgunGuy : D4AbstractMonster // : ShotgunGuy ////replaces ShotgunGu
 		ActiveSound "shotguy/active";
 		Obituary "$OB_SHOTGUY";
 		DropItem "Shotgun";
-		
 		PainChance "StunBomb", 255;
 		PainChance "GloryKill", 255;
 		WoundHealth 10;
-		+DONTCORPSE
+		Tag "Possessed Lieutenant";
 	}
 	States
 	{

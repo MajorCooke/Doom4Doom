@@ -37,19 +37,21 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	
 	override void OwnerDied()
 	{
-		if (Reticle) Reticle.Destroy();
+		ClearReticle();
+		ClearTargets();
 		Super.OwnerDied();
 	}
 	
 	override void OnDestroy()
 	{
-		if (Reticle) Reticle.Destroy();
+		ClearReticle();
+		ClearTargets();
 		Super.OnDestroy();
 	}
 	
 	action bool, double CheckLockOn(Actor mo)
 	{
-		if (!mo || mo.health < 1 || (!mo.bSHOOTABLE && mo.bNONSHOOTABLE) || mo.bFRIENDLY || mo.bCORPSE)
+		if (!mo || mo.health < 1 || (!mo.bSHOOTABLE && mo.bNONSHOOTABLE) || mo.bFRIENDLY || mo.bCORPSE || mo.bDORMANT)
 			return false, 0.0;
 		if (!CheckSight(mo, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
 			return false, 0.0;
@@ -110,12 +112,20 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	
 	action void ClearReticle()
 	{
-		let ret = invoker.Reticle;
-		if (ret)	
+		let i = invoker;
+		if (i.Reticle)
 		{
-			ret.Destroy();
-			invoker.Reticle = null;
+			i.Reticle.Destroy();
+			i.Reticle = null;
 		}
+	}
+	
+	action void ClearTargets()
+	{
+		let i = invoker;
+		i.Target = null;
+		i.Tracer = null;
+		i.Targets.Clear();
 	}
 	
 	action Actor A_FireSeekerRocket(class<Actor> missiletype, double angle = 0, bool useammo = true, double spawnofs_xy = 0, double spawnheight = 0, int flags = 0, double pitch = 0)
@@ -424,10 +434,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 		{
 			if (!CountInv("RLTargetToken"))
 			{
-				invoker.Targets.Clear();
-				invoker.Target = null;
-				invoker.Tracer = null;
-			//	A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
+				ClearTargets();
 				A_GiveInventory("RLTargetToken",1);
 			}
 			return ResolveState("LockOnHold");
@@ -450,6 +457,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 					{
 						A_SetInventory("RLLockToken",0);
 						ClearReticle();
+						ClearTargets();
 					}
 					else
 					{
@@ -477,36 +485,30 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 				Actor Targ = invoker.Target;
 				Actor Trac = invoker.Tracer;
 				
-				// First, check to see if we have a direct target to aim at.
-				FTranslatedLineTarget hit;
-				LineAttack(0, 1536, invoker.owner.pitch, 0, 'None', "PacifistPuffNoThru", LAF_NORANDOMPUFFZ|LAF_NOIMPACTDECAL|LAF_NOINTERACT, hit);
-				Targ = hit.linetarget;
-				
-				// If we don't, use the cone method.
 				if (!Targ)
-					Targ = LockOn(Targ);
+				{
+					// First, check to see if we have a direct target to aim at.
+					FTranslatedLineTarget hit;
+					LineAttack(0, 1536, invoker.owner.pitch, 0, 'None', "PacifistPuffNoThru", LAF_NORANDOMPUFFZ|LAF_NOIMPACTDECAL|LAF_NOINTERACT, hit);
+					Targ = hit.linetarget;
+				}
+				Targ = LockOn(Targ);
 				
 				// If switching targets...
 				if (Trac != Targ)
 				{
-					// Reset it.
-					if (Trac)	Trac.A_SetInventory("RLLockToken", 0);
-					
 					// Make sure we have a target.
 					if (Targ)	
 					{
-						Targ.A_SetInventory("RLLockToken", LockTokenTick);
 						A_SetInventory("RLLockToken", LockTokenTick);
 						A_PlaySound("Doom4/Weapon/RocketLauncher/StartLockOn",6);
 					}
 					else
-					{
 						A_SetInventory("RLLockToken",0);
-					}
+					
 				}
 				else if (Targ)	// Same target.
 				{
-					Targ.A_GiveInventory("RLLockToken", LockTokenTick);
 					A_GiveInventory("RLLockToken", LockTokenTick);
 				}
 				
@@ -526,8 +528,10 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			A_SetInventory("RLTargetToken",0);
 			A_SetInventory("RocketFired",0);
 			A_SetInventory("TripleShot",0);
+			ClearTargets();
 		}
 		Goto Ready; // failsafe
+	
 	//-----------------------------------------------------
 	// 	where it actually fires the 3 rockets. Cooke, you really gotta
 	//  start putting comments

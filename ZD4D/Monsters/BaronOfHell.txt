@@ -42,6 +42,7 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 	
 	Default 
 	{
+		D4AbstractMonster.Replacing 'BaronofHell';
 		D4AbstractMonster.Rune "BaronRune", RuneChance_Baron;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 32;
@@ -1018,6 +1019,7 @@ Class D4OldBaronOfHell : D4AbstractBiggie // : BaronOfHell
 	int staggertimer;
 	Default 
 	{	
+		D4AbstractMonster.Replacing 'BaronofHell';
 		D4AbstractMonster.Rune "BaronRune", RuneChance_Baron;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 32;
@@ -1041,6 +1043,7 @@ Class D4OldBaronOfHell : D4AbstractBiggie // : BaronOfHell
 		PainChance "StunBomb", 255;
 		PainChance "GloryKill", 255;
 		WoundHealth 150;
+		Tag "Baron of Hell";
 	}
 	States
 	{

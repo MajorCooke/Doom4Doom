@@ -40,6 +40,7 @@ Class D4Archvile : D4AbstractBiggie //replaces Archvile
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'Archvile';
 		D4AbstractMonster.ResurrectCvar 'D4D_ResArchvile';
 		D4AbstractMonster.Rune "ArchvileRune", RuneChance_Archie;
 		D4AbstractMonster.CrateDropAmount 3;
@@ -654,6 +655,7 @@ Class D4OldArchVile : D4AbstractBiggie // ArchVile //replaces ArchVile
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'Archvile';
 		D4AbstractMonster.Rune "ArchvileRune", RuneChance_Archie;
 		D4AbstractMonster.CrateDropAmount 3;
 		D4AbstractMonster.CrateDropChance 64;
@@ -679,6 +681,7 @@ Class D4OldArchVile : D4AbstractBiggie // ArchVile //replaces ArchVile
 		WoundHealth 120;
 		PainChance "StunBomb", 255;
 		+DONTCORPSE
+		Tag "Archvile";
 	}
 	States
 	{

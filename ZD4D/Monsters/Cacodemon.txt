@@ -38,6 +38,7 @@ Class D4Cacodemon : D4AbstractBiggie //replaces Cacodemon
 	
 	Default 
 	{
+		D4AbstractMonster.Replacing 'Cacodemon';
 		D4AbstractMonster.Rune "CacodemonRune", RuneChance_Caco;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 28;
@@ -439,6 +440,7 @@ Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon ////replaces Cacodemon
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'Cacodemon';
 		D4AbstractMonster.Rune "CacodemonRune", RuneChance_Caco;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 28;
@@ -462,6 +464,7 @@ Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon ////replaces Cacodemon
 		+DONTCORPSE
 		PainChance "GloryKill", 255;
 		WoundHealth 80;
+		Tag "Cacodemon";
 	}
 	States
 	{

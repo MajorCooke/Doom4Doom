@@ -137,6 +137,8 @@ Class Doom4Player : PlayerPawn
 		DamageFactor "PDTBFGTracer", 0.0;
 		DamageFactor "LegendaryPlayer", 0.0;
 		DamageFactor "LegendaryGuruPlayer", 0.0;
+		DamageFactor "Stunner", 0.5;
+		DamageFactor "Nope", 0.0;
 		PainChance "SpawnMarine", 0;
 		PainChance "Leg", 0;
 		PainChance "Taunt", 0;
@@ -886,14 +888,7 @@ extend class Doom4Player
 		let plr = player;
 		return (plr && plr.mo && plr.mo == self) ? plr : null;
 	}
-	
-	//==========================================================================
-	//
-	// Weapon switching
-	//
-	//==========================================================================
-	
-	
+		
 	
 	//==========================================================================
 	//
@@ -988,7 +983,11 @@ extend class Doom4Player
 		{
 			source.bPIERCEARMOR = false;
 			if (source == self)
-				flags |= DMG_NO_ENHANCE;
+			{
+				int testdmg = GetModifiedDamage(damagetype, damage, true, inflictor, source, flags);
+				if (testdmg > damage)
+					flags |= DMG_NO_ENHANCE;
+			}
 		}	
 		flags &= ~DMG_NO_ARMOR;
 		
@@ -998,6 +997,15 @@ extend class Doom4Player
 			inv.MaxAbsorb = Max(inv.MaxAbsorb, 200);
 			inv.MaxFullAbsorb = Max(inv.MaxFullAbsorb, 200);
 			inv.SavePercent = 100.0;
+		}
+		
+		// Can't touch dis.
+		if (CountInv("CantTouchThis"))
+		{
+			bNODAMAGE = true;
+			flags &= ~DMG_FORCED;
+			damage = Clamp(damage, 0, TELEFRAG_DAMAGE - 1);
+			TelefragDamage = false;
 		}
 		
 		// Handle Pentagram of Protection effects here. Pretty much a copy/pasta
@@ -1016,7 +1024,8 @@ extend class Doom4Player
 			if (damage < 1 && (!inflictor || (!inflictor.bCAUSEPAIN && !bALLOWPAIN)))
 				return 0;
 				
-			if (CountInv("D4PentagramUpgrade3") && mod != 'Reflection' && damage > 0)
+			if (CountInv("Invulnerability") && CountInv("D4PentagramUpgrade3") && 
+				mod != 'Reflection' && damage > 0)
 			{
 				// Make sure never to do this to self! Otherwise, infiniloops happen.
 				// Doze are bad. Weally weally bad. :(
@@ -1072,19 +1081,14 @@ extend class Doom4Player
 			return 0;
 		}
 		
-		// Can't touch dis.
-		if (CountInv("CantTouchThis"))
-		{
-			bNODAMAGE = true;
-			flags &= ~DMG_FORCED;
-			damage = Clamp(damage, 0, TELEFRAG_DAMAGE - 1);
-			TelefragDamage = false;
-		}
+		
 		// Don't negate stuff if it's telefrag damage, unless LAXTELEFRAGDMG is used.
-		else if (!TelefragDamage)
+		if (!TelefragDamage)
 		{
 			// Reduce by 1% for every megasphere we've picked up.
-			// DoomDoll does not give this bonus. 
+			// DoomDoll does not give this bonus. This is calculated separately
+			// from damage protection effects and cannot be pierced unless by
+			// telefrag damage.
 			damage = AdjustMegasphereDamage(damage);
 		}
 		
@@ -1107,7 +1111,7 @@ extend class Doom4Player
 			
 			// If the player still has health due to regular buddha or flag buddha,
 			// don't use the life since they're still alive. Cheat buddha is
-			// exempt from this and will still consume lives.
+			// exempt from this and will still consume lives, since it's a cheat.
 			if (finaldamage >= prev && health > 0 && !FindInventory("PowerBuddha", true) && !bBUDDHA)
 			{
 				UseLife();
@@ -1176,7 +1180,14 @@ extend class Doom4Player
 		A_ClearOverlays();
 	}
 	
-	bool UseLife()
+	//==========================================================================
+	// Consumes a life if the player is about to die and 'respawns' them with
+	// full health. Returns true if the life was successfully used or if they're
+	// still protected via respawn.
+	// This effect works through any means that attempts to kill the player:
+	// Telefragging, forced damage, you name it, it will still trigger it.
+	//==========================================================================
+	protected bool UseLife()
 	{
 		if (!player || !UseLives)
 			return false;

@@ -58,6 +58,7 @@ Class D4FatsoTech : D4AbstractBiggie
 	
 	Default 
 	{
+		D4AbstractMonster.Replacing 'Fatso';
 		D4AbstractMonster.Rune "FatsoRune", RuneChance_Fatso;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 32;
@@ -621,6 +622,7 @@ Class D4FatsoHell : D4AbstractBiggie //replaces Fatso
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'Fatso';
 		D4AbstractMonster.Rune "FatsoRune", RuneChance_Fatso;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 32;
@@ -1094,6 +1096,7 @@ Class D4OldFatso : D4AbstractBiggie // : Fatso ////replaces Fatso
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'Fatso';
 		D4AbstractMonster.Rune "FatsoRune", RuneChance_Fatso;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 32;
@@ -1117,6 +1120,7 @@ Class D4OldFatso : D4AbstractBiggie // : Fatso ////replaces Fatso
 		+DONTCORPSE
 		PainChance "GloryKill", 255;
 		WoundHealth 110;
+		Tag "Mancubus";
 	}
 	States
 	{

@@ -38,6 +38,7 @@ Class D4PainElemental : D4AbstractBiggie //replaces PainElemental
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'PainElemental';
 		D4AbstractMonster.Rune "PainElementalRune", RuneChance_PainEl;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 64;
@@ -503,6 +504,7 @@ Class D4OldPainElemental : D4AbstractBiggie // : PainElemental
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'PainElemental';
 		D4AbstractMonster.Rune "PainElementalRune", RuneChance_PainEl;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 64;
@@ -525,6 +527,7 @@ Class D4OldPainElemental : D4AbstractBiggie // : PainElemental
 		+DONTCORPSE
 		PainChance "GloryKill", 255;
 		WoundHealth 100;
+		Tag "Pain Elemental";
 	}
 	States
 	{

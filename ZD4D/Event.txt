@@ -40,25 +40,26 @@ Class D4Restriction play
 
 extend class D4DHandler
 {
+	const Second = 35;
+	const TimeTrigger = Second * 5;
+	const DefaultDropChance = 200;
+
 	enum EObjectIndex
 	{
 		BFGAmmo = 0,
 		ChainsawAmmo = 1,
+		ObjectIndexMax
 	};
-	private bool Spawnable[2];
-	const DefaultDropChance = 200;
-	const TimeTrigger = 35 * 10;
+	private bool Spawnable[ObjectIndexMax];	
+	
 	bool FirstTime;
 	uint Timer;
-	Array<Actor> Monsters, DeadMonsters, Missiles;
-	Array<Actor> Tracker;
+	Array<Actor> Monsters, DeadMonsters, Missiles, Carrion, Tracker;
 	Array<D4DBeamBase> Beams;
 	Array<D4Restriction> RestrictList;
-	//D4ManualLootList LootList;
 	D4LootContainer LootList;
 	D4DDeathStorage Storage[MAXPLAYERS];
-	private int UpgradeMode;
-	private int CurrentUpgradeMode;
+	private int UpgradeMode, CurrentUpgradeMode;
 	
 	bool CheckActorSpawn(EObjectIndex index)			{	return Spawnable[index];	}
 	void SetActorSpawn(EObjectIndex index, bool can) 	{	Spawnable[index] = can; 	}
@@ -68,96 +69,67 @@ extend class D4DHandler
 	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
+	
 	override void WorldTick()
 	{
-		// Clear the lists every 10 seconds of null pointers.
+		// Clear the lists every TimeTrigger seconds of null pointers.
 		Timer++;
 		if (Timer >= TimeTrigger)
 		{
 			Timer = 0;
-			// Go through the lists
 			int i = 0;
+			Array<Actor> Temp; Temp.Clear();
+			
 			for (i = 0; i < DeadMonsters.Size(); i++)
 			{
 				Actor mo = DeadMonsters[i];
-				if (!mo)	{	DeadMonsters.Delete(i); i--;	}
-				else if (mo.health > 0)
-				{
-					Monsters.Push(mo);
-					DeadMonsters.Delete(i);
-					i--;
+				if (mo)
+				{	
+					if (mo.health > 0)
+					{
+						Monsters.Push(mo);
+						DeadMonsters[i] = null;
+					}
+					else	Temp.Push(mo);
 				}
 			}
+			DeadMonsters.Move(Temp);		Temp.Clear();
 			
 			for (i = 0; i < Monsters.Size(); i++)		
 			{
 				Actor mo = Monsters[i];
-				if (!mo)		{	Monsters.Delete(i); i--;		}
-				else if (mo.health < 1)
+				if (mo)
 				{
-					DeadMonsters.Push(mo);
-					Monsters.Delete(i);
-					i--;
+					if (mo.health < 1)
+					{
+						DeadMonsters.Push(mo);
+						Monsters[i] = null;
+					}
+					else	Temp.Push(mo);
 				}
 			}
+			Monsters.Move(Temp);			Temp.Clear();
 			
-			for (i = 0; i < Missiles.Size(); i++)		if (!Missiles[i])		{	Missiles.Delete(i); i--;		}
+			for (i = 0; i < Carrion.Size(); i++)	
+			{	
+				let ca = D4PinataCarrion(Carrion[i]);
+				if (ca && !ca.Owner)	Temp.Push(ca);
+			}	
+			Carrion.Move(Temp);		Temp.Clear();
 			
-		
-			for (i = 0; i < Beams.Size(); i++)			if (!Beams[i])			{	Beams.Delete(i); i--;			}
-			for (i = 0; i < Tracker.Size(); i++) 		if (!Tracker[i])		{	Tracker.Delete(i); i--;			}
+			for (i = 0; i < Missiles.Size(); i++)	{	let mo = Missiles[i];	if (mo)	Temp.Push(mo);	}	Missiles.Move(Temp);	Temp.Clear();
+			for (i = 0; i < Tracker.Size(); i++)	{	let mo = Tracker[i];	if (mo)	Temp.Push(mo);	}	Tracker.Move(Temp);		Temp.Clear();
 			
-			Missiles.ShrinkToFit();
-			Monsters.ShrinkToFit();
-			Beams.ShrinkToFit();
-			Tracker.ShrinkToFit();
-			DeadMonsters.ShrinkToFit();
+			Array<D4DBeamBase> Tem; Tem.Clear();
+			for (i = 0; i < Beams.Size(); i++)		{	let mo = Beams[i];		if (mo)	Tem.Push(mo);	}	Beams.Move(Tem);		Tem.Clear();
+			
 		}
 	}
-	
-	override void WorldLoaded(WorldEvent e)
-	{
-		for (int i = 0; i < MAXPLAYERS; i++)	KNMInput[i] = 0;
-		// If starting a new game, set the upgrade mode appropriately. 
-		if (!FirstTime && !e.IsSaveGame && !e.IsReopen)
-		{
-			CVar Upgrade[2];
-			Upgrade[0] = CVar.FindCVar("D4D_UpgradeMode");
-			Upgrade[1] = CVar.FindCVar("D4D_CurrentUpgradeMode");
-			
-			if (Upgrade[0] && Upgrade[1])
-			{
-				UpgradeMode = Upgrade[0].GetInt();
-				Upgrade[1].SetInt(UpgradeMode);
-				CurrentUpgradeMode = UpgradeMode;
-			}
-		}
-		FirstTime = true;
-	}
-	
-	// No need to keep track of the old entities anymore.
-	override void WorldUnloaded(WorldEvent e)
-	{
-		Spawnable[BFGAmmo] = false;
-		Spawnable[ChainsawAmmo] = false;
-		Tracker.Clear();
-		Monsters.Clear();
-		Beams.Clear();
-		DeadMonsters.Clear();
-		Missiles.Clear();
-		for (int i = 0; i < MAXPLAYERS; i++)	KNMInput[i] = 0;
-	}
-	
-	clearscope int GetUpgradeMode()	{	return CurrentUpgradeMode;	}
-	
-	//--------------------------------------------------------------------------
-	//--------------------------------------------------------------------------
 	
 	override void OnRegister()
 	{
-		SetOrder(1000);
+		SetOrder(1001);
 		for (int i = 0; i < MAXPLAYERS; i++)	KNMInput[i] = 0;
-		
 		
 		LootList = D4LootContainer.Create();
 		LootList.SetEntry('LegendaryZombie',				64, 5, 2, 300,-1,10,0);
@@ -167,7 +139,7 @@ extend class D4DHandler
 		LootList.SetEntry('LegendaryImp',					64, 8, 3, 400,-1,10,0);
 		LootList.SetEntry('LegendaryPhaseImp',				64, 5, 3, 400,-1,10,0);
 		LootList.SetEntry('LegendaryFiend',					64, 6, 4, 500,-1,10,0);
-		LootList.SetEntry('LegendaryApparition',			64,15,10, 750,-1,10,1); // Fuck this guy.
+		LootList.SetEntry('LegendaryApparition',			64,15,10, 750,-1,10,1);
 		LootList.SetEntry('LegendarySoul',					64, 3, 3, 300,-1,10,0);
 		LootList.SetEntry('LegendaryRedeemer',				64,10, 5, 500,-1,10,0);
 		LootList.SetEntry('LegendaryNecromancer',			64, 7, 4, 450,-1,10,0);
@@ -208,26 +180,78 @@ extend class D4DHandler
 		int LostSoulRestrictions = (RF_NOHEALTH|RF_NOARMOR|RF_NOREGAMMO|RF_NOBFGAMMO|RF_NOUPGRADES);
 		SetRestrictions("D4LostSoulNoCash", LostSoulRestrictions, true);
 		SetRestrictions("D4OldLostSoulNoCash", LostSoulRestrictions, true);
+		
 		Super.OnRegister();
 	}
 	
+	clearscope int GetUpgradeMode()	{	return CurrentUpgradeMode;	}
+	override void WorldLoaded(WorldEvent e)
+	{
+		for (int i = 0; i < MAXPLAYERS; i++)	KNMInput[i] = 0;
+		// If starting a new game, set the upgrade mode appropriately. 
+		
+		if (!FirstTime && !e.IsSaveGame)
+		{
+			CVar Upgrade[2];
+			Upgrade[0] = CVar.FindCVar("D4D_UpgradeMode");
+			Upgrade[1] = CVar.FindCVar("D4D_CurrentUpgradeMode");
+			
+			if (Upgrade[0] && Upgrade[1])
+			{
+				UpgradeMode = Upgrade[0].GetInt();
+				Upgrade[1].SetInt(UpgradeMode);
+				CurrentUpgradeMode = UpgradeMode;
+			}
+		}
+	}
+	
+	// No need to keep track of the old entities anymore.
+	override void WorldUnloaded(WorldEvent e)
+	{
+		Spawnable[BFGAmmo] = false;
+		Spawnable[ChainsawAmmo] = false;
+		Monsters.Clear();
+		DeadMonsters.Clear();
+		Carrion.Clear();
+		Missiles.Clear();
+		Beams.Clear();
+		Tracker.Clear();
+		for (int i = 0; i < MAXPLAYERS; i++)	KNMInput[i] = 0;
+	}
+	
+	
+	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
-	// Monster recording, for ease of tracking with lightning gun altfire and bfg
-	// so far.
+	
+	
 	
 	bool IsPlayerPawn(Actor mo)
 	{
 		return (!mo || mo is "PlayerPawn" || mo.player);
 	}
 	
+	//--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	// Recording section. Here, we add things that have specifics needs for 
+	// tracking so we don't have to rely on iterators. As Graf Zahl stated,
+	// an array will go much farther to optimize the crap out of searching
+	// over using an iterator in almost all circumstances.
+	
 	override void WorldThingSpawned(WorldEvent e)
 	{
 		Actor mo = e.thing;
-		
 		if (mo is "D4DBeamBase")
 		{
 			Beams.Push(D4DBeamBase(mo));
+			return;
+		}
+		
+		let car = D4PinataCarrion(mo);
+		if (car)
+		{
+			car.Event = self;
+			Carrion.Push(mo);
 			return;
 		}
 		
@@ -254,7 +278,6 @@ extend class D4DHandler
 			}
 		}
 	}
-	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
 	override void WorldThingRevived(WorldEvent e)
@@ -262,28 +285,25 @@ extend class D4DHandler
 		// Add the monster to the list if not already present.
 		Actor mo = e.Thing;
 		if (IsPlayerPawn(mo))	return;
-		if (Monsters.Find(mo) >= Monsters.Size())
-		{
-			DeadMonsters.Delete(DeadMonsters.Find(mo));
-			Monsters.Push(mo);
-		}
+		
+		int i = DeadMonsters.Find(mo);
+		if (i < DeadMonsters.Size())
+			DeadMonsters[i] = null;
+		Monsters.Push(mo);
 	}
 	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
-	override void WorldThingDestroyed(WorldEvent e)
+
+	void RemoveCarrion(D4PinataCarrion mo)
 	{
-		Actor mo = e.Thing;
-		if (mo is "Inventory" || mo is "RandomSpawner" || IsPlayerPawn(mo))	return;
-		if (mo.bISMONSTER || mo.bSHOOTABLE)
+		if (mo && Carrion.Size() > 0)
 		{
-			Monsters.Delete(Monsters.Find(mo));
-			DeadMonsters.Delete(DeadMonsters.Find(mo));
+			int i = Carrion.Find(mo);
+			if (i < Carrion.Size())
+				Carrion[i] = null;
 		}
-		else if (mo.bMISSILE)
-			Missiles.Delete(Missiles.Find(mo));
 	}
-	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
 	override void WorldThingDied(WorldEvent e)
@@ -300,8 +320,10 @@ extend class D4DHandler
 		// the living.
 		if (DeadMonsters.Find(mo) >= DeadMonsters.Size())
 		{
+			int i = Monsters.Find(mo);
+			if (i < Monsters.Size())
+				Monsters[i] = null;
 			DeadMonsters.Push(mo);
-			Monsters.Delete(Monsters.Find(mo));
 		}
 	}
 	
@@ -913,9 +935,9 @@ extend class D4DHandler
 	//
 	//--------------------------------------------------------------------------
 	
-	static D4DHandler Fetch()
+	static clearscope D4DHandler Fetch()
 	{
-		return D4DHandler(EventHandler.Find("D4DHandler"));
+		return D4DHandler(Find("D4DHandler"));
 	}
 	
 	//==========================================================================

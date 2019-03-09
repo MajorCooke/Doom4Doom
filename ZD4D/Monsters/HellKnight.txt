@@ -41,6 +41,7 @@ Class D4HellKnight : D4AbstractBiggie //replaces HellKnight
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'HellKnight';
 		D4AbstractMonster.Rune "KnightRune", RuneChance_Knight;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 16;
@@ -704,6 +705,7 @@ Class D4OldHellKnight : D4AbstractBiggie // : HellKnight ////replaces HellKnight
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'HellKnight';
 		D4AbstractMonster.Rune "KnightRune", RuneChance_Knight;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 16;
@@ -728,6 +730,7 @@ Class D4OldHellKnight : D4AbstractBiggie // : HellKnight ////replaces HellKnight
 		+DONTCORPSE
 		PainChance "GloryKill", 255;
 		WoundHealth 80;
+		Tag "Hell Knight";
 	}
 	States
 	{

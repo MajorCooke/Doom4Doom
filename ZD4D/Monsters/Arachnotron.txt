@@ -37,6 +37,7 @@ Class D4Arachnotron : D4AbstractBiggie //replaces Arachnotron // : Arachnotron	/
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'Arachnotron';
 		D4AbstractMonster.Rune "ArachnotronRune", RuneChance_Arach;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 32;
@@ -310,12 +311,13 @@ Class D4OldArachnotron : D4AbstractBiggie //  : Arachnotron
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'Arachnotron';
 		D4AbstractMonster.Rune "ArachnotronRune", RuneChance_Arach;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 32;
 		D4AbstractMonster.CashAmount 80;
 		Health 500;
-		Radius 64;
+		Radius 48;
 		Height 64;
 		Mass 600;
 		Speed 12;
@@ -328,11 +330,12 @@ Class D4OldArachnotron : D4AbstractBiggie //  : Arachnotron
 		DeathSound "baby/death";
 		ActiveSound "baby/active";
 		Obituary "$OB_BABY";
+		
 		PainChance "GloryKill", 255;
-		WoundHealth 100;
 		PainChance "StunBomb", 255;
-		Radius 48;
+		WoundHealth 100;
 		+DONTCORPSE
+		Tag "Arachnotron";
 	}
 	States
 	{
@@ -362,7 +365,7 @@ Class D4OldArachnotron : D4AbstractBiggie //  : Arachnotron
 		Goto See+1;
 		
 	Pain.StunBomb:
-		"####" "#" 0 { bNoPain = true; }
+		BSPI I 0 { bNoPain = true; }
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);

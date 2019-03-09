@@ -162,7 +162,7 @@ Class D4CarrionCannon : Doom4Weapon
 						mo.health < 1 || mo.CountInv("CarrionBombard") || mo is "BossBrain")
 						continue;
 						
-					if (!mo.bISMONSTER)
+					if (!mo.bISMONSTER || mo.bDORMANT)
 						continue;
 										
 					if (absangle(AngleTo(mo),angle) > 50)

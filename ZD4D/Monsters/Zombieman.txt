@@ -37,6 +37,7 @@ Class D4Zombieman : D4AbstractMonster //replaces Zombieman
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'Zombieman';
 		D4AbstractMonster.UpgradeDropChance 300;
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 2;
@@ -680,6 +681,7 @@ Class D4OldZombieman : D4AbstractMonster // : Zombieman ////replaces Zombieman
 	
 	Default 
 	{
+		D4AbstractMonster.Replacing 'Zombieman';
 		D4AbstractMonster.UpgradeDropChance 300;
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 2;

@@ -1,6 +1,8 @@
 # Version
 3.0 Alpha
 
+[Installation Instructions + Required Downloads](https://docs.google.com/document/d/1Z52m_OvyBmmNi1yERhQPd88fLe91LYd0LrN36OId5BA/edit)
+
 # Questions
 * If you have any questions, join our Discord server, email me directly, or drop a post on the ZDoom forum thread.
 * Discord: https://discord.gg/RehCYqS
@@ -8,7 +10,7 @@
 * ZDoom thread: https://forum.zdoom.org/viewtopic.php?f=43&t=54843
 
 # Features
-Have a good idea? You can either open an Issue here on Github or you can make a suggestion for it on our discord server. 
+Have an idea? You can either open an Issue here on Github or you can make a suggestion for it on our discord server. 
 Bear in mind, issue-based suggestions opened here are much easier to keep track of
 
 # Issues

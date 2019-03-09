@@ -593,6 +593,8 @@ Class D4BFGAmmo : Ammo
 	}
 }
 
+Class D4BFGAmmoSmall : D4BFGAmmo {}
+
 Class D4BFGAmmoPart : D4DFX
 {
 	const TurnMin = 5.0;
@@ -726,6 +728,7 @@ Class D4PinataCarrion : CustomInventory
 		MaxMergeTimer = 80,				//Maximum time in tics until merge.
 	};
 	
+	D4DHandler Event;
 	int mul;		// Multiplier based on upgrades
 	int count;
 	int landed;
@@ -764,14 +767,19 @@ Class D4PinataCarrion : CustomInventory
 	// run better, I kinda have to.
 	override void PostBeginPlay()
 	{
-		ChangeTID(TID_Carrion);
 		Super.PostBeginPlay();
+	}
+	
+	void RemoveFromHandler()
+	{
+		if (!Event)	Event = D4DHandler.Fetch();
+		if (Event)	Event.RemoveCarrion(self);
 	}
 	
 	override bool TryPickup (in out Actor toucher)
 	{
 		bool good = Super.TryPickup (toucher);
-		if (good)	ChangeTID(0);
+		if (good)	RemoveFromHandler();
 		return good;
 	}
 	
@@ -856,7 +864,7 @@ Class D4PinataCarrion : CustomInventory
 	Looping:
 		"----" A 2
 		{
-			if (invoker.DestroyMe)	return Destroy();
+			if (invoker.DestroyMe)	{ Destroy(); return; }
 			if (invoker.count >= DelayVacuum)
 			{
 				// Tracer should automatically be handled by the thinker.
@@ -878,37 +886,6 @@ Class D4PinataCarrion : CustomInventory
 				else 									invoker.Alpha = 1.0;
 			}
 			
-			/*
-			if (invoker.count >= DelayVacuum)
-			{
-				tracer = null;
-				for (int i = 0; i < MAXPLAYERS; i++)
-				{
-					if (playeringame[i])
-					{
-						Actor plr = players[i].mo;
-						if (plr && Distance3D(plr) <= SuckDistance && plr.health > 0 && !plr.FindInventory("PowerMorph",true))
-						{	
-							tracer = plr;
-							break;
-						}
-					}
-				}
-				if (tracer)
-				{
-					if (GetCvar("sv_unlimited_pickup") > 0 || 
-						CountInv("D4Carrion",TracerPtr) < PickupMax ||
-						CountInv("D4CarrionToken",TracerPtr) < BuildRequirement)
-					{	
-						//A_GiveInventory("Vacuumed",1);
-						return ResolveState("Suckage");	
-					}
-				}
-			}
-			else if (invoker.landed || invoker.count < DelayVacuum)
-			{	invoker.count++;	}
-			*/
-			
 			// There's some nearby carrion. Lets merge it together. Thanks to the
 			// power that be TRANSFER flag, it's fully possible to now combine
 			// the efforts and have inventory actors deliver others.
@@ -922,26 +899,30 @@ Class D4PinataCarrion : CustomInventory
 				{
 					invoker.safety = 0;
 					
-					let it = ActorIterator.Create(tid,"D4PinataCarrion");
-					Actor mo;
-					while (mo = it.Next())
+					//let it = ActorIterator.Create(tid,"D4PinataCarrion");
+					//Actor mo;
+					//while (mo = it.Next())
+					
+					let i = invoker;
+					if (!i.Event)	i.Event = D4DHandler.Fetch();
+					Array<Actor> Carrion; Carrion.Copy(i.Event.Carrion);
+					for (int j = 0; j < Carrion.Size(); j++)
 					{
-						if (mo == self)
-							continue;
+						let mo = D4PinataCarrion(Carrion[j]);
+						if (!mo || mo == self)	continue;
 						
-						let inv = Inventory(mo);
-						if (inv && inv.Owner)
+						if (mo.Owner)
 						{
-							inv.ChangeTID(0);
+							i.Event.RemoveCarrion(mo);
 							continue;
-						}	
+						}
 						if (Distance3DSquared(mo) > (MergeDistance * invoker.mergetime/MaxMergeTimer) ** 2)
 							continue;
 					
 						if (!CheckSight(mo, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
 							continue;
 						
-						inv.Amount += invoker.Amount;
+						mo.Amount += invoker.Amount;
 						tracer = mo;
 						//A_RemoveChildren(true,RMVF_EVERYTHING);
 						A_Face(mo,0,0,0,0,FAF_MIDDLE);

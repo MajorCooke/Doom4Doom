@@ -40,6 +40,7 @@ Class D4Demon : D4AbstractMonster //replaces Demon
 	int chargecooldown;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'Demon';
 		D4AbstractMonster.UpgradeDropChance 250;
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 4;
@@ -424,11 +425,12 @@ Class D4Spectre : D4Demon ////replaces Spectre
 //================================================================================================================
 //================================================================================================================
 
-Class D4OldDemon : D4AbstractMonster // : Demon ////replaces Demon
+Class D4OldDemon : D4AbstractMonster // : Demon replaces Demon
 {
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'Demon';
 		D4AbstractMonster.UpgradeDropChance 250;
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 4;
@@ -452,6 +454,7 @@ Class D4OldDemon : D4AbstractMonster // : Demon ////replaces Demon
 		PainChance "GloryKill", 255;
 		WoundHealth 20;
 		+DONTCORPSE
+		Tag "Pinky";
 	}
 	States
 	{

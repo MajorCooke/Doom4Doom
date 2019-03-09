@@ -70,7 +70,7 @@ Class Doom4StatusBar : BaseStatusBar
 	int AspectRatio, DemonTimer;
 	uint FakeCashTimer, FakeCash, Cash, HP, MaxHP, UpgradeMode;
 	uint8 DoomDollMax, DoomDollCount, MegasphereCount, MegasphereMax, AmmoClamp;
-	bool ignoreFakeUpdate, noReticle, addonOverride, automap, AmDemon, WasDemon;
+	bool ignoreFakeUpdate, noReticle, addonOverride, automap, AmDemon, WasDemon, Resonator;
 	D4DHandler Event;
 
 	static ui Vector2 RotateVector(Vector2 self, double angle, Vector2 rPoint)
@@ -114,8 +114,8 @@ Class Doom4StatusBar : BaseStatusBar
 		plr = CPlayer.mo;
 		ResetInterpolators(100, 0);
 		DemonKeyOffsets = (DemonKeyOffsetX, DemonKeyOffsetY);
-		Event = D4DHandler(StaticEventHandler.Find("D4DHandler"));
-		if (Event)	UpgradeMode = Event.GetUpgradeMode();
+		Event = D4DHandler(EventHandler.Find("D4DHandler"));
+		UpgradeMode = D4D_UpgradeMode;
 	}
 	
 	void ResetInterpolators(int health, int time = 0)
@@ -131,9 +131,10 @@ Class Doom4StatusBar : BaseStatusBar
 	// For everything that doesn't need to be processed every frame, only update
 	// these on game ticks. 35 calls a second versus 60, easy to figure out which
 	// is better, yes?
+	bool FirstTic;
 	override void Tick()
 	{
-		Super.Tick();
+		Super.Tick();		
 		AspectRatio = Screen.GetAspectRatio();
 		noReticle = GetAmountOnly("NoReticle");
 		DemonTimer = GetAmountOnly("DemonTimerToken");
@@ -166,6 +167,7 @@ Class Doom4StatusBar : BaseStatusBar
 			
 			// Megaspheres
 			[MegasphereCount, MegasphereMax] = GetAmount("D4MegasphereDamageReducer");
+			Resonator = (GetAmountOnly("D4MegachargeUpgrade1") > 0);
 			
 			// Extra Lives
 			LifeCount[0] = GetAmountOnly("D4ExtraLife");
@@ -415,22 +417,19 @@ Class Doom4StatusBar : BaseStatusBar
 			}
 			
 			// Credits, lives and resistance counters
-			CVar Upgrade = CVar.FindCVar("D4D_CurrentUpgradeMode");
-			if (Upgrade != null)
+			String which = (UpgradeMode > 0) ? "Crates:" : "Credits:";
+			DrawString(mConsoleFont, which, (1024, 8), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
+			//DrawStringScaled(mQ4HudFont, FormatNumber(Cash, 1), (1024, 24), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 2);
+			DrawString(mQ4HudFont, FormatNumber(Cash, 1), (1024, 24), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
+			
+			if (FakeCash && FakeCashTimer > 0)
 			{
-				String which = (UpgradeMode) ? "Crates:" : "Credits:";
-				DrawString(mConsoleFont, which, (1024, 8), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
-				//DrawStringScaled(mQ4HudFont, FormatNumber(Cash, 1), (1024, 24), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 2);
-				DrawString(mQ4HudFont, FormatNumber(Cash, 1), (1024, 24), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
-				
-				if (FakeCash && FakeCashTimer > 0)
-				{
-					DrawStringScaled(mQ4HudFont, "+"..FormatNumber(FakeCash, 1), (1024, 56), DI_TEXT_ALIGN_RIGHT, Font.CR_ORANGE, alpha: fadeamt, scaling: 0.75);
-				}
+				DrawStringScaled(mQ4HudFont, "+"..FormatNumber(FakeCash, 1), (1024, 56), DI_TEXT_ALIGN_RIGHT, Font.CR_ORANGE, alpha: fadeamt, scaling: 0.75);
 			}
+			
 			Vector2 LifePos = (1024, 100);
 			// Megasphere
-			if (MegasphereCount)
+			if (Resonator)
 			{
 				LifePos.Y += 92;
 				int colRes = (MegasphereCount >= MegasphereMax) ? Font.CR_GREEN : Font.CR_WHITE;

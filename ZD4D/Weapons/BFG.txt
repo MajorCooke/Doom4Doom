@@ -334,7 +334,7 @@ Class D4BFGProjectile  : Actor
 				continue;
 			
 			mo.A_SetInventory("D4BFGKillToken",0);
-			if (mo.bFRIENDLY || !mo.bISMONSTER || mo.health < 1 || 
+			if (mo.bFRIENDLY || !mo.bISMONSTER || mo.health < 1 || mo.bDORMANT ||
 				(mo is "PlayerPawn"))
 			{
 				continue;

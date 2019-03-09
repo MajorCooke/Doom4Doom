@@ -73,7 +73,7 @@ Class D4StaticRifle : Doom4Weapon
 		}
 		else if (!Owner.CountInv("StaticUpgrade4"))
 		{
-			if (Timer++ >= 4)
+			if (Timer++ >= 4 && (Owner.Vel.Length() < 3.0))
 			{
 				Timer = 0;
 				int Taker = 3;
@@ -252,18 +252,16 @@ Class D4StaticRifle : Doom4Weapon
 	Overlay.Fire:
 		STRF A 0
 		{
-			//A_GiveInventory("ShowStaticRifleCharge",1); //	debug
-			
-			//----------------------
-			//Main fire attack
-			//it has to attack before the pitches are applied, otherwise it fucks with your aim
-			if (CountInv("StaticRifleChargingToken")>=20)
+			// Due to the ability to multi-shot with the fully upgraded variant,
+			// there is no pitch altering. Just zooming.
+			int Count = CountInv("StaticRifleChargingToken");
+			if (Count >= 20)
 			{
 				A_GunFlash("Null");
-				if (CountInv("StaticRifleChargingToken") >= 520)	//if at max
+				if (Count >= 520)	//if at max
 				{
 					A_FireBullets(0,0,1,0,"PacifistPuff",FBF_NORANDOM|FBF_NORANDOMPUFFZ|FBF_PUFFTRACER,StaticLength,"StaticTrailBigSpawner",0,5);
-					A_RailAttack(random(100,200),0,1,"Red","",RGF_SILENT|RGF_FULLBRIGHT,0,"StaticPuff",0,0,32765,0,2.0,1.0);
+					A_RailAttack(Count,0,1,"Red","",RGF_SILENT|RGF_FULLBRIGHT,0,"StaticPuff",0,0,32765,0,2.0,1.0);
 				}
 				else	//normal attacks
 				{
@@ -281,7 +279,7 @@ Class D4StaticRifle : Doom4Weapon
 						Flag = RailFlags;
 					}
 					A_FireBullets(0,0,1,0,Puff,FBF_NORANDOM|FBF_NORANDOMPUFFZ|FBF_PUFFTRACER,StaticLength,"StaticTrailSpawner",0,5);
-					A_RailAttack(int(CountInv("StaticRifleChargingToken")),0,1,"","",Flag,0,"StaticPuff",0,0,32765,0,2.0,1.0);
+					A_RailAttack(Count,0,1,"","",Flag,0,"StaticPuff",0,0,32765,0,2.0,1.0);
 				}
 			}
 			//refuses to fire if the charge was too low
@@ -293,13 +291,13 @@ Class D4StaticRifle : Doom4Weapon
 			}
 			//----------------------
 			//effects and sounds depend on the charge level
-			if(CountInv("StaticRifleChargingToken")>=500)	//if max, it has a 20 tokens chance to deal max damage
+			if (Count >= 500)	//if max, it has a 20 tokens chance to deal max damage
 			{	
 				A_PlaySound("Doom4/Weapon/StaticRifle/FireMax",CHAN_Weapon); 
 				A_ZoomFactor(0.65,ZOOM_INSTANT|ZOOM_NOSCALETURNING);
 				A_ZoomFactor(1,ZOOM_NOSCALETURNING);
 			}
-			else if(CountInv("StaticRifleChargingToken")<=40)	//if very low
+			else if (Count <= 40)	//if very low
 			{		
 				A_PlaySound("Doom4/Weapon/StaticRifle/FireMin",CHAN_Weapon,0.5); 	//otherwise, will play super low sound
 				A_ZoomFactor(0.95,ZOOM_INSTANT|ZOOM_NOSCALETURNING);

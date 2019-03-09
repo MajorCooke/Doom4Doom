@@ -6,6 +6,18 @@ extend class D4DHandler
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
 	
+	override void CheckReplacee(ReplacedEvent e)
+	{
+		Class<Actor> rep = e.Replacement;
+		if (rep == null)	return;
+		
+		let mon = (Class<D4AbstractMonster>)(rep);
+		if (mon)
+		{
+			let defs = GetDefaultByType(mon);
+			if (defs.Replacing)	e.Replacee = defs.Replacing;
+		}
+	}
 	
 	override void CheckReplacement(ReplaceEvent e)
 	{
@@ -15,6 +27,8 @@ extend class D4DHandler
 		
 		let defs = GetDefaultByType(rep);
 		if (defs.bNOINTERACTION)	return;
+		
+		Name repn = rep.GetClassName();
 				
 		if (rep is 'Inventory')
 		{
@@ -48,13 +62,15 @@ extend class D4DHandler
 			else if (rep is 'Weapon')
 			{
 				if (rep == 'Chainsaw')				e.Replacement = 'D4Chainsaw';
-				else if (rep == 'Shotgun') 			
+				else if (rep == 'Shotgun' || repn == 'STFShotgun')
 				{
 					if (random[rngg](0,1))			e.Replacement = 'D4StaticRifle';
 					else							e.Replacement = 'D4Shotgun';
 				}
-				else if (rep == 'SuperShotgun') 	e.Replacement = 'D4SuperShotgun';
-				else if (rep == 'Chaingun') 		
+				else if (rep == 'SuperShotgun' || repn == 'STFSuperShotgun') 	
+													e.Replacement = 'D4SuperShotgun';
+													
+				else if (rep == 'Chaingun' || repn == 'STFChaingun' || repn == 'STFMinigun')
 				{
 					int rng = random[rngg](0,6);
 					
@@ -62,12 +78,12 @@ extend class D4DHandler
 					else if (rng <= 3)				e.Replacement = 'D4AssaultRifle';
 					else							e.Replacement = 'D4Repeater';
 				}
-				else if (rep == 'RocketLauncher')	
+				else if (rep == 'RocketLauncher' || repn == 'STFRocketLauncher' || repn == 'STFGrenadeLauncher')	
 				{
 					if (random[rngg](0,1))			e.Replacement = 'D4GrenadeLauncher';
 					else							e.Replacement = 'D4RocketLauncher';
 				}
-				else if (rep == 'PlasmaRifle')		
+				else if (rep == 'PlasmaRifle' || repn == 'STFPlasmaRifle' || repn == 'STFRailgun')		
 				{
 					int rng = random[rngg](0,3);
 						 if (rng == 3)				e.Replacement = 'D4GaussCannon';
@@ -75,7 +91,8 @@ extend class D4DHandler
 					else if (rng == 1)				e.Replacement = 'D4LightningGun';
 					else							e.Replacement = 'D4PlasmaRifle';
 				}
-				else if (rep == 'BFG9000')			e.Replacement = 'D4BFG';
+				else if (rep == 'BFG9000' || repn == 'STFBFG9000' || repn == 'STFBFG10K')			
+													e.Replacement = 'D4BFG';
 			}
 			
 			// Powerups

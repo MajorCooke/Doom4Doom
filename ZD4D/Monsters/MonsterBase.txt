@@ -22,6 +22,7 @@ enum RuneChances
 
 Class D4AbstractMonster : Actor 
 {
+	meta Class<Actor> Replacing;
 	Array<D4DNewBeamBase> Beams;
 	Name PowerColor, ResurrectCvar;
 	Class<DemonRuneBase> RuneItem;
@@ -39,6 +40,7 @@ Class D4AbstractMonster : Actor
 	bool HQ;
 	transient CVar HighQuality, EnhancedChase, ExecuteCheck, StaggerCheck;
 	
+	Property Replacing: Replacing;
 	Property ResurrectCvar: ResurrectCvar;
 	Property PowerColor: PowerColor;
 	Property Rune: RuneItem, RuneDropChance;
@@ -1154,18 +1156,30 @@ Class D4MonsterUpgrader : Inventory
 }
 
 
-Class D4StealthArachnotron : D4Arachnotron { Default { +STEALTH } }
-Class D4StealthArchvile : D4Archvile { Default { +STEALTH } }
-Class D4StealthBaronOfHell : D4BaronOfHell { Default { +STEALTH } }
-Class D4StealthHellKnight : D4HellKnight { Default { +STEALTH } }
-Class D4StealthCacoDemon : D4CacoDemon { Default { +STEALTH } }
-Class D4StealthChaingunGuy : D4ChaingunGuy { Default { +STEALTH } }
+Class D4StealthArachnotron : D4Arachnotron			{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthArachnotron'; } }
+Class D4StealthArchvile : D4Archvile 				{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthArchvile'; } }
+Class D4StealthBaronOfHell : D4BaronOfHell			{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthBaron'; } }
+Class D4StealthHellKnight : D4HellKnight			{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthHellKnight'; } }
+Class D4StealthCacoDemon : D4CacoDemon				{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthCacoDemon'; } }
+Class D4StealthChaingunGuy : D4ChaingunGuy			{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthChaingunGuy'; } }
+Class D4StealthSergeantShield : D4SergeantShield	{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthChaingunGuy'; } }
+Class D4StealthDemon : D4Demon						{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthDemon'; } }
+Class D4StealthDoomImp : D4DoomImp					{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthDoomImp'; } }
+Class D4StealthFatsoTech : D4FatsoTech				{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthFatso'; } }
+Class D4StealthFatsoHell : D4FatsoHell				{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthFatso'; } }
+Class D4StealthRevenant : D4Revenant				{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthRevenant'; } }
+Class D4StealthShotgunGuy : D4ShotgunGuy			{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthShotgunGuy'; } }
+Class D4StealthZombieMan : D4ZombieMan				{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthZombieMan'; } }
 
-Class D4StealthSergeantShield : D4SergeantShield { Default { +STEALTH } }
-Class D4StealthDemon : D4Demon { Default { +STEALTH } }
-Class D4StealthDoomImp : D4DoomImp { Default { +STEALTH } }
-Class D4StealthFatsoTech : D4FatsoTech { Default { +STEALTH } }
-Class D4StealthFatsoHell : D4FatsoHell { Default { +STEALTH } }
-Class D4StealthRevenant : D4Revenant { Default { +STEALTH } }
-Class D4StealthShotgunGuy : D4ShotgunGuy { Default { +STEALTH } }
-Class D4StealthZombieMan : D4ZombieMan { Default { +STEALTH } }
+Class D4OldStealthArachnotron : D4OldArachnotron	{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthArachnotron'; } }
+Class D4OldStealthArchvile : D4OldArchvile			{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthArchvile'; } }
+Class D4OldStealthBaronOfHell : D4OldBaronOfHell	{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthBaron'; } }
+Class D4OldStealthHellKnight : D4OldHellKnight		{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthHellKnight'; } }
+Class D4OldStealthCacoDemon : D4OldCacoDemon		{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthCacoDemon'; } }
+Class D4OldStealthChaingunGuy : D4OldChaingunGuy	{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthChaingunGuy'; } }
+Class D4OldStealthDemon : D4OldDemon				{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthDemon'; } }
+Class D4OldStealthDoomImp : D4OldDoomImp			{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthDoomImp'; } }
+Class D4OldStealthFatso : D4OldFatso				{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthFatso'; } }
+Class D4OldStealthRevenant : D4OldRevenant			{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthRevenant'; } }
+Class D4OldStealthShotgunGuy : D4OldShotgunGuy		{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthShotgunGuy'; } }
+Class D4OldStealthZombieMan : D4OldZombieMan		{ Default { +STEALTH D4AbstractMonster.Replacing 'StealthZombieMan'; } }

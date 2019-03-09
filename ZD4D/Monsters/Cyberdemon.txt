@@ -57,6 +57,7 @@ Class D4Cyberdemon : D4AbstractBoss //replaces Cyberdemon
 	
 	Default 
 	{
+		D4AbstractMonster.Replacing 'Cyberdemon';
 		D4AbstractMonster.ResurrectCvar 'D4D_ResCyberdemon';
 		D4AbstractMonster.Rune "CyberdemonRune", RuneChance_Cyber;
 		D4AbstractMonster.UpgradeDropChance 5;
@@ -796,6 +797,7 @@ Class D4OldCyberdemon : D4AbstractBoss // : Cyberdemon
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'Cyberdemon';
 		D4AbstractMonster.Rune "CyberdemonRune", RuneChance_Cyber;
 		D4AbstractMonster.UpgradeDropChance 5;
 		D4AbstractMonster.CrateDropAmount 3;
@@ -826,6 +828,7 @@ Class D4OldCyberdemon : D4AbstractBoss // : Cyberdemon
 		DamageFactor "BFGExploder", 0.0;
 		PainChance "GloryKill", 255;
 		WoundHealth 150;
+		Tag "Cyberdemon";
 	}
 	States
 	{

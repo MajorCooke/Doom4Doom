@@ -44,7 +44,8 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 	uint8 FailFlame, FailFlare;
 	Actor DeathSkull;
 	Default
-	{
+	{	
+		D4AbstractMonster.Replacing 'LostSoul';
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 2;
 		D4AbstractMonster.CashAmount 1;
@@ -562,6 +563,7 @@ Class D4OldLostSoulNoCash : D4AbstractMonster
 {
 	Default 
 	{
+		D4AbstractMonster.Replacing 'LostSoul';
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 2;
 		D4AbstractMonster.CashAmount 1;
@@ -582,9 +584,7 @@ Class D4OldLostSoulNoCash : D4AbstractMonster
 		Obituary "$OB_SKULL";
 		
 		PainChance "StunBomb", 255;
-		
-		//Cash drops = 1
-		DropItem "C1";
+		Tag "Lost Soul";
 	}
 	States
 	{
@@ -686,13 +686,12 @@ Class D4LostSoul : D4LostSoulNoCash //replaces LostSoul
 {
 	Default 
 	{
+		D4AbstractMonster.Replacing 'LostSoul';
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 4;
 		D4AbstractMonster.CashAmount 10;
 		Health 50;
 		+DONTCORPSE
-		//Cash drops = 10
-		DropItem "C10";
 	}
 }
 
@@ -700,11 +699,10 @@ Class D4OldLostSoul : D4OldLostSoulNoCash
 {
 	Default 
 	{
+		D4AbstractMonster.Replacing 'LostSoul';
 		D4AbstractMonster.CrateDropAmount 1;
 		D4AbstractMonster.CrateDropChance 4;
 		D4AbstractMonster.CashAmount 10;
-		//Cash drops = 10
-		DropItem "C10";
 		+DONTCORPSE
 	}
 }

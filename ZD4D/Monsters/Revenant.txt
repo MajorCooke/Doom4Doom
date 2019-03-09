@@ -39,6 +39,7 @@ Class D4Revenant : D4AbstractBiggie //replaces Revenant
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'Revenant';
 		D4AbstractMonster.Rune "RevenantRune", RuneChance_Rev;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 64;
@@ -570,6 +571,7 @@ Class D4OldRevenant : D4AbstractBiggie // : Revenant ////replaces Revenant
 	int staggertimer;
 	Default 
 	{
+		D4AbstractMonster.Replacing 'Revenant';
 		D4AbstractMonster.Rune "RevenantRune", RuneChance_Rev;
 		D4AbstractMonster.CrateDropAmount 2;
 		D4AbstractMonster.CrateDropChance 64;
@@ -591,11 +593,11 @@ Class D4OldRevenant : D4AbstractBiggie // : Revenant ////replaces Revenant
 		MeleeSound "skeleton/melee";
 		HitObituary "$OB_UNDEADHIT";
 		Obituary "$OB_UNDEAD";
-		
 		PainChance "StunBomb", 255;
 		+DONTCORPSE
 		PainChance "GloryKill", 255;
 		WoundHealth 80;
+		Tag "Revenant";
 	}
 	States
 	{
