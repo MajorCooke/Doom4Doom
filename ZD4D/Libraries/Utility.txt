@@ -69,12 +69,12 @@ Class D4D_Utility play
 		if (!caller || !other)	return false;
 		
 		double blockdist = caller.radius + other.radius;
-		if (abs(other.pos.x - caller.pos.x) < blockdist ||
-			abs(other.pos.y - caller.pos.y) < blockdist)
+		if (abs(caller.pos.x - other.pos.x) > blockdist ||
+			abs(caller.pos.y - other.pos.y) > blockdist)
 			return false; // Not touching horizontally.
 			
-		if (caller.pos.z > other.pos.z + other.height ||
-			caller.pos.z + caller.height < other.pos.z)
+		if ((caller.pos.z > other.pos.z + other.height) ||
+			(caller.pos.z + caller.height < other.pos.z))
 			return false; // Not touching vertically.
 		
 		return true;

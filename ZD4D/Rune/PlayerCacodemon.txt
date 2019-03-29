@@ -46,7 +46,6 @@ Class FlyingMonsterPowerup : PowerupGiver
 {
 	Default 
 	{
-		+FLOATBOB
 		Powerup.Type "PowerFlight";
 		powerup.duration 0x7FFFFFFD;
 		+Inventory.AutoActivate
@@ -84,8 +83,6 @@ Class PlayerCacodemon : DemonPlayerBase
 		DeathSound "Doom4/Monsters/Cacodemon/Death";
 		Scale 0.65;
 		DamageFactor "Normal", 0.4;
-		+NOSKIN;
-		-PICKUP;
 	}
 	States
 	{

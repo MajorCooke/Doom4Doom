@@ -79,8 +79,6 @@ Class PlayerKnight : DemonPlayerBase
 		DeathSound "Doom4/Monsters/HellKnight/Death";
 		Scale 0.65;
 		DamageFactor "Normal", 0.5;
-		+NOSKIN
-		-PICKUP
 		+SLIDESONWALLS
 		+EXTREMEDEATH
 	}

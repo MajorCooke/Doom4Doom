@@ -195,7 +195,7 @@ Class DemonPlayerBase : Doom4Player
 		if (check) 
 		{
 			nextTic = check.EffectTics;
-			A_SetInventory("DemonTimerToken",nextTic, DefPtr, true);
+			SetInventory("DemonTimerToken",nextTic, true);
 		}
 		
 		TicDelay++;
@@ -240,7 +240,7 @@ Class DemonPlayerBase : Doom4Player
 				// So we're in range horizontally. What about vertically?
 				if (pos.z + height < mo.pos.z || mo.pos.z + mo.height < pos.z)
 					continue;	
-				
+				/*
 				if (mo is "D4KeyBase")
 				{
 					// if it's a key, print a message, call its special and destroy it.
@@ -250,7 +250,7 @@ Class DemonPlayerBase : Doom4Player
 					mo.Destroy();
 					continue;
 				}
-				else if (mo is "DemonRuneBase" && CountInv("D4RuneUpgrade2"))
+				else */if (mo is "DemonRuneBase" && CountInv("D4RuneUpgrade2"))
 				{
 					if (check && rune && mo.GetClass() == RuneBase)
 					{
@@ -317,6 +317,35 @@ Class DemonPlayerBase : Doom4Player
 		DamageFactor "Fall", 0.0;
 		DamageFactor "Falling", 0.0;
 		-ALLOWPAIN
+		+NOSKIN
+	}
+	
+	override bool CanTouchItem(Inventory item)
+	{
+		if (item == null ||
+			item is 'Health' || 
+			item is 'BasicArmorPickup' || 
+			item is 'BasicArmorBonus' ||
+			item is 'D4ArmorBasePickup' ||
+			item is 'DemonRuneBase' ||
+			item is 'PowerMorph')
+			return false;
+		
+		
+		let pwr = PowerupGiver(item);
+		if (pwr && pwr.PowerupType is 'PowerMorph')
+		{
+			return (!pwr.bAUTOACTIVATE);
+		}
+			
+		/*
+		let rune = DemonRuneBase(item);
+		if (rune)
+		{
+			if (CountInv("D4RuneUpgrade2"))
+		}
+		*/
+		return true;
 	}
 	
 	States

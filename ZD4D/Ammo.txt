@@ -763,13 +763,6 @@ Class D4PinataCarrion : CustomInventory
 		Translation "0:255=%[0,0,0]:[1.0,0.1,0.1]";
 	}
 	
-	//...I'm playing with fire by introducing TIDs but, in an effort to make it
-	// run better, I kinda have to.
-	override void PostBeginPlay()
-	{
-		Super.PostBeginPlay();
-	}
-	
 	void RemoveFromHandler()
 	{
 		if (!Event)	Event = D4DHandler.Fetch();
@@ -778,7 +771,7 @@ Class D4PinataCarrion : CustomInventory
 	
 	override bool TryPickup (in out Actor toucher)
 	{
-		bool good = Super.TryPickup (toucher);
+		bool good = Super.TryPickup(toucher);
 		if (good)	RemoveFromHandler();
 		return good;
 	}
@@ -800,16 +793,13 @@ Class D4PinataCarrion : CustomInventory
 	Pickup:
 		TNT1 A 0
 		{
+			
 			if (CountInv("D4CarrionToken") < BuildRequirement - 1)	
-			{
-				let inv = Inventory(FindInventory("D4CarrionToken",true));
-				//if (inv) 	inv.Amount += invoker.amount;
-				//else		
-				A_GiveInventory("D4CarrionToken",invoker.amount);	
-				//A_LogInt(CountInv("D4CarrionToken"));
+			{	// Player is building up carrion.
+				A_GiveInventory("D4CarrionToken",invoker.amount);
 			}
 			else if (!CountInv("D4CarrionCannon"))		
-			{	
+			{	// Player has enough to get the carrion cannon.
 				A_PrintBold("The Carrion Cannon is yours.\n\cgReturn the fires of Hell to them.");
 				A_SpawnItemEx("CarrionPortalOpener",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTARGET,0,666);
 				A_GiveInventory("D4CarrionCannon",1);
@@ -817,11 +807,6 @@ Class D4PinataCarrion : CustomInventory
 			else if (GetCvar("sv_unlimited_pickup") || CountInv("D4Carrion") < PickupMax)
 			{
 				int amt = (invoker.amount + PickupAmountBase + random(0,PickupAmountAdd)) * (CountInv("CarrionUpgradePickup") ? 2 : 1);
-				/*
-				let inv = Ammo(FindInventory("D4Carrion"));
-				if (inv)
-					inv.Amount += amt;
-				*/
 				//A_LogInt(amt);
 				A_GiveInventory("D4Carrion",amt);	
 				//A_LogInt(CountInv("D4Carrion"));
@@ -845,10 +830,10 @@ Class D4PinataCarrion : CustomInventory
 				
 				bool a; Actor b;
 				[a, b] = A_SpawnItemEx("D4CarrionBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
-				if (b)	invoker.Kids.Push(b);
+				if (a && b)	invoker.Kids.Push(b);
 				
 				[a, b] = A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
-				if (b)	invoker.Kids.Push(b);
+				if (a && b)	invoker.Kids.Push(b);
 				invoker.spawned = 1;
 			}
 			invoker.mergetime = random(2,MaxMergeTimer);
@@ -874,7 +859,8 @@ Class D4PinataCarrion : CustomInventory
 					PlrCheck.SetFlying(self, true);
 					A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 					A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-					if (Distance3DSquared(tracer) <= 32 ** 2)
+				//	if (Distance3DSquared(tracer) <= 32 ** 2)
+					if (D4D_Utility.CheckTouching(self, Tracer))
 					{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false); invoker.Touch(Tracer);	}
 				}
 				else

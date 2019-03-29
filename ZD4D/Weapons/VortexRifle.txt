@@ -68,7 +68,7 @@ Class D4VortexRifle : Doom4Weapon
 		Weapon.AmmoUse1 12;	//doesnt matter, since it's taken manually in the weapon code
 		Weapon.AmmoUse2 0;
 		Weapon.SlotNumber 7;
-		Weapon.SlotPriority 0.01;
+		Weapon.SlotPriority 0.99;
 		Obituary "%k's mad sniper skills are too much for %o.";
 		Inventory.PickupMessage "Vortex Rifle! A sniper's delight!";
 		Tag "Vortex Rifle";

@@ -525,15 +525,15 @@ Struct PlrCheck play
 	{	return (globalfreeze || level.Frozen);	}
 	
 	//-------------------------------------------------------------------------
-	// Checks if the pinata and/or upgrade is near a player that's not morphed 
-	// and alive. 
-	static Actor CheckForPlayers(Actor checkee, int distance = -1)
+	// Checks if the pinata and/or upgrade is near a living player. 
+	
+	static Actor CheckForPlayers(Actor checkee, int distance = -1, Inventory item = null)
 	{
 		if (!checkee)	return null;
 		Actor trc = checkee.tracer;
 		if (trc)
 		{
-			if (trc is "PlayerPawn" && trc.bPICKUP &&
+			if (trc is "PlayerPawn" && trc.bPICKUP && trc.CanTouchItem(item) &&
 				trc.health > 0 && trc.player)
 			{
 				if (!(trc.player.cheats & (CF_NOCLIP|CF_NOCLIP2)))
@@ -548,8 +548,8 @@ Struct PlrCheck play
 			if (playeringame[i])
 			{
 				Actor plr = players[i].mo;
-				if (plr && plr.bPICKUP && plr.health > 0 && 
-					checkee.Distance3DSquared(plr) <= distance ** 2)
+				if (plr && plr.bPICKUP && plr.health > 0 && plr.CanTouchItem(item) && 
+					checkee.Distance3DSquared(plr) <= (distance ** 2))
 				{
 					if (plr.player.cheats & (CF_NOCLIP|CF_NOCLIP2))
 						continue;
@@ -616,7 +616,7 @@ Class UpgradePinataFlier : Thinker
 		if (PlrCheck.CheckTimeFreeze() || !OddTic)	
 			return;
 		
-		Target = PlayerPawn(PlrCheck.CheckForPlayers(Spawner, Distance));
+		Target = PlayerPawn(PlrCheck.CheckForPlayers(Spawner, Distance, Spawner));
 		int Amt = 0;
 		if (Target && !NoItem)
 		{
@@ -694,7 +694,8 @@ Class D4PinataArmor : D4ArmorBasePickup
 				PlrCheck.SetFlying(invoker, true);
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
+				//if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
+				if (D4D_Utility.CheckTouching(self, invoker.tracer))
 				{	
 					SetOrigin(tracer.pos, true); 
 					A_Stop(); 
@@ -770,7 +771,8 @@ Class D4PinataHealth : D4Stimpack
 				PlrCheck.SetFlying(self, true);
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
+				//if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
+				if (D4D_Utility.CheckTouching(self, invoker.tracer))
 				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false); Touch(Tracer);	}
 			}
 			else
@@ -841,7 +843,8 @@ Class D4PinataBullets : D4Bullets
 				PlrCheck.SetFlying(self, true);
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
+				//if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
+				if (D4D_Utility.CheckTouching(self, invoker.tracer))
 				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false); Touch(Tracer);	}
 			}
 			else
@@ -921,7 +924,8 @@ Class D4PinataShells : D4Shells
 				PlrCheck.SetFlying(self, true);
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
+				//if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
+				if (D4D_Utility.CheckTouching(self, invoker.tracer))
 				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false); Touch(Tracer);	}
 			}
 			else
@@ -1002,7 +1006,8 @@ Class D4PinataCells : D4Cells
 				PlrCheck.SetFlying(self, true);
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
+				//if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
+				if (D4D_Utility.CheckTouching(self, invoker.tracer))
 				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false); Touch(Tracer);	}
 			}
 			else
@@ -1080,7 +1085,8 @@ Class D4PinataRockets : D4Rockets
 				PlrCheck.SetFlying(self, true);
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
+				//if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
+				if (D4D_Utility.CheckTouching(self, invoker.tracer))
 				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false); Touch(Tracer);	}
 			}
 			else
@@ -1158,7 +1164,8 @@ Class D4PinataBFG : D4BFGAmmo
 				PlrCheck.SetFlying(self, true);
 				A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 				A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-				if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
+				//if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
+				if (D4D_Utility.CheckTouching(self, invoker.tracer))
 				{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false); Touch(Tracer);	}
 			}
 			else

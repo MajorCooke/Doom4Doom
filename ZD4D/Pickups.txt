@@ -442,7 +442,9 @@ Class D4UpgradeCase : CustomInventory
 					A_FaceTracer(0,0,0,0,FAF_BOTTOM);
 					A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
 					Angle = PrevAngle;
-					if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
+					//if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
+					if (D4D_Utility.CheckTouching(self, invoker.tracer) ||
+						(Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2))
 					{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false);	}
 				}
 				else	PlrCheck.SetFlying(invoker, false);
@@ -766,7 +768,9 @@ Class D4UpgradePickup : CustomInventory
 					PlrCheck.SetFlying(invoker, true);
 					A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 					A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
-					if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
+					//if (Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
+					if (D4D_Utility.CheckTouching(self, invoker.tracer) || 
+						Distance3DSquared(invoker.tracer) <= Max(invoker.tracer.radius, invoker.tracer.height) ** 2)
 					{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false);	}
 				}
 				else	PlrCheck.SetFlying(invoker, false);
