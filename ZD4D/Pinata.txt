@@ -124,7 +124,7 @@ Class D4PinataBase : CustomInventory
 	
 	override void Tick()
 	{
-		if (!bNOTIMEFREEZE && (level.frozen || globalfreeze))
+		if (!bNOTIMEFREEZE && IsFrozen())
 			return;
 		
 		if (SeekDelay > 0)	SeekDelay--;
@@ -519,14 +519,9 @@ Struct PlrCheck play
 		who.bNOINTERACTION = who.bNOCLIP = enabled;
 		who.A_ChangeLinkFlags(enabled);
 	}
-	//--------------------------------------------------------------------------
-	// Checks if the freeze cheat or powerup is active.
-	static bool CheckTimeFreeze()
-	{	return (globalfreeze || level.Frozen);	}
 	
 	//-------------------------------------------------------------------------
 	// Checks if the pinata and/or upgrade is near a living player. 
-	
 	static Actor CheckForPlayers(Actor checkee, int distance = -1, Inventory item = null)
 	{
 		if (!checkee)	return null;
@@ -613,7 +608,7 @@ Class UpgradePinataFlier : Thinker
 		
 		OddTic = (OddTic + 1) % 2;
 		
-		if (PlrCheck.CheckTimeFreeze() || !OddTic)	
+		if (Level.IsFrozen() || !OddTic)	
 			return;
 		
 		Target = PlayerPawn(PlrCheck.CheckForPlayers(Spawner, Distance, Spawner));

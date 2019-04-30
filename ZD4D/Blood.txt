@@ -44,7 +44,7 @@ Class MCBloodSprite : Actor
 	{
 		if (!bNOTIMEFREEZE)
 		{
-			if (level.frozen || globalfreeze)
+			if (IsFrozen())
 				return;
 		}
 		Super.Tick();
@@ -420,7 +420,7 @@ Class FlyingFlesh : Actor
 	{
 		if (!bNOTIMEFREEZE)
 		{
-			if (level.frozen || globalfreeze)
+			if (IsFrozen())
 				return;
 		}
 		if (bROLLSPRITE)	A_SetRoll(roll + RollAmt, SPF_INTERPOLATE);

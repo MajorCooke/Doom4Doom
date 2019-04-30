@@ -1223,7 +1223,7 @@ Class BulletSmallTracer : Actor
 		if (DestroyMe)	
 			return;
 			
-		if (!bNOTIMEFREEZE && (globalfreeze || level.frozen))
+		if (!bNOTIMEFREEZE && IsFrozen())
 			return;
 		
 		//vel = (0,0,0);
@@ -1585,7 +1585,7 @@ class D4D_Projectile : FastProjectile
         let oldPos = pos;
         let oldVel = vel;
 
-        if (!bNoTimeFreeze && (globalfreeze || level.Frozen))
+        if (!bNoTimeFreeze && IsFrozen())
             return;
 
         if (vel != (0, 0, 0) || (pos.Z != floorz)) 

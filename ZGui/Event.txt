@@ -258,7 +258,8 @@ Class D4DHandler : EventHandler
 	{
 		if (e.Args[0] != 0)
 		{
-			let it = ActorIterator.Create(e.Args[0]);
+			//let it = ActorIterator.Create(e.Args[0]);
+			let it = ActorIterator(level.CreateActorIterator(e.Args[0]));
 			Actor mo;
 			while (mo = Actor(it.Next()))
 			{

@@ -224,7 +224,7 @@ Class D4TimeFreeze : PowerTimeFreezer
 	override void DoEffect()
 	{
 		Super.DoEffect();
-		level.frozen = true;
+		Level.SetFrozen(true);
 	}
 }
 
@@ -462,7 +462,7 @@ Class PowerD4QuadDamage : PowerDamage
 		if (!Owner || Owner.Health < 1)
 		{	EndEffect();	return;	}
 		
-		if (globalfreeze || level.Frozen)
+		if (IsFrozen())
 		{
 			EffectTics++; //'Freeze' the timer.
 		}
@@ -649,7 +649,7 @@ Class PowerD4Regen : PowerRegeneration
 		else
 			GiverTic = 31;
 		
-		if (globalfreeze || level.Frozen)
+		if (IsFrozen())
 		{
 			EffectTics++; //'Freeze' the timer.
 		}
@@ -817,7 +817,7 @@ Class PowerD4Money : Powerup
 		if (!Owner || Owner.Health < 1)
 		{	EndEffect();	return;	}
 
-		if (globalfreeze || level.Frozen)
+		if (IsFrozen())
 		{
 			EffectTics++; //'Freeze' the timer.
 		}
@@ -1006,7 +1006,7 @@ Class PowerD4Haste : PowerSpeed
 		if (!Owner || Owner.Health < 1)
 		{	EndEffect();	return;	}
 		
-		if (globalfreeze || level.Frozen)
+		if (IsFrozen())
 		{
 			EffectTics++; //'Freeze' the timer.
 		}
@@ -1347,7 +1347,7 @@ Class PowerInvulBase : PowerInvulnerable
 			Vel = Owner.Vel;
 			if (Owner.CountInv("D4PentagramUpgrade1"))	Owner.bREFLECTIVE = true;
 			if (Owner.CountInv("D4PentagramUpgrade4"))	Owner.bNODAMAGE = true;
-			if (globalfreeze || level.Frozen)
+			if (IsFrozen())
 			{
 				EffectTics++; //'Freeze' the timer.
 			}

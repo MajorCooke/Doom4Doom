@@ -357,7 +357,7 @@ Class D4LostSoulDead : Actor
 			return;
 		if (!bNOTIMEFREEZE)
 		{
-			if (level.frozen || globalfreeze)
+			if (IsFrozen())
 				return;
 		}		
 		A_SetRoll(Roll + RollAmt, SPF_INTERPOLATE);

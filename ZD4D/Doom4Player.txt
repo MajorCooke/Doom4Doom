@@ -994,8 +994,8 @@ extend class Doom4Player
 		let inv = BasicArmor(FindInventory("BasicArmor"));
 		if (inv)
 		{
-			inv.MaxAbsorb = Max(inv.MaxAbsorb, inv.MaxAmount, 200);
-			inv.MaxFullAbsorb = Max(inv.MaxFullAbsorb, inv.MaxAmount, 200);
+			inv.MaxAbsorb = Max(inv.MaxAbsorb, inv.MaxAmount, inv.Amount, 200);
+			inv.MaxFullAbsorb = Max(inv.MaxFullAbsorb, inv.MaxAmount, inv.Amount, 200);
 			inv.SavePercent = 100.0;
 		}
 		
@@ -1235,7 +1235,7 @@ extend class Doom4Player
 				if (!good)
 				{
 					good = true;
-					TeleportMove(SpawnPoint, bTELESTOMP);
+					TeleportMove(SpawnPoint, true);
 					SetXYZ(SpawnPoint);
 				}
 			}

@@ -32,7 +32,7 @@ Class D4DFX : Actor
 	
 	bool TimeFreeze()
 	{
-		return (!bNOTIMEFREEZE && (level.frozen || globalfreeze));
+		return (!bNOTIMEFREEZE && IsFrozen());
 	}
 	
 	override void PostBeginPlay()

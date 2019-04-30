@@ -415,3 +415,210 @@ Struct D4DropList play
 		}
 	}
 }
+
+//==============================================================================
+//==============================================================================
+//
+//==============================================================================
+//==============================================================================
+
+Class AArray
+{
+	const DefaultSize = 256;
+	
+	private int Index;
+	
+	Array<Actor> Actors;
+	protected Class<Actor> ClassType;
+	
+	//--------------------------------------------------------------------------
+	// Initialization functions.
+	//--------------------------------------------------------------------------
+	static AArray Create(int size = -1, Name type = '')
+	{
+		AArray arr = new('AArray');
+		arr.Init(size, type);
+		return arr;
+	}
+	
+	protected void Init(int size, Class<Actor> type)
+	{
+		if (size < 1)
+			size = DefaultSize;
+		
+		ClassType = type;
+		
+		Actors.Clear();
+		Actors.Resize(size);
+		
+		// The game will crash if these are not manually initialized for some
+		// reason, so set them all to null.
+		for (int i = 0; i < Actors.Size(); i++)
+			Actors[i] = null;
+	}
+	
+	//--------------------------------------------------------------------------
+	// Manipulation functions.
+	//--------------------------------------------------------------------------
+	void Add(Actor mo)
+	{
+		// Make sure it exists and isn't restricted from insertion.
+		if (!mo || (ClassType != null && !(mo is ClassType)))	return;
+		
+		if (Actors.Size() < 1)
+		{
+			if (mo)
+			{
+				Actors.Push(mo);
+				Index = 0;
+			}
+			return;
+		}
+		
+		// Find a null spot if possible.
+		int Old = Index;
+		int Size = Actors.Size();
+		int Failsafe = Size * 2;
+		do
+		{	
+			if (Index >= Size)
+				Index = 0;
+			
+			if (Actors[Index] == null)	
+			{
+				Actors[Index] = mo;
+				return;
+			}
+			
+			if (Failsafe-- < 1)
+			{
+				Console.Printf("WARNING: AArray failsafe triggered!");
+				break;
+			}
+		} while (++Index != Old);
+		
+		// The array's full. Expand and insert.
+		Index = Size;
+		SetSize(Size * 2);
+		Actors[Index] = mo;
+	}
+	
+	void Remove(Actor mo)
+	{
+		int size = Actors.Size();
+		if (mo && size > 0)
+		{
+			int pos = Actors.Find(mo);
+			if (pos < size)
+				Actors[pos] = null;
+		}
+	}
+	
+	private int SetSize(int size)
+	{
+		int old = Actors.Size();
+		if (old == size)
+			return 0;
+		if (size < 1)
+		{
+			Actors.Clear();
+			return -old;
+		}
+		
+		Actors.Resize(size);
+		if (old < size)
+		{
+			for (int i = old; i < size; i++)
+				Actors[i] = null;
+		}
+		return old - size;
+	}
+	
+	//--------------------------------------------------------------------------
+	// Reorganizes the array so all nulls are placed at the end. 
+	// If shrink is desired, will cut the size in half if < 1/4 is used.
+	void Clean(bool shrink = false)
+	{
+		int size = Actors.Size();
+		if (size < 1)
+			return;
+		
+		int tail = size - 1;
+		for (int head = 0; head < size; head++)
+		{
+			// If this point is reached, the main job is done. Find a null spot.
+			if (tail <= head)
+			{
+				if (Actors[head] == null)
+				{	
+					// Found one. Leave the index here.
+					Index = head;
+					break;
+				}
+				continue;
+			}
+			
+			if (Actors[head] != null)	continue;
+			
+			while (tail > head)
+			{
+				if (Actors[tail] != null)
+				{
+					Actors[head] = Actors[tail];
+					Actors[tail] = null;
+					--tail;
+					break;
+				}
+				--tail;
+			}
+		}
+		
+		// Don't shrink if not wanted.
+		if (!shrink)	
+			return;
+		
+		// Now that the array's reorganized, 
+		// If < 1/4 of the array is used, cut down the size by half.
+		size /= 2;
+		int count = 0, last = 0, lhalf = 0;
+		for (int i = 0; i <= size; i++)
+		{
+			if (Actors[i] != null)
+				count++;
+			else last = i;
+		}
+		
+		if (count < size / 2)
+		{
+			SetSize(size);
+			if (Index >= size)
+				Index = (last >= size) ? 0 : last;
+		}
+	}
+	
+	int Find(Actor mo, Class<Actor> type = null, bool parent = false)
+	{
+		int size = Actors.Size();
+		if (size < 1)	return -1;
+		
+		// Apparently, returns cannot convert uint to int. =\
+		if (mo)
+		{
+			int ret = Actors.Find(mo);
+			return ret;
+		}
+		else if (!type)	
+		{
+			int ret = Actors.Find(null);
+			return ret;
+		}
+		
+		for (int i = 0; i < size; i++)
+		{
+			if (type)
+				if (Actors[i] is type)
+					return i;
+		}
+		return size;
+	}
+}

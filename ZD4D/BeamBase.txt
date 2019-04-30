@@ -539,7 +539,7 @@ Class D4DBeamBase : D4DFX
 	{
 		// Don't waste time if no master or not desired. Also take into account
 		// regular time freezing.
-		if (!MoveWithSource || !Master || (!bNOTIMEFREEZE && (level.frozen || globalfreeze)))
+		if (!MoveWithSource || !Master || (!bNOTIMEFREEZE && IsFrozen()))
 		{
 			Super.Tick();
 			return;

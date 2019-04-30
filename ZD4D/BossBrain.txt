@@ -242,7 +242,7 @@ Class IOSFaceExploder : Actor
 	
 	override void Tick()
 	{
-		if ((globalfreeze || level.Frozen) && !bNOTIMEFREEZE)
+		if (IsFrozen() && !bNOTIMEFREEZE)
 			return;
 			
 		count[0]++;

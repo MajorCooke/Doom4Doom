@@ -725,7 +725,7 @@ Class PowerRuneBase : PowerMorph
 	{	
 		if (Owner)
 		{
-			if (globalfreeze || level.frozen || Owner.bINVULNERABLE || 
+			if (IsFrozen() || Owner.bINVULNERABLE || 
 				Owner.FindInventory("PowerInvulnerable", true) ||
 				(Owner.alternative && Owner.alternative.FindInventory("PowerInvulnerable",true)))
 			{

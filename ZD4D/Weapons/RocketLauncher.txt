@@ -67,8 +67,10 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	action Actor LockOn(Actor mon)
 	{
 		if (CheckLockOn(mon))
+		{
+			ClearReticle();
 			return mon;
-		
+		}
 		let Event = D4DHandler.Fetch();
 		
 		if (!Event)	return null;
@@ -243,7 +245,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	Fire:
 		"####" "#" 0 
 		{
-			
+			ClearReticle();
 			if (CountInv("DetonateActive"))	{	return ResolveState("DetonateSprite");	}
 			if (CountInv("LockOnActive"))	{	return ResolveState("LockOnSprite");	}
 			return ResolveState("NormalSprite");
@@ -310,6 +312,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	ResumeFlashSequence:
 		"####" B 1 Bright 
 		{
+			ClearReticle();
 			A_GunFlash("Null");
 			A_FireProjectile("D4Rocket",0,1,7);
 			A_PlaySound("Doom4/Weapon/RocketLauncher/Fire",5,1);
@@ -447,9 +450,8 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 		//		A_PlaySound("Doom4/Weapon/RocketLauncher/StartLockOn",6);
 			
 			if (CountInv("RLLockToken") >= 200)
-			{			
-				int tri = CountInv("TripleShot");
-				if (tri != 1)
+			{
+				if (CountInv("TripleShot") != 1)
 				{
 					let Targ = invoker.Target;
 					
