@@ -804,6 +804,7 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 {
 	int countdowntimer;
 	D4DHandler Event;
+	Array<Actor> Missiles, Monsters;
 	Default 
 	{
 		Monster;
@@ -837,12 +838,10 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 		if (!Event)	return;
 		if (!justmissiles)
 		{
-			Array<Actor> Monsters; 
-			Monsters.Clear();	
-			Monsters.Copy(Event.Monsters);
-			for (int i = 0; i < Monsters.Size(); i++)
+			//Monsters.Copy(Event.Monsters.Actors);
+			for (int i = 0; i < Event.Monsters.Size(); i++)
 			{
-				Actor mo = Monsters[i];
+				Actor mo = Event.Monsters.Actors[i];
 				// Skip players, the dead, friendly and infighting monsters.
 				if (!mo || mo.bFRIENDLY || mo.health < 1 || mo.player ||
 					(mo.target && !mo.target.player) ||
@@ -858,14 +857,12 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 				mo.Threshold = mo.DefThreshold;
 			}
 		}
-		Array<Actor> Missiles;
-		Missiles.Clear();
-		Missiles.Copy(Event.Missiles);
+		//Missiles.Copy(Event.Missiles.Actors);
 		
 		// Redirect seeking missiles to this guy instead, if they're in sight.
-		for (int i = 0; i < Missiles.Size(); i++)
+		for (int i = 0; i < Event.Missiles.Size(); i++)
 		{
-			Actor mo = Missiles[i];
+			Actor mo = Event.Missiles.Actors[i];
 			if (!mo || !CheckSight(mo, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
 				continue;
 			

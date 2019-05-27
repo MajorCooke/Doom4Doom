@@ -209,18 +209,18 @@ Class DemonPlayerBase : Doom4Player
 				A_GiveInventory("DemonRuneDrainGiver");
 			}
 			
-			// Think of this as A_CheckProximity, but with less limitation.
-			// However, we have to invent all the checks in order to use it
-			// properly.
 			
-			// So, create an iterator that searches for D4KeyBase-inheriting
-			// and runes only.
-			ThinkerIterator it = ThinkerIterator.Create("Inventory", STAT_RUNEPICKUPS);
-			Inventory mo;
-			while (mo = Inventory(it.Next()))
+			if (!Event)	Event = D4DHandler.Fetch();
+			if (!Event)	return;
+			
+			bool CanGetMoreRunes = (CountInv("D4RuneUpgrade2") > 0);
+			if (!CanGetMoreRunes)	return;
+			
+			DemonRuneBase mo = null;
+			for (int i = 0; i < Event.DemonRunes.Size(); i++)
 			{
-				if (!(mo is "D4KeyBase") && (!CountInv("D4RuneUpgrade2") && !(mo is "DemonRuneBase")))
-					continue;
+				mo = DemonRuneBase(Event.DemonRunes.Actors[i]);
+				if (!mo)	continue;
 				
 				let rune = DemonRuneBase(mo);
 				if (CountInv("D4RuneUpgrade2"))
@@ -240,47 +240,35 @@ Class DemonPlayerBase : Doom4Player
 				// So we're in range horizontally. What about vertically?
 				if (pos.z + height < mo.pos.z || mo.pos.z + mo.height < pos.z)
 					continue;	
-				/*
-				if (mo is "D4KeyBase")
+				
+				if (check && rune && mo.GetClass() == RuneBase)
 				{
-					// if it's a key, print a message, call its special and destroy it.
-					A_GiveInventory(mo.GetClass(),1);
-					A_Log(mo.PickupMessage().." found");
+					
+					int upgrade = rune.PowerLevel;
+				//	Will be implemented once the attack upgrades are in.
+				//	Simply put it'll be overpowered to let the player pick up
+				//	less powerful runes.
+				/*	if (PowerLevel > upgrade)
+						continue;
+					else */ if (PowerLevel < upgrade)
+					{
+						PowerLevel = upgrade;
+						A_SetInventory("D4MonsterUpgrader", upgrade);
+					}
+					
+				//	Console.Printf("%d %d", PowerLevel, upgrade);
+					check.EffectTics += (Minute) * Max(1, 1 + upgrade);
+					
+					
+					int MaxHP = GetMaxHealth();
+					int PartialHP = MaxHP * ((MaxHP >= 2000) ? 0.25 : 0.5);
+					A_SetHealth(Min(health + PartialHP, MaxHP));
+					A_SetInventory("DemonTimerToken",check.EffectTics, DefPtr, true);
+					A_SpawnItemEx("DemonRuneMorphOn",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
 					mo.DoPickupSpecial(self);
 					mo.Destroy();
-					continue;
 				}
-				else */if (mo is "DemonRuneBase" && CountInv("D4RuneUpgrade2"))
-				{
-					if (check && rune && mo.GetClass() == RuneBase)
-					{
-						
-						int upgrade = rune.PowerLevel;
-					//	Will be implemented once the attack upgrades are in.
-					//	Simply put it'll be overpowered to let the player pick up
-					//	less powerful runes.
-					/*	if (PowerLevel > upgrade)
-							continue;
-						else */ if (PowerLevel < upgrade)
-						{
-							PowerLevel = upgrade;
-							A_SetInventory("D4MonsterUpgrader", upgrade);
-						}
-						
-					//	Console.Printf("%d %d", PowerLevel, upgrade);
-						check.EffectTics += (Minute) * Max(1, 1 + upgrade);
-						
-						
-						int MaxHP = GetMaxHealth();
-						int PartialHP = MaxHP * ((MaxHP >= 2000) ? 0.25 : 0.5);
-						A_SetHealth(Min(health + PartialHP, MaxHP));
-						A_SetInventory("DemonTimerToken",check.EffectTics, DefPtr, true);
-						A_SpawnItemEx("DemonRuneMorphOn",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
-						mo.DoPickupSpecial(self);
-						mo.Destroy();
-					}
-					continue;
-				}
+				continue;
 			}
 		}
 	}
@@ -545,6 +533,14 @@ Class DemonRuneBase : CustomInventory
 		Super.BeginPlay();
 	}
 	
+	override void OnDrop(Actor dropper)
+	{
+		if (!dropper)	return;
+		
+		int Count = dropper.CountInv("D4MonsterUpgrader");
+		PowerLevel = Clamp(Count, 0, MaxRunePower);
+	}
+	
 	override void OnDestroy()
 	{
 		if (ring) ring.Destroy();
@@ -572,11 +568,12 @@ Class DemonRuneBase : CustomInventory
 		// Only check for the same type.
 		if (limit)
 		{
-			ThinkerIterator it = ThinkerIterator.Create(GetClass(), STAT_RUNEPICKUPS);
-			DemonRuneBase mo;
-			while (mo = DemonRuneBase(it.Next()))
+			let Event = D4DHandler.Fetch();
+			int size = Event.DemonRunes.Size();
+			for (int i = 0; i < size; i++)
 			{
-				if (mo == self)
+				let mo = DemonRuneBase(Event.DemonRunes.Actors[i]);
+				if (!mo || mo == self)
 					continue;
 				
 				if (mo.PowerLevel == PowerLevel)
@@ -881,10 +878,10 @@ Class DemonRuneMorphOff : Actor
 		if (event)
 		{
 			let en = Spawn("Enemifier", (0,0,0));
-			Array<Actor> Monsters; Monsters.Copy(Event.Monsters);
-			for (int i = 0; i < Monsters.Size(); i++)
+			int size = Event.Monsters.Size();
+			for (int i = 0; i < size; i++)
 			{
-				Actor mon = Monsters[i];
+				Actor mon = Event.Monsters.Actors[i];
 				if (!mon || !(mon is "D4AbstractMonster") || mon.health < 1)	
 					continue;
 				

@@ -418,18 +418,20 @@ Struct D4DropList play
 
 //==============================================================================
 //==============================================================================
+// AArray Class
+// Designed by Major Cooke
 //
+// The goal behind this is an adjustable actor array with functions for
+// maintaining and cleaning more easily.
 //==============================================================================
 //==============================================================================
 
 Class AArray
 {
-	const DefaultSize = 256;
-	
-	private int Index;
+	const DefaultSize = 16;
+	protected Class<Actor> ClassType;
 	
 	Array<Actor> Actors;
-	protected Class<Actor> ClassType;
 	
 	//--------------------------------------------------------------------------
 	// Initialization functions.
@@ -441,69 +443,33 @@ Class AArray
 		return arr;
 	}
 	
-	protected void Init(int size, Class<Actor> type)
+	void Init(int size, Class<Actor> type)
 	{
-		if (size < 1)
-			size = DefaultSize;
-		
 		ClassType = type;
 		
 		Actors.Clear();
-		Actors.Resize(size);
 		
-		// The game will crash if these are not manually initialized for some
-		// reason, so set them all to null.
-		for (int i = 0; i < Actors.Size(); i++)
-			Actors[i] = null;
+		if (size > 0)
+			SetSize(size);
 	}
+	
+	//--------------------------------------------------------------------------
+	// Information.
+	//--------------------------------------------------------------------------
+	
+	int Size()	{	return Actors.Size();	}
 	
 	//--------------------------------------------------------------------------
 	// Manipulation functions.
 	//--------------------------------------------------------------------------
-	void Add(Actor mo)
+	void Push(Actor mo)
 	{
 		// Make sure it exists and isn't restricted from insertion.
 		if (!mo || (ClassType != null && !(mo is ClassType)))	return;
-		
-		if (Actors.Size() < 1)
-		{
-			if (mo)
-			{
-				Actors.Push(mo);
-				Index = 0;
-			}
-			return;
-		}
-		
-		// Find a null spot if possible.
-		int Old = Index;
-		int Size = Actors.Size();
-		int Failsafe = Size * 2;
-		do
-		{	
-			if (Index >= Size)
-				Index = 0;
-			
-			if (Actors[Index] == null)	
-			{
-				Actors[Index] = mo;
-				return;
-			}
-			
-			if (Failsafe-- < 1)
-			{
-				Console.Printf("WARNING: AArray failsafe triggered!");
-				break;
-			}
-		} while (++Index != Old);
-		
-		// The array's full. Expand and insert.
-		Index = Size;
-		SetSize(Size * 2);
-		Actors[Index] = mo;
+		Actors.Push(mo);
 	}
 	
-	void Remove(Actor mo)
+	void Delete(Actor mo)
 	{
 		int size = Actors.Size();
 		if (mo && size > 0)
@@ -534,16 +500,74 @@ Class AArray
 		return old - size;
 	}
 	
-	//--------------------------------------------------------------------------
+	// Apparently returns cannot convert from UInt to Int properly, GZDoom refuses
+	// to start up. So it must be assigned to variable first before being returned.
+	int Find(Actor mo)
+	{
+		int pos = Actors.Find(mo);
+		return pos;
+	}
+	
+	Actor FindActor(Actor mo)
+	{
+		int size = Actors.Size();
+		if (size < 1)
+			return null;
+			
+		int pos = Actors.Find(mo);
+		Actor ret = null;
+		
+		if (pos < size)	
+			ret = Actors[pos];
+		return ret;
+	}
+	
+	//==========================================================================
+	// Cleans up an array by copying all non-nulls to a temp array and overriding
+	// the original.
+	//==========================================================================
+	void Clean()
+	{
+		int size = Actors.Size();
+		if (size < 1)
+			return;
+			
+		Array<Actor> temp; temp.Clear();
+		for (int i = 0; i < size; i++)
+			if (Actors[i] != null)	temp.Push(Actors[i]);
+			
+		Actors.Move(temp);
+	}
+	
+	
+	//==========================================================================
+	// Experimental clean function. While it works, performance concerns arose.
+	// Still needs comparing to the above, performance-wise.
 	// Reorganizes the array so all nulls are placed at the end. 
-	// If shrink is desired, will cut the size in half if < 1/4 is used.
-	void Clean(bool shrink = false)
+	// 
+	// Legend:
+	// #: Non-null
+	// -: Null
+	// 
+	// The overall goal of this function is to take the array.
+	// Before:	##--#--###-#---#-#
+	// After:	########----------
+	//
+	// If shrink is true, reduce size if < 1/4 used by 1/2 after sorting. 
+	// Ensures fewer iterations and maximum optimization.
+	// Before:	########----------
+	// After:	########-
+	//==========================================================================
+	/*
+	void Clean(bool shrink = true)
 	{
 		int size = Actors.Size();
 		if (size < 1)
 			return;
 		
-		int tail = size - 1;
+		// Keep track of the non-nulls to determine usage ratio.
+		int count = 0;
+		int tail = size - 1, Index = tail;
 		for (int head = 0; head < size; head++)
 		{
 			// If this point is reached, the main job is done. Find a null spot.
@@ -555,17 +579,26 @@ Class AArray
 					Index = head;
 					break;
 				}
+				count++;
 				continue;
 			}
 			
-			if (Actors[head] != null)	continue;
+			if (Actors[head] != null)	
+			{
+				count++;
+				continue;
+			}
 			
+			// Found a null gap. try to fill it by traversing backwards to the
+			// first non-null found.
 			while (tail > head)
 			{
+				// Found a non-null. Switch positions and end the sub-loop.
 				if (Actors[tail] != null)
 				{
 					Actors[head] = Actors[tail];
 					Actors[tail] = null;
+					++count; 
 					--tail;
 					break;
 				}
@@ -573,52 +606,13 @@ Class AArray
 			}
 		}
 		
-		// Don't shrink if not wanted.
-		if (!shrink)	
+		
+		// Now the array should be organized. Shrink only if desired, the 
+		// size > default and usage < 1/4 the array's size.
+		if (!shrink || size <= DefaultSize || count >= (size / 4))	
 			return;
 		
-		// Now that the array's reorganized, 
-		// If < 1/4 of the array is used, cut down the size by half.
-		size /= 2;
-		int count = 0, last = 0, lhalf = 0;
-		for (int i = 0; i <= size; i++)
-		{
-			if (Actors[i] != null)
-				count++;
-			else last = i;
-		}
-		
-		if (count < size / 2)
-		{
-			SetSize(size);
-			if (Index >= size)
-				Index = (last >= size) ? 0 : last;
-		}
+		SetSize(Max(DefaultSize, size / 2));
 	}
-	
-	int Find(Actor mo, Class<Actor> type = null, bool parent = false)
-	{
-		int size = Actors.Size();
-		if (size < 1)	return -1;
-		
-		// Apparently, returns cannot convert uint to int. =\
-		if (mo)
-		{
-			int ret = Actors.Find(mo);
-			return ret;
-		}
-		else if (!type)	
-		{
-			int ret = Actors.Find(null);
-			return ret;
-		}
-		
-		for (int i = 0; i < size; i++)
-		{
-			if (type)
-				if (Actors[i] is type)
-					return i;
-		}
-		return size;
-	}
+	*/
 }

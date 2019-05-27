@@ -26,24 +26,38 @@ Class D4LootContainer play
 	void SetEntry(String cls, 
 		uint CrateDropChance, uint CrateDropAmount, uint CrateDropAlways,
 		uint CashAmount, uint CashChainsawPinata,
-		uint UpgradeDropChance, uint UpgradeDropAlways)
+		uint UpgradeDropChance, uint UpgradeDropAlways,
+		uint RunePowerMin = 0, uint RunePowerMax = 7)
 	{
 		Class<Actor> ClassName = cls;
 		if (!ClassName)	return;
+		
+		if (RunePowerMin > RunePowerMax)
+		{
+			uint temp = RunePowerMax;
+			RunePowerMax = RunePowerMin;
+			RunePowerMin = temp;
+		}
+		
+		RunePowerMin = Clamp(RunePowerMin, 0, 7);
+		RunePowerMax = Clamp(RunePowerMax, 0, 7);
 		
 		D4LootDef def;
 		for (int i = 0; i < Defs.Size(); i++)
 		{
 			def = D4LootDef(Defs[i]);
 			if (def && def.ClassName == ClassName)
-				break;
+			{
+				return;
+			}
 			def = null;
 		}
 		
 		if (!def)
 		{
 			def = D4LootDef.Create(ClassName, CrateDropChance, CrateDropAmount, CrateDropAlways,
-				CashAmount, CashChainsawPinata, UpgradeDropChance, UpgradeDropAlways);
+				CashAmount, CashChainsawPinata, UpgradeDropChance, UpgradeDropAlways,
+				RunePowerMin, RunePowerMax);
 			Defs.Push(def);
 		}
 	}
@@ -91,26 +105,32 @@ Class D4LootDef play
 {
 	const DONT_USE = 0;
 	Class<Actor> 	ClassName;
-	private uint	CrateDropChance, CrateDropAmount, CrateDropAlways,
+	uint			CrateDropChance, CrateDropAmount, CrateDropAlways,
 					CashAmount, CashChainsawPinata,
-					UpgradeDropChance, UpgradeDropAlways;
+					UpgradeDropChance, UpgradeDropAlways,
+					RunePowerMin, RunePowerMax;
+	
 	
 	protected D4LootDef Init()
 	{
-		CrateDropChance = 		-1;
+		ClassName = 			null;
+		CrateDropChance = 	-1;
 		CrateDropAmount =		0;
 		CrateDropAlways =		0;
 		CashAmount = 			-1;
 		CashChainsawPinata = 	-1;
 		UpgradeDropChance = 	-1;
 		UpgradeDropAlways = 	0;
+		RunePowerMin =		0;
+		RunePowerMax =		7;
 		return self;
 	}
 		
 	static D4LootDef Create( Class<Actor> ClassName, 
 		uint CrateDropChance, uint CrateDropAmount, uint CrateDropAlways,
 		uint CashAmount, uint CashChainsawPinata,
-		uint UpgradeDropChance, uint UpgradeDropAlways)
+		uint UpgradeDropChance, uint UpgradeDropAlways,
+		uint RunePowerMin, uint RunePowerMax)
 	{
 		if (!ClassName)	return null;
 		
@@ -123,6 +143,8 @@ Class D4LootDef play
 		loot.CashChainsawPinata = CashChainsawPinata;
 		loot.UpgradeDropChance = UpgradeDropChance;
 		loot.UpgradeDropAlways = UpgradeDropAlways;
+		loot.RunePowerMin = RunePowerMin;
+		loot.RunePowerMax = RunePowerMax;
 		return loot;
 	}
 	
@@ -145,6 +167,19 @@ Class D4LootDef play
 		if (UpgradeDropAlways)		self.UpgradeDropAlways = UpgradeDropAlways;
 	}
 	
+	void SetRunePowers(uint RunePowerMin, uint RunePowerMax)
+	{
+		if (RunePowerMin > RunePowerMax)
+		{
+			int temp = RunePowerMin;
+			RunePowerMin = RunePowerMax;
+			RunePowerMax = temp;
+		}
+		//MaxRunePower is defined in Constants.txt
+		self.RunePowerMin = Clamp(RunePowerMin, 0, MaxRunePower);
+		self.RunePowerMax = Clamp(RunePowerMax, 0, MaxRunePower);
+	}
+	
 	// The parameters are merely there to remind me of the order.
 	uint, uint, uint GetCrateDrops(int Chance = DONT_USE, int Amount = DONT_USE, int Always = DONT_USE)
 	{	return CrateDropChance, CrateDropAmount, CrateDropAlways;	}
@@ -155,4 +190,121 @@ Class D4LootDef play
 	uint, uint GetUpgradeDrops(int Chance = DONT_USE, int Always = DONT_USE)
 	{	return UpgradeDropChance, UpgradeDropAlways;	}
 	
+	uint, uint GetRunePowerThreshold(int Minimum = DONT_USE, int Maximum = DONT_USE)
+	{	return RunePowerMin, RunePowerMax;	}
+	
+}
+
+Class D4RuneDropList play
+{	
+	
+
+	static Class<Actor> GetRune(Actor mon)
+	{
+		if (!mon || D4D_DemonRunes < 1)	return null;
+		
+		Class<Actor> check = Actor.GetReplacee(mon.GetClass());
+		
+		int rarity = D4D_DemonRunes;
+		int upgrade = mon.CountInv("D4MonsterUpgrader");
+		int id = 0;
+		
+		static const Class<Actor> Replaced[] =
+		{
+			'HellKnight',			
+			'BaronOfHell',			
+			'Revenant',				
+			'Cacodemon',			
+			'Fatso',				
+			'PainElemental',		
+			'Cyberdemon',			
+			'SpiderMastermind',		
+			'Arachnotron',			
+			'Archvile'				
+		};
+		
+		static const Class<Actor> Runes[] =
+		{
+			'KnightRune',
+			'BaronRune',
+			'RevenantRune',
+			'CacodemonRune',
+			'FatsoRune',
+			'PainElementalRune',
+			'CyberdemonRune',
+			'MastermindRune',
+			'ArachnotronRune',
+			'ArchvileRune'
+		};
+		
+		static const int RuneDropChances[] =
+		{
+			RuneChance_Knight,
+			RuneChance_Baron,
+			RuneChance_Rev,
+			RuneChance_Caco,
+			RuneChance_Fatso,
+			RuneChance_PainEl,
+			RuneChance_Cyber,
+			RuneChance_Master,
+			RuneChance_Arach,
+			RuneChance_Archie
+		};
+		
+		if (!check) check = mon.GetClass();
+		
+		Class<Actor> rep = null;
+		int i = 0;
+		for (i = 0; i < Replaced.Size(); i++)
+		{
+			if (check is Replaced[i] || mon is Replaced[i])
+			{
+				rep = Runes[i];
+				id = RuneDropChances[i];
+				break;
+			}
+		}
+		
+		if (rep == null)
+			return null;
+		
+		// Black and white monsters always drop demon runes.
+		if (upgrade >= 6)	return rep;
+		int originalID = id;
+		id = Max(1, id - (upgrade * 2));
+		// Spider masterminds are the rarest of enemies. Give them special 
+		// treatment so players can enjoy playing the hell out of them.
+		if (check is "SpiderMastermind" || check is "Cyberdemon")
+		{
+			// Only check for live ones.
+			// The event handler automatically transfers dead monsters from the
+			// Monsters to DeadMonsters array inside of it.
+			int howmany = 1;
+			let	Event = D4DHandler.Fetch();
+			if (Event)
+			{
+				int size = Event.Monsters.Size();
+				for (int i = 0; i < size; i++)
+				{
+					Actor mo = Event.Monsters.Actors[i];
+					if (mo && check && (mo is check) && mo.CountInv("D4MonsterUpgrader") == upgrade)
+					{
+						if (howmany++ >= originalID)
+							break;
+					}
+				}
+			}
+			
+			return (random(1, Max(1, howmany / rarity)) == 1) ? rep : null;
+		}
+		else if (rarity == 2)		// Common
+		{
+			return (random(1, (id / 2)) == 1) ? rep : null;
+		}
+		else if (rarity == 1) 	// Rare
+		{
+			return (random(1, id) == 1) ? rep : null;
+		}
+		return null;
+	}
 }

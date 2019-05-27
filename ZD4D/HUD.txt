@@ -1,7 +1,6 @@
 
 // Not to be confused with status bar huds. This is just here for the drawing
-// bars around ammo, and if it works, laser boxes to indicate someone's aiming
-// at the player.
+// bars around ammo.
 
 extend class D4DHandler
 {
@@ -16,7 +15,7 @@ extend class D4DHandler
 		{
 			// REJECTION ROLE
 			// Make sure the tracker has something to watch.
-			Actor mo = Tracker[i];
+			Actor mo = Tracker.Actors[i];
 			if (!mo || mo.bNOSECTOR || mo.bINVISIBLE || mo == e.Camera)
 				continue;			
 			

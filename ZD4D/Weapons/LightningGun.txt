@@ -269,11 +269,11 @@ Class LightningPuffV3 : LightningPuffV2
 				int dmg = random(LGChainDmgMin, LGChainDmgMax);
 				if (target && target.CountInv("LGUpgradeDamage"))
 					dmg = random(LGChainDmgMinUpgrade, LGChainDmgMaxUpgrade);
-				Monsters.Copy(handler.Monsters);
 				int count = 0;
-				for (int i = 0; i < Monsters.Size(); i++)
+				int size = handler.Monsters.Size();
+				for (int i = 0; i < size; i++)
 				{
-					Actor mo = Monsters[i];
+					Actor mo = handler.Monsters.Actors[i];
 					// Make sure it exists first and is alive. Don't target enemies directly hit.
 					if (!mo || mo.bCORPSE || mo.health < 1 || mo.player || mo == Tracer || mo.bFRIENDLY)
 						continue;

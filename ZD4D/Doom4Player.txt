@@ -158,20 +158,32 @@ Class Doom4Player : PlayerPawn
 		Species "Marines";
 		+THRUSPECIES
 		+MTHRUSPECIES
-	}
-	
+	}	
 	States
 	{
+	Teleport:
+		PLAY A 0
+		{
+			if (GetRealPlayer())
+			{
+				A_Overlay(Overlay_DashManager, "Overlay.DashManager", false);
+				A_OverlayFlags(Overlay_DashManager, PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
+			}
+		}
 	Spawn:
 		PLAY A -1 NoDelay
 		{
-			if (player && player.mo && player.mo == self && level.mapname != 'TITLEMAP')
+			if (GetRealPlayer())
 			{
 				A_Overlay(Overlay_DashManager, "Overlay.DashManager", true);
 				A_Overlay(Overlay_UtilityManager, "Overlay.UtilityManager", true);
 				A_Overlay(Overlay_LedgeGrab,"Overlay.LedgeGrab",true);
 				A_Overlay(Overlay_LifeRecorder, "Overlay.LifeRecorder", true);
 			//	A_Overlay(99,"Overlay.Debug",true);
+				A_OverlayFlags(Overlay_DashManager, PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
+				A_OverlayFlags(Overlay_UtilityManager, PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
+				A_OverlayFlags(Overlay_LedgeGrab, PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
+				A_OverlayFlags(Overlay_LifeRecorder, PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
 			}
 		}
 		Loop;
@@ -222,6 +234,8 @@ Class Doom4Player : PlayerPawn
 			if (!player)	return ResolveState("Null");
 			
 			DashAngle = 0;
+			
+			// If we don't 
 			if (!CountInv("D4Dash"))
 			{
 				DashTimer = 1;
@@ -280,6 +294,7 @@ Class Doom4Player : PlayerPawn
 					
 					// Finally, check to make sure our desired angle isn't already
 					// going the speed of stupid - NASCAR style. =B
+					// Particularly, within 22.5 degrees.
 					double NewDashSpeed = FindInventory("PowerSpeed", true) ? DashSpeed * 1.5 : DashSpeed;
 					if (Vel.XY.Length() > NewDashSpeed)
 					{
@@ -312,7 +327,7 @@ Class Doom4Player : PlayerPawn
 			// If not teleported (xy will 0 out... I think), not on something 
 			// and not blocked, keep boosting the player in the direction.
 			if (Vel.XY != (0,0) &&
-				!bONMOBJ && (pos.z > GetZAt()) && 
+				!bONMOBJ && !A_CheckFloor("Null") && 
 				!A_CheckBlock("Null",CBF_ABSOLUTEANGLE,AAPTR_DEFAULT,DashSpeed,0,0,DashAngle) &&
 				!(player.cheats & (CF_FLY|CF_NOCLIP2)))
 			{
@@ -886,7 +901,9 @@ extend class Doom4Player
 	PlayerInfo GetRealPlayer()
 	{
 		let plr = player;
-		return (plr && plr.mo && plr.mo == self) ? plr : null;
+		return (plr && plr.mo && plr.mo == self && 
+				!plr.mo.alternative && !plr.mo.FindInventory('PowerMorph',true) &&
+				level.mapname != 'TITLEMAP') ? plr : null;
 	}
 		
 	
@@ -945,15 +962,19 @@ extend class Doom4Player
 	// Double down on the DamageCount fade.
 	override void PlayerThink()
 	{
-		Super.PlayerThink();
+		let plr = self.player;
 		
-		let player = self.player;
-		if (player && player.DamageCount > 0)
+		if (plr)
 		{
-			let invul = FindInventory("PowerInvulnerable");
-			if (invul)
-				player.DamageCount = Max(0, player.DamageCount - 6);
+			if (plr.DamageCount > 0)
+			{
+				let invul = FindInventory("PowerInvulnerable");
+				if (invul)
+					plr.DamageCount = Max(0, plr.DamageCount - 6);
+			}
 		}
+		
+		Super.PlayerThink();
 	}
 	
 	//--------------------------------------------------------------------------
@@ -1517,9 +1538,6 @@ extend class Doom4Player
 	
 	override void CheatGive (String name, int amount)
 	{
-		Super.CheatGive(name, amount);
-		
-		int i;
 		Class<Inventory> type;
 		let player = self.player;
 		
@@ -1528,20 +1546,22 @@ extend class Doom4Player
 			return;
 		}
 		
+		Super.CheatGive(name, amount);
+		
 		int giveall = ALL_NO;
-		if (name ~== "all")
+		if (name == 'all')
 		{
 			giveall = ALL_YES;
 		}
-		else if (name ~== "everything")
+		else if (name == 'everything')
 		{
 			giveall = ALL_YESYES;
 		}
 		
-		if (giveall || name ~== "weapons")
+		if (giveall || name == 'weapons')
 		{
 			let savedpending = player.PendingWeapon;
-			for (i = 0; i < AllActorClasses.Size(); ++i)
+			for (int i = 0; i < AllActorClasses.Size(); ++i)
 			{
 				let type = (class<Weapon>)(AllActorClasses[i]);
 				if (!type || type == "Weapon")	continue;
@@ -1563,9 +1583,6 @@ extend class Doom4Player
 				}
 			}
 			player.PendingWeapon = savedpending;
-
-			if (!giveall)
-				return;
 		}
 	}
 	

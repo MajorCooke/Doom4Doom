@@ -275,10 +275,11 @@ extend class D4PainElemental
 			if (!Event)	Event = D4DHandler.Fetch();
 			if (Event)
 			{
+				int size = Event.Monsters.Size();
 				int count = limit;
-				for (int i = 0; i < Event.Monsters.Size(); i++)
+				for (int i = 0; i < size; i++)
 				{
-					Actor mo = Event.Monsters[i];
+					Actor mo = Event.Monsters.Actors[i];
 					if (mo is spawntype)
 						if (--count == 0)
 							return;

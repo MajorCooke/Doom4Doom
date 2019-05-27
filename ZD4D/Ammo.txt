@@ -891,10 +891,10 @@ Class D4PinataCarrion : CustomInventory
 					
 					let i = invoker;
 					if (!i.Event)	i.Event = D4DHandler.Fetch();
-					Array<Actor> Carrion; Carrion.Copy(i.Event.Carrion);
-					for (int j = 0; j < Carrion.Size(); j++)
+					int size = i.Event.Carrion.Size();
+					for (int j = 0; j < size; j++)
 					{
-						let mo = D4PinataCarrion(Carrion[j]);
+						let mo = D4PinataCarrion(i.Event.Carrion.Actors[j]);
 						if (!mo || mo == self)	continue;
 						
 						if (mo.Owner)

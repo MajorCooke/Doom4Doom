@@ -277,13 +277,13 @@ Class D4BFGProjectile  : Actor
 	void BFGBeams(int maxtargets)
 	{
 		if (!handler)	handler = D4DHandler.Fetch();
-		if (handler && handler.Monsters.Size() > 0)
+		int size = handler.Monsters.Size();
+		if (handler && size > 0)
 		{
-			Monsters.Copy(handler.Monsters);
 			int count = 0;
-			for (int i = 0; i < Monsters.Size(); i++)
+			for (int i = 0; i < size; i++)
 			{
-				Actor mo = Monsters[i];
+				Actor mo = handler.Monsters.Actors[i];
 				if (!mo || mo.bCORPSE || mo.health < 1 || mo is "PlayerPawn" || mo.bDORMANT)
 					continue;
 					

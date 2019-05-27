@@ -194,6 +194,8 @@ Class D4AbstractMonster : Actor
 	// Randomizes and sets up the power level with the help of the overridable
 	// function, ChoosePowerLevel. 
 	// Customizable power level RNG that can be overridden for specific monsters.
+	
+	
 	virtual int ChoosePowerLevel()
 	{
 		int rng = random(1, 2000);
@@ -290,12 +292,8 @@ Class D4AbstractMonster : Actor
 	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{
 		// Don't run this if dead or not shootable.
-		if (health < 1)
-		{
+		if (health < 1 || (!bSHOOTABLE && !bVULNERABLE))
 			return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
-		}
-		
-		if (!bSHOOTABLE && !bVULNERABLE)	return 0;
 		
 		// Do nothing further if no wound state is found, let the engine handle it instead.
 		let WoundState = ResolveState("Wound");
@@ -339,7 +337,6 @@ Class D4AbstractMonster : Actor
 	
 	override void Die(Actor source, Actor inflictor, int dmgflags)
 	{
-		SpawnRune();
 		A_StopBeam();
 		if (Spawner && Spawner.health > 0)
 		{
@@ -462,12 +459,7 @@ Class D4AbstractMonster : Actor
 		if (RuneChance(RuneDropChance))
 		{
 			let Rune = DemonRuneBase(Spawn(RuneItem, pos, ALLOW_REPLACE));
-			Class<Inventory> Token = "D4MonsterUpgrader";
-			int Count = CountInv(Token);
-			if (Rune && Token && Count > 0)
-			{
-				Rune.PowerLevel = Count;
-			}
+			if (Rune)	Rune.OnDrop(self);
 		}
 	}
 	
@@ -494,10 +486,10 @@ Class D4AbstractMonster : Actor
 			if (!Event)	Event = D4DHandler.Fetch();
 			if (Event)
 			{
-				Array<Actor> Monsters; Monsters.Copy(Event.Monsters);
-				for (int i = 0; i < Monsters.Size(); i++)
+				
+				for (int i = 0; i < Event.Monsters.Size(); i++)
 				{
-					Actor mo = Monsters[i];
+					Actor mo = Event.Monsters.Actors[i];
 					if (mo && (mo is GetClass()) && mo.CountInv("D4MonsterUpgrader") == upgrade)
 					{
 						if (howmany++ >= originalID)
