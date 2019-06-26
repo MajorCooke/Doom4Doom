@@ -572,6 +572,7 @@ Class D4AbstractMonster : Actor
 				
 				if (gibs)
 				{
+					gibs.angle = angle;
 					gibs.tracer = self;
 					gibs.vel = vel;
 					int tier = CountInv("D4MonsterUpgrader");

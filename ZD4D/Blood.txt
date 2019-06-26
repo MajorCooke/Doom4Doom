@@ -208,6 +208,12 @@ Class GibSpawnerBase : D4DFX
 				continue;
 			}
 			
+			double r = radius, h = height;
+			if (tracer)
+			{
+				r = tracer.radius;
+				h = tracer.height;
+			}
 			for (int k = 0; k < GibMax; k++)
 			{
 				for (int j = 0; j < Amount; j++)
@@ -219,18 +225,21 @@ Class GibSpawnerBase : D4DFX
 						continue;
 						
 					first = false;
+					
 					let spawned = FlyingFlesh(Spawn(Check, pos));
 					// The target is intentionally set to this
 					if (spawned)	
 					{	
+						
+						spawned.Warp(self, 
+							frandom(-r,r),frandom(-r,r),frandom(0.0,h),frandom(0,359),WARPF_NOCHECKPOSITION);
 						spawned.Pitch = Pitch;
 						spawned.Angle = Angle;
 						spawned.Target = self; 
 						spawned.Master = Master;
 						spawned.Tracer = Tracer;
 						spawned.ShortGibTime = ShortGibTime;
-						
-						Vector3 tvel = tracer ? tracer.vel : (0,0,0);
+						Vector3 tvel = tracer ? tracer.vel : (frandom(-5.0,5.0), frandom(-5.0,5.0), frandom(0.0,5.0));
 						spawned.A_ChangeVelocity(
 							tvel.X * frandom(MulMin,MulMax) + frandom(-RAdd,RAdd),
 							tvel.Y * frandom(MulMin,MulMax) + frandom(-RAdd,RAdd),
@@ -248,6 +257,8 @@ Class GibSpawnerBase : D4DFX
 	}
 	Default
 	{
+		Radius 25;
+		Height 50;
 		GibSpawnerBase.RAdd 8;
 		GibSpawnerBase.ShortGibTime false;
 		+NOTELESTOMP
@@ -277,7 +288,7 @@ Class BloodGibDropper : GibSpawnerBase
 {
 	Default
 	{
-		DropItem "NewMeat", 255, 1;
+		DropItem "NewMeat", 256, 1;
 		DropItem "NewMeat", 192, 1;
 		DropItem "NewMeat", 128, 1;
 		DropItem "NewMeat", 64, 1;
@@ -348,17 +359,21 @@ Class BloodGibDropperOld : Actor
 	SpawnGiblets:
 		TNT1 A 1
 		{
+			/*
 			for (int i = 0; i < GibletsDropped; i++)
 			{	
-				A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50), vel.x+frandom(GibletsXYForce,-GibletsXYForce), vel.y+ frandom(GibletsXYForce,-GibletsXYForce), frandom(3,GibletsZForce+4), 0,GibFlags,0);
-				A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50), vel.x+frandom(GibletsXYForce,-GibletsXYForce), vel.y+ frandom(GibletsXYForce,-GibletsXYForce), frandom(3,GibletsZForce+4), 0,GibFlags,64);
-				A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50), vel.x+frandom(GibletsXYForce,-GibletsXYForce), vel.y+ frandom(GibletsXYForce,-GibletsXYForce), frandom(3,GibletsZForce+4), 0,GibFlags,128);
-				A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50), vel.x+frandom(GibletsXYForce,-GibletsXYForce), vel.y+ frandom(GibletsXYForce,-GibletsXYForce), frandom(3,GibletsZForce+4), 0,GibFlags,192);
-				A_SpawnItemEx("BloodGib1",random(25,-25),random(25,-25),random(10,50), vel.x+frandom(GibletsXYForce,-GibletsXYForce), vel.y+ frandom(GibletsXYForce,-GibletsXYForce), frandom(3,GibletsZForce+4), 0,GibFlags,200);
-				A_SpawnItemEx("BloodGib2",random(25,-25),random(25,-25),random(10,50), vel.x+frandom(GibletsXYForce,-GibletsXYForce), vel.y+ frandom(GibletsXYForce,-GibletsXYForce), frandom(3,GibletsZForce+4), 0,GibFlags,200);
-				A_SpawnItemEx("BloodGib3",random(25,-25),random(25,-25),random(10,50), vel.x+frandom(GibletsXYForce,-GibletsXYForce), vel.y+ frandom(GibletsXYForce,-GibletsXYForce), frandom(3,GibletsZForce+4), 0,GibFlags,200);
-				A_SpawnItemEx("BloodGib4",random(25,-25),random(25,-25),random(10,50), vel.x+frandom(GibletsXYForce,-GibletsXYForce), vel.y+ frandom(GibletsXYForce,-GibletsXYForce), frandom(3,GibletsZForce+4), 0,GibFlags,200);
+				int j = 0;
+				for (j = 0; j < 4; j++)
+					A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50), vel.x+frandom(GibletsXYForce,-GibletsXYForce), vel.y+ frandom(GibletsXYForce,-GibletsXYForce), frandom(3,GibletsZForce+4), 0,GibFlags,j * 64);
+				
+				
+				static const Class<Actor> gibs[] = 
+				{ "BloodGib1", "BloodGib2", "BloodGib3", "BloodGib4" };
+				int size = gibs2.Size();
+				for (j = 0; j < size; j++)								
+					A_SpawnItemEx(gibs[i],random(25,-25),random(25,-25),random(10,50), vel.x+frandom(GibletsXYForce,-GibletsXYForce), vel.y+ frandom(GibletsXYForce,-GibletsXYForce), frandom(3,GibletsZForce+4), 0,GibFlags,200);
 			}
+			*/
 		}
 		Stop;
 	Simple:

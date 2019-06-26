@@ -195,23 +195,28 @@ Class D4LootDef play
 	
 }
 
-Class D4RuneDropList play
+extend class D4DHandler
 {	
 	
 
-	static Class<Actor> GetRune(Actor mon)
+	Class<Actor> GetRune(Actor mon)
 	{
 		if (!mon || D4D_DemonRunes < 1)	return null;
 		
 		Class<Actor> check = Actor.GetReplacee(mon.GetClass());
 		
+		if (D4D_PrintDebug == 1)
+		{
+			if (check)	Console.Printf("%s replaces %s", mon.GetClassName(), check.GetClassName());
+			else		Console.Printf("%s replaces nothing", mon.GetClassName());
+		}
 		int rarity = D4D_DemonRunes;
 		int upgrade = mon.CountInv("D4MonsterUpgrader");
 		int id = 0;
 		
 		static const Class<Actor> Replaced[] =
 		{
-			'HellKnight',			
+			'HellKnight',			// Must come first because it inherits from the Baron.
 			'BaronOfHell',			
 			'Revenant',				
 			'Cacodemon',			
@@ -251,50 +256,46 @@ Class D4RuneDropList play
 			RuneChance_Archie
 		};
 		
-		if (!check) check = mon.GetClass();
-		
 		Class<Actor> rep = null;
 		int i = 0;
 		for (i = 0; i < Replaced.Size(); i++)
 		{
 			if (check is Replaced[i] || mon is Replaced[i])
 			{
+				check = Replaced[i];
 				rep = Runes[i];
 				id = RuneDropChances[i];
 				break;
 			}
 		}
-		
+		// No rune found.
 		if (rep == null)
 			return null;
 		
 		// Black and white monsters always drop demon runes.
-		if (upgrade >= 6)	return rep;
+		if (upgrade >= 6)	
+			return rep;
+			
 		int originalID = id;
 		id = Max(1, id - (upgrade * 2));
-		// Spider masterminds are the rarest of enemies. Give them special 
-		// treatment so players can enjoy playing the hell out of them.
+		
+		// Give spider masterminds and cyberdemons special treatments since they
+		// are the biggest monsters.
 		if (check is "SpiderMastermind" || check is "Cyberdemon")
 		{
 			// Only check for live ones.
-			// The event handler automatically transfers dead monsters from the
-			// Monsters to DeadMonsters array inside of it.
 			int howmany = 1;
-			let	Event = D4DHandler.Fetch();
-			if (Event)
+			int size = Monsters.Size();
+			for (int i = 0; i < size; i++)
 			{
-				int size = Event.Monsters.Size();
-				for (int i = 0; i < size; i++)
+				Actor mo = Monsters.Actors[i];
+				if (mo && check && mo.health > 0 && (mo is check || mo.GetReplacee(mo.GetClass())) 
+					&& mo.CountInv("D4MonsterUpgrader") == upgrade)
 				{
-					Actor mo = Event.Monsters.Actors[i];
-					if (mo && check && (mo is check) && mo.CountInv("D4MonsterUpgrader") == upgrade)
-					{
-						if (howmany++ >= originalID)
-							break;
-					}
+					if (howmany++ >= originalID)
+						break;
 				}
 			}
-			
 			return (random(1, Max(1, howmany / rarity)) == 1) ? rep : null;
 		}
 		else if (rarity == 2)		// Common

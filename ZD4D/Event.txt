@@ -327,12 +327,11 @@ extend class D4DHandler
 		// Allocate them over to the DeadMonsters array and remove them from 
 		// the living.
 		if (DeadMonsters.Find(mo) >= DeadMonsters.Size())
-		{
 			DeadMonsters.Push(mo);
-			int i = Monsters.Find(mo);
-			if (i < Monsters.Size())
-				Monsters.Actors[i] = null;
-		}
+			
+		int i = Monsters.Find(mo);
+		if (i < Monsters.Size())
+			Monsters.Actors[i] = null;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -626,7 +625,7 @@ extend class D4DHandler
 		
 		if (!(mo is 'D4AbstractMonster'))
 		{
-			Class<Actor> rune = D4RuneDropList.GetRune(mo);
+			Class<Actor> rune = GetRune(mo);
 			if (rune)
 			{
 				let DRune = DemonRuneBase(mo.Spawn(rune, mo.pos, ALLOW_REPLACE));
