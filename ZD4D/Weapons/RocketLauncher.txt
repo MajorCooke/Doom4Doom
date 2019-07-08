@@ -15,8 +15,9 @@
 
 Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 {
+	MCHandler MC;
 	Array<Actor> Targets;
-	Actor Reticle;
+	MCHudShape Reticle;
 	const LockOnCone = cos(20); //0.93969262078
 	const LockTokenTick = 30;
 	const LockTokenMax = 200;
@@ -68,15 +69,16 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	action Actor LockOn(Actor mon)
 	{
 		if (CheckLockOn(mon))
-		{
-			ClearReticle();
 			return mon;
+		
+		let i = invoker;
+		if (!i.Event)	
+		{
+			i.Event = D4DHandler.Fetch();
+			if (!i.Event)	return null;
 		}
-		let Event = D4DHandler.Fetch();
 		
-		if (!Event)	return null;
-		//Array<Actor> Monsters; Monsters.Copy(Event.Monsters);
-		
+		D4DHandler Event = i.Event;
 		int size = Event.Monsters.Size();
 		if (size < 1)	return null;
 		
@@ -86,6 +88,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 		//double dist = 32767 ** 2;	// new method
 		for (int i = 0; i < size; i++)
 		{
+			
 			Actor mo = Event.Monsters.Actors[i];
 			bool check = false;
 			double cone = 0.0;
@@ -102,7 +105,8 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			{
 				closest = mo;
 				dist = distcheck;
-			}*/
+			}
+			*/
 			
 			// This method uses distance to the cone center.
 			if (!closest || (dist < cone))
@@ -114,19 +118,35 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 		return closest;
 	}
 	
+	action void SetReticle(Actor tar)
+	{
+		if (!tar)	return;
+		
+		let i = invoker;
+		if (!i.MC)	
+		{	
+			i.MC = MCHandler.Fetch();
+			if (!i.MC)	{ Console.Printf("No handler"); return; }
+		}
+		
+		Vector2 ScreenOffset = (0, tar.height * 0.5);
+		
+		if (i.Reticle)	
+			i.Reticle.Destroy();
+		i.Reticle = i.MC.AddShape(tar, i.Owner, "TRGTA0", ScreenOffset, 0, (1,1));
+	}
+
 	action void ClearReticle()
 	{
 		let i = invoker;
-		if (i.Reticle && !i.Reticle.bDESTROYED)
-			i.Reticle.Destroy();
+		if (i.Reticle)	i.Reticle.Destroy();
 	}
 	
 	action void ClearTargets()
 	{
-		let i = invoker;
-		i.Target = null;
-		i.Tracer = null;
-		i.Targets.Clear();
+		invoker.Target = null;
+		invoker.Tracer = null;
+		invoker.Targets.Clear();
 	}
 	
 	action Actor A_FireSeekerRocket(class<Actor> missiletype, double angle = 0, bool useammo = true, double spawnofs_xy = 0, double spawnheight = 0, int flags = 0, double pitch = 0)
@@ -244,7 +264,6 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	Fire:
 		"####" "#" 0 
 		{
-			ClearReticle();
 			if (CountInv("DetonateActive"))	{	return ResolveState("DetonateSprite");	}
 			if (CountInv("LockOnActive"))	{	return ResolveState("LockOnSprite");	}
 			return ResolveState("NormalSprite");
@@ -311,7 +330,6 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	ResumeFlashSequence:
 		"####" B 1 Bright 
 		{
-			ClearReticle();
 			A_GunFlash("Null");
 			A_FireProjectile("D4Rocket",0,1,7);
 			A_PlaySound("Doom4/Weapon/RocketLauncher/Fire",5,1);
@@ -462,18 +480,12 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 						A_SetInventory("RLLockToken",0);
 						ClearReticle();
 						ClearTargets();
+						
 					}
 					else
 					{
+						SetReticle(Targ);
 						A_SetInventory("TripleShot",1);
-						ClearReticle();
-						let Reticle = Spawn("RLTargetChecker", Targ.pos + (0,0,Targ.Height * 0.5), ALLOW_REPLACE);
-						if (Reticle)
-						{
-							Reticle.Tracer = Targ;
-							Reticle.Target = invoker.owner;
-						}
-						invoker.Reticle = Reticle;
 						A_PlaySound("Doom4/Weapon/RocketLauncher/TargetLocked",7);
 					}
 				}
@@ -1015,5 +1027,3 @@ Class D4RocketTrailFire2 : D4RocketTrailFire1 //centered flare behind the rocket
 		Stop;		
 	}
 }
-
-
