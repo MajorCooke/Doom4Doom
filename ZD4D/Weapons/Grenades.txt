@@ -362,7 +362,7 @@ Class SyphonArmor : BasicArmorBonus
 
 Class D4SyphonGrenade : D4EquipmentProjectile 
 {
-	D4DHandler 		Event;
+	MCHandler 		Event;
 	Array<Actor> 	Monsters;
 	int 			c, d, e, rng;
 	double 			dist, UCos;
@@ -803,7 +803,7 @@ Class GrenadeSmoke : D4DFX
 Class D4PlayerHolograph : D4EquipmentProjectile 
 {
 	int countdowntimer;
-	D4DHandler Event;
+	MCHandler Event;
 	Array<Actor> Missiles, Monsters;
 	Default 
 	{
@@ -834,7 +834,7 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 	
 	void DrawAttention(bool justmissiles = false)
 	{
-		if (!Event)	Event = D4DHandler.Fetch();
+		if (!Event)	Event = MCHandler.Fetch();
 		if (!Event)	return;
 		if (!justmissiles)
 		{

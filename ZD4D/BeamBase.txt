@@ -551,7 +551,7 @@ Class D4DBeamBase : D4DFX
 			if (MovePitchAngle && Spawner)
 			{
 				// This doesn't work very well and needs to be debugged.
-				D4D_Quaternion quat = D4D_Quaternion.createFromAngles(Spawner.angle, Spawner.Pitch, Spawner.roll);
+				MC_Quaternion quat = MC_Quaternion.createFromAngles(Spawner.angle, Spawner.Pitch, Spawner.roll);
 				Offs = quat.rotateVector3(spawnPoint);
 
 				Angle = Spawner.Angle + OffAngle;

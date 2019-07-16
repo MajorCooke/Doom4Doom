@@ -257,7 +257,7 @@ Class D4BFGProjectile  : Actor
 	int drawBeams;
 	int renderer;
 	Array<Actor> Beamed, Monsters;
-	D4DHandler handler;
+	MCHandler handler;
 	//==========================================================================
 	// Functions
 	//==========================================================================
@@ -266,8 +266,7 @@ Class D4BFGProjectile  : Actor
 	{
 		Super.PostBeginPlay();
 		Beamed.Clear();
-		Monsters.Clear();
-		handler = D4DHandler.Fetch();
+		handler = MCHandler.Fetch();
 	}
 	
 	//--------------------------------------------------------------------------
@@ -276,7 +275,7 @@ Class D4BFGProjectile  : Actor
 	// without damage.
 	void BFGBeams(int maxtargets)
 	{
-		if (!handler)	handler = D4DHandler.Fetch();
+		if (!handler)	handler = MCHandler.Fetch();
 		int size = handler.Monsters.Size();
 		if (handler && size > 0)
 		{

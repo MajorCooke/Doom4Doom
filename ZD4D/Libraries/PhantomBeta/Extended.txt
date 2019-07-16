@@ -67,8 +67,8 @@ extend Class D4D_Intercept
 			if (Accuracy < 100.0)
 			{
 				Accuracy *= 0.01;
-				Interceptor.Angle = D4D_GlobalMaths.LerpUnclampedDouble(Prev.X, Next.X, Accuracy);
-				Interceptor.Pitch = D4D_GlobalMaths.LerpUnclampedDouble(Prev.Y, Next.Y, Accuracy);
+				Interceptor.Angle = MC_GlobalMaths.LerpUnclampedDouble(Prev.X, Next.X, Accuracy);
+				Interceptor.Pitch = MC_GlobalMaths.LerpUnclampedDouble(Prev.Y, Next.Y, Accuracy);
 			}
 			else
 			{

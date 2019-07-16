@@ -28,6 +28,7 @@ Class D4AbstractMonster : Actor
 	Class<DemonRuneBase> RuneItem;
 	int RuneDropChance;
 	D4DHandler Event;
+	MCHandler MC;
 	uint PrevWoundHealth;
 	uint UpgradeDropChance, UpgradeDropAlways;
 	uint CrateDropChance, CrateDropAmount, CrateDropAlways;
@@ -75,8 +76,8 @@ Class D4AbstractMonster : Actor
 	override void PostBeginPlay()
 	{
 		Super.PostBeginPlay();
-	//	ExecuteCheck = Cvar.FindCvar("D4D_ExecutionsON");
-	//	StaggerCheck = Cvar.FindCvar("D4D_MonsterStagger");
+		Event = D4DHandler.Fetch();
+		MC = MCHandler.Fetch();
 		oldLeap = false;
 	}
 	
@@ -125,7 +126,7 @@ Class D4AbstractMonster : Actor
 		Count = Max(1, Count);
 		
 		Vector3 x, y, z, origin;
-		[x, y, z] = Matrix4.GetAxes(Pitch,Angle,Roll);
+		[x, y, z] = MC_CoordUtil.GetAxes(Pitch,Angle,Roll);
 		origin = Vec2OffsetZ(0,0,MissileHeight) + Off.x * x + Off.y * y + Off.z * z;
 		
 		if (dist <= 0.0)	dist = 8192.0;
@@ -483,13 +484,13 @@ Class D4AbstractMonster : Actor
 			// The event handler automatically transfers dead monsters from the
 			// Monsters to DeadMonsters array inside of it.
 			int howmany = 1;
-			if (!Event)	Event = D4DHandler.Fetch();
-			if (Event)
+			if (!MC)	MC = MCHandler.Fetch();
+			if (MC)
 			{
 				
-				for (int i = 0; i < Event.Monsters.Size(); i++)
+				for (int i = 0; i < MC.Monsters.Size(); i++)
 				{
-					Actor mo = Event.Monsters.Actors[i];
+					Actor mo = MC.Monsters.Actors[i];
 					if (mo && (mo is GetClass()) && mo.CountInv("D4MonsterUpgrader") == upgrade)
 					{
 						if (howmany++ >= originalID)

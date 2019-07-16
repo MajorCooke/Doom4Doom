@@ -15,6 +15,7 @@ Class Doom4Weapon : Weapon
 	const PunchOverlay = 52;
 	const PunchSway = 53;
 	D4DHandler Event;
+	MCHandler MC;
 	Inventory Modules[2];
 	Inventory ActiveMod;
 	Array<D4DNewBeamBase> Beams;
@@ -85,7 +86,7 @@ Class Doom4Weapon : Weapon
 		Count = Max(1, Count);
 		
 		Vector3 x, y, z, origin;
-		[x, y, z] = Matrix4.GetAxes(Pitch,Angle,Roll);
+		[x, y, z] = MC_CoordUtil.GetAxes(Pitch,Angle,Roll);
 		origin = Vec2OffsetZ(0,0,player.viewz) + Off.x * x + Off.y * y + Off.z * z;
 		
 		if (dist <= 0.0)	dist = 8192.0;
@@ -166,7 +167,7 @@ Class Doom4Weapon : Weapon
 	{
 		let o = invoker.owner;
 		Vector3 px, py, pz, origin;
-		[px, py, pz] = Matrix4.GetAxes(Pitch,Angle,Roll);
+		[px, py, pz] = MC_CoordUtil.GetAxes(Pitch,Angle,Roll);
 		origin = Vec2OffsetZ(0,0,player.viewz) + off.x * px + off.y * py + off.z * pz;
 		if (useammo)	A_FireProjectile("Nothing",0,true);
 		let gren = Spawn(proj, origin, ALLOW_REPLACE);

@@ -253,6 +253,7 @@ Class LightningPuffV3 : LightningPuffV2
 	Default 
 	{
 		+HITTRACER
+		-EXTREMEDEATH
 		MissileHeight 0.5;
 	}
 	States
@@ -263,7 +264,7 @@ Class LightningPuffV3 : LightningPuffV2
 		{	
 			int maxcount = Tracer ? 5 : 4;
 			
-			let handler = D4DHandler.Fetch();
+			let handler = MCHandler.Fetch();
 			if (handler && handler.Monsters.Size() > 0)
 			{
 				int dmg = random(LGChainDmgMin, LGChainDmgMax);
@@ -275,7 +276,7 @@ Class LightningPuffV3 : LightningPuffV2
 				{
 					Actor mo = handler.Monsters.Actors[i];
 					// Make sure it exists first and is alive. Don't target enemies directly hit.
-					if (!mo || mo.bCORPSE || mo.health < 1 || mo.player || mo == Tracer || mo.bFRIENDLY)
+					if (!mo || mo.health < 1 || mo.player || mo == Tracer || mo.bFRIENDLY)
 						continue;
 					
 					// Don't use square root versions.

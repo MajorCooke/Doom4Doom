@@ -407,7 +407,7 @@ Class DemonWeaponBase : DoomWeapon
 		Count = Max(1, Count);
 		
 		Vector3 x, y, z, origin;
-		[x, y, z] = Matrix4.GetAxes(Pitch,Angle,Roll);
+		[x, y, z] = MC_CoordUtil.GetAxes(Pitch,Angle,Roll);
 		origin = Vec2OffsetZ(0,0,player.viewz) + Off.x * x + Off.y * y + Off.z * z;
 		
 		if (dist <= 0.0)	dist = 8192.0;
@@ -464,7 +464,7 @@ Class DemonWeaponBase : DoomWeapon
 	{
 		let o = invoker.owner;
 		Vector3 px, py, pz, origin;
-		[px, py, pz] = Matrix4.GetAxes(Pitch,Angle,Roll);
+		[px, py, pz] = MC_CoordUtil.GetAxes(Pitch,Angle,Roll);
 		origin = Vec2OffsetZ(0,0,player.viewz) + off.x * px + off.y * py + off.z * pz;
 		let gren = Spawn(proj, origin, ALLOW_REPLACE);
 		if (gren)
@@ -874,7 +874,7 @@ Class DemonRuneMorphOff : Actor
 		}
 		
 		// Reset all D4D monsters back to normal.
-		let event = D4DHandler.Fetch();
+		let event = MCHandler.Fetch();
 		if (event)
 		{
 			let en = Spawn("Enemifier", (0,0,0));

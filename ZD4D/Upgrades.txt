@@ -789,7 +789,7 @@ extend Class D4QuadUpgrade1
 
 Class D4UpgradeDrone : Actor
 {
-	D4D_Quaternion SpinAngle, SpinTilt;
+	MC_Quaternion SpinAngle, SpinTilt;
 	Default
 	{
 		Health 1;
@@ -842,7 +842,7 @@ Class D4UpgradeDrone : Actor
 			// SpinTilt will be the tilt that must be done first, then the angle.
 			
 			
-			D4D_Quaternion Combined = SpinAngle.MultiplyQuat(SpinTilt);
+			MC_Quaternion Combined = SpinAngle.MultiplyQuat(SpinTilt);
 			[angle, pitch, roll] = Combined.ToAngles();
 		}
 		---- A 1

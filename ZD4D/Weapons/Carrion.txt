@@ -961,7 +961,7 @@ Class CarrionPrimary : FastProjectile
 					{
 						trac.health += 1;
 						trac.DamageMobj(self, targ, 1, DamageType, 
-							DMG_FOILINVUL | DMG_NO_ARMOR | DMG_NO_FACTOR | DMG_NO_PROTECT | DMG_THRUSTLESS);						
+							DMG_FORCED | DMG_FOILINVUL | DMG_NO_ARMOR | DMG_NO_FACTOR | DMG_NO_PROTECT | DMG_THRUSTLESS);						
 					}
 					
 				}

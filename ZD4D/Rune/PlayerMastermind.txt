@@ -93,12 +93,12 @@ Class PlayerMastermind : DemonPlayerBase
 			let def = GetDefaultByType("DoomPlayer");
 			double PowerScale = (1.0 - (double(PowerLevel) / double(MaxRunePower)));
 			Vector2 NewRH = (Radius, Height);
-			NewRH.X = D4D_GlobalMaths.LerpDouble(def.Radius, Default.Radius, PowerScale);
-			NewRH.Y = D4D_GlobalMaths.LerpDouble(def.Height, Default.Height, PowerScale);
+			NewRH.X = MC_GlobalMaths.LerpDouble(def.Radius, Default.Radius, PowerScale);
+			NewRH.Y = MC_GlobalMaths.LerpDouble(def.Height, Default.Height, PowerScale);
 			
 			A_SetSize(NewRH.X, NewRH.Y);
-			AttackZOffset = D4D_GlobalMaths.LerpDouble(def.AttackZOffset, Default.AttackZOffset, PowerScale);
-			ViewHeight = D4D_GlobalMaths.LerpDouble(def.ViewHeight, Default.ViewHeight, PowerScale);
+			AttackZOffset = MC_GlobalMaths.LerpDouble(def.AttackZOffset, Default.AttackZOffset, PowerScale);
+			ViewHeight = MC_GlobalMaths.LerpDouble(def.ViewHeight, Default.ViewHeight, PowerScale);
 			
 			PrevPowerLevel = PowerLevel;
 		}
@@ -400,7 +400,7 @@ Class MastermindPlayerMuzzleRed : Actor
 			{	UPos = (sin(pitch) * 6);	}
 			
 			Vector3 px, py, pz, origin;
-			[px, py, pz] = Matrix4.GetAxes(Master.Pitch,Master.Angle,Master.Roll);
+			[px, py, pz] = MC_CoordUtil.GetAxes(Master.Pitch,Master.Angle,Master.Roll);
 			origin = Master.Vec2OffsetZ(0,0,Master.player.viewz) + 20.0 * px + 0.0 * py - 8.0 * pz;
 			SetOrigin(origin, true);
 			/*

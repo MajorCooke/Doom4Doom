@@ -1,4 +1,3 @@
-#include "ZD4D/HUD.txt"
 #include "ZD4D/Spawners.txt"
 #include "ZD4D/EventMisc.txt"
 #include "ZD4D/EventItemDrops.txt"
@@ -54,7 +53,7 @@ extend class D4DHandler
 	private bool FirstTime;
 	private uint Timer;
 	
-	AArray 	Monsters, DeadMonsters, DemonRunes, Missiles, Carrion, Tracker, Beams;
+	AArray 	DemonRunes, Carrion, Beams;
 	Array<D4Restriction> RestrictList;
 	D4LootContainer LootList;
 	D4DDeathStorage Storage[MAXPLAYERS];
@@ -80,35 +79,8 @@ extend class D4DHandler
 		Timer++;
 		if (Timer >= TimeTrigger)
 		{
-			Timer = 0;
-			int size = Monsters.Actors.Size();
-			for (int i = 0; i < size; i++)
-			{
-				Actor mo = Monsters.Actors[i];
-				if (mo && mo.health < 1)
-				{
-					if (DeadMonsters.Find(mo) >= DeadMonsters.Size())
-						DeadMonsters.Push(mo);
-					Monsters.Actors[i] = null;					
-				}
-			}
-			size = DeadMonsters.Actors.Size();
-			for (int i = 0; i < size; i++)
-			{
-				Actor mo = DeadMonsters.Actors[i];
-				if (mo && mo.health > 0)
-				{
-					Monsters.Push(mo);
-					DeadMonsters.Actors[i] = null;
-				}
-			}
-			
-			Monsters.Clean();
-			DeadMonsters.Clean();
 			DemonRunes.Clean();
-			Missiles.Clean();
 			Carrion.Clean();
-			Tracker.Clean();
 			Beams.Clean();
 		}
 	}
@@ -122,12 +94,8 @@ extend class D4DHandler
 	clearscope int GetUpgradeMode()	{	return CurrentUpgradeMode;	}
 	override void WorldLoaded(WorldEvent e)
 	{
-		Monsters = AArray.Create();
-		DeadMonsters = AArray.Create();
 		DemonRunes = AArray.Create();
-		Missiles = AArray.Create();
 		Carrion = AArray.Create();
-		Tracker = AArray.Create();
 		Beams = AArray.Create();
 		
 		LootList = D4LootContainer.Create();
@@ -240,21 +208,8 @@ extend class D4DHandler
 			return;
 		}
 		
-		if (mo.bNOINTERACTION || mo.bNOSECTOR || IsPlayerPawn(mo) || 
-			mo is "Inventory" || mo is "RandomSpawner")
-			return;
-		
-		if (mo.bMISSILE && mo.bSEEKERMISSILE)
-		{
-			Missiles.Push(mo);
-			return;
-		}
-		
 		if ((mo.bISMONSTER || mo.bSHOOTABLE) && mo.health > 0)
 		{
-			
-			Monsters.Push(mo);
-		
 			let mon = D4AbstractMonster(mo);
 			if (mon)	
 			{
@@ -285,19 +240,6 @@ extend class D4DHandler
 		if (rng <= 200)	return 1;
 		return 0;
 	}
-	//--------------------------------------------------------------------------
-	//--------------------------------------------------------------------------
-	override void WorldThingRevived(WorldEvent e)
-	{
-		// Add the monster to the list if not already present.
-		Actor mo = e.Thing;
-		if (IsPlayerPawn(mo))	return;
-		
-		int i = DeadMonsters.Find(mo);
-		if (i < DeadMonsters.Size())
-			DeadMonsters.Actors[i] = null;
-		Monsters.Push(mo);
-	}
 	
 	//--------------------------------------------------------------------------
 	// Called by carrion whenever collected, so carrion won't merge with it.
@@ -321,17 +263,7 @@ extend class D4DHandler
 		if (IsPlayerPawn(mo))
 			return;
 		
-		if (!DropPinatas(mo, e.Inflictor)) 
-			return;
-		
-		// Allocate them over to the DeadMonsters array and remove them from 
-		// the living.
-		if (DeadMonsters.Find(mo) >= DeadMonsters.Size())
-			DeadMonsters.Push(mo);
-			
-		int i = Monsters.Find(mo);
-		if (i < Monsters.Size())
-			Monsters.Actors[i] = null;
+		DropPinatas(mo, e.Inflictor);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -1091,16 +1023,6 @@ extend class D4DHandler
 				}
 			}
 		}
-	}
-	
-	void AddTracker(Actor mo)
-	{
-		Tracker.Push(mo);
-	}
-	
-	void RemoveTracker(Actor mo)
-	{
-		Tracker.Delete(mo);
 	}
 	
 	static void ConvertBerserkToQuad(D4DBerserk mo)

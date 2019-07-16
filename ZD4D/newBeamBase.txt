@@ -33,6 +33,8 @@ Class D4DNewBeamBase : Actor
 		D4DNewBeamBase.MaxBeams 25;
 		D4DNewBeamBase.Offsets 10.0, 4.1, -2.7;
 		RenderStyle "Add";
+		Radius 1;
+		Height 1;
 		XScale 0.1;
 		YScale 1.0;
 		Projectile;
@@ -123,7 +125,6 @@ Class D4DNewBeamBase : Actor
 		double SY2 = SY ** 2;
 		double RealPitch = Pitch - 90.0;
 		double Dist = 0;
-		//int WarpFlags = WARPF_NOCHECKPOSITION|WARPF_COPYINTERPOLATION;
 		int WarpFlags = WARPF_NOCHECKPOSITION;
 		if (!bDONTINTERPOLATE)	WarpFlags |= WARPF_INTERPOLATE;
 		if (Parent)
@@ -135,12 +136,7 @@ Class D4DNewBeamBase : Actor
 			double PSY = Parent.Scale.Y * 100.0;
 			double pit = Parent.Pitch - 90;
 			
-			
-		//	Warp(Parent, cos(pit) * PSY, 0, -sin(pit) * PSY, 0, WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
 			Warp(Parent, cos(pit) * PSY, 0, -sin(pit) * PSY, 0, WarpFlags);
-		//	if (Target)	vel = Target.vel;
-		//	Prev = Parent.Vec3Angle(cos(pit) * PSY, Parent.angle, -sin(pit) * PSY);
-		//	SetOrigin(Parent.Vec3Angle(cos(pit) * PSY, Parent.angle, -sin(pit) * PSY), true);
 		}
 		else
 		{
@@ -148,17 +144,8 @@ Class D4DNewBeamBase : Actor
 			Scale.X = frandom(WidthMin, WidthMax);
 			if (Target.Player)
 			{
-				/*
 				Vector3 x, y, z, origin;
-				[x, y, z] = Matrix4.GetAxes(target.pitch,target.angle,target.roll);
-				origin = target.Vec2OffsetZ(0,0,target.player.viewz) + OffX * x + OffY * y + OffZ * z;
-				//SetOrigin(origin, true);
-				WarpFlags |= WARPF_ABSOLUTEPOSITION;
-				Warp(Target, origin.x, origin.y, origin.z, 0, WarpFlags);
-				vel = Target.vel;
-				*/
-				Vector3 x, y, z, origin;
-				[x, y, z] = Matrix4.GetAxes(target.pitch,target.angle,target.roll);
+				[x, y, z] = MC_CoordUtil.GetAxes(target.pitch,target.angle,target.roll);
 				origin = target.Vec2OffsetZ(0,0,target.player.viewz) + OffX * x + OffY * y + OffZ * z;
 				SetOrigin(origin, true);
 			}
@@ -206,7 +193,6 @@ Class D4DNewBeamBase : Actor
 				Child.Angle = Angle;
 				Child.Pitch = Pitch;
 				Child.Translation = Translation;
-			//	Child.Warp(self, cos(RealPitch) * SY, 0, -sin(RealPitch) * SY, 0, WARPF_NOCHECKPOSITION);
 				Child.BeamCount = BeamCount + 1;
 				Child.UpdateBeam();
 			}
@@ -253,6 +239,7 @@ Class NewLightningBeamPrimary : D4DNewBeamBase
 {
 	Default
 	{
+		+DONTINTERPOLATE
 		D4DNewBeamBase.SpriteName 'X206';
 		D4DNewBeamBase.Frames Fr_F, Fr_M;
 		D4DNewBeamBase.Widths 0.10, 0.10;

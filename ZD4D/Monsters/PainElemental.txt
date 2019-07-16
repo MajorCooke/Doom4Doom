@@ -272,14 +272,14 @@ extend class D4PainElemental
 		{
 			// count total number of skulls currently on the level
 			// if there are already 21 skulls on the level, don't spit another one
-			if (!Event)	Event = D4DHandler.Fetch();
-			if (Event)
+			if (!MC)	MC = MCHandler.Fetch();
+			if (MC)
 			{
-				int size = Event.Monsters.Size();
+				int size = MC.Monsters.Size();
 				int count = limit;
 				for (int i = 0; i < size; i++)
 				{
-					Actor mo = Event.Monsters.Actors[i];
+					Actor mo = MC.Monsters.Actors[i];
 					if (mo is spawntype)
 						if (--count == 0)
 							return;

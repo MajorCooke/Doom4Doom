@@ -15,7 +15,6 @@
 
 Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 {
-	MCHandler MC;
 	Array<Actor> Targets;
 	MCHudShape Reticle;
 	const LockOnCone = cos(20); //0.93969262078
@@ -72,13 +71,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			return mon;
 		
 		let i = invoker;
-		if (!i.Event)	
-		{
-			i.Event = D4DHandler.Fetch();
-			if (!i.Event)	return null;
-		}
-		
-		D4DHandler Event = i.Event;
+		let Event = MCHandler.Fetch();
 		int size = Event.Monsters.Size();
 		if (size < 1)	return null;
 		
@@ -846,6 +839,7 @@ Class RLLockToken : Inventory
 
 Class D4RocketSeeker : D4Rocket 
 {
+	const Turn = 0.2;
 	Default 
 	{
 		Projectile;
@@ -863,9 +857,77 @@ Class D4RocketSeeker : D4Rocket
 	
 	override void SpawnRocketFX()
 	{
-		A_SeekerMissile(20, 20, SMF_PRECISE);
+		SeekAng(20);
 		Super.SpawnRocketFX();
 	}
+	
+	void SeekAng(double angl = 5, bool findtracer = false)
+	{
+		if (!bSEEKERMISSILE || vel == (0,0,0))	return;
+		if (!Tracer || Tracer.Health < 1)
+		{
+			if (findtracer)	
+			{
+				Vector3 oldvel = vel;
+				Vector3 dir = (angle, pitch, roll);
+				
+				A_SeekerMissile(1, 1, SMF_LOOK);
+				vel = oldvel;
+				angle = dir.x;
+				pitch = dir.y;
+				roll = dir.z;
+			}
+			else return;
+		}
+		if (Tracer && Tracer.Health > 0)
+		{
+			// Magnificent code by KeksDose.
+		   
+			let dir = levellocals.vec3diff(pos,tracer.vec3offset(0, 0, 0.5 * tracer.height));
+		   
+			dir             = dir.unit();
+			let vel_unit    = vel.unit();
+			let cosang      = vel_unit dot dir;
+		   
+			// Facing opposite, so you can do whatever you like here!
+			if(cosang < -0.999) 
+			{
+				angle += angl;
+				Vel3DFromAngle(speed, angle, pitch);
+			}
+		   
+			// Not yet locked on
+			else if(cosang < 0.999) 
+			{
+				let ver_axis    = (vel_unit - cosang * dir).unit();
+				let ang         = acos(cosang);
+			   
+				// Turn. This is all local polar coordinates.
+				ang = max(0, ang - angl);
+				vel = speed * (cos(ang) * dir + sin(ang) * ver_axis);
+			}
+		   
+			angle = VectorAngle(vel.x, vel.y);
+			pitch = asin(-vel.z);
+		}
+	}
+	/*
+	void A_DTSeeker( double f = 0.5 )
+	{
+		InitialDir = vel.unit();
+		if ( tracer && tracer.health > 0 )
+		{
+			Vector3 SeekingDir = level.Vec3Diff(pos,tracer.Vec3Offset(0,0,tracer.height/2)).unit();
+			if ( SeekingDir dot InitialDir > 0 )
+			{
+				double MagnitudeVel = Vel.length();
+				SeekingDir = (SeekingDir*f*MagnitudeVel+Vel).unit();
+				Vel = MagnitudeVel * SeekingDir;
+				//Acceleration = 25 * SeekingDir;
+			}
+		}
+	}
+	*/
 }
 
 //--------------------------------------------------------------------------------

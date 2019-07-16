@@ -229,15 +229,15 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 							target.DamageMobj(master, master, rdmg, "Melee");
 						}
 					}
-					let e = D4DHandler.Fetch();
-					if (e)
+					if (!MC) MC = MCHandler.Fetch();
+					if (MC)
 					{
-						int size = Event.Monsters.Size();
+						int size = MC.Monsters.Size();
 						if (size > 0)
 						{
 							for (int i = 0; i < size; i++)
 							{
-								Actor mo = Event.Monsters.Actors[i];
+								Actor mo = MC.Monsters.Actors[i];
 								if (!mo || mo.health < 1 || mo == self || mo == target)
 									continue;
 									

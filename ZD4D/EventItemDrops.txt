@@ -197,7 +197,7 @@ Class D4LootDef play
 
 extend class D4DHandler
 {	
-	
+	MCHandler MC;
 
 	Class<Actor> GetRune(Actor mon)
 	{
@@ -284,11 +284,12 @@ extend class D4DHandler
 		if (check is "SpiderMastermind" || check is "Cyberdemon")
 		{
 			// Only check for live ones.
+			if (!MC)	MC = MCHandler.Fetch();
 			int howmany = 1;
-			int size = Monsters.Size();
+			int size = MC.Monsters.Size();
 			for (int i = 0; i < size; i++)
 			{
-				Actor mo = Monsters.Actors[i];
+				Actor mo = MC.Monsters.Actors[i];
 				if (mo && check && mo.health > 0 && (mo is check || mo.GetReplacee(mo.GetClass())) 
 					&& mo.CountInv("D4MonsterUpgrader") == upgrade)
 				{

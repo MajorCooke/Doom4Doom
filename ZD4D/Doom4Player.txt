@@ -15,6 +15,7 @@ Class Doom4Player : PlayerPawn
 	const CannonDestX = 83.0;
 	const CannonDestY = 23.0;
 	D4DHandler Event;
+	MCHandler MC;
 	double UVel;
 	double UZvel;
 	double UHold;
@@ -424,7 +425,7 @@ Class Doom4Player : PlayerPawn
 				double OffsetForward = -1.0;
 				double OffsetRight = -15.0;
 				double OffsetUp = 5.0;
-				[px, py, pz] = Matrix4.GetAxes(Pitch,Angle,Roll);
+				[px, py, pz] = MC_CoordUtil.GetAxes(Pitch,Angle,Roll);
 				
 				origin = Vec2OffsetZ(0,0,player.viewz) + 
 					OffsetForward * px + OffsetRight * py + OffsetUp * pz;
@@ -629,7 +630,7 @@ Class Doom4Player : PlayerPawn
 				next = "MantleDone";
 			}
 			
-			Vector3 Travel = D4D_VectorUtil.LerpVec3(MantlePos[0], MantlePos[1], cos(MantleCos));
+			Vector3 Travel = MC_VectorUtil.LerpVec3(MantlePos[0], MantlePos[1], cos(MantleCos));
 			SetOrigin(Travel, true);
 			return ResolveState(next);
 		}
@@ -985,6 +986,8 @@ extend class Doom4Player
 		if (!player || !player.mo || player.mo != self)
 			return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
 		
+		if (player.cheats & CF_GODMODE2)	return 0;
+		
 		bool TelefragDamage = (!bLAXTELEFRAGDMG && damage >= TELEFRAG_DAMAGE);
 		bool IsInvul = (FindInventory("PowerInvulnerable", true) || bINVULNERABLE);
 		if (TelefragDamage)
@@ -993,7 +996,8 @@ extend class Doom4Player
 			else if (IsInvul &&	CountInv("D4PentagramUpgrade4"))
 				TelefragDamage = false;
 		}
-		
+		if (!TelefragDamage && (player.cheats & CF_GODMODE) && !(flags & DMG_FORCED))
+			return 0;
 		if (inflictor)
 		{
 			inflictor.bPIERCEARMOR = false;
