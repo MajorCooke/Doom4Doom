@@ -37,7 +37,7 @@ Class D4Restriction play
 	bool parent, replacement;
 }
 
-extend class D4DHandler
+Class D4DHandler : EventHandler
 {
 	const Second = 35;
 	const TimeTrigger = Second * 5;
