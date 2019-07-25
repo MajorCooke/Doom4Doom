@@ -37,7 +37,7 @@ Class D4Archvile : D4AbstractBiggie //replaces Archvile
 {
 	
 	int flee;	
-	int staggertimer;
+	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Archvile';
@@ -652,7 +652,7 @@ Class SummonerHandSparks : Actor //spawned in the hands of the archvile
 //================================================================================================================
 Class D4OldArchVile : D4AbstractBiggie // ArchVile //replaces ArchVile
 {	
-	int staggertimer;
+	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Archvile';

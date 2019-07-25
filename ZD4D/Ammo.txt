@@ -827,11 +827,7 @@ Class D4PinataCarrion : CustomInventory
 			A_SetTics(random(1,6));
 			if (!invoker.spawned)
 			{
-				
-				bool a; Actor b;
-				[a, b] = A_SpawnItemEx("D4CarrionBorder",0,0,5,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
-				if (a && b)	invoker.Kids.Push(b);
-				
+				Actor b; bool a;
 				[a, b] = A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 				if (a && b)	invoker.Kids.Push(b);
 				invoker.spawned = 1;
@@ -849,27 +845,28 @@ Class D4PinataCarrion : CustomInventory
 	Looping:
 		"----" A 2
 		{
-			if (invoker.DestroyMe)	{ Destroy(); return; }
-			if (invoker.count >= DelayVacuum)
+			let i = invoker;
+			if (i.DestroyMe)	{ Destroy(); return; }
+			if (i.count >= DelayVacuum)
 			{
 				// Tracer should automatically be handled by the thinker.
 				if (tracer)
 				{
-					invoker.count = DelayVacuum;
+					i.count = DelayVacuum;
 					PlrCheck.SetFlying(self, true);
 					A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 					A_ChangeVelocity(cos(pitch)*PSpeed,0,-sin(pitch)*PSpeed,CVF_RELATIVE|CVF_REPLACE);
 				//	if (Distance3DSquared(tracer) <= 32 ** 2)
 					if (D4D_Utility.CheckTouching(self, Tracer))
-					{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(invoker, false); invoker.Touch(Tracer);	}
+					{	SetOrigin(tracer.pos, true); A_Stop(); PlrCheck.SetFlying(i, false); i.Touch(Tracer);	}
 				}
 				else
 				{
 					PlrCheck.SetFlying(self, false);
 				}
 				
-				if (invoker.count > CarrionLifetime)	invoker.A_FadeOut();
-				else 									invoker.Alpha = 1.0;
+				if (i.count > CarrionLifetime)	i.A_FadeOut();
+				else 							i.Alpha = 1.0;
 			}
 			
 			// There's some nearby carrion. Lets merge it together. Thanks to the
@@ -879,23 +876,19 @@ Class D4PinataCarrion : CustomInventory
 			
 			if (!tracer)
 			{
-				invoker.timer = (invoker.timer + 1) % invoker.mergetime;
+				i.timer = (i.timer + 1) % i.mergetime;
 				
-				if (invoker.timer == 0)
+				if (i.timer == 0)
 				{
-					invoker.safety = 0;
+					i.safety = 0;
 					
-					//let it = ActorIterator.Create(tid,"D4PinataCarrion");
-					//Actor mo;
-					//while (mo = it.Next())
 					
-					let i = invoker;
 					if (!i.Event)	i.Event = D4DHandler.Fetch();
 					int size = i.Event.Carrion.Size();
 					for (int j = 0; j < size; j++)
 					{
 						let mo = D4PinataCarrion(i.Event.Carrion.Actors[j]);
-						if (!mo || mo == self)	continue;
+						if (!mo || mo == self || mo.DestroyMe || mo.bINVISIBLE)	continue;
 						
 						if (mo.Owner)
 						{
@@ -922,6 +915,7 @@ Class D4PinataCarrion : CustomInventory
 							Beam.Angle = Angle;
 							Beam.Pitch = Pitch;
 						}
+						Warp(mo, 0, 0, 0, 0, WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
 						if (invoker.flier) 	invoker.flier.DestroyMe = true;
 						invoker.DestroyMe = true;
 						bINVISIBLE = true;

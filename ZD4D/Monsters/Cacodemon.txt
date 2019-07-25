@@ -34,7 +34,7 @@ BLESSED (White)
 
 Class D4Cacodemon : D4AbstractBiggie //replaces Cacodemon
 {
-	int staggertimer;
+	
 	
 	Default 
 	{
@@ -437,7 +437,7 @@ Class D4CacoBallTrailMini : Actor
 Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon ////replaces Cacodemon
 {
 	
-	int staggertimer;
+	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Cacodemon';

@@ -36,7 +36,7 @@ Class D4Revenant : D4AbstractBiggie //replaces Revenant
 {
 	int wep;
 	int counter;
-	int staggertimer;
+	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Revenant';
@@ -568,7 +568,7 @@ Class RocketGasTrail : Actor
 
 Class D4OldRevenant : D4AbstractBiggie // : Revenant ////replaces Revenant
 {
-	int staggertimer;
+	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Revenant';

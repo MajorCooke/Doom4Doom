@@ -1,0 +1,86 @@
+Class D4Actor : Actor 
+{
+	void SeekAng(double angl = 5, bool findtracer = false)
+	{
+		if (!bSEEKERMISSILE || vel == (0,0,0))	return;
+		if (!Tracer || Tracer.Health < 1)
+		{
+			if (findtracer)	
+			{
+				Vector3 oldvel = vel;
+				Vector3 dir = (angle, pitch, roll);
+				
+				A_SeekerMissile(1, 1, SMF_LOOK);
+				vel = oldvel;
+				angle = dir.x;
+				pitch = dir.y;
+				roll = dir.z;
+			}
+			else return;
+		}
+		if (Tracer && Tracer.Health > 0)
+		{
+			// Magnificent code by KeksDose.
+		   
+			let dir = levellocals.vec3diff(pos,tracer.vec3offset(0, 0, 0.5 * tracer.height));
+		   
+			dir             = dir.unit();
+			let vel_unit    = vel.unit();
+			let cosang      = vel_unit dot dir;
+		   
+			// Facing opposite, so you can do whatever you like here!
+			if(cosang < -0.999) 
+			{
+				angle += angl;
+				Vel3DFromAngle(speed, angle, pitch);
+			}
+		   
+			// Not yet locked on
+			else if(cosang < 0.999) 
+			{
+				let ver_axis    = (vel_unit - cosang * dir).unit();
+				let ang         = acos(cosang);
+			   
+				// Turn. This is all local polar coordinates.
+				ang = max(0, ang - angl);
+				vel = speed * (cos(ang) * dir + sin(ang) * ver_axis);
+			}
+		   
+			angle = VectorAngle(vel.x, vel.y);
+			pitch = asin(-vel.z);
+		}
+	}
+	
+	void TurnAng(double angl = 5, double heightoffset = 0.0)
+	{
+		if (Tracer)
+		{
+			// Magnificent code by KeksDose.
+			Vector3 dir = levellocals.vec3diff(pos,tracer.vec3offset(0, 0, tracer.height * heightoffset));
+			Vector3 view = (cos(angle)*cos(pitch),sin(angle)*cos(pitch),-sin(pitch));
+			dir             = dir.unit();
+			let vel_unit    = view.unit();
+			let cosang      = vel_unit dot dir;
+		   
+			// Facing opposite, so you can do whatever you like here!
+			if (cosang < -0.999) 
+			{
+				angle += angl;
+			}
+		   
+			// Not yet locked on
+			else if (cosang < 0.999) 
+			{
+				let ver_axis    = (vel_unit - cosang * dir).unit();
+				let ang         = acos(cosang);
+			   
+				// Turn. This is all local polar coordinates.
+				ang = max(0, ang - angl);
+				view = (cos(ang) * dir + sin(ang) * ver_axis);
+			}
+		   
+			angle = VectorAngle(view.x, view.y);
+			pitch = asin(-view.z);
+		}
+	}
+}

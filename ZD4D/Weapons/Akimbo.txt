@@ -1,21 +1,32 @@
-/*==============================================================================
+/*
+
+								*****WARNING!*****
+	This system has been disabled on purpose! The whole setup is being 
+	redone the moment new weapon sprites are made, and NOT before then. Once 
+	the weapons have been overhauled with their new graphics, porting the
+	code over will be much easier (it'll just be a search/replace job then).
+	
+	Also required are the rest of the weapons.
+	
+
+================================================================================
 
 	Akimbo System
 	Developed by Major Cooke
 	
 ================================================================================
-
+	
 	The idea is simple: Hold one weapon in the left, and the other one in the 
-	right. This is not the same as dual wielding, since the only weapon dual 
-	wieldable is the Super Shotgun.
+	right. This is not the same as dual wielding, since the only the 
+	Super Shotgun is dual wieldable.
 
-	The code is, unfortunately, far more complex. Ye be warned, all you
-	code sp'lunkers, your in for some nasty surprises and headaches.
+	The code is, unfortunately, far more complex. 
+	Code spelunkers, beware! Your in for some nasty surprises and headaches.
 	Possibly an aneurism from sheer wtf-ery.
 	Small chance that someone's head will explode.
 
-	To keep the code clean, see AkimboFunctions for all the functions and base
-	states (Select, Deselect, Ready, Fire).
+	See AkimboFunctions.txt for all the functions and base states 
+	(Select, Deselect, Ready, Fire).
 ==============================================================================*/
 
 Struct AkimboStates
@@ -2224,7 +2235,7 @@ Class AkimboWeapon : Weapon
 			}
 			else
 			{	
-				A_FireBullets(0,0,1,0,"RLTargetChecker",FBF_NOFLASH|FBF_NORANDOMPUFFZ|FBF_NORANDOM);
+				//A_FireBullets(0,0,1,0,"RLTargetChecker",FBF_NOFLASH|FBF_NORANDOMPUFFZ|FBF_NORANDOM);
 			}
 			
 		}

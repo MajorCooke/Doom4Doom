@@ -38,7 +38,7 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 	int timer;
 	int count;
 	int chasecount;
-	int staggertimer;
+	
 	
 	Default 
 	{
@@ -1016,7 +1016,7 @@ Class BaronOfHellBallBigFlamelet : Actor
 
 Class D4OldBaronOfHell : D4AbstractBiggie // : BaronOfHell
 {
-	int staggertimer;
+	
 	Default 
 	{	
 		D4AbstractMonster.Replacing 'BaronofHell';

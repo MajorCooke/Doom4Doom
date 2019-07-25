@@ -35,7 +35,7 @@ BLESSED (White)
 Class D4PainElemental : D4AbstractBiggie //replaces PainElemental
 {
 	
-	int staggertimer;
+	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'PainElemental';
@@ -502,7 +502,7 @@ Class PainBreath : Actor
 //================================================================================================================
 Class D4OldPainElemental : D4AbstractBiggie // : PainElemental
 {
-	int staggertimer;
+	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'PainElemental';

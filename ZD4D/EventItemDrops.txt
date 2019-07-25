@@ -196,9 +196,7 @@ Class D4LootDef play
 }
 
 extend class D4DHandler
-{	
-	MCHandler MC;
-
+{
 	Class<Actor> GetRune(Actor mon)
 	{
 		if (!mon || D4D_DemonRunes < 1)	return null;
@@ -308,5 +306,425 @@ extend class D4DHandler
 			return (random(1, id) == 1) ? rep : null;
 		}
 		return null;
+	}
+}
+
+extend class D4DHandler
+{
+	bool DropPinatas(Actor mo, Actor inf = null)
+	{
+		// First, make sure it exists and it's a monster.
+		// Abort if they're set to not drop anything.
+		if (!mo || !mo.bISMONSTER || mo.bNOINTERACTION)	return false;
+		int Restrictions = GetRestrictions(mo.GetClass());
+		if (Restrictions >= RF_NOTHING)					return true;
+		
+		D4DropList Pinatas;
+		bool Armor[4];		for (int i = 0; i < Armor.Size(); i++)	Armor[i] = false;
+		bool HPPin = false;
+		bool Bullets = false;
+		bool Shells = false;
+		bool Cells = false;
+		bool Rockets = false;
+		bool BFG = false;
+		bool CashPower = false;
+		int UpgradeDropChance = -1, UpgradeDropAlways = 0;
+		int CrateDropChance = 0, CrateDropAmount = 0, CrateDropAlways = 0;
+		int CashChainsawPinata = 0;
+		int RunePowerMin = 0, RunePowerMax = 7;
+		int CashAmount = 0;
+		
+		int CashMul = 1;
+		int CrateAmt, CrateDrops;
+		int LootDrop = mo.GetCvar("D4D_LootDrop");
+		int TotalMul = mo.CountInv("D4MonsterUpgrader");
+		
+		// Needed because the inventory is based on n + 1 (i.e. uncommon has 1 of the above, rare has 2, etc).
+		if (TotalMul > 0)	
+		{
+			TotalMul++;
+			CashMul *= TotalMul;
+		}
+		else TotalMul = 1;
+		int Chance = Max(1,TotalMul);
+		
+		Vector3 pos = 	mo.pos;
+		//int hp = 		mo.health;
+		int spawnhp = 	mo.GetSpawnHealth();
+		Name mod = 		mo.DamageTypeReceived;
+		
+		// Drop carrion if enabled and the monster can drop it, and if the
+		// monster was gibbed.
+		if (MPWeapons) 
+		{
+			if (!(Restrictions & RF_NOCARRION) &&
+				(inf && 
+					!inf.bNOEXTREMEDEATH &&
+						(inf.bEXTREMEDEATH || 
+						inf.DamageType == "Extreme" || 
+						inf.DeathType == "Extreme")) ||
+				(MOD == 'Extreme' ||
+					MOD == 'BerserkKill' || 
+					MOD == 'ChainsawKill' || 
+					MOD == 'MeleePunch' ||
+					MOD == 'GloryKill') ||
+				(mo.InStateSequence(mo.CurState, mo.ResolveState("XDeathNoDrops"))) ||
+				(mo.InStateSequence(mo.CurState, mo.ResolveState("XDeath"))) ||
+				(mo.health < mo.GetGibHealth()))
+			{
+				Pinatas.AddItem("D4PinataCarrion", 1 * TotalMul);
+			}	
+		}
+		
+		// First set up the base multiplier upon damage type when killed.
+		if (mod == 'ChainsawPinata')
+		{
+			CashMul *= 4;
+			if (!(Restrictions & RF_NOBULLETS))	Pinatas.AddItem("D4PinataBulletsBig", 	LootDrop ? 4 : 1);
+			if (!(Restrictions & RF_NOSHELLS))	Pinatas.AddItem("D4PinataShellsBig", 	LootDrop ? 4 : 1);
+			if (!(Restrictions & RF_NOCELLS))	Pinatas.AddItem("D4PinataCellsBig", 	LootDrop ? 5 : 1);
+			if (!(Restrictions & RF_NOROCKETS))	Pinatas.AddItem("D4PinataRocketsBig", 	LootDrop ? 3 : 1);
+		}
+		else if (MOD == 'BerserkKill' || 
+				MOD == 'ChainsawKill' || 
+				MOD == 'MeleePunch' ||
+				MOD == 'GloryKill')
+		{
+			CashMul *= 2;
+			if (LootDrop && !(Restrictions & RF_NOHEALTH))
+				Pinatas.AddItem("D4PinataHealth", 5); 
+		}
+		
+		// Now check to see if it's a D4D monster. If so, just use what's given.
+		// If not, see if it's a manual loot table.
+		// Otherwise, establish a formula based on health.
+		let d4m = D4AbstractMonster(mo);
+		Class<Actor> thing = mo.GetClass();
+		
+		//Is it manual? This is defined above (see D4bum example).
+		// Find the thing and snag its contents, if it has any.
+		let Loot = D4LootDef(LootList.FindEntry(mo.GetClassName()));
+		if (Loot)
+		{
+			[CrateDropChance, CrateDropAmount, CrateDropAlways] = Loot.GetCrateDrops();
+			[CashAmount, CashChainsawPinata] = Loot.GetCashDrops();
+			[UpgradeDropChance, UpgradeDropAlways] = Loot.GetUpgradeDrops();
+			
+		}
+		else if (d4m) // Not manually overridden -- D4D monster.
+		{
+			CrateDropChance = 		d4m.CrateDropChance;
+			CrateDropAmount = 		d4m.CrateDropAmount;
+			CrateDropAlways = 		d4m.CrateDropAlways;
+			CashChainsawPinata = 	d4m.CashChainsawPinata;
+			CashAmount = 			d4m.CashAmount;
+			UpgradeDropChance =		d4m.UpgradeDropChance;
+			UpgradeDropAlways =		d4m.UpgradeDropAlways;
+			
+		}
+		else	// Neither D4D monster nor a manually added one.
+		{
+			if (CurrentUpgradeMode)
+			{
+				// For every 1000 health, guarantee a crate.
+				// Otherwise, divide the HP by 20 and use that as a base chance.
+				CrateDropAlways = int(floor(spawnhp / 1000));
+				CrateDropChance = Max(1,spawnhp / 20) * (mo.bBOSS ? 2 : 1);
+				if (CrateDropChance > 256)
+				{
+					CrateDropAmount = CrateDropChance / 256;
+				}
+			}
+			else
+			{
+				CashAmount = spawnhp / (mo.bBoss ? 12 : 15);
+			}
+		}
+		
+		if (!(mo is 'D4AbstractMonster'))
+		{
+			Class<Actor> rune = GetRune(mo);
+			if (rune)
+			{
+				let DRune = DemonRuneBase(mo.Spawn(rune, mo.pos, ALLOW_REPLACE));
+				if (DRune)	DRune.OnDrop(mo);
+			}
+		}
+		
+		// Now that the monster has been prepared, set up the drop chances for crates.
+		if (!CurrentUpgradeMode)	// Credits
+		{
+			if (CashChainsawPinata > 0 && mod == 'ChainsawPinata')
+			{
+				CashAmount = CashChainsawPinata;
+				CashMul = Max(1, TotalMul); // Only multiply if they are a colored monster.
+			}
+		}
+		else	// Crates
+		{
+			// Cycle through the drop chances of each, excluding the always
+			// dropping. If the chance is within valid ranges, just add to
+			// amount that will always be given.
+			if (!(Restrictions & RF_NOCRATES))
+			{
+				CrateDrops = CrateDropAmount * CashMul;
+				if (CrateDrops > 0)
+				{
+					for (int i = 0; i < CrateDrops; i++)
+					{
+						if (random[drop](1,256) <= CrateDropChance)
+							CrateDropAlways++;
+					}
+				}
+			}
+			// Drop some upgrades based on chance. UpgradeDropChance is the divisor,
+			// inverse of how the crates work. 
+			// 0 means no chance. 
+			// 1 means guaranteed.
+			// 2 means 1/2 chance, etc.
+			
+			
+			if (!(Restrictions & RF_NOUPGRADES))
+			{	
+				bool Soviet = false;
+				for (int i = 0; i < MAXPLAYERS; i++)
+				{
+					if (!playeringame[i]) continue;
+					let plr = players[i].mo;
+					if (!plr)	continue;
+					
+					if (!CashPower && plr.CountInv("PowerD4Money"))
+					{
+						Chance *= 4;
+						CashPower = true;
+					}
+					
+					if (!Soviet && 
+					!plr.CountInv("SovietToken") &&
+					plr.CountInv("AssaultRifleMod1") &&
+					plr.CountInv("AssaultRifleMod2") &&
+					plr.CountInv("ChaingunMod1") &&
+					plr.CountInv("ChaingunMod2") &&
+					plr.CountInv("GaussCannonMod1") &&
+					plr.CountInv("GaussCannonMod2") &&
+					plr.CountInv("PlasmaRifleMod1") &&
+					plr.CountInv("PlasmaRifleMod2") &&
+					plr.CountInv("RocketLauncherMod1") &&
+					plr.CountInv("RocketLauncherMod2") &&
+					plr.CountInv("ShotgunMod1") &&
+					plr.CountInv("ShotgunMod2") &&
+					plr.CountInv("SSGUpgrade1") &&
+					plr.CountInv("SSGUpgrade2") &&
+					plr.CountInv("SSGUpgrade3") &&
+					plr.CountInv("SSGUpgrade4") &&
+					plr.CountInv("PistolUpgradeAutomatic") &&
+					plr.CountInv("PistolUpgradeAltDamage") &&
+					plr.CountInv("PistolUpgradeAltCharge") &&
+					plr.CountInv("PistolUpgradeDamage") &&
+					plr.CountInv("PistolUpgradeLance") &&
+					plr.CountInv("BFGUpgrade1") &&
+					plr.CountInv("BFGUpgrade2") &&
+					plr.CountInv("BFGUpgrade3") &&
+					plr.CountInv("BFGUpgrade4"))
+					{
+						Soviet = true;
+						mo.A_DropItem("SovietChaingunUpgradePickup");
+					}
+					
+					if (Soviet && CashPower)
+						break;
+				}
+				
+				
+				bool AllowSleight = (UpgradeDropChance < 0);
+				if (AllowSleight)	UpgradeDropChance = DefaultDropChance;
+				
+				// Black and white monsters always drop an upgrade.
+				// White drops 2, black drops 1. This stacks in accumulation
+				// with the rest of the drop chances.
+				UpgradeDropAlways += Clamp(TotalMul - 5, 0, 2);
+				
+				if (UpgradeDropChance > 0)
+				{
+					// Give a slight boost to enemies that are bosses as they're tougher.
+					if (AllowSleight && mo.bBOSS)
+					{
+						if (UpgradeDropChance <= 10)
+							UpgradeDropChance /= (mo.bBOSS ? 2 : 1);
+						else
+							UpgradeDropChance -= 10;
+					}
+					
+					if (Max(1,random[drop](1, (UpgradeDropChance / Chance))) == 1)
+						UpgradeDropAlways++;
+				}
+				
+				// If we have something to drop, do it.
+				if (UpgradeDropAlways > 0)
+				{
+					for (int i = 0; i < UpgradeDropAlways; i++)
+						mo.A_DropItem("D4UpgradePickupSpawner");
+				}
+			}
+		}
+		
+		if (CashPower)
+			CashMul *= 4;
+		
+		// Iterate through each player to see who has the highest upgrades.
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (!playeringame[i]) continue;
+			let p = players[i].mo;
+			if (!p)	continue;
+		
+			// Drop items first.
+			if (mod != 'Massacre')
+			{
+				if (LootDrop)
+				{
+					if (!(Restrictions & RF_NOARMOR))
+					{
+						if (mod == 'ChainsawPinata')
+						{
+							// Armor
+							if (!Armor[0] && p.CountInv("D4ArmorCapRaiser") >= 25)
+							{
+								Armor[0] = true;
+								int rng[2];
+								rng[0] = random[drop](1,256) > 128 ? 1 : 0;
+								rng[1] = random[drop](1,256) > 128 ? 1 : 0;
+								Pinatas.AddItem("D4PinataArmor", rng[0] + rng[1]);
+							}
+							if (!Armor[1] && p.CountInv("D4ArmorCapRaiser") >= 50)
+							{
+								Armor[1] = true;
+								int rng[2];
+								rng[0] = random[drop](1,256) > 128 ? 1 : 0;
+								rng[1] = random[drop](1,256) > 128 ? 1 : 0;
+								Pinatas.AddItem("D4PinataArmor", rng[0] + rng[1]);
+							}
+							if (!Armor[2] && p.CountInv("D4ArmorCapRaiser") >= 100)
+							{
+								Armor[2] = true;
+								Pinatas.AddItem("D4PinataArmor", 2);
+							}
+						}
+						else 
+						{
+							if (!Armor[3] && p.CountInv("BasicArmor") < 200 && p.CountInv("D4ArmorCapRaiser") >= 25)	//only if player isnt at full armor and has upgraded his armor
+							{
+								Armor[3] = true;
+								int rng = random[drop](1,256) > 192 ? 1 : 0;
+								Pinatas.AddItem("D4PinataArmor", rng); //very rarely they will drop armor
+							}
+						}
+					}
+					//health giver
+					if (!HPPin && !(Restrictions & RF_NOHEALTH) && p.health < 60)
+					{
+						HPPin = true;
+						int rng = random[drop](1,256) > 192 ? 1 : 0;
+						Pinatas.AddItem("D4PinataHealth", 1 + rng);
+					}
+					if (!(Restrictions & RF_NOREGAMMO))
+					{
+						//bullets giver
+						if (!Bullets && !(Restrictions & RF_NOBULLETS) && 
+							(p.CountInv("D4AssaultRifle") || 
+							p.CountInv("D4Chaingun") ||
+							p.CountInv("D4Repeater")) && 
+							p.CountInv("D4Bullets") < 10)
+						{
+							Bullets = true;
+							int rng[2];
+							rng[0] = random[drop](1,256) > 128 ? 1 : 0;
+							rng[1] = random[drop](1,256) > 240 ? 1 : 0;
+							Pinatas.AddItem("D4PinataBullets", rng[0] + rng[1]);
+						}
+						
+						//Shells giver
+						if (!Shells && !(Restrictions & RF_NOSHELLS) &&
+							(p.CountInv("D4Shotgun") || 
+							p.CountInv("D4SuperShotgun")) && 
+							p.CountInv("D4Shells") < 5)
+						{
+							Shells = true;
+							int rng[2];
+							rng[0] = random[drop](1,256) > 128 ? 1 : 0;
+							rng[1] = random[drop](1,256) > 128 ? 1 : 0;
+							Pinatas.AddItem("D4PinataShells", rng[0] + rng[1]);
+						}
+						
+						//Cells giver
+						if (!Cells && !(Restrictions & RF_NOCELLS) &&
+							(p.CountInv("D4PlasmaRifle") ||
+							p.CountInv("D4GaussCannon") ||
+							p.CountInv("D4LightningGun")) && 
+							p.CountInv("D4Cells") < 16)
+						{
+							Cells = true;
+							int rng[2];
+							rng[0] = random[drop](1,256) > 128 ? 1 : 0;
+							rng[1] = random[drop](1,256) > 128 ? 1 : 0;
+							Pinatas.AddItem("D4PinataCells", rng[0] + rng[1]);
+						}
+						//Rockets giver
+						if (!Rockets && !(Restrictions & RF_NOROCKETS) &&
+							(p.CountInv("D4RocketLauncher") || 
+							p.CountInv("D4GrenadeLauncher")) &&
+							p.CountInv("D4Rockets") < 5)
+						{
+							Rockets = true;
+							int rng = random[drop](1,256) > 196 ? 1 : 0;
+							Pinatas.AddItem("D4PinataRockets", rng);
+						}
+					}
+					//BFG ammo giver, this one doesnt check for low ammo, but it does check for the weapon
+					if (!BFG && !(Restrictions & RF_NOBFGAMMO) && p.CountInv("D4BFG"))
+					{
+						BFG = true;
+						if (random[drop](1,512) < 16)	Pinatas.AddItem("D4PinataBFG", 1);
+					}
+				}
+			}
+			
+			// -------------------------------------------------------------
+			// Drop the cash.
+			// -------------------------------------------------------------
+			// Crates
+			if (CurrentUpgradeMode)
+			{
+				if (!(Restrictions & RF_NOCRATES) && CrateDropAlways > 0)
+				{	// The multiplier is already calculated above so do nothing else.
+					p.A_GiveInventory("D4DCash",		CrateDropAlways);
+					p.A_GiveInventory("D4DCashFake",	CrateDropAlways);
+					p.A_GiveInventory("CashUpdater",	1);
+				}
+			}
+			else // Credits
+			{
+				if (!(Restrictions & RF_NOCREDITS) && CashAmount > 0)
+				{
+					int OldMul = CashMul;
+					CashMul *= p.CountInv("PowerD4Money") ? 4 : 1;
+					int CPB1 = p.CountInv("CashPercentBonus");
+					int CPB2 = p.CountInv("CashPercentBonusTemp");
+					
+					double CashAmtPercent = CashAmount * (CPB1 + CPB2);
+					CashAmount = (CashAmount + (CashAmtPercent / 100)) * CashMul;
+					p.A_GiveInventory("D4DCash",		CashAmount);
+					p.A_GiveInventory("D4DCashFake",	CashAmount);
+					p.A_GiveInventory("CashUpdater",	1);
+					CashMul = oldmul;
+				}
+			}
+		
+		}
+		
+		if (TotalMul > 0)	
+			Pinatas.Multiply(TotalMul);
+		Pinatas.DropItemsPos(pos);
+		return true;
 	}
 }

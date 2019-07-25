@@ -699,3 +699,54 @@ Class D4HologramTooOld : Actor
         Loop;
     }
 }
+
+Class SpinTop : Actor
+{
+	const FullTurnSpeed = 6.0;
+	const FullRollPitchSpeed = 3.0;
+	const SpinTic = 360.0 / 70.0;
+	double acc;
+	double time;
+	double tilt;
+	MC_Quaternion SpinTilt, SpinAngle, Combined;
+	
+	Default
+	{
+		+NOINTERACTION
+	}
+	
+	States
+	{
+	Spawn:
+		WPPK G 35 NoDelay
+		{
+			time = 0.0;
+			acc = 0.0;
+			tilt = 0.0;
+			Combined = MC_Quaternion.Identity();
+		}
+		WPPK G 1
+		{
+			if (acc < 1.0)	acc += (1.0 / 35.0);
+			time = (time + (SpinTic * acc)) % 360.0;	// cos(x)'s "x" variable
+			tilt = (tilt + acc) % 360.0;				
+			
+			double 	//c = (cos(time) + 1) / 2,
+					//s = (sin(time) + 1) / 2,
+					p = sin(time),
+					//a = angle + (FullTurnSpeed * acc),
+					a = FullTurnSpeed * acc,
+					r = cos(time);
+			
+			SpinAngle = MC_Quaternion.CreateFromAngles(a, pitch, roll);
+			SpinTilt = MC_Quaternion.CreateFromAngles(angle, p, r);
+			
+			Combined = SpinAngle.MultiplyQuat(SpinTilt);
+			[a, p, r] = Combined.ToAngles();
+			angle = a;
+			pitch = p;
+			roll = r;
+		}
+		Wait;
+	}
+}

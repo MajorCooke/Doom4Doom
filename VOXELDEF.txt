@@ -93,10 +93,10 @@ D4HLC = "D4HLC" {Spin=75} // Health bonus
 D4ARA = "D4ARA" {Spin=75} // Armor
 D4ARB = "D4ARB" {Spin=75} // shard
 D4ARC = "D4ARC" {Spin=75} // Shield
-*/
+
 
 //Ammo pickups
-/*
+
 AMBLA = "AMBLA" //bullets
 AMGSA = "AMGSA" //gas can
 AMPLA = "AMPLA" //plasma
@@ -108,11 +108,10 @@ AMBLB = "AMBLB" //bullets small
 AMPLB = "AMPLB" //plasma small
 AMRKB = "AMRKB" //rockets small
 AMSHB = "AMSHB" //shells small
-*/
+
 // Pinata pickups WITH border
 PINAA = "PINAA" {Spin=150} //armor
 PINAB = "PINAB" {Spin=150} //health
-PINAC = "PINAC" {Spin=50} //coin - not there yet
 PINAD = "PINAD" {Spin=150} //Bullets
 PINAE = "PINAE" {Spin=150} //Shells
 PINAF = "PINAF" {Spin=150} //Cells
@@ -122,7 +121,6 @@ PINAH = "PINAH" {Spin=150} //BFG
 // Pinata pickups without border
 PIN2A = "PIN2A" {Spin=150} //armor
 PIN2B = "PIN2B" {Spin=150} //health
-//PIN2C = "PIN2C" {Spin=150} //coin - not there yet
 PIN2D = "PIN2D" {Spin=150} //Bullets
 PIN2E = "PIN2E" {Spin=150} //Shells
 PIN2F = "PIN2F" {Spin=150} //Cells
@@ -130,7 +128,7 @@ PIN2G = "PIN2G" {Spin=150} //Rockets
 PIN2H = "PIN2H" {Spin=150} //BFG
 
 
-/*	Indicator Voxels
+	Indicator Voxels
 M670A: Checkmark Empty
 M671A: Checkmark Full
 M670B: Diagonal arrow empty cyan

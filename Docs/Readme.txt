@@ -17,7 +17,7 @@ Other Files By Author   : Major Cooke:
 Misc. Author Info       : Stuff.
 
 Description             : A gameplay mod bringing some of the Doom 4 mechanics 
-                          and it's weapons, with mods included, to DooM.
+                          and weapons, with mods included, to DooM.
 
 Additional Credits to   : See credits section
 ===========================================================================
@@ -30,10 +30,8 @@ Graphics                : Yes
 Dehacked/BEX Patch      : No
 Demos                   : No
 Other                   : A plethora of (G)ZDoom specific lumps
-Other files required    : D4DResources.pk3 (DO NOT LOAD THIS FILE MANUALLY.)
-							Make sure this is in the same directory as 
-							D4D.pk3 OR Doom4Doom.zip.
-							Do NOT add D4DResources to the launcher list!
+Other files required    : MC_Utility.pk3 (or MC_Utility-master.zip if github)
+						  D4DResources.pk3 (or Doom4DoomResources.zip)
 							Load either D4D.pk3 or Doom4Doom.zip, NOT BOTH.
 
 ===========================================================================
@@ -72,7 +70,6 @@ Tested With             : GZDoom v3.7
 
 ===========================================================================
 	***** Credits *****
-	 *** Main Team ***
 						  
 Major Cooke             : Current owner. Project idea and direction. 
 						  Design, creation and implementation of the "Holo
@@ -94,14 +91,7 @@ Major Cooke             : Current owner. Project idea and direction.
 						  Almost all new code for v3.0+.
                           General DECORATE & ZScript mastermind.
 
-Michaelis               : Ripping, conversion and processing of graphics for
-                          the Heads Up Display. Implementation of reticles
-                          specific to each weapon/demon, including the charging
-                          animations. Ripping/processing/implementation of blood
-                          elements in the hud (along with cacodemon HUD hits).
-                          Implementation of multi jump and ledge grabbing.
-                          Added powerups and situation-aware crates.
-                          General SBARINFO & ACS mastermind.
+
 
 ZZYZX                   : Making shaders for glory kill effect, shaders for
                           holographic effect. Current internal dev working on
@@ -109,8 +99,6 @@ ZZYZX                   : Making shaders for glory kill effect, shaders for
 						  
 Neccronixis             : Creator of all the Doom 4 weapon sprites (until 3.0+) 						  
 						  & doomdoll pickup and animation.
-
-	** Individual Credits **
 
 DBThanatos              : Ex-author as of 2.0.3.
                           Import, offseting, renaming all of Neccronixis' weapon
@@ -128,6 +116,15 @@ DBThanatos              : Ex-author as of 2.0.3.
                           was used as D4D imp). Game balance.
                           Resource gatherer and organizer.  
                           Final polishing of visual effects until v2.0.3 release.
+						  
+Michaelis               : Ripping, conversion and processing of graphics for
+                          the Heads Up Display. Implementation of reticles
+                          specific to each weapon/demon, including the charging
+                          animations. Ripping/processing/implementation of blood
+                          elements in the hud (along with cacodemon HUD hits).
+                          Implementation of multi jump and ledge grabbing.
+                          Added powerups and situation-aware crates.
+                          General SBARINFO & ACS mastermind.
 						  
 DrPyspy					: Spider Mastermind & Cyberdemon sound effects.
 
@@ -239,7 +236,7 @@ Croteam					: Serious Sam's Serious Damage sound
 - TheZombieKiller
 - TiberiumSoul
 - Syrix
-- Iamcarrotmaster
+
 
 	** Retired Testers **
 
@@ -253,6 +250,7 @@ Croteam					: Serious Sam's Serious Damage sound
 - Zanieon				(2.0.3)
 - Roxas					(2.0.3)
 - Xaser					(2.0.3)
+- Iamcarrotmaster
 
 
 

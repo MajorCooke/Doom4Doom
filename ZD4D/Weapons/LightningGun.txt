@@ -253,7 +253,7 @@ Class LightningPuffV3 : LightningPuffV2
 	Default 
 	{
 		+HITTRACER
-		-EXTREMEDEATH
+		+EXTREMEDEATH
 		MissileHeight 0.5;
 	}
 	States
@@ -262,8 +262,8 @@ Class LightningPuffV3 : LightningPuffV2
 		TNT1 A 0 NoDelay SpawnSparks(random(4,6), 128);
 		TNT1 A 5 
 		{	
-			int maxcount = Tracer ? 5 : 4;
-			
+			bEXTREMEDEATH = false;
+			int maxcount = Tracer ? 4 : 5;
 			let handler = MCHandler.Fetch();
 			if (handler && handler.Monsters.Size() > 0)
 			{

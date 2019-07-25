@@ -35,7 +35,7 @@ BLESSED (White)
 Class D4DoomImp : D4AbstractMonster //replaces DoomImp
 {
 	
-	int staggertimer;
+	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'DoomImp';
@@ -684,7 +684,7 @@ Class FireballDebrisTrail : Actor
 
 Class D4OldDoomImp : D4AbstractMonster // : DoomImp ////replaces DoomImp
 {
-	int staggertimer;
+	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'DoomImp';

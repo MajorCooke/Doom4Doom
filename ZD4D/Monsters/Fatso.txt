@@ -54,7 +54,7 @@ Class D4StealthFatsoSpawner : RandomSpawner
 Class D4FatsoTech : D4AbstractBiggie
 {
 	
-	int staggertimer;
+	
 	
 	Default 
 	{
@@ -618,7 +618,7 @@ Class PoisonAcidGas : Actor
 //===========================================================================
 Class D4FatsoHell : D4AbstractBiggie //replaces Fatso
 {
-	int staggertimer;
+	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Fatso';
@@ -1091,7 +1091,7 @@ Class FatsoFireTrail : Actor
 
 Class D4OldFatso : D4AbstractBiggie // : Fatso ////replaces Fatso
 {
-	int staggertimer;
+	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Fatso';

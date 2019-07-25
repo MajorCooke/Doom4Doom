@@ -40,7 +40,7 @@ Class D4ChaingunGuy : D4AbstractMonster //replaces Chaingunguy // : ChaingunGuy
 	double vangle;
 	double p;
 	int count;
-	int staggertimer;
+	
 	
 	override void Die(Actor source, Actor inflictor, int dmgflags)
 	{
@@ -662,7 +662,7 @@ Class ElectricRailTrail : Actor
 
 Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy ////replaces ChaingunGuy
 {
-	int staggertimer;
+	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'ChaingunGuy';

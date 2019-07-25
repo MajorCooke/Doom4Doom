@@ -34,7 +34,7 @@ BLESSED (White)
 
 Class D4Demon : D4AbstractMonster //replaces Demon
 {
-	int staggertimer;
+	
 	int Shielded;
 	int accelerator;
 	int chargecooldown;
@@ -427,7 +427,7 @@ Class D4Spectre : D4Demon ////replaces Spectre
 
 Class D4OldDemon : D4AbstractMonster // : Demon replaces Demon
 {
-	int staggertimer;
+	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Demon';

@@ -233,11 +233,10 @@ OptionMenu "D4DDisplayOptions"
 	Option "ZDoom Crosshair (OFF recommended)",			"crosshair", "Crosshairs"
 	StaticText ""
 	StaticText "Other effects", "White"
-	Option "Voxels",						"r_drawvoxels",			"OnOff"
-	Option "Blood HUD effect",					"D4D_BloodScreen",		"OnOff" 
-	Option "Rocket Explosion Quakes",			"D4D_quakexplosions",		"OnOff"	
-	Option "Pinata Effects",					"D4D_PinataParticles",		"PinataFX"
-	Option "Particle Type",					"gl_particles_style",	"ParticleStyle"
+	Option "Voxels",						"r_drawvoxels",					"OnOff"
+	Option "Blood HUD effect",					"D4D_BloodScreen",			"OnOff" 
+	Option "Pinata Borders",					"D4D_DrawPinataBorders",	"OnOff"
+	Option "Particle Type",					"gl_particles_style",			"ParticleStyle"
 	Slider "Maximum Particle Count",			"r_maxparticles", 1000, 65536, 1000, 0
 	StaticText ""
 	NumberField "Max FX Render Distance", 	"D4D_MaxDrawDistance", 0, 20480, 8
@@ -295,17 +294,9 @@ OptionValue "UpgradeMode"
 	1, "Pickups"
 }
 
-OptionValue "PinataFX"
-{
-	0, "Borders"
-	1, "Borders & Particles"
-	2, "Particles"
-	3, "None"
-}
-
 OptionValue "NMGrenade"
 {
-	0, "Off"
+	0, "None"
 	1, "Frag Only"
 	2, "All"
 }

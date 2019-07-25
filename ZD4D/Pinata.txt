@@ -404,16 +404,10 @@ Class D4PinataParticles : Actor
 {
 	Color PT;
 	Vector3 oldpos;
-	int frm, cv;
+	int frm;
 	bool NoSetup;
 	enum PinataParticleBorder
 	{
-		CV_Border = 			0,
-		CV_BorderParticle = 	1,
-		CV_Particle = 			2,
-		CV_None = 				3,
-		
-		CV_ParticleBorder = 	CV_BorderParticle,
 		Distance = 				200,
 		Increment = 			4
 	};
@@ -436,23 +430,17 @@ Class D4PinataParticles : Actor
 		if (!master)
 		{	Destroy(); return;	}
 		Super.PostBeginPlay();
-		cv = D4D_PinataParticles;
 		
 		if (NoSetup)
 			return;
 			
 		Class<Actor> cls = master.GetClass();
 		
-		if (cls == "D4PinataArmor")
-		{	PT = "00FF00";	frm = 0;	}
-		else if (master is "D4BFGAmmo")
-		{	PT = "00FF00";	frm = 7;	}
-		else if (cls == "D4PinataCarrion")
-		{	PT = "FF2846";	frm = 3;	A_SetTranslation("CarrionBorder");	}
-		else if (cls == "D4PinataHealth")
-		{	PT = "29C9FF";	frm = 1;	}
-		else
-		{	PT = "FFED29";	frm = 3;	}
+		if (cls == "D4PinataArmor")				PT = "00FF00";	
+		else if (master is "D4BFGAmmo")			PT = "00FF00";	
+		else if (cls == "D4PinataCarrion")		PT = "FF2846";	
+		else if (cls == "D4PinataHealth")		PT = "29C9FF";	
+		else									PT = "FFED29";	
 	}
 	
 	// Credit to TheZombieKiller for this. <3
@@ -482,7 +470,7 @@ Class D4PinataParticles : Actor
 	States
 	{
 	Spawn:
-		PIN3 A 0 NoDelay { Frame = frm; }
+		TNT1 A 0;
 	Looping:
 		---- A 1
 		{
@@ -492,18 +480,8 @@ Class D4PinataParticles : Actor
 				Destroy();
 				return;
 			}
-			if (cv == CV_Border || cv == CV_BorderParticle)
-			{
-				bINVISIBLE = (cv == CV_Particle);
-				Warp(Master,0,0,5,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_COPYVELOCITY);
-				
-				if ((cv == CV_BorderParticle || cv == CV_Particle))
-				{	
-					SpawnPinataParticleLine(PT, 4.0, master.pos - master.vel, master.pos);
-				}
-			}
-			else
-			{	bINVISIBLE = true; A_SetTics(35);	}
+			Warp(Master,0,0,5,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_COPYVELOCITY);
+			SpawnPinataParticleLine(PT, 4.0, master.pos - master.vel, master.pos);
 		}
 		Loop;
 	}
@@ -667,15 +645,23 @@ Class D4PinataArmor : D4ArmorBasePickup
 	States
 	{
 	Spawn:
-		PIN2 A 0 NoDelay 
+		PINA A 0 NoDelay 
 		{
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			invoker.flier = new("UpgradePinataFlier");
 			if (invoker.flier)
 			{
-				invoker.flier.Spawner = invoker;
-				invoker.flier.Item = "Armor";
-				invoker.flier.MaxAmt = 200;
+				let i = invoker;
+				i.flier.Spawner = invoker;
+				i.flier.Item = "Armor";
+				if (i.flier.target)
+				{
+					let a = i.flier.target.FindInventory("BasicArmor");
+					if (a)
+						i.flier.MaxAmt = Max(200, a.MaxAmount);
+					else
+						i.flier.MaxAmt = 200;
+				}
 			}
 		}
 	Looping:
@@ -745,7 +731,7 @@ Class D4PinataHealth : D4Stimpack
 	States
 	{
 	Spawn:
-		PIN2 B 0 NoDelay 
+		PINA B 0 NoDelay 
 		{
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			flier = new("UpgradePinataFlier");
@@ -816,7 +802,7 @@ Class D4PinataBullets : D4Bullets
 	States
 	{
 	Spawn:
-		PIN2 D 0 NoDelay 
+		PINA D 0 NoDelay 
 		{
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			flier = new("UpgradePinataFlier");
@@ -897,7 +883,7 @@ Class D4PinataShells : D4Shells
 	States
 	{
 	Spawn:
-		PIN2 E 0 NoDelay 
+		PINA E 0 NoDelay 
 		{
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			flier = new("UpgradePinataFlier");
@@ -979,7 +965,7 @@ Class D4PinataCells : D4Cells
 	States
 	{
 	Spawn:
-		PIN2 F 0 NoDelay 
+		PINA F 0 NoDelay 
 		{
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			flier = new("UpgradePinataFlier");
@@ -1058,7 +1044,7 @@ Class D4PinataRockets : D4Rockets
 	States
 	{
 	Spawn:
-		PIN2 G 0 NoDelay 
+		PINA G 0 NoDelay 
 		{
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			flier = new("UpgradePinataFlier");
@@ -1137,7 +1123,7 @@ Class D4PinataBFG : D4BFGAmmo
 	States
 	{
 	Spawn:
-		PIN2 H 0 NoDelay 
+		PINA H 0 NoDelay 
 		{
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER,0);
 			flier = new("UpgradePinataFlier");
@@ -1257,7 +1243,7 @@ Class D4PinataShellsShotgunGuy : D4Shells	//only dropped by these guys, and they
 	States
 	{
 	Spawn:
-		PIN2 E 0 NoDelay 
+		PINA E 0 NoDelay 
 		{
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 		}

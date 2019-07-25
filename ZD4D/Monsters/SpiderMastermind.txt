@@ -54,7 +54,7 @@ Class D4SpiderMastermind : D4AbstractBoss //replaces SpiderMastermind
 	double UPitch;
 	int direction;
 	int count;
-	int staggertimer;
+	
 	
 	override void Die(Actor source, Actor inflictor, int dmgflags)
 	{
@@ -824,7 +824,7 @@ Class SMMPlasmaBallPuff : Actor
 //================================================================================================================
 Class D4OldSpiderMastermind : D4AbstractBoss // : SpiderMastermind
 {
-	int staggertimer;
+	
 	
 	Default 
 	{

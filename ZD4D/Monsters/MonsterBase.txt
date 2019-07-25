@@ -20,8 +20,9 @@ enum RuneChances
 	RuneChance_Archie = 10,
 }
 
-Class D4AbstractMonster : Actor 
+Class D4AbstractMonster : D4Actor 
 {
+	int StaggerTimer;
 	meta Class<Actor> Replacing;
 	Array<D4DNewBeamBase> Beams;
 	Name PowerColor, ResurrectCvar;
@@ -39,7 +40,7 @@ Class D4AbstractMonster : Actor
 	Name MOD;
 	Actor Spawner;
 	bool HQ;
-	transient CVar HighQuality, EnhancedChase, ExecuteCheck, StaggerCheck;
+	transient CVar ExecuteCheck, StaggerCheck;
 	
 	Property Replacing: Replacing;
 	Property ResurrectCvar: ResurrectCvar;
@@ -284,8 +285,7 @@ Class D4AbstractMonster : Actor
 	// Checks to see if HQ monster effects cvar is on or off.
 	bool CheckEffects()
 	{
-		if (!HighQuality)	HighQuality = CVar.FindCvar("HQEffects");
-		return (HighQuality && HighQuality.GetBool());
+		return HQEffects;
 	}
 	
 	// Do not check for staggering if the monster dies or still has health above
@@ -387,12 +387,7 @@ Class D4AbstractMonster : Actor
 	
 		int newflags = 0;
 		
-		if (!EnhancedChase)
-		{
-			EnhancedChase = Cvar.FindCvar("D4D_EnhancedChase");
-		}
-		
-		if (EnhancedChase && EnhancedChase.GetBool())
+		if (D4D_EnhancedChase)
 		{
 			// Get a target if invalid.
 			

@@ -570,15 +570,9 @@ Class Doom4StatusBar : BaseStatusBar
 						break;
 					}
 				}
-				/*
-				if (GetAmountOnly("FragGrenadePickup"))
-					DrawImage((GrenCharge < GrenChargeMax) ? "FragGre0" : "FragGren", (828, 682), imageAlignmentLeft);
-				else if (GetAmountOnly("SyphonGrenadePickup"))
-					DrawImage((GrenCharge < GrenChargeMax) ? "SyphGre0" : "SyphGren", (827, 679), imageAlignmentLeft);
-				else if (GetAmountOnly("HoloGrenadePickup"))
-					DrawImage((GrenCharge < GrenChargeMax) ? "HoloGre0" : "HoloGren", (827, 681), imageAlignmentLeft);
-				*/
-				DrawBar("KEYSLOTR", "KEYSLOT0", GrenChargeMax - GrenCharge, GrenChargeMax, (825, 680), 0, SHADER_VERT|SHADER_REVERSE, imageAlignmentLeft);
+				// Recharging
+				if (GrenCharge < GrenChargeMax)
+					DrawBar("KEYSLOTR", "KEYSLOT0", GrenChargeMax - GrenCharge, GrenChargeMax, (825, 680), 0, SHADER_VERT|SHADER_REVERSE, imageAlignmentLeft);
 				DrawImage((GrenCharge < GrenChargeMax) ? "KEYSLOT0" : "KEYSLOT1", (825, 860), imageAlignmentLeft);
 			}
 			//======================================================================

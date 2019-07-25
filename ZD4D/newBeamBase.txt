@@ -1,8 +1,11 @@
 Class D4DNewBeamBase : Actor
 {
+	private bool BeamFlags;
 	protected int BeamCount;
 	protected bool KeepKid;
 	D4DNewBeamBase 	Parent, Child;
+	
+	//flagdef MoveWithSource: 
 	
 	Name 	SpriteName;
 	int		FrameMin, FrameMax,

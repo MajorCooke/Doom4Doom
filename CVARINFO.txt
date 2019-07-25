@@ -1,6 +1,7 @@
 user bool D4D_SecondaryPriming = false;
 user bool D4D_BloodScreen = true;
 user bool D4D_DTMode = false;
+user bool D4D_DrawPinataBorders = true;
 
 server noarchive bool D4D_NetEventDebug = false;
 server noarchive int D4D_PrintDebug = 0;
@@ -33,7 +34,6 @@ server bool MPWeapons = true;
 server bool D4D_AllowClimbing = true;
 server bool D4D_PitchMod = false;
 server bool D4D_TurningBehavior = false;
-server int D4D_PinataParticles = 1;
 server bool D4D_BloodSplatters = true;
 server int D4D_BloodTime = 10;
 server int D4D_BeamTexture = 0;

@@ -759,14 +759,11 @@ Class RLDetonatorSecondary : CustomInventory
 			
 			A_Explode(130,180,0,0,60);	// High damage to enemies
 			A_Explode(30,128);			// Low damage to player
-			A_SpawnItemEx("ExploderDummy",0,0,0,0,0,0,0,32);	//had to, because this actor cannot a_quake since it disappears 
-			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+			A_SpawnItemEx("D4ExploderDummy",0,0,0,0,0,0,0,32);	//had to, because this actor cannot a_quake since it disappears 
+			
+			for (int i = 0; i < 7; i++)
+				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+				
 			A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 			A_PlaySound("Doom4/Weapon/RocketLauncher/Detonate");
 			A_GiveInventory("DetonateToken",1);
@@ -775,7 +772,7 @@ Class RLDetonatorSecondary : CustomInventory
 		Stop;
 	}
 }
-Class ExploderDummy : Actor 
+Class D4ExploderDummy : Actor 
 {
 	Default 
 	{
@@ -797,28 +794,6 @@ Class ExploderDummy : Actor
 //	Lock on related
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-Class RLTargetChecker : D4DFX
-{
-	Default
-	{
-		Scale 1.5;
-		RenderStyle "Add";
-		+FORCEXYBILLBOARD
-		+NOINTERACTION
-	}
-	States
-	{
-	Spawn:
-		TRGT A 1;
-		TRGT A 1
-		{
-			if (!Tracer || Tracer.Health < 1)	return Destroy();
-			Warp(Tracer, 0, 0, 0, -30, WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE, 0.5);
-		}
-		Wait;
-	}
-}
-
 Class RLTargetToken : Inventory 
 {
 	Default 
@@ -836,6 +811,62 @@ Class RLLockToken : Inventory
 	}
 }
 
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+//	Primary fire related
+//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
+Class D4Rocket : D4AbstractMissilePlayer 
+{
+	Default
+	{
+		Projectile;
+		+FORCERADIUSDMG
+		+EXTREMEDEATH
+		+NODAMAGETHRUST
+		Speed 21;
+		Radius 6;
+		Height 12;
+		Scale 0.6;
+		Damage 30;
+		DeathSound "Doom4/Weapon/RocketLauncher/HRExplo";
+		Decal "D4ExploScorch";
+	}
+	
+	States
+	{
+	Spawn:
+		MICR A 1 Light("RedMediumPoint3") Bright NoDelay 
+		{
+			master = target;
+			A_SpawnItemEx("D4RocketTrailFire",flags: SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
+		}
+	Moving:
+		MICR A 1 Light("RedMediumPoint3") Bright SpawnRocketFX();
+		Loop;
+	Death:
+		TNT1 A 10
+		{
+			//DestroyFX();
+			bINVISIBLE = true;
+			A_GiveInventory("DetonateToken",1);
+			A_Explode(130,180,0,0,60);	// High damage to enemies
+			A_Explode(30,128);			// Low damage to player
+			A_RadiusThrust(180,180,RTF_THRUSTZ|RTF_AFFECTSOURCE|RTF_NOIMPACTDAMAGE,60);
+			
+			A_QuakeEx(2,2,2,15,0,360,"",QF_SCALEDOWN,0,0,0,1);
+			if (GetCvar("HQEffectsWeapons"))
+			{
+				A_SpawnItemEx("GenericExplosionParticleSpawner",0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				
+				for (int i = 0; i < 7; i++)
+					A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+			}
+			A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	//Center
+		}
+		Stop;
+	}
+}
 
 Class D4RocketSeeker : D4Rocket 
 {
@@ -860,152 +891,7 @@ Class D4RocketSeeker : D4Rocket
 		SeekAng(20);
 		Super.SpawnRocketFX();
 	}
-	
-	void SeekAng(double angl = 5, bool findtracer = false)
-	{
-		if (!bSEEKERMISSILE || vel == (0,0,0))	return;
-		if (!Tracer || Tracer.Health < 1)
-		{
-			if (findtracer)	
-			{
-				Vector3 oldvel = vel;
-				Vector3 dir = (angle, pitch, roll);
-				
-				A_SeekerMissile(1, 1, SMF_LOOK);
-				vel = oldvel;
-				angle = dir.x;
-				pitch = dir.y;
-				roll = dir.z;
-			}
-			else return;
-		}
-		if (Tracer && Tracer.Health > 0)
-		{
-			// Magnificent code by KeksDose.
-		   
-			let dir = levellocals.vec3diff(pos,tracer.vec3offset(0, 0, 0.5 * tracer.height));
-		   
-			dir             = dir.unit();
-			let vel_unit    = vel.unit();
-			let cosang      = vel_unit dot dir;
-		   
-			// Facing opposite, so you can do whatever you like here!
-			if(cosang < -0.999) 
-			{
-				angle += angl;
-				Vel3DFromAngle(speed, angle, pitch);
-			}
-		   
-			// Not yet locked on
-			else if(cosang < 0.999) 
-			{
-				let ver_axis    = (vel_unit - cosang * dir).unit();
-				let ang         = acos(cosang);
-			   
-				// Turn. This is all local polar coordinates.
-				ang = max(0, ang - angl);
-				vel = speed * (cos(ang) * dir + sin(ang) * ver_axis);
-			}
-		   
-			angle = VectorAngle(vel.x, vel.y);
-			pitch = asin(-vel.z);
-		}
-	}
-	/*
-	void A_DTSeeker( double f = 0.5 )
-	{
-		InitialDir = vel.unit();
-		if ( tracer && tracer.health > 0 )
-		{
-			Vector3 SeekingDir = level.Vec3Diff(pos,tracer.Vec3Offset(0,0,tracer.height/2)).unit();
-			if ( SeekingDir dot InitialDir > 0 )
-			{
-				double MagnitudeVel = Vel.length();
-				SeekingDir = (SeekingDir*f*MagnitudeVel+Vel).unit();
-				Vel = MagnitudeVel * SeekingDir;
-				//Acceleration = 25 * SeekingDir;
-			}
-		}
-	}
-	*/
 }
-
-//--------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------
-//	Primary fire related
-//--------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------
-Class D4Rocket : D4AbstractMissilePlayer 
-{
-	Default 
-	{
-		Projectile;
-		+FORCERADIUSDMG
-		+EXTREMEDEATH
-		+NODAMAGETHRUST
-		Speed 21;
-		Radius 6;
-		Height 12;
-		Scale 0.6;
-		Damage 30;
-		DeathSound "Doom4/Weapon/RocketLauncher/HRExplo";
-		Decal "D4ExploScorch";
-	}
-	
-	States
-	{
-	Spawn:
-		MICR A 1 Light("RedMediumPoint3") Bright NoDelay { master = target; }
-	Moving:
-		MICR A 1 Light("RedMediumPoint3") Bright SpawnRocketFX();
-		Loop;
-	Death:
-		TNT1 A 0 
-		{
-			//DestroyFX();
-			A_Explode(130,180,0,0,60);	// High damage to enemies
-			A_Explode(30,128);			// Low damage to player
-			A_RadiusThrust(180,180,RTF_THRUSTZ|RTF_AFFECTSOURCE|RTF_NOIMPACTDAMAGE,60);
-			
-			A_SpawnItemEx("PlayerRocketQuakeDummy",0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-			if (GetCvar("HQEffectsWeapons"))
-			{
-				A_SpawnItemEx("GenericExplosionParticleSpawner",0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-			}
-		}
-		TNT1 A 0 A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	//Center
-		Stop;
-	}
-}
-
-Class PlayerRocketQuakeDummy  : Actor //had to create this, because if I keep the projectile, I can detonate it after it exploded normally
-{
-	Default 
-	{
-		+NOINTERACTION
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 10 NODELAY
-		{
-			if (GetCvar("D4D_quakexplosions")==1)
-			{
-				A_QuakeEx(2,2,2,15,0,360,"",QF_SCALEDOWN,0,0,0,1);
-			}
-		}
-		Stop;
-	}
-}
-
-
 
 Class D4RocketTrailSmoke : D4DFX 	//centered smoke
 {
@@ -1087,5 +973,50 @@ Class D4RocketTrailFire2 : D4RocketTrailFire1 //centered flare behind the rocket
 		X007 KLMNO 1 Bright ;
 		X007 PQRST 1 Bright A_FadeOut();
 		Stop;		
+	}
+}
+
+Class D4RocketTrailFire : Actor
+{
+	Default
+	{
+		+NOINTERACTION
+		+NOBLOCKMAP
+		+FORCEXYBILLBOARD
+		+ROLLSPRITE
+		+BRIGHT
+		RenderStyle "Add";
+		Alpha 0.99;
+		Scale 0.2;
+		Translation "0:255=%[0,0,0]:[2.0,0.5,0.5]";
+	}
+	
+	override void PostBeginPlay()
+	{
+		if (!Target)	{ Destroy(); return; }
+		Super.PostBeginPlay();
+		bSPRITEFLIP = (random(0,1));
+	}
+	
+	States
+	{
+	Spawn:
+		X025 Y 0 NoDelay A_Jump(256,random(1,23));
+	Frames:
+		X025 YXWVUTSRQPONMKLJIHGFEDCB 1
+		{
+			if (!Target || Target.bINVISIBLE)	{ Destroy(); return; }
+			
+			// Interpolates directly behind the rocket flawlessly.
+			// TO DO: Modify the rocket sprite offsets so the tail is on the
+			// center instead.
+			SetOrigin(Target.Vec3Angle(5, Target.Angle + 180), true);
+			
+			Prev = Target.Vec3Angle(
+				5 + Target.Vel.Length(), 
+				Target.Angle + 180, 
+				Target.Prev.Z - Target.Pos.Z);
+		}
+		Loop;
 	}
 }

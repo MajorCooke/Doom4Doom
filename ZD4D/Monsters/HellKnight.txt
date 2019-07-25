@@ -38,7 +38,7 @@ Class D4HellKnight : D4AbstractBiggie //replaces HellKnight
 	int timer;
 	int count;
 	int chasecount;
-	int staggertimer;
+	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'HellKnight';
@@ -702,7 +702,7 @@ Class D4HellKnightBall : D4AbstractMissile
 
 Class D4OldHellKnight : D4AbstractBiggie // : HellKnight ////replaces HellKnight
 {
-	int staggertimer;
+	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'HellKnight';
