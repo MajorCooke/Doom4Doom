@@ -149,7 +149,7 @@ Class D4DoomImp : D4AbstractMonster //replaces DoomImp
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-	XDeathNoDrops:	
+		
 		TNT1 A 0;
 		TNT1 A 10
 		{
@@ -743,20 +743,6 @@ Class D4OldDoomImp : D4AbstractMonster // : DoomImp ////replaces DoomImp
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
 		"####" "#" 0 { bNoPain = false; }
 		Goto See;
-	Death:
-		"####" "#" 0  //loot drop
-		{
-			bThruActors = true;
-			//D4SetupLoot();
-			//D4DropItems();
-			//"ImpCashGiver");
-		}
-		TROO I 4 ;
-		TROO J 4 A_Scream();
-		TROO K 4;
-		TROO L 4 A_NoBlocking();
-		TROO M -1 {bCorpse = true;}
-		Stop;
 
 	GloryEnd:
 		TNT1 A 0 A_Die("MeleePunch");
@@ -764,25 +750,14 @@ Class D4OldDoomImp : D4AbstractMonster // : DoomImp ////replaces DoomImp
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		"####" "#" 0  //loot drop
-		{
-			//D4SetupLoot(true);
-		}
-		Goto XDeathNoDrops;
-		
-	XDeathNoDrops:	
-		TROO N 4
-		{
-			bThruActors = true;
-			XDeathGush();
-			//D4DropItems();
-			//"ImpCashGiver");
-		}
+		TROO N 0 XDeathGush();
+	Death:
+		TROO N 4 { bThruActors = true; }
 		TROO O 4 A_XScream();
 		TROO P 4;
 		TROO Q 4 A_NoBlocking();
 		TROO RST 4;
-		TROO U -1 {bCorpse = true;}
+		TROO U -1 { bCorpse = true; }
 		Stop;
 		
 	//------------------------------------------------------------------------

@@ -174,7 +174,7 @@ Class D4ChaingunGuy : D4AbstractMonster //replaces Chaingunguy // : ChaingunGuy
 	Death.MeleePunch:
 	Death.ChainsawPinata:	
 	XDeath:
-	XDeathNoDrops:	
+		
 		TNT1 A 0;
 		TNT1 A 10
 		{
@@ -392,7 +392,7 @@ Class D4SergeantShield : D4AbstractMonster
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-	XDeathNoDrops:	
+		
 		TNT1 A 0;
 		TNT1 A 35
 		{
@@ -724,14 +724,7 @@ Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy ////replaces Chaingu
 		"####" "#" 0 { bNoPain = false; }
 		Goto See;
 	Death:
-		"####" "#" 0  //loot drop
-		{
-			bThruActors = true;
-			//D4SetupLoot();
-			//D4DropItems();
-			//"ChainguyCashGiver");
-		}
-		CPOS H 4 ;
+		CPOS H 4 {	bThruActors = true;	}
 		CPOS I 4 A_Scream();
 		CPOS J 4 A_NoBlocking();
 		CPOS KLM 4;
@@ -744,23 +737,13 @@ Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy ////replaces Chaingu
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		"####" "#" 0  //loot drop
-		{
-			//D4SetupLoot(true);
-		}
-		Goto XDeathNoDrops;
-		
-	XDeathNoDrops:	
-		TNT1 A 0
+		CPOS O 4
 		{
 			bThruActors = true;
 			XDeathGush();
-			//D4DropItems();
-			//"ChainguyCashGiver");
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 		}
-		CPOS O 4;
-		CPOS P 4 A_XScream();
+		
+		CPOS P 4;
 		CPOS Q 4 A_NoBlocking();
 		CPOS RS 4;
 		CPOS T -1 {bCorpse = true;}

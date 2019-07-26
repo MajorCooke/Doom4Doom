@@ -92,13 +92,9 @@ Class D4OldWolfensteinSS : D4AbstractMonster //replaces WolfensteinSS
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-	XDeathNoDrops:
 		SSWV I 0 XDeathGush();
 	Death:
-		SSWV I 5
-		{
-			bThruActors = true;
-		}
+		SSWV I 5 { bThruActors = true; }
 		SSWV J 5 A_Scream();
 		SSWV K 5 A_NoBlocking();
 		SSWV L 5;

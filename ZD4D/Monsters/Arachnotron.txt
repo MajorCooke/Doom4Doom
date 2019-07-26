@@ -123,7 +123,7 @@ Class D4Arachnotron : D4AbstractBiggie //replaces Arachnotron // : Arachnotron	/
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-	XDeathNoDrops:	
+	
 		TNT1 A 0;
 		TNT1 A 10
 		{
@@ -373,47 +373,26 @@ Class D4OldArachnotron : D4AbstractBiggie //  : Arachnotron
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
 		"####" "#" 0 { bNoPain = false; }
 		Goto See;
-		
-	Death:
-		"####" "#" 0  //loot drop
-		{
-			bThruActors = true;
-			if (RuneChance(RuneChance_Arach))
-			{	A_SpawnItemEx("ArachnotronRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
-		}
-		BSPI J 10 A_Scream();
-		BSPI K 5 A_NoBlocking();
-		BSPI LMNO 5;
-		BSPI P -1
-		{
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
-			bCorpse = true;
-		}
-		Stop;
+	
 	GloryEnd:
 		TNT1 A 0 A_Die("MeleePunch");
 	Death.BerserkKill:
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-	XDeathNoDrops:	
-		TNT1 A 1
+		---- A 0 XDeathGush();
+	Death:
+		BSPI J 10 
 		{
+			A_Scream();
 			bThruActors = true;
-			XDeathGush();
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 		}
-		BSPI J 10 A_Scream();
 		BSPI K 5 A_NoBlocking();
 		BSPI LMNO 5;
-		TNT1 A 0 A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 		BSPI P -1 
-		{
-			
-			{bCorpse = true;}
-
-			if (RuneChance(RuneChance_Arach))
-			{	A_SpawnItemEx("ArachnotronRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+		{	
+			bCorpse = true;	
+			A_BossDeath();
 		}
 		Stop;
 	//------------------------------------------------------------------------

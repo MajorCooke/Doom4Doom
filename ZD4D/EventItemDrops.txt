@@ -48,6 +48,15 @@ Class D4LootContainer play
 			def = D4LootDef(Defs[i]);
 			if (def && def.ClassName == ClassName)
 			{
+				def.CrateDropChance = CrateDropChance;
+				def.CrateDropAmount = CrateDropAmount;
+				def.CrateDropAlways = CrateDropAlways;
+				def.CashAmount = CashAmount;
+				def.CashChainsawPinata = CashChainsawPinata;
+				def.UpgradeDropChance = UpgradeDropChance;
+				def.UpgradeDropAlways = UpgradeDropAlways;
+				def.RunePowerMin = RunePowerMin;
+				def.RunePowerMax = RunePowerMax;
 				return;
 			}
 			def = null;
@@ -64,18 +73,15 @@ Class D4LootContainer play
 	
 	D4LootDef FindEntry(String cls)
 	{
+		Class<Actor> check = cls;
 		for (int i = 0; i < Defs.Size(); i++)
 		{
 			let def = D4LootDef(Defs[i]);
-			if (!def)
-			{
-				Defs.Delete(i);	i--;
-				continue;
-			}
-			Class<Actor> check = cls;
-			if (def && def.ClassName == check)
-			return def;
 			
+			if (!def || def.ClassName != check)	
+				continue;
+			
+			return def;
 		}
 		return null;
 	}
@@ -86,14 +92,11 @@ Class D4LootContainer play
 		for (int i = 0; i < Defs.Size(); i++)
 		{
 			if (!Defs[i])
-			{
-				Defs.Delete(i);	i--;
 				continue;
-			}
 			if (Defs[i] && Defs[i].ClassName == ClassName)
 			{
 				Defs[i].Destroy();
-				Defs.Delete(i);
+				Defs[i] = null;
 				return true;
 			}
 		}
@@ -114,15 +117,15 @@ Class D4LootDef play
 	protected D4LootDef Init()
 	{
 		ClassName = 			null;
-		CrateDropChance = 	-1;
+		CrateDropChance = 		-1;
 		CrateDropAmount =		0;
 		CrateDropAlways =		0;
 		CashAmount = 			-1;
 		CashChainsawPinata = 	-1;
 		UpgradeDropChance = 	-1;
 		UpgradeDropAlways = 	0;
-		RunePowerMin =		0;
-		RunePowerMax =		7;
+		RunePowerMin =			0;
+		RunePowerMax =			7;
 		return self;
 	}
 		
@@ -199,7 +202,8 @@ extend class D4DHandler
 {
 	Class<Actor> GetRune(Actor mon)
 	{
-		if (!mon || D4D_DemonRunes < 1)	return null;
+		if (!mon || D4D_DemonRunes < 1)
+			return null;
 		
 		Class<Actor> check = Actor.GetReplacee(mon.GetClass());
 		
@@ -269,7 +273,6 @@ extend class D4DHandler
 		// No rune found.
 		if (rep == null)
 			return null;
-		
 		// Black and white monsters always drop demon runes.
 		if (upgrade >= 6)	
 			return rep;
@@ -279,7 +282,9 @@ extend class D4DHandler
 		
 		// Give spider masterminds and cyberdemons special treatments since they
 		// are the biggest monsters.
-		if (check is "SpiderMastermind" || check is "Cyberdemon")
+		int ch = 0;
+		if (mon is 'SpiderMastermind' || mon is 'Cyberdemon' ||
+			check is "SpiderMastermind" || check is "Cyberdemon")
 		{
 			// Only check for live ones.
 			if (!MC)	MC = MCHandler.Fetch();
@@ -288,29 +293,32 @@ extend class D4DHandler
 			for (int i = 0; i < size; i++)
 			{
 				Actor mo = MC.Monsters.Actors[i];
-				if (mo && check && mo.health > 0 && (mo is check || mo.GetReplacee(mo.GetClass())) 
+				
+				// If the monster is alive, and inherits/replaces the same
+				// monster class as it does, with same status, count it.
+				if (mo && check && mo.health > 0 && 
+					(mo is check || mo.GetReplacee(mo.GetClass()) == check) 
 					&& mo.CountInv("D4MonsterUpgrader") == upgrade)
 				{
 					if (howmany++ >= originalID)
 						break;
 				}
 			}
-			return (random(1, Max(1, howmany / rarity)) == 1) ? rep : null;
+			ch = random(1, Max(1, howmany / rarity));
 		}
-		else if (rarity == 2)		// Common
+		else if (rarity >= 2)		// Common
 		{
-			return (random(1, (id / 2)) == 1) ? rep : null;
+			ch = random(1, (id / 2));
+			//Console.Printf("Chance: %d / 2 -- %d", id, ch);
 		}
 		else if (rarity == 1) 	// Rare
 		{
-			return (random(1, id) == 1) ? rep : null;
+			ch = random(1, id);
+			//Console.Printf("Chance: %d -- %d", id, ch);
 		}
-		return null;
+		return (ch == 1) ? rep : null;
 	}
-}
-
-extend class D4DHandler
-{
+	
 	bool DropPinatas(Actor mo, Actor inf = null)
 	{
 		// First, make sure it exists and it's a monster.
@@ -336,7 +344,7 @@ extend class D4DHandler
 		
 		int CashMul = 1;
 		int CrateAmt, CrateDrops;
-		int LootDrop = mo.GetCvar("D4D_LootDrop");
+		int LootDrop = D4D_LootDrop;
 		int TotalMul = mo.CountInv("D4MonsterUpgrader");
 		
 		// Needed because the inventory is based on n + 1 (i.e. uncommon has 1 of the above, rare has 2, etc).
@@ -349,7 +357,6 @@ extend class D4DHandler
 		int Chance = Max(1,TotalMul);
 		
 		Vector3 pos = 	mo.pos;
-		//int hp = 		mo.health;
 		int spawnhp = 	mo.GetSpawnHealth();
 		Name mod = 		mo.DamageTypeReceived;
 		
@@ -368,7 +375,6 @@ extend class D4DHandler
 					MOD == 'ChainsawKill' || 
 					MOD == 'MeleePunch' ||
 					MOD == 'GloryKill') ||
-				(mo.InStateSequence(mo.CurState, mo.ResolveState("XDeathNoDrops"))) ||
 				(mo.InStateSequence(mo.CurState, mo.ResolveState("XDeath"))) ||
 				(mo.health < mo.GetGibHealth()))
 			{
@@ -441,14 +447,11 @@ extend class D4DHandler
 			}
 		}
 		
-		if (!(mo is 'D4AbstractMonster'))
+		Class<Actor> rune = GetRune(mo);
+		if (rune)
 		{
-			Class<Actor> rune = GetRune(mo);
-			if (rune)
-			{
-				let DRune = DemonRuneBase(mo.Spawn(rune, mo.pos, ALLOW_REPLACE));
-				if (DRune)	DRune.OnDrop(mo);
-			}
+			let DRune = DemonRuneBase(mo.Spawn(rune, mo.pos, ALLOW_REPLACE));
+			if (DRune)	DRune.OnDrop(mo);
 		}
 		
 		// Now that the monster has been prepared, set up the drop chances for crates.

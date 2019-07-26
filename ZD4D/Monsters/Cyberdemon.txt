@@ -313,7 +313,7 @@ Class D4Cyberdemon : D4AbstractBoss //replaces Cyberdemon
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-	XDeathNoDrops:
+	
 		CYBR H 0;
 		CYBR H 10 
 		{			
@@ -855,57 +855,21 @@ Class D4OldCyberdemon : D4AbstractBoss // : Cyberdemon
 	Pain:
 		CYBR G 10 A_Pain();
 		Goto See;
-	Death:
-		CYBR H 10 
-		{
-			bThruActors = true;
-			//"CyberdemonCashGiver");
-			//D4SetupLoot(true);
-			//D4DropItems();
-			
-			if (RuneChance(RuneChance_Cyber))
-			{	A_SpawnItemEx("CyberdemonRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
-		}
-		CYBR I 10 A_Scream();
-		CYBR JKL 10 { bThruActors = true; }
-		CYBR M 10 A_NoBlocking();
-		CYBR NO 10;
-		CYBR P 30;
-		CYBR P -1 
-		{
-			
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
-			{bCorpse = true;}
-		}
-		Stop;
 	GloryEnd:
-		TNT1 A 0 A_Die("MeleePunch");
+		CYBR H 0 A_Die("MeleePunch");
 	Death.BerserkKill:
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-	XDeathNoDrops:	
-		TNT1 A 0
-		{
-			bThruActors = true;
-			XDeathGush();
-			//D4DropItems();
-			//"CyberdemonCashGiver");
-			if (RuneChance(RuneChance_Cyber))
-			{	A_SpawnItemEx("CyberdemonRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
-		}
-		CYBR H 10 ;
+		CYBR H 0 XDeathGush();
+	Death:
+		CYBR H 10 {	bThruActors = true;	}
 		CYBR I 10 A_Scream();
 		CYBR JKL 10;
 		CYBR M 10 A_NoBlocking();
 		CYBR NO 10;
 		CYBR P 30;
-		CYBR P -1 
-		{
-			{bCorpse = true;}
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
-			
-		}
+		CYBR P -1 {bCorpse = true;}
 		Stop;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states

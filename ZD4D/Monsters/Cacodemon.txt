@@ -134,7 +134,7 @@ Class D4Cacodemon : D4AbstractBiggie //replaces Cacodemon
 	Death.ChainsawPinata:
 	Death:
 	XDeath:
-	XDeathNoDrops:	
+		
 		TNT1 A 0;
 		TNT1 A 10
 		{
@@ -498,60 +498,23 @@ Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon ////replaces Cacodemon
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
 		"####" "#" 0 { bNoPain = false; }
 		Goto See;
-		
-	Death:
-		"####" "#" 0  //loot drop
-		{
-			bThruActors = true;
-			//D4SetupLoot();
-			//D4DropItems();
-			//"CacoCashGiver");
-			
-			if (RuneChance(RuneChance_Caco))
-			{	A_SpawnItemEx("CacodemonRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
-		}
-		HEAD G 5 ;
-		HEAD H 5 A_Scream();
-		HEAD I 5;
-		HEAD J 5;
-		HEAD K 5 A_NoBlocking();
-		HEAD L -1 
-		{
-			bCorpse = true;
-			A_SetFloorClip();
-		}
-		Stop;
-
 	GloryEnd:
-		TNT1 A 0 A_Die("MeleePunch");
+		---- A 0 A_Die("MeleePunch");
 	Death.BerserkKill:
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		"####" "#" 0  //loot drop
-		{
-			//D4SetupLoot(true);
-		}
-		Goto XDeathNoDrops;
-		
-	XDeathNoDrops:	
-		TNT1 A 0
-		{
-			bThruActors = true;
-			XDeathGush();
-			//D4DropItems();
-			//"CacoCashGiver");
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
-			if (RuneChance(RuneChance_Caco))
-			{	A_SpawnItemEx("CacodemonRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
-		}
-		HEAD H 5 A_Scream();
-		HEAD I 5;
-		HEAD J 5;
+		---- A 0 XDeathGush();
+		Goto XDeathCont;
+	Death:
+		HEAD G 5 { bThruActors = true;	}
+	XDeathCont:
+		HEAD H 5 { A_Scream();  bThruActors = true;	}
+		HEAD IJ 5;
 		HEAD K 5 A_NoBlocking();
 		HEAD L -1 
 		{
-			{bCorpse = true;}
+			bCorpse = true;
 			A_SetFloorClip();
 		}
 		Stop;

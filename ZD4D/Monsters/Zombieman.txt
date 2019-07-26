@@ -183,7 +183,7 @@ Class D4Zombieman : D4AbstractMonster //replaces Zombieman
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-	XDeathNoDrops:
+	
 		TNT1 A 0;
 		TNT1 A 10
 		{
@@ -740,9 +740,6 @@ Class D4OldZombieman : D4AbstractMonster // : Zombieman ////replaces Zombieman
 		POSS H 4
 		{
 			bThruActors = true;
-			//D4SetupLoot();
-			//D4DropItems();
-			//"ZombieCashGiver");
 		}
 		POSS I 4 A_Scream();
 		POSS J 4 A_NoBlocking();
@@ -756,20 +753,10 @@ Class D4OldZombieman : D4AbstractMonster // : Zombieman ////replaces Zombieman
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		"####" "#" 0  //loot drop
-		{
-			//D4SetupLoot(true);
-		}
-		Goto XDeathNoDrops;
-		
-	XDeathNoDrops:
 		POSS M 4
 		{
 			bThruActors = true;
 			XDeathGush();
-			//D4DropItems();
-			//"ZombieCashGiver");
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 		}
 		
 		POSS N 4 A_XScream();

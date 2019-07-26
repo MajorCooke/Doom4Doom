@@ -193,7 +193,7 @@ Class D4Demon : D4AbstractMonster //replaces Demon
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-	XDeathNoDrops:	
+		
 		TNT1 A 0;
 		TNT1 A 10
 		{
@@ -487,47 +487,20 @@ Class D4OldDemon : D4AbstractMonster // : Demon replaces Demon
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
 		"####" "#" 0 { bNoPain = false; }
 		Goto See;
-	Death:
-		SARG I 4 
-		{
-			bThruActors = true;
-			//D4SetupLoot();
-			//D4DropItems();
-			//"DemonCashGiver");
-		}
-		SARG J 4 A_Scream();
-		SARG K 4;
-		SARG L 4 A_NoBlocking();
-		SARG M 4;
-		SARG N -1 {bCorpse = true;}
-		Stop;
 	GloryEnd:
 		TNT1 A 0 A_Die("MeleePunch");
 	Death.BerserkKill:
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		"####" "#" 0  //loot drop
-		{
-			//D4SetupLoot(true);
-		}
-		Goto XDeathNoDrops;
-		
-	XDeathNoDrops:
-		SARG I 4
-		{
-			bThruActors = true;
-			XDeathGush();
-			//D4DropItems();
-			//"DemonCashGiver");
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
-		}
-		
+		SARG I 0 XDeathGush();
+	Death:
+		SARG I 4 { bThruActors = true;	}
 		SARG J 4 A_Scream();
 		SARG K 4;
 		SARG L 4 A_NoBlocking();
 		SARG M 4;
-		SARG N -1 {bCorpse = true;}
+		SARG N -1 { bCorpse = true; }
 		Stop;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states
@@ -620,7 +593,7 @@ Class D4OldDemon : D4AbstractMonster // : Demon replaces Demon
 	}
 }
 
-Class D4OldSpectre : D4OldDemon ////replaces Spectre
+Class D4OldSpectre : D4OldDemon
 {
 	Default 
 	{

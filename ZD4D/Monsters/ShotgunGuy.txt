@@ -189,7 +189,7 @@ Class D4ShotgunGuy : D4AbstractMonster //replaces ShotgunGuy
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-	XDeathNoDrops:	
+		
 		TNT1 A 0;
 		TNT1 A 10
 		{
@@ -407,11 +407,7 @@ Class D4OldShotgunGuy : D4AbstractMonster // : ShotgunGuy ////replaces ShotgunGu
 		"####" "#" 0 { bNoPain = false; }
 		Goto See;
 	Death:
-		"####" "#" 0  //loot drop
-		{
-			bThruActors = true;
-		}
-		SPOS H 3 ;
+		SPOS H 3 { bThruActors = true; }
 		SPOS I 3 A_Scream();
 		SPOS J 3 A_NoBlocking();
 		SPOS K 3;
@@ -424,13 +420,11 @@ Class D4OldShotgunGuy : D4AbstractMonster // : ShotgunGuy ////replaces ShotgunGu
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-	XDeathNoDrops:	
-		TNT1 A 0
+		SPOS N 5 
 		{
 			bThruActors = true;
 			XDeathGush();
 		}
-		SPOS N 5 A_XScream();
 		SPOS O 5 A_NoBlocking();
 		SPOS PQRST 5;
 		SPOS U -1 {bCorpse = true;}

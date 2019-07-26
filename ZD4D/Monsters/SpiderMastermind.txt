@@ -302,7 +302,7 @@ Class D4SpiderMastermind : D4AbstractBoss //replaces SpiderMastermind
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-	XDeathNoDrops:
+	
 		SPID J 0;
 		SPID J 20 
 		{
@@ -884,44 +884,17 @@ Class D4OldSpiderMastermind : D4AbstractBoss // : SpiderMastermind
 		SPID I 3;
 		SPID I 3 A_Pain();
 		Goto See;
-	Death:
-		SPID J 20 
-		{	
-			if (RuneChance(RuneChance_Master))
-			{	A_SpawnItemEx("MastermindRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
-			
-			bThruActors = true;
-			//D4SetupLoot(true);
-			//D4DropItems();
-			//"MastermindCashGiver");
-			A_Scream();
-		}
-		SPID K 10 A_NoBlocking();
-		SPID LMNOPQR 10;
-		SPID S 30;
-		SPID S -1
-		{
-			bCorpse = true;
-			A_KillMaster("Normal",KILS_FOILINVUL,null,"D4DSpawner");
-			
-		}
-		Stop;
 	GloryEnd:
 		TNT1 A 0 A_Die("MeleePunch");
 	Death.BerserkKill:
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		"####" "#" 0;
-		Goto XDeathNoDrops;
-		
-	XDeathNoDrops:	
+		SPID J 0 XDeathGush();
+	Death:
 		SPID J 20 
 		{
 			bThruActors = true;
-			XDeathGush();
-			if (RuneChance(RuneChance_Master))
-			{	A_SpawnItemEx("MastermindRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 			A_Scream();
 		}
 		SPID K 10 A_NoBlocking();
@@ -930,6 +903,7 @@ Class D4OldSpiderMastermind : D4AbstractBoss // : SpiderMastermind
 		SPID S -1 
 		{			
 			bCorpse = true;
+			A_BossDeath();
 		}
 		Stop;
 	//------------------------------------------------------------------------
