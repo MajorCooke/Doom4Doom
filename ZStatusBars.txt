@@ -573,7 +573,7 @@ Class Doom4StatusBar : BaseStatusBar
 				// Recharging
 				if (GrenCharge < GrenChargeMax)
 					DrawBar("KEYSLOTR", "KEYSLOT0", GrenChargeMax - GrenCharge, GrenChargeMax, (825, 680), 0, SHADER_VERT|SHADER_REVERSE, imageAlignmentLeft);
-				DrawImage((GrenCharge < GrenChargeMax) ? "KEYSLOT0" : "KEYSLOT1", (825, 860), imageAlignmentLeft);
+				DrawImage((GrenCharge < GrenChargeMax) ? "KEYSLOT0" : "KEYSLOT1", (825, 680), imageAlignmentLeft);
 			}
 			//======================================================================
 			// Ammo Pane + Chainsaw + BFG Ammo Counters
