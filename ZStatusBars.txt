@@ -32,8 +32,7 @@ Class Doom4StatusBar : BaseStatusBar
 	const FakeCashFade = 35.0;
 	
 	// Image alignments
-	const imageAlignmentLeft = DI_ITEM_LEFT_TOP|DI_ITEM_OFFSETS|DI_FORCESCALE;
-	const imageAlignment2 = DI_SCREEN_CENTER_BOTTOM;
+	const imageAlignmentLeft = DI_ITEM_LEFT_TOP|DI_ITEM_OFFSETS|DI_SCREEN_CENTER_BOTTOM;
 	
 	// Interpolators
 	DynamicValueInterpolator mHealthInterpolator;
@@ -284,21 +283,6 @@ Class Doom4StatusBar : BaseStatusBar
 			DrawImage((GetAmountOnly(keynames[i]) ? "KEYSLOT1" : "KEYSLOT0"), SlotPos[i], imageAlignmentLeft);
 			if (GetAmountOnly(keynames[i]))	DrawImage(keyimg[i], KeyPos[i], imageAlignmentLeft);
 		}
-		/*
-		DrawImage((GetAmountOnly(keynames[0]) ? "KEYSLOT1" : "KEYSLOT0"), SlotPos[0], imageAlignmentLeft);
-		DrawImage((GetAmountOnly(keynames[1]) ? "KEYSLOT1" : "KEYSLOT0"), SlotPos[1], imageAlignmentLeft);
-		DrawImage((GetAmountOnly(keynames[2]) ? "KEYSLOT1" : "KEYSLOT0"), SlotPos[2], imageAlignmentLeft);
-		DrawImage((GetAmountOnly(keynames[3]) ? "KEYSLOT1" : "KEYSLOT0"), SlotPos[3], imageAlignmentLeft);
-		DrawImage((GetAmountOnly(keynames[4]) ? "KEYSLOT1" : "KEYSLOT0"), SlotPos[4], imageAlignmentLeft);
-		DrawImage((GetAmountOnly(keynames[5]) ? "KEYSLOT1" : "KEYSLOT0"), SlotPos[5], imageAlignmentLeft);
-		
-		if (GetAmountOnly(keynames[0]))	DrawImage(keyimg[0], KeyPos[0], imageAlignmentLeft);
-		if (GetAmountOnly(keynames[1]))	DrawImage(keyimg[1], KeyPos[1], imageAlignmentLeft);
-		if (GetAmountOnly(keynames[2]))	DrawImage(keyimg[2], KeyPos[2], imageAlignmentLeft);
-		if (GetAmountOnly(keynames[3]))	DrawImage(keyimg[3], KeyPos[3], imageAlignmentLeft);
-		if (GetAmountOnly(keynames[4]))	DrawImage(keyimg[4], KeyPos[4], imageAlignmentLeft);
-		if (GetAmountOnly(keynames[5]))	DrawImage(keyimg[5], KeyPos[5], imageAlignmentLeft);
-		*/
 		
 		// Demon Runes
 		if (AmDemon)
