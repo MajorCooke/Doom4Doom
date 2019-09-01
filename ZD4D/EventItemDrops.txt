@@ -305,6 +305,7 @@ extend class D4DHandler
 				}
 			}
 			ch = random(1, Max(1, howmany / rarity));
+			//Console.Printf("Chance: %d / %d -- %d", id, rarity, ch);
 		}
 		else if (rarity >= 2)		// Common
 		{
@@ -696,12 +697,12 @@ extend class D4DHandler
 			// Drop the cash.
 			// -------------------------------------------------------------
 			// Crates
+			p.SetInventory("D4DCashFake", 0);
 			if (CurrentUpgradeMode)
 			{
 				if (!(Restrictions & RF_NOCRATES) && CrateDropAlways > 0)
 				{	// The multiplier is already calculated above so do nothing else.
 					p.A_GiveInventory("D4DCash",		CrateDropAlways);
-					p.A_GiveInventory("D4DCashFake",	CrateDropAlways);
 					p.A_GiveInventory("CashUpdater",	1);
 				}
 			}
@@ -717,12 +718,10 @@ extend class D4DHandler
 					double CashAmtPercent = CashAmount * (CPB1 + CPB2);
 					CashAmount = (CashAmount + (CashAmtPercent / 100)) * CashMul;
 					p.A_GiveInventory("D4DCash",		CashAmount);
-					p.A_GiveInventory("D4DCashFake",	CashAmount);
-					p.A_GiveInventory("CashUpdater",	1);
+				//	p.A_GiveInventory("CashUpdater",	1);
 					CashMul = oldmul;
 				}
 			}
-		
 		}
 		
 		if (TotalMul > 0)	

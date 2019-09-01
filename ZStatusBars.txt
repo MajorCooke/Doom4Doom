@@ -5,18 +5,6 @@
 //==============================================================================
 //==============================================================================
 
-/*
-Vector2 Vector2::rotate(double angle, Vector2 rPoint) const {
-    Vector2 ret = *this;
-    ret -= rPoint;
-    Vector2 retC = ret;
-    ret.x = retC.x * std::cos(angle) - retC.y * std::sin(angle);
-    ret.y = retC.x * std::sin(angle) + retC.y * std::cos(angle);
-    ret += rPoint;
-    return ret;
-}
-*/
-
 Class Doom4StatusBar : BaseStatusBar
 {	
 	// Y positions for keys and slots
@@ -45,6 +33,7 @@ Class Doom4StatusBar : BaseStatusBar
 	
 	// Image alignments
 	const imageAlignmentLeft = DI_ITEM_LEFT_TOP|DI_ITEM_OFFSETS|DI_FORCESCALE;
+	const imageAlignment2 = DI_SCREEN_CENTER_BOTTOM;
 	
 	// Interpolators
 	DynamicValueInterpolator mHealthInterpolator;
@@ -68,17 +57,12 @@ Class Doom4StatusBar : BaseStatusBar
 	Vector2 DemonKeyOffsets;
 	double fadeamt;
 	int AspectRatio, DemonTimer;
-	uint FakeCashTimer, FakeCash, Cash, HP, MaxHP, UpgradeMode;
+	uint FakeCashTimer, FakeCash, Cash, PrevCash, HP, MaxHP, UpgradeMode;
 	uint8 DoomDollMax, DoomDollCount, MegasphereCount, MegasphereMax, AmmoClamp;
 	bool ignoreFakeUpdate, noReticle, addonOverride, automap, AmDemon, WasDemon, Resonator;
 	D4DHandler Event;
 
-	static ui Vector2 RotateVector(Vector2 self, double angle, Vector2 rPoint)
-	{
-		self -= rPoint;
-		return (self.x * cos(angle) - self.y * sin(angle),
-				self.x * sin(angle) + self.y * cos(angle)) + rPoint;
-	}
+	
 
 	override void Init()
 	{
@@ -87,6 +71,7 @@ Class Doom4StatusBar : BaseStatusBar
 		SetSize(0, BaseSize.x, BaseSize.y);
 		
 		CompleteBorder = true;
+		FirstTic = true;
 		
 		// Create the font used for the fullscreen HUD
 		Font fnt = "HUDFONT_DOOM";
@@ -146,7 +131,7 @@ Class Doom4StatusBar : BaseStatusBar
 			return;
 		}
 		
-		
+		PrevCash = Cash;
 		
 		if (AmDemon)
 		{
@@ -162,9 +147,14 @@ Class Doom4StatusBar : BaseStatusBar
 		else
 		{
 			mHealthInterpolator.Update(CPlayer.health);
+			
 			// Cash
 			Cash = GetAmountOnly("D4DCash");
-			
+			if (FirstTic)
+			{
+				FirstTic = false;
+				PrevCash = Cash;
+			}
 			// Megaspheres
 			[MegasphereCount, MegasphereMax] = GetAmount("D4MegasphereDamageReducer");
 			Resonator = (GetAmountOnly("D4MegachargeUpgrade1") > 0);
@@ -175,26 +165,16 @@ Class Doom4StatusBar : BaseStatusBar
 			// Doom Doll Count
 			DoomDollCount = GetAmountOnly("DollUses");
 			
-			// Handle fake cash.
-			int FCAmt = GetAmountOnly("D4DCashFake");
-			if (FCAmt)
+			// Handle cash increases.
+			if (PrevCash < Cash)
 			{
-				// Sometimes, if there's moments of lock-ups of any kind, the
-				// network event can wind up becoming ignored until after it
-				// processes. This must not be allowed to process in the mean time
-				// because otherwise it'll spill a bunch of fake numbers.
-				if (!ignoreFakeUpdate)
-				{
-					FakeCash += FCAmt;
-					FakeCashTimer = FakeCashStart;
-				}
-				D4DHandler.SendNetworkEvent("ClearFakeCash");
-				
-				ignoreFakeUpdate = (GetAmountOnly("D4DCashFake") > 0);
+				FakeCash += Max(0, Cash - PrevCash);
+				FakeCashTimer = FakeCashStart;
+				PrevCash = Cash;
 			}
 			else
 			{
-				ignoreFakeUpdate = false;
+				//ignoreFakeUpdate = false;
 				if (FakeCashTimer > 0)	
 				{
 					FakeCashTimer--;
@@ -549,21 +529,9 @@ Class Doom4StatusBar : BaseStatusBar
 				
 				[GrenCharge, GrenChargeMax] = GetAmount("GrenadeCharge");
 				
-				static const Class<D4DGrenadeItem> Grenades[] =
+				for (int i = 0; i < Doom4Player.GrenadeSelected.Size(); i++)
 				{
-					"FragGrenadePickup",
-					"HoloGrenadePickup",
-					"SyphonGrenadePickup",
-					"PersonalPortalPickup",
-					"KineticMinePickup",
-					"TeslaRocketPickup",
-					"ThreatSensorPickup",
-					"ThreatScannerPickup"
-				};
-				
-				for (int i = 0; i < Grenades.Size(); i++)
-				{
-					let gren = D4DGrenadeItem(CPlayer.mo.FindInventory(Grenades[i]));
+					let gren = D4DGrenadeItem(CPlayer.mo.FindInventory(Doom4Player.GrenadeSelected[i]));
 					if (gren && gren.Selected)
 					{
 						DrawImage((GrenCharge < GrenChargeMax) ? gren.IconCooldown : gren.IconReady, (gren.PX, gren.PY), imageAlignmentLeft, 1.0, (-1,-1), (gren.SX, gren.SY));

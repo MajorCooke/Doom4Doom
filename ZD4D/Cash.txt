@@ -41,11 +41,12 @@ Class D4DCashFake : Inventory
 	Default
 	{
 		+INVENTORY.IGNORESKILL
-		Inventory.MaxAmount 500000000;
-		Inventory.InterhubAmount 500000000;
+		Inventory.MaxAmount 1;
+		Inventory.InterhubAmount 0;
 	}
 }
 
+// No longer used.
 Class CashUpdater : CustomInventory
 {
 	Default
