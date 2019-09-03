@@ -1,12 +1,64 @@
 //==============================================================================
 //==============================================================================
 // Status Bars
-// Recreated by Major Cooke
+
+// Quake4 original HUD 
+// Made by AlphaEnt.
+// Modified by DBT for this mod.
+// Vastly modified by Michaelis, following vision of DBT.
+// Remade completely by Michaelis for Doom-4-Doom. 
+// There is no trace of AlphaEnt's work at this point.
+
+// Recreated completely again for ZScript by Major Cooke
 //==============================================================================
 //==============================================================================
 
+//#include "ZStatusHud.txt"
+
 Class Doom4StatusBar : BaseStatusBar
 {	
+	enum ED4HUDFlags
+	{
+		// VCenter = Vertical (Y/Up/Down) centering
+		// HCenter = Horizontal (X/Left/Right) centering (going left/right)
+		HUDCenterX =	DI_SCREEN_HCENTER,
+		HudCenterY =	DI_SCREEN_VCENTER,
+		
+		HUDLeftTop =	DI_SCREEN_LEFT_TOP,
+		HUDLeftMid =	DI_SCREEN_LEFT|HUDCenterY,
+		HUDLeftBot =	DI_SCREEN_LEFT_BOTTOM,
+		HUDTop =		DI_SCREEN_TOP|HUDCenterX,
+		HUDMid =		DI_SCREEN_CENTER,
+		HUDBot =		DI_SCREEN_CENTER_BOTTOM,
+		HUDRightTop =	DI_SCREEN_RIGHT_TOP,
+		HUDRightMid =	DI_SCREEN_RIGHT|HUDCenterY,
+		HUDRightBot =	DI_SCREEN_RIGHT_BOTTOM,
+		
+		ItemCenterX =	DI_ITEM_HCENTER,
+		ItemCenterY =	DI_ITEM_VCENTER,
+		
+		ItemOffsets =	DI_ITEM_OFFSETS,
+		ItemLeftTop =	DI_ITEM_LEFT_TOP,
+		ItemLeftMid =	DI_ITEM_LEFT|ItemCenterY,
+		ItemLeftBot =	DI_ITEM_LEFT_BOTTOM,
+		ItemTop =		DI_ITEM_TOP|ItemCenterX,
+		ItemMid =		DI_ITEM_CENTER,
+		ItemBot =		DI_ITEM_CENTER_BOTTOM,
+		ItemRightTop =	DI_ITEM_RIGHT_TOP,
+		ItemRightMid =	DI_ITEM_RIGHT|ItemCenterY,
+		ItemRightBot =	DI_ITEM_RIGHT_BOTTOM,
+		
+		HUDItemLeftTop =	(HUDLeftTop|ItemLeftTop),
+		HUDItemLeftMid =	(HUDLeftMid|ItemLeftMid),
+		HUDItemLeftBot =	(HUDLeftBot|ItemLeftBot),
+		HUDItemTop =		(HUDTop|ItemTop),
+		HUDItemMid =		(HUDMid|ItemMid),
+		HUDItemBot =		(HUDBot|ItemBot),
+		HUDItemRightTop =	(HUDRightTop|ItemRightTop),
+		HUDItemRightMid =	(HUDRightTop|ItemRightMid),
+		HUDItemRightBot =	(HUDRightTop|ItemRightBot),
+	}
+
 	// Y positions for keys and slots
 	const TopKeyY = 665.0;
 	const BotKeyY = 699.0;
@@ -52,8 +104,7 @@ Class Doom4StatusBar : BaseStatusBar
 	InventoryBarState diparms;
 	InventoryBarState diparms_sbar;
 	Actor plr;
-	Vector2 BaseSize;
-	Vector2 DemonKeyOffsets;
+	Vector2 BaseSize, DemonKeyOffsets, HPOffset, AmmoOffset;
 	double fadeamt;
 	int AspectRatio, DemonTimer;
 	uint FakeCashTimer, FakeCash, Cash, PrevCash, HP, MaxHP, UpgradeMode;
@@ -201,19 +252,22 @@ Class Doom4StatusBar : BaseStatusBar
 
 		WasDemon = AmDemon;
 		AmDemon = GetAmountOnly("IAmADemonToken");
-
-		if (state == HUD_StatusBar)
+		
+		if (state == HUD_StatusBar || state == HUD_Fullscreen)
 		{
+			if (state == HUD_Fullscreen)
+			{
+				HPOffset = (70, 0); //(LOfx, LOfy);
+				AmmoOffset = (-70, 0); //(ROfx, ROfy);
+			}
+			else
+			{
+				HPOffset = (0,0);
+				AmmoOffset = (0,0);
+			}
 			BeginStatusBar(true);
 			DrawMainBar (TicFrac);
 		}
-		/*
-		else if (state == HUD_Fullscreen)
-		{
-			BeginHUD(1.0, true);
-			DrawFullScreenStuff();
-		}
-		*/
 	}
 	
 	override void DrawAutomapHUD(double ticFrac)
@@ -279,6 +333,11 @@ Class Doom4StatusBar : BaseStatusBar
 			{
 				KeyPos[i] += DemonKeyOffsets;
 				SlotPos[i] += DemonKeyOffsets;
+			}
+			else
+			{
+				KeyPos[i] += HPOffset;
+				SlotPos[i] += HPOffset;
 			}
 			DrawImage((GetAmountOnly(keynames[i]) ? "KEYSLOT1" : "KEYSLOT0"), SlotPos[i], imageAlignmentLeft);
 			if (GetAmountOnly(keynames[i]))	DrawImage(keyimg[i], KeyPos[i], imageAlignmentLeft);
@@ -372,7 +431,7 @@ Class Doom4StatusBar : BaseStatusBar
 		}
 		else // Regular Player
 		{
-		
+			
 			// Draw the number of doom dolls.
 			if (DoomDollCount > 0)
 			{
@@ -428,13 +487,13 @@ Class Doom4StatusBar : BaseStatusBar
 			// Now for health + armor.
 			SetSize(0, BaseSize.X, BaseSize.Y);
 			// Base bar for health and armor.
-			DrawImage ("BODYBAR0", (-69, 669), imageAlignmentLeft);
+			DrawImage ("BODYBAR0", (-69, 669) + HPOffset, imageAlignmentLeft);
 			
 			// Health + Armor
 			hp = (CPlayer ? CPlayer.mo.health : 0);
 			if (hp > 0)
 			{
-				Vector2 ArmorTextPos = (-4, 679);
+				Vector2 ArmorTextPos = (-4, 679) + HPOffset;
 				int colArmor = Font.CR_WHITE;
 				int colArmorInvul = Font.CR_RED;
 				int armorAmount = GetArmorAmount(); 
@@ -448,29 +507,29 @@ Class Doom4StatusBar : BaseStatusBar
 				}
 				
 				// Armor
-				DrawBar("BODYARM1", "BODYARM0", armorDisplay, 				armorMax - 100, (18, 676), 0, 0, imageAlignmentLeft);
-				DrawBar("BODYARM2", "BODYARM0", Max(0, armorDisplay - (armorMax - 100)), 100, (18, 676), 0, 0, imageAlignmentLeft);
+				DrawBar("BODYARM1", "BODYARM0", armorDisplay, 				  armorMax - 100, (18, 676) + HPOffset, 0, 0, imageAlignmentLeft);
+				DrawBar("BODYARM2", "BODYARM0", Max(0, armorDisplay - (armorMax - 100)), 100, (18, 676) + HPOffset, 0, 0, imageAlignmentLeft);
 				
 				let invul = Powerup(CPlayer.mo.FindInventory("PowerInvulnerable",true));
 				if (invul && invul.EffectTics > 0)
 				{
 					double invulalpha = GetPowerFadeAlpha("PowerInvulnerable");
-					DrawStringScaled(mQ4HudFont, FormatNumber(armorAmount, 1, 3), 	(-4, 679), DI_TEXT_ALIGN_RIGHT, colArmor, 1.0 - invulalpha, scaling: 0.5);
-					DrawStringScaled(mQ4HudFont, FormatNumber(666),					(-4, 679), DI_TEXT_ALIGN_RIGHT, colArmorInvul, invulalpha, scaling: 0.5);
+					DrawStringScaled(mQ4HudFont, FormatNumber(armorAmount, 1, 3), 	(-4, 679) + HPOffset, DI_TEXT_ALIGN_RIGHT, colArmor, 1.0 - invulalpha, scaling: 0.5);
+					DrawStringScaled(mQ4HudFont, FormatNumber(666),					(-4, 679) + HPOffset, DI_TEXT_ALIGN_RIGHT, colArmorInvul, invulalpha, scaling: 0.5);
 				}
 				else
-					DrawStringScaled(mQ4HudFont, FormatNumber(armorAmount, 1, 3), 	(-4, 679), DI_TEXT_ALIGN_RIGHT, colArmor, scaling: 0.5);
+					DrawStringScaled(mQ4HudFont, FormatNumber(armorAmount, 1, 3), 	(-4, 679) + HPOffset, DI_TEXT_ALIGN_RIGHT, colArmor, scaling: 0.5);
 				
 				
 				
 				// Health
 				// This variable is the means of doing interpolation with the health bar.
 				int hpi = Clamp(mHealthInterpolator.GetValue(), 0, 200);
-				DrawBar("BODYHEL1", "BODYHEL0", hpi, 				100, (18, 694), 0, 0, imageAlignmentLeft);
-				DrawBar("BODYHEL2", "BODYHEL0", Max(0, hpi - 100), 	100, (18, 694), 0, 0, imageAlignmentLeft);
-				DrawStringScaled(mQ4HudFont, FormatNumber(hp, 1, 3), 			(-4, 697), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 0.5);
+				DrawBar("BODYHEL1", "BODYHEL0", hpi, 				100,	(18, 694) + HPOffset, 0, 0, imageAlignmentLeft);
+				DrawBar("BODYHEL2", "BODYHEL0", Max(0, hpi - 100), 	100,	(18, 694) + HPOffset, 0, 0, imageAlignmentLeft);
+				DrawStringScaled(mQ4HudFont, FormatNumber(hp, 1, 3), 		(-4, 697) + HPOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 0.5);
 				
-				DrawImage ("BODYHELC", (0, 697), imageAlignmentLeft);
+				DrawImage ("BODYHELC", (0, 697) + HPOffset, imageAlignmentLeft);
 			}
 
 			//======================================================================
@@ -518,14 +577,14 @@ Class Doom4StatusBar : BaseStatusBar
 					let gren = D4DGrenadeItem(CPlayer.mo.FindInventory(Doom4Player.GrenadeSelected[i]));
 					if (gren && gren.Selected)
 					{
-						DrawImage((GrenCharge < GrenChargeMax) ? gren.IconCooldown : gren.IconReady, (gren.PX, gren.PY), imageAlignmentLeft, 1.0, (-1,-1), (gren.SX, gren.SY));
+						DrawImage((GrenCharge < GrenChargeMax) ? gren.IconCooldown : gren.IconReady, (gren.PX, gren.PY) + AmmoOffset, imageAlignmentLeft, 1.0, (-1,-1), (gren.SX, gren.SY));
 						break;
 					}
 				}
 				// Recharging
 				if (GrenCharge < GrenChargeMax)
-					DrawBar("KEYSLOTR", "KEYSLOT0", GrenChargeMax - GrenCharge, GrenChargeMax, (825, 680), 0, SHADER_VERT|SHADER_REVERSE, imageAlignmentLeft);
-				DrawImage((GrenCharge < GrenChargeMax) ? "KEYSLOT0" : "KEYSLOT1", (825, 680), imageAlignmentLeft);
+					DrawBar("KEYSLOTR", "KEYSLOT0", GrenChargeMax - GrenCharge, GrenChargeMax,	(825, 680) + AmmoOffset, 0, SHADER_VERT|SHADER_REVERSE, imageAlignmentLeft);
+				DrawImage((GrenCharge < GrenChargeMax) ? "KEYSLOT0" : "KEYSLOT1", 				(825, 680) + AmmoOffset, imageAlignmentLeft);
 			}
 			//======================================================================
 			// Ammo Pane + Chainsaw + BFG Ammo Counters
@@ -533,7 +592,7 @@ Class Doom4StatusBar : BaseStatusBar
 			Ammo ammo1, ammo2;
 			int ac1, ac2;
 			[ammo1, ammo2, ac1, ac2] = GetCurrentAmmo();
-			DrawImage("AMMOPANE", (866, 669), imageAlignmentLeft);
+			DrawImage("AMMOPANE", (866, 669) + AmmoOffset, imageAlignmentLeft);
 			
 			bool DrawAmmoStandard = true;
 						
@@ -555,38 +614,38 @@ Class Doom4StatusBar : BaseStatusBar
 				// Spaced by pixel size + 1 extra on the X axis.
 				if (BFGUpgrade)
 				{
-					DrawImage("BFGAMM02", (878, 713), imageAlignmentLeft);
-					DrawImage("BFGAMM02", (878 + 23, 713), imageAlignmentLeft);
-					DrawImage("BFGAMM02", (878 + (23 * 2), 713), imageAlignmentLeft);
-					DrawImage("BFGAMM02", (878 + (23 * 3), 713), imageAlignmentLeft);
+					DrawImage("BFGAMM02", (878, 713) + AmmoOffset, 				imageAlignmentLeft);
+					DrawImage("BFGAMM02", (878 + 23, 713) + AmmoOffset, 		imageAlignmentLeft);
+					DrawImage("BFGAMM02", (878 + (23 * 2), 713) + AmmoOffset,	imageAlignmentLeft);
+					DrawImage("BFGAMM02", (878 + (23 * 3), 713) + AmmoOffset,	imageAlignmentLeft);
 					
 					if (BFGAmmo > 0)
 					{
 						Switch (BFGAmmo)
 						{
 							Default:
-							Case 4: DrawImage("BFGAMM22", (878, 713), imageAlignmentLeft);
-							Case 3: DrawImage("BFGAMM22", (878 + 23, 713), imageAlignmentLeft);
-							Case 2: DrawImage("BFGAMM22", (878 + (23 * 2), 713), imageAlignmentLeft);
-							Case 1: DrawImage("BFGAMM22", (878 + (23 * 3), 713), imageAlignmentLeft);
+							Case 4: DrawImage("BFGAMM22", (878, 713) + AmmoOffset, imageAlignmentLeft);
+							Case 3: DrawImage("BFGAMM22", (878 + 23, 713) + AmmoOffset, imageAlignmentLeft);
+							Case 2: DrawImage("BFGAMM22", (878 + (23 * 2), 713) + AmmoOffset, imageAlignmentLeft);
+							Case 1: DrawImage("BFGAMM22", (878 + (23 * 3), 713) + AmmoOffset, imageAlignmentLeft);
 							Case 0: break;
 						}
 					}
 				}
 				else
 				{
-					DrawImage("BFGAMM01", (878, 713), imageAlignmentLeft);
-					DrawImage("BFGAMM01", (878 + 31, 713), imageAlignmentLeft);
-					DrawImage("BFGAMM01", (878 + 62, 713), imageAlignmentLeft);
+					DrawImage("BFGAMM01", (878, 713) + AmmoOffset, imageAlignmentLeft);
+					DrawImage("BFGAMM01", (878 + 31, 713) + AmmoOffset, imageAlignmentLeft);
+					DrawImage("BFGAMM01", (878 + 62, 713) + AmmoOffset, imageAlignmentLeft);
 					
 					if (BFGAmmo > 0)
 					{
 						Switch (BFGAmmo)
 						{
 							Default:
-							Case 3: DrawImage("BFGAMM11", (878, 713), imageAlignmentLeft);
-							Case 2: DrawImage("BFGAMM11", (878 + 31, 713), imageAlignmentLeft);
-							Case 1: DrawImage("BFGAMM11", (878 + 62, 713), imageAlignmentLeft);
+							Case 3: DrawImage("BFGAMM11", (878, 713) + AmmoOffset, imageAlignmentLeft);
+							Case 2: DrawImage("BFGAMM11", (878 + 31, 713) + AmmoOffset, imageAlignmentLeft);
+							Case 1: DrawImage("BFGAMM11", (878 + 62, 713) + AmmoOffset, imageAlignmentLeft);
 							Case 0: break;
 						}
 					}
@@ -600,9 +659,9 @@ Class Doom4StatusBar : BaseStatusBar
 				[ChainsawAmmo, ChainsawAmmoMax] = GetAmount("D4Fuel");
 				
 				if (ChainsawAmmoUpgrade > 0)
-					DrawBar("CSAMMO88", "CSAMMO08", ChainsawAmmo, ChainsawAmmoMax, (982, 713), 0, SHADER_REVERSE, imageAlignmentLeft);
+					DrawBar("CSAMMO88", "CSAMMO08", ChainsawAmmo, ChainsawAmmoMax, (982, 713) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
 				else
-					DrawBar("CSAMMO55", "CSAMMO05", ChainsawAmmo, ChainsawAmmoMax, (982, 713), 0, SHADER_REVERSE, imageAlignmentLeft);
+					DrawBar("CSAMMO55", "CSAMMO05", ChainsawAmmo, ChainsawAmmoMax, (982, 713) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
 			}
 			
 			//======================================================================
@@ -622,15 +681,15 @@ Class Doom4StatusBar : BaseStatusBar
 			
 			if (CheckWeaponSelected("D4DFist"))
 			{
-				DrawImage("fist", (983,676), imageAlignmentLeft);
+				DrawImage("fist", (983,676) + AmmoOffset, imageAlignmentLeft);
 			}
 			else if (CheckWeaponSelected("D4Chainsaw"))
 			{
-				DrawImage("chainsaw", (983,676), imageAlignmentLeft);
+				DrawImage("chainsaw", (983,676) + AmmoOffset, imageAlignmentLeft);
 			}
 			else if (CheckWeaponSelected("D4Pistol"))
 			{
-				DrawImage("pistol", (983,676), imageAlignmentLeft);
+				DrawImage("pistol", (983,676) + AmmoOffset, imageAlignmentLeft);
 				
 				// Reticle
 				if (!noReticle)	
@@ -639,9 +698,9 @@ Class Doom4StatusBar : BaseStatusBar
 				// Lance stuff
 				if (GetAmountOnly("PistolUpgradeLance"))
 				{
-					DrawImage("zancmod0", (882, 673), imageAlignmentLeft);
+					DrawImage("zancmod0", (882, 673) + AmmoOffset, imageAlignmentLeft);
 					if (GetAmountOnly("PistolUpgradeLance"))
-						DrawImage("zancmod1", (882, 673), imageAlignmentLeft);
+						DrawImage("zancmod1", (882, 673) + AmmoOffset, imageAlignmentLeft);
 				}
 				
 				if (GetAmountOnly("PistolLanceReadyToken"))	
@@ -654,7 +713,7 @@ Class Doom4StatusBar : BaseStatusBar
 					if (amt >= 52)
 					{
 						String ring = (GetAmountOnly("PistolUpgradeAltDamage")) ? "red52" : "cya52";
-						DrawImage(ring, (465, 337), imageAlignmentLeft);
+						DrawImage(ring, (465, 337) + AmmoOffset, imageAlignmentLeft);
 					}
 					DialName = String.Format("cnt%02d", amt);
 					DrawImage(DialName, (465, 337), imageAlignmentLeft);
@@ -663,20 +722,20 @@ Class Doom4StatusBar : BaseStatusBar
 			else if (CheckWeaponSelected("D4Shotgun"))
 			{
 				// Icon
-				DrawImage("shotgun", (983,676), imageAlignmentLeft);
+				DrawImage("shotgun", (983,676) + AmmoOffset, imageAlignmentLeft);
 				
 				// Mod Icons
 				if (GetAmountOnly("ShotgunMod1"))
 				{
-					DrawImage("zhrgbrs0", (882, 673), imageAlignmentLeft);
+					DrawImage("zhrgbrs0", (882, 673) + AmmoOffset, imageAlignmentLeft);
 					if (GetAmountOnly("TriShotActive"))
-						DrawImage("zhrgbrs1", (882, 673), imageAlignmentLeft);
+						DrawImage("zhrgbrs1", (882, 673) + AmmoOffset, imageAlignmentLeft);
 				}
 				if (GetAmountOnly("ShotgunMod2"))
 				{
-					DrawImage("zplosht0", (910, 673), imageAlignmentLeft);
+					DrawImage("zplosht0", (910, 673) + AmmoOffset, imageAlignmentLeft);
 					if (GetAmountOnly("GrenadeActive"))
-						DrawImage("zplosht1", (910, 673), imageAlignmentLeft);
+						DrawImage("zplosht1", (910, 673) + AmmoOffset, imageAlignmentLeft);
 				}
 				
 				// Tri-shot
@@ -716,14 +775,14 @@ Class Doom4StatusBar : BaseStatusBar
 					if (!noReticle)
 					{
 						String reticle = (GetAmountOnly("AltFireToken")) ? "rSGG_ady" : "rSGG_dle";
-						DrawImage(reticle, (465, 337), imageAlignmentLeft);
+						DrawImage(reticle, (465, 337) + AmmoOffset, imageAlignmentLeft);
 					}
 					
 					// Cooldown ring
 					if (amt > 0)
 					{
 						DialName = String.Format("cnt%02d", amt);
-						DrawImage(DialName, (465, 337), imageAlignmentLeft);
+						DrawImage(DialName, (465, 337) + AmmoOffset, imageAlignmentLeft);
 					}
 				}
 				else
@@ -738,7 +797,7 @@ Class Doom4StatusBar : BaseStatusBar
 				// Reticle				
 				if (!noReticle)
 					DrawImage("rSSG", (464, 336), imageAlignmentLeft);
-				DrawImage("sshotgun", (983,676), imageAlignmentLeft);
+				DrawImage("sshotgun", (983,676) + AmmoOffset, imageAlignmentLeft);
 			}
 			else if (CheckWeaponSelected("D4Repeater"))
 			{
@@ -747,22 +806,22 @@ Class Doom4StatusBar : BaseStatusBar
 					String img = GetAmountOnly("RepeaterAimHolding") ? "rRep_ire" : "rRep_ter";
 					DrawImage(img, (465, 337), imageAlignmentLeft);
 				}
-				DrawImage("repeater", (983,676), imageAlignmentLeft);
+				DrawImage("repeater", (983,676) + AmmoOffset, imageAlignmentLeft);
 			}
 			else if (CheckWeaponSelected("D4AssaultRifle"))
 			{
-				DrawImage("harharha", (983,676), imageAlignmentLeft);
+				DrawImage("harharha", (983,676) + AmmoOffset, imageAlignmentLeft);
 				
 				// Mod Icons
 				if (GetAmountOnly("AssaultRifleMod1"))
 				{
 					String img = (GetAmountOnly("TacticalScopeActive")) ? "zactscp1" : "zactscp0";
-					DrawImage(img, (882, 673), imageAlignmentLeft);
+					DrawImage(img, (882, 673) + AmmoOffset, imageAlignmentLeft);
 				}
 				if (GetAmountOnly("AssaultRifleMod2"))
 				{
 					String img = (GetAmountOnly("MicroMissilesActive")) ? "zissile1" : "zissile0";
-					DrawImage(img, (910, 673), imageAlignmentLeft);
+					DrawImage(img, (910, 673) + AmmoOffset, imageAlignmentLeft);
 				}
 				
 				if (!noReticle)
@@ -780,23 +839,23 @@ Class Doom4StatusBar : BaseStatusBar
 						}
 					}
 					else
-						DrawImage("rHarIdle",  (464,337), imageAlignmentLeft);	
+						DrawImage("rHarIdle", (464,337), imageAlignmentLeft);	
 						
 				}
 			}
 			else if (CheckWeaponSelected("D4Chaingun"))
 			{
-				DrawImage("chaingun", (983,676), imageAlignmentLeft);
+				DrawImage("chaingun", (983,676) + AmmoOffset, imageAlignmentLeft);
 				
 				if (GetAmountOnly("ChaingunMod1"))
 				{
 					String img = (GetAmountOnly("GatlingRotatorActive")) ? "zotator1" : "zotator0";
-					DrawImage(img, (882, 673), imageAlignmentLeft);
+					DrawImage(img, (882, 673) + AmmoOffset, imageAlignmentLeft);
 				}
 				if (GetAmountOnly("ChaingunMod2"))
 				{
 					String img = (GetAmountOnly("MobileTurretActive")) ? "zurrets1" : "zurrets0";
-					DrawImage(img, (910, 673), imageAlignmentLeft);
+					DrawImage(img, (910, 673) + AmmoOffset, imageAlignmentLeft);
 				}
 				
 				if (!noReticle)	DrawImage("rCha_gun", (464, 336), imageAlignmentLeft);
@@ -804,7 +863,7 @@ Class Doom4StatusBar : BaseStatusBar
 			else if (CheckWeaponSelected("D4GrenadeLauncher"))
 			{
 				if (!noReticle)	DrawImage("rGL", (465, 337), imageAlignmentLeft);
-				DrawImage("grenader", (983,676), imageAlignmentLeft);
+				DrawImage("grenader", (983,676) + AmmoOffset, imageAlignmentLeft);
 			}
 			else if (CheckWeaponSelected("D4RocketLauncher"))
 			{
@@ -812,12 +871,12 @@ Class Doom4StatusBar : BaseStatusBar
 				if (GetAmountOnly("RocketLauncherMod1"))
 				{
 					String img = (GetAmountOnly("DetonateActive")) ? "zetonat1" : "zetonat0";
-					DrawImage(img, (882, 673), imageAlignmentLeft);
+					DrawImage(img, (882, 673) + AmmoOffset, imageAlignmentLeft);
 				}
 				if (GetAmountOnly("RocketLauncherMod2"))
 				{
 					String img = (GetAmountOnly("LockOnActive")) ? "zocking1" : "zocking0";
-					DrawImage(img, (910, 673), imageAlignmentLeft);
+					DrawImage(img, (910, 673) + AmmoOffset, imageAlignmentLeft);
 				}
 				
 				// Mod Specifics
@@ -841,7 +900,7 @@ Class Doom4StatusBar : BaseStatusBar
 					}
 				}
 				else if (!noReticle)	DrawImage("rRL", (465, 337), imageAlignmentLeft);
-				DrawImage("rocketer", (983,676), imageAlignmentLeft);
+				DrawImage("rocketer", (983,676) + AmmoOffset, imageAlignmentLeft);
 			}
 			else if (CheckWeaponSelected("D4LightningGun"))
 			{
@@ -850,19 +909,19 @@ Class Doom4StatusBar : BaseStatusBar
 					String img = GetAmountOnly("AltFireToken") ? "rLig_un2" : "rLig_un1";
 					DrawImage(img, (464,336), imageAlignmentLeft);
 				}
-				DrawImage("thunderb", (983,676), imageAlignmentLeft);
+				DrawImage("thunderb", (983,676) + AmmoOffset, imageAlignmentLeft);
 			}
 			else if (CheckWeaponSelected("D4PlasmaRifle"))
 			{
 				if (GetAmountOnly("PlasmaRifleMod1"))
 				{
 					String img = (GetAmountOnly("HeatBlastActive")) ? "ztblast1" : "ztblast0";
-					DrawImage(img, (882, 673), imageAlignmentLeft);
+					DrawImage(img, (882, 673) + AmmoOffset, imageAlignmentLeft);
 				}
 				if (GetAmountOnly("PlasmaRifleMod2"))
 				{
 					String img = (GetAmountOnly("StunBombActive")) ? "ztunbom1" : "ztunbom0";
-					DrawImage(img, (910, 673), imageAlignmentLeft);
+					DrawImage(img, (910, 673) + AmmoOffset, imageAlignmentLeft);
 				}
 				
 				if (GetAmountOnly("HeatBlastActive"))
@@ -889,7 +948,7 @@ Class Doom4StatusBar : BaseStatusBar
 					}
 				}
 				if (!noReticle)	DrawImage("rPlasma", (464, 336), imageAlignmentLeft);
-				DrawImage("prifle", (983,676), imageAlignmentLeft);
+				DrawImage("prifle", (983,676) + AmmoOffset, imageAlignmentLeft);
 			}
 			else if (CheckWeaponSelected("D4StaticRifle"))
 			{
@@ -904,7 +963,7 @@ Class Doom4StatusBar : BaseStatusBar
 				
 				if (!noReticle)	DrawImage("rSta_fle",  (464,336), imageAlignmentLeft);
 				
-				DrawImage("static", (983,676), imageAlignmentLeft);
+				DrawImage("static", (983,676) + AmmoOffset, imageAlignmentLeft);
 			}
 			else if (CheckWeaponSelected("D4VortexRifle"))
 			{
@@ -924,19 +983,19 @@ Class Doom4StatusBar : BaseStatusBar
 				}
 				
 				if (!noReticle)	DrawImage("rVor_fle", (465,337), imageAlignmentLeft);
-				DrawImage("vortex", (983,676), imageAlignmentLeft);
+				DrawImage("vortex", (983,676) + AmmoOffset, imageAlignmentLeft);
 			}
 			else if (CheckWeaponSelected("D4GaussCannon"))
 			{
 				if (GetAmountOnly("GaussCannonMod1"))
 				{
 					String img = (GetAmountOnly("PrecisionActive")) ? "zrecblt1" : "zrecblt0";
-					DrawImage(img, (882, 673), imageAlignmentLeft);
+					DrawImage(img, (882, 673) + AmmoOffset, imageAlignmentLeft);
 				}
 				if (GetAmountOnly("GaussCannonMod2"))
 				{
 					String img = (GetAmountOnly("SiegeActive")) ? "ziegemd1" : "ziegemd0";
-					DrawImage(img, (910, 673), imageAlignmentLeft);
+					DrawImage(img, (910, 673) + AmmoOffset, imageAlignmentLeft);
 				}
 				
 				if (GetAmountOnly("PrecisionActive") && GetAmountOnly("AltFireToken"))
@@ -953,17 +1012,17 @@ Class Doom4StatusBar : BaseStatusBar
 					DrawImage(img, (465, 337), imageAlignmentLeft);
 				}
 				
-				DrawImage("gauss", (983, 676), imageAlignmentLeft);
+				DrawImage("gauss", (983, 676) + AmmoOffset, imageAlignmentLeft);
 			}
 			else if (CheckWeaponSelected("D4CarrionCannon"))
 			{
 				if (!noReticle)	DrawImage("rHel_hot", (464,336), imageAlignmentLeft);
-				DrawImage("flare", (983,676), imageAlignmentLeft);
+				DrawImage("flare", (983,676) + AmmoOffset, imageAlignmentLeft);
 			}
 			else if (CheckWeaponSelected("D4BFG"))
 			{
 				if (!noReticle)	DrawImage("rBFG", (464,336), imageAlignmentLeft);
-				DrawImage("bfg", (983,676), imageAlignmentLeft);
+				DrawImage("bfg", (983,676) + AmmoOffset, imageAlignmentLeft);
 			}
 			else DrawAmmoStandard = false;
 			
@@ -972,9 +1031,9 @@ Class Doom4StatusBar : BaseStatusBar
 				if (ammo1)
 				{	
 					AmmoClamp = (ammo1.MaxAmount > 999) ? 4 : 3;
-					DrawBar("AMMOBAR1", "AMMOBAR0", ac1, ammo1.Default.MaxAmount, (881, 693), 0, SHADER_REVERSE, imageAlignmentLeft);
-					DrawBar("AMMOBAR2", "AMMOBAR0", ac1 - ammo1.Default.MaxAmount, ammo1.BackpackMaxAmount - ammo1.Default.MaxAmount, (881, 693), 0, SHADER_REVERSE, imageAlignmentLeft);
-					DrawStringScaled(mQ4HudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (983,676), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 0.5);
+					DrawBar("AMMOBAR1", "AMMOBAR0", ac1, ammo1.Default.MaxAmount, (881, 693) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
+					DrawBar("AMMOBAR2", "AMMOBAR0", ac1 - ammo1.Default.MaxAmount, ammo1.BackpackMaxAmount - ammo1.Default.MaxAmount, (881, 693) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
+					DrawStringScaled(mQ4HudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (983,676) + AmmoOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 0.5);
 				}
 			}
 			else
@@ -987,9 +1046,9 @@ Class Doom4StatusBar : BaseStatusBar
 					if (ammo1) // Bottom
 					{
 						AmmoClamp = (ammo1.MaxAmount > 999) ? 4 : 3;
-						DrawBar("AMMOBAR1", "AMMOBAR0", ac1, ammo1.Default.MaxAmount, (881, 693), 0, SHADER_REVERSE, imageAlignmentLeft);
-						DrawBar("AMMOBAR2", "AMMOBAR0", ac1 - ammo1.Default.MaxAmount, ammo1.BackpackMaxAmount - ammo1.Default.MaxAmount, (881, 693), 0, SHADER_REVERSE, imageAlignmentLeft);
-						DrawStringScaled(mQ4HudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (posx,694), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: scale);
+						DrawBar("AMMOBAR1", "AMMOBAR0", ac1, ammo1.Default.MaxAmount, (881, 693) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
+						DrawBar("AMMOBAR2", "AMMOBAR0", ac1 - ammo1.Default.MaxAmount, ammo1.BackpackMaxAmount - ammo1.Default.MaxAmount, (881, 693) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
+						DrawStringScaled(mQ4HudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (posx,694) + AmmoOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: scale);
 					}
 				}
 				else
@@ -997,24 +1056,18 @@ Class Doom4StatusBar : BaseStatusBar
 					if (ammo1) // Top
 					{
 						AmmoClamp = (ammo1.MaxAmount > 999) ? 4 : 3;
-						DrawBar("AMMOBAR1", "AMMOBAR0", ac1, ammo1.MaxAmount, (881, 678), 0, SHADER_REVERSE, imageAlignmentLeft);
-						DrawStringScaled(mQ4HudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (posx,679), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: scale);
+						DrawBar("AMMOBAR1", "AMMOBAR0", ac1, ammo1.MaxAmount, (881, 678) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
+						DrawStringScaled(mQ4HudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (posx,679) + AmmoOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: scale);
 					}
 					if (ammo2) // Bottom
 					{
 						int AmmoClamp2 = (ammo2.MaxAmount > 999) ? 4 : 3;
-						DrawBar("AMMOBAR2", "AMMOBAR0", ac2, ammo2.MaxAmount, (881, 693), 0, SHADER_REVERSE, imageAlignmentLeft);
-						DrawStringScaled(mQ4HudFont, FormatNumber(ammo2.Amount, 1, AmmoClamp2), (posx,694), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: scale);
+						DrawBar("AMMOBAR2", "AMMOBAR0", ac2, ammo2.MaxAmount, (881, 693) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
+						DrawStringScaled(mQ4HudFont, FormatNumber(ammo2.Amount, 1, AmmoClamp2), (posx,694) + AmmoOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: scale);
 					}
 				}
 			}
 		}
-	}
-	
-	// To Do
-	protected void DrawFullScreenStuff ()
-	{
-		
 	}
 }
 
