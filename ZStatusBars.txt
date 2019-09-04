@@ -775,14 +775,14 @@ Class Doom4StatusBar : BaseStatusBar
 					if (!noReticle)
 					{
 						String reticle = (GetAmountOnly("AltFireToken")) ? "rSGG_ady" : "rSGG_dle";
-						DrawImage(reticle, (465, 337) + AmmoOffset, imageAlignmentLeft);
+						DrawImage(reticle, (465, 337), imageAlignmentLeft);
 					}
 					
 					// Cooldown ring
 					if (amt > 0)
 					{
 						DialName = String.Format("cnt%02d", amt);
-						DrawImage(DialName, (465, 337) + AmmoOffset, imageAlignmentLeft);
+						DrawImage(DialName, (465, 337), imageAlignmentLeft);
 					}
 				}
 				else
