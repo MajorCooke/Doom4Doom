@@ -762,30 +762,8 @@ Class CyberdemonRocketExplosion : D4RocketExplosion
 {
 	Default 
 	{
-		Scale 0.15;
-		+FORCEXYBILLBOARD
-		+ROLLSPRITE
-	}
-	States
-	{
-	Spawn:
-		X126 A 0 NoDelay A_SetRoll(random(0,359));
-		X126 AA 1 Bright Light("YellowBigPoint3") A_SetScale(Scale.X+0.07);
-		X126 BB 1 Bright Light("YellowBigPoint3") A_SetScale(Scale.X+0.07);
-		X126 CC 1 Bright Light("YellowMediumPoint1") A_SetScale(Scale.X+0.07);
-		X126 DD 1 Bright Light("YellowMediumPoint1") A_SetScale(Scale.X+0.07);
-		X126 E 2 Bright Light("YellowMediumPoint2") A_SetScale(Scale.X+0.03);
-		X126 F 2 Bright Light("YellowMediumPoint3") A_SetScale(Scale.X+0.03);
-		X126 G 2 Bright Light("YellowSmallPoint1") A_SetScale(Scale.X+0.03);
-		X126 H 2 Bright Light("YellowSmallPoint2") A_SetScale(Scale.X+0.03);
-		X126 I 2 Bright Light("YellowSmallPoint3") A_SetScale(Scale.X+0.03);
-		X126 JKLMNOPQ 2 Bright A_SetScale(Scale.X+0.03);
-		X126 R 1 Bright 
-		{
-			A_FadeOut(0.07);
-			A_SetScale(Scale.X+0.02);
-		}
-		Wait;
+		D4RocketExplosion.Flames 1, 3;
+		Scale 0.85;
 	}
 }
 //================================================================================================================

@@ -17,7 +17,7 @@ Class D4Chaingun : Doom4Weapon
 	enum Chaingun
 	{
 		MobileTurretDamage = 	9,
-		GibRange =				256
+		GibRange =				384
 	};
 	Default 
 	{
@@ -574,7 +574,7 @@ Class D4Chaingun : Doom4Weapon
 					if (CountInv("AltFireToken"))
 					{	return ResolveState("MobileTurretReady");	}
 					A_GiveInventory("AltFireToken",1);					
-					A_SetSpeed(0.5);
+					A_SetSpeed(0.75);
 					A_PlaySound("Doom4/Weapon/Chaingun/ReadyTurret",5,1);
 					//A_WeaponOffset(4,20,WOF_ADD);
 					return ResolveState(null);
@@ -622,8 +622,8 @@ Class D4Chaingun : Doom4Weapon
 			
 			for (int i = 0; i < 3; i++)
 			{
-				double offsxy = 7.0 * random(1,-1);
-				double offsz = (offsxy) ? -1.0 : -4.0;
+				double offsxy = 7.0 * frandompick(1.0,0.0,-1.0);
+				double offsz = (offsxy != 0.0) ? -1.0 : -4.0;
 			
 				
 			// The damage here is done in the puff itself, NOT here!
@@ -829,9 +829,6 @@ Class CGSmokeSpawner : Actor
 {
 	Default 
 	{
-		Radius 1;
-		Height 1;
-		Speed 14;
 		Projectile;
 		+NOINTERACTION;
 		+NOTIMEFREEZE;

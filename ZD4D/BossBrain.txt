@@ -33,6 +33,10 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 	
 	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{
+		Actor s = source;
+		Actor i = inflictor;
+		if ((s && s.bISMONSTER) || (i && i.target && i.target.bISMONSTER))
+			return 0;
 		if ((inflictor && inflictor is "ExplosiveBarrel") || (source && source is "ExplosiveBarrel"))
 			damage *= 20;
 			
@@ -59,18 +63,18 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 				let explo =	mo.Spawn("D4RocketExplosion",mo.pos);
 				if (explo)
 				{
-					explo.A_PlaySound("Doom4/Weapon/RocketLauncher/HRExplo",CHAN_AUTO);
 					explo.A_XScream();
+					explo.A_PlaySound("Doom4/Weapon/RocketLauncher/HRExplo",CHAN_AUTO);
 					explo.A_PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
 				}
 				
-				let splatter = mo.Spawn("BloodGibDropper",mo.pos);
+				mo.Spawn("BloodGibDropper",mo.pos);
 				mo.Destroy();
 				continue;
 			}
 			
-			if (mo.bNODAMAGE)
-				continue;
+		//	if (mo.bNODAMAGE)
+		//		continue;
 			
 			if (mo.bISMONSTER && mo.health > 0)
 			{
@@ -93,7 +97,7 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 					if (playeringame[i])
 					{
 						Actor plr = players[i].mo;
-						if (plr && plr.CheckSight(self))
+						if (plr && plr.CheckSight(self, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY|SF_SEEPASTBLOCKEVERYTHING))
 						{
 							seeBase = true;
 							break;
@@ -145,22 +149,6 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 			}
 			KillEverything();
 		}
-		/*
-		BBRN A 33
-		{
-			for (int i = 0; i < MAXPLAYERS; i++)
-			{
-				if (playeringame[i] && players[i].mo)
-				{
-					let plr = players[i].mo;
-					if (plr)
-					{
-						
-					}
-				}
-			}
-		}
-		*/
 		BBRN A 105
 		{
 			if (!seeBase)
@@ -169,7 +157,11 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 			if (seeBase)
 			{
 				let exploder = IOSFaceExploder(Spawn("IOSFaceExploder",pos));
-				if (exploder)	exploder.atPos = true;
+				if (exploder)	
+				{
+					exploder.target = self;
+					exploder.atPos = true;
+				}
 			}
 			else
 			{
@@ -242,8 +234,11 @@ Class IOSFaceExploder : Actor
 	
 	override void Tick()
 	{
-		if (IsFrozen() && !bNOTIMEFREEZE)
+		if (IsFrozen())
 			return;
+			
+		if (target && atPos && pos != target.pos)
+			SetOrigin(target.pos, false);
 			
 		count[0]++;
 		if (count[0] >= count[1])
@@ -264,17 +259,20 @@ Class IOSFaceExploder : Actor
 				{
 					explo.angle = angle;
 					explo.A_SetRenderStyle(1.0,STYLE_Translucent);
-					explo.Translation = Translation;
-					//explo.SetOrigin(spos, false);
+				//	explo.Translation = Translation;
+				//	explo.SetOrigin(spos, false);
 					if (!atPos)	explo.A_Warp(DefPtr,0,frandom(py1, py2),flags: WARPF_NOCHECKPOSITION);
 					
+					double zmin = pos.Z + Min(pz1, pz2);
+					double zmax = pos.Z + Max(pz1, pz2);
 					Vector3 sep = explo.pos;
-					if (sep.z < explo.floorz)			sep.z = explo.floorz + 1;
-					else if (sep.z > explo.ceilingz)	sep.z = explo.ceilingz - 1;
+					
+					// Put the explosion within range of the parameters.
+					if (sep.z < explo.floorz || sep.z > explo.ceilingz)			
+						sep.z = frandom(Max(explo.floorz + 1.0, zmin), 
+										Min(explo.ceilingz - 1.0, zmax) );
 					
 					explo.SetOrigin(sep, false);
-					
-					
 					explo.A_PlaySound("Doom4/Weapon/RocketLauncher/HRExplo",CHAN_AUTO,0.5);
 				}
 			}
@@ -299,7 +297,7 @@ Class IOSFaceExploder : Actor
 				{
 					snuke.angle = angle;
 					snuke.Translation = Translation;
-					if (!atPos)	snuke.A_Warp(DefPtr,0,frandom(py1, py2),flags: WARPF_NOCHECKPOSITION);
+					if (!atPos)	snuke.Warp(snuke,0,frandom(py1, py2),flags: WARPF_NOCHECKPOSITION);
 				}
 			}
 			
@@ -328,7 +326,7 @@ Class D4SmallNuke : Actor
 		+NOINTERACTION
 		RenderStyle "Add";
 		Scale 0;
-		Alpha 0.999;
+		Alpha 0.99;
 	}
 	
 	void UpScale()

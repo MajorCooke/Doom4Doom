@@ -427,6 +427,7 @@ Class PlayerRevRocket : D4AbstractMissilePlayer
 	States
 	{
 	Spawn:
+		SWMS A 0 NoDelay A_SpawnItemEx("D4RocketTrailFire",flags: SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
 		SWMS A 1 Bright Light("RedSmallPoint1") 
 		{
 			A_Weave(random(0,2), random(0,2), frandom(0,2), frandom(0,2));
@@ -446,10 +447,7 @@ Class PlayerRevRocket : D4AbstractMissilePlayer
 			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
 			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
 			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
-		}
-		TNT1 A 0 
-		{
-		//	A_PlaySound("Doom4/Other/OtherRocketExplo");
+			bINVISIBLE = true;
 			A_PlaySound("Doom4/Weapon/RocketLauncher/Explode", volume: 0.4);
 			if (GetCvar("HQEffects"))
 			{

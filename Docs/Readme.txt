@@ -1,7 +1,7 @@
 ===========================================================================
 Archive Maintainer      : (special instructions if any)
 Update to               : D4D.pk3
-Advanced engine needed  : GZDoom v3.6+
+Advanced engine needed  : GZDoom v4.2+
 Primary purpose         : Single player, no levels included
 ===========================================================================
 Title                   : DOOM(4) for DooM
@@ -62,7 +62,7 @@ Known Bugs              : * Sometimes glory kills will only do a quick punch
                           executed.
 Might Not Work With     : GZDoom devbuilds, unless mentioned otherwise.
 Will NOT Work With 		: Zandronum. ZDoom. GZDoom v3.6 and older.
-Tested With             : GZDoom v3.7
+Tested With             : GZDoom
 
 ===========================================================================
 
@@ -88,14 +88,14 @@ Major Cooke             : Current owner. Project idea and direction.
                           Half Life-like laser for Gauss Cannon, Static 
                           Rifle and many more. Created the Carrion Cannon,
 						  powerup upgrades, and overhauled upgrade menu.
-						  Almost all new code for v3.0+.
+						  Almost all new code for v3.0+. 
+						  Flamethrower icon sprites.
                           General DECORATE & ZScript mastermind.
 
 
 
 ZZYZX                   : Making shaders for glory kill effect, shaders for
-                          holographic effect. Current internal dev working on
-                          top secret stuff.
+                          holographic effect.
 						  
 Neccronixis             : Creator of all the Doom 4 weapon sprites (until 3.0+) 						  
 						  & doomdoll pickup and animation.
@@ -117,7 +117,8 @@ DBThanatos              : Ex-author as of 2.0.3.
                           Resource gatherer and organizer.  
                           Final polishing of visual effects until v2.0.3 release.
 						  
-Michaelis               : Ripping, conversion and processing of graphics for
+Michaelis               : Ex-dev as of 2.0.3.
+						  Ripping, conversion and processing of graphics for
                           the Heads Up Display. Implementation of reticles
                           specific to each weapon/demon, including the charging
                           animations. Ripping/processing/implementation of blood
@@ -197,14 +198,13 @@ VICE					: "D4DHF" addon content.
 
 	** Other credits **
 
-Death Foretold			: Sound effects for multiplayer weapons. Extra reticles.
+Death Foretold			: Sound effects for multiplayer weapons. Extra reticles
+						  and some FX sprites.
 
 OpenGameArt				: Lots of effects from here.
 						  https://opengameart.org/content/2d-effects
 
 id Software             : Quake 4 / Doom 2016 sounds, graphics, and models
-
-Flying Wild Hog         : Hard Reset sounds
 
 Activision              : Battlezone I & II sounds
 
@@ -236,6 +236,7 @@ Croteam					: Serious Sam's Serious Damage sound
 - TheZombieKiller
 - TiberiumSoul
 - Syrix
+- Shadowtiger
 
 
 	** Retired Testers **
@@ -244,13 +245,12 @@ Croteam					: Serious Sam's Serious Damage sound
 - DrPyspy				(2.0.3)
 - Hellser				(2.0.3)
 - JohnnyTheWolf 		(2.0.3)
-- MW-21					(Unknown release retirement)
-- ShadowTiger			(2.0.3)
+- MW-21					(2.0.3)
 - Viscra Maelstrom		(2.0.3)
 - Zanieon				(2.0.3)
 - Roxas					(2.0.3)
 - Xaser					(2.0.3)
-- Iamcarrotmaster
+- Iamcarrotmaster		(3.0 Alpha 8)
 
 
 

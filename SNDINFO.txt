@@ -293,12 +293,6 @@ $alias Doom4/Weapon/RocketLauncher/HRExplo Doom4/Weapon/RocketLauncher/Explode
 Doom4/Weapon/RocketLauncher/Detonate		"Sounds/Weapons/RL/Detonate.ogg"
 $limit Doom4/Weapon/RocketLauncher/Detonate 0
 
-/*
-$random Doom4/Weapon/RocketLauncher/Q4Explo {Doom4/Weapon/RocketLauncher/Q4Explo1 Doom4/Weapon/RocketLauncher/Q4Explo2 Doom4/Weapon/RocketLauncher/Q4Explo3}
-Doom4/Weapon/RocketLauncher/Q4Explo1		"sounds/weapons/RcktExp1.ogg"
-Doom4/Weapon/RocketLauncher/Q4Explo2		"sounds/weapons/RcktExp2.ogg"
-Doom4/Weapon/RocketLauncher/Q4Explo3		"sounds/weapons/RcktExp3.ogg"
-*/
 
 //==============================================================================
 //		Grenade Launcher
@@ -501,36 +495,50 @@ Doom4/Weapon/BloodHit1				"sounds/weapons/Other/bloodhit1.ogg"
 Doom4/Weapon/BloodHit2				"sounds/weapons/Other/bloodhit2.ogg"
 Doom4/Weapon/BloodHit3				"sounds/weapons/Other/bloodhit3.ogg"
 
+Doom4/HoloSpawn						"Sounds/Weapons/Other/HoloSpawn.ogg"
+Doom4/KineticArm					"Sounds/Weapons/Other/KineticArm.ogg"
+Doom4/KineticBeep					"Sounds/Weapons/Other/KineticBeep.ogg"
+Doom4/ShieldWallImpact				"Sounds/Weapons/Other/ShieldWallImpact.ogg"
+Doom4/ShieldWallLoop				"Sounds/Weapons/Other/ShieldWallLoop.ogg"
+Doom4/ShieldWallOff					"Sounds/Weapons/Other/ShieldWallOff.ogg"
+Doom4/ShieldWallOn					"Sounds/Weapons/Other/ShieldWallOn.ogg"
+Doom4/TeslaLoop						"Sounds/Weapons/Other/TeslaLoop.ogg"
+Doom4/TeslaThrow					"Sounds/Weapons/Other/TeslaThrow.ogg"
+
+Doom4/KineticExplo1					"Sounds/Weapons/Other/KineticExplo1.ogg"
+Doom4/KineticExplo2					"Sounds/Weapons/Other/KineticExplo2.ogg"
+$random Doom4/KineticExplosion { Doom4/KineticExplo1 Doom4/KineticExplo2 }
+
 //==============================================================================================
 //==============================================================================================
 //		For monsters
 //==============================================================================================
 //==============================================================================================
 
-Doom4/Monsters/PlasmaShot			"sounds/Other/plasma_shot01_stereo.ogg"
+Doom4/Monsters/PlasmaShot				"sounds/Other/plasma_shot01_stereo.ogg"
 $limit Doom4/Monsters/PlasmaShot 5
-Doom4/Monsters/PlasmaShotBig		"sounds/Other/plasma_alt_shot01_stereo.ogg"
-Doom4/Monsters/PlasmaShotgun		"sounds/Other/plasma_grenade02_stereo.ogg"
+Doom4/Monsters/PlasmaShotBig			"sounds/Other/plasma_alt_shot01_stereo.ogg"
+Doom4/Monsters/PlasmaShotgun			"sounds/Other/plasma_grenade02_stereo.ogg"
 //$volume "Doom4/Monsters/PlasmaShotgun" 0.1
-Doom4/Monsters/LaserStart		"sounds/Other/laser_charge_start.L.ogg"
-Doom4/Monsters/LaserLoop		"sounds/Other/laser_charge_loop.L.ogg"
+Doom4/Monsters/LaserStart				"sounds/Other/laser_charge_start.L.ogg"
+Doom4/Monsters/LaserLoop				"sounds/Other/laser_charge_loop.L.ogg"
 Doom4/Monsters/ElectricDischarge		"sounds/Other/electric_shot01_stop02_stereo.ogg"
-Doom4/Monsters/BaronCrash		"sounds/Other/BaronCrash.ogg"
+Doom4/Monsters/BaronCrash				"sounds/Other/BaronCrash.ogg"
 
-Doom4/Monsters/ArchSummonSFX1		"sounds/Other/ArchTeleport1.ogg"
-Doom4/Monsters/ArchSummonSFX2		"sounds/Other/ArchTeleport2.ogg"
+Doom4/Monsters/ArchSummonSFX1			"sounds/Other/ArchTeleport1.ogg"
+Doom4/Monsters/ArchSummonSFX2			"sounds/Other/ArchTeleport2.ogg"
 
 $random Doom4/Monsters/QuakeTport { Doom4/Monsters/QuakeTport1 Doom4/Monsters/QuakeTport2 Doom4/Monsters/QuakeTport3 Doom4/Monsters/QuakeTport4 Doom4/Monsters/QuakeTport5 }
-Doom4/Monsters/QuakeTport1		"sounds/Other/Telep1.ogg"
-Doom4/Monsters/QuakeTport2		"sounds/Other/Telep2.ogg"
-Doom4/Monsters/QuakeTport3		"sounds/Other/Telep3.ogg"
-Doom4/Monsters/QuakeTport4		"sounds/Other/Telep4.ogg"
-Doom4/Monsters/QuakeTport5		"sounds/Other/Telep5.ogg"
+Doom4/Monsters/QuakeTport1				"sounds/Other/Telep1.ogg"
+Doom4/Monsters/QuakeTport2				"sounds/Other/Telep2.ogg"
+Doom4/Monsters/QuakeTport3				"sounds/Other/Telep3.ogg"
+Doom4/Monsters/QuakeTport4				"sounds/Other/Telep4.ogg"
+Doom4/Monsters/QuakeTport5				"sounds/Other/Telep5.ogg"
 
-Doom4/Monsters/FireWaveShoot		"sounds/Other/FireWaveStart.ogg"
-Doom4/Monsters/FireWaveCrash		"sounds/Other/FireWaveEnd.ogg"
-Doom4/Monsters/ArgentWaveFire		"sounds/Other/ArgentWave.ogg"
-Doom4/Monsters/ArgentCharge		"sounds/Other/ArgentCharge.ogg"
+Doom4/Monsters/FireWaveShoot			"sounds/Other/FireWaveStart.ogg"
+Doom4/Monsters/FireWaveCrash			"sounds/Other/FireWaveEnd.ogg"
+Doom4/Monsters/ArgentWaveFire			"sounds/Other/ArgentWave.ogg"
+Doom4/Monsters/ArgentCharge				"sounds/Other/ArgentCharge.ogg"
 
 Doom4/Monsters/MastermindLaserCharge		"sounds/Other/plasma_cumulative_charge_star.ogg"
 Doom4/Monsters/MastermindLaserFire		"sounds/Other/plasma_cumulative_fire.L.ogg"
@@ -642,8 +650,8 @@ $playersound	player	other	*usefail	"sounds/Player/Beep.ogg"
 //==============================================================================================
 Doom4/Other/DollExplode				"Sounds/Weapons/DollExplode.ogg"
 Doom4/Other/GlimpseIntoTheFuture	"sounds/Weapons/DoomDoll.ogg"
-Doom4/Other/WeaponPickup			"sounds/Other/weapon.ogg"
 Doom4/Weapons/WeaponSwitch			"sounds/Weapons/SwitchWeapon.ogg"
+Doom4/Other/WeaponPickup			"sounds/Other/weapon.ogg"
 Doom4/Other/FireballHit1			"sounds/Other/3IMPFHT1.ogg"
 Doom4/Other/FireballHit2			"sounds/Other/3IMPFHT3.ogg"
 Doom4/Other/FlamerLoop				"sounds/Other/FlmrLoop.ogg"
@@ -1115,6 +1123,9 @@ Doom4/Monsters/Baron/Death						"Sounds/Monsters/BaronDeath.ogg"
 Doom4/Monsters/Baron/Idle						"Sounds/Monsters/BaronIdle.ogg"
 Doom4/Monsters/Baron/Pain						"Sounds/Monsters/BaronPain.ogg"
 Doom4/Monsters/Baron/Sight						"Sounds/Monsters/BaronSightBig.ogg"
+Doom4/Monsters/Baron/Melee1						"Sounds/Monsters/BaronMelee1.ogg"
+Doom4/Monsters/Baron/Melee2						"Sounds/Monsters/BaronMelee1.ogg"
+$random Doom4/Monsters/Baron/Melee { Doom4/Monsters/Baron/Melee1 Doom4/Monsters/Baron/Melee2 }
 
 Doom4/Monsters/Cacodemon/Attack1						"Sounds/Monsters/CacoAttack.ogg"
 Doom4/Monsters/Cacodemon/Attack2						"Sounds/Monsters/CacoAttack2.ogg"

@@ -505,12 +505,11 @@ Class D4DPlasmaBall : Actor
 		TNT1 A 0 NoDelay 
 		{
 			A_SetScale(frandom(0.04,0.06));
-			int rng = random(1,26);
-			return A_Jump(256,rng);
+			return A_Jump(256,random(1,26));
 		}
 	Moving:
-		PLS1 ABCDEFGHIJKLMNOPQRSTUVWXYZ 1 Light("BlueSmallPoint1") Bright ;
-		PLS2 ABCDEF 1 Light("BlueSmallPoint1") Bright ;
+		PLS1 ABCDEFGHIJKLMNOPQRSTUVWXYZ 1 Light("BlueSmallPoint1") Bright;
+		PLS2 ABCDEF 1 Light("BlueSmallPoint1") Bright;
 		Loop;
 	XDeath:
 		TNT1 A 0

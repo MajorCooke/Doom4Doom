@@ -50,14 +50,13 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 		Super.OnDestroy();
 	}
 	
-	action bool, double CheckLockOn(Actor mo)
+	action bool, double CheckLockOn(Actor mo, Vector3 forw)
 	{
 		if (!mo || mo.health < 1 || (!mo.bSHOOTABLE && mo.bNONSHOOTABLE) || mo.bFRIENDLY || mo.bCORPSE || mo.bDORMANT)
 			return false, 0.0;
 		if (!CheckSight(mo, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
 			return false, 0.0;
-			
-		Vector3 forw = ( cos(angle) * cos(pitch), sin(angle) * cos(pitch), -sin(pitch) );
+		
 		Vector3 offs = Vec2OffsetZ(0, 0, player.viewz);		// Account for the view height
 		Vector3 epos = mo.pos + (0, 0, mo.height * 0.5);
 		Vector3 diff = level.Vec3Diff(offs, epos);	// Internally does v2 - v1.
@@ -67,7 +66,8 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	
 	action Actor LockOn(Actor mon)
 	{
-		if (CheckLockOn(mon))
+		Vector3 forw = ( cos(angle) * cos(pitch), sin(angle) * cos(pitch), -sin(pitch) );
+		if (CheckLockOn(mon, forw))
 			return mon;
 		
 		let i = invoker;
@@ -85,7 +85,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			Actor mo = Event.Monsters.Actors[i];
 			bool check = false;
 			double cone = 0.0;
-			[check, cone] = CheckLockOn(mo);
+			[check, cone] = CheckLockOn(mo, forw);
 			if (!check)
 				continue;
 			
@@ -360,11 +360,6 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			
 	ResumeFlashSequenceIdle:
 		#### A 6;
-		/*
-		"####" A 2 ;
-		"####" AA 1; //A_SetPitch(pitch+0.8)
-		"####" AA 1 ;//A_SetPitch(pitch+0.8)
-		*/
 			Flash_StartPreparingReloadSprites:	//all "Start preparing" are to assign what sprite to display in the "####" instances
 				RLNR A 0
 				{
@@ -620,30 +615,30 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	Reload:
 		"####" "#" 0 
 		{
-			if(CountInv("RocketLauncherMod1")>=1) //if has Detonate
+			if (CountInv("RocketLauncherMod1")) //if has Detonate
 			{
-				if(CountInv("LockOnActive")>=1) //but LockOn was active
+				if (CountInv("LockOnActive")) //but LockOn was active
 				{
 					return ResolveState("FromLockOnToDetonate");
 				}
-				else if(CountInv("DetonateActive")==0)
+				else if (!CountInv("DetonateActive"))
 				{
 					return ResolveState("FromNormalToDetonate"); //but if it didnt have LockOn active, then it was in "normal"
 				}
 			}
-			if(CountInv("RocketLauncherMod2")>=1) //if it has LockOn
+			if (CountInv("RocketLauncherMod2")) //if it has LockOn
 			{
-				if(CountInv("DetonateActive")>=1) //but Detonate was active
+				if (CountInv("DetonateActive")) //but Detonate was active
 				{
 					return ResolveState("FromDetonateToLockOn");
 				}
-				else if(CountInv("LockOnActive")==0)	//if nothing was active,
+				else if (!CountInv("LockOnActive"))	//if nothing was active,
 				{
 					return ResolveState("FromNormalToLockOn"); //then it was in "normal" SG
 				}
 			}
 			else
-			{
+			{	// I should really remove these soon...
 				ACS_NamedExecute("NoModsAvailable",0,0,0,0);
 			}
 			return ResolveState(null);
@@ -826,7 +821,7 @@ Class D4Rocket : D4AbstractMissilePlayer
 		+NODAMAGETHRUST
 		Speed 21;
 		Radius 6;
-		Height 12;
+		Height 6;
 		Scale 0.6;
 		Damage 30;
 		DeathSound "Doom4/Weapon/RocketLauncher/HRExplo";
@@ -873,22 +868,12 @@ Class D4RocketSeeker : D4Rocket
 	const Turn = 0.2;
 	Default 
 	{
-		Projectile;
 		+SEEKERMISSILE
-		+FORCERADIUSDMG
-		+EXTREMEDEATH
-		Speed 21;
-		Radius 6;
-		Height 12;
-		Scale 0.6;
-		Damage 30;
-		DeathSound "Doom4/Weapon/RocketLauncher/HRExplo";
-		Decal "D4ExploScorch";
 	}
 	
 	override void SpawnRocketFX()
 	{
-		SeekAng(20);
+		SeekAng(20); // See ZD4D/Actor.txt for details.
 		Super.SpawnRocketFX();
 	}
 }
@@ -924,7 +909,7 @@ Class D4RocketTrailSmoke : D4DFX 	//centered smoke
 		Loop;
 	}
 }
-
+// These are currently unused. Will be deleted later.
 Class D4RocketTrailFire1 : D4DFX 
 {
 	Default 

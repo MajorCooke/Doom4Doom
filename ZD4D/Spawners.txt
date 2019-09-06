@@ -15,7 +15,11 @@ extend class D4DHandler
 		if (mon)
 		{
 			let defs = GetDefaultByType(mon);
-			if (defs.Replacing)	e.Replacee = defs.Replacing;
+			if (defs.Replacing)	
+			{
+				e.Replacee = defs.Replacing;
+				e.IsFinal = true;
+			}
 		}
 	}
 	
@@ -29,7 +33,7 @@ extend class D4DHandler
 		if (defs.bNOINTERACTION)	return;
 		
 		Name repn = rep.GetClassName();
-				
+		
 		if (rep is 'Inventory')
 		{
 			if (rep is 'Ammo')
@@ -48,7 +52,12 @@ extend class D4DHandler
 					 if (rep == 'Medikit')			e.Replacement = 'D4Medikit';
 				else if (rep == 'Stimpack') 		e.Replacement = 'D4Stimpack';
 				else if (rep == 'HealthBonus')		e.Replacement = 'D4HealthBonus';
-				else if (rep == 'SoulSphere')		e.Replacement = 'D4SoulSphereReplacer';
+				else if (rep == 'SoulSphere')		
+				{
+					if (random[rngg](1, 21) <= 1)	e.Replacement = 'D4ExtraLife';
+					else							e.Replacement = 'D4Regeneration';
+					//e.Replacement = 'D4SoulSphereReplacer';
+				}
 			}
 			else if (rep is 'Armor')
 			{
@@ -74,7 +83,7 @@ extend class D4DHandler
 				{
 					int rng = random[rngg](0,6);
 					
-					if (rng == 0)					e.Replacement = 'D4Chaingun';
+					if (rng <= 1)					e.Replacement = 'D4Chaingun';
 					else if (rng <= 3)				e.Replacement = 'D4AssaultRifle';
 					else							e.Replacement = 'D4Repeater';
 				}
@@ -105,7 +114,13 @@ extend class D4DHandler
 				else if (rep == 'Infrared') 				e.Replacement = 'D4Infrared';
 			}
 			else if (rep == 'Berserk')						e.Replacement = 'D4BerserkSpawner';
-			else if (rep == 'MegaSphere')					e.Replacement = 'D4MegaSphereReplacer';
+			else if (rep == 'MegaSphere')					
+			{
+				int rng = random[rngg](1,8);
+					 if (rng == 1)		e.Replacement = 'D4ExtraLife';
+				else if (rng == 2)		e.Replacement = 'D4DoomDoll';
+				else					e.Replacement = 'D4Megasphere';
+			}
 			// Keys
 			else if (rep is 'DoomKey')
 			{
@@ -126,6 +141,7 @@ extend class D4DHandler
 			
 			if (type < 3 || rng > chance)
 			{
+				// Stealth
 					 if (rep == 'StealthArachnotron')	e.Replacement = 'D4StealthArachnotron';
 				else if (rep == 'StealthArchvile')		e.Replacement = 'D4StealthArchvile';
 				else if (rep == 'StealthBaron')			e.Replacement = 'D4StealthBaronOfHell';
@@ -142,6 +158,8 @@ extend class D4DHandler
 				else if (rep == 'StealthRevenant')		e.Replacement = 'D4StealthRevenant';
 				else if (rep == 'StealthShotgunGuy')	e.Replacement = 'D4StealthShotgunGuy';
 				else if (rep == 'StealthZombieMan')		e.Replacement = 'D4StealthZombieMan';
+				
+				// Regulars
 				else if (rep == 'Arachnotron')			e.Replacement = 'D4Arachnotron';
 				else if (rep == 'Archvile')				e.Replacement = 'D4Archvile';
 				else if (rep == 'BaronOfHell')			e.Replacement = 'D4BaronOfHell';

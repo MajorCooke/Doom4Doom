@@ -96,3 +96,12 @@ Vector2 Next = (VectorAngle(Calc.X, Calc.Y), -VectorAngle(Calc.XY.Length(), Calc
 Aiming.Angle = Next.X;
 Aiming.Pitch = Next.Y;
 
+================================================================================
+Rotate Vector
+================================================================================
+static ui Vector2 RotateVector(Vector2 self, double angle, Vector2 rPoint)
+{
+	self -= rPoint;
+	return (self.x * cos(angle) - self.y * sin(angle),
+			self.x * sin(angle) + self.y * cos(angle)) + rPoint;
+}

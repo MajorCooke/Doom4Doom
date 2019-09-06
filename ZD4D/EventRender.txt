@@ -1,0 +1,199 @@
+// EventRender
+// Houses most of the rendering components that aren't centralized on MC_Utility
+// itself. Specifically, things like the radial damage indicator.
+
+extend Class D4DHandler
+{
+	private D4VisualDamageManager ArrowManager;
+	private ui void RenderDamageIndicators(RenderEvent e)
+	{
+		if (ArrowManager)
+			ArrowManager.Render(e);
+	}
+	
+	private void TickDamageIndicators()
+	{
+		if (ArrowManager)
+			ArrowManager.Tick();
+	}
+	
+	private void AddDamageIndicator(WorldEvent e)
+	{
+		if (ArrowManager)
+		{
+		//	Console.Printf("Adding indicator...");
+			ArrowManager.AddIndicator(e.DamageSource, e.Inflictor, e.Thing, e.Damage);
+		}
+	}
+}
+
+Class D4VisualDamageManager play
+{
+	private Array<D4DamageIndicator> Arrows;
+	
+	static D4VisualDamageManager Create()
+	{
+		let vdm = new('D4VisualDamageManager');
+		vdm.Init();
+		return vdm;
+	}
+	
+	protected void Init()
+	{
+		Arrows.Clear();
+	}
+	
+	void AddIndicator(Actor src, Actor inf, Actor plr, int damage)
+	{
+		if ((!src && !inf) || !plr || src == plr)
+			return;
+		
+		for (int i = 0; i < Arrows.Size(); i++)
+		{
+			if (Arrows[i] && Arrows[i].src == src)
+			{
+				Arrows[i].ResetTimer(damage);
+			//	Console.Printf("Updated arrow.");
+				return;
+			}
+		}
+		
+		let arrow = new('D4DamageIndicator');
+		arrow.src = src;
+		arrow.inf = inf;
+		if (src)	arrow.srcpos = src.pos;
+		if (inf)	arrow.infpos = inf.pos;
+		arrow.plr = plr;
+		arrow.tex = TexMan.CheckForTexture(D4DamageIndicator.texname,TexMan.Type_Any);
+		arrow.Timer = 35 * 3;
+		arrow.Alpha = 1.0;
+		arrow.Init();
+		Arrows.Push(arrow);
+	}
+	
+	void Tick()
+	{
+		if (Arrows.Size() < 1)	return;
+		
+		int size = Arrows.Size();
+		for (int i = 0; i < size; i++)
+		{
+			if (Arrows[i])
+				Arrows[i].Tick();
+		}
+	}
+	
+	ui void Render(RenderEvent e)
+	{
+		if (Arrows.Size() < 1)	return;
+		
+		int size = Arrows.Size();
+		for (int i = 0; i < size; i++)
+		{
+			if (Arrows[i])
+				Arrows[i].Render(e);
+		}
+	}
+}
+
+Class D4DamageIndicator play
+{
+	const texname = "Graphics/HUD/DmgDir2.png";
+	Actor inf, src, plr;
+	Vector3 infpos, srcpos;
+	TextureID tex;
+	double Alpha, ATime;
+	int Timer;
+	
+	private bool hadsrc, hadinf;
+	private Vector2 siz;
+	private Shape2D flat;
+	private Shape2DTransform trans;
+	
+	void Init()
+	{
+		hadsrc = src != null;
+		hadinf = inf != null;
+		flat = new("Shape2D");
+		
+		// simple coords
+		flat.PushCoord((0,0));	// 0
+		flat.PushCoord((1,0));	// 1
+		flat.PushCoord((0,1));	// 2
+		flat.PushCoord((1,1));	// 3
+		
+		// PushTriangle takes INDEXES of coords pushed to it in order from
+		// first to last, as numbered above.
+		flat.PushTriangle(0,2,1); // (0,0) (0,1) (1,0)
+		flat.PushTriangle(2,3,1); // (0,1) (1,1) (1,0)
+		siz = TexMan.GetScaledSize(tex);
+		
+		// Create the vertices and push them into the array.
+		Vector2 vertices[4];
+		vertices[0] = (-siz.x,-siz.y);
+		vertices[1] = ( siz.x,-siz.y);
+		vertices[2] = (-siz.x, siz.y);
+		vertices[3] = ( siz.x, siz.y);
+		
+		flat.Clear(Shape2D.C_Verts);
+		for ( int i=0; i<4; i++ ) flat.PushVertex(vertices[i]);
+		
+		trans = new('Shape2DTransform');
+	}
+	
+	void ResetTimer(int damage)
+	{
+		Timer = 35 * 3;
+	}
+	
+	void Tick()
+	{
+		if (--Timer < 0 || !plr)
+		{
+		//	Console.Printf("Destroyed");
+			Destroy();	return;	
+		}
+		if (src)	srcpos = src.pos;
+		if (inf)	infpos = inf.pos;
+		Alpha = Clamp((1.0/35.0) * Timer, 0.0, 1.0);
+		
+	}
+	
+	ui void Render( RenderEvent e )
+	{	
+		if (bDESTROYED || Alpha <= 0.0 || !plr || plr.pos == srcpos || !hadsrc)
+		{
+			/*
+			if (Alpha <= 0.0)
+				Console.Printf("Alpha <= 0.0");
+			else if (!plr)
+				Console.Printf("No plr");
+			else if (plr.pos == srcpos)
+				Console.Printf("pos is src");
+			*/
+			return;
+		}	
+		trans.Clear();
+		
+		// Rotate the damage indicator towards the one responsible.
+		Vector3 diff = level.Vec3Diff(srcpos, plr.pos);
+		double ang = VectorAngle(diff.X, diff.Y);
+		ang = -plr.DeltaAngle(plr.angle, ang);
+
+		Vector2 s = (Screen.GetWidth() / 2, Screen.GetHeight() / 2);
+		
+		double off = -siz.y * 1.0;
+		Vector2 add = (sin(ang) * off, -cos(ang) * off);
+		s += add;
+		
+		Trans.Scale((0.5, 0.5));
+		trans.Rotate(ang + 180.0);
+		trans.Translate(s);
+		
+		
+		flat.SetTransform(trans);
+		
+		// draw the shape
+		Screen.DrawShape(tex,false,flat,DTA_Alpha, Clamp(alpha, 0.0, 1.0));
+	}
+}

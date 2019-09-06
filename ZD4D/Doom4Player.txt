@@ -14,6 +14,21 @@ Class Doom4Player : PlayerPawn
 	const CannonArmY = 23.0;
 	const CannonDestX = 83.0;
 	const CannonDestY = 23.0;
+	
+	static const Class<D4DGrenadeItem> GrenadeSelected[] =
+	{
+		"FlameThrowerPickup",
+		"FragGrenadePickup",
+		"SyphonGrenadePickup",
+		"HoloGrenadePickup",
+		"PersonalPortalPickup",
+		"KineticMinePickup",
+		"TeslaRocketPickup",
+		"ShieldWallPickup",
+		"ThreatSensorPickup",
+		"ThreatScannerPickup"
+	};
+	
 	D4DHandler Event;
 	MCHandler MC;
 	double UVel;
@@ -38,7 +53,7 @@ Class Doom4Player : PlayerPawn
 	int DashTimer;
 	int CountTimer;
 	int CurInputCmds, OldInputCmds;
-	double DashForward, DashSide, DashAngle;
+	double DashForward, DashSide, DashAngle, CurDashSpeed;
 	double UOffsets;
 	bool spawned;
 	Class<Actor> GrenadeToFire;
@@ -68,7 +83,7 @@ Class Doom4Player : PlayerPawn
 		PainChance 255;
 		Gravity 0.8;
 		MaxDropOffHeight 32767;
-		Player.DisplayName "Marine";
+		Player.DisplayName "Doom Slayer";
 		Player.CrouchSprite "PLYC";
 		Player.StartItem "D4Pistol";
 		Player.StartItem "D4DFist";
@@ -76,6 +91,7 @@ Class Doom4Player : PlayerPawn
 		Player.StartItem "TrishotClip", 3;
 		Player.StartItem "D4MultiJump", 2;
 		Player.StartItem "GrenadeCharge", 350;
+		Player.StartItem "FlameThrowerPickup";
 		Player.JumpZ 7.0;
 		
 		Player.ColorRange 112, 127;
@@ -296,8 +312,8 @@ Class Doom4Player : PlayerPawn
 					// Finally, check to make sure our desired angle isn't already
 					// going the speed of stupid - NASCAR style. =B
 					// Particularly, within 22.5 degrees.
-					double NewDashSpeed = FindInventory("PowerSpeed", true) ? DashSpeed * 1.5 : DashSpeed;
-					if (Vel.XY.Length() > NewDashSpeed)
+					CurDashSpeed = FindInventory("PowerSpeed", true) ? DashSpeed * 1.5 : DashSpeed;
+					if (Vel.XY.Length() > CurDashSpeed)
 					{
 						double VelAng = VectorAngle(vel.x, vel.y);
 						DashAngle = Normalize180(DashAngle);
@@ -317,8 +333,8 @@ Class Doom4Player : PlayerPawn
 		M666 AAAAAA 1
 		{
 			double vz = Max(0.0, vel.z);
-			double NewDashSpeed = FindInventory("PowerSpeed", true) ? DashSpeed * 1.5 : DashSpeed;
-			Vel3DFromAngle(NewDashSpeed, DashAngle, 0);
+			CurDashSpeed = FindInventory("PowerSpeed", true) ? DashSpeed * 1.5 : DashSpeed;
+			Vel3DFromAngle(CurDashSpeed, DashAngle, 0);
 			vel.z = vz;
 		}
 		M666 A 1
@@ -329,13 +345,12 @@ Class Doom4Player : PlayerPawn
 			// and not blocked, keep boosting the player in the direction.
 			if (Vel.XY != (0,0) &&
 				!bONMOBJ && !A_CheckFloor("Null") && 
-				!A_CheckBlock("Null",CBF_ABSOLUTEANGLE,AAPTR_DEFAULT,DashSpeed,0,0,DashAngle) &&
+				!A_CheckBlock("Null",CBF_ABSOLUTEANGLE,AAPTR_DEFAULT,CurDashSpeed,0,0,DashAngle) &&
 				!(player.cheats & (CF_FLY|CF_NOCLIP2)))
 			{
 				next = null;
 				double vz = vel.z;
-				double NewDashSpeed = FindInventory("PowerSpeed", true) ? DashSpeed * 1.5 : DashSpeed;
-				Vel3DFromAngle(NewDashSpeed, DashAngle, 0);
+				Vel3DFromAngle(CurDashSpeed, DashAngle, 0);
 				vel.z = vz;
 			}
 			return ResolveState(next);
@@ -363,19 +378,7 @@ Class Doom4Player : PlayerPawn
 			if (GrenChargeCurrent >= MaxAmt)
 			{
 				if (ThrowGrenade)
-				{					
-					static const Class<D4DGrenadeItem> GrenadeSelected[] =
-					{
-						"FragGrenadePickup",
-						"SyphonGrenadePickup",
-						"HoloGrenadePickup",
-						"PersonalPortalPickup",
-						"KineticMinePickup",
-						"TeslaRocketPickup",
-						"ThreatSensorPickup",
-						"ThreatScannerPickup"
-					};
-				
+				{
 					int size = GrenadeSelected.Size();
 					for (int i = 0; i < size; i++)
 					{
@@ -387,6 +390,16 @@ Class Doom4Player : PlayerPawn
 							return ResolveState("DeployCannon");
 						}
 					}
+				
+					A_GiveInventory("FlameThrowerPickup",1);
+					let gren = D4DGrenadeItem(FindInventory("FlameThrowerPickup"));
+					if (gren)	
+					{
+						gren.Selected = true;
+						GrenadeToFire = gren.Grenade;
+						return ResolveState("DeployCannon");
+					}
+					// Shouldn't happen, but just in case.
 					ACS_NamedExecute("GrenadeUnavailPrint",0,4); //print "No grenade available"
 					A_PlaySound("Doom4/Player/Nope",CHAN_AUTO);
 				}
@@ -399,6 +412,26 @@ Class Doom4Player : PlayerPawn
 			return ResolveState(null);
 		}
 		Loop;
+	JustDrop:	// Simply drop in front of the player. 
+		M666 A 1
+		{
+			Vector3 origin = Vec3Angle(radius * 2, angle, 0);
+			if (!level.IsPointInLevel(origin))
+				origin = pos;
+				
+			let gren = Spawn(GrenadeToFire, origin, ALLOW_REPLACE);
+			if (gren)
+			{
+				gren.A_PlaySound("Doom4/Weapon/Grenade/ThrowGren",5);
+				gren.master = self;
+				gren.target = self;
+				gren.angle = angle;
+				
+				let inv = GetDefaultByType("GrenadeCharge");
+				A_TakeInventory("GrenadeCharge", inv.MaxAmount, 0);
+			}
+		}
+		Goto Overlay.UtilityManager;
 	DeployCannon: // Extend the cannon into view.
 		M201 A 1 
 		{
@@ -1407,7 +1440,7 @@ extend class Doom4Player
 			
 			InitPlayer();
 		}
-		A_SetInventory("LifeRedFlash",0);
+		SetInventory("LifeRedFlash",0);
 		//----------------------------------------------------------------------
 		/*
 		if (GetClass() == "Doom4Player")
@@ -1415,6 +1448,7 @@ extend class Doom4Player
 			if (CountInv("D4IdfaTrap")) { A_GiveInventory("IdfaStamp"); A_SetInventory("D4IdfaTrap",0); }
 		}
 		*/
+		
 	}
 	
 	//----------------------------------------------------------------------------
@@ -1445,7 +1479,7 @@ extend class Doom4Player
 			}
 			else if (level.IsJumpingAllowed())
 			{
-				if (player.onground)
+				if (player.onground || pos.z <= floorz)
 				{				
 					// Regular jump
 					if (player.jumpTics == 0)
@@ -1467,7 +1501,7 @@ extend class Doom4Player
 						}
 						if (jumpfac > 0) jumpvelz *= jumpfac;
 
-						Vel.Z += jumpvelz + CountInv("D4HigherJump");
+						Vel.Z += jumpvelz + (CountInv("D4HigherJump") * 2);
 						bOnMobj = false;
 						player.jumpTics = -1;
 						if (!(player.cheats & CF_PREDICTING)) 
@@ -1483,7 +1517,7 @@ extend class Doom4Player
 				{
 					if (Vel.Z < 0.0)	Vel.Z = 0.0;
 						
-					Vel.Z += (8.2 + CountInv("D4HigherJump"));
+					Vel.Z += 8.2 + (CountInv("D4HigherJump") * 2);
 					UjumpsDone++;
 					A_PlaySound("Doom4/Player/DoubleJump");
 				}

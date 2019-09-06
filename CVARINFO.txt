@@ -66,11 +66,10 @@ server bool D4D_ResCyberdemon = false;
 server bool D4D_ResSpiderMastermind = false;
 
 // Debug stuff, mainly was used for hud positioning.
-server int LOfx = 0;
-server int LOfy = 0;
-server int ROfx = 0;
-server int ROfy = 0;
-
+server noarchive int LOfx = 0;
+server noarchive int LOfy = 0;
+server noarchive int ROfx = 0;
+server noarchive int ROfy = 0;
 
 // The Zombie Killer's Footsteps
 server float fs_volume_mul = 1.4;

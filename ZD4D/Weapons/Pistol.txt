@@ -51,7 +51,11 @@ Class D4Pistol : Doom4Weapon
 		WPPK B -1;
 		Stop;
 	Deselect:
-		WEP1 A 0 A_Overlay(GunWatcher,"Null");
+		WEP1 A 0 
+		{
+			A_StopSound(5);
+			A_Overlay(GunWatcher,"Null");
+		}
 	DesLoop:
 		WEP1 A 1 A_Lower;
 		WEP1 A 0 A_Lower(WeaponSwitchSpeed);
@@ -223,6 +227,7 @@ Class D4Pistol : Doom4Weapon
 	ReleaseCharge:
 		"####" A 0
 		{
+			A_StopSound(5);
 		    if (CountInv("PistolLanceReadyToken"))		{	return ResolveState("ReleaseLance"); }
 			int count = CountInv("PistolAltFireCounter");
 			int dmg = 6;
@@ -260,7 +265,6 @@ Class D4Pistol : Doom4Weapon
 				A_PlaySound("Doom4/Weapon/Pistol/ChargedFire",CHAN_WEAPON,1);
 			}
 			A_AlertMonsters();
-			
 			A_TakeInventory("PistolAltFireCounter",200);
 			A_TakeInventory("PistolLanceCounter",200);
 			A_StopSound(5);

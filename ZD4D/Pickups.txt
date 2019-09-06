@@ -182,11 +182,6 @@ Class D4ArmorBasePickup : CustomInventory
 			if (inv.Amount < Cap)
 			{
 				double SkillFactor = 1.0;
-				if (!invoker.bIgnoreSkill)
-				{
-						 if (skill == 3) SkillFactor = 0.75;
-					else if (skill >= 4) SkillFactor = 0.5;
-				}
 				inv.Amount = Min(inv.Amount + int((invoker.SaveAmount * Max(1,invoker.Amount)) * SkillFactor), Cap);
 				invoker.Amount = 1;
 				if (inv.ArmorType == 'None')	inv.ArmorType = "D4ArmorPickup";

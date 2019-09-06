@@ -1,6 +1,7 @@
 #include "ZD4D/Spawners.txt"
 #include "ZD4D/EventMisc.txt"
 #include "ZD4D/EventItemDrops.txt"
+#include "ZD4D/EventRender.txt"
 
 Class D4bum : D4Zombieman
 {
@@ -74,8 +75,14 @@ Class D4DHandler : EventHandler
 		Timer = TimeTrigger;
 	}
 	
+	override void RenderUnderlay(RenderEvent e)
+	{
+		RenderDamageIndicators(e);
+	}
+	
 	override void WorldTick()
 	{
+		TickDamageIndicators();
 		// Clear the lists every TimeTrigger seconds of null pointers.
 		Timer++;
 		if (Timer >= TimeTrigger)
@@ -99,7 +106,7 @@ Class D4DHandler : EventHandler
 		DemonRunes = AArray.Create();
 		Carrion = AArray.Create();
 		Beams = AArray.Create();
-		
+		ArrowManager = D4VisualDamageManager.Create();
 		
 		LootList = D4LootContainer.Create();
 		//LootList.SetEntry('D4ZombieMan',					
@@ -296,6 +303,37 @@ Class D4DHandler : EventHandler
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
 	
+	override void WorldThingDamaged(WorldEvent e)
+	{
+		if (e.Damage < 1)	return; // Shouldn't ever happen but just in case.
+		Actor damaged =	e.Thing;
+		
+		if (damaged.player)
+		{			
+			Actor	src = e.DamageSource,
+					inf = e.Inflictor;
+			
+			if (!src && !inf)
+				return;
+			
+			AddDamageIndicator(e);
+		}
+		else
+		{
+			let inv = D4FlameTimer(damaged.FindInventory('D4FlameTimer'));
+			
+			// Already accounted for by the damage dealer.
+			if (!inv || e.Inflictor == inv)	return;
+			
+			// Add up the damage dealt.The item will handle it from there and
+			// drop the shard.
+			inv._damage += e.Damage;
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	
 	override void NetworkProcess(ConsoleEvent e)
 	{
 		int num = e.Player;
@@ -303,12 +341,6 @@ Class D4DHandler : EventHandler
 		
 		if (!plr)	
 		{	Console.Printf("No player found");	return;	}
-		
-		if (e.Name == 'ClearFakeCash')
-		{
-			plr.A_SetInventory("D4DCashFake",0);
-			return;
-		}
 		
 		
 		// Blocks execution of certain netevent commands that can and will
@@ -448,10 +480,6 @@ Class D4DHandler : EventHandler
 			}
 		}
 	}
-	
-	//==========================================================================
-	//==========================================================================
-	
 	
 	//==========================================================================
 	//==========================================================================
@@ -670,11 +698,6 @@ Class D4DHandler : EventHandler
 	// The purpose of these is to store the player's items when they die in
 	// death exits, and restore them on the other side.
 	//==========================================================================
-	
-	override void PlayerRespawned(PlayerEvent e)
-	{
-		
-	}
 	
 	int FetchPlayerNumber(Actor mo)
 	{

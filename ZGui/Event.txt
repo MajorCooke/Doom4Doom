@@ -281,13 +281,15 @@ extend class D4DHandler
 				let plr = players[i].mo;
 				if (!plr || plr.health < 1 || plr.FindInventory("PowerMorph", true))
 					return;
-					
+				
+				S_Sound("Konami", 5, 1, ATTN_NONE);
 				plr.A_GiveInventory("ModuleGiver");
 				plr.A_Log("Blissfully Ecstatic Upgrades Added", true);
 			}
 		}
 		else
 		{
+			S_Sound("Konami", 5, 1, ATTN_NONE);
 			Console.Printf("Clever!");
 		}
 	}

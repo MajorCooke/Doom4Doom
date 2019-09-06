@@ -5,8 +5,7 @@
 //	Sprites by Neccronixis (Hellshot from DOOM)
 //	Sounds from Battlezone (1 & 2) by Activision
 
-//	No, this weapon has absolutely nothing to do with the Hellshot because
-//	almost all the MP weapons are lame.
+//	No, this weapon has absolutely nothing to do with the Hellshot.
 //==============================================================================
 //==============================================================================
 
@@ -894,6 +893,26 @@ Class CarrionPrimary : FastProjectile
 		MissileType "CarrionPrimaryTrailSpawner";
 		MissileHeight 8;
 	}
+	
+	void ThrustActor(Actor mo, int dmg)
+	{
+		if (!mo || mo.bDONTTHRUST || mo.health < 1 || mo.Mass < 1 || dmg < 1)
+			return;
+			
+		double thrust = double(dmg) * 0.5 / mo.Mass;
+		//if (thrust < 0.01)	return;
+		
+		A_Face(mo, 0, 0, 0, 0, FAF_MIDDLE);
+		
+		double cospitch = cos(pitch);
+		Vector3 apply =	(
+			thrust * cospitch * cos(angle),
+			thrust * cospitch * sin(angle),
+			thrust * -sin(pitch));
+		
+		mo.Vel += apply;
+	}
+	
 	States
 	{
 	Spawn:
@@ -932,9 +951,9 @@ Class CarrionPrimary : FastProjectile
 				bBOUNCEONCEILINGS = true;
 				bTHRUACTORS = false;
 			}
-			
-			A_SeekerMissile(90,90,SMF_LOOK|SMF_PRECISE,256);
 			A_FaceTracer(0,0);
+			A_SeekerMissile(90,90,SMF_LOOK|SMF_PRECISE,256);
+			
 			// Seeker missiles set those they're after as tracer.
 			// If the enemy dies before it can make contact, unsolidify itself
 			// so it passes through non-shootable materials.
@@ -952,7 +971,7 @@ Class CarrionPrimary : FastProjectile
 			let trac = tracer;
 			if (targ && trac && targ.health > 0 && trac.health > 0)
 			{
-				if (targ.CountInv("CarrionUpgradeStun") && charge % 7 == 0)
+				if (targ.CountInv("CarrionUpgradeStun") && charge % 6 == 0)
 				{	
 					bCausePain = true;
 					bForcePain = true;
@@ -968,13 +987,13 @@ Class CarrionPrimary : FastProjectile
 				if (charge < MaxTime &&
 					targ.CountInv("CarrionShotOut") &&
 					//(GetPlayerInput(MODINPUT_BUTTONS,TargetPtr) & (BT_ATTACK)) &&
-					trac.health > 0 && trac.bShootable)
+					trac.health > 0)
 				{
 					cut = CountInv("CarrionUpgradeAmmo",TargetPtr) ? 2 : 1;
 					
 					bool infammo = GetCVar("sv_infiniteammo");
 					if (!infammo)
-						infammo = (targ.FindInventory("PowerInfiniteAmmo",true) != null);
+						infammo = (targ.FindInventory("PowerInfiniteAmmo",true));
 					
 					if (infammo || CountInv("D4Carrion",TargetPtr) >= CarrionAmmoCostPrimary / cut)
 					{
@@ -986,12 +1005,18 @@ Class CarrionPrimary : FastProjectile
 							A_PlaySound("Doom4/Monsters/ArgentCharge",CHAN_AUTO,1,0,ATTN_NONE);
 						}
 						A_SetRoll(roll + (360.0/14.0) * neg,SPF_INTERPOLATE);
-						A_SetScale(sizex + (sin(USin) * SizeMul), sizey + (sin(USin) * SizeMul));
-						USin += (90.0/70.0);
+						
+						
 						A_Warp(TracerPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",0.5);
-						charge += 1;
-						targ.A_GiveInventory("CarrionTick",1);
-						targ.A_TakeInventory("D4Carrion",CarrionAmmoCostPrimary / cut,TIF_NOTAKEINFINITE);
+						if (trac.bSHOOTABLE)
+						{
+							USin += (90.0/70.0);
+							A_SetScale(sizex + (sin(USin) * SizeMul), sizey + (sin(USin) * SizeMul));
+							int dspeed = (targ.FindInventory("PowerDoubleFiringSpeed", true) != null) ? 2 : 1;
+							charge += 1 * dspeed;
+							targ.A_GiveInventory("CarrionTick",1);
+							targ.A_TakeInventory("D4Carrion",(CarrionAmmoCostPrimary * dspeed) / cut,TIF_NOTAKEINFINITE);
+						}
 						return ResolveState(null);
 					}
 				}
@@ -1008,21 +1033,49 @@ Class CarrionPrimary : FastProjectile
 				A_GiveInventory("CarrionTick",charge,TargetPtr);
 				A_GiveInventory("CarrionShootSound",1,TargetPtr);
 				A_GiveInventory("KillLaser");
-				if (charge <= (70/3))
-				{	A_PlaySound("CarrionCannon/ExplosionSmall",CHAN_AUTO);	}
-				else if (charge <= (70/3)*2)
-				{	A_PlaySound("CarrionCannon/ExplosionMedium",CHAN_AUTO);	}
-				else
-				{	A_PlaySound("CarrionCannon/ExplosionBig",CHAN_AUTO);	}
+				
+				Sound 							explosnd = "CarrionCannon/ExplosionBig";
+				if (charge <= (70/3))			explosnd = "CarrionCannon/ExplosionSmall";
+				else if (charge <= (70/3)*2)	explosnd = "CarrionCannon/ExplosionMedium";
+					
+				A_PlaySound(explosnd, CHAN_AUTO);
 				A_SpawnItemEx("CarrionShockwave",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
 				dmg = charge * (MaxDamage / 70.0);
 				
-				// Thrust away from the player.
+				// Thrust away from the player by setting up.
+				double ta = angle, tp = pitch;
 				A_FaceTarget(0,0,0,0,FAF_MIDDLE);
-				A_Warp(DefPtr,cos(pitch),0,-sin(pitch),0,WARPF_NOCHECKPOSITION);
+				Warp(tracer, cos(pitch), 0, -sin(pitch), 0, WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE, 0.5);
 				
 				// Then explode.
-				A_Explode(int(dmg), 128 + (2 * charge),0,0,128 + (2 * charge));
+				int idmg = int(dmg);
+				int radbase = 128;
+				int fullrad = radbase + charge;
+				int rad = radbase + (2 * charge);
+				int dmgflags = DMG_EXPLOSION|DMG_THRUSTLESS; //Emulating A_Explode, count as such.
+				let MCEvent = MCHandler.Fetch();
+				if (MCEvent)
+				{
+					ThrustActor(tracer, dmg);
+					tracer.DamageMobj(self, target, idmg, 'Normal', dmgflags);
+					
+					for (int i = 0; i < MCEvent.Monsters.Size(); i++)
+					{
+						Actor mo = MCEvent.Monsters.Actors[i];
+						if (!mo || mo.health < 1 || mo == target || 
+							!CheckSight(mo, SF_IGNOREWATERBOUNDARY|SF_IGNOREVISIBILITY))
+							continue;
+						
+						int ddmg = GetRadiusDamage(mo, idmg, rad, fullrad);
+						if (ddmg < 1)	continue;
+						
+						ThrustActor(mo, ddmg);
+						mo.DamageMobj(self, target, ddmg, 'Normal', dmgflags);
+					}
+				}
+				else	A_Explode(idmg,rad,0,0,fullrad);
+				
+				angle = ta; pitch = tp;
 				A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				
 				if (charge >= 50)

@@ -421,7 +421,7 @@ Class PlayerCyberdemonRocket : D4Rocket
 	Death:
 		TNT1 A 0 
 		{
-			DestroyFX();
+			bINVISIBLE = true;
 			bNOINTERACTION = true;
 			A_Explode(192,256,0);
 			A_QuakeEx(2,2,2,15,0,384,"",QF_SCALEDOWN, falloff: 1);
@@ -432,7 +432,7 @@ Class PlayerCyberdemonRocket : D4Rocket
 			}
 			A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 		}
-		TNT1 A 50;
+		TNT1 A 35;
 		Stop;
 	}
 }

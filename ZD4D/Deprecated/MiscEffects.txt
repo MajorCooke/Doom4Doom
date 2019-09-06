@@ -1,0 +1,52 @@
+/* Left for old reference if anyone wants to continue using it.
+Class D4RocketExplosion : D4DFX
+{
+	
+	Default 
+	{
+		D4DFX.RandomRoll true;
+		+FORCEXYBILLBOARD
+		+ROLLSPRITE
+		+INVISIBLE
+		+BRIGHT
+		Scale 0.4;
+	}
+	States
+	{	
+		X126 AA 1 NoDelay Light("YellowBigPoint3"); A_SetScale(Scale.X+0.07); //NoDelay SpawnExplosionFire(); //A_SetScale(Scale.X+0.07);
+		X126 BB 1 Light("YellowBigPoint3") A_SetScale(Scale.X+0.07);
+		X126 CC 1 Light("YellowMediumPoint1") A_SetScale(Scale.X+0.07);
+		X126 DD 1 Light("YellowMediumPoint1")A_SetScale(Scale.X+0.07);
+		X126 E 2 Light("YellowMediumPoint2") A_SetScale(Scale.X+0.03);
+		X126 F 2 Light("YellowMediumPoint3") A_SetScale(Scale.X+0.03);
+		X126 G 2 Light("YellowSmallPoint1") A_SetScale(Scale.X+0.03);
+		X126 H 2 Light("YellowSmallPoint2") A_SetScale(Scale.X+0.03);
+		X126 I 2 Light("YellowSmallPoint3") A_SetScale(Scale.X+0.03);
+		X126 JKLMNOPQ 2 A_SetScale(Scale.X+0.03);
+		X126 R 1
+		{
+			A_FadeOut(0.07);
+			A_SetScale(Scale.X+0.03);
+		}
+		Wait;
+		
+	}
+}
+
+Class D4RocketExplosionNoGL : D4RocketExplosion 
+{
+	States
+	{
+	Spawn:
+		X126 AA 1 NoDelay A_SetScale(Scale.X+0.07);
+		X126 BBCCDD 1 A_SetScale(Scale.X+0.07);
+		X126 EFGHIJKLMNOPQ 2 A_SetScale(Scale.X+0.03);
+		X126 R 1 
+		{
+			A_FadeOut(0.07);
+			A_SetScale(Scale.X+0.03);
+		}
+		Wait;
+	}
+}
+*/
