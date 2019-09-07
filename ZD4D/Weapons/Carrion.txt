@@ -711,8 +711,12 @@ Class CarrionFlameFast : Actor
 	const ScaleDown = 0.975;
 	const VelUpMin = 0.1;
 	const VelUpMax = 0.3;
+	
+	bool MoveSelf;
+	Property MoveSelf: MoveSelf;
 	Default 
 	{
+		CarrionFlameFast.MoveSelf true;
 		+NOINTERACTION
 		+NOTONAUTOMAP
 		+BRIGHT
@@ -720,6 +724,13 @@ Class CarrionFlameFast : Actor
 		Translation "0:255=%[0,0,0]:[2.0, 0.75, 0]";
 		Scale 0.45;
 	}
+	
+	void MoveAbout()
+	{
+		if (MoveSelf)
+			A_ChangeVelocity(vel.x * ScaleDown, vel.y * ScaleDown, vel.z + frandom(VelUpMin,VelUpMax),CVF_REPLACE);
+	}
+	
 	States
 	{
 	Spawn:
@@ -729,27 +740,31 @@ Class CarrionFlameFast : Actor
 			return A_Jump(256,"S1","S2","S3","S4","S5");
 		}
 	S1:
-		X052 ABCDEFGHIJKLMNOPQRS 1
-		{	A_ChangeVelocity(vel.x * ScaleDown, vel.y * ScaleDown, vel.z + frandom(VelUpMin,VelUpMax),CVF_REPLACE);	}
+		X052 ABCDEFGHIJKLMNOPQRS 1 MoveAbout();
 		Stop;
 	S2:
-		X053 ABCDEFGHIJKLMNOPQRSTU 1
-		{	A_ChangeVelocity(vel.x * ScaleDown, vel.y * ScaleDown, vel.z + frandom(VelUpMin,VelUpMax),CVF_REPLACE);	}
+		X053 ABCDEFGHIJKLMNOPQRSTU 1 MoveAbout();
 		Stop;
 	S3:
-		X054 ABCDEFGHIJKLMNOPQRS 1
-		{	A_ChangeVelocity(vel.x * ScaleDown, vel.y * ScaleDown, vel.z + frandom(VelUpMin,VelUpMax),CVF_REPLACE);	}
+		X054 ABCDEFGHIJKLMNOPQRS 1 MoveAbout();
 		Stop;
 	S4:
-		X055 ABCDEFGHIJKLMNOPQRS 1
-		{	A_ChangeVelocity(vel.x * ScaleDown, vel.y * ScaleDown, vel.z + frandom(VelUpMin,VelUpMax),CVF_REPLACE);	}
+		X055 ABCDEFGHIJKLMNOPQRS 1 MoveAbout();
 		Stop;
 	S5:
-		X056 ABCDEFGHIJKLMNOPQR 1 bright
-		{	A_ChangeVelocity(vel.x * ScaleDown, vel.y * ScaleDown, vel.z + frandom(VelUpMin,VelUpMax),CVF_REPLACE);	}
+		X056 ABCDEFGHIJKLMNOPQR 1 MoveAbout();
 		Stop;
 	}
 }
+
+Class CarrionFlameFastNoMove : CarrionFlameFast
+{
+	Default
+	{
+		CarrionFlameFast.MoveSelf false;
+	}
+}
+
 Class CarrionBlastBack : Actor 
 {
 	Default 

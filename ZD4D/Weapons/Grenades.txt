@@ -9,11 +9,16 @@
 
 Class D4DGrenadeItem : D4DKeeperItem 
 {
+	
 	Class<D4EquipmentProjectile> Grenade;
 	bool Selected;
 	String IconReady, IconCooldown; 
 	double SX, SY, PX, PY;
 	
+	int Cooldown;
+	int CooldownMax;
+	
+	Property CooldownMax: CooldownMax;
 	Property Grenade: Grenade;
 	Property Icons: IconReady, IconCooldown;
 	Property Scales: SX, SY;
@@ -21,6 +26,7 @@ Class D4DGrenadeItem : D4DKeeperItem
 	
 	Default
 	{
+		D4DGrenadeItem.CooldownMax 350;
 		D4DGrenadeItem.Scales 1, 1;
 	}
 	
@@ -28,6 +34,27 @@ Class D4DGrenadeItem : D4DKeeperItem
 	{
 		Selected = false;
 		Super.DepleteOrDestroy();
+	}
+	
+	override void DoEffect()
+	{
+		Super.DoEffect();
+		if (!Owner)	return;
+		if (Cooldown > 0)
+		{
+			if (--Cooldown == 0)
+			{
+				SetOrigin(Owner.pos, false);
+				A_PlaySound("Doom4/Weapon/Grenade/GrenadeRegen");
+			}
+		}
+	}
+	
+	void SetCooldown(int amt = -1)
+	{
+		if (amt < 0 || amt > CooldownMax)	
+			amt = CooldownMax;
+		cooldown = amt;
 	}
 }
 
@@ -65,11 +92,6 @@ Class D4DUtilityWorld : CustomInventory
 	action void ProcessPickup()
 	{
 		let pick = invoker.Pickup;
-		
-		Class<GrenadeCharge> charge = "GrenadeCharge";
-		let chargedef = GetDefaultByType(charge);
-		if (CountInv(charge) < chargedef.MaxAmount)
-			A_SetInventory(charge, chargedef.MaxAmount);
 		
 		if (!CountInv(pick))
 		{			
@@ -132,28 +154,6 @@ Class HoloGrenadeWorld : D4DUtilityWorld
 		D4DUtilityWorld.SpawnSprite "D4GR", Fr_F;
 		D4DUtilityWorld.Pickup "HoloGrenadePickup";
 		Scale 0.25;
-	}
-}
-
-
-
-//--------------------------------------------------------------
-// Timer for the cooldown
-Class GrenadeCooldown : Inventory
-{
-	Default 
-	{
-		Inventory.MaxAmount 35;
-		Inventory.InterHubAmount 0;
-	}
-}
-
-Class GrenadeCharge : Inventory
-{
-	Default
-	{
-		Inventory.MaxAmount 350;
-		Inventory.InterHubAmount 350;
 	}
 }
 
@@ -1022,11 +1022,14 @@ Class D4FlamePoint : D4EquipmentProjectile
 			
 			// Flaming dopefish belch. Tartarus sauce is spiciest, hands down.
 			int i = 0;
-			int count = random(4,8);
+			int count = random(8,16);
 			for (; i < count; i++)
 			{
 				double p = frandom(-10.0, 10.0);
-				A_SpawnItemEx("CarrionFlameFastSmall", 0, 0, 0, cos(pitch + p) * 10.0, 0, -sin(pitch + p) * 10.0, frandom(-10.0, 10.0), SXF_NOCHECKPOSITION);
+				double dist = frandom(0.0, IgniteRange);
+				A_SpawnItemEx("CarrionFlameFastSmall", 
+					cos(pitch) * dist, frandom(-2.0, 2.0), -sin(pitch) * dist + frandom(-2.0, 2.0), 
+					frandom(-1.0, 1.0), frandom(-1.0, 1.0), 0, 0, SXF_NOCHECKPOSITION);
 			}
 			
 			// Actual ignition code. Once every 4 tics, set fire to any monster
@@ -1124,7 +1127,7 @@ Class D4FlameTimer : Inventory
 			if (chip)
 			{
 				chip.bTHRUACTORS = true;
-				double dmg = double(_damage * 0.01);
+				double dmg = double(_damage / 5.0);
 				chip.SaveAmount = Clamp(int(dmg), 1, 100);
 				chip.bTHRUACTORS = false;
 				chip.VelFromAngle(frandom[a](3,6),random[a](0,359));
@@ -1139,7 +1142,7 @@ Class D4FlameTimer : Inventory
 		for (int i = 0; i < rng; i++)
 		{
 			Actor a; bool b;
-			[b, a] = Owner.A_SpawnItemEx("CarrionFlameFast", 
+			[b, a] = Owner.A_SpawnItemEx("CarrionFlameFastNoMove", 
 				frandom(0.0, Owner.Radius), 0, frandom(1.0, Owner.Height),
 				frandom(1.0, 2.0), 0, frandom(0.0, 1.0), random(0,359), SXF_NOCHECKPOSITION);
 				

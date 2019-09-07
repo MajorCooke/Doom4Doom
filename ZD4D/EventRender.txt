@@ -52,7 +52,7 @@ Class D4VisualDamageManager play
 		{
 			if (Arrows[i] && Arrows[i].src == src)
 			{
-				Arrows[i].ResetTimer(damage);
+				Arrows[i].ResetTimer();
 			//	Console.Printf("Updated arrow.");
 				return;
 			}
@@ -62,11 +62,15 @@ Class D4VisualDamageManager play
 		arrow.src = src;
 		arrow.inf = inf;
 		if (src)	arrow.srcpos = src.pos;
+		else if (inf && inf.bMISSILE && inf.target)
+		{
+			src = inf.target;
+			arrow.srcpos = src.pos;
+		}
 		if (inf)	arrow.infpos = inf.pos;
 		arrow.plr = plr;
 		arrow.tex = TexMan.CheckForTexture(D4DamageIndicator.texname,TexMan.Type_Any);
-		arrow.Timer = 35 * 3;
-		arrow.Alpha = 1.0;
+		arrow.ResetTimer();
 		arrow.Init();
 		Arrows.Push(arrow);
 	}
@@ -85,13 +89,25 @@ Class D4VisualDamageManager play
 	
 	ui void Render(RenderEvent e)
 	{
+		let CDIToggle = Cvar.GetCvar('D4D_DamageIndicators', players[consoleplayer]);
+		if (!CDIToggle || !CDIToggle.GetInt())
+			return;
+	
 		if (Arrows.Size() < 1)	return;
+		PlayerInfo plr = players[consoleplayer];
+		let CDIAlpha = Cvar.GetCvar('D4D_DIAlpha', plr);
+		let CDIScale = Cvar.GetCvar('D4D_DIScale', plr);
+		double Alpha = 1.0, Scale = 0.5;
+		
+		if (CDIAlpha)	Alpha = CDIAlpha.GetFloat();
+		if (CDIScale)	Scale = CDIScale.GetFloat();
 		
 		int size = Arrows.Size();
 		for (int i = 0; i < size; i++)
 		{
-			if (Arrows[i])
-				Arrows[i].Render(e);
+			let arrow = D4DamageIndicator(Arrows[i]);
+			if (arrow && arrow.pinfo == plr)
+				Arrows[i].Render(e, Alpha, Scale);
 		}
 	}
 }
@@ -100,10 +116,11 @@ Class D4DamageIndicator play
 {
 	const texname = "Graphics/HUD/DmgDir2.png";
 	Actor inf, src, plr;
+	PlayerInfo pinfo;
 	Vector3 infpos, srcpos;
 	TextureID tex;
-	double Alpha, ATime;
-	int Timer;
+	private double Alpha, Scale;
+	private int Timer;
 	
 	private bool hadsrc, hadinf;
 	private Vector2 siz;
@@ -114,6 +131,7 @@ Class D4DamageIndicator play
 	{
 		hadsrc = src != null;
 		hadinf = inf != null;
+		pinfo = plr.player;
 		flat = new("Shape2D");
 		
 		// simple coords
@@ -141,9 +159,10 @@ Class D4DamageIndicator play
 		trans = new('Shape2DTransform');
 	}
 	
-	void ResetTimer(int damage)
+	void ResetTimer(int time = -1)
 	{
-		Timer = 35 * 3;
+		if (time < 1)	time = (35 * 3);
+		Timer = time;
 	}
 	
 	void Tick()
@@ -153,26 +172,27 @@ Class D4DamageIndicator play
 		//	Console.Printf("Destroyed");
 			Destroy();	return;	
 		}
+		
+		if (!src && inf && inf.bMISSILE)
+			src = inf.target;
+		
 		if (src)	srcpos = src.pos;
 		if (inf)	infpos = inf.pos;
-		Alpha = Clamp((1.0/35.0) * Timer, 0.0, 1.0);
 		
 	}
-	
-	ui void Render( RenderEvent e )
+	const ThirtyFifth = (1.0 / 35.0);
+	ui void Render( RenderEvent e, double _Alpha, double _Scale)
 	{	
+		// Alpha is already clamped below.
+		double Alpha = (ThirtyFifth * Timer) * _Alpha;
+		double Scale = _Scale;
+		
 		if (bDESTROYED || Alpha <= 0.0 || !plr || plr.pos == srcpos || !hadsrc)
-		{
-			/*
-			if (Alpha <= 0.0)
-				Console.Printf("Alpha <= 0.0");
-			else if (!plr)
-				Console.Printf("No plr");
-			else if (plr.pos == srcpos)
-				Console.Printf("pos is src");
-			*/
 			return;
-		}	
+			
+		
+		
+		// Grab the player preferences.
 		trans.Clear();
 		
 		// Rotate the damage indicator towards the one responsible.
@@ -182,18 +202,19 @@ Class D4DamageIndicator play
 
 		Vector2 s = (Screen.GetWidth() / 2, Screen.GetHeight() / 2);
 		
-		double off = -siz.y * 1.0;
-		Vector2 add = (sin(ang) * off, -cos(ang) * off);
+		double off = (siz.y + (siz.y * Scale)) * 0.75;
+		Vector2 add = (-sin(ang) * off, cos(ang) * off);
 		s += add;
 		
-		Trans.Scale((0.5, 0.5));
+		trans.Scale((1, 1) * Scale);
 		trans.Rotate(ang + 180.0);
 		trans.Translate(s);
 		
-		
 		flat.SetTransform(trans);
 		
+			
 		// draw the shape
-		Screen.DrawShape(tex,false,flat,DTA_Alpha, Clamp(alpha, 0.0, 1.0));
+		Screen.DrawShape(tex,false,flat,DTA_Alpha, Clamp(Alpha, 0.0, 1.0));
+		
 	}
 }

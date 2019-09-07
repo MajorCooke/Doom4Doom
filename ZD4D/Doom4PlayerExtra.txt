@@ -1,3 +1,71 @@
+extend class Doom4Player
+{
+	PlayerInfo GetRealPlayer()
+	{
+		let plr = player;
+		return (plr && plr.mo && plr.mo == self && 
+				!plr.mo.alternative && !plr.mo.FindInventory('PowerMorph',true) &&
+				level.mapname != 'TITLEMAP') ? plr : null;
+	}
+		
+	
+	//==========================================================================
+	//
+	// Equipment stuff
+	//
+	//==========================================================================
+	
+	D4DGrenadeItem GetSelectedGrenade()
+	{
+		for (int i = 0; i < Doom4Player.GrenadeSelected.Size(); i++)
+		{
+			let inv = D4DGrenadeItem(FindInventory(Doom4Player.GrenadeSelected[i]));
+			if (inv && inv.Amount > 0 && inv.Selected)
+				return inv;
+		}
+		return null;
+	}
+	
+	int CheckEquipmentCharge(bool checkready = false)
+	{
+		let gren = GetSelectedGrenade();
+		if (!gren)	return -1;
+		
+		if (checkready)	
+			return (gren.Cooldown < 1) ? 1 : 0;
+		return gren.Cooldown;
+	}
+	
+	// Sets all equipment as unselected, while the desired item becomes selected.
+	bool SelectEquipment(Class<D4DGrenadeItem> item)
+	{
+		if (!item || !CountInv(item))	return false;
+		
+		bool ret;
+		for (let probe = Inv; probe != null; probe = probe.Inv)
+		{
+			let cls = D4DGrenadeItem(probe);
+			if (!cls)	continue;
+			cls.Selected = (cls.GetClass() == item && cls.Amount > 0);
+			ret = (!ret && cls.Selected);
+		}
+		return ret;
+	}
+	
+	bool CheckGrenadeButton(bool cooldown = false)
+	{
+		let plr = GetRealPlayer();
+		//if (plr && (plr.cmd.buttons & BT_USER1) && !(plr.oldbuttons & BT_USER1))
+		if (plr && (CurInputCmds & BT_USER1) && !(OldInputCmds & BT_USER1))
+		{
+			return (cooldown) ? CheckEquipmentCharge(true) : true;
+		}
+		return false;
+	}
+}
+
+
+
 Struct ItemsToSave
 {
 	Array<String> ItemList;

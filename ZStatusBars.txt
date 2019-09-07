@@ -568,23 +568,22 @@ Class Doom4StatusBar : BaseStatusBar
 			if (!CheckWeaponSelected("AkimboWeapon"))
 			{
 				int GrenCharge, GrenChargeMax;
-				String GrenadeImageBar = (GrenCharge < GrenChargeMax) ? "KEYSLOT0" : "KEYSLOT1";
-				
-				[GrenCharge, GrenChargeMax] = GetAmount("GrenadeCharge");
 				
 				for (int i = 0; i < Doom4Player.GrenadeSelected.Size(); i++)
 				{
 					let gren = D4DGrenadeItem(CPlayer.mo.FindInventory(Doom4Player.GrenadeSelected[i]));
 					if (gren && gren.Selected)
 					{
-						DrawImage((GrenCharge < GrenChargeMax) ? gren.IconCooldown : gren.IconReady, (gren.PX, gren.PY) + AmmoOffset, imageAlignmentLeft, 1.0, (-1,-1), (gren.SX, gren.SY));
+						GrenChargeMax = gren.CooldownMax;
+						GrenCharge = gren.Cooldown;
+						DrawImage((GrenCharge > 0) ? gren.IconCooldown : gren.IconReady, (gren.PX, gren.PY) + AmmoOffset, imageAlignmentLeft, 1.0, (-1,-1), (gren.SX, gren.SY));
 						break;
 					}
 				}
 				// Recharging
-				if (GrenCharge < GrenChargeMax)
-					DrawBar("KEYSLOTR", "KEYSLOT0", GrenChargeMax - GrenCharge, GrenChargeMax,	(825, 680) + AmmoOffset, 0, SHADER_VERT|SHADER_REVERSE, imageAlignmentLeft);
-				DrawImage((GrenCharge < GrenChargeMax) ? "KEYSLOT0" : "KEYSLOT1", 				(825, 680) + AmmoOffset, imageAlignmentLeft);
+				if (GrenCharge > 0)			
+					DrawBar("KEYSLOTR", "KEYSLOT0", GrenCharge, GrenChargeMax,	(825, 680) + AmmoOffset, 0, SHADER_VERT|SHADER_REVERSE, imageAlignmentLeft);
+				DrawImage((GrenCharge > 0) ? "KEYSLOT0" : "KEYSLOT1", 			(825, 680) + AmmoOffset, imageAlignmentLeft);
 			}
 			//======================================================================
 			// Ammo Pane + Chainsaw + BFG Ammo Counters

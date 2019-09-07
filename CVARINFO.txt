@@ -3,6 +3,10 @@ user bool D4D_BloodScreen = true;
 user bool D4D_DTMode = false;
 user bool D4D_DrawPinataBorders = true;
 
+user bool D4D_DamageIndicators = true;
+user float D4D_DIScale = 0.5;
+user float D4D_DIAlpha = 1.0;
+
 server noarchive bool D4D_NetEventDebug = false;
 server noarchive int D4D_PrintDebug = 0;
 
