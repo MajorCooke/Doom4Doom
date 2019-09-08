@@ -1127,6 +1127,12 @@ extend class Doom4Player
 		
 		DamageScreenEffects(finaldamage, ArmorBefore, ArmorAfter);
 		
+		if ((source || inflictor) && finaldamage < 1 && abs(ArmorBefore - ArmorAfter) > 0)
+		{
+			if (!Event)	Event = D4DHandler.Fetch();
+			Event.AddDamageIndicator(source, inflictor, self, finaldamage);
+		}
+		
 		return finaldamage;
 	}
 	
@@ -1154,7 +1160,6 @@ extend class Doom4Player
 			Cvar CV = Cvar.GetCvar('D4D_BloodScreen', player);
 			if (CV && CV.GetBool())
 				ACS_NamedExecuteAlways("Blood",0, int(damage / DamageDegree),0,0);
-			
 		}
 		else if (ArmorBefore > ArmorAfter)
 		{
@@ -1347,8 +1352,8 @@ extend class Doom4Player
 			OldInputCmds = 0;
 			return;
 		}
+		OldInputCmds = CurInputCmds;
 		CurInputCmds = GetPlayerInput(MODINPUT_BUTTONS);
-		OldInputCmds = GetPlayerInput(MODINPUT_OLDBUTTONS);
 		//======================================================================
 		// Case sensitivity is important here for the shader strings, i.e. "damageFactor"
 		if (effectSize > 0) 
@@ -1400,7 +1405,7 @@ extend class Doom4Player
 	{
 		let player = self.player;
 		// [RH] check for jump
-		if (player.cmd.buttons & BT_JUMP)
+		if (CurInputCmds & BT_JUMP)
 		{
 			if (player.crouchoffset != 0)
 			{

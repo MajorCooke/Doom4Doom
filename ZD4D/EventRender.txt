@@ -17,12 +17,17 @@ extend Class D4DHandler
 			ArrowManager.Tick();
 	}
 	
-	private void AddDamageIndicator(WorldEvent e)
+	private void AddEventDamageIndicator(WorldEvent e)
+	{
+		if (ArrowManager)
+			ArrowManager.AddIndicator(e.DamageSource, e.Inflictor, e.Thing, e.Damage);
+	}
+	
+	void AddDamageIndicator(Actor src, Actor inf, Actor plr, int damage)
 	{
 		if (ArrowManager)
 		{
-		//	Console.Printf("Adding indicator...");
-			ArrowManager.AddIndicator(e.DamageSource, e.Inflictor, e.Thing, e.Damage);
+			ArrowManager.AddIndicator(src, inf, plr, damage);
 		}
 	}
 }
@@ -43,7 +48,7 @@ Class D4VisualDamageManager play
 		Arrows.Clear();
 	}
 	
-	void AddIndicator(Actor src, Actor inf, Actor plr, int damage)
+	void AddIndicator(Actor src, Actor inf, Actor plr, int damage = 0)
 	{
 		if ((!src && !inf) || !plr || src == plr)
 			return;
@@ -62,9 +67,10 @@ Class D4VisualDamageManager play
 		arrow.src = src;
 		arrow.inf = inf;
 		if (src)	arrow.srcpos = src.pos;
-		else if (inf && inf.bMISSILE && inf.target)
+		else if ((inf && inf.bMISSILE && inf.target) || inf)
 		{
-			src = inf.target;
+			
+			src = (inf.target) ? inf.target : inf;
 			arrow.srcpos = src.pos;
 		}
 		if (inf)	arrow.infpos = inf.pos;
@@ -189,8 +195,6 @@ Class D4DamageIndicator play
 		
 		if (bDESTROYED || Alpha <= 0.0 || !plr || plr.pos == srcpos || !hadsrc)
 			return;
-			
-		
 		
 		// Grab the player preferences.
 		trans.Clear();

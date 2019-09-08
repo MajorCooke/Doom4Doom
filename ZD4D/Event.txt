@@ -44,6 +44,7 @@ Class D4DHandler : EventHandler
 	const TimeTrigger = Second * 5;
 	const DefaultDropChance = 200;
 	MCHandler MC;
+	
 
 	enum EObjectIndex
 	{
@@ -305,18 +306,30 @@ Class D4DHandler : EventHandler
 	
 	override void WorldThingDamaged(WorldEvent e)
 	{
-		if (e.Damage < 1)	return; // Shouldn't ever happen but just in case.
 		Actor damaged =	e.Thing;
 		
+		// Unfortunately, fully absorbed damage by armor means this won't trigger.
+		// While I've programmed an exception to be made with Doom4Player + runes,
+		// anyone else as another player class not inheriting from Doom4Player
+		// will not show the indicators, because they would need to program
+		// their own armor differences and call the AddDamageIndicator function
+		// manually.
+		
+		// But because this can work with any player, at least health loss will
+		// show an indicator. Armor loss is handled on Doom4Player directly.
+		// This gives the best of both worlds and at least makes the feature 3/4
+		// complete, but that's the best we can hope for without needing some
+		// manual programming.
+		
 		if (damaged.player)
-		{			
+		{
 			Actor	src = e.DamageSource,
 					inf = e.Inflictor;
 			
 			if (!src && !inf)
 				return;
 			
-			AddDamageIndicator(e);
+			AddEventDamageIndicator(e);
 		}
 		else
 		{
