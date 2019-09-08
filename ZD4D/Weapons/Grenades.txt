@@ -1022,19 +1022,18 @@ Class D4FlamePoint : D4EquipmentProjectile
 			
 			// Flaming dopefish belch. Tartarus sauce is spiciest, hands down.
 			int i = 0;
-			int count = random(8,16);
-			for (; i < count; i++)
+			for (; i < IgniteRange; i += random(4,12))
 			{
 				double p = frandom(-10.0, 10.0);
 				double dist = frandom(0.0, IgniteRange);
 				A_SpawnItemEx("CarrionFlameFastSmall", 
-					cos(pitch) * dist, frandom(-2.0, 2.0), -sin(pitch) * dist + frandom(-2.0, 2.0), 
+					cos(pitch) * i, frandom(-2.0, 2.0), -4.0 - sin(pitch) * i + frandom(-2.0, 2.0), 
 					frandom(-1.0, 1.0), frandom(-1.0, 1.0), 0, 0, SXF_NOCHECKPOSITION);
 			}
 			
-			// Actual ignition code. Once every 4 tics, set fire to any monster
+			// Actual ignition code. Once every X tics, set fire to any monster
 			// in the way of the flames.
-			if (count % 4 == 0)
+			if (count % 2 == 0)
 			{
 				if (!Event)	Event = MCHandler.Fetch();
 				for (int i = 0; i < Event.Monsters.Size(); i++)
@@ -1109,18 +1108,27 @@ Class D4FlameTimer : Inventory
 	override void DoEffect()
 	{
 		Super.DoEffect();
+		
+		// Don't process if the owner or damager is gone.
 		if (bDESTROYED)	return;
 		if (Amount > MaxAmount)	Amount = MaxAmount;
 		if (!Owner || !Damager || --Amount < 1)	{ Destroy(); return; }
 		
-		// Damage every so often
+		// Damage every so often, which will spawn armor shards. The shards give
+		// 20% of the damage taken in a single tic. This prevents overwhelming
+		// shard spam while rewarding the player appropriately. Capped at 100.
+		// Yes, a BFG shot will certainly be rewarding, but only if killed by
+		// the big explosion.
+		
+		// The flames themselves don't do much damage, about 50 in total. 
 		if (Owner.Health > 0 && --tic < 1)
 		{
 			tic = DamageInterval;
-			_damage += Max(0, Owner.DamageMobj(self, Damager, 5, 'Normal', DMG_THRUSTLESS|DMG_NO_PAIN));
+			Owner.DamageMobj(self, Damager, 5, 'Normal', DMG_THRUSTLESS|DMG_NO_PAIN);
+			_damage += 10; // 2 shards instead of 1, to make it more useful.
 		}
 		
-		// Spawn armor shards
+		// Spawn armor shards.
 		if (_damage > 0 && Owner)
 		{
 			let chip = D4PinataArmor(Owner.Spawn('D4PinataArmor', Owner.Pos + (0, 0, Owner.Height * frandom(0.25, 0.75)), ALLOW_REPLACE));
@@ -1144,10 +1152,10 @@ Class D4FlameTimer : Inventory
 			Actor a; bool b;
 			[b, a] = Owner.A_SpawnItemEx("CarrionFlameFastNoMove", 
 				frandom(0.0, Owner.Radius), 0, frandom(1.0, Owner.Height),
-				frandom(1.0, 2.0), 0, frandom(0.0, 1.0), random(0,359), SXF_NOCHECKPOSITION);
+				frandom(0.0, 1.0), 0, frandom(0.0, 1.0), random(0,359), SXF_NOCHECKPOSITION);
 				
 			if (a && b)
-				a.Scale *= 0.35;
+				a.Scale *= 0.40;
 		}
 	}
 }
