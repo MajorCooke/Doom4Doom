@@ -625,7 +625,7 @@ Class D4PinataArmor : D4ArmorBasePickup
 	{
 		D4ArmorBasePickup.SaveAmount 6;
 		D4PinataArmor.Lifetime PinataLifetime;
-		Scale 0.3;
+		Scale 0.4;
 		Radius 8;
 		Height 16;
 		Gravity 0.4;
@@ -712,7 +712,7 @@ Class D4PinataHealth : D4Stimpack
 	{
 		D4PinataHealth.Lifetime PinataLifetime;
 		Inventory.PickUpSound "Doom4/Pickups/Health";
-		Scale 0.3;
+		Scale 0.4;
 		Radius 8;
 		Height 16;
 		Gravity 0.4;
@@ -782,7 +782,7 @@ Class D4PinataBullets : D4Bullets
 	Default 
 	{
 		D4PinataBullets.Lifetime PinataLifetime;
-		Scale 0.3;
+		Scale 0.4;
 		Radius 8;
 		Height 16;
 		Gravity 0.4;
@@ -844,7 +844,7 @@ Class D4PinataBulletsBig : D4PinataBullets
 {
 	Default 
 	{
-		Scale 0.4;
+		Scale 0.5;
 		Inventory.Amount 50;
 		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
 		DistanceCheck "D4D_MaxDrawDistance";
@@ -863,7 +863,7 @@ Class D4PinataShells : D4Shells
 	Default 
 	{
 		D4PinataShells.Lifetime PinataLifetime;
-		Scale 0.3;
+		Scale 0.4;
 		Radius 8;
 		Height 16;
 		Gravity 0.4;
@@ -927,7 +927,7 @@ Class D4PinataShellsBig : D4PinataShells
 {
 	Default 
 	{
-		Scale 0.4;
+		Scale 0.5;
 		Inventory.Amount 8;
 		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
 	}
@@ -947,7 +947,7 @@ Class D4PinataCells : D4Cells
 	Default 
 	{
 		D4PinataCells.Lifetime PinataLifetime;
-		Scale 0.3;
+		Scale 0.4;
 		Radius 8;
 		Height 16;
 		Gravity 0.4;
@@ -1007,7 +1007,7 @@ Class D4PinataCellsBig : D4PinataCells
 {
 	Default 
 	{
-		Scale 0.4;
+		Scale 0.5;
 		Inventory.Amount 40;
 		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
 	}
@@ -1025,7 +1025,7 @@ Class D4PinataRockets : D4Rockets
 	Default 
 	{
 		D4PinataRockets.Lifetime PinataLifetime;
-		Scale 0.3;
+		Scale 0.4;
 		Radius 8;
 		Height 16;
 		Gravity 0.4;
@@ -1086,7 +1086,7 @@ Class D4PinataRocketsBig : D4PinataRockets
 {
 	Default 
 	{
-		Scale 0.4;
+		Scale 0.5;
 		Inventory.Amount 6;
 		Inventory.PickupSound "Doom4/Pickups/AmmoBig";
 	}
@@ -1106,7 +1106,7 @@ Class D4PinataBFG : D4BFGAmmo
 	Default 
 	{
 		D4PinataBFG.Lifetime PinataLifetimeLong;
-		Scale 0.3;
+		Scale 0.4;
 		Radius 8;
 		Height 16;
 		Gravity 0.4;
@@ -1175,7 +1175,7 @@ Class D4PinataBulletsZombieman : D4Bullets	//only dropped by these guys, and the
 	int count;
 	Default 
 	{
-		Scale 0.3;
+		Scale 0.4;
 		Radius 8;
 		Height 16;
 		Inventory.Amount 10;
@@ -1225,7 +1225,7 @@ Class D4PinataShellsShotgunGuy : D4Shells	//only dropped by these guys, and they
 	int count;
 	Default 
 	{
-		Scale 0.3;
+		Scale 0.4;
 		Radius 8;
 		Height 16;
 		Inventory.Amount 8;

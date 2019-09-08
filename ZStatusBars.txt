@@ -712,7 +712,7 @@ Class Doom4StatusBar : BaseStatusBar
 					if (amt >= 52)
 					{
 						String ring = (GetAmountOnly("PistolUpgradeAltDamage")) ? "red52" : "cya52";
-						DrawImage(ring, (465, 337) + AmmoOffset, imageAlignmentLeft);
+						DrawImage(ring, (465, 337), imageAlignmentLeft);
 					}
 					DialName = String.Format("cnt%02d", amt);
 					DrawImage(DialName, (465, 337), imageAlignmentLeft);
