@@ -129,7 +129,7 @@ Class D4DNewBeamBase : Actor
 		double RealPitch = Pitch - 90.0;
 		double Dist = 0;
 		int WarpFlags = WARPF_NOCHECKPOSITION;
-		if (!bDONTINTERPOLATE)	WarpFlags |= WARPF_INTERPOLATE;
+		//if (!bDONTINTERPOLATE)	WarpFlags |= WARPF_INTERPOLATE;
 		if (Parent)
 		{
 			Scale.X = Parent.Scale.X;
@@ -138,8 +138,7 @@ Class D4DNewBeamBase : Actor
 			Translation = Parent.Translation;
 			double PSY = Parent.Scale.Y * 100.0;
 			double pit = Parent.Pitch - 90;
-			
-			Warp(Parent, cos(pit) * PSY, 0, -sin(pit) * PSY, 0, WarpFlags);
+			Warp(Parent, cos(pit) * PSY, 0, -sin(pit) * PSY, 0, WARPF_NOCHECKPOSITION|WARPF_COPYINTERPOLATION);
 		}
 		else
 		{
@@ -150,12 +149,14 @@ Class D4DNewBeamBase : Actor
 				Vector3 x, y, z, origin;
 				[x, y, z] = MC_CoordUtil.GetAxes(target.pitch,target.angle,target.roll);
 				origin = target.Vec2OffsetZ(0,0,target.player.viewz) + OffX * x + OffY * y + OffZ * z;
-				SetOrigin(origin, true);
+				//SetOrigin(origin, true);
+				Warp(Target, origin.x, origin.y, origin.z, 0, WARPF_ABSOLUTEPOSITION|WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
+			//	vel = Target.vel;
 			}
 			else if (Target)
 			{
 			//	origin = target.Vec3Offset(OffX,OffY,OffZ + Target.MissileHeight);
-				Warp(Target, OffX, OffY, OffZ, 0, WARPF_NOCHECKPOSITION);
+				Warp(Target, OffX, OffY, OffZ, 0, WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
 			}
 		}
 		
@@ -242,7 +243,8 @@ Class NewLightningBeamPrimary : D4DNewBeamBase
 {
 	Default
 	{
-		+DONTINTERPOLATE
+	//	+DONTINTERPOLATE
+		D4DNewBeamBase.Offsets 10.0, 4.1, -4.7;
 		D4DNewBeamBase.SpriteName 'X206';
 		D4DNewBeamBase.Frames Fr_F, Fr_M;
 		D4DNewBeamBase.Widths 0.10, 0.10;
