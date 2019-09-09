@@ -558,20 +558,31 @@ Class UpgradePinataFlier : Thinker
 	bool				DestroyMe;			// Destroy on the next tic.
 	bool				NoItem;				// For upgrades.
 	private bool		IsHealth;			// Special treatment required.
+	private bool		IsArmor;
 	private int			OddTic;
 	
 	override void PostBeginPlay()
 	{
 		if (Distance == 0)	Distance = -1;
 		// Strictly enforce conditions for health.
-		if (Item && Item == 'Health')
+		if (Item)
 		{
-			NoUnlimited = IsHealth = true;
-			Condition = null;
-			Conditional = 0;
-			NoItem = false;
-			
+			if (Item == 'Health')
+			{
+				NoUnlimited = IsHealth = true;
+				Condition = null;
+				Conditional = 0;
+				NoItem = false;
+			}
+			else if (Item is 'BasicArmor')
+			{
+				IsArmor = true;
+				NoItem = false;
+				Condition = null;
+				Conditional = 0;
+			}
 		}
+		
 		Super.PostBeginPlay();
 	}
 	
@@ -598,8 +609,14 @@ Class UpgradePinataFlier : Thinker
 				Amt = Target.health;
 				MaxAmt = Target.GetMaxHealth(true);
 			}
-			else	
+			else if (IsArmor)
+			{
+				Amt = 0;
+			}
+			else
+			{
 				Amt = Target.CountInv(Item) + (Condition ? Target.CountInv(Condition) : 0);
+			}
 				
 			if ((NoUnlimited || !sv_unlimited_pickup) && Amt >= MaxAmt)
 				Target = null;
@@ -653,7 +670,7 @@ Class D4PinataArmor : D4ArmorBasePickup
 			{
 				let i = invoker;
 				i.flier.Spawner = invoker;
-				i.flier.Item = "Armor";
+				i.flier.Item = "BasicArmor";
 				if (i.flier.target)
 				{
 					let a = i.flier.target.FindInventory("BasicArmor");

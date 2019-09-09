@@ -1,4 +1,4 @@
-Class NewFog : Actor //replaces TeleportFog
+Class D4Fog : Actor replaces TeleportFog
 {
 	Default
 	{
@@ -12,8 +12,7 @@ Class NewFog : Actor //replaces TeleportFog
 	States
 	{
 	Spawn:
-		TNT1 A 0 ;
-		TNT1 A 0 A_Playsound("Doom4/Other/Teleport");
+		DB04 A 1 NoDelay A_Playsound("Doom4/Other/Teleport");
 		DB04 ABCDEFGHIJ 1 Bright;
 		DB04 KLMNOPQRSTUVWXYZ 2 Bright A_FadeOut(0.03);
 		Stop;
