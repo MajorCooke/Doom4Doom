@@ -302,7 +302,7 @@ Class D4DKnightWeapon : DemonWeaponBase
 		Goto Ready;
 
 	Spawn:
-		SHOT A -1;
+		SHOT A 0;
 		Stop;
 	}
 }	

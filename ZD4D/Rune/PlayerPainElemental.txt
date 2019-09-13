@@ -252,7 +252,7 @@ Class D4DPainElementalWeapon : DemonWeaponBase
 		SHTF B 1 Bright A_Light2();
 		Goto LightDone;
 	Spawn:
-		SHOT A -1;
+		SHOT A 0;
 		Stop;
 	}
 }

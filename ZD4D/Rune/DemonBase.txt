@@ -349,6 +349,13 @@ Class DemonPlayerBase : Doom4Player
 Class DemonWeaponBase : DoomWeapon
 {	
 	Array<D4DNewBeamBase> Beams;
+	Default
+	{
+		+WEAPON.CHEATNOTWEAPON
+		+INVENTORY.UNDROPPABLE
+		+INVENTORY.UNTOSSABLE
+		+THRUACTORS
+	}
 
 	action void NoFastOverlay(int oid)
 	{

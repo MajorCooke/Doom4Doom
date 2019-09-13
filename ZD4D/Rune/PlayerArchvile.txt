@@ -291,7 +291,7 @@ Class D4DArchvileWeapon : DemonWeaponBase
 		}
 		Goto Ready;
 	Spawn:
-		SHOT A -1;
+		SHOT A 0;
 		Stop;
 	}
 }	

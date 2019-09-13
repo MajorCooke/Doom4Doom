@@ -202,16 +202,18 @@ extend class D4DHandler
 {
 	Class<Actor> GetRune(Actor mon)
 	{
-		if (!mon || D4D_DemonRunes < 1)
-			return null;
+		if (!mon)	return null;
 		
 		Class<Actor> check = Actor.GetReplacee(mon.GetClass());
-		
+		/*
 		if (D4D_PrintDebug == 1)
 		{
-			if (check)	Console.Printf("%s replaces %s", mon.GetClassName(), check.GetClassName());
-			else		Console.Printf("%s replaces nothing", mon.GetClassName());
+			if (check)	Console.Printf("D4D: %s replaces %s", mon.GetClassName(), check.GetClassName());
+			else		Console.Printf("D4D: %s replaces nothing", mon.GetClassName());
 		}
+		*/
+		if (D4D_DemonRunes < 1) return null;
+		
 		int rarity = D4D_DemonRunes;
 		int upgrade = mon.CountInv("D4MonsterUpgrader");
 		int id = 0;

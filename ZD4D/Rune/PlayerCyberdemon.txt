@@ -318,7 +318,7 @@ Class D4DCyberdemonWeapon : DemonWeaponBase
 		M023 BBCCDDA 1 Bright A_SetPitch(pitch+1);
 		Goto Ready;
 	Spawn:
-		LAUN A -1;
+		LAUN A 0;
 		Stop;
 	}
 }	

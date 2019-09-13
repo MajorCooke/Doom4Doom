@@ -373,7 +373,7 @@ Class D4DRevenantWeapon : DemonWeaponBase
 		Goto Ready;
 
 	Spawn:
-		SHOT A -1;
+		SHOT A 0;
 		Stop;
 	}
 }	

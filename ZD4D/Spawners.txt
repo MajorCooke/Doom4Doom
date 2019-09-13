@@ -11,6 +11,7 @@ extend class D4DHandler
 		Class<Actor> rep = e.Replacement;
 		if (rep == null)	return;
 		
+		//Console.Printf("D4D: Checking replacement for %s", rep.GetClassName());
 		let mon = (Class<D4AbstractMonster>)(rep);
 		if (mon)
 		{
@@ -19,6 +20,9 @@ extend class D4DHandler
 			{
 				e.Replacee = defs.Replacing;
 				e.IsFinal = true;
+				
+				if (D4D_PrintDebug > 0)
+					Console.Printf("D4D: %s replaces %s", rep.GetClassName(), e.Replacee.GetClassName());
 			}
 		}
 	}
@@ -34,7 +38,8 @@ extend class D4DHandler
 		
 		Name repn = rep.GetClassName();
 		
-		if (rep is 'Inventory')
+		if (rep is 'TeleportFog')						e.Replacement = 'D4Fog';
+		else if (rep is 'Inventory')
 		{
 			if (rep is 'Ammo')
 			{
@@ -174,7 +179,15 @@ extend class D4DHandler
 					else								e.Replacement = 'D4ChaingunGuy';
 				}
 				else if (rep == 'DoomImp')				e.Replacement = 'D4DoomImp';
-				else if (rep == 'Fatso')				e.Replacement = 'D4FatsoSpawner';
+				else if (rep == 'Fatso')				
+				{
+					// Due to a bug, we must rely on a fatso spawner.
+				//	if (random[rng](0,1))				e.Replacement = 'D4FatsoTech';
+				//	else								e.Replacement = 'D4FatsoHell';
+					
+					
+					e.Replacement = 'D4FatsoSpawner';
+				}
 				else if (rep == 'LostSoul')				e.Replacement = 'D4LostSoul';
 				else if (rep == 'PainElemental')		e.Replacement = 'D4PainElemental';
 				else if (rep == 'Revenant')				e.Replacement = 'D4Revenant';
