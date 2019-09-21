@@ -15,7 +15,7 @@ extend class Doom4Player
 	//
 	//==========================================================================
 	
-	D4DGrenadeItem GetSelectedGrenade()
+	D4DGrenadeItem GetSelectedGrenade() const
 	{
 		for (int i = 0; i < Doom4Player.GrenadeSelected.Size(); i++)
 		{
@@ -26,7 +26,7 @@ extend class Doom4Player
 		return null;
 	}
 	
-	int CheckEquipmentCharge(bool checkready = false)
+	int CheckEquipmentCharge(bool checkready = false) const
 	{
 		let gren = GetSelectedGrenade();
 		if (!gren)	return -1;
@@ -37,22 +37,27 @@ extend class Doom4Player
 	}
 	
 	// Sets all equipment as unselected, while the desired item becomes selected.
+	// Returns true if the item is available.
 	bool SelectEquipment(Class<D4DGrenadeItem> item)
 	{
-		if (!item || !CountInv(item))	return false;
+		// No item available.
+		if (!item || CountInv(item) < 1)	
+			return false;
 		
-		bool ret;
+		// Search through and set all items as unselected, except the desired.
+		bool ret = false;
 		for (let probe = Inv; probe != null; probe = probe.Inv)
 		{
 			let cls = D4DGrenadeItem(probe);
 			if (!cls)	continue;
+			
 			cls.Selected = (cls.GetClass() == item && cls.Amount > 0);
 			ret = (!ret && cls.Selected);
 		}
 		return ret;
 	}
 	
-	bool CheckGrenadeButton(bool cooldown = false)
+	bool CheckGrenadeButton(bool cooldown = false) const
 	{
 		let plr = GetRealPlayer();
 		//if (plr && (plr.cmd.buttons & BT_USER1) && !(plr.oldbuttons & BT_USER1))

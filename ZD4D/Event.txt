@@ -425,6 +425,13 @@ Class D4DHandler : EventHandler
 			deltas[num].ItemName.Clear();
 			deltas[num].Count.Clear();			
 		}
+		else if (e.Name == 'CountLines')
+		{
+			int c1 = 0, c2 = 0;
+			Line ln;
+			[c1, c2] = D4D_Utility.GetClosestIntersectingLine(plr, ln);
+			Console.Printf("%d lines iterated - %d in range", c1, c2);
+		}
 		else if (e.Name == 'SectorLight')		{	SetSectorLight(e);	}		
 		else if (e.Name == 'RemoveAmmo')
 		{

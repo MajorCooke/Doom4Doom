@@ -184,6 +184,7 @@ Class Doom4Player : PlayerPawn
 			{
 				A_Overlay(Overlay_DashManager, "Overlay.DashManager", false);
 				A_OverlayFlags(Overlay_DashManager, PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
+				A_Stop();
 			}
 		}
 	Spawn:
@@ -610,10 +611,12 @@ Class Doom4Player : PlayerPawn
 			}
 			else
 			{
-				if (pitch >= 0)	return;
-				if (vel.XY dot vel.XY > (4 ** 2)) return;
-				if (!((CurInputCmds == BT_FORWARD) ||
-					(OldInputCmds == BT_FORWARD)))
+				// Do not attempt to ledge grab if...
+				if ((player.onground) ||				// Player's on the ground
+					(pitch >= 0) || 					// Looking down
+					(vel.XY dot vel.XY > (4 ** 2)) ||	// Moving too fast
+					(!(CurInputCmds & BT_FORWARD)))		// Not trying to move forward
+			//	||	(OldInputCmds == BT_FORWARD))))
 					return;
 					
 				int DistCheck = 24;

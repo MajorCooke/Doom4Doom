@@ -79,4 +79,64 @@ Class D4D_Utility play
 		
 		return true;
 	}
+	
+	//==========================================================================
+	//
+	//==========================================================================
+	static int, int GetClosestIntersectingLine(Actor mo, Line linedef)
+	{
+		if (!mo)	return -1, -1;
+	
+		// Find the line that this actor's centerpoint is closest to
+		double dist = mo.radius * 2.0;
+		Vector3 pos = mo.pos;
+		
+		double	radius = mo.radius,
+				xp = pos.x + radius,
+				xn = pos.x - radius,
+				yp = pos.y + radius,
+				yn = pos.y - radius;
+		
+		
+		int count[2]; count[0] = 0;	count[1] = 0;
+		BlockLinesIterator it = BlockLinesIterator.Create(mo);
+		while (it.Next())
+		{
+			Line current = it.curline;
+			
+			count[0]++;
+			
+			// Discard lines that definitely don't intersect the actor's radius
+			if ((current.v1.p.x > xp && current.v2.p.x > xp) ||
+				(current.v1.p.x < xn && current.v2.p.x < xn) ||
+				(current.v1.p.y > yp && current.v2.p.y > yp) ||
+				(current.v1.p.y < yn && current.v2.p.y < yn))
+				continue; 
+			
+			count[1]++;
+			
+			// Find the line that is closest based on proximity to end vertices
+			double curdist = (current.v1.p - pos.xy + current.v2.p - pos.xy).Length();
+			if (linedef == null || curdist < dist)
+			{
+				linedef = current;
+				dist = curdist;
+			}
+		}
+		return count[0], count[1];
+	}
+}
+
+Class D4D_LineSector play
+{
+	Line 	ln;
+	Sector	sec;
+	
+	static D4D_LineSector Create(Line l, Sector s)
+	{
+		let ls = new('D4D_LineSector');
+		ls.ln = l;
+		ls.sec = s;
+		return ls;
+	}
 }
