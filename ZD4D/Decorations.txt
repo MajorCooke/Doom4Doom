@@ -2,11 +2,11 @@ Class D4Fog : Actor //replaces TeleportFog
 {
 	Default
 	{
-		+CLIENTSIDEONLY
+		+NOBLOCKMAP
+		+NOINTERACTION
 		+FORCEXYBILLBOARD
 		RenderStyle "Add";
 		Scale 0.75;
-		+NOINTERACTION
 		SeeSound "";
 	}
 	States
@@ -16,6 +16,19 @@ Class D4Fog : Actor //replaces TeleportFog
 		DB04 ABCDEFGHIJ 1 Bright;
 		DB04 KLMNOPQRSTUVWXYZ 2 Bright A_FadeOut(0.03);
 		Stop;
+	}
+}
+
+// Used to trigger telefragging and the likes when the player is invulnerable
+// and they have Death Bringer's Shadow.
+Class D4PlayerFog : D4Fog
+{
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		
+		let o = Doom4Player(target);
+		if (o)	o.DoTeleportEffects();
 	}
 }
 

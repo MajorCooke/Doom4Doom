@@ -340,26 +340,6 @@ Class D4BFGProjectile  : Actor
 			}
 			mo.DamageMobj(self, src, 2000, "BFGExploder");
 		}
-		
-		/*
-		ThinkerIterator it = ThinkerIterator.Create();
-		Actor mo;
-		//Actor oldTracer = tracer;
-		while (mo = Actor(it.Next()))
-		{
-			if (!mo.CountInv("D4BFGKillToken"))
-			{	continue;	}
-			
-			if (mo.bFRIENDLY || !mo.bISMONSTER || mo.health < 1 || mo.bKILLED || 
-				(mo is "PlayerPawn"))
-			{
-				mo.A_SetInventory("D4BFGKillToken",0);
-				continue;
-			}
-			Actor src = (target) ? target : self;
-			mo.DamageMobj(self, src, 2000, "BFGExploder");
-		}
-		*/
 	}
 }
 

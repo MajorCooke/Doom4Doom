@@ -15,26 +15,40 @@ extend class Doom4Player
 	//
 	//==========================================================================
 	
+	bool TryEquipment(Name clsname)
+	{
+		return false;
+		if (EquipmentShortcut != null)	return false;
+	
+		Class<D4DGrenadeItem> cls = clsname;
+		if (!cls)	return false;
+		
+		for (int i = 0; i < GrenadeSelected.Size(); i++)
+		{
+			if (cls != GrenadeSelected[i])	continue;
+			
+			let gren = D4DGrenadeItem(FindInventory(GrenadeSelected[i]));
+			if (gren)
+			{
+				//D4DGrenadeItem EquipmentShortcut
+			}
+		}
+		
+		return false;
+	}
+	
 	D4DGrenadeItem GetSelectedGrenade() const
 	{
-		for (int i = 0; i < Doom4Player.GrenadeSelected.Size(); i++)
+		for (int i = 0; i < GrenadeSelected.Size(); i++)
 		{
-			let inv = D4DGrenadeItem(FindInventory(Doom4Player.GrenadeSelected[i]));
+			let inv = D4DGrenadeItem(FindInventory(GrenadeSelected[i]));
 			if (inv && inv.Amount > 0 && inv.Selected)
 				return inv;
 		}
 		return null;
 	}
 	
-	int CheckEquipmentCharge(bool checkready = false) const
-	{
-		let gren = GetSelectedGrenade();
-		if (!gren)	return -1;
-		
-		if (checkready)	
-			return (gren.Cooldown < 1) ? 1 : 0;
-		return gren.Cooldown;
-	}
+	
 	
 	// Sets all equipment as unselected, while the desired item becomes selected.
 	// Returns true if the item is available.
@@ -61,13 +75,30 @@ extend class Doom4Player
 	{
 		let plr = GetRealPlayer();
 		//if (plr && (plr.cmd.buttons & BT_USER1) && !(plr.oldbuttons & BT_USER1))
-		if (plr && (CurInputCmds & BT_USER1) && !(OldInputCmds & BT_USER1))
+		
+		if (!plr)	return false;
+		if ((CurInputCmds & BT_USER1) && !(OldInputCmds & BT_USER1))
 		{
 			return (cooldown) ? CheckEquipmentCharge(true) : true;
 		}
 		return false;
 	}
 	
+	int CheckEquipmentCharge(bool checkready = false) const
+	{
+		let gren = GetSelectedGrenade();
+		if (!gren)	return -1;
+		
+		if (checkready)	
+			return (gren.Cooldown < 1) ? 1 : 0;
+		return gren.Cooldown;
+	}
+	
+	//==========================================================================
+	//
+	//
+	//
+	//==========================================================================
 	override void CheatTake (String name, int amount)
 	{
 		bool takeall;

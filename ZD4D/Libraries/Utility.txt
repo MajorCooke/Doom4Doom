@@ -25,14 +25,14 @@ Class D4D_Utility play
 	{
 		if (!mo || mo.Radius < 1.0)	return false;
 		
+		// Iterate through the radius of the actor, finding the highest position
+		// available.
+		
 		Vector3 old = mo.pos;
 		double GridIncrement = 1.0;
 		double Radius = mo.Radius / 2.0;
 		double MaxStepHeight = mo.MaxStepHeight + stepadd;
 		int GZFlags = GZF_ABSOLUTEPOS|GZF_ABSOLUTEANG;
-		
-		// Iterate through the radius of the actor, finding the highest position
-		// available.
 		
 		double newz = p.z;
 		double ceil = 32767.0;
@@ -58,6 +58,32 @@ Class D4D_Utility play
 		return true;
 	}
 	
+	// Code by DoomKrakken, modified by Major Cooke
+	Static Vector3 GetLedgeOffset(Actor Activator, double MaxHeight = 72)
+	{
+		PlayerInfo Player = Activator.Player;
+		Vector3 OldPos = Activator.Pos;
+		bool PlayerOnGround = Player && Player.Mo && Player.Mo == Activator && Player.OnGround;
+		
+		if (PlayerOnGround)	MaxHeight /= 2.0;
+		
+		Activator.SetXYZ(OldPos + (0, 0, MaxHeight)); //[DoomKrakken]: Use SetXYZ to change the actor's position for testing purposes, without actually moving him.  This way he can detect 3D floors using GetZAt (since it can only be used to detect 3D floors beneath the player).
+		For (double i = Activator.Radius; i <= Activator.Radius * 2; i += 1.0) //[DoomKrakken]: If attempting to mantle at an angle to the ledge, the check may fall short and yield a negative result.  This'll make sure that it won't happen.
+		{
+			Vector3 np = Activator.Vec3Angle(i, Activator.Angle, 0);
+			Int LedgeFloorZ = Activator.GetZAt(i, 0, 0, GZF_3DRESTRICT);
+			Int LedgeCeilingZ = Activator.GetZAt(i, 0, 0, GZF_3DRESTRICT|GZF_CEILING);
+			If (LedgeFloorZ - OldPos.Z > Activator.MaxStepHeight && LedgeFloorZ - OldPos.Z <= MaxHeight && LedgeCeilingZ - LedgeFloorZ >= Activator.Height && Activator.CheckPosition(np.XY))
+			{
+			//	Console.PrintF("%f", LedgeFloorZ - OldPos.Z);
+				Activator.SetXYZ(OldPos);
+				Return (i, 0, min(LedgeFloorZ - OldPos.Z, Activator.Height));
+			}
+		}
+		Activator.SetXYZ(OldPos);
+		Return (0, 0, 0);
+	}
+	
 	//==========================================================================
 	// CheckTouching
 	// 
@@ -81,9 +107,9 @@ Class D4D_Utility play
 	}
 	
 	//==========================================================================
-	//
+	// A test function to count the number of 
 	//==========================================================================
-	static int, int GetClosestIntersectingLine(Actor mo, Line linedef)
+	static int, int CountIntersectingLines(Actor mo)
 	{
 		if (!mo)	return -1, -1;
 	
@@ -114,29 +140,85 @@ Class D4D_Utility play
 				continue; 
 			
 			count[1]++;
+		}
+		return count[0], count[1];
+	}
+	
+	static D4D_LineContainer GetIntersectingLines(Actor mo)
+	{
+		if (!mo || mo.radius <= 0.0)	return null;
+	
+		// Find the line that this actor's centerpoint is closest to
+		Vector3 pos = mo.pos;
+		
+		double	dist = mo.radius,
+				radius = mo.radius,
+				xp = pos.x + radius,
+				xn = pos.x - radius,
+				yp = pos.y + radius,
+				yn = pos.y - radius;
+		
+		let Container = D4D_LineContainer.Create();
+		
+		BlockLinesIterator it = BlockLinesIterator.Create(mo);
+		while (it.Next())
+		{
+			Line current = it.curline;
 			
-			// Find the line that is closest based on proximity to end vertices
+			// Discard lines that definitely don't intersect the actor's radius
+			if ((current.v1.p.x > xp && current.v2.p.x > xp) ||
+				(current.v1.p.x < xn && current.v2.p.x < xn) ||
+				(current.v1.p.y > yp && current.v2.p.y > yp) ||
+				(current.v1.p.y < yn && current.v2.p.y < yn))
+				continue; 
+			
+			Container.AddLine(current);
+		}
+		
+		return Container;
+		/*
+		// Find the line that is closest based on proximity to end vertices
 			double curdist = (current.v1.p - pos.xy + current.v2.p - pos.xy).Length();
 			if (linedef == null || curdist < dist)
 			{
 				linedef = current;
 				dist = curdist;
 			}
-		}
-		return count[0], count[1];
+		*/
 	}
 }
 
-Class D4D_LineSector play
+Class D4D_Line play
 {
-	Line 	ln;
-	Sector	sec;
+	Line 	lin;
 	
-	static D4D_LineSector Create(Line l, Sector s)
+	static D4D_Line Create(Line l)
 	{
-		let ls = new('D4D_LineSector');
-		ls.ln = l;
-		ls.sec = s;
+		if (!l)	return null;
+	
+		let ls = new('D4D_Line');
+		ls.lin = l;
 		return ls;
+	}
+}
+
+Class D4D_LineContainer play
+{
+	Array<D4D_Line> Lines;
+	
+	static D4D_LineContainer Create()
+	{
+		let ls = new('D4D_LineContainer');
+		ls.Lines.Clear();
+		return ls;
+	}
+	
+	void AddLine(Line lin)
+	{
+		if (!lin)	return;
+		
+		let linepart = D4D_Line.Create(lin);
+		if (linepart)
+			Lines.Push(linepart);
 	}
 }

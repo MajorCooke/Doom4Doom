@@ -56,6 +56,7 @@ Class Doom4Player : PlayerPawn
 	double DashForward, DashSide, DashAngle, CurDashSpeed;
 	double UOffsets;
 	bool spawned;
+	D4DGrenadeItem EquipmentShortcut;
 	Class<Actor> GrenadeToFire;
 	D4PlayerLineFinder LineFinder;
 	Vector3 MantlePos[2];
@@ -83,6 +84,7 @@ Class Doom4Player : PlayerPawn
 		PainChance 255;
 		Gravity 0.8;
 		MaxDropOffHeight 32767;
+		TeleFogDestType "D4PlayerFog";
 		Player.DisplayName "Doom Slayer";
 		Player.CrouchSprite "PLYC";
 		Player.StartItem "D4Pistol";
@@ -174,19 +176,49 @@ Class Doom4Player : PlayerPawn
 		Species "Marines";
 		+THRUSPECIES
 		+MTHRUSPECIES
-	}	
-	States
+	}
+	
+	void DoTeleportEffects()
 	{
-	Teleport:
-		PLAY A 0
+		if (!GetRealPlayer() || GetClass() != 'Doom4Player')
+			return;
+			
+		A_Overlay(Overlay_DashManager, "Overlay.ResetDash");
+		A_OverlayFlags(Overlay_DashManager, PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
+		A_Stop();
+			
+		if (!bTHRUACTORS && FindInventory("PowerInvulnerable", true) && CountInv("D4PentagramUpgrade2"))
 		{
-			if (GetRealPlayer())
+			let it = BlockThingsIterator.Create(self);
+			while (it.Next())
 			{
-				A_Overlay(Overlay_DashManager, "Overlay.DashManager", false);
-				A_OverlayFlags(Overlay_DashManager, PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
-				A_Stop();
+				let targ = it.thing;
+				if (!targ || !targ.bShootable || targ == self || targ.bNOTELEFRAG || 
+					targ.bTHRUACTORS ||	(targ.bTHRUSPECIES && targ.species == species))
+					continue;
+				
+				if (bNOTELESTOMP && !targ.bALWAYSTELEFRAG)
+					continue;
+				
+				double blockdist = radius + targ.radius;
+				if (abs(targ.pos.x - it.Position.X) >= blockdist || 
+					abs(targ.pos.y - it.Position.Y) >= blockdist)
+					continue;
+
+				// Q: Make this z-aware for everything? It never was before.
+				if (targ.pos.z + targ.height < pos.z || targ.pos.z > pos.z + height)
+				{
+					if (CurSector.PortalGroup != targ.CurSector.PortalGroup)
+						continue;
+				}
+				
+				targ.DamageMobj(self, self, TELEFRAG_DAMAGE, 'Telefrag');
 			}
 		}
+	}
+	
+	States
+	{
 	Spawn:
 		PLAY A -1 NoDelay
 		{
@@ -244,6 +276,7 @@ Class Doom4Player : PlayerPawn
 		{
 			DashTimer = 0;
 			DashAngle = 0;
+			return ResolveState("Overlay.DashManager");
 		}
 	Overlay.DashManager:
 		M666 A 1
@@ -344,7 +377,7 @@ Class Doom4Player : PlayerPawn
 			// If not teleported (xy will 0 out... I think), not on something 
 			// and not blocked, keep boosting the player in the direction.
 			if (Vel.XY != (0,0) &&
-				!bONMOBJ && !A_CheckFloor("Null") && 
+				!bONMOBJ && !A_CheckFloor("Null") && !A_CheckCeiling("Null") &&
 				!A_CheckBlock("Null",CBF_ABSOLUTEANGLE,AAPTR_DEFAULT,CurDashSpeed,0,0,DashAngle) &&
 				!(player.cheats & (CF_FLY|CF_NOCLIP2)))
 			{
@@ -980,6 +1013,10 @@ extend class Doom4Player
 		}
 		if (!TelefragDamage && (player.cheats & CF_GODMODE) && !(flags & DMG_FORCED))
 			return 0;
+			
+		// Prevent powerups like quad damage from hurting the player more than
+		// normal. Otherwise this makes rocket jumping a pain in the ass.
+		// Also, disable armor piercing because it's effectively a second skin.
 		if (inflictor)
 		{
 			inflictor.bPIERCEARMOR = false;
@@ -988,16 +1025,18 @@ extend class Doom4Player
 		}
 		if (source)
 		{
-			source.bPIERCEARMOR = false;
+			
 			if (source == self)
 			{
 				int testdmg = GetModifiedDamage(damagetype, damage, true, inflictor, source, flags);
 				if (testdmg > damage)
 					flags |= DMG_NO_ENHANCE;
 			}
+			else source.bPIERCEARMOR = false;
 		}	
 		flags &= ~DMG_NO_ARMOR;
 		
+		// Make sure all armor gained has a 100% absorption rate.
 		let inv = BasicArmor(FindInventory("BasicArmor"));
 		if (inv)
 		{
@@ -1047,7 +1086,7 @@ extend class Doom4Player
 			}
 			
 			DamageTypeReceived = "WhiteFlashDamage";
-			player.DamageCount = Min(100, player.DamageCount + int(damage * 0.5));
+			player.DamageCount = Min(0, player.DamageCount + int(damage * 0.5));
 			/*
 			if (PentaNoiseWait < 1)
 			{

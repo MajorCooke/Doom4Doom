@@ -9,20 +9,18 @@
 
 Class D4DGrenadeItem : D4DKeeperItem 
 {
-	
 	Class<D4EquipmentProjectile> Grenade;
 	bool Selected;
 	String IconReady, IconCooldown; 
 	double SX, SY, PX, PY;
 	
-	int Cooldown;
-	int CooldownMax;
+	int Cooldown, CooldownMax;
 	
-	Property CooldownMax: CooldownMax;
-	Property Grenade: Grenade;
-	Property Icons: IconReady, IconCooldown;
-	Property Scales: SX, SY;
-	Property Positions: PX, PY;
+	Property CooldownMax: CooldownMax;			
+	Property Grenade: Grenade;					// Actual grenade name that's launched
+	Property Icons: IconReady, IconCooldown;	// Icons to use between ready and charging.
+	Property Scales: SX, SY;					// Scales for status bars
+	Property Positions: PX, PY;					// Position for status bars (within 1024x768)
 	
 	Default
 	{
@@ -40,13 +38,10 @@ Class D4DGrenadeItem : D4DKeeperItem
 	{
 		Super.DoEffect();
 		if (!Owner)	return;
-		if (Cooldown > 0)
+		if (Cooldown > 0 && --Cooldown == 0)
 		{
-			if (--Cooldown == 0)
-			{
-				SetOrigin(Owner.pos, false);
-				A_PlaySound("Doom4/Weapon/Grenade/GrenadeRegen");
-			}
+			SetOrigin(Owner.pos, false);
+			A_PlaySound("Doom4/Weapon/Grenade/GrenadeRegen");			
 		}
 	}
 	
@@ -56,18 +51,24 @@ Class D4DGrenadeItem : D4DKeeperItem
 			amt = CooldownMax;
 		cooldown = amt;
 	}
+	
+	void SetCooldownCap(int amt = -1)
+	{
+		CooldownMax = (amt < 1) ? Default.CooldownMax : amt;
+	}
 }
 
 Class FlameThrowerPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FlamePoint";		D4DGrenadeItem.Icons "FlameThr", "FlameTh0";	Tag "Flame";	D4DGrenadeItem.Positions 829, 681;	}}
 Class FragGrenadePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0";	Tag "Frag";		D4DGrenadeItem.Positions 826, 680;	}}
 Class HoloGrenadePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4PlayerHolograph";	D4DGrenadeItem.Icons "HoloGren", "HoloGre0";	Tag "Holo";		D4DGrenadeItem.Positions 827, 681;	}}
 Class SyphonGrenadePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4SyphonGrenade";	D4DGrenadeItem.Icons "SyphGren", "SyphGre0";	Tag "Syphon";	D4DGrenadeItem.Positions 827, 679;	}}
-Class PersonalPortalPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0";	Tag "Portal";	D4DGrenadeItem.Positions 828, 682;	}}
-Class TeslaRocketPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0";	Tag "Tesla";	D4DGrenadeItem.Positions 828, 682;	}}
+Class PersonalPortalPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4PersonalPortal";	D4DGrenadeItem.Icons "FragGren", "FragGre0";	Tag "Portal";	D4DGrenadeItem.Positions 828, 682;	}}
+Class TeslaRocketPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4TeslaRocket";		D4DGrenadeItem.Icons "FragGren", "FragGre0";	Tag "Tesla";	D4DGrenadeItem.Positions 828, 682;	}}
 Class ThreatSensorPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0";	Tag "Sensor";	D4DGrenadeItem.Positions 828, 682;	}}
 Class ThreatScannerPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0";	Tag "Scanner";	D4DGrenadeItem.Positions 828, 682;	}}
-Class KineticMinePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0";	Tag "Mine";		D4DGrenadeItem.Positions 828, 682;	}}
-Class ShieldWallPickup : D4DGrenadeItem		{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0";	Tag "Wall";		D4DGrenadeItem.Positions 828, 682;	}}
+Class KineticMinePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4KineticMine";		D4DGrenadeItem.Icons "FragGren", "FragGre0";	Tag "Mine";		D4DGrenadeItem.Positions 828, 682;	}}
+Class ShieldWallPickup : D4DGrenadeItem		{ Default { D4DGrenadeItem.Grenade "D4ShieldWall";		D4DGrenadeItem.Icons "FragGren", "FragGre0";	Tag "Wall";		D4DGrenadeItem.Positions 828, 682;	}}
+
 
 
 //------------------------------------------------------
@@ -262,15 +263,8 @@ Class GrenadeSwitchNext : CustomInventory
 	}
 }
 
-//Prev
 Class GrenadeSwitchPrev : GrenadeSwitchNext
-{
-	Default 
-	{
-		GrenadeSwitchNext.Previous true;
-		+INVENTORY.ALWAYSPICKUP
-	}
-}
+{	Default {	GrenadeSwitchNext.Previous true;	}	}
 //==============================================================================
 //==============================================================================
 // Actual grenades/utilities
@@ -279,24 +273,66 @@ Class GrenadeSwitchPrev : GrenadeSwitchNext
 // Base class actor
 Class D4EquipmentProjectile : D4Actor {}
 
-//==============================================================================
+//------------------------------------------------------------------------------
 // Kinetic Mine
-//==============================================================================
+//------------------------------------------------------------------------------
 Class D4KineticMine : D4EquipmentProjectile
 {
 }
 
-//==============================================================================
+//------------------------------------------------------------------------------
 // Personal Teleporter
-//==============================================================================
+//------------------------------------------------------------------------------
+Class D4PersonalPortal : D4EquipmentProjectile
+{
+}
 
-//==============================================================================
+//------------------------------------------------------------------------------
 // Shield Wall
-//==============================================================================
+//------------------------------------------------------------------------------
+Class D4ShieldWall : D4EquipmentProjectile
+{
+	static const double OuterPoints[] = 
+	{
+		// Outer shell spawn points (y/z)
+		 256,	0,
+		 320,	32,
+		 320,	256,
+		 256,	288,
+		-256,	288,
+		-320,	256,
+		-320,	32,
+		-256,	0
+	};
+	
+	static const double InnerPoints[] =
+	{
+		// Inner shel spawn points (y/z)
+		 128,	16,
+		 224,	64,
+		 288,	64,
+		 288,	224,
+		 224,	224,
+		 128,	272,
+		-128,	272,
+		-224,	224,
+		-288,	224,
+		-288,	64,
+		-224,	64,
+		-128,	16
+	};
+}
 
-//==============================================================================
+//------------------------------------------------------------------------------
+// Tesla Rocket
+//------------------------------------------------------------------------------
+Class D4TeslaRocket : D4EquipmentProjectile
+{
+}
+
+//------------------------------------------------------------------------------
 // Syphon Grenade
-//==============================================================================
+//------------------------------------------------------------------------------
 Class D4SyphonGrenade : D4EquipmentProjectile 
 {
 	MCHandler 		Event;
@@ -378,25 +414,29 @@ Class D4SyphonGrenade : D4EquipmentProjectile
 				d--;
 				return ResolveState("ExplodeLoop");
 			}
+			
 			A_Explode(2,256,0,0,256);
 			return ResolveState(null);
 		}
 		
-		TNT1 AAAAAAAAAA 0
+		TNT1 A 0
 		{
-			if (random[rng](1,10) <= 4)
+			for (int i = 0; i < 10; i++)
 			{
-				rng = random[rng](1,4);
-				dist = frandom[rng](64.0, 128.0);
-				if (GetZAt(0,0) >= pos.z - 2)
-				{	UCos = frandom[rng](0.0,90.0);	}
-				else
-				{	UCos = frandom[rng](0.0,180.0);	}
-				A_SpawnParticle("FF0033",SPF_FULLBRIGHT|SPF_RELATIVE,10,0.1,random[rng](0,359),
-				
-				cos(-UCos) * dist,0,sin(UCos) * dist, 
-				0,0,0, 
-				cos(UCos) * -1.20,0,sin(UCos) * -1.20,1.0,0.0,3.0);
+				if (random[rng](1,10) <= 4)
+				{
+					rng = random[rng](1,4);
+					dist = frandom[rng](64.0, 128.0);
+					if (GetZAt(0,0) >= pos.z - 2)
+					{	UCos = frandom[rng](0.0,90.0);	}
+					else
+					{	UCos = frandom[rng](0.0,180.0);	}
+					A_SpawnParticle("FF0033",SPF_FULLBRIGHT|SPF_RELATIVE,10,0.1,random[rng](0,359),
+					
+					cos(-UCos) * dist,0,sin(UCos) * dist, 
+					0,0,0, 
+					cos(UCos) * -1.20,0,sin(UCos) * -1.20,1.0,0.0,3.0);
+				}
 			}
 		}
 		TNT1 A 8
