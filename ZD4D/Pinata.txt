@@ -665,12 +665,13 @@ Class D4PinataArmor : D4ArmorBasePickup
 		PINA A 0 NoDelay 
 		{
 			A_SpawnItemEx("D4PinataParticles",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
+			/*	
 			invoker.flier = new("UpgradePinataFlier");
 			if (invoker.flier)
 			{
 				let i = invoker;
 				i.flier.Spawner = invoker;
-				i.flier.Item = "BasicArmor";
+				i.flier.Item = 'BasicArmor';
 				if (i.flier.target)
 				{
 					let a = i.flier.target.FindInventory("BasicArmor");
@@ -680,12 +681,53 @@ Class D4PinataArmor : D4ArmorBasePickup
 						i.flier.MaxAmt = 200;
 				}
 			}
+			*/
 		}
 	Looping:
 		"----" A 2
 		{
+			
 			if (invoker.count < DelayVacuum)	{	invoker.count += 2;	return;		}
 			// Tracer should automatically be handled by the thinker.
+			
+			double distance = RadiusPull;
+			let trc = invoker.tracer;
+			bool skip = false;
+			if (trc)
+			{
+				if (trc is "PlayerPawn" && trc.bPICKUP && trc.CanTouchItem(invoker) &&
+					trc.health > 0 && trc.player)
+				{
+				//	let inv = trc.FindInventory('BasicArmor',true);
+					if (!(trc.player.cheats & (CF_NOCLIP|CF_NOCLIP2))
+					//	&& (!inv || inv.Amount < inv.MaxAmount)			//This isn't working right...
+						)
+						skip = true;
+				}
+			}
+			if (!skip)
+			{
+				for (int i = 0; i < MAXPLAYERS; i++)
+				{
+					if (playeringame[i])
+					{
+						Actor plr = players[i].mo;
+						if (!plr)	continue;
+						
+					//	let inv = plr.FindInventory('BasicArmor',true);
+						if (plr.bPICKUP && plr.health > 0 && plr.CanTouchItem(invoker) && 
+							invoker.Distance3DSquared(plr) <= (distance ** 2)
+						//	&& (!inv || inv.Amount < inv.MaxAmount)
+							)
+						{
+							if (plr.player.cheats & (CF_NOCLIP|CF_NOCLIP2))
+								continue;
+							invoker.tracer = plr;
+						}
+					}
+				}
+			}
+			
 			if (invoker.tracer)
 			{
 				invoker.count = DelayVacuum;
