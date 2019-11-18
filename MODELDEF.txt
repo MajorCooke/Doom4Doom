@@ -860,3 +860,19 @@ Model D4UpgradeCase
 	Skin 0 "CrateMaxSkin"
 	FrameIndex MICR A 0 0
 }
+
+//------------------------------------------------------------------------------
+// Shield Wall
+Model D4ShieldWall
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/ShieldWall.md3"
+	FrameIndex D4SW A 0 0
+}
+
+Model ShieldWallPickup
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/ShieldWall.md3"
+	FrameIndex D4SW A 0 0
+}

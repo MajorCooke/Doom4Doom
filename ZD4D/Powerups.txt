@@ -297,18 +297,29 @@ Class PowerRadSuit : PowerProtection
 	}
 }
 
-Class D4RadSuit : RadSuit //replaces RadSuit
+Class D4RadSuit : CustomInventory //replaces RadSuit
 {
 	Default 
 	{
 		Scale 0.85;
-		Powerup.Type "PowerRadSuit";
+		+COUNTITEM
+		+INVENTORY.ALWAYSPICKUP
+		+INVENTORY.FANCYPICKUPSOUND
+		Inventory.PickupMessage "Radiation Suit";
+		Inventory.PickupSound "misc/p_pkup";
 	}
+	
 	States
 	{
 	Spawn:
-		SUIT A 0 NODELAY A_SpawnItemEx("D4RadBoots");
-		SUIT A -1 A_SetAngle(random(0,359));
+		SUIT A -1 NoDelay A_SetAngle(random(0,359));
+		Stop;
+	Pickup:
+		TNT1 A 0
+		{
+			A_GiveInventory("D4RadBoots",1);
+			A_GiveInventory("PowerRadSuit",1);
+		}
 		Stop;
 	}
 }
@@ -320,18 +331,20 @@ Class D4RadBoots : RadSuit { States { Spawn: TNT1 A -1; Stop; } }
 // Allmap
 //=======================================================================
 //=======================================================================
-Class D4AllMap : AllMap //replaces AllMap
+Class D4AllMap : CustomInventory //AllMap //replaces AllMap
 {
 	Default 
 	{
-		+INVENTORY.TRANSFER //Fucking LOVE this flag!
 		Scale 0.6;
+		+COUNTITEM
+		+INVENTORY.ALWAYSPICKUP
+		+INVENTORY.FANCYPICKUPSOUND
+		Inventory.PickupMessage "$GOTMAP";
+		Inventory.PickupSound "misc/p_pkup";
 	}
 	
 	override void PostBeginPlay()
 	{
-		A_GiveInventory("MapScanner",1);
-		A_GiveInventory("Allmap",1);
 		angle = random(0,359);
 		Super.PostBeginPlay();
 	}
@@ -341,6 +354,13 @@ Class D4AllMap : AllMap //replaces AllMap
 	Spawn:
 		PMAP ABCDCB 6 Bright;
 		Loop;
+	Pickup:
+		TNT1 A 0
+		{
+			A_GiveInventory("MapScanner",1);
+			A_GiveInventory("Allmap",1);
+		}
+		Stop;
 	}
 }
 

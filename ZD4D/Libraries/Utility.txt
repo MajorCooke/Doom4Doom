@@ -59,29 +59,67 @@ Class D4D_Utility play
 	}
 	
 	// Code by DoomKrakken, modified by Major Cooke
-	Static Vector3 GetLedgeOffset(Actor Activator, double MaxHeight = 72)
+	static bool GetLedgeOffset(Actor Activator, double MaxHeight = 72, bool move = true)
 	{
-		PlayerInfo Player = Activator.Player;
+		if (!Activator)	return false;
+	
+		let Player = Activator.Player;
+		Bool PlayerOnGround = Player && Player.Mo && Player.Mo == Activator && Player.OnGround;
 		Vector3 OldPos = Activator.Pos;
-		bool PlayerOnGround = Player && Player.Mo && Player.Mo == Activator && Player.OnGround;
 		
-		if (PlayerOnGround)	MaxHeight /= 2.0;
+		// [DK]: The maximum height to check for mantling. Mantling while not in 
+		// the air will result in a shorter check, since the Slayer can 
+		// auto-mantle shorter ledges, but must be midair in order to mantle 
+		// taller ledges.
+		//Int MaxHeight = 72 / (1 + PlayerOnGround); 
 		
-		Activator.SetXYZ(OldPos + (0, 0, MaxHeight)); //[DoomKrakken]: Use SetXYZ to change the actor's position for testing purposes, without actually moving him.  This way he can detect 3D floors using GetZAt (since it can only be used to detect 3D floors beneath the player).
-		For (double i = Activator.Radius; i <= Activator.Radius * 2; i += 1.0) //[DoomKrakken]: If attempting to mantle at an angle to the ledge, the check may fall short and yield a negative result.  This'll make sure that it won't happen.
+		//[DK]: Check offsets...
+		Static Const Int FrontOffset[] = {-1, 0, 1, 0};
+		Static Const Int SideOffset[] = {0, 1, 0, -1};
+		
+		Int i; //[DK]: Radius Check
+		For (i = 0; i <= Activator.Radius; i++) //[DK]: Let's have some elbow room.
+		{
+			For (Int j = 0; j <= 3; j++)
+			{
+				If (Activator.GetZAt(i * FrontOffset[j], i * SideOffset[j], 0, GZF_3DRESTRICT|GZF_CEILING) - OldPos.Z < Activator.Height + MaxHeight / 2) //[DK]: Check to see if any point in front of, behind, or to either side of the player has too low of a ceiling or is in the level.
+				{
+					//Return (0, 0, 0);
+					return false;
+				}
+			}
+		}
+		
+		//[DK]: Use SetXYZ to change the actor's position for testing purposes, 
+		// without actually moving him.  This way he can detect 3D floors using 
+		// GetZAt (since it can only be used to detect 3D floors beneath the player).
+		Activator.SetXYZ(OldPos + (0, 0, MaxHeight)); 
+		int flg = GZF_3DRESTRICT|GZF_ABSOLUTEPOS;
+		for (i = Activator.Radius; i <= Activator.Radius * 2; i++) //[DK]: If attempting to mantle at an angle to the ledge, the check may fall short and yield a negative result.  This'll make sure that it won't happen.
 		{
 			Vector3 np = Activator.Vec3Angle(i, Activator.Angle, 0);
-			Int LedgeFloorZ = Activator.GetZAt(i, 0, 0, GZF_3DRESTRICT);
-			Int LedgeCeilingZ = Activator.GetZAt(i, 0, 0, GZF_3DRESTRICT|GZF_CEILING);
-			If (LedgeFloorZ - OldPos.Z > Activator.MaxStepHeight && LedgeFloorZ - OldPos.Z <= MaxHeight && LedgeCeilingZ - LedgeFloorZ >= Activator.Height && Activator.CheckPosition(np.XY))
+			
+			Int LedgeFloorZ = Activator.GetZAt(np.x, np.y, 0, flg);
+			Int LedgeCeilingZ = Activator.GetZAt(np.x, np.y, 0, flg|GZF_CEILING);
+			
+			
+			If (LedgeFloorZ - OldPos.Z > Activator.MaxStepHeight && 
+				LedgeFloorZ - OldPos.Z <= MaxHeight && 
+				LedgeCeilingZ - LedgeFloorZ >= Activator.Height && 
+				Activator.CheckPosition(np.XY))
 			{
-			//	Console.PrintF("%f", LedgeFloorZ - OldPos.Z);
+				//Console.PrintF("%f", LedgeFloorZ - OldPos.Z);
 				Activator.SetXYZ(OldPos);
-				Return (i, 0, min(LedgeFloorZ - OldPos.Z, Activator.Height));
+				if (move)	
+					return Activator.Warp(Activator, np.x, np.y, 0, 0, 
+						WARPF_TOFLOOR|WARPF_NOCHECKPOSITION|WARPF_STOP|WARPF_ABSOLUTEPOSITION); //
+				
+				//return (i, 0, min(LedgeFloorZ - OldPos.Z, Activator.Height));
+				return true;
 			}
 		}
 		Activator.SetXYZ(OldPos);
-		Return (0, 0, 0);
+		return false;
 	}
 	
 	//==========================================================================
@@ -222,3 +260,13 @@ Class D4D_LineContainer play
 			Lines.Push(linepart);
 	}
 }
+
+/* 
+Now for some psuedocode rambling...
+
+I want to evolve the 3D floor detection of my code for mantling over, but this
+part will be tricky. 
+
+1. Get all lines attached to the player
+
+*/

@@ -580,6 +580,7 @@ extend class D4DHandler
 		// Iterate through each player to see who has the highest upgrades.
 		for (int i = 0; i < MAXPLAYERS; i++)
 		{
+			// No player, so skip it.
 			if (!playeringame[i]) continue;
 			let p = players[i].mo;
 			if (!p)	continue;
@@ -705,7 +706,6 @@ extend class D4DHandler
 				if (!(Restrictions & RF_NOCRATES) && CrateDropAlways > 0)
 				{	// The multiplier is already calculated above so do nothing else.
 					p.A_GiveInventory("D4DCash",		CrateDropAlways);
-					p.A_GiveInventory("CashUpdater",	1);
 				}
 			}
 			else // Credits
@@ -720,7 +720,6 @@ extend class D4DHandler
 					double CashAmtPercent = CashAmount * (CPB1 + CPB2);
 					CashAmount = (CashAmount + (CashAmtPercent / 100)) * CashMul;
 					p.A_GiveInventory("D4DCash",		CashAmount);
-				//	p.A_GiveInventory("CashUpdater",	1);
 					CashMul = oldmul;
 				}
 			}

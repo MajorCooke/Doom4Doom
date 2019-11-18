@@ -34,6 +34,7 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 		Weapon.SelectionOrder 90;
 	}
 	
+	// Upon spawning or travelling, makes the fuel spawn with some ammo types.
 	override void EnableAmmoSpawn()
 	{
 		if (!Event) Event = D4DHandler.Fetch();

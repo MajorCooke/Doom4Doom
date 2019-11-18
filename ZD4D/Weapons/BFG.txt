@@ -32,6 +32,8 @@ Class D4BFG : Doom4Weapon
 		+DONTGIB
 	}
 	
+	// Upon spawning or travelling, makes BFG ammo spawn in place of cells
+	// and allows BFG ammo pinatas to spawn.
 	override void EnableAmmoSpawn()
 	{
 		if (!Event) Event = D4DHandler.Fetch();
@@ -349,7 +351,7 @@ Class D4BFG9000Shot : D4BFGProjectile
 	int flags;
 	int count;
 	int c2;
-	double  UPitch;
+	double UPitch;
 	Default 
 	{
 		Projectile;

@@ -31,39 +31,23 @@ Class Doom4Player : PlayerPawn
 	
 	D4DHandler Event;
 	MCHandler MC;
-	double UVel;
-	double UZvel;
-	double UHold;
-	double Utime;
-	double UVelx;
-	double UVely;
-	double Uaccx;
-	double Uaccy;
-	int Ulasthp;
-	int Ucurrenthp;
-	int UVel2; //Must be an int.
-	int Uonce;
-	int Uweapon;
-	int UjumpsDone;
-	int Ulowhp;
-	int UordersJump;
-	int UwasClimbing;
-	int UclimbBouncePrevention;
-	int GrenChargeCurrent;
-	int DashTimer;
-	int CountTimer;
-	int CurInputCmds, OldInputCmds;
-	double DashForward, DashSide, DashAngle, CurDashSpeed;
-	double UOffsets;
-	bool spawned;
+	private int UjumpsDone;
+	protected bool LowHP;
+	protected int DashTimer;
+	protected int CurInputCmds, OldInputCmds;
+	protected double DashForward, DashSide, DashAngle, CurDashSpeed;
+	protected double UOffsets;
+	protected bool spawned;
 	D4DGrenadeItem EquipmentShortcut;
 	Class<Actor> GrenadeToFire;
 	D4PlayerLineFinder LineFinder;
-	Vector3 MantlePos[2];
-	double MantleCos;
-	bool Mantling;
-	Vector3 LifePos[3], LifeVel[3];
-	Vector2 LifeAP[3];
+	protected D4ShieldWallTracer ShieldChecker;
+	protected D4ShieldWall ShieldWall;
+	protected Vector3 MantlePos[2];
+	protected double MantleCos;
+	protected Vector3 LifePos[3], LifeVel[3];
+	protected Vector2 LifeAP[3];
+	
 	
 	// Properties
 	meta bool UseLives;
@@ -574,65 +558,6 @@ Class Doom4Player : PlayerPawn
 			}
 		}
 		Loop;
-	//==========================================================================
-	// Overlay: 		Old Ledge Climbing
-	// Monitors edge closeness and grabbing so the player can attempt mantling
-	// up over them.
-	//==========================================================================
-	/*
-		M666 A 0
-		{
-			if (GetCvar("D4D_AllowClimbing") == true)
-			{
-				UwasClimbing = CountInv("RlyClimb"); // to catch transitive states like 0->1 or 1->0
-				A_SetInventory("RlyClimb",0);
-				A_GiveInventory("Climbing",1);
-				
-				if (vel.x * vel.x + vel.y * vel.y > 4)
-				{	A_SetInventory("Climbing",0);	}
-				
-				// Calculate a naive-derivative
-				Uaccx = vel.x - UVelx;
-				Uaccy = vel.y - UVely;
-				
-				if (Uaccx*Uaccx + Uaccy*Uaccy > 0.02)
-				{	A_SetInventory("Climbing",0);	}
-				
-				// Update historical values
-				UVelx = vel.x;
-				UVely = vel.y;
-				
-				// Abort if way forward is free
-				if (!A_CheckBlock("Null", CBF_DROPOFF, AAPTR_DEFAULT, 20,0,0))
-				{
-					// "Overlay.LedgeGrab.ForwardFail"
-					//A_Log("fail: forward free");
-					A_SetInventory("Climbing",0);
-				}
-				
-				// Also suppress initial instability
-				if (UclimbBouncePrevention > 0) 
-				{
-					//A_LogInt(UclimbBouncePrevention);
-					A_GiveInventory("Climbing", UclimbBouncePrevention--);
-				}
-				
-				if (!((GetPlayerInput(MODINPUT_BUTTONS)  == BT_FORWARD) &&	// Abort if doing anything except walking forward
-					(GetPlayerInput(MODINPUT_OLDBUTTONS) == BT_FORWARD)))
-				{	A_SetInventory("Climbing",0);	}
-				
-				if ((pitch >= 0) && (pos.z == floorz)) // Abort if not looking upward when grounded
-				{	A_SetInventory("Climbing",0);	}
-				
-				return ResolveState(1);
-			}
-			bSlidesOnWalls = true;
-			return ResolveState("Overlay.LedgeGrab");
-		}
-		M666 A 0 A_JumpIfInventory("Climbing", 1, "Overlay.LedgeGrab.TryClimb");
-		M666 A 0 {bSlidesOnWalls = true;}
-		Loop;
-		*/
 	Overlay.LedgeGrab:
 		M666 A 1 ;
 		M666 A 0
@@ -698,101 +623,6 @@ Class Doom4Player : PlayerPawn
 	MantleDone:
 		TNT1 A 14;
 		Goto Overlay.LedgeGrab;
-	/*	
-		
-	Overlay.LedgeGrab.TryClimb:
-		//M666 A 0; //A_Log("tryclimb")
-		// Fail if way forward is free
-		//M666 A 0; 
-		// Succeed if way forward is free anywhere up to a player height and a bit more above
-		Goto Overlay.LedgeGrab.TryClimb2;
-		
-	Overlay.LedgeGrab.TryClimb2:
-		//M666 A 0; //A_Log("tryclimb2")
-		M666 A 0 A_Warp(AAPTR_DEFAULT, 24,0,25 , 0, WARPF_TESTONLY, "Overlay.LedgeGrab.DoClimb2");
-		M666 A 0 A_CheckBlock("Overlay.LedgeGrab.UpwardFail", CBF_DROPOFF, AAPTR_DEFAULT, 0,0,25);
-		M666 A 0 A_CheckBlock("Overlay.LedgeGrab.TryClimb3", CBF_DROPOFF, AAPTR_DEFAULT, 20,0,25);
-		Goto Overlay.LedgeGrab.DoClimb2;
-	Overlay.LedgeGrab.TryClimb3:
-		M666 A 0 A_CheckBlock("Overlay.LedgeGrab.UpwardFail", CBF_DROPOFF, AAPTR_DEFAULT, 0,0,height*3/6);
-		M666 A 0 A_CheckBlock("Overlay.LedgeGrab.TryClimb4", CBF_DROPOFF, AAPTR_DEFAULT, 20,0,height*3/6);
-		Goto Overlay.LedgeGrab.DoClimb3;
-	Overlay.LedgeGrab.TryClimb4:
-		M666 A 0 A_CheckBlock("Overlay.LedgeGrab.UpwardFail", CBF_DROPOFF, AAPTR_DEFAULT, 0,0,height*4/6);
-		M666 A 0 A_CheckBlock("Overlay.LedgeGrab.TryClimb5", CBF_DROPOFF, AAPTR_DEFAULT, 20,0,height*4/6);
-		Goto Overlay.LedgeGrab.DoClimb4;
-	Overlay.LedgeGrab.TryClimb5:
-		M666 A 0 A_CheckBlock("Overlay.LedgeGrab.UpwardFail", CBF_DROPOFF, AAPTR_DEFAULT, 0,0,height*5/6);
-		M666 A 0 A_CheckBlock("Overlay.LedgeGrab.TryClimb6", CBF_DROPOFF, AAPTR_DEFAULT, 20,0,height*5/6);
-		Goto Overlay.LedgeGrab.DoClimb5;
-	Overlay.LedgeGrab.TryClimb6:
-		M666 A 0 A_CheckBlock("Overlay.LedgeGrab.UpwardFail", CBF_DROPOFF, AAPTR_DEFAULT, 0,0,height*6/6);
-		M666 A 0 A_CheckBlock("Overlay.LedgeGrab.TryClimb7", CBF_DROPOFF, AAPTR_DEFAULT, 20,0,height*6/6);
-		Goto Overlay.LedgeGrab.DoClimb6;
-	Overlay.LedgeGrab.TryClimb7:
-		M666 A 0 A_CheckBlock("Overlay.LedgeGrab.UpwardFail", CBF_DROPOFF, AAPTR_DEFAULT, 0,0,height*7/6);
-		M666 A 0 A_CheckBlock("Overlay.LedgeGrab.TryClimb8", CBF_DROPOFF, AAPTR_DEFAULT, 20,0,height*7/6);
-		Goto Overlay.LedgeGrab.DoClimb7;
-	Overlay.LedgeGrab.TryClimb8:
-		M666 A 0 A_CheckBlock("Overlay.LedgeGrab.UpwardFail", CBF_DROPOFF, AAPTR_DEFAULT, 0,0,height*8/6);
-		M666 A 0 A_CheckBlock("Overlay.LedgeGrab", CBF_DROPOFF, AAPTR_DEFAULT, 20,0,height*8/6);
-		Goto Overlay.LedgeGrab.DoClimb8;
-		
-	Overlay.LedgeGrab.UpwardFail:
-		M666 A 0; //A_Log("fail: upward blocked")
-		Goto Overlay.LedgeGrab;
-		
-	Overlay.LedgeGrab.DoClimb2:
-		M666 A 0; //A_Log("doclimb2")
-		Goto Overlay.LedgeGrab.DoClimb;
-	Overlay.LedgeGrab.DoClimb3:
-		M666 A 0; //A_Log("doclimb3")
-		Goto Overlay.LedgeGrab.DoClimb;
-	Overlay.LedgeGrab.DoClimb4:
-		M666 A 0; //A_Log("doclimb4")
-		Goto Overlay.LedgeGrab.DoClimb;
-	Overlay.LedgeGrab.DoClimb5:
-		M666 A 0; //A_Log("doclimb5")
-		Goto Overlay.LedgeGrab.DoClimb;
-	Overlay.LedgeGrab.DoClimb6:
-		M666 A 0; //A_Log("doclimb6")
-		Goto Overlay.LedgeGrab.DoClimb;
-	Overlay.LedgeGrab.DoClimb7:
-		M666 A 0; //A_Log("doclimb7")
-		Goto Overlay.LedgeGrab.DoClimb;
-	Overlay.LedgeGrab.DoClimb8:
-		M666 A 0; //A_Log("doclimb8")
-		Goto Overlay.LedgeGrab.DoClimb;
-	Overlay.LedgeGrab.DoClimb:
-		// transitive state detection
-		M666 A 0
-		{
-			A_GiveInventory("RlyClimb",1);
-			if(UwasClimbing == 0)
-			{
-				//A_Log("starting climbing");
-				A_PlaySound("Doom4/Player/Climb",7);
-				UclimbBouncePrevention = 5;
-			}
-		}
-		M666 A 0
-		{
-			//A_Log("climbing");
-			ACS_NamedExecuteAlways("SaveWeapon");
-			A_GiveInventory("ClimbingHands",1);
-			A_SelectWeapon("ClimbingHands");
-			bSlidesOnWalls = false;
-			
-			if(vel.z < 0) 
-			{	A_ChangeVelocity(vel.x/2,vel.y/2,vel.z/4,CVF_REPLACE); }
-			if(vel.z < 5) 
-			{	A_ChangeVelocity(0,0,1); }
-			if(!A_CheckBlock("Overlay.LedgeGrab", CBF_DROPOFF, AAPTR_DEFAULT, 0,0,1))
-			{	A_Warp(AAPTR_DEFAULT, 0,0,1, 0, WARPF_INTERPOLATE); }
-			
-		}
-		Goto Overlay.LedgeGrab;
-	*/
 
 	See:
 		PLAY ABCD 4 ;
@@ -815,28 +645,7 @@ Class Doom4Player : PlayerPawn
 		Goto MissileCont;
 	
 	Pain:
-		PLAY G 8 
-		{
-			if (CountInv("PowerInvulBase") || CountInv("PowerInvulnerable") || bInvulnerable || bNoDamage)
-			{
-				Ulowhp = 0;
-				A_SetBlend("FFFFFF",0.15,5);
-				//Just like Quake. Only happens once per two seconds.
-			}
-			else
-			{				
-				if (health <= 40)
-				{
-					if (Ulowhp == 0)
-					{
-						A_SpawnItemEx("LowHealthAlarm",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-						Ulowhp = 1;
-					}
-				}
-				else
-					Ulowhp = 0;	
-			}
-		}
+		PLAY G 8 ;
 		Goto Spawn;
 	Death:
 		PLAY H 0 
@@ -1001,7 +810,7 @@ extend class Doom4Player
 		if (!player || !player.mo || player.mo != self)
 			return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
 		
-		if (player.cheats & CF_GODMODE2)	return 0;
+		if (player.cheats & CF_GODMODE2)	return -1;
 		
 		bool TelefragDamage = (!bLAXTELEFRAGDMG && damage >= TELEFRAG_DAMAGE);
 		bool IsInvul = (FindInventory("PowerInvulnerable", true) || bINVULNERABLE);
@@ -1012,8 +821,36 @@ extend class Doom4Player
 				TelefragDamage = false;
 		}
 		if (!TelefragDamage && (player.cheats & CF_GODMODE) && !(flags & DMG_FORCED))
-			return 0;
+			return -1;
 			
+		// Shield wall needs some special circumstance handling here. We need
+		// to block explosion damage since this is supposed to effectively act
+		// like map geometry. And rails.
+		if ((flags & (DMG_EXPLOSION|DMG_INFLICTOR_IS_PUFF)) && ShieldWall && (inflictor || source))
+		{
+			Actor attacker = inflictor;
+			if (!attacker || (flags & DMG_INFLICTOR_IS_PUFF))	
+				attacker = source;
+				
+			if (attacker.pos != pos)
+			{
+				Vector3 end = pos; end.z += height * 0.5;
+				Vector3 start = attacker.pos; start.z += attacker.height * 0.75;
+				Vector3 dir = level.Vec3Diff(start, end);
+				double len = dir.Length();
+				dir = dir.Unit();
+				if (!ShieldChecker)	ShieldChecker = new('D4ShieldWallTracer');
+				
+				ShieldChecker.Target = self;
+				if (ShieldChecker.Trace(start, attacker.cursector, dir, len, 0))
+				{
+					// Hidden by the shield.
+					if (ShieldChecker.Results.HitType == TRACE_HitActor &&
+						ShieldChecker.Results.HitActor is 'D4ShieldWallBarrier')
+						return -1;
+				}
+			}
+		}
 		// Prevent powerups like quad damage from hurting the player more than
 		// normal. Otherwise this makes rocket jumping a pain in the ass.
 		// Also, disable armor piercing because it's effectively a second skin.
@@ -1174,6 +1011,17 @@ extend class Doom4Player
 			if (!Event)	Event = D4DHandler.Fetch();
 			Event.AddDamageIndicator(source, inflictor, self, finaldamage);
 		}
+		
+		if (health <= 40)
+		{
+			if (!LowHP)
+			{
+				A_SpawnItemEx("LowHealthAlarm",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				LowHP = true;
+			}
+		}
+		else
+			LowHP = false;
 		
 		return finaldamage;
 	}
@@ -1370,9 +1218,8 @@ extend class Doom4Player
 		started = true;
 		
 		//A_SetInventory("D4MultiJump",int(GetCvar("D4MultiJump")));
-		UOffsets =
-		UVel = UZvel = UHold = Utime = UVel2 = 
-		Uonce =	UjumpsDone = Ulowhp = 0;
+		UOffsets = UjumpsDone = 0;
+		LowHP = false;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -1429,12 +1276,6 @@ extend class Doom4Player
 		}
 		SetInventory("LifeRedFlash",0);
 		//----------------------------------------------------------------------
-		/*
-		if (GetClass() == "Doom4Player")
-		{
-			if (CountInv("D4IdfaTrap")) { A_GiveInventory("IdfaStamp"); A_SetInventory("D4IdfaTrap",0); }
-		}
-		*/
 		
 	}
 	
@@ -1488,7 +1329,7 @@ extend class Doom4Player
 						}
 						if (jumpfac > 0) jumpvelz *= jumpfac;
 
-						Vel.Z += jumpvelz + (CountInv("D4HigherJump") * 2);
+						Vel.Z += jumpvelz + (CountInv("D4HigherJump") * 1.5);
 						bOnMobj = false;
 						player.jumpTics = -1;
 						if (!(player.cheats & CF_PREDICTING)) 
@@ -1504,7 +1345,7 @@ extend class Doom4Player
 				{
 					if (Vel.Z < 0.0)	Vel.Z = 0.0;
 						
-					Vel.Z += 8.2 + (CountInv("D4HigherJump") * 2);
+					Vel.Z += 8.2 + (CountInv("D4HigherJump") * 1.5);
 					UjumpsDone++;
 					A_PlaySound("Doom4/Player/DoubleJump");
 				}

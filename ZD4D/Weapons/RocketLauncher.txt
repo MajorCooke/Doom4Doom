@@ -980,7 +980,7 @@ Class D4RocketTrailFire : Actor
 	{
 		if (!Target)	{ Destroy(); return; }
 		Super.PostBeginPlay();
-		bSPRITEFLIP = (random(0,1));
+		bXFLIP = (random(0,1));
 	}
 	
 	States
