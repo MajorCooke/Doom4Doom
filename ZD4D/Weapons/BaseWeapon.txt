@@ -35,7 +35,7 @@ Class Doom4Weapon : Weapon
 		Weapon.UpSound "Doom4/Weapons/WeaponSwitch";
 		Inventory.PickupSound "Doom4/Other/WeaponPickup";
 		Inventory.RespawnTics 175;
-		Tag "REPLACE ME YOU IDIOT!";
+		Tag "REPLACE ME!";
 	}
 	
 	override void BeginPlay()
@@ -176,9 +176,11 @@ Class Doom4Weapon : Weapon
 		let gren = Spawn(proj, origin, ALLOW_REPLACE);
 		if (gren)
 		{
-			gren.target = self;
-			gren.angle = angle;
-			gren.Vel3DFromAngle(gren.speed, angle, pitch);
+			gren.target = o;
+			gren.angle = o.angle;
+			gren.pitch = o.pitch;
+			if (gren.speed > 0)
+				gren.Vel3DFromAngle(gren.speed, o.angle, o.pitch);
 		}
 		return gren;
 	}
@@ -968,40 +970,17 @@ Class ShellCasingSilent : ShellCasing
 //=======================================================================
 //=======================================================================
 
-Class NonPuff2 : Actor
-{
-	Default
-	{
-		+NOINTERACTION
-		+PAINLESS
-		+BLOODLESSIMPACT
-		+NOTIMEFREEZE
-		+NOBLOCKMAP
-		+PUFFONACTORS
-		+SKYEXPLODE
-		+HITTRACER
-		Radius 1;
-		Height 1;
-		Renderstyle "None";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 15;
-		Stop;
-	}
-}
+
 
 Class NonPuff : Actor
 {
 	Default
 	{
 		+NOINTERACTION
+		+NOBLOCKMAP
 		+PAINLESS
 		+BLOODLESSIMPACT
 		+NOTIMEFREEZE
-		+NOBLOCKMAP
-		+ALWAYSPUFF
 		+PUFFONACTORS
 		+SKYEXPLODE
 		+HITTRACER
@@ -1013,6 +992,16 @@ Class NonPuff : Actor
 	{
 	Spawn:
 		TNT1 A 3;
+		Stop;
+	}
+}
+
+Class NonPuff2 : NonPuff
+{
+	States
+	{
+	Spawn:
+		TNT1 A 15;
 		Stop;
 	}
 }
@@ -1111,13 +1100,13 @@ Class BulletSmallTracer : Actor
 		+BLOODLESSIMPACT
 		+NODAMAGETHRUST
 		+NOINTERACTION
-		damage 0;
-		radius 2;
-		height 2;
-		speed 0;
+		Damage 0;
+		Radius 2;
+		Height 2;
+		Speed 0;
 		RenderStyle "Add";
-		alpha 0.9;
-		scale 0.13;
+		Alpha 0.9;
+		Scale 0.13;
 		//Translation "0:255=%[0,0,0]:[0,1,1.5]";
 	}
 	override void OnDestroy()
@@ -1147,42 +1136,32 @@ Class BulletSmallTracer : Actor
 	override void Tick()
 	{	
 		Super.Tick();
-		if (DestroyMe)	
-			return;
-			
-		if (!bNOTIMEFREEZE && IsFrozen())
+		if (bKILLED || IsFrozen())	
 			return;
 		
-		//vel = (0,0,0);
-		//A_Stop();
-		Puff = (Tracer) ? Tracer : LineAttack(angle, RealSpeed + 1, pitch, -1, '', "NonPuff2", LAF_NOINTERACT);
+		Puff = (Tracer) ? Tracer : LineAttack(angle, RealSpeed + 1, pitch, -1, '', "NonPuffThru", LAF_NOINTERACT);
 		if (Puff)
 		{
 			double CurDist = Distance3DSquared(Puff);
 			if (CurDist <= (RealSpeed ** 2))
 			{
-				DestroyMe = true;
-				A_Stop();
-				SetXYZ(Puff.pos);
+				bKILLED = true;
+				double CurRoot = sqrt(CurDist);
+				Warp(Self, cos(pitch) * CurRoot, 0, -sin(pitch) * CurRoot, 0, WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
 				ExplodeMissile(null, null);
 				return;
 			}
 		}
-	//	Vel3DFromAngle(200.0, angle, pitch);
 		Warp(Self, _cos, 0, _sin, 0, WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
-		
 	}
 	
 	States
 	{
 	Spawn:
-		TRAC A 10 BRIGHT;
+		TRAC A 10 Bright;
 		Stop;
 	Death:
-		TNT1 A 1;
-		Stop;
-	XDeath:
-		TNT1 A 1;
+		TRAC A 1 Bright;
 		Stop;
 	}
 }
