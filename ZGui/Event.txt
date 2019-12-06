@@ -204,56 +204,6 @@ extend class D4DHandler
 		}
 	}
 	
-	// Removes all ammo actors from the map.
-	void RemoveAmmoActors()
-	{
-		static const Class<Inventory> names[] =
-		{
-			"Ammo",
-			"ClipReplacer",
-			"ClipBoxReplacer",
-			"ShellReplacer",
-			"ShellBoxReplacer",
-			"RocketBoxReplacer",
-			"RocketAmmoReplacer",
-			"CellReplacer",
-			"CellPackReplacer"
-		};
-		
-		ThinkerIterator it = ThinkerIterator.Create("Inventory");
-		Inventory mo;
-		int count = 0;
-		while (mo = Inventory(it.Next()))
-		{
-			// Do not attempt to remove any actors with the following properties: 
-			// - Owner (An actor that 'has' this inventory)
-			// - TID 
-			// - Special
-			if (mo.Owner || mo.TID || mo.Special)
-				continue;
-			
-			let am = Ammo(mo);
-			if (am)
-			{
-				count++;
-				am.Destroy();
-				continue;
-			}
-			int size = names.Size();
-			for (int i = 0; i < size; i++)
-			{
-				if (mo is names[i])
-				{
-					count++;
-					mo.Destroy();
-					continue;
-				}
-			}
-			
-		}
-		Console.Printf("%d ammo actors destroyed", count);
-	}
-	
 	void FindLiveTID(ConsoleEvent e)
 	{
 		if (e.Args[0] != 0)
