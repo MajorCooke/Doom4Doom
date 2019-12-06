@@ -15,13 +15,12 @@ Class BuyCrate : CustomInventory
 	Pickup:
 		TNT1 A 0
 		{
-			bool upgradeMode = GetCvar("D4D_CurrentUpgradeMode");
-			if (CountInv("D4DCash")>=500 || (upgradeMode && CountInv("D4DCash")))
+			if (CountInv("D4DCash")>=500 || (D4D_CurrentUpgradeMode && CountInv("D4DCash")))
 			{
 				A_FireProjectile("CrateSpawner",0,0,0);
 				
 				//A_GiveInventory("D4DCashFake",500);
-				A_TakeInventory("D4DCash",(upgradeMode) ? 1 : 500);	
+				A_TakeInventory("D4DCash",(D4D_CurrentUpgradeMode) ? 1 : 500);	
 				ACS_NamedExecuteWithResult("UpdateCashScript",0,1,0,0);
 				ACS_NamedExecute("BuyingCrate",0,1);
 			}
@@ -37,6 +36,124 @@ Class BuyCrate : CustomInventory
 
 Class CrateSpawner : Actor
 {
+	enum ECrateLevels
+	{
+		CRATE_None = 0,
+		CRATE_Heavy,
+		CRATE_Sensor,
+		CRATE_Weapon
+	};
+
+	private int Upgrade;
+	private Array<Class<Actor> > ItemName;
+	private Array<Int> Weight;
+	
+	private void AddItem(Class<Actor> cls, int weight)
+	{
+		if (!cls || weight < 1)	return;
+		
+		
+	}
+	
+	private void SpawnCrate()
+	{
+		if (!Target || Target.Health < 1)
+			return;
+		
+		A_SpawnItemEx("TeleportFog",0,0,-30,0,0,0,0,SXF_NOCHECKPOSITION);
+		A_PlaySound("Doom4/Other/Crate1",6);
+	//	A_PlaySound("Doom4/Other/Crate1",7);
+		
+		Upgrade = Target.CountInv("D4CrateUpgrade");
+		
+		if (Upgrade >= CRATE_Sensor)
+		{
+			// 1. Check for map and give it if not present.
+			
+			if (random[rng](0,100) < 30 && Target.CountInv("PowerScanner") < 1)
+			{
+				for (int i = 0; i < 8; i++)
+				{
+					A_SpawnItemEx("D4HealthBonus",20,0,0,0,0,0,i * 45,SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("D4ArmorBonus",0,0,0,random(-4,4),random(-4,4),random(0,3),0,SXF_NOCHECKPOSITION,128);
+				}
+				A_SpawnItemEx("AllMap",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			// 2. Check for a backpack and give one if none are present.
+			
+			bool	has_bigfuckingguns = 	Target.CountInv("D4BFG"),
+					has_fuelguns = 			Target.CountInv("D4Chainsaw");
+			
+			if (random[rng](0,100) < 60 && !Target.FindInventory("BackpackItem", true))
+			{
+				for (int i = 0; i < 4; i++)
+				{
+					A_SpawnItemEx("D4CellsSmall",20,0,0,0,0,0,		i * 90,	SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("D4CellsSmall",14,0,0,0,0,0,45 + (i * 90),SXF_NOCHECKPOSITION);
+				}
+				A_SpawnItemEx("D4Bullets",0,0,160,0,0, 5,random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4Shells", 0,0,160,0,0,10,random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4Rockets",0,0,160,0,0,15,random(0,359),SXF_NOCHECKPOSITION);
+				if (has_fuelguns)		A_SpawnItemEx("D4Fuel",   0,0,160,0,0,20,random(0,359),SXF_NOCHECKPOSITION);
+				if (has_bigfuckingguns)	A_SpawnItemEx("D4BFGAmmo",0,0,160,0,0,25,random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("D4Backpack",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			// 3. Check for health and armor.
+			
+			if (random[rng](0,100) < 50 && Target.Health < Target.GetMaxHealth(true))
+			{
+				
+			}
+			
+			// 4. Check for ammo.
+			
+			bool
+			has_bulletguns	= 		Target.CountInv("D4Repeater")
+							||		Target.CountInv("D4AssaultRifle")
+							||		Target.CountInv("D4Chaingun"),
+			has_shellguns 	= 		Target.CountInv("D4Shotgun")
+							||	 	Target.CountInv("D4SuperShotgun"),
+			has_cellguns 	= 		Target.CountInv("D4PlasmaRifle")
+							||	 	Target.CountInv("D4LightningGun")
+							||	 	Target.CountInv("D4VortexRifle") 
+							||	 	Target.CountInv("D4GaussCannon"),
+			has_rocketguns = 		Target.CountInv("D4RocketLauncher");
+			
+			let defbullets =	GetDefaultByType("D4Bullets");
+			int cntbullets =	Target.CountInv("D4Bullets");
+			
+			let defshells =		GetDefaultByType("D4Shells");
+			int cntshells =		Target.CountInv("D4Shells");
+			
+			let defrockets =	GetDefaultByType("D4Rockets");
+			int cntrockets =	Target.CountInv("D4Rockets");
+			
+			let defcells =		GetDefaultByType("D4Cells");
+			int cntcells =		Target.CountInv("D4Cells");
+			
+			let deffuel =		GetDefaultByType("D4Fuel");
+			int cntfuel =		Target.CountInv("D4Fuel");
+			
+			let defbfg =		GetDefaultByType("D4BFGAmmo");
+			int cntbfg =		Target.CountInv("D4BFGAmmo");
+			
+			
+		}
+		
+		// If all else fails, spawn a standard crate.
+		Class<Actor> ToSpawn = null;
+		if (Upgrade == CRATE_Heavy)
+			ToSpawn = (Target.CountInv("D4BFG")) ? "CrateItemSpawner1BFG" : "CrateItemSpawner1";
+		else
+			ToSpawn = (Target.CountInv("D4BFG")) ? "CrateItemSpawnerBFG" : "CrateItemSpawner";
+		
+		A_SpawnItemEx(ToSpawn, flags: SXF_NOCHECKPOSITION);
+	}
+
 	Default
 	{
 		Projectile;
@@ -45,6 +162,7 @@ Class CrateSpawner : Actor
 		+DONTSPLASH
 		+NOTELESTOMP
 		+NOTIMEFREEZE
+		+DONTREFLECT
 		Speed 50;
 		Damage 0;
 		Radius 12;
@@ -57,25 +175,31 @@ Class CrateSpawner : Actor
 	Death:
 		TNT1 A 0 
 		{
+			A_Stop();
 			A_SpawnItemEx("TeleportFog",0,0,-30,0,0,0,0,SXF_NOCHECKPOSITION);
 			A_PlaySound("Doom4/Other/Crate1",6);
-			A_PlaySound("Doom4/Other/Crate1",7);
-			if (CountInv("D4CrateUpgrade", TargetPtr) >= 3)
+			if (!Target)
+			{
+				A_SpawnItemEx("CrateItemSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (Target.CountInv("D4CrateUpgrade") >= 3)
 			{
 				A_SpawnItemEx("CrateItemSpawner3",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS);
 			}
-			else if (CountInv("D4CrateUpgrade", TargetPtr) >= 2)
+			else if (Target.CountInv("D4CrateUpgrade") >= 2)
 			{
 				A_SpawnItemEx("CrateItemSpawner2",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS);
 			}
-			else if (CountInv("D4CrateUpgrade", TargetPtr))
+			else if (Target.CountInv("D4CrateUpgrade"))
 			{
-				if (CountInv("D4BFG", TargetPtr))
+				if (Target.CountInv("D4BFG"))
 				{	A_SpawnItemEx("CrateItemSpawner1BFG",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	}
 				else
 				{	A_SpawnItemEx("CrateItemSpawner1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	}
 			}
-			else if (CountInv("D4BFG", TargetPtr))
+			else if (Target.CountInv("D4BFG"))
 			{
 				A_SpawnItemEx("CrateItemSpawnerBFG",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 			}
@@ -236,18 +360,15 @@ Class CrateWeaponSpawner : RandomSpawner
 	}
 }
 
-
-
-
-
 Class CrateItemSpawner2 : Actor
 {
-	int user_has_bulletguns;
-	int user_has_shellguns;
-	int user_has_cellguns;
-	int user_has_rocketguns;
-	int user_has_bigfuckingguns;
-	int user_has_fuelguns;
+	const LowDivisor = 3;
+	bool has_bulletguns;
+	bool has_shellguns;
+	bool has_cellguns;
+	bool has_rocketguns;
+	bool has_bigfuckingguns;
+	bool has_fuelguns;
 	int user_w;
 	
 	Default
@@ -261,66 +382,86 @@ Class CrateItemSpawner2 : Actor
 	Spawn:
 		TNT1 A 0 NoDelay
 		{
-			user_has_bulletguns = CountInv("D4Repeater"		, TargetPtr) 
-								| CountInv("D4AssaultRifle"	, TargetPtr)
-								| CountInv("D4Chaingun"		, TargetPtr);
-			user_has_shellguns 	= CountInv("D4Shotgun"		, TargetPtr)
-								| CountInv("D4SuperShotgun"	, TargetPtr);
-			user_has_cellguns 	= CountInv("D4PlasmaRifle"	, TargetPtr) 
-								| CountInv("D4LightningGun"	, TargetPtr)
-								| CountInv("D4VortexRifle"	, TargetPtr) 
-								| CountInv("D4GaussCannon"	, TargetPtr);
-			user_has_rocketguns = CountInv("D4RocketLauncher",TargetPtr);
-			user_has_bigfuckingguns = CountInv("D4BFG", TargetPtr);
-			user_has_fuelguns = CountInv("D4Chainsaw", TargetPtr);
+			if (!Target)	{	Destroy();	return;	}
+		
+			has_bulletguns	= 		Target.CountInv("D4Repeater")
+							||		Target.CountInv("D4AssaultRifle")
+							||		Target.CountInv("D4Chaingun");
+			has_shellguns 	= 		Target.CountInv("D4Shotgun")
+							||	 	Target.CountInv("D4SuperShotgun");
+			has_cellguns 	= 		Target.CountInv("D4PlasmaRifle")
+							||	 	Target.CountInv("D4LightningGun")
+							||	 	Target.CountInv("D4VortexRifle") 
+							||	 	Target.CountInv("D4GaussCannon");
+			has_rocketguns = 		Target.CountInv("D4RocketLauncher");
+			has_bigfuckingguns = 	Target.CountInv("D4BFG");
+			has_fuelguns = 			Target.CountInv("D4Chainsaw");
+			
+			let defbullets =	GetDefaultByType("D4Bullets");
+			int cntbullets =	Target.CountInv("D4Bullets");
+			
+			let defshells =		GetDefaultByType("D4Shells");
+			int cntshells =		Target.CountInv("D4Shells");
+			
+			let defrockets =	GetDefaultByType("D4Rockets");
+			int cntrockets =	Target.CountInv("D4Rockets");
+			
+			let defcells =		GetDefaultByType("D4Cells");
+			int cntcells =		Target.CountInv("D4Cells");
+			
+			let deffuel =		GetDefaultByType("D4Fuel");
+			int cntfuel =		Target.CountInv("D4Fuel");
+			
+			let defbfg =		GetDefaultByType("D4BFGAmmo");
+			int cntbfg =		Target.CountInv("D4BFGAmmo");
 			
 			
 			
 			// 1. Prioritize low ammo
 			
 			
-			if (user_has_bulletguns && 
-				CountInv("D4Bullets", TargetPtr) < 50 && 
+			if (has_bulletguns && 
+				Target.CountInv("D4Bullets") < defbullets.MaxAmount / LowDivisor && 
 				random(0,100) < 30 )
 			{
 				A_SpawnItemEx("D4Bullets",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				return;
 			}
 			
-			if (user_has_shellguns && 
-				CountInv("D4Shells", TargetPtr) < 20 && 
+			if (has_shellguns && 
+				Target.CountInv("D4Shells") < defshells.MaxAmount / LowDivisor && 
 				random(0,100) < 40 )
 			{
 				A_SpawnItemEx("D4Shells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				return;
 			}
 			
-			if (user_has_cellguns && 
-				CountInv("D4Cells", TargetPtr) < 100 && 
+			if (has_cellguns && 
+				Target.CountInv("D4Cells") < 100 && 
 				random(0,100) < 25 )
 			{
 				A_SpawnItemEx("D4Cells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				return;
 			}
 			
-			if (user_has_rocketguns && 
-				CountInv("D4Rockets", TargetPtr) < 5 && 
+			if (has_rocketguns && 
+				Target.CountInv("D4Rockets") < 5 && 
 				random(0,100) < 20 )
 			{
 				A_SpawnItemEx("D4Rockets",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				return;
 			}
 			
-			if (user_has_bigfuckingguns && 
-				CountInv("D4BFGAmmo", TargetPtr) < 1 && 
+			if (has_bigfuckingguns && 
+				Target.CountInv("D4BFGAmmo") < 1 && 
 				random(0,100) < 20 )
 			{
 				A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				return;
 			}
 			
-			if (user_has_fuelguns && 
-				CountInv("D4Fuel", TargetPtr) < 1 && 
+			if (has_fuelguns && 
+				Target.CountInv("D4Fuel") < 1 && 
 				random(0,100) < 20 )
 			{
 				A_SpawnItemEx("D4Fuel",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
@@ -332,48 +473,48 @@ Class CrateItemSpawner2 : Actor
 			// 2. Restore ammo to the no-backpack capacity
 			
 			
-			if (user_has_bulletguns && 
-				CountInv("D4Bullets", TargetPtr) < 250 && 
+			if (has_bulletguns && 
+				Target.CountInv("D4Bullets") < 250 && 
 				random(0,100) < 25 )
 			{
 				A_SpawnItemEx("D4Bullets",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				return;
 			}
 			
-			if (user_has_shellguns && 
-				CountInv("D4Shells", TargetPtr) < 45 && 
+			if (has_shellguns && 
+				Target.CountInv("D4Shells") < 45 && 
 				random(0,100) < 25 )
 			{
 				A_SpawnItemEx("D4Shells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				return;
 			}
 			
-			if (user_has_cellguns && 
-				CountInv("D4Cells", TargetPtr) < 200 && 
+			if (has_cellguns && 
+				Target.CountInv("D4Cells") < 200 && 
 				random(0,100) < 25 )
 			{
 				A_SpawnItemEx("D4Cells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				return;
 			}
 			
-			if (user_has_rocketguns && 
-				CountInv("D4Rockets", TargetPtr) < 30 && 
+			if (has_rocketguns && 
+				Target.CountInv("D4Rockets") < 30 && 
 				random(0,100) < 25 )
 			{
 				A_SpawnItemEx("D4Rockets",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				return;
 			}
 			
-			if (user_has_bigfuckingguns && 
-				CountInv("D4BFGAmmo", TargetPtr) < 2 && 
+			if (has_bigfuckingguns && 
+				Target.CountInv("D4BFGAmmo") < 2 && 
 				random(0,100) < 15 )
 			{
 				A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				return;
 			}
 			
-			if (user_has_fuelguns && 
-				CountInv("D4Fuel", TargetPtr) < 3 && 
+			if (has_fuelguns && 
+				Target.CountInv("D4Fuel") < 3 && 
 				random(0,100) < 20 )
 			{
 				A_SpawnItemEx("D4Fuel",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
@@ -385,7 +526,7 @@ Class CrateItemSpawner2 : Actor
 			// 3. Give armor if in dire need
 			
 			
-			if (CountInv("BasicArmor", TargetPtr) < 10 &&
+			if (Target.CountInv("BasicArmor") < 10 &&
 				random(0,100) < 15 )
 			{
 				A_SpawnItemEx("BlueArmor",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
@@ -488,7 +629,7 @@ Class CrateItemSpawner2 : Actor
 			// 99. If all else fails, take a wild guess
 			
 			
-			if (user_has_bigfuckingguns)
+			if (has_bigfuckingguns)
 			{	A_SpawnItemEx("CrateItemSpawner1BFG",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	}
 			else
 			{	A_SpawnItemEx("CrateItemSpawner1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	}
@@ -677,8 +818,7 @@ Class CrateItemSpawner3 : Actor
 			// 6. I've got a sunshine in my: how comes you're so deep and don't have one yet?
 			
 			
-			if (!target.FindInventory("BackpackItem", true) &&
-				random(0,100) < 60 )
+			if (!target.FindInventory("BackpackItem", true) && random(0,100) < 60 )
 			{
 				A_SpawnItemEx("D4CellsSmall", 20,  0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("D4CellsSmall",-20,  0,0,0,0,0,0,SXF_NOCHECKPOSITION);
