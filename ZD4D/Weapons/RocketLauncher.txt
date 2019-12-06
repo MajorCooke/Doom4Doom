@@ -493,7 +493,8 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 				{
 					// First, check to see if we have a direct target to aim at.
 					FTranslatedLineTarget hit;
-					LineAttack(0, 1536, invoker.owner.pitch, 0, 'None', "PacifistPuffNoThru", LAF_NORANDOMPUFFZ|LAF_NOIMPACTDECAL|LAF_NOINTERACT, hit);
+					LineAttack(invoker.owner.angle, 1536, invoker.owner.pitch, 
+						0, 'None', "PacifistPuffNoThru", LAF_NORANDOMPUFFZ|LAF_NOIMPACTDECAL|LAF_NOINTERACT, hit);
 					Targ = hit.linetarget;
 				}
 				Targ = LockOn(Targ);
