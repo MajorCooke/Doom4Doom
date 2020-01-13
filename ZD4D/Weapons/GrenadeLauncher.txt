@@ -121,8 +121,10 @@ Class D4GrenadeLauncher : Doom4Weapon
 	}
 }
 
-Class D4Grenade : Actor
+Class D4Grenade : D4AbstractMissilePlayer
 {
+	int TimeLimit;
+	Property TimeLimit: TimeLimit;
 	Default
 	{
 		Scale 1.2;
@@ -134,13 +136,17 @@ Class D4Grenade : Actor
 		Radius 8;
 		Height 8;
 		Projectile;
-		BounceType "Doom";
+	//	BounceType "Doom";
 		+FORCERADIUSDMG
 		+EXTREMEDEATH
 		+CANBOUNCEWATER
 		-BOUNCEAUTOOFF
 		+BOUNCEAUTOOFFFLOORONLY
-		ReactionTime 99;
+		+BOUNCEONFLOORS
+		+BOUNCEONWALLS
+		+BOUNCEONCEILINGS
+	//	ReactionTime 99;
+		D4Grenade.TimeLimit 99;
 		BounceSound "Doom4/Weapon/GrenadeLauncher/Bounce";
 		DeathSound "Doom4/Weapon/GrenadeLauncher/Explode";
 	}
@@ -170,7 +176,11 @@ Class D4Grenade : Actor
 		{
 			A_SpawnItemEx("D4RocketTrailSmoke",-5,random(5,-5),random(5,-5),0,0,0,0,SXF_NOCHECKPOSITION);
 			bNOGRAVITY = false;
-			A_CountDown();
+		//	A_CountDown();
+			if (Timer >= TimeLimit || ++Timer >= TimeLimit)
+			{
+				bBOUNCEONFLOORS = false;
+			}
 		}
 		Wait;
 	Death:

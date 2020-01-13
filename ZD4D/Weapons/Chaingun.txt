@@ -16,7 +16,7 @@ Class D4Chaingun : Doom4Weapon
 {
 	enum Chaingun
 	{
-		MobileTurretDamage = 	9,
+		MobileTurretDamage = 	6,
 		GibRange =				384
 	};
 	Default 
@@ -46,9 +46,10 @@ Class D4Chaingun : Doom4Weapon
 			{
 				// The puff does the damage, not the function. This is to allow
 				// the puff to determine if it gibs or not.
-				A_RailAttack(0, 0, true, "", "", RGFFlags,0, "D4BulletPuffTurret", 0, 0, 32766,0,0,1,null,-4.0);
+				
 				A_RailAttack(0,-7, true, "", "", RGFFlags,0, "D4BulletPuffTurret", 0, 0, 32766,0,0,1,null,0.0);
 				A_RailAttack(0, 7, true, "", "", RGFFlags,0, "D4BulletPuffTurret", 0, 0, 32766,0,0,1,null,0.0);
+				A_RailAttack(0, 0, false, "", "", RGFFlags,0, "D4BulletPuffTurret", 0, 0, 32766,0,0,1,null,-4.0);
 			}
 		}
 		//A_FireProjectile("BulletSmallTracer", 0, false, offsxy, offsz, FPF_NOAUTOAIM, pitch);

@@ -56,11 +56,11 @@ Class D4Actor : Actor
 		if (mo)
 		{
 			// Magnificent code by KeksDose.
-			Vector3 dir = levellocals.vec3diff(pos, mo.Vec3Offset(0, 0, mo.height * heightoffset));
+			Vector3 dir = levellocals.vec3diff(pos,mo.vec3offset(0, 0, mo.height * heightoffset));
 			Vector3 view = (cos(angle)*cos(pitch),sin(angle)*cos(pitch),-sin(pitch));
-			dir				= dir.unit();
-			let view_unit	= view.unit();
-			let cosang		= view_unit dot dir;
+			dir             = dir.unit();
+			let vel_unit    = view.unit();
+			let cosang      = vel_unit dot dir;
 		   
 			// Facing opposite, so you can do whatever you like here!
 			if (cosang < -0.999) 
@@ -71,8 +71,8 @@ Class D4Actor : Actor
 			// Not yet locked on
 			else if (cosang < 0.999) 
 			{
-				let ver_axis	= (view_unit - cosang * dir).unit();
-				let ang			= acos(cosang);
+				let ver_axis    = (vel_unit - cosang * dir).unit();
+				let ang         = acos(cosang);
 			   
 				// Turn. This is all local polar coordinates.
 				ang = max(0, ang - angl);

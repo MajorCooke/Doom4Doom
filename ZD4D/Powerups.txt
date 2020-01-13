@@ -68,6 +68,7 @@ Class D4Megasphere : Megasphere
 		+INVENTORY.FANCYPICKUPSOUND
 		+INVENTORY.TRANSFER
 		-Inventory.ALWAYSPICKUP
+		+INVENTORY.BIGPOWERUP
 		+COUNTITEM
 		+BRIGHT
 		+FLOATBOB
@@ -339,6 +340,7 @@ Class D4AllMap : CustomInventory //AllMap //replaces AllMap
 		+COUNTITEM
 		+INVENTORY.ALWAYSPICKUP
 		+INVENTORY.FANCYPICKUPSOUND
+		+INVENTORY.BIGPOWERUP
 		Inventory.PickupMessage "$GOTMAP";
 		Inventory.PickupSound "misc/p_pkup";
 	}
@@ -540,6 +542,7 @@ Class D4QuadDamage : CustomInventory
 		Inventory.PickupMessage "Quad Damage!";
 		//translation "0:255=%[.00,.00,.10]:[.99,.10,.99]"
 		+INVENTORY.FANCYPICKUPSOUND
+		+INVENTORY.BIGPOWERUP
 		+COUNTITEM
 		+BRIGHT
 		+FLOATBOB
@@ -731,6 +734,7 @@ Class D4Regeneration : CustomInventory
 		Inventory.PickupSound "Regen/Pickup";
 		translation "0:255=%[.30,.30,.50]:[.10,1.99,1.99]";
 		+INVENTORY.FANCYPICKUPSOUND
+		+INVENTORY.BIGPOWERUP
 		+COUNTITEM
 		+BRIGHT
 		+FLOATBOB
@@ -882,8 +886,9 @@ Class D4QuadMoney : CustomInventory
 	{
 		Inventory.PickupSound "Regen/Pickup";
 		Inventory.PickupMessage "Quad Credits!";
-		translation "0:255=%[.00,.00,.10]:[.10,.99,.10]";
+		Translation "0:255=%[.00,.00,.10]:[.10,.99,.10]";
 		+INVENTORY.FANCYPICKUPSOUND
+		+INVENTORY.BIGPOWERUP
 		+COUNTITEM
 		+BRIGHT
 		+FLOATBOB
@@ -1133,6 +1138,7 @@ Class D4Haste : CustomInventory //replaces BlurSphere
 		Inventory.PickupMessage "Haste!";
 		translation "0:255=%[.00,.00,.10]:[.99,.99,.10]";
 		+INVENTORY.FANCYPICKUPSOUND
+		+INVENTORY.BIGPOWERUP
 		+COUNTITEM
 		+BRIGHT
 		+FLOATBOB
@@ -1280,9 +1286,9 @@ Class D4PentagramOfProtection : CustomInventory //replaces InvulnerabilitySphere
 		+FORCEXYBILLBOARD
 		Inventory.PickupMessage "Pentagram Of Protection";
 		Inventory.PickupSound "PentagramOfProtection/Pickup";
-		Scale 0.17;
 		Inventory.MaxAmount 0;
 		Inventory.InterhubAmount 0;
+		Scale 0.17;
 	}
 	States
 	{

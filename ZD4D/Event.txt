@@ -727,15 +727,14 @@ Class D4DHandler : EventHandler
 	
 	void DestroyBeams(Actor caller)
 	{
-		if (caller && Beams && Beams.Size() > 0)
+		if (caller && Beams)
 		{
 			for (int i = 0; i < Beams.Size(); i++)
 			{
 				D4DBeamBase mo = D4DBeamBase(Beams.Actors[i]);
-				if (mo && (mo.Master == caller) && !mo.bNODAMAGE)
+				if (mo && (mo.Target == caller) && !mo.bNODAMAGE)
 				{
-					mo.bNODAMAGE = true;
-					mo.SetStateLabel('Death');
+					mo.Die(caller, null);
 				}
 			}
 		}

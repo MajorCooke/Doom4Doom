@@ -895,7 +895,7 @@ extend class Doom4Player
 		// of the internal damage, including thrusting since it's needless to call
 		// P_DamageMobj.
 		
-		if (bNODAMAGE || CountInv("CantTouchThis") || (!TelefragDamage && IsInvul))
+		if ((!TelefragDamage && IsInvul) || bNODAMAGE || CountInv("CantTouchThis"))
 		{
 			// Mainly just doing this to play the sound effect of the pentagram.
 			GetModifiedDamage(mod, damage, true);

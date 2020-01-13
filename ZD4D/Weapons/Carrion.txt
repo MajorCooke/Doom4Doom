@@ -1060,7 +1060,7 @@ Class CarrionPrimary : FastProjectile
 				// Thrust away from the player by setting up.
 				double ta = angle, tp = pitch;
 				A_FaceTarget(0,0,0,0,FAF_MIDDLE);
-				Warp(tracer, cos(pitch), 0, -sin(pitch), 0, WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE, 0.5);
+				if (tracer) Warp(tracer, cos(pitch), 0, -sin(pitch), 0, WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE, 0.5);
 				
 				// Then explode.
 				int idmg = int(dmg);
@@ -1071,9 +1071,11 @@ Class CarrionPrimary : FastProjectile
 				let MCEvent = MCHandler.Fetch();
 				if (MCEvent)
 				{
-					ThrustActor(tracer, dmg);
-					tracer.DamageMobj(self, target, idmg, 'Normal', dmgflags);
-					
+					if (tracer)
+					{
+						ThrustActor(tracer, dmg);
+						tracer.DamageMobj(self, target, idmg, 'Normal', dmgflags);
+					}
 					for (int i = 0; i < MCEvent.Monsters.Size(); i++)
 					{
 						Actor mo = MCEvent.Monsters.Actors[i];

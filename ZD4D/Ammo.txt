@@ -836,9 +836,10 @@ Class D4PinataCarrion : CustomInventory
 			invoker.flier = new("UpgradePinataFlier");
 			if (invoker.flier)
 			{
+				let defs = GetDefaultByType('D4Carrion');
 				invoker.flier.Spawner = invoker;
 				invoker.flier.Item = "D4Carrion";
-				invoker.flier.MaxAmt = 5000;
+				invoker.flier.MaxAmt = defs.MaxAmount;
 				invoker.flier.Distance = SuckDistance;
 			}
 		}

@@ -66,7 +66,6 @@ Class D4SpiderMastermind : D4AbstractBoss //replaces SpiderMastermind
 			for (int i = 0; i < 5; i++)
 				A_DropItem("D4PinataHealth");
 		}
-		if (Event) Event.DestroyBeams(self);
 		Super.Die(source, inflictor, dmgflags);
 	}
 	
@@ -261,7 +260,6 @@ Class D4SpiderMastermind : D4AbstractBoss //replaces SpiderMastermind
 		SPID I 3 
 		{
 			A_StopBeam();
-			if (Event) Event.DestroyBeams(self);
 			A_StopSound(6);
 		}
 		SPID I 3 A_Pain();

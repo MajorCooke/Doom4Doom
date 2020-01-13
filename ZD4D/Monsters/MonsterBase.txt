@@ -184,7 +184,7 @@ Class D4AbstractMonster : D4Actor
 			for (int i = 0; i < Beams.Size(); i++)
 			{
 				let mo = Beams[i];
-				if (mo)	mo.Die(null, null);
+				if (mo)	mo.Die(self, null);
 			}
 			Beams.Clear();
 		}

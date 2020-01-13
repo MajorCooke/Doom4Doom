@@ -42,11 +42,6 @@ Class D4ChaingunGuy : D4AbstractMonster //replaces Chaingunguy // : ChaingunGuy
 	int count;
 	
 	
-	override void Die(Actor source, Actor inflictor, int dmgflags)
-	{
-		if (Event) Event.DestroyBeams(self);
-		Super.Die(source, inflictor, dmgflags);
-	}
 	
 	Default 
 	{
@@ -136,16 +131,8 @@ Class D4ChaingunGuy : D4AbstractMonster //replaces Chaingunguy // : ChaingunGuy
 		}
 		Wait;
 	Pain:
-		HRZR G 3
-		{
-			if (!Event) Event = D4DHandler.Fetch();
-			A_StopBeam();
-		}
-		HRZR G 3 
-		{
-			if (Event) Event.DestroyBeams(self);
-			A_Pain();
-		}
+		HRZR G 3 A_StopBeam();
+		HRZR G 3 A_Pain();
 		Goto See;
 	Pain.StunBomb:
 		HRZR G 0 { bNoPain = true; A_StopBeam();	}
@@ -180,11 +167,8 @@ Class D4ChaingunGuy : D4AbstractMonster //replaces Chaingunguy // : ChaingunGuy
 		{
 			bThruActors = true;
 			XDeathGush();
-			//D4DropItems();
-			//"ChainguyCashGiver");
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_NoBlocking();	//just in case
-			if (Event) Event.DestroyBeams(self);
+			A_StopBeam();
 		}
 		Stop;
 	Raise:
@@ -198,7 +182,7 @@ Class D4ChaingunGuy : D4AbstractMonster //replaces Chaingunguy // : ChaingunGuy
 	Wound:
 		"####" "#" 1
 		{
-			if (Event) Event.DestroyBeams(self);
+			A_StopBeam();
 			if(GetCvar("D4D_ExecutionsON"))
 			{
 				if(countinv("FinisherToken")==0) //if it isnt healing already
