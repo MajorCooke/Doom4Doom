@@ -59,54 +59,70 @@ extend class D4DHandler
 				else if (rep == 'HealthBonus')		e.Replacement = 'D4HealthBonus';
 				else if (rep == 'SoulSphere')		
 				{
-					if (random[rngg](1, 21) <= 1)	e.Replacement = 'D4ExtraLife';
+					if (random[rngg](1, 20) <= 1)	e.Replacement = 'D4ExtraLife';
 					else							e.Replacement = 'D4Regeneration';
-					//e.Replacement = 'D4SoulSphereReplacer';
 				}
 			}
 			else if (rep is 'Armor')
 			{
-					 if (rep == 'ArmorBonus') 		e.Replacement = 'D4ArmorBonus';
-				else if (rep == 'BlueArmor')		e.Replacement = 'D4BlueArmor';
-				else if (rep == 'GreenArmor')		e.Replacement = 'D4GreenArmor';
+					 if (rep == 'ArmorBonus') 	e.Replacement = 'D4ArmorBonus';
+				else if (rep == 'BlueArmor')	e.Replacement = 'D4BlueArmor';
+				else if (rep == 'GreenArmor')	e.Replacement = 'D4GreenArmor';
 			}
-			else if (rep == 'Backpack')				e.Replacement = 'D4Backpack';
+			else if (rep == 'Backpack')			e.Replacement = 'D4Backpack';
 			
 			// Weapons
 			else if (rep is 'Weapon')
 			{
-				if (rep == 'Chainsaw')				e.Replacement = 'D4Chainsaw';
+				if (rep == 'Chainsaw')			e.Replacement = 'D4Chainsaw';
 				else if (rep == 'Shotgun' || repn == 'STFShotgun')
 				{
-					if (random[rngg](0,1))			e.Replacement = 'D4StaticRifle';
-					else							e.Replacement = 'D4Shotgun';
+					if (MPWeapons && random[rngg](0,1))
+												e.Replacement = 'D4StaticRifle';
+					else						e.Replacement = 'D4Shotgun';
 				}
 				else if (rep == 'SuperShotgun' || repn == 'STFSuperShotgun') 	
-													e.Replacement = 'D4SuperShotgun';
+												e.Replacement = 'D4SuperShotgun';
 													
 				else if (rep == 'Chaingun' || repn == 'STFChaingun' || repn == 'STFMinigun')
 				{
 					int rng = random[rngg](0,6);
-					
-					if (rng <= 1)					e.Replacement = 'D4Chaingun';
-					else if (rng <= 3)				e.Replacement = 'D4AssaultRifle';
-					else							e.Replacement = 'D4Repeater';
+					if (MPWeapons)
+					{
+						if (rng <= 1)			e.Replacement = 'D4Chaingun';
+						else if (rng <= 3)		e.Replacement = 'D4AssaultRifle';
+						else					e.Replacement = 'D4Repeater';
+					}
+					else
+					{
+						if (rng <= 2)			e.Replacement = 'D4Chaingun';
+						else					e.Replacement = 'D4AssaultRifle';	
+					}
 				}
 				else if (rep == 'RocketLauncher' || repn == 'STFRocketLauncher' || repn == 'STFGrenadeLauncher')	
 				{
-					if (random[rngg](0,1))			e.Replacement = 'D4GrenadeLauncher';
-					else							e.Replacement = 'D4RocketLauncher';
+					if (MPWeapons && random[rngg](0,1))
+												e.Replacement = 'D4GrenadeLauncher';
+					else						e.Replacement = 'D4RocketLauncher';
 				}
 				else if (rep == 'PlasmaRifle' || repn == 'STFPlasmaRifle' || repn == 'STFRailgun')		
 				{
 					int rng = random[rngg](0,3);
-						 if (rng == 3)				e.Replacement = 'D4GaussCannon';
-					else if (rng == 2)				e.Replacement = 'D4VortexRifle';
-					else if (rng == 1)				e.Replacement = 'D4LightningGun';
-					else							e.Replacement = 'D4PlasmaRifle';
+					if (MPWeapons)
+					{
+							 if (rng == 3)		e.Replacement = 'D4GaussCannon';
+						else if (rng == 2)		e.Replacement = 'D4VortexRifle';
+						else if (rng == 1)		e.Replacement = 'D4LightningGun';
+						else					e.Replacement = 'D4PlasmaRifle';
+					}
+					else
+					{
+						if (rng >= 2)			e.Replacement = 'D4GaussCannon';
+						else					e.Replacement = 'D4PlasmaRifle';
+					}
 				}
 				else if (rep == 'BFG9000' || repn == 'STFBFG9000' || repn == 'STFBFG10K')			
-													e.Replacement = 'D4BFG';
+												e.Replacement = 'D4BFG';
 			}
 			
 			// Powerups
@@ -181,12 +197,9 @@ extend class D4DHandler
 				else if (rep == 'DoomImp')				e.Replacement = 'D4DoomImp';
 				else if (rep == 'Fatso')				
 				{
-					// Due to a bug, we must rely on a fatso spawner.
-				//	if (random[rng](0,1))				e.Replacement = 'D4FatsoTech';
-				//	else								e.Replacement = 'D4FatsoHell';
-					
-					
-					e.Replacement = 'D4FatsoSpawner';
+					if (random[rng](0,1))				e.Replacement = 'D4FatsoTech';
+					else								e.Replacement = 'D4FatsoHell';
+					//e.Replacement = 'D4FatsoSpawner';
 				}
 				else if (rep == 'LostSoul')				e.Replacement = 'D4LostSoul';
 				else if (rep == 'PainElemental')		e.Replacement = 'D4PainElemental';
