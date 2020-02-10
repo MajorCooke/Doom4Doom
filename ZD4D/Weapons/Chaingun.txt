@@ -40,26 +40,21 @@ Class D4Chaingun : Doom4Weapon
 		double offsxy = 6.0 * frandompick(1.0,0.0,-1.0);
 		double offsz = (offsxy != 0.0) ? -1.0 : -7.0;
 		int RGFFlags = RGF_SILENT|RGF_NORANDOMPUFFZ;
-		for (int i = 0; i < 2; i++)
+		if (IsDoubleSpeed())
 		{
-			if (i > 0 || IsDoubleSpeed())
-			{
-				// The puff does the damage, not the function. This is to allow
-				// the puff to determine if it gibs or not.
-				
-				A_RailAttack(0,-7, true, "", "", RGFFlags,0, "D4BulletPuffTurret", 0, 0, 32766,0,0,1,null,0.0);
-				A_RailAttack(0, 7, true, "", "", RGFFlags,0, "D4BulletPuffTurret", 0, 0, 32766,0,0,1,null,0.0);
-				A_RailAttack(0, 0, false, "", "", RGFFlags,0, "D4BulletPuffTurret", 0, 0, 32766,0,0,1,null,-4.0);
-			}
+			A_RailAttack(MobileTurretDamage,-7, true, "", "", RGFFlags,0, "D4BulletPuffExtreme", 0, 0, 32766,0,0,1,null,0.0);
+			A_RailAttack(MobileTurretDamage, 7, true, "", "", RGFFlags,0, "D4BulletPuffExtreme", 0, 0, 32766,0,0,1,null,0.0);
+			A_RailAttack(MobileTurretDamage, 0, false, "", "", RGFFlags,0, "D4BulletPuffExtreme", 0, 0, 32766,0,0,1,null,-4.0);
 		}
-		//A_FireProjectile("BulletSmallTracer", 0, false, offsxy, offsz, FPF_NOAUTOAIM, pitch);
-		
+		A_RailAttack(MobileTurretDamage,-7, true, "", "", RGFFlags,0, "D4BulletPuffExtreme", 0, 0, 32766,0,0,1,null,0.0);
+		A_RailAttack(MobileTurretDamage, 7, true, "", "", RGFFlags,0, "D4BulletPuffExtreme", 0, 0, 32766,0,0,1,null,0.0);
+		A_RailAttack(MobileTurretDamage, 0, false, "", "", RGFFlags,0, "D4BulletPuffExtreme", 0, 0, 32766,0,0,1,null,-4.0);
+			
 		FireProjectile("BulletSmallTracer", (invoker.owner.radius + 5.0, offsxy, offsz - 7.0), false);
 		
 		if (GetCvar("D4D_Casings") > 0) 	
 			A_SpawnItemEx("TurretCasingSpawner",flags: SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			
-		A_AlertMonsters();
 		A_GunFlash("Null");
 	}
 	
@@ -648,6 +643,7 @@ Class D4Chaingun : Doom4Weapon
 				}
 				
 				A_WeaponOffset(frandom(-1, 1), frandom(33, 35));
+				A_AlertMonsters();
 			}
 		}
 		CGTF BCD 1 Bright 

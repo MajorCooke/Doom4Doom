@@ -63,7 +63,9 @@ Class D4Medikit : D4Stimpack replaces Medikit
 }
 
 Class D4HealthBonus : D4Stimpack replaces HealthBonus
-{	
+{
+	bool alwayspickup;
+	int maxamt;
 	Default 
 	{
 		+INVENTORY.ALWAYSPICKUP
@@ -74,6 +76,31 @@ Class D4HealthBonus : D4Stimpack replaces HealthBonus
 		Inventory.MaxAmount 200;
 		DistanceCheck "D4D_MaxDrawDistance";
 	}
+	
+	override void Touch(Actor toucher)
+	{
+		if (!toucher)	return;
+		let player = toucher.player;
+		if (player)
+			toucher = player.mo;
+		
+		if (special == 0 && toucher is 'Doom4Player')
+		{
+			alwayspickup = bALWAYSPICKUP;
+			maxamt = MaxAmount;
+			
+			Cvar CV = Cvar.GetCvar('D4D_BonusAlwaysPickup', player);
+			if (CV)	bALWAYSPICKUP = CV.GetInt();
+			
+			CV = Cvar.GetCvar('D4D_BonusNoLimit', player);
+			if (CV && !CV.GetInt())	MaxAmount = toucher.GetMaxHealth(true);
+			
+			Super.Touch(toucher);
+			bALWAYSPICKUP = alwayspickup;
+			MaxAmount = maxamt;
+		}
+		else Super.Touch(toucher);
+	}
 }
 
 // This should never be spawned.
@@ -83,6 +110,10 @@ Class D4HealthBonusUpgraded : D4HealthBonus
 	{
 		+INVENTORY.IGNORESKILL
 		Inventory.MaxAmount 300;
+	}
+	override void Touch(Actor toucher)
+	{
+		D4Stimpack.Touch(toucher);
 	}
 	States
 	{
@@ -220,6 +251,8 @@ Class D4BasicArmorBonus : BasicArmorBonus //replaces BasicArmorBonus
 Class D4ArmorBonus : D4ArmorBasePickup //replaces ArmorBonus
 {
 	Vector2 OldPos;
+	bool alwayspickup;
+	int maxamt;
 	Default 
 	{
 		D4ArmorBasePickup.SavePercent 100;
@@ -232,6 +265,34 @@ Class D4ArmorBonus : D4ArmorBasePickup //replaces ArmorBonus
 		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
 		+INVENTORY.ALWAYSPICKUP
 	}
+	
+	override void Touch(Actor toucher)
+	{
+		if (!toucher)	return;
+		let player = toucher.player;
+		if (player)
+			toucher = player.mo;
+		
+		if (special == 0 && toucher is 'Doom4Player')
+		{
+			alwayspickup = bALWAYSPICKUP;
+			maxamt = BaseLimit;
+			
+			Cvar CV = Cvar.GetCvar('D4D_BonusAlwaysPickup', player);
+			if (CV)	bALWAYSPICKUP = CV.GetInt();
+			else	bALWAYSPICKUP = alwayspickup;
+			
+			CV = Cvar.GetCvar('D4D_BonusNoLimit', player);
+			if (CV && !CV.GetInt())	
+				BaseLimit = Max(1, Default.BaseLimit - (100 - toucher.CountInv("D4ArmorCapRaiser")));
+			
+			Super.Touch(toucher);
+			bALWAYSPICKUP = alwayspickup;
+			BaseLimit = maxamt;
+		}
+		else Super.Touch(toucher);
+	}
+	
 	States
 	{
 	Spawn:

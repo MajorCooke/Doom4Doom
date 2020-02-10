@@ -1318,9 +1318,9 @@ class D4D_WallCheckPuff : D4D_TraceTestPuff
 //-------------------------------------------------------------------------------------------
 class D4D_Projectile_Trace : LineTracer 
 {
-    D4D_Projectile sourceActor;
-    Array<Actor> actorsToIgnore;
-    
+	D4D_Projectile sourceActor;
+	Array<Actor> actorsToIgnore;
+
 	override ETraceStatus TraceCallback() 
 	{
 		/*if (!sourceActor)

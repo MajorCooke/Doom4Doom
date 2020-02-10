@@ -58,8 +58,64 @@ Class D4D_Utility play
 		return true;
 	}
 	
+	//==========================================================================
+	// GetLedgeOffset
+	// 
 	// Code by DoomKrakken, modified by Major Cooke
+	//==========================================================================
+	
 	static bool GetLedgeOffset(Actor Activator, double MaxHeight = 72, bool move = true)
+	{
+		if (!Activator)	return false;
+	
+		static const int FrontOffset[] = {-1, 0, 1, 0};
+		static const int SideOffset[] = {0, 1, 0, -1};
+		
+		PlayerInfo Player = Activator.Player;
+		bool PlayerOnGround = Player && Player.Mo && Player.Mo == Activator && Player.OnGround;
+		Vector3 OldPos = Activator.Pos;
+		
+		if (PlayerOnGround)
+			MaxHeight *= 0.5;
+		
+		int i;
+		for (i = 0; i <= Activator.Radius; i++)
+		{
+			for (int j = 0; j <= 3; j++)
+			{
+				//[DoomKrakken]: This check is only necessary for 3D floors.  Therefore, check if we're dealing with a 3D floor to begin with (we will if the difference is non-zero).
+				if (Activator.GetZAt(i * FrontOffset[j], i * SideOffset[j], 0, GZF_NO3DFLOOR|GZF_CEILING) - Activator.GetZAt(i * FrontOffset[j], i * SideOffset[j], 0, GZF_3DRESTRICT|GZF_CEILING)) 
+				{
+					if (Activator.GetZAt(i * FrontOffset[j], i * SideOffset[j], 0, GZF_3DRESTRICT|GZF_CEILING) - OldPos.Z < Activator.Height + MaxHeight / 2)
+					{
+						return false;
+					}
+				}
+			}
+		}
+		Activator.SetXYZ(OldPos + (0, 0, MaxHeight));
+		for (i = Activator.Radius; i <= Activator.Radius * 2; i++)
+		{
+			Vector3 np = Activator.Vec3Angle(i, Activator.Angle, 0);
+			int LedgeFloorZ = Activator.GetZAt(i, 0, 0, GZF_3DRESTRICT);
+			int LedgeCeilingZ = Activator.GetZAt(i, 0, 0, GZF_3DRESTRICT|GZF_CEILING);
+			if (LedgeFloorZ - OldPos.Z > Activator.MaxStepHeight && LedgeFloorZ - OldPos.Z <= MaxHeight && LedgeCeilingZ - LedgeFloorZ >= Activator.Height && Activator.CheckPosition(np.XY))
+			{
+				if (move)
+					return Activator.Warp(Activator, np.x, np.y, 0, 0, 
+						WARPF_TOFLOOR|WARPF_NOCHECKPOSITION|WARPF_STOP|WARPF_ABSOLUTEPOSITION|WARPF_INTERPOLATE);
+					
+				
+				Activator.SetXYZ(OldPos);
+				return true;//, (i, 0, min(LedgeFloorZ - OldPos.Z, Activator.Height));
+			}
+		}
+		Activator.SetXYZ(OldPos);
+		return false;//, (0, 0, 0);
+	}
+	
+	//--------------------------------------------------------------------------
+	static bool OldGetLedgeOffset(Actor Activator, double MaxHeight = 72, bool move = true)
 	{
 		if (!Activator)	return false;
 	
@@ -74,8 +130,8 @@ Class D4D_Utility play
 		//Int MaxHeight = 72 / (1 + PlayerOnGround); 
 		
 		//[DK]: Check offsets...
-		Static Const Int FrontOffset[] = {-1, 0, 1, 0};
-		Static Const Int SideOffset[] = {0, 1, 0, -1};
+		static const int FrontOffset[] = {-1, 0, 1, 0};
+		static const int SideOffset[] = {0, 1, 0, -1};
 		
 		Int i; //[DK]: Radius Check
 		For (i = 0; i <= Activator.Radius; i++) //[DK]: Let's have some elbow room.
@@ -112,7 +168,7 @@ Class D4D_Utility play
 				Activator.SetXYZ(OldPos);
 				if (move)	
 					return Activator.Warp(Activator, np.x, np.y, 0, 0, 
-						WARPF_TOFLOOR|WARPF_NOCHECKPOSITION|WARPF_STOP|WARPF_ABSOLUTEPOSITION); //
+						WARPF_TOFLOOR|WARPF_NOCHECKPOSITION|WARPF_STOP|WARPF_ABSOLUTEPOSITION);
 				
 				//return (i, 0, min(LedgeFloorZ - OldPos.Z, Activator.Height));
 				return true;
@@ -228,7 +284,7 @@ Class D4D_Utility play
 
 Class D4D_Line play
 {
-	Line 	lin;
+	Line lin;
 	
 	static D4D_Line Create(Line l)
 	{
@@ -261,12 +317,36 @@ Class D4D_LineContainer play
 	}
 }
 
+//------------------------------------------------------------------------------
+
+Class D4D_LineChecker : LineTracer
+{
+	D4D_LineContainer Ignore;
+
+	override ETraceStatus TraceCallback() 
+	{
+		switch (Results.HitType) 
+		{
+			case TRACE_HitActor:
+			case TRACE_HitFloor:
+			case TRACE_HitCeiling:
+				return TRACE_Skip;
+			case TRACE_HitWall:
+				return TRACE_Stop;
+		}
+		return TRACE_Skip;
+	}
+}
+
 /* 
 Now for some psuedocode rambling...
 
 I want to evolve the 3D floor detection of my code for mantling over, but this
 part will be tricky. 
 
-1. Get all lines attached to the player
+1. Get all lines attached to the player's next predicted position.
+
+2. Check for any lines that are single sided, or block the player. If so, 
 
 */
+

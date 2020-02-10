@@ -870,9 +870,27 @@ Model D4ShieldWall
 	FrameIndex D4SW A 0 0
 }
 
-Model ShieldWallPickup
+Model ShieldWallWorld
 {
 	Scale 1.0 1.0 1.2
 	Model 0 "Models/ShieldWall.md3"
 	FrameIndex D4SW A 0 0
+	Rotation-Speed 50
+}
+
+//------------------------------------------------------------------------------
+// Personal Teleporter
+Model D4PersonalPortal
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/PersonalTeleporter.md3"
+	FrameIndex D4PP A 0 0
+}
+
+Model PersonalPortalWorld
+{
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/PersonalTeleporter.md3"
+	FrameIndex D4PP A 0 0
+	Rotation-Speed 50
 }

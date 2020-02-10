@@ -27,6 +27,8 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 	{
 		+DONTTHRUST
 		+DONTCORPSE
+		+DONTMORPH
+		+NOICEDEATH
 		Health 3000;
 		DamageFactor "Crush", 20.0;
 	}
@@ -35,16 +37,27 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 	{
 		Actor s = source;
 		Actor i = inflictor;
-		if ((s && s.bISMONSTER) || (i && i.target && i.target.bISMONSTER))
-			return 0;
-		if ((inflictor && inflictor is "ExplosiveBarrel") || (source && source is "ExplosiveBarrel"))
-			damage *= 20;
+		
+		if ((i && i is "ExplosiveBarrel") || (s && s is "ExplosiveBarrel"))
+			return Super.DamageMobj(inflictor, source, damage * 20, mod, flags, angle);
 			
-		return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+		if ((flags & DMG_FORCED) || mod == "Crush" || mod == "Telefrag" ||
+			(s && (s is "PlayerPawn" || s.player)) ||
+			(i && ((i is "PlayerPawn" || i.player) || 
+			(i.target && (i.target is "PlayerPawn" || i.target.player)))))
+			return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+			
+		return 0;
 	}
 	
 	void KillEverything()
 	{
+		bool xtreme = true;
+		if (target)	
+		{
+			xtreme = target.bEXTREMEDEATH;
+			target.bEXTREMEDEATH = true;
+		}
 		ThinkerIterator it = ThinkerIterator.Create("Actor", STAT_DEFAULT);
 		Actor mo;
 		while (mo = Actor(it.Next()))
@@ -76,13 +89,17 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 		//	if (mo.bNODAMAGE)
 		//		continue;
 			
+			
+			
 			if (mo.bISMONSTER && mo.health > 0)
 			{
 				mo.bVULNERABLE = true;
-				mo.A_Die("Extreme");
+				mo.DamageMobj(target, target, mo.health, "Extreme", DMG_FORCED|DMG_THRUSTLESS);
 				continue;
 			}
 		}
+		
+		if (target)	target.bEXTREMEDEATH = xtreme;
 	}
 	
 	States
@@ -144,7 +161,8 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 						}						
 					}
 					plr = players[i].mo;
-					if (plr) plr.A_GiveInventory("D4PentagramOfProtection");
+					if (plr && plr.health > 0) 
+						plr.A_GiveInventory("D4PentagramOfProtection");
 				}
 			}
 			KillEverything();

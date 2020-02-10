@@ -66,15 +66,17 @@ OptionMenu "D4DOptions"
 	Submenu "Glory Kill Options",			"D4DGloryKillOptions"
 	StaticText ""
 	StaticText "Gameplay Options", 1
-	Option "Double jump",					"D4D_MultiJump",		"OnOff"
+	Option "Multi jump",					"D4D_MultiJump",		"OnOff"
 	Option "Ledge grabbing",				"D4D_AllowClimbing",	"OnOff"
 	Option "Berserk Switch On Pickup",		"D4D_BerserkAutoSwitch","YesNo"
-	Option "Nightmare Grenade Starts",		"D4D_NMGrenades","NMGrenade"
+	Option "Nightmare Grenade Starts",		"D4D_NMGrenades",		"NMGrenade"
+	Option "Bonus Items Always Pickup",		"D4D_BonusAlwaysPickup","YesNo"
+	Option "Bonus Item Capacity",			"D4D_BonusNoLimit",		"D4BonusLimits"
 	StaticText ""
 	StaticText "Demon Runes", 1
 	Option "Spawn Demon Runes",				"D4D_DemonRunes",		"DemonRunes"
 	Option "Silent idle demon-player",		"D4D_SilentMorphs",		"YesNo"
-	Option "Show HUD Demon Name",			"D4D_DemonNameDisplay",		"YesNo"
+	Option "Show HUD Demon Name",			"D4D_DemonNameDisplay",	"YesNo"
 	StaticText ""
 	StaticText "Footsteps", 1
 	Slider "Footsteps volume",				"fs_volume_mul",	0.0, 3.0, 0.1, 2
@@ -289,6 +291,12 @@ OptionMenu "D4DMonsterOptions"
 	Option "Archvile",						"D4D_ResArchvile",			"OnOff"
 	Option "Cyberdemon",					"D4D_ResCyberdemon",		"OnOff"
 	Option "Spider Mastermind",				"D4D_ResSpiderMastermind",	"OnOff"
+}
+
+OptionValue "D4BonusLimits"
+{
+	0, "Upgrade Based"
+	1, "Classic Doom"
 }
 
 OptionValue "UpgradeMode"

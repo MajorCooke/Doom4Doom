@@ -6,6 +6,8 @@ user bool D4D_DrawPinataBorders = true;
 user bool D4D_DamageIndicators = true;
 user float D4D_DIScale = 0.5;
 user float D4D_DIAlpha = 1.0;
+user bool D4D_BonusAlwaysPickup = true;
+user bool D4D_BonusNoLimit = true;
 
 server noarchive bool D4D_NetEventDebug = false;
 server noarchive int D4D_PrintDebug = 0;
@@ -13,6 +15,7 @@ server noarchive int D4D_PrintDebug = 0;
 server int D4D_MonsterType = 1;
 server bool D4D_LootDrop = true;
 server int D4D_CustomSpawnBias = 50;
+
 
 server bool D4Debug = false;
 server int D4D_ShortGibLives = 0;
@@ -26,7 +29,6 @@ server bool D4D_BiggerFont = false;
 server int user_Completionist = 2;
 server bool user_MonsterQuota = true;
 server bool user_SecretQuota = true;
-server int D4D_MenuMouseSpeed = 70;
 
 server bool D4D_Casings = true;
 server bool D4D_ShortCasingLives = false;
@@ -37,10 +39,10 @@ server bool HQEffectsWeapons = true;
 server bool MPWeapons = true;
 server bool D4D_AllowClimbing = true;
 server bool D4D_PitchMod = false;
-server bool D4D_TurningBehavior = false;
+//server bool D4D_TurningBehavior = false;
 server bool D4D_BloodSplatters = true;
 server int D4D_BloodTime = 10;
-server int D4D_BeamTexture = 0;
+//server int D4D_BeamTexture = 0;
 server bool D4D_BloodGiblets = true;
 server bool D4D_HKMeleeOnly = false;
 server bool D4D_RepeaterMode = false;
@@ -87,3 +89,4 @@ server noarchive cheat bool Adjustable = false; //Keep this false.
 server noarchive bool UpgradeUpdating = false;
 server noarchive int CTake = 0;
 server bool user_SecondaryExit = true;
+server int D4D_MenuMouseSpeed = 70;

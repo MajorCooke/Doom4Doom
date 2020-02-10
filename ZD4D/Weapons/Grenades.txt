@@ -11,14 +11,15 @@ Class D4DGrenadeItem : D4DKeeperItem
 {
 	Class<D4EquipmentProjectile> Grenade;
 	bool Selected;
-	String IconReady, IconCooldown; 
+	String IconReady, IconCooldown, IconActive; 
 	double SX, SY, PX, PY;
 	
 	int Cooldown, CooldownMax;
 	
 	Property CooldownMax: CooldownMax;			
 	Property Grenade: Grenade;					// Actual grenade name that's launched
-	Property Icons: IconReady, IconCooldown;	// Icons to use between ready and charging.
+	Property Icons: IconReady, IconCooldown,	// Icons to use between ready, charging,
+					IconActive;					// and prepared for activation.
 	Property Scales: SX, SY;					// Scales for status bars
 	Property Positions: PX, PY;					// Position for status bars (within 1024x768)
 	
@@ -60,16 +61,16 @@ Class D4DGrenadeItem : D4DKeeperItem
 	}
 }
 
-Class FlameThrowerPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FlamePoint";		D4DGrenadeItem.Icons "FlameThr", "FlameTh0";	Tag "Flame";	D4DGrenadeItem.Positions 829, 681;	}}
-Class FragGrenadePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0";	Tag "Frag";		D4DGrenadeItem.Positions 826, 680;	}}
-Class HoloGrenadePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4PlayerHolograph";	D4DGrenadeItem.Icons "HoloGren", "HoloGre0";	Tag "Holo";		D4DGrenadeItem.Positions 827, 681;	}}
-Class SyphonGrenadePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4SyphonGrenade";	D4DGrenadeItem.Icons "SyphGren", "SyphGre0";	Tag "Syphon";	D4DGrenadeItem.Positions 827, 679;	}}
-Class PersonalPortalPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4PersonalPortal";	D4DGrenadeItem.Icons "FragGren", "FragGre0";	Tag "Portal";	D4DGrenadeItem.Positions 828, 682;	}}
-Class TeslaRocketPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4TeslaRocket";		D4DGrenadeItem.Icons "FragGren", "FragGre0";	Tag "Tesla";	D4DGrenadeItem.Positions 828, 682;	}}
-Class ThreatSensorPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0";	Tag "Sensor";	D4DGrenadeItem.Positions 828, 682;	}}
-Class ThreatScannerPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0";	Tag "Scanner";	D4DGrenadeItem.Positions 828, 682;	}}
-Class KineticMinePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4KineticMine";		D4DGrenadeItem.Icons "FragGren", "FragGre0";	Tag "Mine";		D4DGrenadeItem.Positions 828, 682;	}}
-Class ShieldWallPickup : D4DGrenadeItem		{ Default { D4DGrenadeItem.Grenade "D4ShieldWall";		D4DGrenadeItem.Icons "ShieldWa", "ShieldW0";	Tag "Shield";	D4DGrenadeItem.Positions 828, 682;	}}
+Class FlameThrowerPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FlamePoint";		D4DGrenadeItem.Icons "FlameThr", "FlameTh0", "";			Tag "Flame";	D4DGrenadeItem.Positions 829, 681;	}}
+Class FragGrenadePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Frag";		D4DGrenadeItem.Positions 826, 680;	}}
+Class HoloGrenadePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4PlayerHolograph";	D4DGrenadeItem.Icons "HoloGren", "HoloGre0", "";			Tag "Holo";		D4DGrenadeItem.Positions 827, 681;	}}
+Class SyphonGrenadePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4SyphonGrenade";	D4DGrenadeItem.Icons "SyphGren", "SyphGre0", "";			Tag "Syphon";	D4DGrenadeItem.Positions 827, 679;	}}
+Class PersonalPortalPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4PersonalPortal";	D4DGrenadeItem.Icons "PersTele", "PersTel0", "PersTel1";	Tag "Portal";	D4DGrenadeItem.Positions 827, 681;	}}
+Class TeslaRocketPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4TeslaRocket";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Tesla";	D4DGrenadeItem.Positions 828, 682;	}}
+Class ThreatSensorPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Sensor";	D4DGrenadeItem.Positions 828, 682;	}}
+Class ThreatScannerPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Scanner";	D4DGrenadeItem.Positions 828, 682;	}}
+Class KineticMinePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4KineticMine";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Mine";		D4DGrenadeItem.Positions 828, 682;	}}
+Class ShieldWallPickup : D4DGrenadeItem		{ Default { D4DGrenadeItem.Grenade "D4ShieldWall";		D4DGrenadeItem.Icons "ShieldWa", "ShieldW0", "";			Tag "Shield";	D4DGrenadeItem.Positions 828, 682;	}}
 
 
 
@@ -120,6 +121,10 @@ Class D4DUtilityWorld : CustomInventory
 	
 	States
 	{
+	Precache:
+		D4GR EFG 0;
+		D4SW A 0;
+		D4PP A 0;
 	Spawn:
 		TNT1 A -1 NoDelay SetupSprite();
 		Stop;
@@ -172,6 +177,19 @@ Class ShieldWallWorld : D4DUtilityWorld
 		Scale 1.0;
 	}
 }
+
+Class PersonalPortalWorld : D4DUtilityWorld
+{
+	Default 
+	{
+		Inventory.PickupMessage "Personal Portal equipment";
+		D4DUtilityWorld.SpawnSprite "D4PP", Fr_A;
+		D4DUtilityWorld.Pickup "PersonalPortalPickup";
+		Scale 1.0;
+	}
+}
+
+
 
 //--------------------------------------------------------------
 // To select next/prev grenade
@@ -833,7 +851,9 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 				// Skip players, the dead, friendly and infighting monsters.
 				if (!mo || mo == self || mo.bFRIENDLY || mo.health < 1 || mo.player ||
 					(mo.target && !mo.target.player) ||
-					!CheckSight(mo, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
+					mo.pos.z < mo.floorz ||
+					mo.pos.z + height > mo.ceilingz ||
+					!mo.CheckSight(self, SF_IGNOREVISIBILITY))
 					continue;
 				
 				if (!mo.LastHeard)
@@ -850,7 +870,10 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 		for (int i = 0; i < Event.Missiles.Size(); i++)
 		{
 			Actor mo = Event.Missiles.Actors[i];
-			if (!mo || !CheckSight(mo, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
+			if (!mo || !mo.bSEEKERMISSILE || mo.bNOINTERACTION || 
+				mo.pos.z < mo.floorz ||
+				mo.pos.z + mo.height > mo.ceilingz ||
+				!mo.CheckSight(self, SF_IGNOREVISIBILITY))
 				continue;
 			
 			if (mo.tracer == master)
@@ -981,7 +1004,7 @@ Class CarrionFlameFastSmall : CarrionFlameFast
 Class D4FlamePoint : D4EquipmentProjectile
 {
 	const FlameCone = cos(20);
-	const IgniteRange = 256.0;
+	const IgniteRange = 300.0;
 	const IgniteRangeSq = IgniteRange ** 2.0;
 	MCHandler Event;
 	int count;
@@ -1037,7 +1060,7 @@ Class D4FlamePoint : D4EquipmentProjectile
 			
 			// Flaming dopefish belch. Tartarus sauce is spiciest, hands down.
 			int i = 0;
-			for (; i < IgniteRange; i += random(4,12))
+			for (; i < IgniteRange; i += random(5,15))
 			{
 				double p = frandom(-10.0, 10.0);
 				double dist = frandom(0.0, IgniteRange);
@@ -1048,6 +1071,9 @@ Class D4FlamePoint : D4EquipmentProjectile
 			
 			// Actual ignition code. Once every X tics, set fire to any monster
 			// in the way of the flames.
+			
+			// TO DO: Rework.
+			/*
 			if (count % 2 == 0)
 			{
 				if (!Event)	Event = MCHandler.Fetch();
@@ -1080,6 +1106,26 @@ Class D4FlamePoint : D4EquipmentProjectile
 					}
 				}
 			}
+			*/
+			if (!tr)	tr = new("D4DIgniteTrace");
+			tr.Ignored.Clear();
+			tr.Ignored.Push(target);
+			Vector3 viewVector = (cos(angle)*cos(pitch),sin(angle)*cos(pitch),-sin(pitch));
+			for (int i = 0; i < 100; i++)
+			{
+				tr.Trace(pos, CurSector, viewVector, IgniteRange, 0);
+				if (tr.Results.HitType == TRACE_HitActor)
+				{
+					// Time for the pink slip.
+					Actor res = tr.Results.HitActor;
+					if (res) 
+					{
+						IgniteMobj(res);
+						tr.Ignored.Push(res);
+					}
+				}
+				else break;
+			}
 			
 			/*
 			if (count % 4 < 1)
@@ -1107,6 +1153,42 @@ Class D4FlamePoint : D4EquipmentProjectile
 		}
 		Wait;
 	}
+}
+
+class D4DIgniteTrace : LineTracer play
+{
+    Array<Actor> Ignored;
+    override ETraceStatus TraceCallback() 
+	{
+        if (Results.HitType == TRACE_HitActor)
+		{
+			Actor mo = Results.HitActor;
+			
+			if (!mo || mo.bFRIENDLY || mo.health < 1)
+				return TRACE_Skip;
+			
+			int size = Ignored.Size();
+			if (size > 0 && Ignored.Find(mo) < size)
+				return TRACE_Skip;
+				
+			return TRACE_Stop;
+		}
+		else if ((Results.HitType == TRACE_HitWall) && (Results.Tier == TIER_Middle))
+		{
+			Line ln = Results.Hitline;
+			int flags = ln.Flags;
+			if ((flags & (Line.ML_BLOCKHITSCAN|Line.ML_BLOCKEVERYTHING)))
+				return TRACE_Stop;
+				
+			if (flags & (Line.ML_BLOCKING) && 
+				(!(flags & (Line.ML_TWOSIDED)) && Results.HitTexture))
+				return TRACE_Stop;
+				
+		//	if (!Results.HitTexture && !(ln.Flags & (Line.ML_BlockHitscan)))
+			return TRACE_Skip;
+		}
+		return TRACE_Stop;
+    }
 }
 
 Class D4FlameTimer : Inventory 
@@ -1173,29 +1255,6 @@ Class D4FlameTimer : Inventory
 				a.Scale *= 0.40;
 		}
 	}
-}
-
-class D4DIgniteTrace : LineTracer play
-{
-    Actor Owner;
-	Actor Wanted;
-    
-    override ETraceStatus TraceCallback() 
-	{
-		if (!Wanted)	return TRACE_Abort;
-        if (Results.HitType == TRACE_HitActor)
-		{
-			Actor mo = Results.HitActor;
-			if (mo != Wanted || mo == Owner)	return TRACE_Skip;
-		}
-		else if ( (Results.HitType == TRACE_HitWall) && (Results.Tier == TIER_Middle) )
-		{
-			Line ln = Results.Hitline;
-			if (!Results.HitTexture && !(ln.Flags & (Line.ML_BlockHitscan)))
-				return TRACE_Skip;
-		}
-		return TRACE_Stop;
-    }
 }
 
 //------------------------------------------------------------------------------

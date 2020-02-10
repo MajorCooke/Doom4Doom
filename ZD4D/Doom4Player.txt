@@ -213,10 +213,11 @@ Class Doom4Player : PlayerPawn
 				A_Overlay(Overlay_LedgeGrab,"Overlay.LedgeGrab",true);
 				A_Overlay(Overlay_LifeRecorder, "Overlay.LifeRecorder", true);
 			//	A_Overlay(99,"Overlay.Debug",true);
-				A_OverlayFlags(Overlay_DashManager, PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
-				A_OverlayFlags(Overlay_UtilityManager, PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
-				A_OverlayFlags(Overlay_LedgeGrab, PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
-				A_OverlayFlags(Overlay_LifeRecorder, PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
+				int flags = PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST;
+				A_OverlayFlags(Overlay_DashManager, flags, false);
+				A_OverlayFlags(Overlay_UtilityManager, flags, false);
+				A_OverlayFlags(Overlay_LedgeGrab, flags, false);
+				A_OverlayFlags(Overlay_LifeRecorder, flags, false);
 			}
 		}
 		Loop;
@@ -576,7 +577,15 @@ Class Doom4Player : PlayerPawn
 					(!(CurInputCmds & BT_FORWARD)))		// Not trying to move forward
 			//	||	(OldInputCmds == BT_FORWARD))))
 					return;
-					
+				
+				if (D4D_Utility.GetLedgeOffset(self))
+				{
+					vel.z = 0;
+					A_Stop();
+					A_SetTics(waitTics);
+				}
+				
+				/*
 				int DistCheck = 24;
 				double newfloor = GetZAt(DistCheck,0,0);
 				double newceiling = GetZAt(DistCheck,0,0,GZF_CEILING);
@@ -600,6 +609,7 @@ Class Doom4Player : PlayerPawn
 					A_SetTics(waitTics);
 					bSlidesOnWalls = true;
 				}
+				*/
 			}
 		}
 		Loop;
@@ -816,8 +826,7 @@ extend class Doom4Player
 		bool IsInvul = (FindInventory("PowerInvulnerable", true) || bINVULNERABLE);
 		if (TelefragDamage)
 		{
-			if (bNODAMAGE)	TelefragDamage = false;
-			else if (IsInvul &&	CountInv("D4PentagramUpgrade4"))
+			if (bNODAMAGE || (IsInvul && CountInv("D4PentagramUpgrade4")))
 				TelefragDamage = false;
 		}
 		if (!TelefragDamage && (player.cheats & CF_GODMODE) && !(flags & DMG_FORCED))
@@ -923,7 +932,7 @@ extend class Doom4Player
 			}
 			
 			DamageTypeReceived = "WhiteFlashDamage";
-			player.DamageCount = Min(0, player.DamageCount + int(damage * 0.5));
+			player.DamageCount = Max(0, player.DamageCount + int(damage * 0.5));
 			/*
 			if (PentaNoiseWait < 1)
 			{
@@ -935,6 +944,8 @@ extend class Doom4Player
 			*/
 			if (!bNODAMAGE)
 			{
+				ApplyKickback(inflictor, source, damage, angle, mod, flags);
+				/*
 				Actor origin = (source && (flags & DMG_INFLICTOR_IS_PUFF)) ? source : inflictor;
 				
 				if (origin && !origin.bNODAMAGETHRUST && !bDONTTHRUST)
@@ -960,6 +971,7 @@ extend class Doom4Player
 					if (thrust >= 0.01)					
 						Thrust(thrust, ang);	
 				}
+				*/
 			}
 			return 0;
 		}
@@ -1004,7 +1016,11 @@ extend class Doom4Player
 		
 		if (arm)	ArmorAfter = arm.Amount;
 		
-		DamageScreenEffects(finaldamage, ArmorBefore, ArmorAfter);
+		// This is needed in the event armor absorbs the damage. Otherwise this
+		// won't trigger, and neither will the damage indicators.
+		// But this is only if the armor absorbs it all. Damage to the player
+		// himself is automatically handled via the event handler
+		DamageScreenEffects(finaldamage, ArmorBefore, ArmorAfter); // Shader effects
 		
 		if ((source || inflictor) && finaldamage < 1 && abs(ArmorBefore - ArmorAfter) > 0)
 		{
