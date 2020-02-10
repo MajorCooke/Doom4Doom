@@ -339,8 +339,9 @@ Class Doom4StatusBar : BaseStatusBar
 				KeyPos[i] += HPOffset;
 				SlotPos[i] += HPOffset;
 			}
-			DrawImage((GetAmountOnly(keynames[i]) ? "KEYSLOT1" : "KEYSLOT0"), SlotPos[i], imageAlignmentLeft);
-			if (GetAmountOnly(keynames[i]))	DrawImage(keyimg[i], KeyPos[i], imageAlignmentLeft);
+			int count = GetAmountOnly(keynames[i], true);
+			DrawImage((count ? "KEYSLOT1" : "KEYSLOT0"), SlotPos[i], imageAlignmentLeft);
+			if (count)	DrawImage(keyimg[i], KeyPos[i], imageAlignmentLeft);
 		}
 		
 		// Demon Runes
@@ -1088,9 +1089,9 @@ extend class Doom4StatusBar
 	}
 
 	// For only getting the current amount instead of both amount and max amounts.
-	int GetAmountOnly(class<Inventory> item)
+	int GetAmountOnly(class<Inventory> item, bool subtype = false)
 	{
-		let it = CPlayer.mo.FindInventory(item);
+		let it = CPlayer.mo.FindInventory(item, subtype);
 		return (it ? it.Amount : 0);
 	}
 	
