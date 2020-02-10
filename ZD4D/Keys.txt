@@ -29,13 +29,13 @@ Class D4KeyBase : CustomInventory
 	}
 }
 
-Class D4RedCard : D4KeyBase //replaces RedCard
+Class D4RedCard : RedCard //replaces RedCard
 {
 	Default 
 	{
 		Scale .2;
 		Inventory.PickupMessage "Red key";
-		D4KeyBase.KeyItem "RedCard";
+		Species "RedCard";
 	}
 	States
 	{
@@ -54,13 +54,13 @@ Class D4RedCard : D4KeyBase //replaces RedCard
 	}
 }
 
-Class D4YellowCard : D4KeyBase //replaces YellowCard
+Class D4YellowCard : YellowCard //replaces YellowCard
 {
 	Default 
 	{
 		Scale .2;
 		Inventory.PickupMessage "Yellow key";
-		D4KeyBase.KeyItem "YellowCard";
+		Species "YellowCard";
 	}
 	States
 	{
@@ -79,13 +79,13 @@ Class D4YellowCard : D4KeyBase //replaces YellowCard
 	}
 }
 
-Class D4BlueCard : D4KeyBase //replaces BlueCard
+Class D4BlueCard : BlueCard //replaces BlueCard
 {
 	Default 
 	{
 		Scale .2;
 		Inventory.PickupMessage "Blue key";
-		D4KeyBase.KeyItem "BlueCard";
+		Species "BlueCard";
 	}
 	States
 	{
@@ -104,13 +104,13 @@ Class D4BlueCard : D4KeyBase //replaces BlueCard
 	}
 }
 
-Class D4RedSkull : D4KeyBase //replaces RedSkull
+Class D4RedSkull : RedSkull //replaces RedSkull
 {
 	Default 
 	{
 		Scale .4;
 		Inventory.PickupMessage "Red skull";
-		D4KeyBase.KeyItem "RedSkull";
+		Species "RedSkull";
 	}
 	States
 	{
@@ -121,13 +121,13 @@ Class D4RedSkull : D4KeyBase //replaces RedSkull
 	}
 }
 
-Class D4YellowSkull : D4KeyBase //replaces YellowSkull
+Class D4YellowSkull : YellowSkull //replaces YellowSkull
 {
 	Default 
 	{
 		Scale .4;
 		Inventory.PickupMessage "Yellow skull";
-		D4KeyBase.KeyItem "YellowSkull";
+		Species "YellowSkull";
 	}
 	States
 	{
@@ -138,13 +138,13 @@ Class D4YellowSkull : D4KeyBase //replaces YellowSkull
 	}
 }
 
-Class D4BlueSkull : D4KeyBase //replaces BlueSkull
+Class D4BlueSkull : BlueSkull //replaces BlueSkull
 {
 	Default 
 	{
 		Scale .4;
 		Inventory.PickupMessage "Blue skull";
-		D4KeyBase.KeyItem "BlueSkull";
+		Species "BlueSkull";
 	}
 	States
 	{
