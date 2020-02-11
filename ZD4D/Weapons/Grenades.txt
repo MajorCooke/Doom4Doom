@@ -910,10 +910,11 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 			countdowntimer = 0;
 		}
 	Idle:
-		PLAZ E 2 
+		PLAZ E 2;
+		PLAZ E 0 
 		{
-			DrawAttention(true);
 			A_ClearTarget();
+			DrawAttention(true);
 			A_LookEx(0,0,0,0,360,"TickTock");
 			countdowntimer += 2;
 			return A_JumpIf (countdowntimer >= TimeLimit,"Death");
@@ -926,8 +927,11 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 		PLAZ F 0
 		{
 			DrawAttention();
-			A_FaceTarget();
-			A_SpawnProjectile("NewPlasmaBallNoDamage");
+			if (target && target.health > 0)
+			{
+				A_FaceTarget();
+				A_SpawnProjectile("NewPlasmaBallNoDamage");
+			}
 		}
 		PLAZ FEE 1 bright 
 		{
@@ -937,6 +941,8 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 				A_Chase(null,null,CHF_DONTMOVE);
 				if (!target || target.health < 1)
 				{	
+					A_ClearTarget();
+					A_StopSound(5);
 					A_PlaySound("Doom4/Weapon/PlasmaGun/Fire",5,1);
 					return ResolveState("Idle");	
 				}
