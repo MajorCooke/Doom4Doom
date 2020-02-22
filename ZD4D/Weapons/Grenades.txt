@@ -851,8 +851,6 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 				// Skip players, the dead, friendly and infighting monsters.
 				if (!mo || mo == self || mo.bFRIENDLY || mo.health < 1 || mo.player ||
 					(mo.target && !mo.target.player) ||
-					mo.pos.z < mo.floorz ||
-					mo.pos.z + height > mo.ceilingz ||
 					!mo.CheckSight(self, SF_IGNOREVISIBILITY))
 					continue;
 				
@@ -870,9 +868,7 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 		for (int i = 0; i < Event.Missiles.Size(); i++)
 		{
 			Actor mo = Event.Missiles.Actors[i];
-			if (!mo || !mo.bSEEKERMISSILE || mo.bNOINTERACTION || 
-				mo.pos.z < mo.floorz ||
-				mo.pos.z + mo.height > mo.ceilingz ||
+			if (!mo || mo.bNOINTERACTION ||
 				!mo.CheckSight(self, SF_IGNOREVISIBILITY))
 				continue;
 			

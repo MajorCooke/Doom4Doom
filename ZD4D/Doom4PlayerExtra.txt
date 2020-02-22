@@ -7,7 +7,51 @@ extend class Doom4Player
 				!plr.mo.alternative && !plr.mo.FindInventory('PowerMorph',true) &&
 				level.mapname != 'TITLEMAP') ? plr : null;
 	}
+	
+	//==========================================================================
+	//
+	// Morph stuff
+	//
+	//==========================================================================
+
+	private MCHealthArmorSaver HPArmor;
+	private Actor AbsoluteAlternative;
+	override bool MorphPlayer(playerinfo activator, Class<PlayerPawn> spawntype, int duration, int style, Class<Actor> enter_flash, Class<Actor> exit_flash)
+	{	
+		let HPA = MCHealthArmorSaver.Create(self);
 		
+		bool morph = Super.MorphPlayer(activator, spawntype, duration, style, enter_flash, exit_flash);
+		if (morph)	
+		{
+			AbsoluteAlternative = Alternative;
+			HPArmor = HPA;
+			let p = alternative.player;
+			Shader.SetEnabled(p, "damageshader", false);
+		}
+		return morph;
+	}
+	
+	override void PlayerThink()
+	{
+		Super.PlayerThink();
+		
+		let player = self.player;
+		if (HPArmor && player && player.mo == self)
+		{
+			HPArmor.Restore(self);
+			HPArmor = null;
+			A_GiveInventory("Invul3s");
+			SetupOverlays(false);
+		}
+	}
+	
+	override void MorphPlayerThink()
+	{
+		Super.MorphPlayerThink();
+		
+		if (!(alternative is "Doom4Player"))
+			Shader.SetEnabled(player, "damageshader", false);
+	}
 	
 	//==========================================================================
 	//
@@ -94,18 +138,10 @@ extend class Doom4Player
 		return gren.Cooldown;
 	}
 	
-	//==========================================================================
-	//
-	//
-	//
-	//==========================================================================
-	//
-	
-	
 	
 	//==========================================================================
 	//
-	//
+	// Cheat fixes
 	//
 	//==========================================================================
 	override void CheatTake (String name, int amount)
@@ -350,6 +386,25 @@ extend class Doom4Player
 			GiveInventory(type, amount, true);
 		}
 		return;
+	}
+	
+	//==========================================================================
+	//
+	// Miscellaneous
+	//
+	//==========================================================================
+	
+	void SetupOverlays(bool noforce = true)
+	{
+		A_Overlay(Overlay_DashManager, "Overlay.DashManager", noforce);
+		A_Overlay(Overlay_UtilityManager, "Overlay.UtilityManager", noforce);
+		A_Overlay(Overlay_LedgeGrab,"Overlay.LedgeGrab", noforce);
+		A_Overlay(Overlay_LifeRecorder, "Overlay.LifeRecorder", noforce);
+		int flags = PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST;
+		A_OverlayFlags(Overlay_DashManager, flags, false);
+		A_OverlayFlags(Overlay_UtilityManager, flags, false);
+		A_OverlayFlags(Overlay_LedgeGrab, flags, false);
+		A_OverlayFlags(Overlay_LifeRecorder, flags, false);
 	}
 }
 

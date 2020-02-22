@@ -1,0 +1,104 @@
+/*
+ * DynamicElementCreation.ZS:
+ * This example shows how to create elements dynamically by displaying a list of
+ * the player's weapons. Dynamically-created elements can be used for things like
+ * lists, for example.
+*/
+
+class MC_ZFDynamicElementCreation : MC_ZFGenericMenu
+{
+	// A font to use for text.
+	Font smallFont;
+
+	// A background image.
+	MC_ZFImage background;
+	// The labels used for drawing the weapon names
+	Array<MC_ZFLabel> weaponNameLabels;
+
+	override void Init (Menu parent)
+	{
+		Super.Init (parent);			// Call GenericMenu's 'Init' function to do some required initialization.
+		SetBaseResolution ((320, 200));	// Set our base resolution to 320x200.
+
+		// Get the smallfont.
+		smallFont = Font.GetFont ("SmallFont");
+
+		// Add a background.
+		background = new ('MC_ZFImage').Init
+		(
+			(0, 0),									// Position.
+			(320, 200),								// Size.
+			"graphics/ZFormsExamples/Panel.png",	// Image path/name.
+			MC_ZFImage.AlignType_TopLeft		// Alignment options.
+		);
+		// Add the image element into the main frame.
+		background.Pack (mainFrame);
+	}
+
+	override void Ticker ()
+	{
+		// Remove all existing labels from the menu, and delete them.
+		while (weaponNameLabels.Size () > 0)
+		{
+			let label = weaponNameLabels [0];
+			weaponNameLabels.Delete (0, 1);
+
+			label.Unpack ();
+			label.Destroy ();
+		}
+
+		// Sanity checking: Do nothing if there's no consoleplayer
+		if (players [consoleplayer].mo == NULL)
+			return;
+		
+
+		// Iterate through the player's inventory to find all of their weapons.
+		int labelCount = 0; // We need this to calculate the position of the labels.
+		let item = players [consoleplayer].mo.inv;
+		if (!item)	return;
+		for (; item != null; item = item.inv)
+		//while (item != NULL)
+		{
+			// If the inventory item isn't a weapon...
+			if (!(item is "Weapon"))
+				continue;
+			
+			// If there's no space left in the screen...
+			if (labelCount > 16)
+				break;
+
+			// Get the weapon's name.
+			let weaponName = item.GetTag ();
+
+			// Add a label.
+			let label = new ('MC_ZFLabel').Init
+			(
+				// Position.
+				(
+					// Horizontal position.
+					14,
+					// Calculate the vertical position.
+					// Initial offset + ((label text height + spacing) * label count)
+					14 + ((smallfont.GetHeight () + 1) * labelCount)
+				),
+				// Size.
+				(
+					// Calculate the horizontal size of the text.
+					smallfont.StringWidth (weaponName),
+					// Get the font's height.
+					smallFont.GetHeight ()
+				),
+				
+				text: weaponName,			// The label's text.
+				fnt: smallFont,				// The font to use.
+				wrap: false,				// Whether to automatically wrap the text or not.
+				autoSize: true,				// Whether to automatically resize the element based on the text width.
+				textColor: Font.CR_WHITE	// The text's colour.
+			);
+
+			label.Pack (mainFrame);			// Add the label element to the main frame.
+			weaponNameLabels.Push (label);	// Add the label to the labels list.
+			labelCount++;
+		}
+	}
+}

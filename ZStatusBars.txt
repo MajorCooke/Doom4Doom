@@ -519,8 +519,14 @@ Class Doom4StatusBar : BaseStatusBar
 					DrawStringScaled(mQ4HudFont, FormatNumber(666),					(-4, 679) + HPOffset, DI_TEXT_ALIGN_RIGHT, colArmorInvul, invulalpha, scaling: 0.5);
 				}
 				else
-					DrawStringScaled(mQ4HudFont, FormatNumber(armorAmount, 1, 3), 	(-4, 679) + HPOffset, DI_TEXT_ALIGN_RIGHT, colArmor, scaling: 0.5);
-				
+				{
+					if (armorAmount > 999)
+					{
+						DrawString(mQ4HudFont, FormatNumber(armorAmount, 1, 4), 	(-4, 679) + HPOffset, DI_TEXT_ALIGN_RIGHT, colArmor, scale: (0.5, 0.5) * 3 / 4);
+					}
+					else
+						DrawString(mQ4HudFont, FormatNumber(armorAmount, 1, 3), 	(-4, 679) + HPOffset, DI_TEXT_ALIGN_RIGHT, colArmor, scale: (0.5, 0.5));
+				}
 				
 				
 				// Health
@@ -528,7 +534,11 @@ Class Doom4StatusBar : BaseStatusBar
 				int hpi = Clamp(mHealthInterpolator.GetValue(), 0, 200);
 				DrawBar("BODYHEL1", "BODYHEL0", hpi, 				100,	(18, 694) + HPOffset, 0, 0, imageAlignmentLeft);
 				DrawBar("BODYHEL2", "BODYHEL0", Max(0, hpi - 100), 	100,	(18, 694) + HPOffset, 0, 0, imageAlignmentLeft);
-				DrawStringScaled(mQ4HudFont, FormatNumber(hp, 1, 3), 		(-4, 697) + HPOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 0.5);
+				
+				if (hp > 999)
+					DrawString(mQ4HudFont, FormatNumber(hp, 1, 4), 		(-4, 697) + HPOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scale: (0.5, 0.5) * 3 / 4);
+				else
+					DrawString(mQ4HudFont, FormatNumber(hp, 1, 3), 		(-4, 697) + HPOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scale: (0.5, 0.5));
 				
 				DrawImage ("BODYHELC", (0, 697) + HPOffset, imageAlignmentLeft);
 			}
@@ -1100,7 +1110,10 @@ extend class Doom4StatusBar
 	{
 		if (scaling == 0.0)
 			return;
-			
+		
+		DrawString(font, string, pos, flags, translation, ALpha, wrapwidth, linespacing, (scaling, scaling));
+		
+		/*
 		scaling = abs(scaling);
 		
 		Vector2 OldScale = BaseSize, TempScale = BaseSize;
@@ -1116,6 +1129,7 @@ extend class Doom4StatusBar
 		if (sized) SetSize(0, TempScale.X, TempScale.Y);
 		DrawString(font, string, ScaledPos, flags, translation, Alpha, wrapwidth, linespacing);
 		if (sized) SetSize(0, OldScale.X, OldScale.Y);
+		*/
 	}
 	
 	// Independent axis scaling.

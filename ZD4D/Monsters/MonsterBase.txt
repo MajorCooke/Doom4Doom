@@ -90,7 +90,7 @@ Class D4AbstractMonster : D4Actor
 				return true;
 			
 			Cvar check = Cvar.FindCVar(ResurrectCvar);
-			return (check && check.GetBool());
+			return (!check || check.GetBool());
 		}
 		return true;
 	}

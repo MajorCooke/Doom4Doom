@@ -208,16 +208,7 @@ Class Doom4Player : PlayerPawn
 		{
 			if (GetRealPlayer())
 			{
-				A_Overlay(Overlay_DashManager, "Overlay.DashManager", true);
-				A_Overlay(Overlay_UtilityManager, "Overlay.UtilityManager", true);
-				A_Overlay(Overlay_LedgeGrab,"Overlay.LedgeGrab",true);
-				A_Overlay(Overlay_LifeRecorder, "Overlay.LifeRecorder", true);
-			//	A_Overlay(99,"Overlay.Debug",true);
-				int flags = PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST;
-				A_OverlayFlags(Overlay_DashManager, flags, false);
-				A_OverlayFlags(Overlay_UtilityManager, flags, false);
-				A_OverlayFlags(Overlay_LedgeGrab, flags, false);
-				A_OverlayFlags(Overlay_LifeRecorder, flags, false);
+				SetupOverlays(true);
 			}
 		}
 		Loop;
@@ -794,24 +785,6 @@ extend class Doom4Player
 	double effectSize;
 	int PentaNoiseWait;
 	
-	// Double down on the DamageCount fade.
-	override void PlayerThink()
-	{
-		let plr = self.player;
-		
-		if (plr)
-		{
-			if (plr.DamageCount > 0)
-			{
-				let invul = FindInventory("PowerInvulnerable");
-				if (invul)
-					plr.DamageCount = Max(0, plr.DamageCount - 6);
-			}
-		}
-		
-		Super.PlayerThink();
-	}
-	
 	//--------------------------------------------------------------------------
 	// Damage Control
 	//--------------------------------------------------------------------------
@@ -907,8 +880,8 @@ extend class Doom4Player
 		if ((!TelefragDamage && IsInvul) || bNODAMAGE || CountInv("CantTouchThis"))
 		{
 			// Mainly just doing this to play the sound effect of the pentagram.
-			GetModifiedDamage(mod, damage, true);
-			if (!(flags & DMG_NO_FACTOR))
+			damage = GetModifiedDamage(mod, damage, true);
+			if (damage > 0 && !(flags & DMG_NO_FACTOR))
 				damage = ApplyDamageFactor(mod, damage);
 			
 			flags |= (DMG_NO_PROTECT|DMG_NO_FACTOR);
@@ -921,18 +894,26 @@ extend class Doom4Player
 			{
 				// Make sure never to do this to self! Otherwise, infiniloops happen.
 				// Doze are bad. Weally weally bad. :(
+				
+				bool nts = false;
+				Actor who = null;
 				if (source && source != self && (source.bSHOOTABLE || source.bVULNERABLE))
-				{
-					source.DamageMobj(self, self, Max(1,damage * 0.2), "Reflection");
-				}
+					who = source;
 				else if (inflictor && inflictor != self && (inflictor.bSHOOTABLE || inflictor.bVULNERABLE))
+					who = inflictor;
+				
+				if (who)
 				{
-					inflictor.DamageMobj(self, self, Max(1,damage * 0.2), "Reflection");
+					nts = who.bNOTARGETSWITCH;
+					if (who.target && who.target.health > 0) 
+						who.bNOTARGETSWITCH = true;
+					who.DamageMobj(self, self, Max(1,damage * 0.2), "Reflection");
+					who.bNOTARGETSWITCH = nts;
 				}
 			}
 			
 			DamageTypeReceived = "WhiteFlashDamage";
-			player.DamageCount = Max(0, player.DamageCount + int(damage * 0.5));
+			player.DamageCount = Clamp(player.DamageCount + int(damage * 0.5), 0, 100);
 			/*
 			if (PentaNoiseWait < 1)
 			{
@@ -942,37 +923,13 @@ extend class Doom4Player
 				PentaNoiseWait = 70;
 			}
 			*/
-			if (!bNODAMAGE)
+			/*
+			if (!bNODAMAGE && CountInv("D4PentagramUpgrade4"))
 			{
-				ApplyKickback(inflictor, source, damage, angle, mod, flags);
-				/*
-				Actor origin = (source && (flags & DMG_INFLICTOR_IS_PUFF)) ? source : inflictor;
-				
-				if (origin && !origin.bNODAMAGETHRUST && !bDONTTHRUST)
-				{
-					double ang = (flags & DMG_USEANGLE) ? angle : origin.AngleTo(self);
-					double thrust = 32.0;
-									
-					if (mass > 0)
-					{
-						int kb = 1;
-						
-						if (inflictor)
-						{
-							kb = inflictor.projectileKickback;
-						}
-						else if (source)
-						{
-							kb = source.projectileKickback;
-						}
-						
-						thrust = max((damage * 0.125 * kb) / mass, 0.0);
-					}
-					if (thrust >= 0.01)					
-						Thrust(thrust, ang);	
-				}
-				*/
+				if (inflictor)
+					ApplyKickback(inflictor, source, damage, angle, mod, flags);
 			}
+			*/
 			return 0;
 		}
 		
@@ -994,6 +951,18 @@ extend class Doom4Player
 		
 		int finaldamage = damage;
 		
+		// Disable targeting the player by mishaps. Make sure the damager is alive
+		// but dont bother if they don't want to change anyway or they're already
+		// targeting the player. This flag will be reset after the main function
+		// is called, which will handle reflect damage.
+		Actor who = null;
+		if (FindInventory("PowerReflection", true) && 
+			source && source.health > 0 && !source.bNOTARGETSWITCH && 
+			source.target && source.target != self && source.target.health > 0)
+		{
+			who = source;
+			who.bNOTARGETSWITCH = true;
+		}
 		// Don't consume extra lives inside of a sector meant to end the level,
 		// or the player has buddha (doom doll), provided they can survive it.
 		// Otherwise, respawn the player if they were to die and consume a life.
@@ -1014,6 +983,8 @@ extend class Doom4Player
 		}
 		else finaldamage = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
 		
+		if (who)	who.bNOTARGETSWITCH = false;
+		
 		if (arm)	ArmorAfter = arm.Amount;
 		
 		// This is needed in the event armor absorbs the damage. Otherwise this
@@ -1028,7 +999,7 @@ extend class Doom4Player
 			Event.AddDamageIndicator(source, inflictor, self, finaldamage);
 		}
 		
-		if (health <= 40)
+		if (GetClass() == 'Doom4Player' && health <= 40)
 		{
 			if (!LowHP)
 			{
@@ -1248,10 +1219,14 @@ extend class Doom4Player
 	//
 	//--------------------------------------------------------------------------
 	
+	
+	
 	override void Tick()
 	{
 		Super.Tick();
-		if ((!player || !player.mo || player.mo != self) || health <= 0 || level.mapname == 'TITLEMAP')	
+		
+		let player = self.player;
+		if (!player || !player.mo || player.mo != self || health < 1 || level.mapname == 'TITLEMAP')	
 		{
 			CurInputCmds = 0;
 			OldInputCmds = 0;
@@ -1276,9 +1251,7 @@ extend class Doom4Player
 		effectSize = clamp(effectSize, 0, 0.5);
 		//======================================================================
 		
-		let plyr = self.player;
-		
-		if (plyr && plyr.onground)
+		if (player && player.onground)
 		{
 			UjumpsDone = 0;
 		}
@@ -1291,6 +1264,7 @@ extend class Doom4Player
 			InitPlayer();
 		}
 		SetInventory("LifeRedFlash",0);
+		
 		//----------------------------------------------------------------------
 		
 	}
@@ -1326,7 +1300,8 @@ extend class Doom4Player
 				if (player.onground || pos.z <= floorz)
 				{				
 					// Regular jump
-					if (player.jumpTics == 0)
+					// [MC] Ignore jumpTics as you can bunny hop in Doom 2016.
+					if (player.jumpTics >= 0)
 					{
 						UjumpsDone = 1;
 						double jumpvelz = JumpZ * 35 / TICRATE;

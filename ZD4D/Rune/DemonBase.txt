@@ -168,6 +168,9 @@ Class DemonPlayerBase : Doom4Player
 	{
 		Super.Tick();
 		
+		if (SpawnTime == 5)
+			bPICKUP = true;
+		
 		if (!player || !player.mo || player.mo != self)
 			return;
 		
@@ -306,10 +309,14 @@ Class DemonPlayerBase : Doom4Player
 		DamageFactor "Falling", 0.0;
 		-ALLOWPAIN
 		+NOSKIN
+		-PICKUP
 	}
 	
 	override bool CanTouchItem(Inventory item)
 	{
+		if (SpawnTime < 5)
+			return false;
+		
 		if (item == null ||
 			item is 'Health' || 
 			item is 'BasicArmorPickup' || 
@@ -591,14 +598,13 @@ Class DemonRuneBase : CustomInventory
 		PowerLevel = Clamp(abs(PowerLevel), 0, MaxRunePower);
 		Switch (PowerLevel)
 		{
-			Case 0:	break;
+			Default:	break;
 			Case 1:	trans = 'D4D_Green';	break;
 			Case 2:	trans = 'D4D_Blue';		break;
 			Case 3:	trans = 'D4D_Purple';	break;
 			Case 4:	trans = 'D4D_Orange';	break;
 			Case 5:	trans = 'D4D_Red';		break;
 			Case 6:	trans = 'D4D_Black';	break;
-			Default:
 			Case 7:	trans = 'D4D_White';	break;
 		}
 		if (trans != 'None')
@@ -609,7 +615,7 @@ Class DemonRuneBase : CustomInventory
 	action void GiveMorph()
 	{
 		A_GiveInventory("SoundStopper",1); //stops any sound (mostly for the looping ones)
-		A_GiveInventory("HealthArmorSaver",1);
+	//	A_GiveInventory("HealthArmorSaver",1);
 		A_GiveInventory("IamADemonToken",1); //...gives token and morphs
 		A_GiveInventory(invoker.Token,1); 
 		A_GiveInventory(invoker.Morph,1);
@@ -759,10 +765,6 @@ Class PowerRuneBase : PowerMorph
 		if (Owner)	
 		{
 			Owner.A_SetInventory("D4MonsterUpgrader",0);
-			if (Owner.Alternative)
-				Owner.Alternative.A_GiveInventory("Invul3s");
-			else
-				Owner.A_GiveInventory("Invul3s");
 		}
 		Super.EndEffect();
 	}

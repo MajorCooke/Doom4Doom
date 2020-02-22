@@ -1338,7 +1338,7 @@ Class D4ExtraLifeProtection : PowerProtection { Default { Powerup.Duration -5; D
 
 Class Invul3s : Invulnerability	{ Default {	Powerup.Duration 107; } }
 Class Invul5s : Invulnerability	{ Default {	Powerup.Duration -5; } }
-
+Class InvulEndMorph : Invul3s { }
 Class PowerInvulBase : PowerInvulnerable
 {
 	const WaitTimer = 70;

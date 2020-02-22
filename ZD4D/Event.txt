@@ -103,6 +103,11 @@ Class D4DHandler : EventHandler
 	clearscope int GetUpgradeMode()	{	return CurrentUpgradeMode;	}
 	override void WorldLoaded(WorldEvent e)
 	{
+		if (level.aircontrol < 0.2)
+		{
+			level.aircontrol = 0.2;
+			level.airfriction = level.aircontrol * -0.0941 + 1.0004;
+		}
 		MC = MCHandler.Fetch();
 		DemonRunes = AArray.Create();
 		Carrion = AArray.Create();

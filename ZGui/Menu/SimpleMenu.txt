@@ -1,0 +1,124 @@
+/*
+ * SimpleMenu.ZS:
+ * This example shows how to make a simple menu with a background, a text label,
+ * and a single-texture button.
+ * Clicking the button changes the colour of the text label's text to a random
+ * colour.
+*/
+
+// The menu's command handler.
+// This is needed so we can make our menu interactable.
+class MC_SimpleMenuHandler : MC_ZFHandler
+{
+    // The menu this command handler belongs to.
+    // We need this to be able to do anything with our menu.
+    MC_ZFSimpleMenu link;
+
+    override void buttonClickCommand (MC_ZFButton caller, string command)
+    {
+        // If the command is "aButton"...
+        if (command == "aButton")
+        {
+            // Change the text's colour to a random colour.
+            link.aLabel.textColor = random [textColor] (Font.CR_BRICK, Font.CR_TEAL);
+        }
+    }
+}
+
+class MC_ZFSimpleMenu : MC_ZFGenericMenu
+{
+    // The menu's command handler.
+    // We need a command handler so we can make our menu interactable.
+    MC_SimpleMenuHandler handler;
+
+    // A font to use for text.
+    Font smallFont;
+
+    // A background image.
+    MC_ZFImage background;
+    // A simple single-texture button.
+    MC_ZFButton aButton;
+    // A text label.
+    MC_ZFLabel aLabel;
+
+    override void Init (Menu parent)
+    {
+        // Call GenericMenu's 'Init' function to do some required initialization.
+        Super.Init (parent);
+        // Set our base resolution to 320x200.
+        SetBaseResolution ((320, 200));
+
+        // Get GZDoom's new options menu smallfont.
+        smallFont = OptionFont ();
+
+        // Create an instance of the handler.
+        handler = new ('MC_SimpleMenuHandler');
+        // Set the handler's "link" pointer to us.
+        handler.link = self;
+
+        // Add a background.
+        background = new ('MC_ZFImage').Init
+        (
+            // Position
+            (0, 0),
+            // Size
+            (320, 200),
+            // Image path/name
+            "graphics/ZFormsExamples/Panel.png",
+            // Alignment options
+            MC_ZFImage.AlignType_TopLeft
+        );
+        // Add the image element into the main frame.
+        background.Pack (mainFrame);
+
+        // Add a button.
+        aButton = new ('MC_ZFButton').Init
+        (
+            // Position
+            ((320. - 18.) / 2., (200. - 18.) / 2. ),
+            // Size
+            (18, 18),
+            // Our command handler
+            cmdHandler: handler,
+            // A command string for the button
+            command: "aButton"
+        );
+        // Set the button's textures.
+        aButton.SetTexture
+        (
+            // Idle/inactive
+            "graphics/ZFormsExamples/SmallButtonIdle.png",
+            // Hovered
+            "graphics/ZFormsExamples/SmallButtonHovered.png",
+            // Clicked/pressed
+            "graphics/ZFormsExamples/SmallButtonClicked.png",
+            // Disabled
+            ""
+        );
+        // Add the button element into the main frame.
+        aButton.Pack (mainFrame);
+
+        // Add a label.
+        aLabel = new ('MC_ZFLabel').Init
+        (
+            // Position
+            (0, aButton.box.pos.Y + aButton.box.size.Y + 4),
+            // Size.
+            (0, smallFont.GetHeight ()),
+            // The label's text
+            text: "Click me!",
+            // The font to use
+            fnt: smallFont,
+            // Whether to automatically wrap the text or not
+            wrap: false,
+            // Whether to automatically resize the element based on the text width
+            autoSize: true,
+            // The text's colour
+            textColor: Font.CR_WHITE
+        );
+        // Calculate the horizontal position for the label so that it's centered on the screen.
+        aLabel.box.pos.X = (320. - smallFont.stringWidth (aLabel.text)) / 2.;
+        // Add the label element to the main frame.
+        aLabel.Pack (mainFrame);
+    }
+}
