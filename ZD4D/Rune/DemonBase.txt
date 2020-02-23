@@ -168,7 +168,7 @@ Class DemonPlayerBase : Doom4Player
 	{
 		Super.Tick();
 		
-		if (SpawnTime == 5)
+		if (SpawnTime >= 5)
 			bPICKUP = true;
 		
 		if (!player || !player.mo || player.mo != self)
