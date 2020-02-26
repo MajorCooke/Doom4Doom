@@ -9,8 +9,9 @@ const LGChainDmgMinUpgrade = 4;
 const LGChainDmgMaxUpgrade = 8;
 
 const AltTrailLength = 256; //Indicates how far a beam can zap others with secondary.
-const LGHeight = -3;
-const LGDist = 4;
+const LGHeight = -2;
+const LGOff = 2.1;
+const LGDist = 10;
 const FBFlags = FBF_USEAMMO|FBF_PUFFTRACER|FBF_NORANDOMPUFFZ;
 const FBFlagsNoAmmo = FBF_PUFFTRACER|FBF_NORANDOMPUFFZ;
 
@@ -52,7 +53,7 @@ Class D4LightningGun : Doom4Weapon
 		int Dist = CountInv("LGUpgradeRange") ? 1024 : 768;
 		int dbl = DoubleSpeed();
 		
-		if (useammo && random(0,2))
+		if (useammo && random[rng](0,1))
 			invoker.DepleteAmmo(false, true, invoker.AmmoUse1 * dbl);
 			
 		A_UpdateBeamTracer("LightningPuffV2",dmg * dbl,0,0,Dist);
@@ -68,16 +69,16 @@ Class D4LightningGun : Doom4Weapon
 	// Deselect sequence
 	//-------------------------------------------------------
 	Deselect:
-		LGNI A 0 
+		LGNI A 1
 		{
 			A_StopBeam("");
-			A_TakeInventory("AltFireToken",32767);
+			A_SetInventory("AltFireToken",0);
 			ACS_NamedExecute("RemoveModText",0,0,0,0);
 			A_StopSound(5);
-		}
-		LGNI A 1 A_Lower;
-		LGNI A 0 A_Lower(WeaponSwitchSpeed);
-		Goto Deselect+1;
+			A_Lower();
+		} 
+		---- A 1 A_Lower(WeaponSwitchSpeed);
+		Wait;
 	//-------------------------------------------------------
 	// Select sequence
 	//-------------------------------------------------------
@@ -86,9 +87,8 @@ Class D4LightningGun : Doom4Weapon
 		{
 			ACS_NamedExecute("RemoveModText",0,0,0,0);
 		}
-		LGNI A 1 A_Raise;
-		LGNI A 0 A_Raise(WeaponSwitchSpeed);
-		Goto Select+1;
+		---- A 1 A_Raise(WeaponSwitchSpeed);
+		Wait;
 	//-------------------------------------------------------
 	// Ready sequence
 	//-------------------------------------------------------
@@ -116,7 +116,7 @@ Class D4LightningGun : Doom4Weapon
 			A_PlaySound("Doom4/Weapon/LightningGun/LightningGunFire", 5, 1, 1);
 			A_PlaySound("Doom4/Weapon/LightningGun/LG2Loop", CHAN_WEAPON, 0.5, 1);
 			int Dist = CountInv("LGUpgradeRange") ? 1024 : 768;
-			A_StartBeam("NewLightningBeamPrimary",(10.0, LGDist, LGHeight), 1, "LightningPuffV2", 0, 0, 0, Dist);
+			A_StartBeam("NewLightningBeamPrimary",(LGDist, LGOff, LGHeight), 1, "LightningPuffV2", 0, 0, 0, Dist);
 		}
 		
 	HoldPt1:

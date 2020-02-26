@@ -24,7 +24,7 @@ Class D4AbstractMonster : D4Actor
 {
 	int StaggerTimer;
 	meta Class<Actor> Replacing;
-	Array<D4DNewBeamBase> Beams;
+	Array<MCBeam> Beams;
 	Name PowerColor, ResurrectCvar;
 	Class<DemonRuneBase> RuneItem;
 	int RuneDropChance;
@@ -120,7 +120,7 @@ Class D4AbstractMonster : D4Actor
 	}
 	
 	void A_StartBeam(
-		Class<D4DNewBeamBase> BeamName, Vector3 Off = (0,0,0), int Count = 1,
+		Class<MCBeam> BeamName, Vector3 Off = (0,0,0), int Count = 1,
 		Class<Actor> PuffName = "D4BulletPuff", int dmg = 0, double ang = 0, double pit = 0,
 		double dist = 8192)
 	{
@@ -134,7 +134,7 @@ Class D4AbstractMonster : D4Actor
 		Actor Puff = LineAttack(angle + ang, dist, pitch + pit, dmg, 'None', PuffName, LAF_NOINTERACT);
 		for (int i = 0; i < Count; i++)
 		{
-			let Beam = D4DNewBeamBase(Spawn(beamname,origin));
+			let Beam = MCBeam(Spawn(beamname,origin));
 			Beam.Angle = Angle;
 			Beam.Pitch = Pitch;
 			Beam.Target = self;
@@ -143,7 +143,6 @@ Class D4AbstractMonster : D4Actor
 			Beam.OffX = Off.x;
 			Beam.OffY = Off.y;
 			Beam.OffZ = Off.z;
-			Beam.Parent = null;
 			Beams.Push(Beam);
 		}
 	}

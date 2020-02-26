@@ -137,7 +137,6 @@ Class NewJunk : Junk //replaces Junk
 		+NOTELESTOMP
 		+THRUACTORS
 		+NOTONAUTOMAP
-		DistanceCheck "D4D_MaxDrawDistance";
 	}
 }
 
@@ -513,7 +512,6 @@ Class NewMeat : FlyingFlesh //replaces Meat
 		BounceType "Doom";
 		Decal "BloodSplat";
 		//speed 30 //for testing
-		DistanceCheck "D4D_MaxDrawDistance";
 	}
 	
 	override void PostBeginPlay()
@@ -591,7 +589,6 @@ Class BloodGib1 : NewMeat
 		Height 5;
 		Gravity 0.7;
 		// speed 30 //for testing
-		DistanceCheck "D4D_MaxDrawDistance";
 		Decal "BloodSplat";
 	}
 	

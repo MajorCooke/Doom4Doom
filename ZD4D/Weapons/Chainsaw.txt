@@ -54,19 +54,16 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 				ACS_NamedExecuteAlways("RemoveModText",0,0,0,0);
 				A_PlaySound("Doom4/Weapon/Chainsaw/Idle",CHAN_WEAPON,0.25,1);
 			}
-			return A_JumpIfInventory("BloodyChainsawToken",1,"PrepareSpriteBloodySelect");
-		}
-		PrepareSpriteNormalSelect:
-			CSWN A 0;
-			Goto ContinueSelect;
-		PrepareSpriteBloodySelect:
-			CSWB A 0;
-			Goto ContinueSelect;
+			if (CountInv("BloodyChainsawToken"))	return ResolveState("BloodySel");
 			
+			return ResolveState("ContinueSelect");
+		}
+		
+		BloodySel:
+			CSWB A 0 { return ResolveState("ContinueSelect"); }	
 		ContinueSelect:
-			"####" A 1 A_Raise;
-			"----" A 0 A_Raise(WeaponSwitchSpeed);
-			Loop;
+			---- A 1 A_Raise(WeaponSwitchSpeed);
+			Wait;
 			
 	Deselect:
 		"####" "#" 0 
@@ -75,13 +72,13 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 			A_PlaySound("Doom4/Weapon/Chainsaw/Down",5,0.5);
 			
 			// Must be spent immediately or you get nothing.
-			A_TakeInventory("OnAcid",32767,0);
+			A_SetInventory("OnAcid",0);
 			A_Overlay(Ch_Sizzling,"Null");
 			A_Overlay(AcidFX,"Null");
 		}
-		"----" A 1 A_Lower;
-		"----" A 0 A_Lower(WeaponSwitchSpeed);
-		Goto Deselect+1;
+		---- A 1 A_Lower;
+		---- A 1 A_Lower(WeaponSwitchSpeed);
+		Wait;
 		
 	
 	

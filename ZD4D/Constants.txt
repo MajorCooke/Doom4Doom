@@ -12,10 +12,11 @@ enum D4cns
 	STAT_RUNEPICKUPS = Thinker.STAT_USER,
 	
 	AkimboSwitchSpeed = 24,
-	WeaponSwitchSpeed = 18,
+	WeaponSwitchSpeed = 24,
 	WeaponSwitchBonus = 6,
 	
 	//Shortens the parameter mess that is A_SpawnItemEx.
+	//These monster flags are deprecated.
 	MonsterSpawnFlags = SXF_SETMASTER|SXF_NOCHECKPOSITION|SXF_TRANSFERAMBUSHFLAG|SXF_CLEARCALLERTID|
 							SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL|SXF_TRANSFERPOINTERS|
 							SXF_ISTRACER,
@@ -35,6 +36,8 @@ enum D4cns
 	// The following are shorter names for pointers. Convenience sake. Repeating AAPTR_
 	// over and over again is annoying. In the future I may expand this for all ZDoom flags,
 	// provided Doomscript doesn't outright deprecate them, which it will...
+	
+	// Turns out I was right, past me. ZScript has no use for these. ;)
 	DefPtr =			AAPTR_DEFAULT,
 	TargetPtr =			AAPTR_TARGET,
 	MasterPtr = 		AAPTR_MASTER,

@@ -51,20 +51,19 @@ Class D4Pistol : Doom4Weapon
 		WPPK B -1;
 		Stop;
 	Deselect:
-		WEP1 A 0 
+		WEP1 A 1 
 		{
 			A_StopSound(5);
 			A_Overlay(GunWatcher,"Null");
+			A_Lower();
 		}
 	DesLoop:
-		WEP1 A 1 A_Lower;
-		WEP1 A 0 A_Lower(WeaponSwitchSpeed);
-		Loop;
+		---- A 1 A_Lower(WeaponSwitchSpeed);
+		Wait;
 	Select:
 		WEP1 A 0 ACS_NamedExecute("RemoveModText",0,0,0,0);
-		WEP1 A 1 A_Raise;
-		WEP1 A 0 A_Raise(WeaponSwitchSpeed);
-		Goto Select+1;
+		---- A 1 A_Raise(WeaponSwitchSpeed);
+		Wait;
 		
 	// Precaching to avoid corruption issues.
 	DummyState:

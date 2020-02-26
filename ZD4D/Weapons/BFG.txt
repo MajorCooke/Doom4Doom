@@ -68,17 +68,16 @@ Class D4BFG : Doom4Weapon
 	Deselect:
 		WEP7 A 0 
 		{
-			A_TakeInventory("SineZoom",1000,0);
+			A_SetInventory("SineZoom",0);
 			A_ZoomFactor(1,ZOOM_NOSCALETURNING);
 		}
 		WEP7 A 1 A_Lower;
-		WEP7 A 0 A_Lower(WeaponSwitchSpeed);
-		Loop;
+		---- A 1 A_Lower(WeaponSwitchSpeed);
+		Wait;
 	Select:
 		WEP7 A 0 ACS_NamedExecute("RemoveModText",0,0,0,0);
-		WEP7 A 1 A_Raise;
-		WEP7 A 0 A_Raise(WeaponSwitchSpeed);
-		Goto Select+1;
+		---- A 1 A_Raise(WeaponSwitchSpeed);
+		Wait;
 	Fire:
 		WEP7 A 0 
 		{
@@ -335,8 +334,11 @@ Class D4BFGProjectile  : Actor
 				continue;
 			
 			mo.A_SetInventory("D4BFGKillToken",0);
+			Class<Actor> rep =  GetReplacee(mo.GetClass());
 			if (mo.bFRIENDLY || !mo.bISMONSTER || mo.health < 1 || mo.bDORMANT ||
-				(mo is "PlayerPawn"))
+				(mo is "PlayerPawn") || 
+				(mo is "Cyberdemon") || (mo is "SpiderMastermind") ||
+				(rep is "Cyberdemon") || (mo is "SpiderMastermind"))
 			{
 				continue;
 			}

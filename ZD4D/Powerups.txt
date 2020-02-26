@@ -182,7 +182,7 @@ Class D4TimeFreeze : PowerTimeFreezer
 		Actor mo;
 		while (mo = Actor(it.Next()))
 		{
-			if (!mo || mo is 'D4DNewBeamBase' || mo is 'D4DBeamBase' || mo is 'PentaShadow')
+			if (!mo || mo is 'MCBeam' || mo is 'D4DBeamBase' || mo is 'PentaShadow')
 				continue;
 				
 			if (mo.player)
@@ -268,6 +268,9 @@ Class D4ExtraLife : Inventory
 		Wait;
 	}
 }
+
+Class D4ExtraLife2 : D4ExtraLife
+{	Default	{	Inventory.Amount 2;	}	}
 
 Class LifeRedFlash : Inventory
 {

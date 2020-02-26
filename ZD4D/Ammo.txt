@@ -904,10 +904,9 @@ Class D4PinataCarrion : CustomInventory
 						
 						mo.Amount += invoker.Amount;
 						tracer = mo;
-						//A_RemoveChildren(true,RMVF_EVERYTHING);
 						A_Face(mo,0,0,0,0,FAF_MIDDLE);
 						A_SpawnItemEx("CarrionFog",0,0,height * 0.5,0,0,0,0,SXF_NOCHECKPOSITION);
-						let Beam = Spawn("CarrionMergeSpawner",pos);
+						let Beam = Spawn("NewCarrionBeamMerger", pos);
 						if (Beam)
 						{
 							Beam.Target = self;
@@ -916,7 +915,6 @@ Class D4PinataCarrion : CustomInventory
 							Beam.Angle = Angle;
 							Beam.Pitch = Pitch;
 						}
-						Warp(mo, 0, 0, 0, 0, WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
 						if (invoker.flier) 	invoker.flier.DestroyMe = true;
 						invoker.DestroyMe = true;
 						bINVISIBLE = true;

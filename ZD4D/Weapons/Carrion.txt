@@ -74,11 +74,11 @@ Class D4CarrionCannon : Doom4Weapon
 			
 			if (CountInv("D4CarrionToken") < BuildRequirement)
 				A_SetInventory("D4CarrionToken",BuildRequirement);
+			return ResolveState("SelLoop");
 		}
 	SelLoop:
-		HELG H 1 A_Raise;
-		"####" "#" 0 A_Raise(WeaponSwitchSpeed);
-		Loop;
+		HELG H 1 A_Raise(WeaponSwitchSpeed);
+		Wait;
 	Deselect:
 		HELG H 0 
 		{
@@ -88,8 +88,8 @@ Class D4CarrionCannon : Doom4Weapon
 		}
 	DesLoop:
 		HELG H 1 A_Lower;
-		"####" "#" 0 A_Lower(WeaponSwitchSpeed);
-		Loop;
+		---- A 1 A_Lower(WeaponSwitchSpeed);
+		Wait;
 	Ready:
 		HELG H 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
 		Loop;

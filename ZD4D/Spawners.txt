@@ -34,8 +34,7 @@ extend class D4DHandler
 		if (!rep || rep is 'Nothing')	return;
 		
 		let defs = GetDefaultByType(rep);
-		if (defs.bNOINTERACTION)	return;
-		
+				
 		Name repn = rep.GetClassName();
 		
 		if (rep is 'TeleportFog')						e.Replacement = 'D4Fog';

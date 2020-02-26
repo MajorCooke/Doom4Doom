@@ -1975,16 +1975,6 @@ Brightmap sprite KEYHB0 { DisableFullBright Map "Sprites/Items/KEYHA0.png" }
 //==============================================================================
 
 //------------------------------------------------------------------------------
-// Scroller
-// 
-// All this does is 'scroll' the sprite/texture along, constantly offsetting it
-// along a certain direction.
-//------------------------------------------------------------------------------
-
-// Lightning beam
-HardwareShader Sprite LtBmBlu1 { Shader "Shaders/Scroller.txt" Speed 2.0 }
-
-//------------------------------------------------------------------------------
 // Glory Kill Highlights
 // 
 // Self explanatory. These show up when a monster is ready for glory killing.
@@ -2231,5 +2221,12 @@ hardwareshader sprite PLAZF4F6 	{ Shader "shaders/hologram.shader" Speed 1.0 }
 hardwareshader sprite PLAZF5 	{ Shader "shaders/hologram.shader" Speed 1.0 }
 hardwareshader sprite PLSYA0B0  { Shader "shaders/hologram.shader" Speed 1.0 }
 
+//------------------------------------------------------------------------------
+// Scroller
+// 
+// All this does is 'scroll' the sprite/texture along, constantly offsetting it
+// along a certain direction.
+//------------------------------------------------------------------------------
 
-
+// Lightning beam
+HardwareShader Sprite "Graphics/LtBmBlu1.png" { Shader "Shaders/Scroller.txt" Speed 2.0 }

@@ -83,11 +83,11 @@ Class D4Chaingun : Doom4Weapon
 			A_SetSpeed(1);
 			A_SetRoll(0);
 			A_StopSound(CHAN_WEAPON);
+			return ResolveState("DesLoop");
 		}
 	DesLoop:
-		"####" "#" 1 A_Lower;
-		"####" "#" 0 A_Lower(WeaponSwitchSpeed);
-		Loop;
+		---- A 1 A_Lower(WeaponSwitchSpeed);
+		Wait;
 	//-------------------------------------------------------
 	// Select sequence
 	//-------------------------------------------------------
@@ -111,9 +111,8 @@ Class D4Chaingun : Doom4Weapon
 			return ResolveState("SelLoop");
 		}
 	SelLoop:
-		#### A 1 A_Raise;
-		#### A 0 A_Raise(WeaponSwitchSpeed);
-		Loop;
+		---- A 1 A_Raise(WeaponSwitchSpeed);
+		Wait;
 		
 	//-------------------------------------------------------
 	// Ready sequence

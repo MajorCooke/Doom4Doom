@@ -790,13 +790,21 @@ extend class Doom4Player
 	//--------------------------------------------------------------------------
 	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{
+		// Voodoo doll, or morphed.
 		if (!player || !player.mo || player.mo != self)
+		{
 			return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+		}
 		
-		if (player.cheats & CF_GODMODE2)	return -1;
+		// There is one tic after morphing where the player is vulnerable before
+		// they receive their temporary invul. Negate all damage for that tic.
+		if ((player.cheats & CF_GODMODE2) ||
+			(player.mo == self && HPArmor))	
+			return -1;
 		
 		bool TelefragDamage = (!bLAXTELEFRAGDMG && damage >= TELEFRAG_DAMAGE);
 		bool IsInvul = (FindInventory("PowerInvulnerable", true) || bINVULNERABLE);
+		
 		if (TelefragDamage)
 		{
 			if (bNODAMAGE || (IsInvul && CountInv("D4PentagramUpgrade4")))

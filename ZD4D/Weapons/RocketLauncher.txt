@@ -171,9 +171,9 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			ClearReticle();
 		}
 	DesLoop:
-		"####" "#" 1 A_Lower;
-		"####" "#" 0 A_Lower(WeaponSwitchSpeed);
-		Loop;
+		---- A 1 A_Lower;
+		---- A 1 A_Lower(WeaponSwitchSpeed);
+		Wait;
 	//-------------------------------------------------------
 	// Select sequence
 	//-------------------------------------------------------
@@ -197,9 +197,8 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 				RLLI A 0 ;
 				Goto ResumeSelectSequence;
 	ResumeSelectSequence:
-		"####" "#" 1 A_Raise;
-		"####" "#" 0 A_Raise(WeaponSwitchSpeed);
-		Loop;
+		---- A 1 A_Raise(WeaponSwitchSpeed);
+		Wait;
 	//-------------------------------------------------------
 	// Ready sequence
 	//-------------------------------------------------------

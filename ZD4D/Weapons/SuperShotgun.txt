@@ -127,9 +127,8 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 	
 	// Now, first thing you'll want to do is, right after spawning the overlay,
 	// give it flags. See http://zdoom.org/wiki/A_OverlayFlags for more information.
-	// I've included some handy See Also links at the bottom there too.
+	// I've included some handy 'See Also' links at the bottom there too.
 	Select:
-		M666 A 0;
 		M666 A 0
 		{
 			ACS_NamedExecute("RemoveModText",0,0,0,0); //clears previous wep text
@@ -146,14 +145,13 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			{
 				A_Overlay(RGun,"SSN.Ready"); //Normal shotgun with hands.
 			}
-			A_OverlayFlags(LGun,WeapMoveBob,true);			//Make it follow the 'weapon'. See the constant above.
+			A_OverlayFlags(LGun,WeapMoveBob,true);			//Make it follow the 'weapon'. See ZD4D/Constants.txt.
 			A_OverlayFlags(RGun,WeapMoveBob,true);
 			DisplayDTMode();
 		}
 	// We should now have one or both shotguns raising up.
-		M666 A 1 A_Raise;
-		M666 A 0 A_Raise(WeaponSwitchSpeed);
-		Loop;
+		---- A 1 A_Raise(WeaponSwitchSpeed);
+		Wait;
 	Deselect:
 		"----" A 0 
 		{
@@ -164,9 +162,9 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			A_SetInventory("SSRSecondShotToken",0);
 		}
 	DesLoop:
-		"----" A 1 A_Lower;
-		"----" A 0 A_Lower(WeaponSwitchSpeed);
-		Loop;
+		---- A 1 A_Lower;
+		---- A 1 A_Lower(WeaponSwitchSpeed);
+		Wait;
 		
 		
 	Ready:

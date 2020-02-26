@@ -45,8 +45,8 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 	Deselect:
 		"####" "#" 0
 		{
-			A_SetInventory("AltFireToken",0);
 			ACS_NamedExecute("RemoveModText",0,0,0,0);
+			A_SetInventory("AltFireToken",0);
 			A_SetInventory("MGMissileToken",0);
 			if (CountInv("MGZoomToken"))
 			{
@@ -56,9 +56,9 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 			return ResolveState("DesLoop");
 		}
 	DesLoop:
-		"####" "#" 1 A_Lower;
-		"####" "#" 0 A_Lower(WeaponSwitchSpeed);
-		Loop;
+		---- A 1 A_Lower;
+		---- A 1 A_Lower(WeaponSwitchSpeed);
+		Wait;
 	ZoomDeselect:	//this one has assigned sprites because if it reached here, it HAD to had the scope
 		ARSI A 1
 		{
@@ -72,33 +72,27 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 	// Select sequence
 	//-------------------------------------------------------
 	Select:
-		M666 A 0 // Be safer about sprite selection.
+		ARNI A 0 // Be safer about sprite selection.
 		{
 			ACS_NamedExecute("RemoveModText",0,0,0,0);
-			if (CountInv("MicroMissilesActive"))
-			{	return ResolveState("PrepareMicroMissilesSpriteSelect");	}
-			if (CountInv("TacticalScopeActive"))
-			{	return ResolveState("PrepareTacticalScopeSpriteSelect");	}
-			return ResolveState("PrepareNormalSpriteSelect");
+			if (CountInv("MicroMissilesActive"))	return ResolveState("MicroMissilesSel");	
+			if (CountInv("TacticalScopeActive"))	return ResolveState("TacticalScopeSel");
+			return ResolveState("ResumeSelectSequence");
 		}
-		
-		PrepareNormalSpriteSelect:
-			ARNI A 0 A_Jump(256,"ResumeSelectSequence");
-		PrepareMicroMissilesSpriteSelect:
-			ARMI A 0 A_Jump(256,"ResumeSelectSequence");
-		PrepareTacticalScopeSpriteSelect:
-			ARSI A 0 A_Jump(256,"ResumeSelectSequence");
+		MicroMissilesSel:
+			ARMI A 0 { return ResolveState("ResumeSelectSequence"); }
+		TacticalScopeSel:
+			ARSI A 0 { return ResolveState("ResumeSelectSequence"); }
 			
 	ResumeSelectSequence:
-		"####" "#" 1 A_Raise;
-		"####" "#" 0 A_Raise(WeaponSwitchSpeed);
-		Loop;
+		---- A 1 A_Raise(WeaponSwitchSpeed);
+		Wait;
 	
 	//-------------------------------------------------------
 	// Ready sequence
 	//-------------------------------------------------------
 	Ready:
-		ARSI A 0
+		ARNI A 0
 		{
 			int Alt = CountInv("AltFireToken");
 			int Tac = CountInv("TacticalScopeActive");
@@ -106,45 +100,32 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 			
 			if (Tac)
 			{
-				if (Alt)
-				{	return ResolveState("HoldScope");	}			// We're holding it zoomed.
-				else
-				{	return ResolveState("TacticalScopeReady");	}	// Just the normal unzoomed sprite.
+				if (Alt)	return ResolveState("HoldScope");				// We're holding it zoomed.
+				else		return ResolveState("TacticalScopeReady");		// Just the normal unzoomed sprite.
 			}
 			else if (Mic)
 			{
-				if (Alt)
-				{	return ResolveState("MissilesReady");	}		// Up and open
-				else
-				{	return ResolveState("MicroMissilesReady");	}	// Closed
+				if (Alt)	return ResolveState("MissilesReady");			// Up and open
+				else		return ResolveState("MicroMissilesReady");		// Closed
 			}
-			return ResolveState("NormalSpriteReady");	
+			return ResolveState("ResumeReadySequence");	
 		}
 		
 		MicroMissilesReady:
-			ARMI A 0 A_Jump(256,"ResumeReadySequence"); //I just know someone's going to abuse fast weapons.
-			Goto ResumeReadySequence;
-		
+			ARMI A 0 {	return ResolveState("ResumeReadySequence");	} //I just know someone's going to abuse fast weapons.
 		TacticalScopeReady:
-			ARSI A 0 A_Jump(256,"ResumeReadySequence");
-			Goto ResumeReadySequence;
-		
-		NormalSpriteReady:
-			ARNI A 0 A_Jump(256,"ResumeReadySequence");
-			Goto ResumeReadySequence;
+			ARSI A 0 {	return ResolveState("ResumeReadySequence");	}
 			
 	ResumeReadySequence:
 		"####" "#" 0
 		{
 			if(CountInv("TacticalScopeActive"))
-			{	ACS_NamedExecute("ModSelectedText",0,1,0,0); }	//print Tactical scope
+				ACS_NamedExecute("ModSelectedText",0,1,0,0);	//print Tactical scope
 			if(CountInv("MicroMissilesActive"))
-			{	ACS_NamedExecute("ModSelectedText",0,2,0,0); }	//print Micro missiles
+				ACS_NamedExecute("ModSelectedText",0,2,0,0);	//print Micro missiles
 			
-			if (CountInv("MGZoomToken"))
-			{	return ResolveState("ZoomOut");	}
-			if (CountInv("MGMissileToken"))
-			{	return ResolveState("MissilesClose");	}
+			if (CountInv("MGZoomToken"))		return ResolveState("ZoomOut");
+			if (CountInv("MGMissileToken"))		return ResolveState("MissilesClose");	
 			return ResolveState("VeryReady");
 		}
 	VeryReady:
@@ -192,9 +173,7 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 				if (Alt)
 				{
 					if (GetPlayerInput(INPUT_BUTTONS) & BT_ALTATTACK)
-					{
-						return ResolveState("FireZoomed");	
-					}
+						return ResolveState("FireZoomed");
 					return ResolveState("ZoomOut");
 				}
 				else
@@ -239,7 +218,7 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 				A_TakeInventory("MachinegunFireToken",1);
 			}
 			if (GetCvar("D4D_Casings"))
-			{	A_SpawnItemEx("HARCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);	}
+				A_SpawnItemEx("HARCasingSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER);
 			
 			
 			
@@ -288,8 +267,8 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 		"####" "#" 5 
 		{
 			ACS_NamedExecute("NotEnoughAmmo",0,0,0);
-			A_TakeInventory("MGMissileToken",32767,0);
-			A_TakeInventory("AltFireToken",32767,0);
+			A_SetInventory("MGMissileToken",0);
+			A_SetInventory("AltFireToken",0);
 		}
 		Goto Ready;
 	//-------------------------------------------------------
@@ -371,7 +350,7 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 				else
 				{
 					A_PlaySound("Doom4/Weapon/Machinegun/FireZoomed",6,1);	//it plays in another channel
-					A_TakeInventory("MachinegunFireToken",1);
+					A_SetInventory("MachinegunFireToken",0);
 				}
 				A_AlertMonsters();
 				A_GunFlash("Null");
@@ -566,8 +545,8 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 	//-------------------------------------------------------
 	// Alt fire switcheroo
 	//-------------------------------------------------------
-	//PlasmaRifleMod1 - HeatBlast - TacticalScope
-	//PlasmaRifleMod2 - StunBomb - MicroMissiles
+	//AssaultRifleMod1 - TacticalScope
+	//AssaultRifleMod2 - MicroMissiles
 
 	Reload:
 		
@@ -603,8 +582,10 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 		}
 		"####" "#" 5;
 		Goto Ready;
-
-
+		
+		// There reeeeaaaally doesn't need to be so many 'from <x>' states, but
+		// oh well... If it ain't broke, don't fix it I guess. For now...
+		
 		FromNormalToMicroMissiles:
 			"####" "####" 1 A_WeaponOffset(4,20,WOF_ADD);
 			TNT1 A 5;
@@ -637,7 +618,7 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 			"####" "#" 0 
 			{
 				A_PlaySound("Doom4/Weapon/Machinegun/SwitchToMissiles",5,1);
-				A_TakeInventory("TacticalScopeActive",1);
+				A_SetInventory("TacticalScopeActive",0);
 				A_GiveInventory("MicroMissilesActive",1);
 			}
 			ARMS AA 1 A_WeaponOffset(0,-15,WOF_ADD);
@@ -658,7 +639,7 @@ Class D4AssaultRifle : Doom4Weapon //replaces Chaingun
 			---- A 0 
 			{
 				A_PlaySound("Doom4/Weapon/Machinegun/SwitchToScope",5,1);
-				A_TakeInventory("MicroMissilesActive",1);
+				A_SetInventory("MicroMissilesActive",0);
 				A_GiveInventory("TacticalScopeActive",1);
 			}
 			ARSS ABCD 1 A_WeaponOffset(0,-10,WOF_ADD);

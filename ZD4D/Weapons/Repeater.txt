@@ -51,16 +51,15 @@ Class D4Repeater : Doom4Weapon
 	//-------------------------------------------------------
 	Deselect:
 		M021 A 1 A_Lower;
-		M021 A 0 A_Lower(WeaponSwitchSpeed);
-		Loop;
+		---- A 1 A_Lower(WeaponSwitchSpeed);
+		Wait;
 	//-------------------------------------------------------
 	// Select sequence
 	//-------------------------------------------------------
 	Select:
 		M021 A 0 ACS_NamedExecute("RemoveModText",0,0,0,0);
-		M021 A 1 A_Raise;
-		M021 A 0 A_Raise(WeaponSwitchSpeed);
-		Goto Select+1;
+		---- A 1 A_Raise(WeaponSwitchSpeed);
+		Wait;
 	//-------------------------------------------------------
 	// Ready sequence
 	//-------------------------------------------------------

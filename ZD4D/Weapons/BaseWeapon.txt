@@ -18,7 +18,7 @@ Class Doom4Weapon : Weapon
 	MCHandler MC;
 	Inventory Modules[2];
 	Inventory ActiveMod;
-	Array<D4DNewBeamBase> Beams;
+	Array<MCBeam> Beams;
 	meta bool MultiplayerWeapon;
 	Property MultiplayerWeapon: MultiplayerWeapon;
 	
@@ -82,7 +82,7 @@ Class Doom4Weapon : Weapon
 	
 	// Default offsets are 10.0, 4.1, -2.7
 	action void A_StartBeam(
-		Class<D4DNewBeamBase> BeamName, Vector3 Off = (0,0,0), int Count = 1,
+		Class<MCBeam> BeamName, Vector3 Off = (0,0,0), int Count = 1,
 		Class<Actor> PuffName = "D4BulletPuff", int dmg = 0, double ang = 0, double pit = 0,
 		double dist = 8192)
 	{
@@ -96,16 +96,15 @@ Class Doom4Weapon : Weapon
 		Actor Puff = LineAttack(angle + ang, dist, pitch + pit, dmg, 'None', PuffName, LAF_NOINTERACT);
 		for (int i = 0; i < Count; i++)
 		{
-			let Beam = D4DNewBeamBase(Spawn(beamname,origin));
-			Beam.Angle = Angle;
-			Beam.Pitch = Pitch;
+			let Beam = MCBeam(Spawn(beamname,origin));
 			Beam.Target = invoker.owner;
 			Beam.Master = invoker.owner;
 			Beam.Tracer = Puff;
+			Beam.Angle = Angle;
+			Beam.Pitch = Pitch;
 			Beam.OffX = Off.x;
 			Beam.OffY = Off.y;
 			Beam.OffZ = Off.z;
-			Beam.Parent = null;
 			invoker.Beams.Push(Beam);
 		}
 	}
