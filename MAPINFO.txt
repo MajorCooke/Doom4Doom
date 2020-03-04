@@ -1,6 +1,6 @@
 GameInfo
 {
-	AddEventHandlers = "D4DHandler", "notHudMessageHandler"
+	AddEventHandlers = "D4DHandler", "notHudMessageHandler"//, "PostCPHandler"
 	PlayerClasses = "Doom4Player"
 	StatusBarClass = "Doom4StatusBar"
 	//PrecacheClasses = "D4BFGAmmo"
@@ -84,7 +84,6 @@ skill Easy
 {
 	SpawnFilter = Easy
 	DamageFactor = 0.75
-	Aggressiveness = 1.1
 	EasyBossBrain
 	Name = "I'm too young to die"
 	PicName = "M_JKILL"
@@ -94,7 +93,6 @@ skill Normal
 {
 	SpawnFilter = Normal
 	DamageFactor = 1.0
-	Aggressiveness = 1.2
 	Name = "Hurt me plenty"
 	DefaultSkill
 	PicName = "M_ROUGH"
@@ -104,7 +102,6 @@ skill Hard
 {
 	SpawnFilter = Nightmare
 	DamageFactor = 1.2
-	Aggressiveness = 1.4
 	Name = "Ultra Violence"
 	PicName = "M_HURT"
 }
@@ -113,7 +110,6 @@ skill Nightmare
 {
 	SpawnFilter = Nightmare
 	DamageFactor = 1.5
-	Aggressiveness = 2.0
 	Name = "Nightmare"
 	PicName = "M_ULTRA"
 }
@@ -124,7 +120,7 @@ skill UNightmare
 	DamageFactor = 2.0
 	Name = "Ultra Nightmare"
 	FastMonsters
-	AmmoFactor = 1.5	//at least you will have a lot to shoot with
+	AmmoFactor = 2.0	//at least you will have a lot to shoot with
 	Mustconfirm = "Fast, extremely damaging and aggressive monsters. Not sure if is beatable. Test your metal?"
 	PicName = "M_NMARE"
 }

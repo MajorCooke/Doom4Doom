@@ -1040,10 +1040,11 @@ Class Doom4StatusBar : BaseStatusBar
 			{
 				if (ammo1)
 				{	
-					AmmoClamp = (ammo1.MaxAmount > 999) ? 4 : 3;
+					AmmoClamp = (ammo1.Amount > 999) ? 4 : 3;
+					double scale = (AmmoClamp == 4) ? 0.35 : 0.5;
 					DrawBar("AMMOBAR1", "AMMOBAR0", ac1, ammo1.Default.MaxAmount, (881, 693) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
 					DrawBar("AMMOBAR2", "AMMOBAR0", ac1 - ammo1.Default.MaxAmount, ammo1.BackpackMaxAmount - ammo1.Default.MaxAmount, (881, 693) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
-					DrawStringScaled(mQ4HudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (983,676) + AmmoOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 0.5);
+					DrawStringScaled(mQ4HudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (983,676) + AmmoOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: scale);
 				}
 			}
 			else
@@ -1055,7 +1056,7 @@ Class Doom4StatusBar : BaseStatusBar
 				{
 					if (ammo1) // Bottom
 					{
-						AmmoClamp = (ammo1.MaxAmount > 999) ? 4 : 3;
+						AmmoClamp = (ammo1.Amount > 999) ? 4 : 3;
 						DrawBar("AMMOBAR1", "AMMOBAR0", ac1, ammo1.Default.MaxAmount, (881, 693) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
 						DrawBar("AMMOBAR2", "AMMOBAR0", ac1 - ammo1.Default.MaxAmount, ammo1.BackpackMaxAmount - ammo1.Default.MaxAmount, (881, 693) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
 						DrawStringScaled(mQ4HudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (posx,694) + AmmoOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: scale);
@@ -1065,13 +1066,13 @@ Class Doom4StatusBar : BaseStatusBar
 				{
 					if (ammo1) // Top
 					{
-						AmmoClamp = (ammo1.MaxAmount > 999) ? 4 : 3;
+						AmmoClamp = (ammo1.Amount > 999) ? 4 : 3;
 						DrawBar("AMMOBAR1", "AMMOBAR0", ac1, ammo1.MaxAmount, (881, 678) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
 						DrawStringScaled(mQ4HudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (posx,679) + AmmoOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: scale);
 					}
 					if (ammo2) // Bottom
 					{
-						int AmmoClamp2 = (ammo2.MaxAmount > 999) ? 4 : 3;
+						int AmmoClamp2 = (ammo2.Amount > 999) ? 4 : 3;
 						DrawBar("AMMOBAR2", "AMMOBAR0", ac2, ammo2.MaxAmount, (881, 693) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
 						DrawStringScaled(mQ4HudFont, FormatNumber(ammo2.Amount, 1, AmmoClamp2), (posx,694) + AmmoOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: scale);
 					}

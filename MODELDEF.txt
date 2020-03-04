@@ -207,6 +207,25 @@ Model "NewLightningBeamPrimary"
 	FrameIndex X206 L 0 0
 	FrameIndex X206 M 0 0
 }
+
+Model "NewCarrionBeamMerger"
+{
+	Scale 100.0 100.0 120.0
+
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	
+	Model 0 "Models/BeamOffset8.md3"
+	Skin 0 "Graphics/LtBmBlu1.png"
+	FrameIndex X206 F 0 0
+	FrameIndex X206 G 0 0
+	FrameIndex X206 H 0 0
+	FrameIndex X206 I 0 0
+	FrameIndex X206 J 0 0
+	FrameIndex X206 K 0 0
+	FrameIndex X206 L 0 0
+	FrameIndex X206 M 0 0
+}
 //------------------------------------------------------------------------------
 Model "BFGBeam"
 {

@@ -269,14 +269,16 @@ Class Doom4Player : PlayerPawn
 				A_SetTics(17);
 				return ResolveState(null);
 			}
-			if (DashTimer > 1) 
+			if (DashTimer > 0) 
 				DashTimer--; // Still waiting.
+			/*
 			else if (DashTimer == 1)
 			{
 				if (bONMOBJ || pos.z <= GetZAt() || A_CheckFloor("Null") ||
 					(player.cheats & (CF_FLY|CF_NOCLIP2)))
 					DashTimer = 0; // Can dash.
 			}
+			*/
 			else if (DashTimer == -1)
 			{
 				int btns = CurInputCmds;

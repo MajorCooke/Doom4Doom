@@ -301,7 +301,7 @@ Class IOSFaceExploder : Actor
 			if (sine < 90.0)
 			{
 				sine += (90.0 / 35.0);
-				A_SetScale(sin(sine) * 2);
+				A_SetScale(sin(sine) * 4);
 			}
 			
 			if (count[0] % 35 == 0)
@@ -327,10 +327,9 @@ Class IOSFaceExploder : Actor
 	{
 	Spawn:
 		TNT1 AAAAA 35;
-		X119 ABCDEFGHIJKLMNOPQRSTUVWXYZ random(4,6);
-		X120 ABCDEFGHIJKLMNOPQRSTUVW random(4,6);
-		X120 WWWWWWWWWW 1 A_FadeOut(0.1,FTF_CLAMP);
-		TNT1 A -1;
+		X119 ABCDEFGHIJKLMNOPQRSTUVWXYZ random(2,3);
+		X120 ABCDEFGHIJKLM random(1,2);
+		X120 NOPQRSTUVW 1 A_FadeOut(0.1,FTF_CLAMP);
 		Wait;
 	}
 }
@@ -352,15 +351,15 @@ Class D4SmallNuke : Actor
 		if (size < 90)
 		{
 			size += (90.0 / 17.5);
-			A_SetScale(sin(size) * 1.5);
+			A_SetScale(sin(size) * 4);
 		}
 	}
 	
 	override void PostBeginPlay()
 	{
 		Super.PostBeginPlay();
-		if (pos.z < floorz)	A_Warp(DefPtr, pos.x, pos.y, floorz + 1, flags: WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEPOSITION);
-		if (pos.z > ceilingz)	A_Warp(DefPtr, pos.x, pos.y, ceilingz - 1, flags: WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEPOSITION);
+		if (pos.z < floorz)		Warp(self, pos.x, pos.y, floorz + 1, flags: WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEPOSITION);
+		if (pos.z > ceilingz)	Warp(self, pos.x, pos.y, ceilingz - 1, flags: WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEPOSITION);
 	}
 	
 	States

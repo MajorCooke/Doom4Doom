@@ -68,15 +68,18 @@ Class NewCarrionBeamMerger : MCBeam
 	double OutTime;
 	Default
 	{
-		MCBeam.Offsets 4, 0, 4;
+		+DONTINTERPOLATE
+		MCBeam.Offsets 0, 0, 0;
+		MCBeam.AimOffset 0;
 		MCBeam.SpriteName 'X206';
 		MCBeam.Frames Fr_F, Fr_M;
 		MCBeam.Widths 0.05, 0.05;
 		MCBeam.Lengths 0.2, 0.6;
 		MCBeam.Angles -4, 4;
 		MCBeam.Pitches -4, 4;
-		MCBeam.Turn 5, 5;
+		MCBeam.Turn 30, 30;
 		MCBeam.UseDeathState true;
+		MCBeam.NeedTarget false;
 		Translation "0:255=%[0,0,0]:[1,0.1,0.1]";
 	}
 	

@@ -1057,6 +1057,8 @@ Class CarrionPrimary : FastProjectile
 				A_SpawnItemEx("CarrionShockwave",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
 				dmg = charge * (MaxDamage / 70.0);
 				
+				
+				
 				// Thrust away from the player by setting up.
 				double ta = angle, tp = pitch;
 				A_FaceTarget(0,0,0,0,FAF_MIDDLE);
@@ -1074,12 +1076,13 @@ Class CarrionPrimary : FastProjectile
 					if (tracer)
 					{
 						ThrustActor(tracer, dmg);
-						tracer.DamageMobj(self, target, idmg, 'Normal', dmgflags);
+						int tdmg = tracer.DamageMobj(self, target, idmg, 'Normal', dmgflags);
+					//	Console.Printf("Damage: %d", tdmg);
 					}
 					for (int i = 0; i < MCEvent.Monsters.Size(); i++)
 					{
 						Actor mo = MCEvent.Monsters.Actors[i];
-						if (!mo || mo.health < 1 || mo == target || 
+						if (!mo || mo.health < 1 || mo == target || mo == tracer || 
 							!CheckSight(mo, SF_IGNOREWATERBOUNDARY|SF_IGNOREVISIBILITY))
 							continue;
 						
@@ -1087,7 +1090,8 @@ Class CarrionPrimary : FastProjectile
 						if (ddmg < 1)	continue;
 						
 						ThrustActor(mo, ddmg);
-						mo.DamageMobj(self, target, ddmg, 'Normal', dmgflags);
+						int tdmg = mo.DamageMobj(self, target, ddmg, 'Normal', dmgflags);
+					//	Console.Printf("Damage: %d", tdmg);
 					}
 				}
 				else	A_Explode(idmg,rad,0,0,fullrad);

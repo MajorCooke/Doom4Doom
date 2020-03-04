@@ -259,12 +259,26 @@ Doom4/Weapon/SuperShotgun/FullReload2		"Sounds/Weapons/SSG/FullReload2.ogg"
 //==============================================================================================
 //		Rocket Launcher
 //==============================================================================================
-Doom4/Weapon/RocketLauncher/Fire		"sounds/weapons/RL/RLFire.ogg"
-Doom4/Weapon/RocketLauncher/SwitchToDetonate		"sounds/weapons/RL/RLSwitchToDetonate.ogg"
+Doom4/Weapon/RocketLauncher/Fire1				"sounds/weapons/RL/Fire1.ogg"
+Doom4/Weapon/RocketLauncher/Fire2				"sounds/weapons/RL/Fire2.ogg"
+Doom4/Weapon/RocketLauncher/Fire3				"sounds/weapons/RL/Fire3.ogg"
+Doom4/Weapon/RocketLauncher/Fire4				"sounds/weapons/RL/Fire4.ogg"
+Doom4/Weapon/RocketLauncher/Reload1				"Sounds/Weapons/RL/Reload1.ogg"
+Doom4/Weapon/RocketLauncher/Reload2				"Sounds/Weapons/RL/Reload2.ogg"
+Doom4/Weapon/RocketLauncher/Reload3				"Sounds/Weapons/RL/Reload3.ogg"
+Doom4/Weapon/RocketLauncher/Rotate				"Sounds/Weapons/RL/Rotate.ogg"
+Doom4/Weapon/RocketLauncher/SwitchToDetonate	"sounds/weapons/RL/RLSwitchToDetonate.ogg"
 Doom4/Weapon/RocketLauncher/SwitchToLock		"sounds/weapons/RL/RLSwitchToLock.ogg"
 Doom4/Weapon/RocketLauncher/TargetLocked		"sounds/weapons/RL/RLLocked.ogg"
-Doom4/Weapon/RocketLauncher/StartLockOn		"sounds/weapons/RL/RLLockOnStart.ogg"
+Doom4/Weapon/RocketLauncher/StartLockOn			"sounds/weapons/RL/RLLockOnStart.ogg"
 
+$random Doom4/Weapon/RocketLauncher/Fire
+{
+	Doom4/Weapon/RocketLauncher/Fire1
+	Doom4/Weapon/RocketLauncher/Fire2
+	Doom4/Weapon/RocketLauncher/Fire3
+	Doom4/Weapon/RocketLauncher/Fire4
+}
 $limit Doom4/Weapon/RocketLauncher/Fire 0
 
 $random Doom4/Weapon/RocketLauncher/Explode {Doom4/Weapon/RocketLauncher/Explode1 Doom4/Weapon/RocketLauncher/Explode2 Doom4/Weapon/RocketLauncher/Explode3}

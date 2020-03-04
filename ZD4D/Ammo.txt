@@ -733,7 +733,6 @@ Class D4PinataCarrion : CustomInventory
 	int count;
 	int landed;
 	int spawned;
-	int safety;
 	int absorb;
 	int timer;
 	int mergetime;
@@ -755,7 +754,7 @@ Class D4PinataCarrion : CustomInventory
 		+BOUNCEONWALLS
 		+BOUNCEONCEILINGS
 		+NOBLOCKMONST
-		+SEEINVISIBLE
+		+SEEINVISIBLE // Needed to stop A_Face* functions from misbehaving with invis powerups.
 		+NOTELESTOMP
 		+INVENTORY.TRANSFER
 		BounceFactor 0.5;
@@ -778,12 +777,13 @@ Class D4PinataCarrion : CustomInventory
 	
 	override void OnDestroy()
 	{
-		if (Kids.Size() > 0)
+		for (int i = 0; i < Kids.Size(); i++)
 		{
-			for (int i = 0; i < Kids.Size(); i++)
-			{
-				if (Kids[i])	Kids[i].Destroy();
-			}
+			if (!Kids[i])	
+				continue;
+				
+			Kids[i].Destroy();
+			Kids[i] = null;			
 		}
 		Super.OnDestroy();
 	}
@@ -881,8 +881,6 @@ Class D4PinataCarrion : CustomInventory
 				
 				if (i.timer == 0)
 				{
-					i.safety = 0;
-					
 					
 					if (!i.Event)	i.Event = D4DHandler.Fetch();
 					int size = i.Event.Carrion.Size();
@@ -917,7 +915,8 @@ Class D4PinataCarrion : CustomInventory
 						}
 						if (invoker.flier) 	invoker.flier.DestroyMe = true;
 						invoker.DestroyMe = true;
-						bINVISIBLE = true;
+						bNOINTERACTION = bINVISIBLE = true;
+						A_Stop();
 						return;
 					}
 				}

@@ -161,7 +161,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	// Deselect sequence
 	//-------------------------------------------------------
 	Deselect:
-		"####" "#" 0 
+		#### "#" 0 
 		{
 			ACS_NamedExecute("RemoveModText",0,0,0,0);
 			A_SetInventory("RLLockToken",0);
@@ -208,7 +208,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			if (CountInv("RocketFired"))			{	return ResolveState("ReadyNoSprite");	}
 			return ResolveState(null);
 		}
-		Ready_StartPreparingSprites:	//all "Start preparing" are to assign what sprite to display in the "####" instances
+		Ready_StartPreparingSprites:	//all "Start preparing" are to assign what sprite to display in the #### instances
 			"----" A 0 
 			{
 				if (CountInv("DetonateActive"))			{	return ResolveState("DetonateSpriteReady");	}
@@ -226,10 +226,10 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 				Goto ResumeReadySequence;
 				
 	ResumeReadySequence:
-		"####" A 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+		#### A 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
 		Loop;
 	ReadyNoAmmo:
-		"####" A 1
+		#### A 1
 		{
 			A_SetInventory("RLLockToken",0);
 			A_SetInventory("RLTargetToken",0);
@@ -254,7 +254,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	// Primary fire 
 	//-------------------------------------------------------
 	Fire:
-		"####" "#" 0 
+		#### "#" 0 
 		{
 			if (CountInv("DetonateActive"))	{	return ResolveState("DetonateSprite");	}
 			if (CountInv("LockOnActive"))	{	return ResolveState("LockOnSprite");	}
@@ -271,7 +271,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			Goto ResumeFireSequence;
 			
 	ResumeFireSequence:
-		"####" A 0 Bright
+		#### A 0 Bright
 		{
 			if (A_JumpIfNoAmmo("Null"))	//if not enough ammo
 			{
@@ -293,13 +293,13 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 		}
 	//Holding ground for the sake of the weapon's sanity.
 	FHold:
-		"####" A 1
+		#### A 1
 		{			
 			if (A_Overlay(RocketFire,"FireAnimation",true))
 			{	A_OverlayFlags(RocketFire,PSPF_POWDOUBLE|PSPF_ADDWEAPON,true);	}
 			return ResolveState(null);
 		}
-		"####" "#" 0 A_Refire("FHold");
+		#### "#" 0 A_Refire("FHold");
 		Goto Ready;
 		
 		
@@ -307,7 +307,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	// Flash sequence, used by all three firemodes and alt fires
 	//-------------------------------------------------------
 	
-	FireAnimation:	//all "Start preparing" are to assign what sprite to display in the "####" instances
+	FireAnimation:	//all "Start preparing" are to assign what sprite to display in the #### instances
 		RLNF A 0
 		{
 			if (CountInv("DetonateActive"))			{	return ResolveState("DetonateSpriteFlash");	}
@@ -320,7 +320,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			RLLF A 0 { return ResolveState("ResumeFlashSequence"); }
 			
 	ResumeFlashSequence:
-		"####" B 1 Bright 
+		#### B 1 Bright 
 		{
 			A_GunFlash("Null");
 			A_FireProjectile("D4Rocket",0,1,7);
@@ -332,17 +332,17 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	Res2Check:
 		---- B 0 A_JumpIf(IsDoubleSpeed(), "Res2Fast");
 	Res2:
-		"####" C 1 Bright   A_WeaponOffset(10, 7,WOF_ADD);
-		"####" D 1 Bright	A_WeaponOffset( 5, 3,WOF_ADD); 
-		"####" E 1 Bright   A_WeaponOffset( 3, 2,WOF_ADD);
-		"####" F 2          A_WeaponOffset( 2, 1,WOF_ADD); //total +30 + 20
+		#### C 1 Bright   A_WeaponOffset(10, 7,WOF_ADD);
+		#### D 1 Bright	A_WeaponOffset( 5, 3,WOF_ADD); 
+		#### E 1 Bright   A_WeaponOffset( 3, 2,WOF_ADD);
+		#### F 2          A_WeaponOffset( 2, 1,WOF_ADD); //total +30 + 20
 		Goto Flash_StartPreparingIdleSprites;
 		
 	Res2Fast:
 		#### D 1 Bright { 	A_WeaponOffset(15, 10, WOF_ADD); }
 		#### F 1 			A_WeaponOffset( 5,  3, WOF_ADD);
 	
-			Flash_StartPreparingIdleSprites:	//all "Start preparing" are to assign what sprite to display in the "####" instances
+			Flash_StartPreparingIdleSprites:	//all "Start preparing" are to assign what sprite to display in the #### instances
 				RLNI A 0
 				{
 					if (CountInv("DetonateActive"))			{	return ResolveState("DetonateSpriteFlashIdle");	}
@@ -351,15 +351,22 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 				}
 				
 				DetonateSpriteFlashIdle:
-					RLDI A 0;
-					Goto ResumeFlashSequenceIdle;
+					RLDI A 0	{	return ResolveState("ResumeFlashSequenceIdle");	}
 				LockOnSpriteFlashIdle:
-					RLLI A 0;
-					Goto ResumeFlashSequenceIdle;
+					RLLI A 0	{	return ResolveState("ResumeFlashSequenceIdle");	}
 			
+	
+	FireNoise:
+		M666 A 10;
+		M666 A 6 A_StartSound("Doom4/Weapon/RocketLauncher/Reload1", 10, CHANF_OVERLAP, 0.6);
+		M666 A 4 A_StartSound("Doom4/Weapon/RocketLauncher/Reload2", 10, CHANF_OVERLAP, 0.6);
+		M666 A 10 A_StartSound("Doom4/Weapon/RocketLauncher/Rotate", 10, CHANF_OVERLAP, 0.6);
+		M666 A 1 A_StartSound("Doom4/Weapon/RocketLauncher/Reload3", 10, CHANF_OVERLAP, 0.6);
+		Stop;
+		
 	ResumeFlashSequenceIdle:
-		#### A 6;
-			Flash_StartPreparingReloadSprites:	//all "Start preparing" are to assign what sprite to display in the "####" instances
+		#### A 6 A_Overlay(RL_FireNoise, "FireNoise");
+			Flash_StartPreparingReloadSprites:	//all "Start preparing" are to assign what sprite to display in the #### instances
 				RLNR A 0
 				{
 					if (CountInv("DetonateActive"))			{	return ResolveState("DetonateSpriteFlashReload");	}
@@ -368,38 +375,36 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 				}
 				
 				DetonateSpriteFlashReload:
-					RLDR A 0;
-					Goto ResumeFlashSequenceReload;
+					RLDR A 0 { return ResolveState("ResumeFlashSequenceReload"); }
 				LockOnSpriteFlashReload:
-					RLLR A 0;
-					Goto ResumeFlashSequenceReload;
+					RLLR A 0 { return ResolveState("ResumeFlashSequenceReload"); }
 			//A_SetTics(IsDoubleSpeed() ? 0 : 1);
 	ResumeFlashSequenceReload:
-		"####" "#" 0 A_JumpIf(IsDoubleSpeed(),"RFSFast");
-		"####" AA 1 A_WeaponOffset(-2,-1,WOF_ADD); //-4 -2
-		"####" AA 1 A_WeaponOffset(-2,-1,WOF_ADD);							//-8 -4
-		"####" CC 1 A_WeaponOffset(-2,-1,WOF_ADD);							//-12 -6 
-		"####" DD 1 A_WeaponOffset(-2,-1,WOF_ADD);							//-16 -8 
-		"####" EE 1 A_WeaponOffset(-2,-1,WOF_ADD);							//-20 -10 
-		"####" FF 1 A_WeaponOffset(-2,-1,WOF_ADD);							//-24 -12
-		"####" G 1 A_WeaponOffset(-2,-3,WOF_ADD);							//-26 -15
-		"####" H 1 A_WeaponOffset(-2,-2,WOF_ADD);							//-28 -18
-		"####" I 1 A_WeaponOffset(-2,-2,WOF_ADD);							//-30 -20
-		"####" JKLMNOPQRS 1;
+		#### # 0 A_JumpIf(IsDoubleSpeed(),"RFSFast");
+		#### AA 1 A_WeaponOffset(-2,-1,WOF_ADD); //-4 -2
+		#### AA 1 A_WeaponOffset(-2,-1,WOF_ADD);							//-8 -4
+		#### CC 1 A_WeaponOffset(-2,-1,WOF_ADD);							//-12 -6 
+		#### DD 1 A_WeaponOffset(-2,-1,WOF_ADD);							//-16 -8 
+		#### EE 1 A_WeaponOffset(-2,-1,WOF_ADD);							//-20 -10 
+		#### FF 1 A_WeaponOffset(-2,-1,WOF_ADD);							//-24 -12
+		#### G 1 A_WeaponOffset(-2,-3,WOF_ADD);							//-26 -15
+		#### H 1 A_WeaponOffset(-2,-2,WOF_ADD);							//-28 -18
+		#### I 1 A_WeaponOffset(-2,-2,WOF_ADD);							//-30 -20
+		#### JKLMNOPQRS 1;
 		Goto RFSEnd;		
 	RFSFast:
-		"####" A 1 A_WeaponOffset(-4,-2,WOF_ADD); 							//+26 +18
-		"####" A 1 A_WeaponOffset(-4,-2,WOF_ADD);							//+22 +16
-		"####" C 1 A_WeaponOffset(-4,-2,WOF_ADD);							//+18 +14 
-		"####" D 1 A_WeaponOffset(-4,-2,WOF_ADD);							//+14 +12
-		"####" E 1 A_WeaponOffset(-4,-2,WOF_ADD);							//+10 +10 
-		"####" F 1 A_WeaponOffset(-4,-2,WOF_ADD);							//+6 +8
-		"####" G 1 A_WeaponOffset(-4,-6,WOF_ADD);							//+2 +2
-		"####" I 1 A_WeaponOffset(-2,-2,WOF_ADD);							//+0 +0
-		"####" JLMPR 1;
+		#### A 1 A_WeaponOffset(-4,-2,WOF_ADD); 							//+26 +18
+		#### A 1 A_WeaponOffset(-4,-2,WOF_ADD);							//+22 +16
+		#### C 1 A_WeaponOffset(-4,-2,WOF_ADD);							//+18 +14 
+		#### D 1 A_WeaponOffset(-4,-2,WOF_ADD);							//+14 +12
+		#### E 1 A_WeaponOffset(-4,-2,WOF_ADD);							//+10 +10 
+		#### F 1 A_WeaponOffset(-4,-2,WOF_ADD);							//+6 +8
+		#### G 1 A_WeaponOffset(-4,-6,WOF_ADD);							//+2 +2
+		#### I 1 A_WeaponOffset(-2,-2,WOF_ADD);							//+0 +0
+		#### JLMPR 1;
 		Goto RFSEnd;
 	RFSEnd:
-		"####" T 1 
+		#### T 1 
 		{
 			A_SetInventory("RocketFired",0);
 			A_SetInventory("TripleShot",0);
@@ -411,7 +416,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	//-------------------------------------------------------
 	
 	AltFire:
-		"####" A 1 
+		#### A 1 
 		{
 			// [MC] Welcome to my Hell.
 			if (CountInv("DetonateActive")) //Detonate token?
@@ -452,10 +457,6 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	LockOnHold:
 		RLLI A 1 
 		{
-			
-		//	if (CountInv("RLLockToken") <= 30)	
-		//		A_PlaySound("Doom4/Weapon/RocketLauncher/StartLockOn",6);
-			
 			if (CountInv("RLLockToken") >= LockTokenMax)
 			{
 				if (CountInv("TripleShot") != 1)
@@ -467,13 +468,12 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 						A_SetInventory("RLLockToken",0);
 						ClearReticle();
 						ClearTargets();
-						
 					}
 					else
 					{
 						SetReticle(Targ);
 						A_SetInventory("TripleShot",1);
-						A_PlaySound("Doom4/Weapon/RocketLauncher/TargetLocked",7);
+						A_StartSound("Doom4/Weapon/RocketLauncher/TargetLocked",9);
 					}
 				}
 				A_WeaponReady(WRF_NOSECONDARY);
@@ -524,8 +524,8 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			}
 			
 		}
-		"####" A 0 A_Refire("LockOnHold"); //Leave this out from brackets unless it's last.
-		"####" A 0
+		#### A 0 A_Refire("LockOnHold"); //Leave this out from brackets unless it's last.
+		#### A 0
 		{
 			ClearReticle();
 			A_SetInventory("RLLockToken",0);
@@ -553,7 +553,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			A_PlaySound("Doom4/Weapon/RocketLauncher/Fire",5,1);
 			A_WeaponOffset(2,0,WOF_ADD); //for recoil effect
 		}
-		"####" CDE 1 bright A_WeaponOffset(1,1,WOF_ADD);
+		#### CDE 1 bright A_WeaponOffset(1,1,WOF_ADD);
 		RLLI A 2 A_SetTics(IsDoubleSpeed() ? 0 : 1);
 		RLLF B 1 bright  
 		{
@@ -570,7 +570,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			A_PlaySound("Doom4/Weapon/RocketLauncher/Fire",6,1);
 			return ResolveState(null);
 		}
-		"####" CDE 1 bright  A_WeaponOffset(1,1,WOF_ADD);
+		#### CDE 1 bright  A_WeaponOffset(1,1,WOF_ADD);
 		RLLI A 2 A_SetTics(IsDoubleSpeed() ? 0 : 1);
 		RLLF B 1 bright 
 		{
@@ -586,7 +586,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			return ResolveState(null);
 		}
 	FireContFlash:
-		"####" B 1 bright 
+		#### B 1 bright 
 		{
 			A_GunFlash("Null");
 			A_SetInventory("RLLockToken",0);
@@ -607,13 +607,12 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 		
 	
 		
-		
 	//-------------------------------------------------------
 	// Alt fire switcheroo
 	//-------------------------------------------------------
 	
 	Reload:
-		"####" "#" 0 
+		#### "#" 0 
 		{
 			if (CountInv("RocketLauncherMod1")) //if has Detonate
 			{
@@ -643,7 +642,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			}
 			return ResolveState(null);
 		}
-		"####" "#" 5;
+		#### "#" 5;
 		Goto Ready;
 
 
