@@ -240,7 +240,7 @@ Class D4DHandler : EventHandler
 			let car = D4PinataCarrion(mo);
 			car.Event = self;
 			Carrion.Push(mo);
-			MC.AddShape(mo, mo, "PINBI0", (0, mo.height / 2.0), 0, (PinataSize,PinataSize), PinMinSize, 0.0, 'D4D_DrawPinataBorders', 0, 1024);
+			MC.AddShape(mo, mo, "PINBI0", (0, mo.height / 2.0), 0, (PinataSize,PinataSize), PinMinSize, 0.0, 'D4D_DrawPinataBorders', 0, 1024, 'D4D_PinataScale');
 		}
 		else if (mo.bNOINTERACTION || mo.bMISSILE)
 			return;
@@ -264,7 +264,7 @@ Class D4DHandler : EventHandler
 				else	return;
 				
 				if (!MC)	MC = MCHandler.Fetch();
-				MC.AddShape(mo, mo, texname, (0, mo.height / 2.0), 0, (PinataSize,PinataSize), PinMinSize, 0.0, 'D4D_DrawPinataBorders', 0, 1024);
+				MC.AddShape(mo, mo, texname, (0, mo.height / 2.0), 0, (PinataSize,PinataSize), PinMinSize, 0.0, 'D4D_DrawPinataBorders', 0, 1024, 'D4D_PinataScale');
 			}
 		}
 	}
