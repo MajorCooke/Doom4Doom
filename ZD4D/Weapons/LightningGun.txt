@@ -173,7 +173,7 @@ Class D4LightningGun : Doom4Weapon
 			A_StopSound(5);
 		}
 		LGNG B 3;
-		LGNG A 3 A_TakeInventory("AltFireToken",32767);
+		LGNG A 3 A_SetInventory("AltFireToken",0);
 		Goto Ready;	
 	}
 }

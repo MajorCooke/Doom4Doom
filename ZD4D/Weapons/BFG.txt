@@ -338,7 +338,7 @@ Class D4BFGProjectile  : Actor
 			if (mo.bFRIENDLY || !mo.bISMONSTER || mo.health < 1 || mo.bDORMANT ||
 				(mo is "PlayerPawn") || 
 				(mo is "Cyberdemon") || (mo is "SpiderMastermind") ||
-				(rep is "Cyberdemon") || (mo is "SpiderMastermind"))
+				(rep is "Cyberdemon") || (rep is "SpiderMastermind"))
 			{
 				continue;
 			}
