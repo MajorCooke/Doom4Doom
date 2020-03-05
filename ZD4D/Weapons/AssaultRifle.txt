@@ -781,6 +781,7 @@ Class MGMiniMissile : D4D_Projectile
 		+HITTRACER
 		+EXTREMEDEATH
 		+CAUSEPAIN
+		+SEEKERMISSILE
 		WeaveIndexXY 10;
 		WeaveIndexZ 10;
 		SeeSound "Doom4/Weapon/Machinegun/MiniMissilePass";
@@ -814,6 +815,7 @@ Class MGMiniMissile : D4D_Projectile
 			else
 			{
 				counter++;
+				MC_Functions.StaticSeekAng(self, 5);
 				A_Weave(value1, value2, value3, value4);
 			}
 			return ResolveState(null);
@@ -828,6 +830,7 @@ Class MGMiniMissile : D4D_Projectile
 				return ResolveState("Explode");
 			else
 				A_SpawnItemEx("MGMiniMissileSmokeStuck",-5,0,0,frandom(0.3,-0.3),frandom(0.3,-0.3),frandom(0.2,1.5),0,SXF_NOCHECKPOSITION,64);
+			
 			return ResolveState(null);
 		}
 		Loop;

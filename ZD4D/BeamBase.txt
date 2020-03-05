@@ -22,7 +22,7 @@ TO DO: Make the SPAWNERS set the MoveWithSource flag and perform the following.
 
 
 
-
+// This will soon be deprecated and replaced with MCBeam in MC_Utility.pk3
 
 
 
@@ -537,7 +537,7 @@ Class D4DBeamBase : D4DFX
 	{
 		// Don't waste time if no master or not desired. Also take into account
 		// regular time freezing.
-		if (!MoveWithSource || !Master || (!bNOTIMEFREEZE && IsFrozen()))
+		if (!MoveWithSource || !Master || IsFrozen())
 		{
 			Super.Tick();
 			return;
