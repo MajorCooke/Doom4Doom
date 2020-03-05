@@ -587,7 +587,6 @@ Class D4UpgradePickupSpawner : Actor
 	
 	override void PostBeginPlay()
 	{
-		
 		items.Clear();
 		
 		bool SpawnedSoviet = false;
@@ -751,6 +750,7 @@ Class D4UpgradePickupSpawner : Actor
 				ItemToSpawn.target = target;
 				ItemToSpawn.master = master;
 				ItemToSpawn.tracer = tracer;
+				ItemToSpawn.bDROPPED = bDROPPED;
 			}
 		}
 		Destroy(); return;		

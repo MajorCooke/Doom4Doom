@@ -56,7 +56,7 @@ Class D4DHandler : EventHandler
 	private bool FirstTime;
 	private uint Timer;
 	
-	AArray 	DemonRunes, Carrion, Beams;
+	AArray 	DemonRunes, Carrion;
 	Array<D4Restriction> RestrictList;
 	D4LootContainer LootList;
 	D4DDeathStorage Storage[MAXPLAYERS];
@@ -90,7 +90,6 @@ Class D4DHandler : EventHandler
 		{
 			DemonRunes.Clean();
 			Carrion.Clean();
-			Beams.Clean();
 		}
 	}
 	
@@ -111,7 +110,6 @@ Class D4DHandler : EventHandler
 		MC = MCHandler.Fetch();
 		DemonRunes = AArray.Create();
 		Carrion = AArray.Create();
-		Beams = AArray.Create();
 		ArrowManager = D4VisualDamageManager.Create();
 		
 		LootList = D4LootContainer.Create();
@@ -210,15 +208,8 @@ Class D4DHandler : EventHandler
 		Actor mo = e.thing;
 		double PinataSize = 0.3;
 		double PinMinSize = 1.0;
-		if (mo is "D4DBeamBase")
-		{
-			Beams.Push(D4DBeamBase(mo));
-		}
-		else if (mo is 'DemonRuneBase')
-		{
-			DemonRunes.Push(mo);
-		}
-		else if ((mo.bISMONSTER || mo.bSHOOTABLE) && mo.health > 0)
+		
+		if ((mo.bISMONSTER || mo.bSHOOTABLE) && mo.health > 0)
 		{
 			let mon = D4AbstractMonster(mo);
 			if (mon)	mon.Event = self;
@@ -235,37 +226,41 @@ Class D4DHandler : EventHandler
 				mo.SetInventory('D4MonsterUpgrader', amt);
 			}
 		}
-		else if (mo is 'D4PinataCarrion')
+		else if (mo is 'DemonRuneBase')
 		{
-			let car = D4PinataCarrion(mo);
-			car.Event = self;
-			Carrion.Push(mo);
-			MC.AddShape(mo, mo, "PINBI0", (0, mo.height / 2.0), 0, (PinataSize,PinataSize), PinMinSize, 0.0, 'D4D_DrawPinataBorders', 0, 1024, 'D4D_PinataScale');
+			DemonRunes.Push(mo);
 		}
-		else if (mo.bNOINTERACTION || mo.bMISSILE)
+		else if (mo.bNOINTERACTION || mo.bNOSECTOR)
 			return;
 		else
 		{
-			String s = mo.GetClassName();
-			s.MakeLower();
-			if (s.IndexOf("d4pinata"))
+			String texname = "";
+			
+				 
+				 if (mo is "D4PinataArmor")		texname = "PINBA0";
+			else if (mo is "D4PinataHealth")	texname = "PINBB0";
+			else if (mo is "D4PinataBullets" ||
+					 mo is "D4PinataShells" ||
+					 mo is "D4PinataRockets" ||
+					 mo is "D4PinataCells" ||
+					 mo is "D4PinataBulletsZombieman" ||
+					 mo is "D4PinataShellsShotgunGuy")
+												texname = "PINBD0";
+			else if (mo is "D4PinataBFG")		texname = "PINBH0";
+			else if (mo is "D4PinataCarrion")
 			{
-				string texname = "";
-					 if (mo is "D4PinataArmor")		texname = "PINBA0";
-				else if (mo is "D4PinataHealth")	texname = "PINBB0";
-				else if (mo is "D4PinataBullets" ||
-						mo is "D4PinataShells" ||
-						mo is "D4PinataRockets" ||
-						mo is "D4PinataCells" ||
-						mo is "D4PinataBulletsZombieman" ||
-						mo is "D4PinataShellsShotgunGuy")
-													texname = "PINBD0";
-				else if (mo is "D4PinataBFG")		texname = "PINBH0";
-				else	return;
-				
-				if (!MC)	MC = MCHandler.Fetch();
-				MC.AddShape(mo, mo, texname, (0, mo.height / 2.0), 0, (PinataSize,PinataSize), PinMinSize, 0.0, 'D4D_DrawPinataBorders', 0, 1024, 'D4D_PinataScale');
+				let car = D4PinataCarrion(mo);				
+				car.Event = self;
+				Carrion.Push(mo);
+				texname = "PINBI0";
 			}
+			else if (mo is 'D4UpgradeCase' && mo.bDROPPED)
+				texname = "PINBJ0";
+			else return;
+			
+			if (!MC)	MC = MCHandler.Fetch();
+			if (MC)		
+				MC.AddShape(mo, mo, texname, (0, mo.height / 2.0), 0, (PinataSize,PinataSize), PinMinSize, 0.0, 'D4D_DrawPinataBorders', 0, 1024, 'D4D_PinataScale');
 		}
 	}
 	
@@ -729,22 +724,7 @@ Class D4DHandler : EventHandler
 		}
 		return false;
 	}
-	
-	void DestroyBeams(Actor caller)
-	{
-		if (caller && Beams)
-		{
-			for (int i = 0; i < Beams.Size(); i++)
-			{
-				D4DBeamBase mo = D4DBeamBase(Beams.Actors[i]);
-				if (mo && (mo.Target == caller) && !mo.bNODAMAGE)
-				{
-					mo.Die(caller, null);
-				}
-			}
-		}
-	}
-	
+
 	static void ConvertBerserkToQuad(D4DBerserk mo)
 	{
 		if (!mo)	return;

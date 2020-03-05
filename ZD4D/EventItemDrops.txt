@@ -569,7 +569,10 @@ extend class D4DHandler
 				if (UpgradeDropAlways > 0)
 				{
 					for (int i = 0; i < UpgradeDropAlways; i++)
-						mo.A_DropItem("D4UpgradePickupSpawner");
+					{
+						Actor item = mo.A_DropItem("D4UpgradePickupSpawner");
+						if (item)	item.bDROPPED = true;
+					}
 				}
 			}
 		}
