@@ -15,7 +15,9 @@ Class D4DGrenadeItem : D4DKeeperItem
 	double SX, SY, PX, PY;
 	
 	int Cooldown, CooldownMax;
+	int Charges, MaxCharges;
 	
+	Property MaxCharges: MaxCharges;
 	Property CooldownMax: CooldownMax;			
 	Property Grenade: Grenade;					// Actual grenade name that's launched
 	Property Icons: IconReady, IconCooldown,	// Icons to use between ready, charging,
@@ -27,6 +29,7 @@ Class D4DGrenadeItem : D4DKeeperItem
 	{
 		D4DGrenadeItem.CooldownMax 350;
 		D4DGrenadeItem.Scales 1, 1;
+		D4DGrenadeItem.MaxCharges 1;
 	}
 	
 	override void DepleteOrDestroy()
@@ -40,12 +43,26 @@ Class D4DGrenadeItem : D4DKeeperItem
 		Super.DoEffect();
 		if (!Owner)	return;
 		
-		// Prevent overriding sounds by making the item play it instead.
-		if (Cooldown > 0 && --Cooldown == 0)
+		if (Cooldown > 0 && --Cooldown < 1)
 		{
-			SetOrigin(Owner.pos, false);
-			A_PlaySound("Doom4/Weapon/Grenade/GrenadeRegen");			
+			Owner.A_StartSound("Doom4/Weapon/Grenade/GrenadeRegen",11,CHANF_OVERLAP);
+			Charges++;
 		}
+		if (Cooldown < 1 && Charges < MaxCharges)
+			SetCooldown(-1);
+	}
+	
+	int GetCharges() const { return Charges; }
+	bool TakeCharge()
+	{
+		if (Charges > 0)
+		{
+			bool DoCooldown = (Cooldown < 1 && Charges >= MaxCharges);
+			Charges--;
+			if (DoCooldown)	SetCooldown();
+			return true;
+		}
+		return false;
 	}
 	
 	void SetCooldown(int amt = -1)
@@ -1166,7 +1183,7 @@ class D4DIgniteTrace : LineTracer play
 		{
 			Actor mo = Results.HitActor;
 			
-			if (!mo || mo.bFRIENDLY || mo.health < 1)
+			if (!mo || mo.bFRIENDLY || mo.health < 1 || mo is "PlayerPawn")
 				return TRACE_Skip;
 			
 			int size = Ignored.Size();
@@ -1349,12 +1366,12 @@ Class D4ShieldWallBarrier : Actor
 		+NOTELEFRAG
 		+NOTRIGGER
 		+THRUSPECIES
-		+BOSS
 		+FRIENDLY
 		+NEVERTARGET
 		+DONTCORPSE
 		+CANTSEEK
 		+BRIGHT
+		+STOPRAILS
 		Species "Player";
 		Radius 32;
 		Height 1;

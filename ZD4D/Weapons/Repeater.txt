@@ -20,9 +20,11 @@
 
 Class D4Repeater : Doom4Weapon
 {
+	transient CVar RepeaterMode;
 	Default 
 	{
 		Doom4Weapon.MultiplayerWeapon true;
+		Doom4Weapon.CvarMode 'D4D_RepeaterMode', 'Single Mode', 'Triple Mode';
 		+FLOORCLIP
 		+INVENTORY.UNDROPPABLE
 		+INVENTORY.UNTOSSABLE
@@ -41,6 +43,7 @@ Class D4Repeater : Doom4Weapon
 		Inventory.PickupMessage "Repeater. It has a Certain Affinity to other bullet weapons.";
 		Tag "Repeater";
 	}
+	
 	States
 	{
 	Spawn:
@@ -50,14 +53,22 @@ Class D4Repeater : Doom4Weapon
 	// Deselect sequence
 	//-------------------------------------------------------
 	Deselect:
-		M021 A 1 A_Lower;
+		M021 A 1 
+		{
+			A_Lower();
+			DisplayWeaponMode(false);
+		}
 		---- A 1 A_Lower(WeaponSwitchSpeed);
 		Wait;
 	//-------------------------------------------------------
 	// Select sequence
 	//-------------------------------------------------------
 	Select:
-		M021 A 0 ACS_NamedExecute("RemoveModText",0,0,0,0);
+		M021 A 0 
+		{
+			ACS_NamedExecute("RemoveModText",0,0,0,0);
+			DisplayWeaponMode();
+		}
 		---- A 1 A_Raise(WeaponSwitchSpeed);
 		Wait;
 	//-------------------------------------------------------
@@ -73,7 +84,7 @@ Class D4Repeater : Doom4Weapon
 			if ((GetPlayerInput(MODINPUT_BUTTONS) & BT_RELOAD) &&
 				!(GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_RELOAD))
 			{
-				ACS_NamedExecute("ToggleRepeaterMode",0,0,0,0);
+				ToggleWeaponMode();
 			}
 		}
 		Loop;	
@@ -86,12 +97,14 @@ Class D4Repeater : Doom4Weapon
 			{
 				return ResolveState("AltFireShoot");
 			}
-			invoker.AmmoUse1 = CountInv("RepeaterUpgradeDamage") ? 3 : 2;
+			let i = invoker;
+			i.AmmoUse1 = CountInv("RepeaterUpgradeDamage") ? 3 : 2;
 			
 			if (A_JumpIfNoAmmo("NotEnoughAmmo"))
 				return ResolveState("NotEnoughAmmo");
 			
-			Sound snd = (CountInv("D4Bullets") >= invoker.AmmoUse1 && !D4D_RepeaterMode)
+			Sound snd = ((A_CheckInfiniteAmmo() || CountInv("D4Bullets") >= i.AmmoUse1) && 
+						(!CheckWeaponMode()))
 						? "Doom4/Weapon/Repeater/FireTriple" : "Doom4/Weapon/Repeater/FireSingle";
 			A_PlaySound(snd,CHAN_WEAPON);
 			return ResolveState("FireLoop");
@@ -113,7 +126,6 @@ Class D4Repeater : Doom4Weapon
 				A_RailAttack(dmg*random(1,3),0,0,-1,-1,RGF_SILENT|RGF_NORANDOMPUFFZ,0,"D4BulletPuffForRails",0,0,0,10,0,0,null,0,0,2);
 				A_FireBullets(0,0,1,0,"PacifistPuff",FBF_USEAMMO|FBF_PUFFTRACER,0,"BulletSmallTracer",-1,7);
 			}
-			
 			else //didnt have piercing upgrade
 			{
 				A_FireBullets(0,0,1,dmg,"D4BulletPuff",FBF_USEAMMO|FBF_PUFFTRACER,0,"BulletSmallTracer",-1,7);
@@ -125,7 +137,7 @@ Class D4Repeater : Doom4Weapon
 
 			A_FireProjectile("MGSmokeSpawner",0,0,4,2);
 			
-			A_GiveInventory("RepeaterCounter",1 + (D4D_RepeaterMode * 2));
+			A_GiveInventory("RepeaterCounter",1 + (CheckWeaponMode() * 2));
 			A_GunFlash("Null");
 			A_SetPitch(pitch-0.8);
 			A_WeaponOffset(8,8,WOF_ADD);

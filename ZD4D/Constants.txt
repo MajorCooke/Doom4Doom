@@ -6,7 +6,7 @@
 // Pinatas.txt - Pinata pull radius, etc.
 //==============================================================================
 
-enum D4cns
+enum D4Constants
 {
 	MaxRunePower = 7,
 	STAT_RUNEPICKUPS = Thinker.STAT_USER,
@@ -97,6 +97,7 @@ enum D4cns
 	AcidFX,
 	Ch_Sizzling,
 	// Player Layers
+	Overlay_ZoomWatcher = 10,
 	Overlay_MoveRoll = 20000,
 	Overlay_Cooldown1,	//Auto-increments after the first number's established.
 	Overlay_Cooldown2,
@@ -121,7 +122,7 @@ enum D4cns
 	SovietDmg = 800,
 	SpinMax = 48,
 	ZSpin = 666,
-		
+
 };
 const BloodDistanceLimit = 2048.0;
 

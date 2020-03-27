@@ -61,10 +61,11 @@ extend class Doom4Player
 	
 	bool TryEquipment(Name clsname)
 	{
-		return false;
+	//	return false;
 		if (EquipmentShortcut != null)	return false;
-	
-		Class<D4DGrenadeItem> cls = clsname;
+		
+		String s = clsname.."Pickup";
+		Class<D4DGrenadeItem> cls = s;
 		if (!cls)	return false;
 		
 		for (int i = 0; i < GrenadeSelected.Size(); i++)
@@ -75,6 +76,7 @@ extend class Doom4Player
 			if (gren)
 			{
 				//D4DGrenadeItem EquipmentShortcut
+				
 			}
 		}
 		
@@ -118,7 +120,6 @@ extend class Doom4Player
 	bool CheckGrenadeButton(bool cooldown = false) const
 	{
 		let plr = GetRealPlayer();
-		//if (plr && (plr.cmd.buttons & BT_USER1) && !(plr.oldbuttons & BT_USER1))
 		
 		if (!plr)	return false;
 		if ((CurInputCmds & BT_USER1) && !(OldInputCmds & BT_USER1))
@@ -133,9 +134,7 @@ extend class Doom4Player
 		let gren = GetSelectedGrenade();
 		if (!gren)	return -1;
 		
-		if (checkready)	
-			return (gren.Cooldown < 1) ? 1 : 0;
-		return gren.Cooldown;
+		return (checkready) ? gren.Charges : gren.Cooldown;
 	}
 	
 	

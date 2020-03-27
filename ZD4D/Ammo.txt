@@ -511,6 +511,7 @@ Class D4BFGAmmo : Ammo
 		Inventory.PickupSound "Doom4/Pickups/BFGAmmo";
 		DistanceCheck "D4D_MaxDrawDistance";
 		Scale 0.80;
+		+INVENTORY.IGNORESKILL
 	}
 	
 	override void PostBeginPlay()

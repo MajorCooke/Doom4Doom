@@ -40,6 +40,8 @@ extend Class D4DHandler
 Class D4VisualDamageManager play
 {
 	private Array<D4DamageIndicator> Arrows;
+	private int Timer;
+	const ClearTimer = Second * 5;
 	
 	static D4VisualDamageManager Create()
 	{
@@ -74,7 +76,6 @@ Class D4VisualDamageManager play
 		if (src)	arrow.srcpos = src.pos;
 		else if ((inf && inf.bMISSILE && inf.target) || inf)
 		{
-			
 			src = (inf.target) ? inf.target : inf;
 			arrow.srcpos = src.pos;
 		}
@@ -88,23 +89,35 @@ Class D4VisualDamageManager play
 	
 	void Tick()
 	{
-		if (Arrows.Size() < 1)	return;
-		
 		int size = Arrows.Size();
+		if (size < 1)	return;
+		
+		// Tick all the arrows and keep their information up to date.
 		for (int i = 0; i < size; i++)
 		{
 			if (Arrows[i])
 				Arrows[i].Tick();
+		}
+		
+		// Memory management. Remove all empty slots.
+		if (++Timer >= ClearTimer)
+		{
+			Timer = 0;
+			Array<D4DamageIndicator> temp; temp.Clear();
+			
+			for (int i = 0; i < size; i++)
+				if (Arrows[i])	temp.Push(Arrows[i]);
+			
+			Arrows.Move(temp);
 		}
 	}
 	
 	ui void Render(RenderEvent e)
 	{
 		let CDIToggle = Cvar.GetCvar('D4D_DamageIndicators', players[consoleplayer]);
-		if (!CDIToggle || !CDIToggle.GetInt())
+		if (!CDIToggle || !CDIToggle.GetInt() || Arrows.Size() < 1)
 			return;
-	
-		if (Arrows.Size() < 1)	return;
+		
 		PlayerInfo plr = players[consoleplayer];
 		let CDIAlpha = Cvar.GetCvar('D4D_DIAlpha', plr);
 		let CDIScale = Cvar.GetCvar('D4D_DIScale', plr);

@@ -31,6 +31,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 	
 	Default 
 	{
+		Doom4Weapon.CvarMode 'D4D_DTMode', 'Single Mode', 'Double Mode';
 		+WEAPON.NOAUTOFIRE
 		+WEAPON.NOALERT
 		+INVENTORY.UNDROPPABLE
@@ -60,44 +61,6 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		Class<Actor> shell = 		"SSGCasingSpawnerRight";
 		if (OID == LGun) shell = 	"SSGCasingSpawnerLeft";
 		return shell;
-	}
-	
-	action bool CheckDoubleTrouble()
-	{
-		if (!invoker.DT)	invoker.DT = Cvar.GetCvar('D4D_DTMode', invoker.owner.player);
-		return (invoker.DT && invoker.DT.GetBool());
-	}
-	
-	action void DisplayDTMode(bool enabled = true)
-	{
-		int id = 101;
-		if (!enabled)
-		{
-			D4Msg.ClearMsg(id);
-			return;
-		}
-		String text = CheckDoubleTrouble() ? "Single Barrel" : "Double Barrel";
-		D4Msg.PlainMsg("smallfont", text, (790.0, 573.0), (800, 600), color: Font.CR_WHITE, time: (0,-1,0), id: id);
-	}
-	
-	action void ToggleDoubleTrouble()
-	{
-		if (!invoker.DT)	invoker.DT = Cvar.GetCvar('D4D_DTMode', invoker.owner.player);
-		if (invoker.DT)	
-		{
-			bool opposite = !invoker.DT.GetBool();
-			invoker.DT.SetInt(opposite);
-			String text = invoker.DT.GetBool() ? "Single Mode" : "Double Mode";
-			D4Msg.PlainMsg("smallfont", text, (300, 420), (600, 450), color: Font.CR_ORANGE, time: (0,1.5,1), id: 111);
-		}
-		else Console.Printf("Cvar not found!");
-		DisplayDTMode();
-		/*
-		HudMessage(s:"Double Mode";HUDMSG_FADEOUT,111,CR_ORANGE,300.0,420.0,1.5,1.0);
-		SetHUDSize(800,600,1);
-		SetFont("SMALLFONT");
-		HudMessage(s:ModTextArray[14];HUDMSG_PLAIN,101,CR_WHITE,790.2,573.0,0); // Single Barrel
-		*/
 	}
 	
 	States
@@ -147,7 +110,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			}
 			A_OverlayFlags(LGun,WeapMoveBob,true);			//Make it follow the 'weapon'. See ZD4D/Constants.txt.
 			A_OverlayFlags(RGun,WeapMoveBob,true);
-			DisplayDTMode();
+			DisplayWeaponMode();
 		}
 	// We should now have one or both shotguns raising up.
 		---- A 1 A_Raise(WeaponSwitchSpeed);
@@ -155,7 +118,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 	Deselect:
 		"----" A 0 
 		{
-			DisplayDTMode(false); // Remove the hud message.
+			DisplayWeaponMode(false); // Remove the hud message.
 			A_Overlay(GunWatcher,"Null");
 			A_Overlay(SwitchWatcher,"Null");
 			A_SetInventory("SSLSecondShotToken",0);
@@ -217,7 +180,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			{
 				if ((plr.cmd.buttons & BT_RELOAD) &&
 					!(plr.oldbuttons & BT_RELOAD))
-					ToggleDoubleTrouble();
+					ToggleWeaponMode();
 			}
 		}
 		Loop;
@@ -263,7 +226,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		DW4A B 1 Bright
 		{	
 			uint ssr = CountInv("SSRSecondShotToken");
-			if (CheckDoubleTrouble() || ssr > 0)
+			if (CheckWeaponMode() || ssr > 0)
 			{	
 				A_Overlay(RGunFire,"SSG.FireBullets");
 				int chan = (ssr) ? 7 : CHAN_WEAPON;
@@ -503,23 +466,17 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 				DGunFire2 = LGunFire2;
 			}
 			
-			if (CheckDoubleTrouble() || CountInv(item))
+			if (CheckWeaponMode() || CountInv(item))
 			{
 				A_Overlay(DGunFire,"SSG.FireBullets");
-				
-				int channel = 6;
-				if (leftgun)	channel = (!CountInv(item)) ? CHAN_VOICE : 6;
-				else			channel = (!CountInv(item)) ? CHAN_WEAPON : 7;
-				
-				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",channel);
+				A_StartSound("Doom4/Weapon/SuperShotgun/Fire",CHAN_WEAPON,CHANF_OVERLAP);
 				A_GiveInventory(item,1);
 			}
 			else
 			{
 				A_Overlay(DGunFire,"SSG.FireBullets");
 				A_Overlay(DGunFire2,"SSG.FireBullets");
-				int channel = (leftgun) ? CHAN_WEAPON : 7;
-				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",channel);
+				A_StartSound("Doom4/Weapon/SuperShotgun/Fire",CHAN_WEAPON, CHANF_OVERLAP);
 				A_GiveInventory(item,2);
 			}
 		}
@@ -653,36 +610,6 @@ Class D4BulletPuffSSG : D4BulletPuffGibDistance
 	}
 }
 
-Class SSGFireNoise : Actor
-{
-	Vector3 Diff;
-	Default
-	{
-		+NOINTERACTION
-		+NOTIMEFREEZE
-		+INVISIBLE
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 1 NoDelay
-		{
-			A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",5);
-			if (!Target)	return Destroy();
-			Diff = Target.pos - pos;
-		}
-		TNT1 A 1
-		{
-			if (S_GetLength(5) <= 0.0 || !Target)
-				return Destroy();
-			Vel = Target.Vel;
-			double cam = Target.GetCameraHeight();
-			SetXYZ(Target.pos + (0,0,cam));
-		}
-		Wait;
-	}
-}
-
 Class SSRSecondShotToken : Inventory	{ 	Default { Inventory.MaxAmount 2;	} }
 Class SSLSecondShotToken : Inventory	{	Default { Inventory.MaxAmount 2;	} }
 
@@ -736,12 +663,12 @@ Class SSGCasingSpawner : Actor
 				YOff,
 				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
 			
-			if (GetCvar("D4D_Casings"))
+			if (D4D_Casings)
 			{
-				if (GetCvar("D4D_SilentCasings"))
-				{	A_SpawnItemEx("ShellCasingSilent",0,0,0,frandom(0.5,-0.5),frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
+				if (D4D_SilentCasings)
+				{	A_SpawnItemEx("D4ShellCasingSilent",0,0,0,frandom(0.5,-0.5),frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
 				else
-				{	A_SpawnItemEx("ShellCasing",0,0,0,frandom(0.5,-0.5),frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
+				{	A_SpawnItemEx("D4ShellCasing",0,0,0,frandom(0.5,-0.5),frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
 			}
 		}
 		Stop;
@@ -786,12 +713,12 @@ Class SSGCasingSpawnerRight : Actor
 				YOff,
 				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
 			
-			if (GetCvar("D4D_Casings"))
+			if (D4D_Casings)
 			{
-				if (GetCvar("D4D_SilentCasings"))
-				{	A_SpawnItemEx("ShellCasingSilent",0,0,0,frandom(0.5,-0.5),frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
+				if (D4D_SilentCasings)
+				{	A_SpawnItemEx("D4ShellCasingSilent",0,0,0,frandom(0.5,-0.5),frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
 				else
-				{	A_SpawnItemEx("ShellCasing",0,0,0,frandom(0.5,-0.5),frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
+				{	A_SpawnItemEx("D4ShellCasing",0,0,0,frandom(0.5,-0.5),frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
 			}
 		}
 		Stop;
@@ -836,9 +763,9 @@ Class SSGCasingSpawnerLeft : Actor
 			if (GetCvar("D4D_Casings"))
 			{
 				if (GetCvar("D4D_SilentCasings"))
-				{	A_SpawnItemEx("ShellCasingSilent",0,0,0,frandom(0.5,-0.5),-frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
+				{	A_SpawnItemEx("D4ShellCasingSilent",0,0,0,frandom(0.5,-0.5),-frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
 				else
-				{	A_SpawnItemEx("ShellCasing",0,0,0,frandom(0.5,-0.5),-frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
+				{	A_SpawnItemEx("D4ShellCasing",0,0,0,frandom(0.5,-0.5),-frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
 			}
 		}
 		Stop;

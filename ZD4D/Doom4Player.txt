@@ -97,7 +97,7 @@ Class Doom4Player : PlayerPawn
 		DamageFactor "WhiteFlashDamage", 1.0;
 		DamageFactor "HoloAttract", 0;
 		PainChance "HoloAttract", 0;
-		
+		// Hell On Earth Starter Pack
 		DamageFactor "FriendBullet", 0.0;
 		DamageFactor "Taunt", 0.0;
 		DamageFactor "KillMe", 0.0;
@@ -128,6 +128,7 @@ Class Doom4Player : PlayerPawn
 		DamageFactor "cutless", 0.0;
 		DamageFactor "shotgun", 0.0;
 		DamageFactor "ssg", 0.0;
+		// ClusterPlex
 		DamageFactor "Player", 0.0;
 		DamageFactor "Players", 0.0;
 		DamageFactor "PlayerDevBall", 0.0;
@@ -141,6 +142,18 @@ Class Doom4Player : PlayerPawn
 		DamageFactor "LegendaryGuruPlayer", 0.0;
 		DamageFactor "Stunner", 0.5;
 		DamageFactor "Nope", 0.0;
+		DamageFactor "Player", 0.0;
+		DamageFactor "Players", 0.0;
+		DamageFactor "PlayerNemesisPlasma", 0.0;
+		DamageFactor "PlayerPyro", 0.0;
+		DamageFactor "PlayerFireSword", 0.0;
+		DamageFactor "PlayerBHole", 0.0;
+		DamageFactor "PDTPuff", 0.0;
+		DamageFactor "Player2hu", 0.0;
+		//	Ark
+		DamageFactor "PlayerTear", 0.0;
+		DamageFactor "PlayerDBFG2", 0.0;
+		
 		PainChance "SpawnMarine", 0;
 		PainChance "Leg", 0;
 		PainChance "Taunt", 0;
@@ -391,7 +404,7 @@ Class Doom4Player : PlayerPawn
 					if (gren)	
 					{
 						gren.Selected = true;
-						gren.SetCooldown();
+						gren.TakeCharge();
 						GrenadeToFire = gren.Grenade;
 						return ResolveState("DeployCannon");
 					}
@@ -401,7 +414,7 @@ Class Doom4Player : PlayerPawn
 					let gren = GetSelectedGrenade();
 					if (gren)
 					{
-						gren.SetCooldown();
+						gren.TakeCharge();
 						GrenadeToFire = gren.Grenade;
 						return ResolveState("DeployCannon");
 					}

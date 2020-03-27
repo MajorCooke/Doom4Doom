@@ -884,7 +884,7 @@ Class AkimboWeapon : Weapon
 			if (A_JumpIfNoAmmo("NotEnoughAmmo"))
 				return ResolveState("NotEnoughAmmo");
 			*/
-			Sound snd = (CountInv("D4Bullets") >= invoker.AmmoUse1 && !D4D_RepeaterMode)
+			Sound snd = (CountInv("D4Bullets") >= invoker.AmmoUse1)// && !D4D_RepeaterMode)
 						? "Doom4/Weapon/Repeater/FireTriple" : "Doom4/Weapon/Repeater/FireSingle";
 			AkPlaySound(snd,CHAN_WEAPON);
 			return ResolveState("D4Repeater.FireLoop");
@@ -920,7 +920,7 @@ Class AkimboWeapon : Weapon
 			if (GetCvar("HQEffectsWeapons"))
 				A_FireProjectile("MGSmokeSpawner",0,0,4 * s,2);
 			
-			A_GiveInventory("RepeaterCounter",1 + (D4D_RepeaterMode * 2));
+			A_GiveInventory("RepeaterCounter",1);// + (D4D_RepeaterMode * 2));
 			A_GunFlash("Null");
 			//A_SetPitch(pitch-0.8);
 			AkOffsetD(8,8,WOF_ADD);

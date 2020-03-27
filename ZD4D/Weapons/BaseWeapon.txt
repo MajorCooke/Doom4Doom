@@ -14,16 +14,23 @@ Class Doom4Weapon : Weapon
 	const GrenadePrimer = 51;
 	const PunchOverlay = 52;
 	const PunchSway = 53;
+	const WeaponSwitcher = 11;
+	
+	transient Cvar WeaponMode;
 	D4DHandler Event;
 	MCHandler MC;
 	Inventory Modules[2];
 	Inventory ActiveMod;
 	Array<MCBeam> Beams;
-	meta bool MultiplayerWeapon;
-	Property MultiplayerWeapon: MultiplayerWeapon;
 	
+	meta Name CvarMode, CvarOn, CvarOff;
+	meta bool MultiplayerWeapon;
+	
+	Property MultiplayerWeapon: MultiplayerWeapon;
+	Property CvarMode: CvarMode, CvarOn, CvarOff;
 	Default 
 	{
+		Doom4Weapon.CvarMode '', '', '';
 		Doom4Weapon.MultiplayerWeapon false;
 		+INVENTORY.UNDROPPABLE
 		+INVENTORY.UNTOSSABLE
@@ -49,6 +56,63 @@ Class Doom4Weapon : Weapon
 		Super.Travelled();
 		EnableAmmoSpawn();
 	}
+	
+	//==========================================================================
+	//
+	//==========================================================================
+	
+	action void FetchWeaponMode()
+	{
+		let i = invoker;
+		if (i.CvarMode == '')	return;
+		i.WeaponMode = Cvar.GetCvar(i.CvarMode, i.owner.player);
+	}
+	
+	action int CheckWeaponMode()
+	{
+		let i = invoker;
+		if (!i.WeaponMode)	FetchWeaponMode();
+		return i.WeaponMode ? i.WeaponMode.GetInt() : 0;
+	}
+	
+	action void DisplayWeaponMode(bool enabled = true)
+	{
+		int id = 101;
+		let i = invoker;
+		if (!i.WeaponMode)	
+		{ 
+			FetchWeaponMode();	
+			if (!i.WeaponMode)	enabled = false; 
+		}
+		
+		if (!enabled)
+		{
+			D4Msg.ClearMsg(id);
+			return;
+		}
+		String text = CheckWeaponMode() ? i.CvarOn : i.CvarOff;
+		D4Msg.PlainMsg("smallfont", text, (790.0, 573.0), (800, 600), color: Font.CR_WHITE, time: (0,-1,0), id: id);
+	}
+	
+	action void ToggleWeaponMode()
+	{
+		let i = invoker;
+		if (!i.WeaponMode)	FetchWeaponMode();
+		if (i.WeaponMode)	
+		{
+			bool opposite = !i.WeaponMode.GetBool();
+			i.WeaponMode.SetBool(opposite);
+			String text = opposite ? i.CvarOn : i.CvarOff;
+			D4Msg.PlainMsg("smallfont", text, (300, 420), (600, 450), color: Font.CR_ORANGE, time: (0,1.5,1), id: 112);
+		}
+		else Console.Printf("Cvar not found!");
+		
+		DisplayWeaponMode((i.WeaponMode != null));
+	}
+	
+	//==========================================================================
+	//
+	//==========================================================================
 	
 	action Actor GetPlayerTarget()
 	{
@@ -142,9 +206,20 @@ Class Doom4Weapon : Weapon
 		}
 	}
 	
+	bool CheckInfiniteAmmo()
+	{
+		return (sv_infiniteammo || 
+				(Owner && Owner.FindInventory('PowerInfiniteAmmo', true) != null));
+	}
+	
+	action bool A_CheckInfiniteAmmo()
+	{
+		return invoker.CheckInfiniteAmmo();
+	}
+	
 	override bool CheckAmmo(int firemode, bool autoswitch, bool requireAmmo, int ammocount)
 	{
-		if (ammocount == 0 || sv_infiniteammo || owner.FindInventory("PowerInfiniteAmmo",true))
+		if (ammocount == 0 || A_CheckInfiniteAmmo())
 			return true;
 		else if (ammocount < 0)
 			return Super.CheckAmmo(firemode, autoswitch, requireammo);
@@ -200,11 +275,33 @@ Class Doom4Weapon : Weapon
 		Super.OnDestroy();
 	}
 	
+	//--------------------------------------------------------------------------
+	// Enables the ability to switch away from a weapon regardless of action
+	// taken. Use with caution.
+	//--------------------------------------------------------------------------
+	action void A_SetAlwaysSwitchable(bool on)
+	{
+		if (!player || !on)	A_Overlay(WeaponSwitcher, "Null");	
+		else				A_Overlay(WeaponSwitcher, "Overlay.SwitchOn");
+	}
+	
 	States
 	{
 	Spawn:
 		TNT1 A 1;
 		Stop;
+	Overlay.SwitchOn:
+		TNT1 A 1
+		{
+			// Don't run this if there's no player.
+			if (!player)	return ResolveState("Null");				
+			
+			// Every tic, this is reset to false so it needs to be constantly 
+			// set back to true in order to allow this effect to happen.
+			DoReadyWeaponToSwitch(player, true);
+			return ResolveState(null);
+		}
+		Wait;
 	Pickup:
 		TNT1 A 0 ACS_NamedExecuteAlways("UpdateWeaponList",0,0,0,0);
 		Stop;
@@ -893,72 +990,63 @@ Class DollJump : PowerupGiver
 //=======================================================================
 //=======================================================================
 
-Class BulletCasing : Actor 
+Class D4BulletCasing : Actor 
 {
-	Default 
-	{
-	Projectile;
-	-NOGRAVITY
-	Radius 4;
-	Height 2;
-	+THRUACTORS
-	Gravity 0.7;
-	Scale 0.15;
-	Bouncetype "doom";
-	BounceFactor 0.5;
-	+FORCEXYBILLBOARD
-	BounceSound "Doom4/Weapon/BulletCasing";
-	}
-	States
-	{
-	Spawn:
-		CSNG AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPP 1; //A_SpawnParticle("696969",0,random(20,40),random(1,2),0,0,0,0,0,0,frandom(0.1,0.6))
-		Loop;
-	Death:
-		"####" "#" 100
-		{
-			if (GetCvar("D4D_ShortCasingLives")) { return ResolveState("Null"); }
-			return ResolveState(null);
-		}
-		Stop;
-	}
-}
-
-Class BulletCasingSilent : BulletCasing
-{	Default { BounceSound ""; }}
-
-Class ShellCasing : Actor 
-{
+	double RollAmt;
 	Default 
 	{
 		Projectile;
 		-NOGRAVITY
+		+THRUACTORS
+		+NOTRIGGER
+		+FORCEXYBILLBOARD
+		+ROLLSPRITE
 		Radius 4;
 		Height 2;
-		+THRUACTORS
 		Gravity 0.7;
-		Scale 0.22;
-		Bouncetype "doom";
+		Scale 0.15;
+		Bouncetype "Doom";
 		BounceFactor 0.5;
-		+FORCEXYBILLBOARD
-		BounceSound "Doom4/Weapon/ShellCasing";
+		BounceSound "Doom4/Weapon/BulletCasing";
+	}
+	override void PostBeginPlay()
+	{
+		bSPRITEFLIP = random(0,1);
+		Roll = random(0,359);
+		RollAmt = frandom(5.0, 25.0) * frandompick(-1.0, 1.0);
+		Super.PostBeginPlay();
 	}
 	States
 	{
 	Spawn:
-		SHLL AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPP 1; //A_SpawnParticle("696969",0,random(20,40),random(1,2),0,0,0,0,0,0,frandom(0.1,0.6))
+		CSNG C 1 A_SetRoll(Roll + RollAmt, SPF_INTERPOLATE); //A_SpawnParticle("696969",0,random(20,40),random(1,2),0,0,0,0,0,0,frandom(0.1,0.6))
 		Loop;
 	Death:
 		"####" "#" 100
 		{
-			if (GetCvar("D4D_ShortCasingLives")) { return ResolveState("Null"); }
-			return ResolveState(null);
+			bNOINTERACTION = bMOVEWITHSECTOR = true;
+			bROLLSPRITE = false;
+			A_Stop();
+			if (D4D_ShortCasingLives) Destroy();
 		}
 		Stop;
 	}
 }
 
-Class ShellCasingSilent : ShellCasing
+Class D4BulletCasingSilent : D4BulletCasing
+{	Default { BounceSound ""; }}
+
+Class D4ShellCasing : D4BulletCasing 
+{
+	States
+	{
+	Spawn:
+		SHLL C 1 A_SetRoll(Roll + RollAmt, SPF_INTERPOLATE); //A_SpawnParticle("696969",0,random(20,40),random(1,2),0,0,0,0,0,0,frandom(0.1,0.6))
+		Loop;
+	}
+}
+
+Class D4ShellCasingSilent : D4ShellCasing
 {	Default { BounceSound ""; }}
 
 

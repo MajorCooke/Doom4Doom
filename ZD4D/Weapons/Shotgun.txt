@@ -850,12 +850,12 @@ Class ShotgunCasingSpawner : Actor
 				YOff,
 				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
 			
-			if (GetCvar("D4D_Casings"))
+			if (D4D_Casings)
 			{
-				if (GetCvar("D4D_SilentCasings"))
-				{	A_SpawnItemEx("ShellCasingSilent",0,0,0,0,frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
+				if (D4D_SilentCasings)
+				{	A_SpawnItemEx("D4ShellCasingSilent",0,0,0,0,frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
 				else
-				{	A_SpawnItemEx("ShellCasing",0,0,0,0,frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
+				{	A_SpawnItemEx("D4ShellCasing",0,0,0,0,frandom(2,4),frandom(0.8,1.6),0,SXF_NOCHECKPOSITION);	}
 			}
 			
 		}
