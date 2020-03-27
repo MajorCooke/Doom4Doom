@@ -206,6 +206,7 @@ Class D4DHandler : EventHandler
 	override void WorldThingSpawned(WorldEvent e)
 	{
 		Actor mo = e.thing;
+		if (!mo)	return;
 		double PinataSize = 0.3;
 		double PinMinSize = 1.0;
 		
