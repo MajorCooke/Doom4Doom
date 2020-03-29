@@ -754,6 +754,7 @@ Class MGMissileToken : Inventory { Default { Inventory.InterhubAmount 0; } }
 Class MGMiniMissile : D4D_Projectile
 {
 	const TimerMax = 35;
+	
 	int value1;
 	int value2;
 	double value3;
@@ -791,12 +792,13 @@ Class MGMiniMissile : D4D_Projectile
 	States
 	{
 	Spawn:
-		TNT1 A 0 NoDelay
+		SWMS A 0 NoDelay
 		{
 			value1 = random(-3,3);
 			value2 = random(-3,3);
 			value3 = frandom(-2.0,2.0);
 			value4 = frandom(-1.5, 1.5);
+			A_FaceMovementDirection();
 		}
 	Looper:
 		SWMS A 1 Bright 
