@@ -1183,7 +1183,7 @@ class D4DIgniteTrace : LineTracer play
 		{
 			Actor mo = Results.HitActor;
 			
-			if (!mo || mo.bFRIENDLY || mo.health < 1 || mo is "PlayerPawn")
+			if (!mo || !mo.bSHOOTABLE || mo.bFRIENDLY || mo.health < 1 || mo is "PlayerPawn")
 				return TRACE_Skip;
 			
 			int size = Ignored.Size();
