@@ -24,7 +24,6 @@ Class D4Chaingun : Doom4Weapon
 		+INVENTORY.UNDROPPABLE
 		+INVENTORY.UNTOSSABLE
 		+WEAPON.NOALERT
-		Weapon.SlotNumber 1;
 		Inventory.PickupMessage "Chaingun. Flay some demons.";
 		Tag "Chaingun";
 		Weapon.AmmoType1 "D4Bullets";
@@ -104,7 +103,6 @@ Class D4Chaingun : Doom4Weapon
 	Sel2:
 		"####" A 0 
 		{
-			ACS_NamedExecute("RemoveModText",0,0,0,0); //clears previous wep text
 			A_SetInventory("SpinLoopFrame",0);
 			A_SetInventory("SpinUpCount",0);
 			A_SetInventory("FrameTimeLeft",0);
@@ -134,12 +132,11 @@ Class D4Chaingun : Doom4Weapon
 		{
 			if (CountInv("MobileTurretActive"))
 			{	
-				ACS_NamedExecute("ModSelectedText",0,10,0,0); 	//print Turret
+				
 				return ResolveState("ReadyTurret"); 
 			}
 			else if (CountInv("GatlingRotatorActive"))
 			{
-				ACS_NamedExecute("ModSelectedText",0,9,0,0); 	//print rotator
 				return ResolveState("ReadyRotator"); 
 			}
 			return ResolveState("ReadyLoop"); 
@@ -254,7 +251,7 @@ Class D4Chaingun : Doom4Weapon
 	// Alt fire
 	//-------------------------------------------------------
 	NoMods:
-		"####" "#" 1 ACS_NamedExecute("NoModsAvailable",0,0,0,0);
+		"####" "#" 1 { D4Msg.PrintStatus(D4Msg.NoMods); }
 		Goto Ready;
 		
 	AltFire:
@@ -686,6 +683,7 @@ Class D4Chaingun : Doom4Weapon
 				{
 					return ResolveState("FromNormalToGatlingRotator"); //but if it didnt have MobileTurret active, then it was in "normal"
 				}
+				D4Msg.PrintStatus(D4Msg.NoOtherMods);
 			}
 			if(CountInv("ChaingunMod2")) //if it has MobileTurret
 			{
@@ -697,10 +695,11 @@ Class D4Chaingun : Doom4Weapon
 				{
 					return ResolveState("FromNormalToMobileTurret"); //then it was in "normal" SG
 				}
+				D4Msg.PrintStatus(D4Msg.NoOtherMods);
 			}
 			else
 			{
-				ACS_NamedExecute("NoModsAvailable",0,0,0,0);
+				D4Msg.PrintStatus(D4Msg.NoMods);
 			}
 			return ResolveState(null);
 		}

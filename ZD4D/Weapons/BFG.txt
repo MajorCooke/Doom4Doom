@@ -19,9 +19,9 @@ Class D4BFG : Doom4Weapon
 		+INVENTORY.UNTOSSABLE
 		Weapon.AmmoType1 "D4BFGAmmo";
 		Weapon.AmmoType2 "D4BFGAmmo";
-		Weapon.AmmoUse1 1;
-		Weapon.AmmoUse2 1;
-		Weapon.AmmoGive1 3;
+		Weapon.AmmoUse1 D4BFGAmmo_Amount;
+		Weapon.AmmoUse2 D4BFGAmmo_Amount;
+		Weapon.AmmoGive1 D4BFGAmmo_MaxAmount;
 		Weapon.SelectionOrder 130;
 		Weapon.SlotNumber 8;
 		Weapon.SlotPriority 0.98;
@@ -71,12 +71,11 @@ Class D4BFG : Doom4Weapon
 			A_SetInventory("SineZoom",0);
 			A_ZoomFactor(1,ZOOM_NOSCALETURNING);
 		}
-		WEP7 A 1 A_Lower;
+		---- A 1 A_Lower;
 		---- A 1 A_Lower(WeaponSwitchSpeed);
 		Wait;
 	Select:
-		WEP7 A 0 ACS_NamedExecute("RemoveModText",0,0,0,0);
-		---- A 1 A_Raise(WeaponSwitchSpeed);
+		WEP7 A 1 A_Raise(WeaponSwitchSpeed);
 		Wait;
 	Fire:
 		WEP7 A 0 

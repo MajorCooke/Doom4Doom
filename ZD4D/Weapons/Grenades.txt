@@ -78,16 +78,16 @@ Class D4DGrenadeItem : D4DKeeperItem
 	}
 }
 
-Class FlameThrowerPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FlamePoint";		D4DGrenadeItem.Icons "FlameThr", "FlameTh0", "";			Tag "Flame";	D4DGrenadeItem.Positions 829, 681;	}}
-Class FragGrenadePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Frag";		D4DGrenadeItem.Positions 826, 680;	}}
-Class HoloGrenadePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4PlayerHolograph";	D4DGrenadeItem.Icons "HoloGren", "HoloGre0", "";			Tag "Holo";		D4DGrenadeItem.Positions 827, 681;	}}
-Class SyphonGrenadePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4SyphonGrenade";	D4DGrenadeItem.Icons "SyphGren", "SyphGre0", "";			Tag "Syphon";	D4DGrenadeItem.Positions 827, 679;	}}
-Class PersonalPortalPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4PersonalPortal";	D4DGrenadeItem.Icons "PersTele", "PersTel0", "PersTel1";	Tag "Portal";	D4DGrenadeItem.Positions 827, 681;	}}
-Class TeslaRocketPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4TeslaRocket";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Tesla";	D4DGrenadeItem.Positions 828, 682;	}}
-Class ThreatSensorPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Sensor";	D4DGrenadeItem.Positions 828, 682;	}}
-Class ThreatScannerPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Scanner";	D4DGrenadeItem.Positions 828, 682;	}}
-Class KineticMinePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4KineticMine";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Mine";		D4DGrenadeItem.Positions 828, 682;	}}
-Class ShieldWallPickup : D4DGrenadeItem		{ Default { D4DGrenadeItem.Grenade "D4ShieldWall";		D4DGrenadeItem.Icons "ShieldWa", "ShieldW0", "";			Tag "Shield";	D4DGrenadeItem.Positions 828, 682;	}}
+Class FlameThrowerPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FlamePoint";		D4DGrenadeItem.Icons "FlameThr", "FlameTh0", "";			Tag "Flame";	D4DGrenadeItem.Positions 3, 2;	}}
+Class FragGrenadePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Frag";		D4DGrenadeItem.Positions 0, 1;	}}
+Class HoloGrenadePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4PlayerHolograph";	D4DGrenadeItem.Icons "HoloGren", "HoloGre0", "";			Tag "Holo";		D4DGrenadeItem.Positions 1, 2;	}}
+Class SyphonGrenadePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4SyphonGrenade";	D4DGrenadeItem.Icons "SyphGren", "SyphGre0", "";			Tag "Syphon";	D4DGrenadeItem.Positions 1, 0;	}}
+Class PersonalPortalPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4PersonalPortal";	D4DGrenadeItem.Icons "PersTele", "PersTel0", "PersTel1";	Tag "Portal";	D4DGrenadeItem.Positions 1, 2;	}}
+Class TeslaRocketPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4TeslaRocket";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Tesla";	D4DGrenadeItem.Positions 2, 3;	}}
+Class ThreatSensorPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Sensor";	D4DGrenadeItem.Positions 2, 3;	}}
+Class ThreatScannerPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Scanner";	D4DGrenadeItem.Positions 2, 3;	}}
+Class KineticMinePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4KineticMine";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Mine";		D4DGrenadeItem.Positions 2, 3;	}}
+Class ShieldWallPickup : D4DGrenadeItem		{ Default { D4DGrenadeItem.Grenade "D4ShieldWall";		D4DGrenadeItem.Icons "ShieldWa", "ShieldW0", "";			Tag "Shield";	D4DGrenadeItem.Positions 2, 3;	}}
 
 
 
@@ -244,11 +244,6 @@ Class GrenadeSwitchNext : CustomInventory
 		+INVENTORY.ALWAYSPICKUP
 	}
 	
-	void PrintMessage(String text)
-	{
-		D4Msg.PlainMsg("smallfont", text, (657.0, 527.0), (800, 600), time: (0,0,1.0), id: 110);
-	}
-	
 	States
 	{
 	Pickup:
@@ -294,7 +289,6 @@ Class GrenadeSwitchNext : CustomInventory
 						i++;	if (i >= Grenades.Size())	i = 0;
 					}
 					Grenades[i].Selected = true;
-					invoker.PrintMessage(Grenades[i].GetTag());
 					return true;
 				}
 			}
@@ -302,10 +296,10 @@ Class GrenadeSwitchNext : CustomInventory
 			if (Grenades.Size() > 0 && Grenades[0])
 			{
 				Grenades[0].Selected = true;
-				invoker.PrintMessage(Grenades[0].GetTag());
+			//	invoker.PrintMessage(Grenades[0].GetTag());
 			}
 			// No grenades.
-			else invoker.PrintMessage("No grenades available");
+			else D4Msg.PrintStatus(D4Msg.NoGrenades);
 			
 			return true;
 		}
@@ -867,14 +861,14 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 				Actor mo = Event.Monsters.Actors[i];
 				// Skip players, the dead, friendly and infighting monsters.
 				if (!mo || mo == self || mo.bFRIENDLY || mo.health < 1 || mo.player ||
-					(mo.target && !mo.target.player) ||
+					(mo.target && !(mo.target is 'PlayerPawn')) ||
 					!mo.CheckSight(self, SF_IGNOREVISIBILITY))
 					continue;
 				
-				if (!mo.LastHeard)
+				if (!mo.LastEnemy)
 				{
-					if (master)	mo.LastHeard = master;
-					else		mo.LastHeard = self;
+					if (master)	mo.LastEnemy = master;
+					else		mo.LastEnemy = self;
 				}
 				mo.target = self;
 				mo.Threshold = mo.DefThreshold;

@@ -49,7 +49,8 @@ Class D4DHandler : EventHandler
 	enum EObjectIndex
 	{
 		BFGAmmo = 0,
-		ChainsawAmmo = 1,
+		ChainsawAmmo,
+		CrucibleAmmo,
 		ObjectIndexMax
 	};
 	private bool Spawnable[ObjectIndexMax];	
@@ -79,6 +80,8 @@ Class D4DHandler : EventHandler
 	override void RenderUnderlay(RenderEvent e)
 	{
 		RenderDamageIndicators(e);
+		if (!automapactive)
+			RenderPowerupScreens(e);
 	}
 	
 	override void WorldTick()
@@ -207,8 +210,6 @@ Class D4DHandler : EventHandler
 	{
 		Actor mo = e.thing;
 		if (!mo)	return;
-		double PinataSize = 0.3;
-		double PinMinSize = 1.0;
 		
 		if ((mo.bISMONSTER || mo.bSHOOTABLE) && mo.health > 0)
 		{
@@ -227,6 +228,8 @@ Class D4DHandler : EventHandler
 				mo.SetInventory('D4MonsterUpgrader', amt);
 			}
 		}
+		else if (mo is 'Doom4Weapon')
+			CheckCrucibleSpawn(mo);
 		else if (mo is 'DemonRuneBase')
 		{
 			DemonRunes.Push(mo);
@@ -236,7 +239,6 @@ Class D4DHandler : EventHandler
 		else
 		{
 			String texname = "";
-			
 				 
 				 if (mo is "D4PinataArmor")		texname = "PINBA0";
 			else if (mo is "D4PinataHealth")	texname = "PINBB0";
@@ -260,8 +262,12 @@ Class D4DHandler : EventHandler
 			else return;
 			
 			if (!MC)	MC = MCHandler.Fetch();
-			if (MC)		
+			if (MC)
+			{
+				double PinataSize = 0.3;
+				double PinMinSize = 1.0;
 				MC.AddShape(mo, mo, texname, (0, mo.height / 2.0), 0, (PinataSize,PinataSize), PinMinSize, 0.0, 'D4D_DrawPinataBorders', 0, 1024, 'D4D_PinataScale');
+			}
 		}
 	}
 	
@@ -363,6 +369,17 @@ Class D4DHandler : EventHandler
 		// called from code like the menu.
 		if (e.isManual)
 		{
+			if (e.Name == 'bars')
+			{
+				Cvar c = Cvar.FindCvar('bars');
+				if (c)	
+				{
+					bool b = c.GetBool();
+					c.SetBool(!b);
+				}
+				return;
+			}
+		
 			static const Name ProtectedCommands[] =
 			{
 				//'AkimboSystem'

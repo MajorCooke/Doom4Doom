@@ -1,0 +1,21 @@
+Class D4RequirementChecker
+{
+	static bool CheckRequirements(
+}
+
+Class D4UpgradeItem2 : D4DKeeperItem
+{
+	enum EUpgradeTypes
+	{
+		DUFT_Weapon = 1,
+		DUFT_Equipment,
+		DUFT_Powerup
+	};
+
+	Class<Inventory> Item;		// The item to give upon collecting.
+	Class<D4UpgradeItem2> Next;	// The next item for menus.
+	int UpgradeType;			// Is it for a weapon, equipment or powerup?
+	
+	Property Item: Item;
+	
+}

@@ -10,7 +10,8 @@ enum D4AmmoConstants
 	D4Cells_MaxAmount2 = 300,
 	D4Rockets_MaxAmount1 = 30,
 	D4Rockets_MaxAmount2 = 40,
-	D4BFGAmmo_MaxAmount = 3,
+	D4BFGAmmo_Amount = 30,
+	D4BFGAmmo_MaxAmount = 90,
 	D4Carrion_MaxAmount = 5000,
 };
 
@@ -19,14 +20,75 @@ enum D4AmmoConstants
 // Special ammo spawners
 //=======================================================================
 //=======================================================================
+mixin class D4CheckAmmoSpawnable
+{
+	D4DHandler Event;
+	
+	action bool CheckEvent(int chance, int goodrange)
+	{
+		if (chance < 1 || goodrange < 1 || goodrange > chance)	return false;
+		if (random[rng](1, chance) > goodrange)	return false;
+		
+		let i = invoker;
+		i.Event = D4DHandler.Fetch();
+		if (!i.Event)	return false;
+		return true;
+	}
+	
+	action void SpawnAmmo(Class<Actor> misl, bool offsets = false)
+	{
+		if (!misl)	return;
+		Actor a; bool b;
+		if (offsets)
+			[b, a] = A_SpawnItemEx(misl, random(-5,5), random(-5,5), flags: SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL, tid: tid);
+		else
+			[b, a] = A_SpawnItemEx(misl, flags: SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL, tid: tid);
+		if (a && b)
+			a.vel = vel;
+	}
+	
+	action bool SpawnCrucibleAmmo(int chance = 256, int goodrange = 4)
+	{
+		let i = invoker;
+		if (!CheckEvent(chance, goodrange) ||
+			!i.Event.CheckActorSpawn(D4DHandler.CrucibleAmmo))	return false;
+		
+		SpawnAmmo('DECrucibleAmmo');
+		return true;
+	}
+	
+	action bool SpawnChainsawAmmo(int chance = 256, int goodrange = 11, bool small = false)
+	{
+		let i = invoker;
+		if (!CheckEvent(chance, goodrange) ||
+			!i.Event.CheckActorSpawn(D4DHandler.ChainsawAmmo))	return false;
+		
+		Class<Inventory> cls = (small) ? 'D4FuelSmall' : 'D4Fuel';
+		SpawnAmmo(cls, true);
+		return true;
+	}
+	
+	action bool SpawnBFGAmmo(int chance = 256, int goodrange = 11)
+	{
+		let i = invoker;
+		if (!CheckEvent(chance, goodrange) ||
+			!i.Event.CheckActorSpawn(D4DHandler.BFGAmmo))	return false;
+
+		SpawnAmmo('D4BFGAmmo');
+		return true;
+	}
+}
+
 Class ClipReplacer : CustomInventory //replaces Clip
 {
+	mixin D4CheckAmmoSpawnable;
 	Default
 	{
 		+INVENTORY.QUIET
 		+INVENTORY.ALWAYSPICKUP
 		-COUNTITEM
 		+NOTONAUTOMAP
+		+INVISIBLE
 		Inventory.Amount 0;
 		Species "Ammo";
 		Renderstyle "None";
@@ -34,16 +96,12 @@ Class ClipReplacer : CustomInventory //replaces Clip
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnItemEx("D4BulletsSmall",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
-		TNT1 A -1 
+		TNT1 A -1 NoDelay
 		{
-			D4DHandler Event;
-			if (random[rng](0,255) < (256 - 245))
-			{
-				if (!Event) Event = D4DHandler.Fetch();
-				if (Event && Event.CheckActorSpawn(D4DHandler.ChainsawAmmo))
-					A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
-			}
+			if (!SpawnCrucibleAmmo())
+				SpawnAmmo("D4BulletsSmall");
+			
+			SpawnChainsawAmmo(256, 11, true);
 		}
 		Stop;
 	}
@@ -51,6 +109,7 @@ Class ClipReplacer : CustomInventory //replaces Clip
 
 Class ClipBoxReplacer : CustomInventory //replaces ClipBox
 {
+	mixin D4CheckAmmoSpawnable;
 	Default
 	{
 		+INVENTORY.QUIET
@@ -64,16 +123,12 @@ Class ClipBoxReplacer : CustomInventory //replaces ClipBox
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnItemEx("D4Bullets",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
-		TNT1 A -1 
+		TNT1 A -1 NoDelay
 		{
-			D4DHandler Event;
-			if (random[rng](0,255) < (256 - 230))
-			{
-				if (!Event) Event = D4DHandler.Fetch();
-				if (Event && Event.CheckActorSpawn(D4DHandler.ChainsawAmmo))
-					A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
-			}
+			if (!SpawnCrucibleAmmo())
+				SpawnAmmo("D4Bullets");
+			
+			SpawnChainsawAmmo(256, 26);
 		}
 		Stop;
 	}
@@ -81,6 +136,7 @@ Class ClipBoxReplacer : CustomInventory //replaces ClipBox
 
 Class ShellReplacer : CustomInventory //replaces Shell
 {
+	mixin D4CheckAmmoSpawnable;
 	Default
 	{
 		+INVENTORY.QUIET
@@ -94,16 +150,12 @@ Class ShellReplacer : CustomInventory //replaces Shell
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnItemEx("D4ShellsSmall",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
-		TNT1 A -1 
+		TNT1 A -1 NoDelay
 		{
-			D4DHandler Event;
-			if (random[rng](0,255) < (256 - 245))
-			{
-				if (!Event) Event = D4DHandler.Fetch();
-				if (Event && Event.CheckActorSpawn(D4DHandler.ChainsawAmmo))
-					A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
-			}
+			if (!SpawnCrucibleAmmo())
+				SpawnAmmo("D4ShellsSmall");
+			
+			SpawnChainsawAmmo(256, 11);
 		}
 		Stop;
 	}
@@ -111,6 +163,7 @@ Class ShellReplacer : CustomInventory //replaces Shell
 
 Class ShellBoxReplacer : CustomInventory //replaces ShellBox
 {
+	mixin D4CheckAmmoSpawnable;
 	Default
 	{
 		+INVENTORY.QUIET
@@ -124,16 +177,12 @@ Class ShellBoxReplacer : CustomInventory //replaces ShellBox
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnItemEx("D4Shells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
-		TNT1 A -1  
+		TNT1 A -1 NoDelay
 		{
-			D4DHandler Event;
-			if (random[rng](0,255) < (256 - 230))
-			{
-				if (!Event) Event = D4DHandler.Fetch();
-				if (Event && Event.CheckActorSpawn(D4DHandler.ChainsawAmmo))
-					A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
-			}
+			if (!SpawnCrucibleAmmo())
+				SpawnAmmo("D4Shells");
+			
+			SpawnChainsawAmmo(256, 26);
 		}
 		Stop;
 	}
@@ -142,6 +191,7 @@ Class ShellBoxReplacer : CustomInventory //replaces ShellBox
 
 Class RocketAmmoReplacer : CustomInventory //replaces RocketAmmo
 {
+	mixin D4CheckAmmoSpawnable;
 	Default
 	{
 		+INVENTORY.QUIET
@@ -155,16 +205,12 @@ Class RocketAmmoReplacer : CustomInventory //replaces RocketAmmo
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnItemEx("D4RocketsSmall",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
-		TNT1 A -1 
+		TNT1 A -1 NoDelay
 		{
-			D4DHandler Event;
-			if (random[rng](0,255) < (256 - 200))
-			{
-				if (!Event) Event = D4DHandler.Fetch();
-				if (Event && Event.CheckActorSpawn(D4DHandler.ChainsawAmmo))
-					A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
-			}
+			if (!SpawnCrucibleAmmo())
+				SpawnAmmo("D4RocketsSmall");
+			
+			SpawnChainsawAmmo(256, 56, true);
 		}
 		Stop;
 	}
@@ -172,6 +218,7 @@ Class RocketAmmoReplacer : CustomInventory //replaces RocketAmmo
 
 Class RocketBoxReplacer : CustomInventory //replaces RocketBox
 {
+	mixin D4CheckAmmoSpawnable;
 	Default
 	{
 		+INVENTORY.QUIET
@@ -185,16 +232,12 @@ Class RocketBoxReplacer : CustomInventory //replaces RocketBox
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY A_SpawnItemEx("D4Rockets",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
-		TNT1 A -1 
+		TNT1 A -1 NoDelay
 		{
-			D4DHandler Event;
-			if (random[rng](0,255) < (256 - 160))
-			{
-				if (!Event) Event = D4DHandler.Fetch();
-				if (Event && Event.CheckActorSpawn(D4DHandler.ChainsawAmmo))
-					A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
-			}
+			if (!SpawnCrucibleAmmo())
+				SpawnAmmo("D4Rockets");
+			
+			SpawnChainsawAmmo(256, 96);
 		}
 		Stop;
 	}
@@ -203,6 +246,7 @@ Class RocketBoxReplacer : CustomInventory //replaces RocketBox
 
 Class CellReplacer : CustomInventory //replaces Cell
 {
+	mixin D4CheckAmmoSpawnable;
 	Default
 	{
 		+INVENTORY.QUIET
@@ -219,26 +263,18 @@ Class CellReplacer : CustomInventory //replaces Cell
 	Spawn:
 		TNT1 A -1 NODELAY 
 		{
-			D4DHandler Event;
-			if (random[rng](0,255) < (256 - 245))
-			{
-				if (!Event) Event = D4DHandler.Fetch();
-				if (Event && Event.CheckActorSpawn(D4DHandler.BFGAmmo))
-					A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
-			}
-			else A_SpawnItemEx("D4CellsSmall",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
-			if (random[rng](0,255) < (256 - 200))
-			{
-				if (!Event) Event = D4DHandler.Fetch();
-				if (Event && Event.CheckActorSpawn(D4DHandler.ChainsawAmmo))
-					A_SpawnItemEx("D4FuelSmall",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
-			}
+			if (!SpawnCrucibleAmmo())
+				if (!SpawnBFGAmmo(256, 10))
+					SpawnAmmo("D4CellsSmall");
+			
+			SpawnChainsawAmmo(256, 50);
 		}
 		Stop;
 	}
 }
 Class CellPackReplacer : CustomInventory //replaces CellPack
 {
+	mixin D4CheckAmmoSpawnable;
 	Default
 	{
 		+INVENTORY.QUIET
@@ -254,21 +290,11 @@ Class CellPackReplacer : CustomInventory //replaces CellPack
 	Spawn:
 		TNT1 A -1 NODELAY
 		{
-			D4DHandler Event;
-			if (random[rng](0,255) < (256 - 220))
-			{
-				if (!Event) Event = D4DHandler.Fetch();
-				if (Event && Event.CheckActorSpawn(D4DHandler.BFGAmmo))
-					A_SpawnItemEx("D4BFGAmmo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
-			}
-			else A_SpawnItemEx("D4Cells",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_CLEARCALLERTID|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL,0,tid);
+			if (!SpawnCrucibleAmmo())
+				if (!SpawnBFGAmmo(256, 35))
+					SpawnAmmo("D4Cells");
 			
-			if (random[rng](0,255) < (256 - 160))
-			{
-				if (!Event) Event = D4DHandler.Fetch();
-				if (Event && Event.CheckActorSpawn(D4DHandler.ChainsawAmmo))
-					A_SpawnItemEx("D4Fuel",random(10,-10),random(10,-10),0,0,0,0,0,SXF_NOCHECKPOSITION);
-			}
+			SpawnChainsawAmmo(256, 50);
 		}
 		Stop;
 	}
@@ -503,10 +529,11 @@ Class D4BFGAmmo : Ammo
 	Default
 	{
 		Inventory.PickupMessage "BFG cells";
-		Inventory.Amount 1;
-		Inventory.MaxAmount D4BFGAmmo_MaxAmount;
 		Inventory.Icon "BFUGA0";
-		Ammo.BackpackAmount 1;
+		
+		Inventory.Amount D4BFGAmmo_Amount;
+		Inventory.MaxAmount D4BFGAmmo_MaxAmount;
+		Ammo.BackpackAmount D4BFGAmmo_Amount;
 		Ammo.BackpackMaxAmount D4BFGAmmo_MaxAmount;
 		Inventory.PickupSound "Doom4/Pickups/BFGAmmo";
 		DistanceCheck "D4D_MaxDrawDistance";

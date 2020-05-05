@@ -73,7 +73,7 @@ Class D4LightningGun : Doom4Weapon
 		{
 			A_StopBeam("");
 			A_SetInventory("AltFireToken",0);
-			ACS_NamedExecute("RemoveModText",0,0,0,0);
+			
 			A_StopSound(5);
 			A_Lower();
 		} 
@@ -85,7 +85,7 @@ Class D4LightningGun : Doom4Weapon
 	Select: 
 		LGNI A 0 
 		{
-			ACS_NamedExecute("RemoveModText",0,0,0,0);
+			
 		}
 		---- A 1 A_Raise(WeaponSwitchSpeed);
 		Wait;

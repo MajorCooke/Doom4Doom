@@ -92,25 +92,21 @@ Class D4GaussCannon : Doom4Weapon
 			A_SetInventory("PrecisionShotChargesCounter",0);
 			A_SetInventory("SiegeModeChargesCounter",0);
 			A_SetInventory("AltFireToken",0);
+			A_SetAlwaysSwitchable(false);
 			
 			// Don't even bother allowing secondary. There's no point doing the
 			// checks further down there, just do it here instead.
 			if (!CountInv("GaussCannonMod1") && !CountInv("GaussCannonMod2"))
 			{	return ResolveState("ReadyNoAlt");	}
-
-			if (CountInv("PrecisionActive"))
-				ACS_NamedExecute("ModSelectedText",0,11,0,0);	//print precision
-			else if (CountInv("SiegeActive"))
-				ACS_NamedExecute("ModSelectedText",0,12,0,0);	//print siege
 			
 			A_StopSound(6);
 			return ResolveState(null);
 		}
 	ReadyNormal:
-		"####" "##########" 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
-		Loop;
+		---- A 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+		Wait;
 	ReadyNoAlt:
-		"####" "##########" 1 A_WeaponReady(WRF_NOSECONDARY|WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
+		---- A 1 A_WeaponReady(WRF_NOSECONDARY|WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
 		Goto Ready;
 		
 	//-------------------------------------------------------
@@ -136,6 +132,8 @@ Class D4GaussCannon : Doom4Weapon
 			{	return ResolveState("PrecisionRelease");	}
 			if (CountInv("SiegeActive") && CountInv("AltFireToken"))
 			{	return ResolveState("SiegeRelease");	}
+			
+			A_SetAlwaysSwitchable(true);
 			A_WeaponOffset(15,10,WOF_ADD);
 			
 			if (vel.z != 0.0 && pitch > 0.0)
@@ -166,7 +164,7 @@ Class D4GaussCannon : Doom4Weapon
 		"####" L 1 { A_SetTics(IsDoubleSpeed() ? 0 : 1); }
 		"####" M 1;
 		"####" N 1 { A_SetTics(IsDoubleSpeed() ? 0 : 1); }
-		"####" O 1;
+		"####" O 1 A_SetAlwaysSwitchable(false);
 		Goto Ready;
 
 
@@ -274,14 +272,14 @@ Class D4GaussCannon : Doom4Weapon
 		FireMod2:
 			"####" "#" 0
 			{
-				if(GetCvar("sv_infiniteammo") > 0 || CountInv("D4Cells") >= 50)		//do you have the ammo required?
+				if (A_CheckInfiniteAmmo() || CountInv("D4Cells") >= 50)		//do you have the ammo required?
 				{
 					return ResolveState("SiegeMode");
 				}
 				
 				if (GetPlayerInput(MODINPUT_OLDBUTTONS) & BT_ALTATTACK)// prevent sound spam
 				{	return ResolveState(null);	}
-				ACS_NamedExecute("NotEnoughAmmo",0,0,0);
+				D4Msg.PrintStatus(D4Msg.NotEnoughAmmo);
 				A_PlaySound("Doom4/Player/Nope");
 				return ResolveState(null);
 			}
@@ -454,29 +452,23 @@ Class D4GaussCannon : Doom4Weapon
 			if (CountInv("GaussCannonMod1")) //if has Precision
 			{
 				if (CountInv("SiegeActive")) //but Siege was active
-				{
 					return ResolveState("FromSiegeToPrecision");
-				}
 				else if (!CountInv("PrecisionActive"))
-				{
 					return ResolveState("FromNormalToPrecision"); //but if it didnt have Siege active, then it was in "normal"
-				}
+				
+				D4Msg.PrintStatus(D4Msg.NoOtherMods);
 			}
 			if (CountInv("GaussCannonMod2")) //if it has Siege
 			{
 				if (CountInv("PrecisionActive")) //but Precision was active
-				{
 					return ResolveState("FromPrecisionToSiege");
-				}
 				else if (!CountInv("SiegeActive"))	//if nothing was active,
-				{
 					return ResolveState("FromNormalToSiege"); //then it was in "normal" SG
-				}
+					
+				D4Msg.PrintStatus(D4Msg.NoOtherMods);
 			}
-			else
-			{
-				ACS_NamedExecute("NoModsAvailable",0,0,0);
-			}
+			else	D4Msg.PrintStatus(D4Msg.NoMods);
+			
 			return ResolveState(null);
 		}
 		"####" "#" 5;

@@ -411,7 +411,6 @@ Class PlayerRevRocket : D4AbstractMissilePlayer
 	
 	Default 
 	{
-		D4AbstractMissile.FXVelMul 0.5;
 		Projectile;
 		Speed 22;
 		Damage 15;
@@ -420,23 +419,23 @@ Class PlayerRevRocket : D4AbstractMissilePlayer
 		Scale 0.7;
 		+HITTRACER
 		+EXTREMEDEATH
-	
+		+BRIGHT
 		//SeeSound "Doom4/Weapon/Machinegun/MiniMissileFire";
 		Decal "D4ExploScorchSmallest";
 	}
 	States
 	{
 	Spawn:
-		SWMS A 0 NoDelay A_SpawnItemEx("D4RocketTrailFire",flags: SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
+		SWMS A 0 NoDelay StartRocketFX();
 		SWMS A 1 Bright Light("RedSmallPoint1") 
 		{
 			A_Weave(random(0,2), random(0,2), frandom(0,2), frandom(0,2));
-			SpawnRocketFXSmall();
 		}
 		Wait;
 	Death:
 		TNT1 A 0 
 		{
+			bINVISIBLE = true;
 			A_Explode(64,128,0);
 			A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
 			A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);

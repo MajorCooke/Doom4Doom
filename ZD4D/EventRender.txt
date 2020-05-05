@@ -3,10 +3,9 @@
 // EventRender
 // 
 // Houses most of the rendering components that aren't centralized on MC_Utility
-// itself. Specifically, things like the radial damage indicator.
+// itself. Specifically, things like the radial damage indicator/powerup screens.
 //==============================================================================
 //==============================================================================
-
 extend Class D4DHandler
 {
 	private D4VisualDamageManager ArrowManager;
@@ -35,7 +34,80 @@ extend Class D4DHandler
 			ArrowManager.AddIndicator(src, inf, plr, damage);
 		}
 	}
+	
+	//--------------------------------------------------------------------------
+	// Powerup Screens
+	//--------------------------------------------------------------------------
+	
+	static const String PowerNames[] =
+	{
+		"PowerD4QuadDamage","Shade2Ma",
+		"PowerD4Regen", 	"Shade2Cy",
+		"PowerD4Haste", 	"Shade2Ye",
+		"PowerD4Money", 	"Shade2Gr"	
+	};
+	
+	private ui void RenderPowerupScreens(RenderEvent e)
+	{
+		PlayerInfo plr = players[consoleplayer];
+		let mo = Actor(plr.mo);
+		if (!mo)	return;
+		
+		double	sw = Screen.GetWidth(),
+				sh = Screen.GetHeight();
+
+		if (mo is "DemonPlayerBase")
+		{
+			let id = TexMan.CheckForTexture("Shade2Br", TexMan.Type_Any);
+			if (id)	
+				Screen.DrawTexture(id, false, 0, 0,
+					DTA_VirtualWidthF, sw,
+					DTA_VirtualHeightF, sh,
+					DTA_DestWidthF, sw,		
+					DTA_DestHeightF, sh);
+		}
+		
+		
+		//R016 N
+		for (int i = 0; i < PowerNames.Size(); i += 2)
+		{
+			Class<Powerup> pn = PowerNames[i];
+			double alf = GetPowerFadeAlpha(mo, pn);
+			if (alf > 0.0)
+			{
+				let id = TexMan.CheckForTexture(PowerNames[i+1], TexMan.Type_Any);
+				if (id)
+				{
+					Screen.DrawTexture(id, false, 0, 0,
+						DTA_VirtualWidthF, sw,
+						DTA_VirtualHeightF, sh,
+						DTA_DestWidthF, sw,		
+						DTA_DestHeightF, sh,
+						DTA_Alpha, alf);
+				}
+			}
+		}
+	}
+	
+	private ui double GetPowerFadeAlpha(Actor mo, Class<Powerup> item, int expirewarn = 105)
+	{
+		if (!mo || !item)	return 0.0;
+		if (expirewarn < 1)	return 1.0;
+		
+		let power = Powerup(mo.FindInventory(item, true));
+		if (!power)	
+			return 0.0;
+			
+		if (power && power.EffectTics >= expirewarn)	
+			return 1.0;
+		
+		return (power.EffectTics / double(expirewarn));
+	}
 }
+
+//==============================================================================
+// Damage Indicators
+//==============================================================================
 
 Class D4VisualDamageManager play
 {

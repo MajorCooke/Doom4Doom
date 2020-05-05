@@ -1,42 +1,30 @@
 //==============================================================================
 // D4D Keys Code
-// ALL KEYS MUST INHERIT FROM D4KeyBase. NO EXCEPTIONS OR ELSE IT WON'T WORK.
 //==============================================================================
-Class D4KeyBase : CustomInventory 
+
+mixin class D4KeyTouch
 {
-	Class<Inventory> KeyItem;
-	Property KeyItem: KeyItem;
-	
-	Default
+	override void Touch(Actor toucher)
 	{
-		+INVENTORY.ALWAYSPICKUP
-	}
-	
-	override void BeginPlay()
-	{
-		ChangeStatNum(STAT_RUNEPICKUPS);
-		Super.BeginPlay();
-	}
-	States
-	{
-	Pickup:
-		TNT1 A 0
+		if (toucher)
 		{
-			if (invoker.KeyItem)
-				A_GiveInventory(invoker.KeyItem,1);
+			Class<Inventory> check = species;
+			if (check)	toucher.A_GiveInventory(check,1);
+			Super.Touch(toucher);
 		}
-		Stop;
 	}
 }
 
 Class D4RedCard : RedCard //replaces RedCard
 {
+	mixin D4KeyTouch;
 	Default 
 	{
 		Scale .2;
 		Inventory.PickupMessage "Red key";
 		Species "RedCard";
 	}
+	
 	States
 	{
 	Spawn:
@@ -56,6 +44,7 @@ Class D4RedCard : RedCard //replaces RedCard
 
 Class D4YellowCard : YellowCard //replaces YellowCard
 {
+	mixin D4KeyTouch;
 	Default 
 	{
 		Scale .2;
@@ -81,6 +70,7 @@ Class D4YellowCard : YellowCard //replaces YellowCard
 
 Class D4BlueCard : BlueCard //replaces BlueCard
 {
+	mixin D4KeyTouch;
 	Default 
 	{
 		Scale .2;
@@ -106,6 +96,7 @@ Class D4BlueCard : BlueCard //replaces BlueCard
 
 Class D4RedSkull : RedSkull //replaces RedSkull
 {
+	mixin D4KeyTouch;
 	Default 
 	{
 		Scale .4;
@@ -123,6 +114,7 @@ Class D4RedSkull : RedSkull //replaces RedSkull
 
 Class D4YellowSkull : YellowSkull //replaces YellowSkull
 {
+	mixin D4KeyTouch;
 	Default 
 	{
 		Scale .4;
@@ -140,6 +132,7 @@ Class D4YellowSkull : YellowSkull //replaces YellowSkull
 
 Class D4BlueSkull : BlueSkull //replaces BlueSkull
 {
+	mixin D4KeyTouch;
 	Default 
 	{
 		Scale .4;

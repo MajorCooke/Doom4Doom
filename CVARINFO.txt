@@ -77,6 +77,21 @@ server noarchive int LOfx = 0;
 server noarchive int LOfy = 0;
 server noarchive int ROfx = 0;
 server noarchive int ROfy = 0;
+server noarchive int x1 = 0;
+server noarchive int y1 = 0;
+server noarchive int x2 = 0;
+server noarchive int y2 = 0;
+server noarchive int x3 = 0;
+server noarchive int y3 = 0;
+server noarchive int x4 = 0;
+server noarchive int y4 = 0;
+server noarchive int x5 = 0;
+server noarchive int y5 = 0;
+server noarchive int x6 = 0;
+server noarchive int y6 = 0;
+server noarchive float testscale = 1.0;
+
+server noarchive bool bars = false;
 
 // The Zombie Killer's Footsteps
 server float fs_volume_mul = 1.4;

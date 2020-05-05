@@ -607,49 +607,49 @@ Class D4UpgradePickupSpawner : Actor
 					!plr.CountInv("PistolUpgradeAltCharge") ||
 					!plr.CountInv("PistolUpgradeDamage") ||
 					!plr.CountInv("PistolUpgradeLance"))
-					SpawnCase = true;		else	filled++;
+					{SpawnCase = true; /*Console.Printf("1");*/	}		else	filled++;
 			}
 			if (plr.CountInv("D4Shotgun"))
 			{
 				if (!plr.CountInv("ShotgunMod1") ||	!plr.CountInv("ShotgunMod2"))
-					SpawnCase = true;		else	filled++;
+					{SpawnCase = true; /*Console.Printf("2");*/	}		else	filled++;
 			}
 			if (plr.CountInv("D4SuperShotgun"))
 			{
 				if (!plr.CountInv("SSGUpgrade1") ||	!plr.CountInv("SSGUpgrade2") ||
 					!plr.CountInv("SSGUpgrade3") ||	!plr.CountInv("SSGUpgrade4"))
-					SpawnCase = true;		else	filled++;
+					{SpawnCase = true; /*Console.Printf("3");*/	}		else	filled++;
 			}
 			if (plr.CountInv("D4AssaultRifle"))
 			{
 				if (!plr.CountInv("AssaultRifleMod1") || !plr.CountInv("AssaultRifleMod2"))
-					SpawnCase = true;		else	filled++;
+					{SpawnCase = true; /*Console.Printf("4");*/	}		else	filled++;
 			}
 			if (plr.CountInv("D4Chaingun"))
 			{
 				if (!plr.CountInv("ChaingunMod1") || !plr.CountInv("ChaingunMod2"))
-					SpawnCase = true;		else	filled++;
+					{SpawnCase = true; /*Console.Printf("5");*/	}		else	filled++;
 			}
 			if (plr.CountInv("D4RocketLauncher"))
 			{
 				if (!plr.CountInv("RocketLauncherMod1") ||!plr.CountInv("RocketLauncherMod2"))
-					SpawnCase = true;		else	filled++;
+					{SpawnCase = true; /*Console.Printf("6");*/	}		else	filled++;
 			}
 			if (plr.CountInv("D4PlasmaRifle"))
 			{
 				if (!plr.CountInv("PlasmaRifleMod1") ||	!plr.CountInv("PlasmaRifleMod2"))
-					SpawnCase = true;		else	filled++;
+					{SpawnCase = true; /*Console.Printf("7");*/	}		else	filled++;
 			}
 			if (plr.CountInv("D4GaussCannon"))
 			{
 				if (!plr.CountInv("GaussCannonMod1") ||	!plr.CountInv("GaussCannonMod2"))
-					SpawnCase = true;		else	filled++;
+					{SpawnCase = true; /*Console.Printf("8");*/	}		else	filled++;
 			}
 			if (plr.CountInv("D4BFG"))
 			{
 				if (!plr.CountInv("BFGUpgrade1") ||	!plr.CountInv("BFGUpgrade2") ||
 					!plr.CountInv("BFGUpgrade3") ||	!plr.CountInv("BFGUpgrade4"))
-					SpawnCase = true;		else	filled++;
+					{SpawnCase = true; /*Console.Printf("9");*/	}		else	filled++;
 			}
 			if (filled >= 9)	CanSpawnSoviet = true;
 			if (SpawnCase)		break;
@@ -659,13 +659,13 @@ Class D4UpgradePickupSpawner : Actor
 					!plr.CountInv("RepeaterUpgradeDamage") ||
 					!plr.CountInv("RepeaterUpgradeAltDamage") ||
 					!plr.CountInv("RepeaterUpgradeAltAmmo"))
-					{	SpawnCase = true; break;	}
+					{	SpawnCase = true; /*Console.Printf("10");*/ break;	}
 			}
 			if (plr.CountInv("D4LightningGun"))
 			{
 				if (!plr.CountInv("LGUpgradeAmmo") || !plr.CountInv("LGUpgradeRange") ||
 					!plr.CountInv("LGUpgradeDamage") ||	!plr.CountInv("LGUpgradeAltFire"))
-					{	SpawnCase = true; break;	}
+					{	SpawnCase = true; /*Console.Printf("11");*/ break;	}
 			}
 			
 			if (plr.CountInv("D4StaticRifle"))
@@ -674,7 +674,7 @@ Class D4UpgradePickupSpawner : Actor
 					!plr.CountInv("StaticUpgrade2") ||
 					!plr.CountInv("StaticUpgrade3") ||
 					!plr.CountInv("StaticUpgrade4"))
-					{	SpawnCase = true; break;	}
+					{	SpawnCase = true; /*Console.Printf("12");*/ break;	}
 			}
 			
 			if (plr.CountInv("D4VortexRifle"))
@@ -683,7 +683,7 @@ Class D4UpgradePickupSpawner : Actor
 					!plr.CountInv("VortexUpgradeAmmo") ||
 					!plr.CountInv("VortexUpgradeAltSpeed") ||
 					!plr.CountInv("VortexUpgradeAltPierce"))
-					{	SpawnCase = true; break;	}
+					{	SpawnCase = true; /*Console.Printf("13");*/ break;	}
 			}
 			
 			if (plr.CountInv("D4CarrionCannon"))
@@ -692,7 +692,16 @@ Class D4UpgradePickupSpawner : Actor
 					!plr.CountInv("CarrionUpgradeStun") ||
 					!plr.CountInv("CarrionUpgradeTime") ||
 					!plr.CountInv("CarrionUpgradePickup"))
-					{	SpawnCase = true; break;	}
+					{	SpawnCase = true; /*Console.Printf("14");*/ break;	}
+			}
+			
+			if (plr.CountInv("DECrucible"))
+			{
+				if (!plr.CountInv("CrucibleUpgradeCleave") ||
+					!plr.CountInv("CrucibleUpgradeBattery") ||
+					!plr.CountInv("CrucibleUpgradeRange") ||
+					!plr.CountInv("CrucibleUpgradeSyphon"))
+					{	SpawnCase = true; /*Console.Printf("15");*/ break;	}
 			}
 			
 			if (!plr.CountInv("D4MegachargeUpgrade1") || 
@@ -715,14 +724,14 @@ Class D4UpgradePickupSpawner : Actor
 				!plr.CountInv("D4QuadUpgrade2") ||
 				!plr.CountInv("D4HasteUpgrade1") ||
 				!plr.CountInv("D4HasteUpgrade2"))
-				{	SpawnCase = true; break;	}
+				{	SpawnCase = true; /*Console.Printf("16");*/ break;	}
 			
 			if (plr.CountInv("D4AirUpgrade") < 		GetDefaultByType("D4AirUpgrade").MaxAmount ||
 				plr.CountInv("D4Stamina") < 		GetDefaultByType("D4Stamina").MaxAmount ||
 				plr.CountInv("D4ArmorCapRaiser") < 	GetDefaultByType("D4ArmorCapRaiser").MaxAmount ||
 				plr.CountInv("D4CrateUpgrade") < 	GetDefaultByType("D4CrateUpgrade").MaxAmount ||
 				plr.CountInv("ProtectionBonus") < 	GetDefaultByType("ProtectionBonus").MaxAmount)
-				{	SpawnCase = true; break;	}
+				{	SpawnCase = true; /*Console.Printf("17");*/ break;	}
 		}
 				
 		// The weapons needed for the soviet chaingun have all been filled.
@@ -738,8 +747,7 @@ Class D4UpgradePickupSpawner : Actor
 				soviet.master = master;
 				soviet.tracer = tracer;
 			}
-		}		
-		int size = items.Size();
+		}
 		
 		if (SpawnCase)
 		{

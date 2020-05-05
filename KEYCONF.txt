@@ -1,7 +1,7 @@
 clearplayerclasses
 addplayerclass Doom4Player
 
-alis PrintHUDInfo "NetEvent PrintHudInfo"
+alias PrintHUDInfo "NetEvent PrintHudInfo"
 
 alias RemoveAmmo "NetEvent RemoveAmmo"
 alias RemoveAllGibs "RemoveGibs1; RemoveGibs2; RemoveGibs3; RemoveGibs4"

@@ -468,73 +468,36 @@ Class PoisonPoolSplash : Actor
 		+CLIENTSIDEONLY
 		+NOINTERACTION
 		+FORCEXYBILLBOARD
+		+ROLLSPRITE
 		RenderStyle "Add";
 		Translation "0:255=%[0,0,0]:[0.8,1.4,0.0]";
 		Scale 0.6;
 	}
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		roll = random(0,359);
+		bXFLIP = random(0,1);
+		bYFLIP = random(0,1);
+	}
 	States
 	{
 	Spawn:
-		TNT1 A 0 NoDelay A_Jump(256,"B11","B12","B13","B14","B21","B22","B23","B24","B31","B32","B33","B34");
-	B11:
+		TNT1 A 0 NoDelay A_Jump(256,"B1","B2","B3");
+	B1:
 		X057 ABCDEF 2 Bright A_FadeOut(0.05);
 		X057 GHIJK 1 Bright A_FadeOut(0.05);
 		X057 LMNOPQRS 1 Bright A_FadeOut(0.03);
 		Wait;
-	B12:
-		XA57 ABCDEF 2 Bright A_FadeOut(0.05);
-		XA57 GHIJK 1 Bright A_FadeOut(0.05);
-		XA57 LMNOPQRS 1 Bright A_FadeOut(0.03);
-		Wait;
-	B13:
-		XB57 ABCDEF 2 Bright A_FadeOut(0.05);
-		XB57 GHIJK 1 Bright A_FadeOut(0.05);
-		XB57 LMNOPQRS 1 Bright A_FadeOut(0.03);
-		Wait;
-	B14:
-		XC57 ABCDEF 2 Bright A_FadeOut(0.05);
-		XC57 GHIJK 1 Bright A_FadeOut(0.05);
-		XC57 LMNOPQRS 1 Bright A_FadeOut(0.03);
-		Wait;
-	B21:
+	B2:
 		X058 ABCDEF 2 Bright A_FadeOut(0.05);
 		X058 GHIJK 1 Bright A_FadeOut(0.05);
 		X058 LMNOPQR 1 Bright A_FadeOut(0.03);
 		Wait;
-	B22:
-		XA58 ABCDEF 2 Bright A_FadeOut(0.05);
-		XA58 GHIJK 1 Bright A_FadeOut(0.05);
-		XA58 LMNOPQR 1 Bright A_FadeOut(0.03);
-		Wait;
-	B23:
-		XB58 ABCDEF 2 Bright A_FadeOut(0.05);
-		XB58 GHIJK 1 Bright A_FadeOut(0.05);
-		XB58 LMNOPQR 1 Bright A_FadeOut(0.03);
-		Wait;
-	B24:
-		XC58 ABCDEF 2 Bright A_FadeOut(0.05);
-		XC58 GHIJK 1 Bright A_FadeOut(0.05);
-		XC58 LMNOPQR 1 Bright A_FadeOut(0.03);
-		Wait;
-	B31:
+	B3:
 		X059 ABCD 2 Bright A_FadeOut(0.03);
 		X059 EFGHIJ 1 Bright A_FadeOut(0.04);
 		X059 KLM 1 Bright A_FadeOut(0.05);
-		Wait;
-	B32:
-		XA59 ABCD 2 Bright A_FadeOut(0.03);
-		XA59 EFGHIJ 1 Bright A_FadeOut(0.04);
-		XA59 KLM 1 Bright A_FadeOut(0.05);
-		Wait;
-	B33:
-		XB59 ABCD 2 Bright A_FadeOut(0.03);
-		XB59 EFGHIJ 1 Bright A_FadeOut(0.04);
-		XB59 KLM 1 Bright A_FadeOut(0.05);
-		Wait;
-	B34:
-		XC59 ABCD 2 Bright A_FadeOut(0.03);
-		XC59 EFGHIJ 1 Bright A_FadeOut(0.04);
-		XC59 KLM 1 Bright A_FadeOut(0.05);
 		Wait;
 	}
 }

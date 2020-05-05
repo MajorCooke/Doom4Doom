@@ -405,32 +405,87 @@ OptionMenu "D4DUpgrade.Weapons"
 	Class "D4DOptionMenuUpgrades"
 	Title "Weapons"
 	SubmenuWeapon "Pistol",					"D4DUpgrade.Pistol", 			"D4Pistol"
-	StaticText ""
 	SubmenuWeapon "Shotgun",				"D4DUpgrade.Shotgun", 			"D4Shotgun"
-	StaticText ""
 	SubmenuWeapon "Super Shotgun",			"D4DUpgrade.SuperShotgun", 		"D4SuperShotgun"
-	StaticText ""
 	SubmenuWeapon "Repeater",				"D4DUpgrade.Repeater", 			"D4Repeater"
-	StaticText ""
 	SubmenuWeapon "H. A. R.",				"D4DUpgrade.HAR", 				"D4AssaultRifle"
-	StaticText ""
 	SubmenuWeapon "Chaingun",				"D4DUpgrade.Chaingun", 			"D4Chaingun"
-	StaticText ""
 	SubmenuWeapon "Rocket Launcher",		"D4DUpgrade.RocketLauncher", 	"D4RocketLauncher"
-	StaticText ""
 	SubmenuWeapon "Plasma Rifle",			"D4DUpgrade.PlasmaRifle", 		"D4PlasmaRifle"
-	StaticText ""
 	SubmenuWeapon "Lightning Gun",			"D4DUpgrade.LightningGun", 		"D4LightningGun"
-	StaticText ""
 	SubmenuWeapon "Vortex Rifle",			"D4DUpgrade.VortexRifle", 		"D4VortexRifle"
-	StaticText ""
 	SubmenuWeapon "Static Rifle",			"D4DUpgrade.StaticRifle", 		"D4StaticRifle"
-	StaticText ""
 	SubmenuWeapon "Gauss Cannon",			"D4DUpgrade.GaussCannon", 		"D4GaussCannon"
-	StaticText ""
 	SubmenuWeapon "BFG",					"D4DUpgrade.BFG", 				"D4BFG"
-	StaticText ""
 	SubmenuWeapon "Carrion Cannon",			"D4DUpgrade.CarrionCannon", 	"D4CarrionCannon"
+	SubmenuWeapon "Crucible Sword",			"D4DUpgrade.Crucible",			"DECrucible"
+}
+
+//==============================================================================
+// Crucible
+//==============================================================================
+OptionMenu "D4DUpgrade.Crucible"
+{
+	Class "D4DOptionMenuUpgrades"
+	Title "Crucible Sword"
+	StaticText "Choose An Upgrade", GOLD
+	StaticText ""
+	SubmenuReqs "$CrucibleUpgradeCleave",	"CrucibleUpgradeCleave",	"CrucibleUpgradeCleave"
+	StaticText ""
+	SubmenuReqs "$CrucibleUpgradeRange",	"CrucibleUpgradeRange",		"CrucibleUpgradeRange"
+	StaticText ""
+	SubmenuReqs "$CrucibleUpgradeSyphon",	"CrucibleUpgradeSyphon",	"CrucibleUpgradeSyphon"
+	StaticText ""
+	SubmenuReqs "$CrucibleUpgradeBattery",	"CrucibleUpgradeBattery",	"CrucibleUpgradeBattery"
+}
+
+OptionMenu "CrucibleUpgradeCleave"
+{
+	Class "D4DOptionMenuUpgrades"
+	Title "$CrucibleUpgradeCleave"
+	StaticText "$CrucibleUpgradeCleaveD1"
+	StaticText ""
+	Purchase CrucibleUpgradeCleave
+	StaticText ""
+	CostDisplay CrucibleUpgradeCleave
+	StaticText ""
+	CreditDisplay CrucibleUpgradeCleave
+}
+OptionMenu "CrucibleUpgradeRange"
+{
+	Class "D4DOptionMenuUpgrades"
+	Title "$CrucibleUpgradeRange"
+	StaticText "$CrucibleUpgradeRangeD1"
+	StaticText ""
+	Purchase CrucibleUpgradeRange
+	StaticText ""
+	CostDisplay CrucibleUpgradeRange
+	StaticText ""
+	CreditDisplay CrucibleUpgradeRange
+}
+OptionMenu "CrucibleUpgradeSyphon"
+{
+	Class "D4DOptionMenuUpgrades"
+	Title "CrucibleUpgradeSyphon"
+	StaticText "$CrucibleUpgradeSyphonD1"
+	StaticText ""
+	Purchase CrucibleUpgradeSyphon
+	StaticText ""
+	CostDisplay CrucibleUpgradeSyphon
+	StaticText ""
+	CreditDisplay CrucibleUpgradeSyphon
+}
+OptionMenu "CrucibleUpgradeBattery"
+{
+	Class "D4DOptionMenuUpgrades"
+	Title "$CrucibleUpgradeBattery"
+	StaticText "$CrucibleUpgradeBatteryD1"
+	StaticText ""
+	Purchase CrucibleUpgradeBattery
+	StaticText ""
+	CostDisplay CrucibleUpgradeBattery
+	StaticText ""
+	CreditDisplay CrucibleUpgradeBattery
 }
 
 //==============================================================================

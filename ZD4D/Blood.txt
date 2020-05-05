@@ -36,9 +36,8 @@ Class MCBloodSprite : Actor
 	{
 		Super.PostBeginPlay();
 		RollAmt = frandom[r](2.0, 10.0) * frandompick[r](-1, 1);
-		bSPRITEFLIP = random[r](0,1);
-		Scale.X *= frandompick[r](-1.0, 1.0);
-		Scale.Y *= frandompick[r](-1.0, 1.0);
+		bXFLIP = random(0,1);
+		bYFLIP = random(0,1);
 	}
 	
 	override void Tick()

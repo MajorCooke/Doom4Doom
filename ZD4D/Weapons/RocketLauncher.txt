@@ -163,7 +163,6 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	Deselect:
 		#### "#" 0 
 		{
-			ACS_NamedExecute("RemoveModText",0,0,0,0);
 			A_SetInventory("RLLockToken",0);
 			A_SetInventory("RLTargetToken",0);
 			A_SetInventory("RocketFired",0);
@@ -185,7 +184,6 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 				A_SetInventory("RocketFired",0);
 				A_SetInventory("TripleShot",0);
 				ClearReticle();
-				ACS_NamedExecute("RemoveModText",0,0,0,0); //clears previous wep text
 				if (CountInv("DetonateActive"))			{	return ResolveState("DetonateSpriteSelect");	}
 				if (CountInv("LockOnActive"))			{	return ResolveState("LockOnSpriteSelect");		}
 				return ResolveState("ResumeSelectSequence");
@@ -216,21 +214,20 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 				return ResolveState("NormalSpriteReady");
 			}			
 			NormalSpriteReady:
-				RLNI A 0 ;
-				Goto ResumeReadySequence;
+				RLNI A 0 { return ResolveState("ResumeReadySequence"); }
 			DetonateSpriteReady:
-				RLDI A 0 ACS_NamedExecute("ModSelectedText",0,7,0,0);	//print detonate
-				Goto ResumeReadySequence;
+				RLDI A 0 { return ResolveState("ResumeReadySequence"); }
 			LockOnSpriteReady:
-				RLLI A 0 ACS_NamedExecute("ModSelectedText",0,8,0,0);	//print Lockon
-				Goto ResumeReadySequence;
+				RLLI A 0 { return ResolveState("ResumeReadySequence"); }
 				
 	ResumeReadySequence:
+		---- A 0 A_SetAlwaysSwitchable(false);
 		#### A 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_ALLOWUSER2);
-		Loop;
+		Wait;
 	ReadyNoAmmo:
 		#### A 1
 		{
+			A_SetAlwaysSwitchable(false);
 			A_SetInventory("RLLockToken",0);
 			A_SetInventory("RLTargetToken",0);
 			A_SetInventory("RocketFired",0);
@@ -328,6 +325,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			A_Overlay(P1,"NormalPitchHandler");
 			A_GiveInventory("RocketFired",1);
 			A_WeaponOffset(10,7,WOF_ADD);
+			A_SetAlwaysSwitchable(true);
 		}
 	Res2Check:
 		---- B 0 A_JumpIf(IsDoubleSpeed(), "Res2Fast");
@@ -406,6 +404,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	RFSEnd:
 		#### T 1 
 		{
+			A_SetAlwaysSwitchable(false);
 			A_SetInventory("RocketFired",0);
 			A_SetInventory("TripleShot",0);
 		}
@@ -437,10 +436,10 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 				}
 				else
 				{
-					ACS_NamedExecute("NotEnoughAmmo",0,0,0);
+					D4Msg.PrintStatus(D4Msg.NotEnoughAmmo);
 				}
 			}
-			ACS_NamedExecute("NoModsAvailable",0,0,0,0);
+			D4Msg.PrintStatus(D4Msg.NoMods);
 			return ResolveState(null);
 		}
 		Goto Ready;
@@ -612,37 +611,27 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 	//-------------------------------------------------------
 	
 	Reload:
-		#### "#" 0 
+		---- A 5 
 		{
 			if (CountInv("RocketLauncherMod1")) //if has Detonate
 			{
 				if (CountInv("LockOnActive")) //but LockOn was active
-				{
 					return ResolveState("FromLockOnToDetonate");
-				}
 				else if (!CountInv("DetonateActive"))
-				{
 					return ResolveState("FromNormalToDetonate"); //but if it didnt have LockOn active, then it was in "normal"
-				}
+				D4Msg.PrintStatus(D4Msg.NoOtherMods);
 			}
 			if (CountInv("RocketLauncherMod2")) //if it has LockOn
 			{
 				if (CountInv("DetonateActive")) //but Detonate was active
-				{
 					return ResolveState("FromDetonateToLockOn");
-				}
 				else if (!CountInv("LockOnActive"))	//if nothing was active,
-				{
-					return ResolveState("FromNormalToLockOn"); //then it was in "normal" SG
-				}
+					return ResolveState("FromNormalToLockOn"); //then it was in "normal" RL
+				D4Msg.PrintStatus(D4Msg.NoOtherMods);
 			}
-			else
-			{	// I should really remove these soon...
-				ACS_NamedExecute("NoModsAvailable",0,0,0,0);
-			}
+			else	D4Msg.PrintStatus(D4Msg.NoMods);
 			return ResolveState(null);
 		}
-		#### "#" 5;
 		Goto Ready;
 
 
@@ -833,7 +822,7 @@ Class D4Rocket : D4AbstractMissilePlayer
 		MICR A 1 Light("RedMediumPoint3") Bright NoDelay 
 		{
 			master = target;
-			A_SpawnItemEx("D4RocketTrailFire",flags: SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
+			StartRocketFX();
 		}
 	Moving:
 		MICR A 1 Light("RedMediumPoint3") Bright SpawnRocketFX();
@@ -996,10 +985,12 @@ Class D4RocketTrailFire : Actor
 			// center instead.
 			SetOrigin(Target.Vec3Angle(5, Target.Angle + 180), true);
 			
+			/*
 			Prev = Target.Vec3Angle(
 				5 + Target.Vel.Length(), 
 				Target.Angle + 180, 
 				Target.Prev.Z - Target.Pos.Z);
+			*/
 		}
 		Loop;
 	}

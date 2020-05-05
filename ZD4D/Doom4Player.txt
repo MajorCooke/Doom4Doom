@@ -68,15 +68,16 @@ Class Doom4Player : PlayerPawn
 		PainChance 255;
 		Gravity 0.8;
 		MaxDropOffHeight 32767;
+		DeathSound "Eternal/Player/Death";
 		TeleFogDestType "D4PlayerFog";
 		Player.DisplayName "Doom Slayer";
 		Player.CrouchSprite "PLYC";
 		Player.StartItem "D4Pistol";
 		Player.StartItem "D4DFist";
 	//	Player.StartItem "AkimboWeapon";
-		Player.StartItem "TrishotClip", 3;
 		Player.StartItem "D4MultiJump", 2;
 		Player.StartItem "FlameThrowerPickup";
+		Player.StartItem "TrishotClip", 3;
 		Player.JumpZ 7.0;
 		
 		Player.ColorRange 112, 127;
@@ -367,7 +368,7 @@ Class Doom4Player : PlayerPawn
 			
 			// If not teleported (xy will 0 out... I think), not on something 
 			// and not blocked, keep boosting the player in the direction.
-			if (Vel.XY != (0,0) &&
+			if (Vel.XY != (0,0) && waterlevel < 1 &&
 				!bONMOBJ && !A_CheckFloor("Null") && !A_CheckCeiling("Null") &&
 				!A_CheckBlock("Null",CBF_ABSOLUTEANGLE,AAPTR_DEFAULT,CurDashSpeed,0,0,DashAngle) &&
 				!(player.cheats & (CF_FLY|CF_NOCLIP2)))
@@ -394,7 +395,7 @@ Class Doom4Player : PlayerPawn
 			A_OverlayFlags(OID, PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
 			A_OverlayOffset(OID, -CannonArmX, -CannonArmY, WOF_INTERPOLATE);
 			
-			if (CheckGrenadeButton())
+			if (CheckEquipmentButton())
 			{
 				int ready = CheckEquipmentCharge(true);
 				if (ready < 0)
@@ -411,7 +412,7 @@ Class Doom4Player : PlayerPawn
 				}
 				else if (ready)
 				{
-					let gren = GetSelectedGrenade();
+					let gren = GetSelectedEquipment();
 					if (gren)
 					{
 						gren.TakeCharge();
@@ -549,25 +550,9 @@ Class Doom4Player : PlayerPawn
 			{	A_SetTics(35);	}
 		}
 		Loop;
-	//==========================================================================
-	// Overlay: 		Show surroundings
-	// When given "ShowSurroundings" token, counts objects in two areas.
-	//==========================================================================
-	Overlay.Debug:
-		M666 A 1
-		{
-			if(countInv("ShowSurroundings"))
-			{
-				A_SetInventory("DebugMonstersToken", countProximity("D4AbstractMonster", 2048, CPXF_ANCESTOR));
-				A_SetInventory("DebugBiggiesToken",  countProximity("D4AbstractBiggie",  2048, CPXF_ANCESTOR));
-				A_SetInventory("DebugBossesToken",   countProximity("D4AbstractBoss",    2048, CPXF_ANCESTOR));
-				A_SetInventory("DebugMissilesToken", countProximity("D4AbstractMissile", 2048, CPXF_ANCESTOR));
-			}
-		}
-		Loop;
 	Overlay.LedgeGrab:
-		M666 A 1 ;
-		M666 A 0
+	//	M666 A 1 ;
+		M666 A 1
 		{
 			int waitTics = 14;
 			if (!player || !GetCvar("D4D_AllowClimbing"))
@@ -577,74 +562,33 @@ Class Doom4Player : PlayerPawn
 			else
 			{
 				// Do not attempt to ledge grab if...
-				if ((player.onground) ||				// Player's on the ground
-					(pitch >= 0) || 					// Looking down
-					(vel.XY dot vel.XY > (4 ** 2)) ||	// Moving too fast
-					(!(CurInputCmds & BT_FORWARD)))		// Not trying to move forward
-			//	||	(OldInputCmds == BT_FORWARD))))
-					return;
-				
+				if (player.onground ||				// Player's on the ground
+					pitch >= 0 || 					// Looking down
+					vel.XY dot vel.XY > (4 ** 2) ||	// Moving too fast
+					!(CurInputCmds & BT_FORWARD))		// Not trying to move forward
+				{
+					MaxStepHeight = Default.MaxStepHeight;
+				}
+				else
+				{
+					MaxStepHeight = 72;
+				}
+				return;
+				/*
 				if (D4D_Utility.GetLedgeOffset(self))
 				{
 					vel.z = 0;
 					A_Stop();
 					A_SetTics(waitTics);
 				}
-				
-				/*
-				int DistCheck = 24;
-				double newfloor = GetZAt(DistCheck,0,0);
-				double newceiling = GetZAt(DistCheck,0,0,GZF_CEILING);
-				double ledgedist = abs(newfloor - (pos.z + 36));
-				// if player is below new floor by no more than ledgedist units
-				// and can actually fit inside of it, mantle over.
-				
-				if ((ledgedist > 0) && (ledgedist <= DistCheck) &&
-					(newfloor + height <= ceilingz) &&
-					(newceiling - newfloor >= height))
-				{
-					bSlidesOnWalls = false;
-					
-					Vector3 np = Vec3Angle(DistCheck,angle,0);
-					np.z = newfloor;
-					
-					if (D4D_Utility.AdjustToLedge(self, np, DistCheck * 2))
-					{
-						vel.z = 0;
-					}
-					A_SetTics(waitTics);
-					bSlidesOnWalls = true;
-				}
 				*/
 			}
 		}
 		Loop;
-	Overlay.Mantling:
-		TNT1 A 1
-		{
-			StateLabel next = null;
-			if (MantleCos > 0)
-				MantleCos -= 10;
-			else 
-			{
-				A_PlaySound("Doom4/Player/Land");
-				next = "MantleDone";
-			}
-			
-			Vector3 Travel = MC_VectorUtil.LerpVec3(MantlePos[0], MantlePos[1], cos(MantleCos));
-			SetOrigin(Travel, true);
-			return ResolveState(next);
-		}
-		Wait;
-	MantleDone:
-		TNT1 A 14;
-		Goto Overlay.LedgeGrab;
-
 	See:
 		PLAY ABCD 4 ;
 		Loop;
 		
-	// These are separated for the sake of quad damage state findings.
 	Missile:
 		PLAY E 1;
 	MissileCont:
@@ -708,22 +652,6 @@ Class Doom4Player : PlayerPawn
 
 Class NewMapToken : Inventory
 {	Default { Inventory.InterhubAmount 0; } }
-
-Class LowHealthAlarm : Actor 
-{
-	Default 
-	{
-		+NOINTERACTION
-		+NOTONAUTOMAP
-		RenderStyle "None";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 20 NoDelay A_PlaySound("Doom4/Player/LowHealth",CHAN_AUTO,1,0,ATTN_NONE);
-		Stop;
-	}
-}
 
 Class Climbing : Inventory {}
 Class RlyClimb : Inventory {}
@@ -1015,19 +943,28 @@ extend class Doom4Player
 		// But this is only if the armor absorbs it all. Damage to the player
 		// himself is automatically handled via the event handler
 		DamageScreenEffects(finaldamage, ArmorBefore, ArmorAfter); // Shader effects
-		
-		if ((source || inflictor) && finaldamage < 1 && abs(ArmorBefore - ArmorAfter) > 0)
+		int ArmorTaken = abs(ArmorBefore - ArmorAfter);
+		if ((source || inflictor) && finaldamage < 1 && ArmorTaken > 0)
 		{
 			if (!Event)	Event = D4DHandler.Fetch();
 			Event.AddDamageIndicator(source, inflictor, self, finaldamage);
 		}
 		
-		if (GetClass() == 'Doom4Player' && health <= 40)
+		if (GetClass() == 'Doom4Player')
 		{
-			if (!LowHP)
+			if (PainTimer < 1 && health > 0 && (ArmorTaken > 0 || finaldamage > 0))
 			{
-				A_SpawnItemEx("LowHealthAlarm",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-				LowHP = true;
+				if (ArmorAfter <= 0)	A_StartSound("Eternal/Player/Pain", CHAN_VOICE, CHANF_OVERLAP);
+				else					A_StartSound("Eternal/Player/PainSmall", CHAN_VOICE, CHANF_OVERLAP);
+				PainTimer = 17;
+			}	
+			if (health <= 40)
+			{
+				if (!LowHP)
+				{
+					A_StartSound("Doom4/Player/LowHealth", CHAN_VOICE ,CHANF_OVERLAP);
+					LowHP = true;
+				}
 			}
 		}
 		else
@@ -1035,7 +972,7 @@ extend class Doom4Player
 		
 		return finaldamage;
 	}
-	
+	int PainTimer;
 	int AdjustMegasphereDamage(int damage)
 	{
 		let inv = FindInventory("D4MegasphereDamageReducer");
@@ -1053,6 +990,12 @@ extend class Doom4Player
 	
 	void DamageScreenEffects(int damage, int ArmorBefore, int ArmorAfter)
 	{
+		if (health < 1)
+		{
+			effectSize = 0;
+			Shader.SetEnabled(player, "damageshader", false);
+			return;
+		}
 		if (damage > 0)
 		{
 			effectSize += log(damage) / 25.0;
@@ -1079,7 +1022,7 @@ extend class Doom4Player
 		
 		if (!Event)	Event = D4DHandler.Fetch();
 		if (Event) Event.StorePlayerItems(self);
-		effectSize = 0;
+		
 		Super.Die(source, inflictor, dmgflags);
 		
 		A_RadiusGive("SyphonDestroyer",16386,RGF_MISSILES,1,"D4SyphonGrenade");
@@ -1200,6 +1143,7 @@ extend class Doom4Player
 	{
 		if (!started) 
 		{
+			A_SetInventory("FlameThrowerPickup",1);
 			if (GetCvar("skill") >= 3)
 			{
 				if (GetCvar("D4D_NMGrenades") >= 1) // Give and select frag if the setting isn't "Off" 
@@ -1255,6 +1199,7 @@ extend class Doom4Player
 			OldInputCmds = 0;
 			return;
 		}
+		if (PainTimer > 0)	PainTimer--;
 		OldInputCmds = CurInputCmds;
 		CurInputCmds = GetPlayerInput(MODINPUT_BUTTONS);
 		//======================================================================

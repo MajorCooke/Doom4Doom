@@ -1,29 +1,58 @@
-Class D4NoiseMaker : Actor
+const CHAN_POWERPICKUP = 15;
+const CHAN_POWEREFFECT = 17;
+const CHAN_POWEREXPIRE = 16;
+
+mixin class D4PowerupShared
 {
-	Default
+	meta Name	Light;
+	Sound 		ExpiringSound, StartSound;
+	String 		ExpiringColor;
+	double 		FadeAlpha;
+	int 		FadeDuration;
+	
+	Property StartSound: StartSound;
+	Property Expiring: ExpiringSound, ExpiringColor, FadeAlpha, FadeDuration;
+	Property Light: Light;
+	void DoStartUp()
 	{
-		+NOINTERACTION
-		+NOTONAUTOMAP
-		RenderStyle "None";
-	}
-	void Silence()
-	{
-		A_StopSound(CHAN_BODY);
-		A_StopSound(CHAN_ITEM);
-		A_StopSound(CHAN_WEAPON);
-		A_StopSound(CHAN_VOICE);
-		A_StopSound(5);
-		A_StopSound(6);
-		A_StopSound(7);
+		if (Owner)
+		{
+			if (StartSound != "")
+				Owner.A_StartSound(StartSound, CHAN_POWERPICKUP, CHANF_OVERLAP);
+			if (Light != '' && Light != 'None')
+				Owner.A_AttachLightDef(Light, Light);
+		}
 	}
 	
-	// Never spawn this thing directly.
-	override void PostBeginPlay()
-	{		
-		if (GetClass() == "D4NoiseMaker")
-		{	Destroy(); return;	}
-		
-		Super.PostBeginPlay();
+	void DoEnd()
+	{
+		if (Owner && Light != '' && Light != 'None')
+			Owner.A_RemoveLight(Light);
+	}
+	
+	void ExpireWarning()
+	{
+		double vol = 0.0;
+		Switch (EffectTics)
+		{
+			Case 105:	vol = 1.0;	break;
+			Case 70:	vol = 0.75;	break;
+			Case 35:	vol = 0.5;	break;
+			Default:	break;
+		}
+		if (vol > 0.0)
+		{
+			if (ExpiringSound != "")
+				Owner.A_StartSound(ExpiringSound, CHAN_POWEREXPIRE, CHANF_OVERLAP, vol);
+			if (FadeDuration > 0 && FadeAlpha > 0.0)
+				Owner.A_SetBlend(Color(ExpiringColor), FadeAlpha, FadeDuration);				
+		}
+	}
+	
+	override void OnDestroy()
+	{
+		DoEnd();
+		Super.OnDestroy();
 	}
 }
 
@@ -76,6 +105,7 @@ Class D4Megasphere : Megasphere
 		+ROLLCENTER
 		+FORCEXYBILLBOARD
 		Scale 0.17;
+		RenderStyle "Translucent";
 	}
 	
 	States
@@ -182,7 +212,7 @@ Class D4TimeFreeze : PowerTimeFreezer
 		Actor mo;
 		while (mo = Actor(it.Next()))
 		{
-			if (!mo || mo is 'MCBeam' || mo is 'D4DBeamBase' || mo is 'PentaShadow')
+			if (!mo || mo is 'MCBeam' || mo is 'D4DBeamBase' || mo is 'MCBeam' || mo is 'PentaShadow')
 				continue;
 				
 			if (mo.player)
@@ -256,6 +286,7 @@ Class D4ExtraLife : Inventory
 		+ROLLCENTER
 		+FORCEXYBILLBOARD
 		Scale 0.17;
+		RenderStyle "Translucent";
 	}
 	States
 	{
@@ -435,17 +466,18 @@ Class D4BerserkSpawner : RandomSpawner //replaces Berserk
 			}
 		}
 	}
-	
 }
 
 Class PowerD4QuadDamage : PowerDamage
 {
+	mixin D4PowerupShared;
 	Inventory Penta;
-	Actor NoiseMaker;
 	int DelayTimer;
 	bool hasMelee, hasMissile, PentaDamage;
 	Default 
 	{
+		PowerD4QuadDamage.Expiring "QuadDamage/Warning", "Purple", 0.4, 12;
+		PowerD4QuadDamage.Light "QuadLight";
 		DamageFactor "Normal", 4;
 	}
 	
@@ -454,15 +486,16 @@ Class PowerD4QuadDamage : PowerDamage
 		if (!passive && damage > 0)
 		{
 			newdamage = max(1, ApplyDamageFactors(CheckPentaDamage(), damageType, damage, damage * 4));
-			if (Owner != null && newdamage > damage) Owner.A_PlaySound(ActiveSound, CHAN_AUTO, 1.0, false, ATTN_NONE);
+		//	if (Owner != null && newdamage > damage) Owner.A_PlaySound(ActiveSound, CHAN_AUTO, 1.0, false, ATTN_NONE);
 		}
 	}
 	
 	override void InitEffect()
 	{
+		Super.InitEffect();
 		if (Owner)
 		{
-			Super.InitEffect();
+			DoStartUp();
 			hasMelee = (Owner.MeleeState != null);
 			hasMissile = (Owner.MissileState != null);
 			Penta = Owner.FindInventory("D4QuadUpgrade2");
@@ -500,28 +533,22 @@ Class PowerD4QuadDamage : PowerDamage
 				if ((hasMelee && InStateSequence(Owner.CurState, Owner.MeleeState)) ||
 					(hasMissile && InStateSequence(Owner.CurState, Owner.MissileState)))
 				{
-					DelayTimer = 35;
-					A_PlaySound("QuadDamage/Firing",6);
+					DelayTimer = 36;
+					Owner.A_StartSound("QuadDamage/Firing",CHAN_POWEREFFECT,CHANF_OVERLAP, 0.5);
 				}
 			}
 			else DelayTimer--;
 			
-			if (EffectTics > 105)	
-			{
-				A_StopSound(7);
-			}
-			else Switch (EffectTics)
-			{
-				Case 105:
-					A_PlaySound("QuadDamage/Warning",7,1,0);
-				Case 70:
-				Case 35:
-					Owner.A_SetBlend("Purple",0.4,12);
-				Default:
-					break;
-			}
+			if (EffectTics <= 105)
+				ExpireWarning();
 		}
 		Super.DoEffect();
+	}
+	
+	override void EndEffect()
+	{
+		DoEnd();
+		Super.EndEffect();
 	}
 }
 
@@ -529,7 +556,7 @@ Class QuadDamageGiver : PowerupGiver
 {
 	Default 
 	{
-		Inventory.maxamount 0;
+		Inventory.MaxAmount 0;
 		Powerup.Type "PowerD4QuadDamage";
 		Powerup.duration -30;
 		+INVENTORY.AUTOACTIVATE
@@ -543,13 +570,13 @@ Class D4QuadDamage : CustomInventory
 	{
 		Inventory.PickupSound "QuadDamage/Pickup";
 		Inventory.PickupMessage "Quad Damage!";
-		//translation "0:255=%[.00,.00,.10]:[.99,.10,.99]"
 		+INVENTORY.FANCYPICKUPSOUND
 		+INVENTORY.BIGPOWERUP
 		+COUNTITEM
 		+BRIGHT
 		+FLOATBOB
 		Scale 0.17;
+		RenderStyle "Translucent";
 	}
 	states
 	{
@@ -568,51 +595,13 @@ Class D4QuadDamage : CustomInventory
 			let inv = PowerD4QuadDamage(FindInventory("PowerD4QuadDamage"));
 			if (inv)
 			{
-				inv.A_PlaySound(invoker.PickupSound, 7);
+				A_StartSound(invoker.PickupSound, CHAN_POWERPICKUP, CHANF_OVERLAP);
 				inv.EffectTics += 1050;
 				return;
 			}
-			A_SpawnItemEx("QuadDamageLight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
 			A_GiveInventory("QuadDamageGiver", 1);
 		}
 		Stop;
-	}
-}
-
-Class QuadPickupNoise : D4NoiseMaker 
-{
-	Default 
-	{
-		+NOINTERACTION
-		+NOTONAUTOMAP
-		RenderStyle "None";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A -1 NoDelay A_PlaySound("QuadDamage/Pickup",5,1,0,ATTN_NONE);
-		Stop;
-	}
-}
-
-Class QuadDamageLight : Actor 
-{
-	Default 
-	{
-		+NOINTERACTION
-		RenderStyle "None";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 1 Light("QuadLight") 
-		{
-			if (master && master.CountInv("PowerD4QuadDamage"))
-				SetOrigin(master.pos, true);
-			else 
-				return Destroy();
-		}
-		Wait;
 	}
 }
 
@@ -644,11 +633,13 @@ Class SoulSphereHPUpgraded : SoulSphere
 
 Class PowerD4Regen : PowerRegeneration 
 {
+	mixin D4PowerupShared;
 	int GiverTic;
-	Actor NoiseMaker;
 	bool switcharoo;
 	Default 
 	{
+		PowerD4Regen.Expiring "Regen/Warning", "Cyan", 0.4, 12;
+		PowerD4Regen.Light "RegenLight";
 		+INVENTORY.NOSCREENBLINK;
 		Inventory.InterhubAmount 0; 
 	}
@@ -664,6 +655,11 @@ Class PowerD4Regen : PowerRegeneration
 		}
 	}
 	
+	override void InitEffect()
+	{
+		Super.InitEffect();
+		DoStartUp();
+	}
 	
 	override void DoEffect()
 	{
@@ -674,25 +670,7 @@ Class PowerD4Regen : PowerRegeneration
 			GiverTic = 15;
 		else
 			GiverTic = 31;
-		
-		if (IsFrozen())
-		{
-			EffectTics++; //'Freeze' the timer.
-		}
-		else if (EffectTics <= 105)
-		{
-			SetXYZ(Owner.pos);
-			Switch (EffectTics)
-			{
-				Case 105:
-					A_PlaySound("Regen/Warning",5,1,0,ATTN_NONE);
-				Case 70:
-				Case 35:
-					Owner.A_SetBlend("Cyan",0.4,12);
-				Default:
-					break;
-			}
-		}
+			
 		if (!(level.time & GiverTic))
 		{
 			if (Owner.CountInv("D4RegenUpgrade2"))
@@ -705,6 +683,15 @@ Class PowerD4Regen : PowerRegeneration
 			else
 				GiveHealth();
 		}
+		
+		if (IsFrozen())					EffectTics++; //'Freeze' the timer.
+		else if (EffectTics <= 105)		ExpireWarning();
+	}
+	
+	override void EndEffect()
+	{
+		DoEnd();
+		Super.EndEffect();
 	}
 }
 
@@ -745,6 +732,7 @@ Class D4Regeneration : CustomInventory
 		+ROLLCENTER
 		+FORCEXYBILLBOARD
 		Scale 0.17;
+		RenderStyle "Translucent";
 	}
 	states
 	{
@@ -764,51 +752,13 @@ Class D4Regeneration : CustomInventory
 			let inv = PowerD4Regen(FindInventory("PowerD4Regen"));
 			if (inv)
 			{
-				inv.A_PlaySound(invoker.PickupSound,5);
+				A_StartSound(invoker.PickupSound, CHAN_POWERPICKUP, CHANF_OVERLAP);
 				inv.EffectTics += 1050;
 				return;
 			}
-			A_SpawnItemEx("RegenerationLight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
 			A_GiveInventory("RegenerationGiver", 1);
 		}
 		Stop;
-	}
-}
-
-Class RegenPickupNoise : D4NoiseMaker
-{
-	Default 
-	{
-		+NOINTERACTION
-		+NOTONAUTOMAP
-		RenderStyle "None";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A -1;
-		Stop;
-	}
-}
-
-Class RegenerationLight : Actor 
-{
-	Default 
-	{
-		+NOINTERACTION
-		RenderStyle "None";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 1 Light("RegenLight") 
-		{
-			if (master && master.CountInv("PowerRegeneration"))
-				SetXYZ(master.pos);
-			else 
-				return Destroy();
-		}
-		Wait;
 	}
 }
 
@@ -820,11 +770,13 @@ Class RegenerationLight : Actor
 
 Class PowerD4Money : Powerup 
 {
+	mixin D4PowerupShared;
 	int GiverTic;
-	Actor NoiseMaker;
 	bool switcharoo;
 	Default 
 	{
+		PowerD4Money.Expiring "Regen/Warning", "Green", 0.4, 12;
+		PowerD4Money.Light "MoneyLight";
 		+INVENTORY.NOSCREENBLINK;
 	}
 	
@@ -835,8 +787,7 @@ Class PowerD4Money : Powerup
 		if (!Owner)	return;
 		
 		Owner.A_GiveInventory("CashPercentBonusTemp",300);
-		
-		NoiseMaker = Spawn("RegenPickupNoise",Owner.pos);
+		DoStartUp();
 	}
 	
 	override void DoEffect()
@@ -844,29 +795,17 @@ Class PowerD4Money : Powerup
 		if (!Owner || Owner.Health < 1)
 		{	EndEffect();	return;	}
 
-		if (IsFrozen())
-		{
-			EffectTics++; //'Freeze' the timer.
-		}
-		else if (EffectTics <= 105)
-		{
-			SetXYZ(Owner.pos);
-			Switch (EffectTics)
-			{
-				Case 105:
-					A_PlaySound("Regen/Warning",5,1,0,ATTN_NONE);
-				Case 70:
-				Case 35:
-					Owner.A_SetBlend("Green",0.4,12);
-				Default:
-					break;
-			}
-		}
+		if (IsFrozen())					EffectTics++; //'Freeze' the timer.
+		else if (EffectTics <= 105)		ExpireWarning();
 	}
 	
 	override void EndEffect()
 	{
-		if (Owner) Owner.A_TakeInventory("CashPercentBonusTemp",300);
+		if (Owner) 
+		{
+			Owner.A_TakeInventory("CashPercentBonusTemp",300);
+			DoEnd();
+		}
 			
 		Super.EndEffect();
 	}
@@ -899,6 +838,7 @@ Class D4QuadMoney : CustomInventory
 		+ROLLCENTER
 		+FORCEXYBILLBOARD
 		Scale 0.17;
+		RenderStyle "Translucent";
 	}
 	states
 	{
@@ -918,40 +858,13 @@ Class D4QuadMoney : CustomInventory
 			let inv = PowerD4Money(FindInventory("PowerD4Money"));
 			if (inv)
 			{
-				if (inv.NoiseMaker)
-				{
-					let nm = D4NoiseMaker(inv.NoiseMaker);
-					if (nm)	nm.Silence();
-				}
 				inv.EffectTics += 1050;
+				A_StartSound(invoker.PickupSound, CHAN_POWERPICKUP, CHANF_OVERLAP);
 				return;
 			}
-			A_SpawnItemEx("QuadMoneyLight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
 			A_GiveInventory("QuadMoneyGiver", 1);
 		}
 		Stop;
-	}
-}
-
-Class QuadMoneyLight : Actor 
-{
-	Default 
-	{
-		+NOINTERACTION
-		+NOTONAUTOMAP
-		RenderStyle "None";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 1 Light("MoneyLight") 
-		{
-			if (master && master.CountInv("PowerD4Money"))
-				SetOrigin(master.pos, true);
-			else 
-				return Destroy();
-		}
-		Wait;
 	}
 }
 
@@ -963,49 +876,29 @@ Class QuadMoneyLight : Actor
 //=======================================================================
 
 Class D4BlurSphere : BlurSphere {}
-/*
-Class BlurSphereSpawner : CustomInventory //replaces BlurSphere
-{
-	const SpawnFlags = SXF_NOCHECKPOSITION|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL|SXF_CLEARCALLERTID;
-	Default 
-	{
-		+INVENTORY.BIGPOWERUP
-		+INVENTORY.ALWAYSPICKUP
-		+INVENTORY.QUIET
-		-COUNTITEM
-		+THRUACTORS
-	}
-	States
-	{
-	Spawn:
-		TNT1 A -1 NoDelay
-		{
-			Class<Inventory> which;
-			Switch(GetCVar("D4D_HasteSpawn"))
-			{
-				Case 0:	which = "D4BlurSphere";	break;
-				Case 1: which = (random(0,1) == 1) ? "D4Haste" : "D4BlurSphere"; break;
-				Default: which = "D4Haste";
-			}
-			A_SpawnItemEx(which,0,0,0,0,0,0,0,SpawnFlags,0,tid);
-			bTHRUACTORS = false;
-		}
-		Stop;
-	}
-}
-*/
 Class PowerD4Invis : PowerInvisibility {}
 Class PowerD4DFS : PowerDoubleFiringSpeed {}
 Class PowerD4Haste : PowerSpeed
 {
+	mixin D4PowerupShared;
 	int Timer;
-	D4NoiseMaker NoiseMaker;
 	PowerDoubleFiringSpeed DFS;
 	PowerD4Invis Invis;
+	
+	Default
+	{
+		PowerD4Haste.Light "HasteLight";
+		PowerD4Haste.Expiring "Haste/Warning", "Yellow", 0.4, 12;
+	}
+	
 	override void InitEffect()
 	{
+		Super.InitEffect();
+		
 		if (!Owner || Owner.Health < 1)
 			return;
+		
+		DoStartUp();
 		
 		let pwr = FindInventory("PowerDoubleFiringSpeed", true);
 		if (!pwr)
@@ -1026,51 +919,12 @@ Class PowerD4Haste : PowerSpeed
 			Owner.A_GiveInventory("PowerD4Invis");
 			Invis = PowerD4Invis(Owner.FindInventory("PowerD4Invis"));
 		}
-		Super.InitEffect();
 	}
 	
 	override void DoEffect()
 	{
 		if (!Owner || Owner.Health < 1)
 		{	EndEffect();	return;	}
-		
-		if (IsFrozen())
-		{
-			EffectTics++; //'Freeze' the timer.
-		}
-		else
-		{
-			SetOrigin(Owner.pos, false);
-			if (EffectTics > 105)
-			{
-				// Whispering from Quake's Ring of Shadows
-				if (NoiseMaker)
-				{
-					if (Timer-- < 1)
-					{
-						if (random(1,30) == 1)
-						{
-							A_PlaySound("Haste/Whisper",6,1);
-							Timer = random(35 * 2, 35 * 10);
-						}
-					}
-				}
-			}
-			else
-			{
-				Switch (EffectTics)
-				{
-					Case 105:
-						A_StopSound(6);
-						A_PlaySound("Haste/Warning",5,1,0);
-					Case 70:
-					Case 35:
-						Owner.A_SetBlend("Yellow",0.4,12);
-					Default:
-						break;
-				}
-			}
-		}
 		
 		// Ensure the owner has the double firing speed at all times when haste
 		// is active, and invisibility if the upgrade is found.
@@ -1085,9 +939,8 @@ Class PowerD4Haste : PowerSpeed
 			}
 		}
 		else if (DFS is "PowerD4DFS")
-		{
 			DFS.EffectTics = EffectTics;
-		}
+		
 		
 		if (Owner.CountInv("D4HasteUpgrade1") > 0)
 		{
@@ -1101,6 +954,32 @@ Class PowerD4Haste : PowerSpeed
 		
 		if (Owner.CountInv("D4HasteUpgrade2"))
 			Speed = 2.0; //Internal default is 1.5.
+		
+		
+		if (IsFrozen())
+			EffectTics++; //'Freeze' the timer.
+		else
+		{
+			SetOrigin(Owner.pos, false);
+			if (EffectTics > 105)
+			{
+				// Whispering from Quake's Ring of Shadows
+				if (Timer-- < 1)
+				{
+					if (random(1,15) == 1)
+					{	// Intentionally not playing it on the owner.
+						A_StartSound("Haste/Whisper",CHAN_POWEREFFECT,CHANF_OVERLAP);
+						Timer = random(35 * 2, 35 * 10);
+					}
+				}
+			}
+			else 
+			{
+				A_StopSound(CHAN_POWEREFFECT);
+				ExpireWarning();
+			}
+		}
+		
 		Super.DoEffect();
 	}
 	
@@ -1108,6 +987,7 @@ Class PowerD4Haste : PowerSpeed
 	{
 		if (Owner)
 		{
+			DoEnd();
 			let inv = PowerD4DFS(Owner.FindInventory("PowerD4DFS"));
 			if (inv) inv.EndEffect();
 			
@@ -1139,7 +1019,7 @@ Class D4Haste : CustomInventory //replaces BlurSphere
 	{
 		Inventory.PickupSound "Haste/Pickup";
 		Inventory.PickupMessage "Haste!";
-		translation "0:255=%[.00,.00,.10]:[.99,.99,.10]";
+		Translation "0:255=%[.00,.00,.10]:[.99,.99,.10]";
 		+INVENTORY.FANCYPICKUPSOUND
 		+INVENTORY.BIGPOWERUP
 		+COUNTITEM
@@ -1147,6 +1027,7 @@ Class D4Haste : CustomInventory //replaces BlurSphere
 		+FLOATBOB
 		+FORCEXYBILLBOARD
 		Scale 0.17;
+		RenderStyle "Translucent";
 	}
 	states
 	{
@@ -1155,73 +1036,22 @@ Class D4Haste : CustomInventory //replaces BlurSphere
 		{
 			if (!A_CheckSight("Null"))
 				A_SpawnItemEx("PentaShadow",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERROLL|SXF_TRANSFERSPRITEFRAME);
-			
 		}
 		Wait;
 	Pickup:
 		TNT1 A 0
 		{
-			if (!CountInv("PowerD4Haste"))
-			{
-				A_SpawnItemEx("HasteLight",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTARGET);
-			}
 			let inv = PowerD4Haste(FindInventory("PowerD4Haste"));
 			if (inv)
 			{
 				inv.EffectTics += 1050;
-				inv.A_PlaySound(invoker.PickupSound,5);
-				/*
-				if (inv.NoiseMaker)
-					inv.NoiseMaker.A_PlaySound("Haste/Pickup",CHAN_AUTO,1,0,ATTN_NONE);
-				*/
+				A_StartSound(invoker.PickupSound, CHAN_POWERPICKUP, CHANF_OVERLAP);
 				return;
 			}
-			
 			A_GiveInventory("D4HasteGiver", 1);
 			A_GiveInventory("D4DoubleFiringSpeedGiver", 1);
 		}
 		Stop;
-	}
-}
-
-Class HastePickupNoise : D4NoiseMaker
-{
-	int user_time;
-	int user_wait;
-	int user_delay;
-	Default 
-	{
-		+NOINTERACTION
-		+NOTONAUTOMAP
-		RenderStyle "None";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A -1 NoDelay A_PlaySound("Haste/Pickup",CHAN_AUTO);
-		Stop;
-	}
-}
-
-Class HasteLight : Actor 
-{
-	Default 
-	{
-		+NOINTERACTION
-		+NOTONAUTOMAP
-		RenderStyle "None";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 1 Light("HasteLight") 
-		{
-			if (master && master.CountInv("PowerD4Haste"))
-				SetOrigin(master.pos, true);
-			else 
-				return Destroy();
-		}
-		Wait;
 	}
 }
 
@@ -1230,31 +1060,6 @@ Class HasteLight : Actor
 // Pentagram of Protection (Invulnerability)
 //==============================================================================
 //==============================================================================
-
-/*
-PentagramOfProtection/Pickup		"Sounds/Pickups/penta1.wav"
-PentagramOfProtection/Warning		"Sounds/Pickups/penta2.wav"
-PentagramOfProtection/Protect		"Sounds/Pickups/penta3.wav"
-QuadDamage/Pickup					"Sounds/Pickups/quad1.wav"
-QuadDamage/Warning					"Sounds/Pickups/quad2.wav"
-QuadDamage/Firing					"Sounds/Pickups/quad3.wav"
-*/
-
-Class InvulPickupNoise : D4NoiseMaker 
-{
-	Default 
-	{
-		+NOINTERACTION
-		+NOTONAUTOMAP
-		RenderStyle "None";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A -1 NoDelay A_PlaySound("PentagramOfProtection/Pickup",5,1,0,ATTN_NONE);
-		Stop;
-	}
-}
 
 Class PentaShadow : Actor 
 {
@@ -1299,9 +1104,8 @@ Class D4PentagramOfProtection : CustomInventory //replaces InvulnerabilitySphere
 		M680 A 1 Light("InvulLightWorld") 
 		{
 			if (!A_CheckSight("Null"))
-			{
 				A_SpawnItemEx("PentaShadow",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERROLL|SXF_TRANSFERSPRITEFRAME);
-			}
+			
 			A_SetRoll(roll + 1,SPF_INTERPOLATE);
 		}
 		Wait;
@@ -1312,7 +1116,7 @@ Class D4PentagramOfProtection : CustomInventory //replaces InvulnerabilitySphere
 			if (inv)
 			{
 				inv.EffectTics += 1050;
-				inv.A_PlaySound(invoker.PickupSound,CHAN_AUTO,1,0,ATTN_NONE);
+				A_StartSound(invoker.PickupSound, CHAN_POWERPICKUP, CHANF_OVERLAP);
 				return;
 			}
 			A_GiveInventory("Invulnerability");
@@ -1337,17 +1141,21 @@ Class Invulnerability : PowerupGiver
 	}
 }
 
-Class D4ExtraLifeProtection : PowerProtection { Default { Powerup.Duration -5; DamageFactor "Normal", 1.0; } }
-
-Class Invul3s : Invulnerability	{ Default {	Powerup.Duration 107; } }
-Class Invul5s : Invulnerability	{ Default {	Powerup.Duration -5; } }
+Class D4ExtraLifeProtection : PowerProtection { Default { Powerup.Duration -5; DamageFactor "Normal", 0.0; } }
+Class Invul1s : Invulnerability { Default { Powerup.Duration -1;	} }
+Class Invul3s : Invulnerability	{ Default {	Powerup.Duration 107;	} }
+Class Invul5s : Invulnerability	{ Default {	Powerup.Duration -5;	} }
 Class InvulEndMorph : Invul3s { }
 Class PowerInvulBase : PowerInvulnerable
 {
+	mixin D4PowerupShared;
 	const WaitTimer = 70;
 	private uint PentaNoiseTimer;
+	
 	Default 
 	{
+		PowerInvulBase.StartSound "PentagramOfProtection/Pickup";
+		PowerInvulBase.Expiring "PentagramOfProtection/Warning", "Gold", 0.45, 12;
 		ActiveSound "PentagramOfProtection/Protect";
 		+INVENTORY.NOSCREENBLINK;
 		+INVENTORY.ADDITIVETIME
@@ -1358,7 +1166,7 @@ Class PowerInvulBase : PowerInvulnerable
 	{
 		Super.InitEffect();
 		if (!Owner)	return;
-		A_PlaySound("PentagramOfProtection/Pickup");
+		DoStartUp();
 		if (Owner.CountInv("D4PentagramUpgrade1"))	Owner.bREFLECTIVE = true;
 		if (Owner.CountInv("D4PentagramUpgrade4"))	Owner.bNODAMAGE = true;
 		bNOINTERACTION = true;
@@ -1374,25 +1182,13 @@ Class PowerInvulBase : PowerInvulnerable
 			SetOrigin(Owner.pos, false);
 			Prev = Owner.Prev;
 			Vel = Owner.Vel;
+			Owner.bINVULNERABLE = true;
 			if (Owner.CountInv("D4PentagramUpgrade1"))	Owner.bREFLECTIVE = true;
 			if (Owner.CountInv("D4PentagramUpgrade4"))	Owner.bNODAMAGE = true;
 			if (IsFrozen())
-			{
 				EffectTics++; //'Freeze' the timer.
-			}
-			else
-			{
-				Switch (EffectTics)
-				{
-					Case 105:
-						A_PlaySound("PentagramOfProtection/Warning",5,1,0,ATTN_NONE);
-					Case 70:
-					Case 35:
-						Owner.A_SetBlend("Gold",0.45,12);
-					Default:
-						break;
-				}
-			}
+			else if (EffectTics <= 105)
+				ExpireWarning();
 		}
 		Super.DoEffect();
 	}
@@ -1405,7 +1201,7 @@ Class PowerInvulBase : PowerInvulnerable
 			if (Owner && PentaNoiseTimer < 1)
 			{
 				PentaNoiseTimer = WaitTimer;
-				A_PlaySound(ActiveSound, CHAN_VOICE, 1.0, false, ATTN_NONE);
+				Owner.A_StartSound(ActiveSound, 15, CHANF_OVERLAP);
 			}
 		}
 	}
@@ -1417,7 +1213,34 @@ Class PowerInvulBase : PowerInvulnerable
 			if (Owner.Player)	Owner.Player.DamageCount = 0;
 			Owner.bREFLECTIVE = false;
 			Owner.bNODAMAGE = false;
+			DoEnd();
 		}
 		Super.EndEffect();
 	}
 }
+/*
+Class PowerInvulNoStartSound : PowerInvulBase
+{
+	Default
+	{
+		PowerInvulBase.StartSound "";
+	}
+}
+
+Class PowerInvulNoExpireSound : PowerInvulBase
+{
+	Default
+	{
+		PowerInvulBase.Expiring "", "Gold", 0, 0;
+	}
+}
+
+Class PowerInvulNoStartExpireSound : PowerInvulBase
+{
+	Default
+	{
+		PowerInvulBase.Expiring "", "Gold", 0, 0;
+		PowerInvulBase.StartSound "";
+	}
+}
+*/

@@ -179,9 +179,9 @@ Class D4Revenant : D4AbstractBiggie //replaces Revenant
 			
 			A_FaceTarget();
 			
-			Class<Actor> rawket = (HQ) ? "RevenantRocketSpinning" : "RevenantRocketSpinningSimple";
+		//	Class<Actor> rawket = (HQ) ? "RevenantRocketSpinning" : "RevenantRocketSpinningSimple";
 			
-			A_SpawnProjectile(rawket,50,14 * wep,0);
+			A_SpawnProjectile('RevenantRocketSpinning',50,14 * wep,0);
 			wep *= -1;
 			counter++;
 			return ResolveState(null);
@@ -419,12 +419,8 @@ Class RevenantRocketSpinning : D4AbstractMissile
 	int value2;
 	double value3;
 	double value4;
-	bool simple;
-	property Simple: simple;
 	Default 
 	{
-		D4AbstractMissile.FXVelMul 0.5;
-		RevenantRocketSpinning.Simple false;
 		Projectile;
 		Speed 25;
 		FastSpeed 30;
@@ -433,39 +429,32 @@ Class RevenantRocketSpinning : D4AbstractMissile
 		Height 6;
 		Scale 0.6;
 		+HITTRACER
+		+BRIGHT
 		SeeSound "Doom4/Weapon/Machinegun/MiniMissileFire";
 		Decal "D4ExploScorchSmallest";
 	}
-	/*
-	override void PostBeginPlay()
-	{
-		Actor.PostBeginPlay();
-	}
-	*/
+	
 	States
 	{
 	Spawn:
-		TNT1 A 0 NODELAY 
+		SWMS A 0 NODELAY 
 		{
 			int rng = random(1,62);
 			A_Weave(rng, rng, 1.0, 1.0);
+			StartRocketFX();
 			return ResolveState("Moving");
 		} //so that it starts at a random offset of the weave
 	Moving:
-		SWMS A 1 Bright Light("OrangeSmallPoint1")
+		SWMS A 1 Bright Light("OrangeSmallPoint1") 
 		{
 			A_Weave(2,2,1.0,1.0);
-			SpawnRocketFXSmall();
-			/*
-			A_SpawnItemEx("RocketGasTrail",-4,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-			A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-			*/
-			
+			if (HQ)	SpawnRocketFX();
 		}
 		Wait;
 	Death:
 		TNT1 A 0 
 		{
+			bNOINTERACTION = bINVISIBLE = true;
 			A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
 			A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
 			A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
@@ -486,29 +475,6 @@ Class RevenantRocketSpinning : D4AbstractMissile
 		TNT1 A 2 Light("OrangeSmallPoint2");
 		TNT1 A 2 Light("OrangeSmallPoint3");
 		Stop;
-	}
-}
-
-Class RevenantRocketSpinningSimple : RevenantRocketSpinning
-{	
-	States
-	{
-	Moving:
-		SWMS A 1
-		{
-			A_Weave(2, 2, 1.0, 1.0);
-			SpawnRocketFXSmall();
-			//A_SpawnItemEx("MonsterRocketTrailFire",-5,0,0,0,0,0,0,SXF_NOCHECKPOSITION,192);
-		}
-		Wait;
-	Death:
-		TNT1 A 0
-		{
-			A_PlaySound("Doom4/Weapon/Machinegun/MiniMissileExplo");
-			A_SpawnItemEx("MGMiniMissileExplo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-			return ResolveState("DeathCont");
-		}
-		Goto DeathCont;
 	}
 }
 

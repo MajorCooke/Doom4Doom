@@ -59,21 +59,18 @@ Class D4StaticRifle : Doom4Weapon
 		if (Owner.CountInv("StaticChargeDrain"))
 		{
 			if (Owner.CountInv("StaticRifleChargingToken") > 540)
-			{
-				Owner.A_SetInventory("StaticRifleChargingToken",540);
-			}
+				Owner.A_SetInventory("StaticRifleChargingToken", 540);
 			else if (Owner.CountInv("StaticRifleChargingToken"))
 			{
-				Owner.A_TakeInventory("StaticRifleChargingToken",32);
-				if (!Owner.CountInv("StaticRifleChargingToken"))
-					Owner.A_SetInventory("StaticChargeDrain",0);
+				Owner.A_TakeInventory("StaticRifleChargingToken", 32);
+				if (Owner.CountInv("StaticRifleChargingToken") < 1)
+					Owner.A_SetInventory("StaticChargeDrain", 0);
 			}
-			else
-				Owner.A_SetInventory("StaticChargeDrain",0);
+			else	Owner.A_SetInventory("StaticChargeDrain",0);
 		}
 		else if (!Owner.CountInv("StaticUpgrade4"))
 		{
-			if (Timer++ >= 4 && (Owner.Vel.Length() < 3.0))
+			if (Timer++ >= 4 && (Owner.Vel.Length() < 2.0))
 			{
 				Timer = 0;
 				int Taker = 3;
@@ -95,8 +92,6 @@ Class D4StaticRifle : Doom4Weapon
 		
 		if (!stat || stat.Amount < 540)
 		{
-			
-			
 			double UVel = o.vel.Length();
 			if (CountInv("StaticRifleActive") && (UVel * 0.25) >= 1.0)
 			{
@@ -131,7 +126,7 @@ Class D4StaticRifle : Doom4Weapon
 			A_Overlay(SR_Charging,"Null");
 			A_StopSound(7);
 			A_SetInventory("StaticRifleActive",0);
-			ACS_NamedExecute("RemoveModText",0,0,0,0);
+			
 			A_Lower();
 		}
 		---- A 1 A_Lower(WeaponSwitchSpeed);
@@ -145,7 +140,7 @@ Class D4StaticRifle : Doom4Weapon
 			A_Overlay(SR_Charging, "Overlay.Charging");
 			A_PlaySound("Doom4/Weapon/StaticRifle/ChargeLoop",7,0.01,1);
 			A_GiveInventory("StaticRifleActive",1);
-			ACS_NamedExecute("RemoveModText",0,0,0,0);
+			
 		}
 		---- A 1 A_Raise(WeaponSwitchSpeed);
 		Wait;
@@ -209,10 +204,7 @@ Class D4StaticRifle : Doom4Weapon
 					return ResolveState(null);
 				}
 			}
-			else
-			{
-				ACS_NamedExecute("ChargeTooLow",0,0,0);
-			}
+			else	D4Msg.PrintStatus(D4Msg.ChargeTooLow);
 			return ResolveState(null);
 		}
 		STRF A 1;
@@ -285,8 +277,7 @@ Class D4StaticRifle : Doom4Weapon
 			else
 			{	
 				A_SetTics(10);
-				ACS_NamedExecute("ChargeTooLow",0,0,0);
-				//return ResolveState("NotEnoughCharge");
+				D4Msg.PrintStatus(D4Msg.ChargeTooLow);
 			}
 			//----------------------
 			//effects and sounds depend on the charge level
@@ -313,7 +304,7 @@ Class D4StaticRifle : Doom4Weapon
 			if (CountInv("StaticUpgrade4"))
 			{	A_GiveInventory("StaticChargeDrain",1);	}
 			else
-			{	A_TakeInventory("StaticRifleChargingToken",100000);	}
+			{	A_SetInventory("StaticRifleChargingToken",0);	}
 			return ResolveState(null);
 		}
 		Stop;
@@ -359,42 +350,6 @@ Class D4StaticRifle : Doom4Weapon
 Class StaticChargeDrain : 	Inventory { Default { +INVENTORY.UNDROPPABLE Inventory.InterhubAmount 0; } }
 Class StaticRifleActive : 	Inventory {}
 
-Class ChargeSoundPlayer : Actor 
-{
-	double dist;
-	Default 
-	{
-		+NOINTERACTION
-		RenderStyle "None";
-	}
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay A_PlaySound("Doom4/Weapon/StaticRifle/ChargeLoop",7,1,1);
-	Looping:
-		TNT1 A 1
-		{
-			if (!master || master.FindInventory("PowerMorph",true) != null || !CountInv("StaticRifleActive",MasterPtr))
-			{
-				A_StopSound(7);
-				Destroy();
-				return;
-			}
-			
-			if (CountInv("StaticRifleChargingToken",MasterPtr) >= 520)
-			{	A_Warp(MasterPtr,0,0,32,0,WARPF_NOCHECKPOSITION);	}
-			else
-			{
-				dist = 1040 - (CountInv("StaticRifleChargingToken",MasterPtr) * 2);
-				A_Warp(MasterPtr,-dist,0,32,0,WARPF_NOCHECKPOSITION);
-			}
-		}
-		Loop;
-	Nothing:
-		TNT1 A 100;
-		Stop;
-	}
-}
 
 //----------------------------------------------------------------------
 Class StaticPuff : Actor 

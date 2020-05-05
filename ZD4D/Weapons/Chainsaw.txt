@@ -51,7 +51,6 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 		{
 			if (player && player.mo == invoker.owner)
 			{
-				ACS_NamedExecuteAlways("RemoveModText",0,0,0,0);
 				A_PlaySound("Doom4/Weapon/Chainsaw/Idle",CHAN_WEAPON,0.25,1);
 			}
 			if (CountInv("BloodyChainsawToken"))	return ResolveState("BloodySel");
@@ -179,7 +178,7 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 			}
 			else if (!CountInv("D4Fuel") && !invoker.CheckAmmo(1, false, true) && !CountInv("OnAcid"))
 			{	
-				ACS_NamedExecute("NotEnoughAmmo",0,0,0);
+				D4Msg.PrintStatus(D4Msg.NotEnoughAmmo);
 				A_PlaySound("Doom4/Player/Nope");
 				return ResolveState("HoldingAfterNoAmmoMessage");
 			}
@@ -202,7 +201,7 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 	NEA:
 		"####" A 0 
 		{
-			ACS_NamedExecute("NotEnoughAmmo",0,0,0);
+			D4Msg.PrintStatus(D4Msg.NotEnoughAmmo);
 			A_PlaySound("Doom4/Player/Nope");
 			return ResolveState("HoldingAfterNoAmmoMessage");
 		}
@@ -244,7 +243,7 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 	NotEnoughAmmo:
 		"####" A 0 
 		{
-			ACS_NamedExecute("NotEnoughAmmo",0,0,0);
+			D4Msg.PrintStatus(D4Msg.NotEnoughAmmo);
 			A_PlaySound("Doom4/Player/Nope");
 		}
 		"####" EEE 1 A_WeaponOffset(-12,25,WOF_ADD);

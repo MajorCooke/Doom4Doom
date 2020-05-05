@@ -1,5 +1,43 @@
-extend class D4DHandler
+extend Class D4DHandler
 {
+	void CheckCrucibleSpawn(Actor mobj)
+	{
+		let mo = Doom4Weapon(mobj);
+		if (!mo || mo.CountInv("CrateSpawned"))	return;
+		
+		int chance = 0;
+		Name repn = mo.GetClassName();
+		Switch (repn)
+		{
+			Case 'D4BFG':			chance = 4;		break;
+			Case 'D4Chainsaw':		chance = 10;	break;
+			Default:	return;
+		}
+		/*
+		// Check the players for the weapons.
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (!playeringame[i] || !players[i].mo)	continue;
+			let mo = players[i].mo;
+			
+			if (mo.CountInv(mobj.GetClass()))
+			{
+				chance = 1;
+				break;
+			}
+		}
+		if (chance < 1)	return;
+		*/
+		if (random[rng](1, chance) == 1)
+		{
+			let cruc = DECrucible(mo.Spawn('DECrucible', mo.pos, ALLOW_REPLACE));
+			if (cruc)
+			{
+				cruc.vel = mo.vel;
+			}
+		}
+	}
+	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
 	// Replacements
@@ -12,9 +50,14 @@ extend class D4DHandler
 		if (rep == null)	return;
 		
 		//Console.Printf("D4D: Checking replacement for %s", rep.GetClassName());
-		let mon = (Class<D4AbstractMonster>)(rep);
-		if (mon)
+		//let mon = (Class<D4AbstractMonster>)(rep);
+		//if (mon)
+		Name repn = rep.GetClassName();
+		let defs = GetDefaultByType(rep);
+		
+		if (rep is 'D4AbstractMonster')
 		{
+			let mon = (Class<D4AbstractMonster>)(rep);
 			let defs = GetDefaultByType(mon);
 			if (defs.Replacing)	
 			{
@@ -23,6 +66,56 @@ extend class D4DHandler
 				
 				if (D4D_PrintDebug > 0)
 					Console.Printf("D4D: %s replaces %s", rep.GetClassName(), e.Replacee.GetClassName());
+					
+				return;
+			}
+		}
+		else if (rep is 'Inventory')
+		{
+			if (rep is 'Armor')
+			{
+				Switch (repn)
+				{
+					Case 'D4ArmorBonus':	e.Replacee = 'ArmorBonus';	return;
+					Case 'D4BlueArmor':		e.Replacee = 'BlueArmor';	return;
+					Case 'D4GreenArmor':	e.Replacee = 'GreenArmor';	return;
+				}
+			}
+			else if (rep is 'Ammo')
+			{
+				Switch (repn)
+				{
+					Case 'D4ShellsSmall':	e.Replacee = 'Shell';		return;
+					Case 'D4Shells':		e.Replacee = 'ShellBox';	return;
+					Case 'D4BulletsSmall':	e.Replacee = 'Clip';		return;
+					Case 'D4Bullets':		e.Replacee = 'ClipBox';		return;
+					Case 'D4RocketsSmall':	e.Replacee = 'RocketAmmo';	return;
+					Case 'D4Rockets':		e.Replacee = 'RocketBox';	return;
+					Case 'D4CellsSmall':	e.Replacee = 'Cell';		return;
+					Case 'D4Cells':			e.Replacee = 'CellPack';	return;
+				}
+			}
+			else if (rep is 'Doom4Weapon')
+			{
+				Switch(repn)
+				{
+					Case 'D4DFist':				e.Replacee = 'Fist';			return;
+					Case 'D4Chainsaw':			e.Replacee = 'Chainsaw';		return;
+					Case 'D4Pistol':			e.Replacee = 'Pistol';			return;
+					Case 'D4StaticRifle':
+					Case 'D4Shotgun':			e.Replacee = 'Shotgun';			return;
+					Case 'D4SuperShotgun':		e.Replacee = 'SuperShotgun';	return;
+					Case 'D4Chaingun':		
+					Case 'D4AssaultRifle':
+					Case 'D4Repeater':			e.Replacee = 'Chaingun';		return;
+					Case 'D4RocketLauncher':	
+					Case 'D4GrenadeLauncher':	e.Replacee = 'RocketLauncher';	return;
+					Case 'D4PlasmaRifle':		
+					Case 'D4LightningGun':
+					Case 'D4VortexRifle':
+					Case 'D4GaussCannon':		e.Replacee = 'PlasmaRifle';		return;
+					Case 'D4BFG':				e.Replacee = 'BFG9000';			return;
+				}
 			}
 		}
 	}
@@ -37,43 +130,56 @@ extend class D4DHandler
 				
 		Name repn = rep.GetClassName();
 		
-		if (rep is 'TeleportFog')						e.Replacement = 'D4Fog';
+		if (rep is 'TeleportFog')					e.Replacement = 'D4Fog';
 		else if (rep is 'Inventory')
 		{
 			if (rep is 'Ammo')
 			{
-					 if (rep == 'Clip')				e.Replacement = 'ClipReplacer';
-				else if (rep == 'ClipBox')			e.Replacement = 'ClipBoxReplacer';
-				else if (rep == 'Shell') 			e.Replacement = 'ShellReplacer';
-				else if (rep == 'ShellBox') 		e.Replacement = 'ShellBoxReplacer';
-				else if (rep == 'RocketAmmo')		e.Replacement = 'RocketAmmoReplacer';
-				else if (rep == 'RocketBox')		e.Replacement = 'RocketBoxReplacer';
-				else if (rep == 'Cell')				e.Replacement = 'CellReplacer';
-				else if (rep == 'CellPack')			e.Replacement = 'CellPackReplacer';
+				Switch (repn)
+				{	
+					Case 'Clip':			e.Replacement = 'ClipReplacer';			return;
+					Case 'ClipBox':			e.Replacement = 'ClipBoxReplacer';		return;
+					Case 'Shell':			e.Replacement = 'ShellReplacer';		return;
+					Case 'ShellBox': 		e.Replacement = 'ShellBoxReplacer';		return;
+					Case 'RocketAmmo':		e.Replacement = 'RocketAmmoReplacer';	return;
+					Case 'RocketBox':		e.Replacement = 'RocketBoxReplacer';	return;
+					Case 'Cell':			e.Replacement = 'CellReplacer';			return;
+					Case 'CellPack':		e.Replacement = 'CellPackReplacer';		return;
+				}
 			}
 			else if (rep is 'Health')
 			{
-					 if (rep == 'Medikit')			e.Replacement = 'D4Medikit';
-				else if (rep == 'Stimpack') 		e.Replacement = 'D4Stimpack';
-				else if (rep == 'HealthBonus')		e.Replacement = 'D4HealthBonus';
-				else if (rep == 'SoulSphere')		
+				Switch (repn)
 				{
-					if (random[rngg](1, 20) <= 1)	e.Replacement = 'D4ExtraLife';
-					else							e.Replacement = 'D4Regeneration';
+					Case 'Medikit':		e.Replacement = 'D4Medikit';	return;
+					Case 'Stimpack':	e.Replacement = 'D4Stimpack';	return;
+					Case 'HealthBonus':	e.Replacement = 'D4HealthBonus';	return;
+					Case 'SoulSphere':
+					{
+						if (random[rngg](1, 20) <= 1)	e.Replacement = 'D4ExtraLife';
+						else							e.Replacement = 'D4Regeneration';
+						return;
+					}
 				}
 			}
 			else if (rep is 'Armor')
 			{
-					 if (rep == 'ArmorBonus') 	e.Replacement = 'D4ArmorBonus';
-				else if (rep == 'BlueArmor')	e.Replacement = 'D4BlueArmor';
-				else if (rep == 'GreenArmor')	e.Replacement = 'D4GreenArmor';
+				Switch (repn)
+				{
+					Case 'ArmorBonus': 	e.Replacement = 'D4ArmorBonus';	return;
+					Case 'BlueArmor':	e.Replacement = 'D4BlueArmor';	return;
+					Case 'GreenArmor':	e.Replacement = 'D4GreenArmor';	return;
+				}
 			}
-			else if (rep == 'Backpack')			e.Replacement = 'D4Backpack';
+			else if (rep == 'Backpack')		{	e.Replacement = 'D4Backpack';	return;	}
 			
 			// Weapons
 			else if (rep is 'Weapon')
 			{
-				if (rep == 'Chainsaw')			e.Replacement = 'D4Chainsaw';
+				if (rep == 'Chainsaw')			
+				{
+					e.Replacement = 'D4Chainsaw';
+				}
 				else if (rep == 'Shotgun' || repn == 'STFShotgun')
 				{
 					if (MPWeapons && random[rngg](0,1))
@@ -120,7 +226,7 @@ extend class D4DHandler
 						else					e.Replacement = 'D4PlasmaRifle';
 					}
 				}
-				else if (rep == 'BFG9000' || repn == 'STFBFG9000' || repn == 'STFBFG10K')			
+				else if (rep == 'BFG9000' || repn == 'STFBFG9000' || repn == 'STFBFG10K')	
 												e.Replacement = 'D4BFG';
 			}
 			
@@ -218,3 +324,110 @@ extend class D4DHandler
 												
 	}
 }
+
+/*
+Class D4ReplacementManager
+{
+	Array<D4ReplacementInfo> RepInfo;
+	
+	static D4ReplacementManager Create()
+	{
+		let rep = new('D4ReplacementManager');
+		if (rep)	rep.Init();
+		return rep;
+	}
+	
+	protected void Init()
+	{
+		RepInfo.Clear();
+		
+	}
+	
+	
+	
+	Class<Actor> FindReplacement(Class<Actor> who) const
+	{
+		
+		return null;
+	}
+	
+	Class<Actor> FindReplacee(Class<Actor> who) const
+	{
+		
+		return null;
+	}
+}
+
+Class D4ReplacementInfo
+{
+	Class<Actor> Replacee;
+	Array<Class<Actor> > Replacement;
+	Array<Int> Chance;
+	
+	static D4ReplacementInfo Create(Class<Actor> mo)
+	{
+		let repinfo = new('D4ReplacementInfo');
+		if (repinfo)	repinfo.Init(mo);
+		return repinfo;
+	}
+	
+	protected void Init(Class<Actor> mo)
+	{
+		Replacee = mo;
+		Replacement.Clear();
+		Chance.Clear();
+	}
+	
+	Class<Actor> FindReplacee(Class<Actor> mo, bool parent = false)
+	{
+		int size = Replacement.Size();
+		if (!mo || size < 1)	return null;
+		
+		if (!parent)
+			if (Replacement.Find(mo) < size)	return Replacee;
+		else
+			for (int i = 0; i < size; i++)
+				if (mo is Replacement[i])	return Replacee;
+			
+		return null;
+	}
+	
+	// Dangerous if used by addons, should there be any.
+	private void _AddActor(String cls, int weight)
+	{
+		Mobj.Push(cls);
+		Chance.Push(weight);
+	}
+
+	//--------------------------------------------------------------------------
+	// The main function that handles everything needed to add an actor, 
+	// ensuring it exists and ensures it at least has some weight. This allows
+	// restricting monsters to either progression mode or random mode if desired.
+	// If the actor is already in, simply modify the weight with the parameters.
+	// Otherwise, push the initial stuff to the end of each array.
+	void AddActor(String cls, int weight = 1)
+	{
+		if (cls == '' || cls == 'None' || weight < 1)
+			return;
+			
+		Class<Actor> mon = cls;
+		if (!mon)
+		{
+			Console.Printf("%s - bad actor", cls);	
+			return;
+		}
+		
+		int size = Mobj.Size();
+		if (size > 0)
+		{
+			int pos = Mobj.Find(mon);
+			if (pos < size)
+			{
+				Chance[pos] = weight;
+				return;
+			}
+		}
+		_AddActor(cls, weight);
+	}
+}
+*/

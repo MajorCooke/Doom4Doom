@@ -443,9 +443,9 @@ Class PlayerCyberDemonRocketStream : D4AbstractMissilePlayer
 {
 	Default 
 	{
-		D4AbstractMissile.FXVelMul 0.5;
 		Projectile;
 		+EXTREMEDEATH
+		+BRIGHT
 		Speed 21;
 		Radius 6;
 		Height 12;
@@ -458,15 +458,19 @@ Class PlayerCyberDemonRocketStream : D4AbstractMissilePlayer
 	States
 	{
 	Spawn:
-		MICR A 1 Light("RedMediumPoint3") Bright NoDelay A_PlaySound("Doom4/Monsters/RocketFlyLoop",7,0.7,1);
+		MICR A 1 Light("RedMediumPoint3") NoDelay 
+		{
+			StartRocketFX();
+			A_PlaySound("Doom4/Monsters/RocketFlyLoop",7,0.7,1);
+		}
 	Moving:
-		MICR A 1 Light("RedMediumPoint3") Bright SpawnRocketFXSmall();
+		MICR A 1 Light("RedMediumPoint3");
 		Loop;
 	Death:
 		TNT1 A 0 
 		{
-			DestroyFX();
-			bNoInteraction = true;
+			bINVISIBLE = true;
+			bNOINTERACTION = true;
 			A_Explode(92,128,0);
 			A_QuakeEx(2,2,2,10,0,192,"",QF_SCALEDOWN, falloff: 1);
 			A_SpawnItemEx("CyberdemonRocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);

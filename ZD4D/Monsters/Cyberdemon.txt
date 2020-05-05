@@ -643,6 +643,7 @@ Class CyberdemonRocket : D4AbstractMissile
 	{
 		Projectile;
 		+EXTREMEDEATH
+		+BRIGHT
 		Speed 23;
 		Radius 6;
 		Height 12;
@@ -657,15 +658,18 @@ Class CyberdemonRocket : D4AbstractMissile
 	States
 	{
 	Spawn:
-		MICR A 0 Light("RedMediumPoint3") Bright NoDelay A_PlaySound("Doom4/Monsters/RocketFlyLoop",7,0.7,1);
+		MICR A 0 Light("RedMediumPoint3") NoDelay 
+		{
+			StartRocketFX();
+			A_PlaySound("Doom4/Monsters/RocketFlyLoop",7,0.7,1);
+		}
 	Moving:
-		MICR A 1 Light("RedMediumPoint3") Bright SpawnRocketFX();
+		MICR A 1 Light("RedMediumPoint3") SpawnRocketFX();
 		Loop;
 	Death:
 		TNT1 A 0 
 		{
-			DestroyFX();
-			bNOINTERACTION = true;
+			bINVISIBLE = bNOINTERACTION = true;
 			A_Explode(128,128);	//deals good damage to player. But less than vanilla's doom
 			A_QuakeEx(2,2,2,15,0,256,"",QF_SCALEDOWN,0,0,0,1);			
 			
@@ -679,7 +683,7 @@ Class CyberdemonRocket : D4AbstractMissile
 			}
 			A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 		}
-		TNT1 A 50;
+		TNT1 A 35;
 		Stop;
 	}
 }
@@ -690,9 +694,9 @@ Class CyberDemonRocketStream : D4AbstractMissile
 {
 	Default 
 	{
-		D4AbstractMissile.FXVelMul 0.5;
 		Projectile;
 		+EXTREMEDEATH
+		+BRIGHT
 		Speed 21;
 		FastSpeed 28;
 		Radius 6;
@@ -706,20 +710,19 @@ Class CyberDemonRocketStream : D4AbstractMissile
 	States
 	{
 	Spawn:
-		MICR A 1 Light("RedMediumPoint3") Bright NoDelay 
+		MICR A 1 Light("RedMediumPoint3") NoDelay 
 		{
-			A_SpawnItemEx("D4RocketTrailFire",flags: SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_ORIGINATOR);
+			StartRocketFX();
 			A_PlaySound("Doom4/Monsters/RocketFlyLoop",7,0.7,1);
 		}
 	Moving:
-		MICR A 1 Light("RedMediumPoint3") Bright SpawnRocketFXSmall();
+		MICR A 1 Light("RedMediumPoint3");
 		Loop;
 	Death:
 		TNT1 A 10 
 		{
 			//DestroyFX();
-			bINVISIBLE = true;
-			bNOINTERACTION = true;
+			bINVISIBLE = bNOINTERACTION = true;
 			A_Explode(32,80,0);
 			A_QuakeEx(1,1,1,10,0,160,"",QF_SCALEDOWN,0,0,0,1);
 			if (HQ)
@@ -952,6 +955,7 @@ Class OldCyberdemonRocket : D4AbstractMissileQuake //replaces Rocket ////replace
 		+RANDOMIZE
 		+DEHEXPLOSION
 		+ROCKETTRAIL
+		+BRIGHT
 		Obituary "$OB_MPROCKET";
 		
 		SeeSound "Doom4/Weapon/RocketLauncher/Fire";
@@ -972,17 +976,18 @@ Class OldCyberdemonRocket : D4AbstractMissileQuake //replaces Rocket ////replace
 	States
 	{
 	Spawn:
-		MICR A 3 Light("RedMediumPoint3") Bright NoDelay 
+		MICR A 3 Light("RedMediumPoint3") NoDelay 
 		{
 			A_PlaySound("Doom4/Monsters/RocketFlyLoop",7,0.7,1);
+			StartRocketFX();
 		}
 	Moving:
-		MICR A 1 Light("RedMediumPoint3") Bright SpawnRocketFX();
+		MICR A 1 Light("RedMediumPoint3") SpawnRocketFX();
 		Loop;
 	Death:
 		TNT1 A 50 
 		{
-			bNOINTERACTION = true;
+			bINVISIBLE = bNOINTERACTION = true;
 			A_Explode(128,128);	//deals good damage to player. But less than vanilla's doom
 			A_QuakeEx(2,2,2,15,0,256,"",QF_SCALEDOWN,0,0,0,1);
 			

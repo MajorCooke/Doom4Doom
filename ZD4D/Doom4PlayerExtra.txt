@@ -83,7 +83,7 @@ extend class Doom4Player
 		return false;
 	}
 	
-	D4DGrenadeItem GetSelectedGrenade() const
+	D4DGrenadeItem GetSelectedEquipment() const
 	{
 		for (int i = 0; i < GrenadeSelected.Size(); i++)
 		{
@@ -117,7 +117,7 @@ extend class Doom4Player
 		return ret;
 	}
 	
-	bool CheckGrenadeButton(bool cooldown = false) const
+	bool CheckEquipmentButton(bool cooldown = false) const
 	{
 		let plr = GetRealPlayer();
 		
@@ -131,7 +131,7 @@ extend class Doom4Player
 	
 	int CheckEquipmentCharge(bool checkready = false) const
 	{
-		let gren = GetSelectedGrenade();
+		let gren = GetSelectedEquipment();
 		if (!gren)	return -1;
 		
 		return (checkready) ? gren.Charges : gren.Cooldown;

@@ -383,6 +383,7 @@ Class OptionMenuItemSubmenuWeapon : OptionMenuItemSubmenu
 	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
 	{
 		if (!started)	OnMenuCreatedOld();
+		if (!Selectable())	return -1;
 		drawLabel(indent, y, selected ? OptionMenuSettings.mFontColorSelection : OptionMenuSettings.mFontColorMore, greyed);
 		return indent;
 	}
@@ -567,7 +568,7 @@ class OptionMenuItemSubmenuReqs : OptionMenuItemSubmenu
 
 	override int Draw(OptionMenuDescriptor desc, int y, int indent, bool selected)
 	{
-		if (secret && reqs)	return indent;
+		if (secret && reqs)	return 0;
 		if (bought)
 		{
 			drawLabel(indent, y, selected ? Font.CR_GOLD : Font.CR_GREEN, true);

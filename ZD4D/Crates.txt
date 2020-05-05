@@ -15,18 +15,17 @@ Class BuyCrate : CustomInventory
 	Pickup:
 		TNT1 A 0
 		{
-			if (CountInv("D4DCash")>=500 || (D4D_CurrentUpgradeMode && CountInv("D4DCash")))
+			int cost = D4D_CurrentUpgradeMode ? 1 : 500;
+			if (CountInv("D4DCash") >= cost)
 			{
 				A_FireProjectile("CrateSpawner",0,0,0);
-				
-				//A_GiveInventory("D4DCashFake",500);
-				A_TakeInventory("D4DCash",(D4D_CurrentUpgradeMode) ? 1 : 500);	
-				ACS_NamedExecuteWithResult("UpdateCashScript",0,1,0,0);
-				ACS_NamedExecute("BuyingCrate",0,1);
+				A_TakeInventory("D4DCash", cost);	
+				D4Msg.PrintStatus(D4Msg.CrateSuccess);
 			}
 			else
 			{
-				ACS_NamedExecute("BuyingCrate",0,0);
+				A_StartSound("Doom4/Player/Nope", 8, CHANF_OVERLAP);
+				D4Msg.PrintStatus(D4Msg.CrateFailure);
 			}
 		}
 		Stop;
@@ -339,7 +338,7 @@ Class CrateItemSpawner1BFG : RandomSpawner
 		DropItem "D4QuadMoney", 255, 3;
 	}
 }
-
+Class CrateSpawned : Inventory {}
 Class CrateWeaponSpawner : RandomSpawner
 {
 	Default
@@ -357,6 +356,11 @@ Class CrateWeaponSpawner : RandomSpawner
 		DropItem "D4LightningGun",	255, 13;
 		DropItem "D4GaussCannon",	255, 10;
 		DropItem "D4BFG",			255,  5;
+		DropItem "DECrucible",		255,  3;
+	}
+	override void PostSpawn(Actor spawned)
+	{
+		if (spawned)	spawned.A_GiveInventory("CrateSpawned");
 	}
 }
 

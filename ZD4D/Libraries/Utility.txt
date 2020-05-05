@@ -11,6 +11,49 @@ Class D4Msg play
 	{
 		notHudMessageHandler.PlainMsg("smallfont", "", (0,0), id: id);
 	}
+	
+	//==========================================================================
+	//
+	//==========================================================================
+	enum EPrintStatus
+	{
+		NoMods = 1,
+		NoOtherMods,
+		ModNotReady,
+		NotEnoughAmmo,
+		NoAmmo = NotEnoughAmmo,
+		ChargeTooLow,
+		
+		CrateSuccess,
+		CrateFailure,
+		
+		NoGrenades,
+		MaxPrintStat
+	};
+	
+	static void PrintStatus(int stat)
+	{
+		if (stat < NoMods || stat >= MaxPrintStat)	return;
+		
+		String text = "";
+		int id = 101;
+		int fontcolor = Font.CR_ORANGE;
+		Switch(stat)
+		{
+			Case NoMods:		text = "No mods available";	break;
+			Case NoOtherMods:	text = "No other mods available";	break;
+			Case ModNotReady:	text = "Mod not ready";	break;
+			Case NotEnoughAmmo:	text = "Not enough ammo"; break;
+			Case ChargeTooLow:	text = "Charge too low"; break;
+			Case NoGrenades:	text = "No grenades available"; break;
+			
+			Case CrateSuccess:	text = "Crate delivered"; 		fontcolor = Font.CR_GREEN;	id = 111;	break;
+			case CrateFailure:	text = "Not enough credits";	fontcolor = Font.CR_RED; 	id = 111;	break;
+		}
+		Vector2 offset = (400, 550);
+		if (id == 111)	offset.y = 525;
+		D4Msg.PlainMsg("smallfont", text, offset, (800, 600), 0, color: fontcolor, time: (0,0.5,1), id: id);
+	}
 }
 
 Class D4D_Utility play
@@ -346,7 +389,9 @@ part will be tricky.
 
 1. Get all lines attached to the player's next predicted position.
 
-2. Check for any lines that are single sided, or block the player. If so, 
+2. Check for any lines that are single sided, or block the player. If so, no mantling.
+
+3. Make sure the ledge we want 
 
 */
 

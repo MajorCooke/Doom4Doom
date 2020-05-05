@@ -227,7 +227,7 @@ Class D4CarrionCannon : Doom4Weapon
 			else
 			{
 				A_PlaySound("Doom4/Player/Nope",CHAN_AUTO);
-				ACS_NamedExecute("NotEnoughAmmo",0,0,0,0);
+				D4Msg.PrintStatus(D4Msg.NotEnoughAmmo);
 			}
 			return ResolveState(null);
 		}
@@ -864,11 +864,10 @@ Class CarrionPrimary : FastProjectile
 		MaxTime = 70,
 		MaxDamage = 5000,
 		MaxAmmo = 5000,
-		MaxLevel = 10,
 	};
 	const SizeMul = 0.4;
+	const RollAmt = 360.0 / 14.0;
 	int neg;
-	int stoff;
 	int maxcharge;
 	int charge;
 	int hasammo;
@@ -884,6 +883,7 @@ Class CarrionPrimary : FastProjectile
 	Default 
 	{
 		Projectile;
+		+BRIGHT
 		+ROLLSPRITE
 		+ROLLCENTER
 		+FORCEYBILLBOARD
@@ -934,6 +934,7 @@ Class CarrionPrimary : FastProjectile
 		X016 A 0 NoDelay 
 		{
 			Master = Target;
+			neg = randompick(-1,1);
 			Laser = CarrionShotTrackingLaser(Spawn("CarrionShotTrackingLaser", pos));
 			if (Laser)
 			{
@@ -942,7 +943,7 @@ Class CarrionPrimary : FastProjectile
 			}
 		}
 	Moving:
-		X016 ABCDEFGHIJKLMNOPQRSTUVWXY 1 Bright
+		X016 ABCDEFGHIJKLMNOPQRSTUVWXY 1
 		{
 			// If not actively holding primary fire
 			// or player died / goes out of sight,
@@ -992,11 +993,7 @@ Class CarrionPrimary : FastProjectile
 					bForcePain = true;
 					// Just to prevent it from dying. It's only meant to 'stun'.
 					if (trac.health > 0 && !trac.bDORMANT) 
-					{
-						trac.health += 1;
-						trac.DamageMobj(self, targ, 1, DamageType, 
-							DMG_FORCED | DMG_FOILINVUL | DMG_NO_ARMOR | DMG_NO_FACTOR | DMG_NO_PROTECT | DMG_THRUSTLESS);						
-					}
+						trac.TriggerPainChance(DamageType, bFORCEPAIN);
 					
 				}
 				if (charge < MaxTime &&
@@ -1006,21 +1003,18 @@ Class CarrionPrimary : FastProjectile
 				{
 					cut = CountInv("CarrionUpgradeAmmo",TargetPtr) ? 2 : 1;
 					
-					bool infammo = GetCVar("sv_infiniteammo");
-					if (!infammo)
-						infammo = (targ.FindInventory("PowerInfiniteAmmo",true));
+					bool infammo = (sv_infiniteammo || targ.FindInventory("PowerInfiniteAmmo",true));
 					
-					if (infammo || CountInv("D4Carrion",TargetPtr) >= CarrionAmmoCostPrimary / cut)
+					if (infammo || targ.CountInv("D4Carrion") >= CarrionAmmoCostPrimary / cut)
 					{
 						if (!charge)
 						{
 							sizex = Scale.X;
 							sizey = Scale.Y;
-							neg = randompick(-1,1);
+							
 							A_PlaySound("Doom4/Monsters/ArgentCharge",CHAN_AUTO,1,0,ATTN_NONE);
 						}
-						A_SetRoll(roll + (360.0/14.0) * neg,SPF_INTERPOLATE);
-						
+						A_SetRoll(roll + RollAmt * neg,SPF_INTERPOLATE);
 						
 						A_Warp(TracerPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",0.5);
 						if (trac.bSHOOTABLE)

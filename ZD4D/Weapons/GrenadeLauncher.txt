@@ -33,7 +33,12 @@ Class D4GrenadeLauncher : Doom4Weapon
 		M202 A 1 A_Raise(WeaponSwitchSpeed);
 		Wait;
 	Deselect:
-		M202 A 1 A_Lower;
+		M202 A 1 
+		{
+			A_Lower();
+			A_Overlay(7000, "Null");
+			A_ZoomFactor(1.0);
+		}
 		---- A 1 A_Lower(WeaponSwitchSpeed);
 		Wait;
 	Ready:
@@ -53,10 +58,12 @@ Class D4GrenadeLauncher : Doom4Weapon
 				A_Overlay(7001, "Overlay.Offsets");
 			
 			A_Overlay(7000, "Overlay.Pitcher");
+			A_SetAlwaysSwitchable(true);
 		}
 		M202 A 6;
 		M202 BCD 4;
 		M202 A 6;
+		---- A 0 A_SetAlwaysSwitchable(false);
 		M202 A 0 A_Refire("Fire");
 		Goto Ready;
 	Overlay.Offsets:
@@ -112,6 +119,7 @@ Class D4GrenadeLauncher : Doom4Weapon
 
 Class D4Grenade : D4AbstractMissilePlayer
 {
+	private int Timer;
 	int TimeLimit;
 	Property TimeLimit: TimeLimit;
 	Default

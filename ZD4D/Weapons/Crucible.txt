@@ -1,0 +1,746 @@
+//==============================================================================
+//==============================================================================
+//
+//			Crucible
+//
+//	Ripped from Doom Eternal
+//	Sprites & Code: Major Cooke
+//
+//==============================================================================
+//==============================================================================
+
+Class DECrucibleAmmo : Ammo
+{
+	Default
+	{
+		+DONTGIB
+		+BRIGHT
+		+FLOATBOB
+		+INVENTORY.IGNORESKILL
+		Ammo.BackpackAmount 0;
+		Ammo.BackpackMaxAmount 3;
+		Inventory.Amount 1;
+		Inventory.MaxAmount 3;
+		Inventory.PickupSound "Eternal/Crucible/AmmoPickup";
+		Inventory.PickupMessage "Crucible Energy";
+		RenderStyle "Add";
+		Scale 0.1;
+	}
+	States
+	{
+	Spawn:
+		M026 X -1 NoDelay A_StartSound("Eternal/Crucible/AmmoLoop", CHAN_BODY, CHANF_LOOP, 0.1);
+		Stop;
+	}
+}
+
+Class DECrucible : Doom4Weapon
+{
+	enum ECrucibleNums
+	{
+		CrucibleDamage = 100000,
+		DamageFlags = DMG_NO_FACTOR|DMG_NO_PROTECT|DMG_INFLICTOR_IS_PUFF,
+		
+		Overlay_CheckAttackOnce = 1234,
+		Overlay_Controller = 60,
+		Overlay_Hilt,
+		Overlay_GlowBlade,
+		Overlay_GlowHilt,
+		Overlay_GlowHilt2,
+		Overlay_GlowHilt3,
+		Overlay_MaskBlade,
+		Overlay_HiltRed,
+		Overlay_BaseRed,
+		Crucible_FirstLayer = Overlay_Hilt,
+		Crucible_LastLayer = Overlay_BaseRed,
+		
+		CrucibleLength = 128,
+		CrucibleLengthUpgrade = 192
+	};
+
+	const SideX = 300.0;
+	const SwingSpeed = (SideX / 15.0) * 2;
+	const SliceX = 80.0;
+	const SliceSpeed = (SliceX / 15.0) * 2;
+	const SyphonMonsterHP = 500.0;
+	const SyphonRatio = 1.0 / SyphonMonsterHP;
+	
+	private bool flipped, repeat;
+	
+	Default
+	{
+		Scale 0.075;
+		Inventory.PickupSound "Eternal/Crucible/Deploy";
+		Inventory.PickupMessage "The Crucible is yours. Hail to the King, baby! Rip and tear, until it is DONE.";
+		Obituary "%o was maraudered by %k's Crucible Blade";
+		Tag "Crucible Sword";
+		+INVENTORY.UNDROPPABLE
+		+INVENTORY.UNTOSSABLE
+		+WEAPON.NOALERT
+		+WEAPON.NOAUTOFIRE
+		+WEAPON.NOAUTOAIM
+		Weapon.AmmoType1 "DECrucibleAmmo";
+		Weapon.AmmoGive1 6;
+		Weapon.AmmoUse1 1;
+		Weapon.SelectionOrder 150;
+		Weapon.SlotNumber 9;
+		Weapon.SlotPriority 1.0;
+		+DONTGIB
+		+BRIGHT
+		+FLOATBOB
+	}
+	
+	override void Travelled()
+	{
+		if (Owner)	Owner.A_RemoveLight("CrucibleLight");
+	}
+	
+	// Upon spawning or travelling, makes Crucible ammo spawn in place of ammo
+	// and allows Crucible ammo pinatas to spawn.
+	override void EnableAmmoSpawn()
+	{
+		if (!Event) Event = D4DHandler.Fetch();
+		if (Event)	Event.SetActorSpawn(D4DHandler.CrucibleAmmo, true);
+	}
+	
+	// Additively adds to the swing angle and automatically offsets the overlays.
+	// If WOF_ADD isn't included, signals to the weapon that this is the start
+	// of a new swing to create a new tracer, and thus take ammo upon damaging
+	// the first monster.
+	private double SwingAngle;
+	private action void Slice(Vector3 off, int flags = WOF_ADD)
+	{
+		let i = invoker; let o = i.owner; if (!o)	return;
+		i.SwingAngle = (flags & WOF_ADD) ? i.SwingAngle + off.z : off.z;
+		A_OverlayOffset(OverlayID(), off.x, off.y, flags);
+		SliceAngle(i.SwingAngle, 0, !(flags & WOF_ADD));
+	}
+	
+	// Performs the actual trace function with the specified angle and roll.
+	// If create is true, restarts the tracer so ammo can be taken. 
+	// If force is true, ignores the need for the cleave upgrade.
+	// The primary purpose of this function is to allow a rail-like attack to 
+	// cut through any actors in a single trace line without costing ammo more 
+	// than once, plus having a proper slicing arc that's not gimbal locked.
+	private bool TakeAmmo;
+	private DECrucibleTracer trc;
+	action void SliceAngle(double ang, double rol = 0.0, bool create = false, bool force = false)
+	{
+		let i = invoker;	let o = i.Owner;
+		if (!o)	return;
+		
+		bool cleave = (o.CountInv('CrucibleUpgradeCleave') > 0);
+		if (!force && !cleave)	return;
+		bool syphon = (o.CountInv('CrucibleUpgradeSyphon') > 0);
+		
+		if (i.flipped)	ang = -ang;
+		
+		// Set up the coordinates as follows:
+		// X: Forward
+		// Y: Right
+		// Z: Up
+		
+		double dist = (o.CountInv('CrucibleUpgradeRange')) ? CrucibleLengthUpgrade : CrucibleLength;
+		
+		double s = tan(ang);
+		Vector3 x, y, z, dir, origin;
+		[x, y, z] = MC_CoordUtil.GetAxes(o.pitch, o.angle, o.roll + rol);
+		// Future note to self, if pitch offset is needed: + Z * tan(pitchOffset)
+		dir = (X + Y * s).unit();
+		origin = o.Vec2OffsetZ(0, 0, o.player.viewz);
+		
+		if (create || !i.trc)	
+		{
+			i.trc = new('DECrucibleTracer');
+			i.trc.HitList.Clear();
+			i.trc.Ignored.Clear();
+			i.trc.Ignored.Push(o);
+			i.trc.index = 0;
+			i.TakeAmmo = true;
+		}
+		
+		bool xtreme = o.bEXTREMEDEATH;
+		o.bEXTREMEDEATH = true;
+		Class<Actor> pufftype = 'DECruciblePuff';
+		let defs = GetDefaultByType(pufftype);
+		
+		i.trc.Trace(origin, o.CurSector, dir, dist, 0);
+		int j = i.trc.index;
+		for (; j < i.trc.HitList.Size(); j++)
+		{
+			//If no valid actor, then skip it.
+			let hl = i.trc.HitList[j];
+			if (!hl || !hl.HitActor)	continue;
+			Actor mo = hl.HitActor;
+			
+			// Prepare to spawn a puff and follow the normal rules of normal engagement.
+			Actor puff = null;
+			int flags = PF_HITTHING|PF_NORANDOMZ;
+			if (mo.bNOBLOOD || mo.bINVULNERABLE || mo.bDORMANT || defs.bPUFFONACTORS)
+			{
+				if (!mo.bNOBLOOD) flags |= PF_HITTHINGBLEED;
+				puff = o.SpawnPuff(pufftype, hl.HitPos, hl.SrcAngleFromTarget, hl.SrcAngleFromTarget - 90.0, 0, flags, mo);
+			}
+			if (!puff)
+			{
+				flags |= PF_TEMPORARY;
+				puff = o.SpawnPuff(pufftype, hl.HitPos, hl.SrcAngleFromTarget, hl.SrcAngleFromTarget - 90.0, 0, flags, mo);
+			}
+			int hp = mo.health;
+			int dmg = mo.DamageMobj(puff, o, CrucibleDamage, "Crucible", DamageFlags);
+			puff.A_StartSound("Eternal/Crucible/Slice");
+			mo.SpawnLineAttackBlood(o, hl.HitPos, hl.SrcAngleFromTarget, CrucibleDamage, dmg);
+			
+			if (puff && (flags & PF_TEMPORARY))
+				puff.Destroy();
+			
+			// We're now done with the puff. Handle ammo and the syphon upgrade.
+			// Both only occur if the actor is a monster.
+			if (mo.bISMONSTER)
+			{
+				if (syphon)
+				{
+					// Determine the duration. Calculations are as follows:
+					// 500 health = +1 second, accumulative.
+					// 
+					// (Monster Health - Minimum HP) * (1 / Minimum HP) * 35
+					// (698 - 500) * (1 / 500) * 35
+					// 198 * 0.002 * 35
+					// 0.396 * 35
+					// 13.86 (rounded to 14) added to the duration.
+					double duration = Second;
+					if (hp > SyphonMonsterHP)
+						duration += (double(hp - SyphonMonsterHP) * SyphonRatio * Second);
+					
+					Powerup inv = Powerup(o.FindInventory("PowerInvulBase", true));
+					if (!inv)
+					{
+						o.A_GiveInventory("Invul1s",1);
+						inv = Powerup(o.FindInventory("PowerInvulBase", true));
+					}
+					if (inv)
+						inv.EffectTics += int(round(duration));
+				}
+			
+				// Only take ammo once upon the first hit, if it did any damage.
+				if (i.TakeAmmo && mo.health < hp && dmg > 0)
+				{
+					i.TakeAmmo = false;
+					i.DepleteAmmo(false);
+				}
+			}
+			i.trc.Ignored.Push(mo);
+		}
+		i.trc.index = j;
+		o.bEXTREMEDEATH = xtreme;
+		
+		if (i.trc.Results.HitType == TRACE_HitWall)
+			i.trc.Results.HitLine.RemoteActivate(o, i.trc.Results.Side, SPAC_Impact, i.trc.Results.HitPos);
+		else if (i.trc.Results.HitType == TRACE_HitNone)
+			i.trc.Results.HitPos = level.Vec3Offset(o.pos, dir * dist); // WHY!?
+		
+		o.Spawn(pufftype, i.trc.Results.HitPos, ALLOW_REPLACE);
+	}
+	
+	private action void SetFlip(bool on)
+	{
+		let i = invoker;
+		if (!i.Owner)	return;
+		i.flipped = on;
+		A_OverlayFlags(PSP_WEAPON, PSPF_FLIP|PSPF_MIRROR, on);
+	}
+	
+	private action void ToggleFlip()
+	{
+		let i = invoker;
+		if (!i.Owner)	return;
+		i.flipped = !i.flipped;
+		A_OverlayFlags(PSP_WEAPON, PSPF_FLIP|PSPF_MIRROR, i.flipped);
+	}
+	
+	private action void SetAttackCheck(bool on, StateLabel next = "Overlay.CheckAttackOnce")
+	{
+		if (!on)	next = "Null";
+		A_Overlay(Overlay_CheckAttackOnce, next);
+	}
+	
+	private action void SetRepeat(bool on)
+	{
+		invoker.repeat = on;
+	}
+	
+	private action bool CheckSwitch()
+	{
+		let i = invoker;	let o = i.owner; if (!o || !o.player)	return false;
+		let plr = o.player;
+		
+		return (o.health > 0 && plr.PendingWeapon != WP_NOCHANGE);
+	}
+	
+	private action bool CheckNextSwing()
+	{
+		return (invoker.CheckAmmo(PrimaryFire, false, true) &&
+				CheckInput(BT_ATTACK|BT_ALTATTACK));
+	}
+	
+	// Checks for the range upgrade, primarily used by the trace function.
+	private action double GetRange()
+	{
+		let i = invoker; let o = i.owner; if (!o)	return CrucibleLength;
+		return o.CountInv("CrucibleUpgradeRange") ? CrucibleLengthUpgrade : CrucibleLength;
+	}
+	
+	// (De)Activates all the overlays for the weapon and sets up the flags.
+	private action void DrawParts(bool on)
+	{
+		if (on)
+		{
+			A_Overlay(Overlay_Controller,	"Overlay.Controller");
+			A_Overlay(Overlay_Hilt, 		"Overlay.Hilt");
+			A_Overlay(Overlay_GlowBlade,	"Overlay.GlowBlade");
+			A_Overlay(Overlay_GlowHilt, 	"Overlay.GlowHilt");
+			A_Overlay(Overlay_GlowHilt2,	"Overlay.GlowHilt");
+			A_Overlay(Overlay_GlowHilt3,	"Overlay.GlowHilt");
+			A_Overlay(Overlay_MaskBlade,	"Overlay.MaskBlade");
+			A_Overlay(Overlay_HiltRed,		"Overlay.HiltRed");
+			A_Overlay(Overlay_BaseRed,		"Overlay.BaseRed");
+			int OverlayFlagsEnable = PSPF_ADDWEAPON|PSPF_RENDERSTYLE|PSPF_ALPHA,
+				OverlayFlagsDisable = PSPF_POWDOUBLE|PSPF_CVARFAST;
+			
+			for (int i = Crucible_FirstLayer; i < Crucible_LastLayer; i++)
+			{
+				A_OverlayFlags(i, OverlayFlagsEnable, true);
+				A_OverlayFlags(i, OverlayFlagsDisable, false);
+				
+				if (i > Crucible_FirstLayer)
+					A_OverlayRenderStyle(i, STYLE_Add);
+			}
+			A_OverlayAlpha(Overlay_GlowBlade, 0.85);
+		}
+		else 
+		{
+			A_Overlay(Overlay_Controller, "Null");
+			A_ClearOverlays(Overlay_Controller, Crucible_LastLayer);
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+	// UpdateOverlayFrames
+	// 
+	// Updates all the effect overlays to use the same frames/alpha/mirror/flip
+	// as the main weapon. Internal code already handles keeping the sprites to
+	// the player so position management isn't needed.
+	//--------------------------------------------------------------------------
+	private action void UpdateOverlayFrames()
+	{
+		let i = invoker; let o = i.owner; if (!o || !o.player)	return;
+		let plr = o.player;
+		let wep = plr.FindPSprite(PSP_WEAPON);
+		
+		if (!wep || wep.Frame < Fr_A || wep.Frame > Fr_R)	return;
+		int frm = wep.Frame;
+		
+		let pspr = plr.psprites;
+		while (pspr)
+		{
+			if (pspr.ID >= Crucible_FirstLayer &&
+				pspr.ID <= Crucible_LastLayer)
+			{
+				pspr.Frame = wep.Frame;
+				pspr.bFlip = wep.bFlip;
+				pspr.bMirror = wep.bMirror;
+				pspr.alpha = wep.alpha;
+			}
+			pspr = pspr.Next;
+		}
+	}
+	
+	private action void SetAlpha(double amt)
+	{
+		amt = clamp(amt, 0.0, 1.0);
+		A_OverlayAlpha(OverlayID(), amt);
+	}
+	
+	private action void BeginDeselect()
+	{
+		A_WeaponOffset(0, 32);
+		SetFlip(false);
+		SetAttackCheck(false);
+		SetRepeat(false);
+		A_StopSound(10);
+		A_StartSound("Eternal/Crucible/Deselect", 10);
+		A_StartSound("Eternal/Crucible/Return", 10, CHANF_OVERLAP);
+		A_RemoveLight("CrucibleLight");
+	}
+	
+	override void OnDestroy()
+	{
+		if (Owner)
+			Owner.A_RemoveLight("CrucibleLight");
+		Super.OnDestroy();
+	}
+	
+	States
+	{
+	//==========================================================================
+	// Overlays
+	//==========================================================================
+	//--------------------------------------------------------------------------
+	// Effect Overlays
+	//--------------------------------------------------------------------------
+	// The hilt and the hand itself are never bright, but the glows are. The glows
+	// themselves are not actually bright maps, just overlays to add color that
+	// can change based on the brightness of the sector the player is standing
+	// in.
+	
+	// Functionally speaking, these are designed to do nothing. Only the controller
+	// will do anything with these.
+	
+	Overlay.Hilt:		// The tangible hilt
+		M027 A 0 { return ResolveState("Overlay.Waiting"); }
+	Overlay.GlowBlade:	// The blade's red glow itself
+		M028 A 0 { return ResolveState("Overlay.WaitingBright"); }
+	Overlay.GlowHilt:	// Sigil on the hilt's full brightness
+		M029 A 0 { return ResolveState("Overlay.WaitingBright"); }
+	Overlay.MaskBlade:	// Blade letters
+		M030 A 0 { return ResolveState("Overlay.WaitingBright"); }
+	Overlay.HiltRed:	// Sigil's actual glow effect affecting the weapon
+		M031 A 0 { return ResolveState("Overlay.WaitingBright"); }
+	Overlay.BaseRed:	// ^ for the hands
+		M032 A 0 { return ResolveState("Overlay.WaitingBright"); }
+	Overlay.Waiting:
+		---- A -1;
+		Wait;
+	Overlay.WaitingBright:
+		---- A -1 Bright;
+		Wait;
+
+	//--------------------------------------------------------------------------
+	// Functional Overlays
+	//--------------------------------------------------------------------------
+	Overlay.Controller:
+		TNT1 A 1 UpdateOverlayFrames();
+		Wait;
+	Overlay.CheckAttackOnce:
+		TNT1 A 1
+		{
+			StateLabel next = null;
+			if (CheckNextSwing())
+			{
+				next = "Null";
+				SetRepeat(true);
+			}
+			return ResolveState(next);
+		}
+		Loop;
+	//--------------------------------------------------------------------------
+	Select:
+		M026 A 1
+		{	
+			DrawParts(true);
+			A_StartSound("Eternal/Crucible/Select", CHAN_WEAPON, CHANF_OVERLAP);
+			A_Raise(WeaponSwitchSpeed);
+		}
+		M026 A 1 A_Raise(WeaponSwitchSpeed);
+		Wait;
+	Deselect:
+		M026 C 1
+		{
+			BeginDeselect();
+			A_Overlay(Overlay_GlowBlade, "Null");
+			A_Overlay(Overlay_MaskBlade, "Null");
+			A_Lower();
+		}
+		M026 CCBBBA 1 bright A_Lower(WeaponSwitchSpeed);
+		Wait;
+	// Instant deselect for switching away when the player has the weapon already
+	// hidden post-swing.
+	Deselect.Instant:
+		TNT1 A 0 
+		{
+			BeginDeselect();
+			DrawParts(false);
+			SetAlpha(1);
+		}
+		TNT1 A 1 A_Lower(2000);
+		Wait;
+	Ready:
+		M026 A 0 A_StartSound("Eternal/Crucible/Deploy",10,CHANF_OVERLAP);
+		M026 AABBCC 1 bright A_WeaponOffset(-1, 2, WOF_ADD); // -6, 12
+		M026 D 1 bright
+		{
+			A_StartSound("Eternal/Crucible/Idle",10,CHANF_LOOP|CHANF_OVERLAP,0.2);
+			A_WeaponOffset(-2, 4, WOF_ADD);
+			A_AttachLight("CrucibleLight", DynamicLight.PulseLight, Color(255, 255, 10, 10), 54, 74, 
+				DynamicLight.LF_DontLightSelf, (0,0,32), 0.7);
+		}
+		M026 D 3 bright A_WeaponOffset(-2, 4, WOF_ADD); //-10, 20
+		M026 DDD 1 bright A_WeaponOffset(3, -6, WOF_ADD);
+		M026 D 1 bright A_WeaponOffset(0.5, -2, WOF_ADD);
+		
+	VReady:
+		M026 D 0 
+		{
+			SetFlip(false);
+			SetAttackCheck(false);
+			SetRepeat(false);
+			SetAlpha(1);
+		}
+		M026 D 1 A_WeaponReady();
+		Wait;
+	Fire:
+		---- D 1
+		{
+			A_StartSound("Eternal/Crucible/Swing", CHAN_WEAPON, CHANF_OVERLAP);
+			A_WeaponOffset(10, 2, WOF_ADD);
+			SetFlip(false);
+		}
+		// 210, 42
+		---- D 1 A_WeaponOffset(20, 4, WOF_ADD);
+		---- D 1 A_WeaponOffset(30, 6, WOF_ADD);
+		---- D 1 A_WeaponOffset(40, 8, WOF_ADD);
+		---- D 1 A_WeaponOffset(50,10, WOF_ADD);
+		---- D 1 A_WeaponOffset(60,12, WOF_ADD);
+		Goto Swing;
+	
+	Swing:
+		M026 E 1 
+		{
+			SetAlpha(1);
+			Slice((SideX - SwingSpeed, 32, SliceX - SliceSpeed), 0);
+			SetRepeat(false);
+			SetAttackCheck(false);
+		}
+		#### EEFFFF 1 Slice((-SwingSpeed, 0, -SliceSpeed));
+		#### G 1 
+		{
+			if (CountInv("CrucibleUpgradeCleave"))
+			{
+				SliceAngle(0);
+				Slice((-SwingSpeed,0,-SliceSpeed));
+			}
+			else
+				SliceAngle(0, 0, true, true);
+			
+			
+			A_WeaponOffset(-SwingSpeed, 0, WOF_ADD);
+			A_AlertMonsters();
+			SetAttackCheck(true);
+		}
+		#### HHHIIII 1 Slice((-SwingSpeed, 8, -SliceSpeed));
+		---- AAAA 1
+		{
+			SetAlpha(0);
+			
+			if (CheckSwitch())
+				return ResolveState("Deselect.Instant");
+		
+			StateLabel next = null;
+			if (invoker.repeat)
+			{
+				ToggleFlip();
+				A_StartSound("Eternal/Crucible/Swing", CHAN_WEAPON, CHANF_OVERLAP);
+				SetRepeat(false);
+				SetAttackCheck(false);
+				next = 'Swing';
+			}		
+			return ResolveState(next);
+		}
+		Goto Post;
+		
+	// Check for a repeat action, if the player can attack again. If they press
+	// the fire key, move the weapon off to the right in preparation for another
+	// stroke.
+	Post:
+		M026 R 1
+		{
+			invoker.trc = null;
+			SetFlip(false);
+			A_WeaponOffset(0, 32);
+			if (invoker.repeat)
+			{
+				A_StartSound("Eternal/Crucible/Return", CHAN_WEAPON, CHANF_OVERLAP);
+				SetAttackCheck(false);
+				A_WeaponOffset(15, 4, WOF_ADD);
+			}
+			SetAlpha(1);
+		}
+		#### QPONMLKJ 1
+		{
+			StateLabel next = null;
+			if (invoker.repeat)
+			{
+				SetAttackCheck(false);
+				A_WeaponOffset(30, 8, WOF_ADD);
+				
+				if (OverlayX() >= 210)
+				{
+					A_StartSound("Eternal/Crucible/Swing", CHAN_WEAPON, CHANF_OVERLAP);
+					SetRepeat(false);
+					next = "Swing";
+				}
+			}
+			return ResolveState(next);
+		}
+		---- A 1
+		{
+			StateLabel next = null;
+			if (invoker.repeat)
+			{
+				SetAttackCheck(false);
+				A_WeaponOffset(30, 8, WOF_ADD);
+				
+				if (OverlayX() >= 210)
+				{
+					A_StartSound("Eternal/Crucible/Swing", CHAN_WEAPON, CHANF_OVERLAP);
+					SetRepeat(false);
+					next = "Swing";
+				}
+			}
+			else next = "VReady";
+			return ResolveState(next);
+		}
+		Wait;
+	Spawn:
+		M026 Z -1;
+		Stop;
+	}
+}
+
+Class DECrucibleShadow : Actor
+{
+	Default
+	{
+		+NOINTERACTION
+		+FLATSPRITE
+		+BRIGHT
+		RenderStyle "Add";
+		Scale 0.1;
+	}
+	States
+	{
+	Spawn:
+		M026 W 1 A_FadeOut();
+		Wait;
+	}
+}
+// Info used to store actors hit by the tracer.
+Class DECrucibleHitActor
+{
+	Actor HitActor;
+	Vector3 HitPos;
+	Vector3 HitVector;
+	double SrcAngleFromTarget;
+}
+
+// The primary tracer class used to acquire enemies to damage and trigger shootable
+// walls.
+Class DECrucibleTracer : LineTracer
+{
+	int index;
+	Array<Actor> Ignored;
+	Array<DECrucibleHitActor> HitList;
+	
+	override ETraceStatus TraceCallback()
+	{
+		if ( Results.HitType == TRACE_HitActor )
+		{
+			let mo = Results.HitActor;
+			
+			if (!mo || mo is "PlayerPawn")			return TRACE_Skip;
+			if (mo.health < 1 && !mo.bICECORPSE)	return TRACE_Skip;
+			if (!mo.bSHOOTABLE)						return TRACE_Skip;
+			
+			int size = Ignored.Size();
+			if (size > 0 && Ignored.Find(mo) < size)
+				return TRACE_Skip;
+			
+			let ent = new("DECrucibleHitActor");
+			ent.HitActor = mo;
+			ent.HitPos = Results.HitPos;
+			ent.HitVector = Results.HitVector;
+			ent.SrcAngleFromTarget = Results.SrcAngleFromTarget;
+			HitList.Push(ent);
+			return TRACE_Skip;
+		}
+		// Hit a floor, ceiling, or nothing.
+		else if (Results.HitType == TRACE_HitFloor || Results.HitType == TRACE_HitCeiling ||
+				 Results.HitType == TRACE_HitNone)	return TRACE_Stop;
+		else if (Results.HitType == TRACE_HitWall)
+		{	// Hit an upper/lower line def
+			if (Results.Tier == TIER_Upper || Results.Tier == TIER_Lower) return TRACE_Stop;
+			
+			int hf = Results.HitLine.flags;
+			// Line's blocking hitscan or everything
+			if (hf & (Line.ML_BLOCKHITSCAN|Line.ML_BLOCKEVERYTHING))
+				return TRACE_Stop;
+			// Line's not two-sided, making it fully blocking.
+			if ((hf & Line.ML_BLOCKING) && !(hf & Line.ML_TWOSIDED))
+				return TRACE_Stop;
+		}
+		return TRACE_Skip;
+	}
+}
+
+Class DECruciblePuff : Actor
+{
+	Default
+	{
+		Radius 1;
+		Height 1;
+		+NOINTERACTION
+		+INVISIBLE
+		+NOTONAUTOMAP
+		+NOBLOCKMAP
+		+ALWAYSPUFF
+		+PUFFONACTORS
+		+HITTRACER
+		+PUFFGETSOWNER
+		+NOTIMEFREEZE
+		+EXTREMEDEATH
+		+NODAMAGETHRUST
+		RenderStyle "Add";
+		Obituary "%o was maraudered by %k's Crucible Blade";
+		DamageType "Crucible";
+		PainType "Normal";
+		DeathType "Extreme";
+	}
+	States
+	{
+	Spawn:
+		PLSS A 10; //NoDelay
+		/*
+		{
+			// Do nothing if it has the NODAMAGE flag since the primary tracer will handle it.
+			if (bNODAMAGE || !target) return;
+			
+			if (tracer && (tracer.bSHOOTABLE || tracer.bVULNERABLE) && 
+				(tracer.health > 0 || tracer.bICECORPSE) &&
+				!tracer.bFRIENDLY)
+			{
+				if (target && target.health > 0 && target.player)
+				{
+					let wep = target.player.ReadyWeapon;
+					if (target.CountInv("DECrucibleDamageToken") > 0 || 
+						wep && wep.CheckAmmo(Weapon.PrimaryFire, false, false))
+					{
+						A_StartSound("Eternal/Crucible/Slice");
+						int hp = tracer.health;
+						int dmg = tracer.DamageMobj(self, target, DECrucible.CrucibleDamage, "Crucible", 
+							DECrucible.DamageFlags);
+						
+						// Check the HP difference instead of damage, because the
+						// function could be used to fool damage attempts.
+						if (tracer.health < hp && dmg > 0)
+						{
+							target.A_SetInventory("DECrucibleDamageToken",1);
+							wep.DepleteAmmo(false);
+						}
+					}
+				}
+			}
+		}
+		*/
+		Stop;
+	}
+}

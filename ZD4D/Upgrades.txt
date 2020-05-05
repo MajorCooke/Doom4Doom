@@ -1,3 +1,5 @@
+//#include "ZD4D/UpgradeRework.txt"
+
 //==============================================================================
 // Upgrades
 // 
@@ -331,6 +333,11 @@ Class VortexUpgradeDamage : VortexUpgradeBase 			{ Default { UpgradeItem.Cost 40
 Class VortexUpgradeAmmo : VortexUpgradeBase 			{ Default { UpgradeItem.Cost 6000; }}
 Class VortexUpgradeAltSpeed : VortexUpgradeBase 		{ Default { UpgradeItem.Cost 2500; }}
 Class VortexUpgradeAltPierce : VortexUpgradeBase 		{ Default { UpgradeItem.Cost 3500; }}
+Class CrucibleUpgradeBase : UpgradeItem					{ Default { UpgradeItem.GunNeeded "DECrucible";	}	}
+Class CrucibleUpgradeCleave : CrucibleUpgradeBase		{ Default { UpgradeItem.Cost 30000; }}
+Class CrucibleUpgradeRange : CrucibleUpgradeBase		{ Default { UpgradeItem.Cost 20000;	}}
+Class CrucibleUpgradeSyphon : CrucibleUpgradeBase		{ Default { UpgradeItem.Cost 40000;	}}
+Class CrucibleUpgradeBattery : CrucibleUpgradeBase		{ Default { UpgradeItem.Cost 40000;	}}
 
 //==============================================================================
 //==============================================================================
@@ -738,11 +745,12 @@ extend class BFGUpgrade1
 	{
 		if (Owner)
 		{
-			let inv = Owner.FindInventory("D4BFGAmmo");
+			let inv = Ammo(Owner.FindInventory("D4BFGAmmo"));
 			if (inv)
 			{
 				inv.MaxAmount = inv.Default.MaxAmount + Amount;
 				inv.InterHubAmount = inv.Default.InterHubAmount + Amount;
+				inv.BackpackMaxAmount = inv.Default.BackpackMaxAmount + Amount;
 			}
 		}
 	}
@@ -750,11 +758,51 @@ extend class BFGUpgrade1
 	{
 		if (Owner)
 		{
-			let inv = Owner.FindInventory("D4BFGAmmo");
+			let inv = Ammo(Owner.FindInventory("D4BFGAmmo"));
 			if (inv)
 			{
 				inv.MaxAmount = inv.Default.MaxAmount;
 				inv.InterHubAmount = inv.Default.InterHubAmount;
+				inv.BackpackMaxAmount = inv.Default.BackpackMaxAmount;
+			}
+		}
+		Super.DepleteOrDestroy();
+	}
+}
+
+extend class CrucibleUpgradeBattery
+{
+	const Amt = 3;
+	Default
+	{
+		 Inventory.Amount Amt;
+		 Inventory.MaxAmount Amt;
+		 Inventory.InterHubAmount Amt;
+	}
+	// Up the max amount.
+	override void UpdateItem()
+	{
+		if (Owner)
+		{
+			let inv = Ammo(Owner.FindInventory("DECrucibleAmmo"));
+			if (inv)
+			{
+				inv.MaxAmount = inv.Default.MaxAmount + Default.Amount;
+				inv.InterHubAmount = inv.Default.InterHubAmount + Default.Amount;
+				inv.BackpackMaxAmount = inv.Default.BackpackMaxAmount + Default.Amount;
+			}
+		}
+	}
+	override void DepleteOrDestroy()
+	{
+		if (Owner)
+		{
+			let inv = Ammo(Owner.FindInventory("DECrucibleAmmo"));
+			if (inv)
+			{
+				inv.MaxAmount = inv.Default.MaxAmount;
+				inv.InterHubAmount = inv.Default.InterHubAmount;
+				inv.BackpackMaxAmount = inv.Default.BackpackMaxAmount;
 			}
 		}
 		Super.DepleteOrDestroy();
@@ -792,7 +840,7 @@ extend Class D4QuadUpgrade1
 }
 
 //==============================================================================
-
+/*
 Class D4UpgradeDrone : Actor
 {
 	MC_Quaternion SpinAngle, SpinTilt;
@@ -857,4 +905,4 @@ Class D4UpgradeDrone : Actor
 		---- A 50;
 		Stop;
 	}
-}
+}*/

@@ -1,8 +1,50 @@
 $pitchshiftrange 0
 
-//==============================================================================================
+//==============================================================================
+// Player Sounds
+//==============================================================================
+Eternal/Player/Pain1	"Sounds/Player/Pain1.ogg"
+Eternal/Player/Pain2	"Sounds/Player/Pain2.ogg"
+Eternal/Player/Pain3	"Sounds/Player/Pain3.ogg"
+Eternal/Player/Pain4	"Sounds/Player/Pain4.ogg"
+Eternal/Player/Pain5	"Sounds/Player/Pain5.ogg"
+Eternal/Player/PainSmall1	"Sounds/Player/PainSmall1.ogg"
+Eternal/Player/PainSmall2	"Sounds/Player/PainSmall2.ogg"
+Eternal/Player/PainSmall3	"Sounds/Player/PainSmall3.ogg"
+Eternal/Player/PainSmall4	"Sounds/Player/PainSmall4.ogg"
+Eternal/Player/PainSmall5	"Sounds/Player/PainSmall5.ogg"
+Eternal/Player/PainSmall6	"Sounds/Player/PainSmall6.ogg"
+Eternal/Player/Death1	"Sounds/Player/Death1.ogg"
+Eternal/Player/Death2	"Sounds/Player/Death2.ogg"
+Eternal/Player/Death3	"Sounds/Player/Death3.ogg"
+Eternal/Player/Death4	"Sounds/Player/Death4.ogg"
+Eternal/Player/Death5	"Sounds/Player/Death5.ogg"
+
+$random Eternal/Player/Pain
+{
+	Eternal/Player/Pain1	Eternal/Player/Pain2	Eternal/Player/Pain3
+	Eternal/Player/Pain4	Eternal/Player/Pain5
+}
+
+$random Eternal/Player/PainSmall
+{
+	Eternal/Player/PainSmall1	Eternal/Player/PainSmall2	Eternal/Player/PainSmall3
+	Eternal/Player/PainSmall4	Eternal/Player/PainSmall5	Eternal/Player/PainSmall6
+}
+
+$random Eternal/Player/Death
+{
+	Eternal/Player/Death1	Eternal/Player/Death2	Eternal/Player/Death3
+	Eternal/Player/Death4	Eternal/Player/Death5
+}
+
+$limit Eternal/Player/Pain 0
+$limit Eternal/Player/PainSmall 0
+$limit Eternal/Player/Death 0
+
+//==============================================================================
 //		Menu Sounds
-//==============================================================================================
+//==============================================================================
 Doom4/Menu/Back						"sounds/Menu/Back.ogg"
 Doom4/Menu/Hover					"sounds/Menu/MouseHover.ogg"
 Doom4/Menu/Navigate					"sounds/Menu/NavigateKeys.ogg"
@@ -33,7 +75,68 @@ $alias				intermission/pastcoopstats	Doom4/Monsters/BaronCrash
 $alias				intermission/pastdmstats	Doom4/Other/GibExplode
 
 //==============================================================================
-//
+// Crucible
+//==============================================================================
+Eternal/Crucible/AmmoLoop		"Sounds/Weapons/Crucible/AmmoLoop.ogg"
+Eternal/Crucible/AmmoPickup		"Sounds/Weapons/Crucible/AmmoPickup.ogg"
+Eternal/Crucible/Deselect		"Sounds/Weapons/Crucible/Deselect.ogg"
+Eternal/Crucible/Deploy			"Sounds/Weapons/Crucible/Deploy.ogg"
+Eternal/Crucible/Pickup			"Sounds/Weapons/Crucible/Pickup.ogg"
+Eternal/Crucible/Idle			"Sounds/Weapons/Crucible/Idle.ogg"
+Eternal/Crucible/Select			"Sounds/Weapons/Crucible/Select.ogg"
+Eternal/Crucible/Swing1			"Sounds/Weapons/Crucible/Swing1.ogg"
+Eternal/Crucible/Swing2			"Sounds/Weapons/Crucible/Swing2.ogg"
+Eternal/Crucible/Swing3			"Sounds/Weapons/Crucible/Swing3.ogg"
+Eternal/Crucible/Swing4			"Sounds/Weapons/Crucible/Swing4.ogg"
+Eternal/Crucible/Swing5			"Sounds/Weapons/Crucible/Swing5.ogg"
+Eternal/Crucible/Swing6			"Sounds/Weapons/Crucible/Swing6.ogg"
+Eternal/Crucible/Swing7			"Sounds/Weapons/Crucible/Swing7.ogg"
+Eternal/Crucible/Return1		"Sounds/Weapons/Crucible/Return1.ogg"
+Eternal/Crucible/Return2		"Sounds/Weapons/Crucible/Return2.ogg"
+Eternal/Crucible/Return3		"Sounds/Weapons/Crucible/Return3.ogg"
+Eternal/Crucible/Return4		"Sounds/Weapons/Crucible/Return4.ogg"
+Eternal/Crucible/Return5		"Sounds/Weapons/Crucible/Return5.ogg"
+Eternal/Crucible/Ammo			"Sounds/Weapons/Crucible/Ammo.ogg"
+Eternal/Crucible/Slice1			"Sounds/Weapons/Crucible/Slice1.ogg"
+Eternal/Crucible/Slice2			"Sounds/Weapons/Crucible/Slice2.ogg"
+Eternal/Crucible/Slice3			"Sounds/Weapons/Crucible/Slice3.ogg"
+Eternal/Crucible/Slice4			"Sounds/Weapons/Crucible/Slice4.ogg"
+Eternal/Crucible/Slice5			"Sounds/Weapons/Crucible/Slice5.ogg"
+Eternal/Crucible/Slice6			"Sounds/Weapons/Crucible/Slice6.ogg"
+
+$random Eternal/Crucible/Slice
+{
+	Eternal/Crucible/Slice1
+	Eternal/Crucible/Slice2
+	Eternal/Crucible/Slice3
+	Eternal/Crucible/Slice4
+	Eternal/Crucible/Slice5
+	Eternal/Crucible/Slice6
+}
+
+$random Eternal/Crucible/Swing
+{
+	Eternal/Crucible/Swing1	Eternal/Crucible/Swing2	Eternal/Crucible/Swing3
+	Eternal/Crucible/Swing4	Eternal/Crucible/Swing5	Eternal/Crucible/Swing6
+	Eternal/Crucible/Swing7
+}
+
+$random Eternal/Crucible/Return
+{
+	Eternal/Crucible/Return1
+	Eternal/Crucible/Return2
+	Eternal/Crucible/Return3
+	Eternal/Crucible/Return4
+	Eternal/Crucible/Return5
+}
+
+$limit Eternal/Crucible/Swing 0
+$limit Eternal/Crucible/Slice 0
+$limit Eternal/Crucible/AmmoLoop 0
+$limit Eternal/Crucible/Return 0
+
+//==============================================================================
+// Carrion Cannon
 //==============================================================================
 CarrionCannon/BuildUp			"Sounds/Weapons/CC/BuildUp.wav"
 CarrionCannon/Shoot1			"Sounds/Weapons/CC/Shoot1.wav"
@@ -1110,16 +1213,16 @@ $playersound	PlayerDemonCommon	female	*usefail	"Sounds/Player/Demon/Fail.ogg"
 //==============================================================================
 
 PentagramOfProtection/Pickup		"Sounds/Pickups/penta1.wav"
-PentagramOfProtection/Warning		"Sounds/Pickups/penta2.wav"
+PentagramOfProtection/Warning		"Sounds/Pickups/penta2.ogg"
 PentagramOfProtection/Protect		"Sounds/Pickups/penta3.wav"
 QuadDamage/Pickup					"Sounds/Pickups/quad1.wav"
-QuadDamage/Warning					"Sounds/Pickups/quad2.wav"
+QuadDamage/Warning					"Sounds/Pickups/quad2.ogg"
 QuadDamage/Firing					"Sounds/Pickups/quad3.wav"
 Haste/Pickup						"Sounds/Pickups/inv1.wav"
 Haste/Warning						"Sounds/Pickups/inv2.wav"
 Haste/Whisper						"Sounds/Pickups/inv3.wav"
 Regen/Pickup						"Sounds/Pickups/suit.wav"
-Regen/Warning						"Sounds/Pickups/suit2.wav"
+Regen/Warning						"Sounds/Pickups/suit2.ogg"
 RenameMe6							"Sounds/Pickups/itembk2.wav"
 Doom4/Pickups/PowerupLoop			"Sounds/Pickups/PowerupLoop.ogg"
 Doom4/Pickups/Berserk				"Sounds/Pickups/Berserk.ogg"

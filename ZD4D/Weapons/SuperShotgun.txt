@@ -94,7 +94,6 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 	Select:
 		M666 A 0
 		{
-			ACS_NamedExecute("RemoveModText",0,0,0,0); //clears previous wep text
 			if (CountInv("SSGUpgrade4"))						//Two shotguns?
 			{
 				//SSR = Super Shotgun Right
@@ -110,15 +109,13 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			}
 			A_OverlayFlags(LGun,WeapMoveBob,true);			//Make it follow the 'weapon'. See ZD4D/Constants.txt.
 			A_OverlayFlags(RGun,WeapMoveBob,true);
-			DisplayWeaponMode();
 		}
 	// We should now have one or both shotguns raising up.
 		---- A 1 A_Raise(WeaponSwitchSpeed);
 		Wait;
 	Deselect:
-		"----" A 0 
+		---- A 0 
 		{
-			DisplayWeaponMode(false); // Remove the hud message.
 			A_Overlay(GunWatcher,"Null");
 			A_Overlay(SwitchWatcher,"Null");
 			A_SetInventory("SSLSecondShotToken",0);

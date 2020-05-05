@@ -13,7 +13,7 @@
 //==============================================================================
 //==============================================================================
 
-//#include "ZStatusHud.txt"
+#include "ZStatusHud.txt"
 
 Class Doom4StatusBar : BaseStatusBar
 {	
@@ -55,10 +55,36 @@ Class Doom4StatusBar : BaseStatusBar
 		HUDItemMid =		(HUDMid|ItemMid),
 		HUDItemBot =		(HUDBot|ItemBot),
 		HUDItemRightTop =	(HUDRightTop|ItemRightTop),
-		HUDItemRightMid =	(HUDRightTop|ItemRightMid),
-		HUDItemRightBot =	(HUDRightTop|ItemRightBot),
+		HUDItemRightMid =	(HUDRightMid|ItemRightMid),
+		HUDItemRightBot =	(HUDRightBot|ItemRightBot),
+		
 	}
-
+	
+	// Keys
+	static const Class<Inventory> keynames[] =
+	{
+		"BlueCard",	
+		"YellowCard",
+		"RedCard",
+		"BlueSkull",
+		"YellowSkull",
+		"RedSkull"
+	};
+	
+	static const String keyimg[] =
+	{
+		"KEYCB",
+		"KEYCY",
+		"KEYCR",
+		"SKKYB",
+		"SKKYY",
+		"SKKYR"
+	};
+	
+	Vector2 KeyPos[6];
+	Vector2 SlotPos[6];
+	Vector2 KeySlotSize;	
+	
 	// Y positions for keys and slots
 	const TopKeyY = 665.0;
 	const BotKeyY = 699.0;
@@ -94,7 +120,7 @@ Class Doom4StatusBar : BaseStatusBar
 	DynamicValueInterpolator mTimeInterpolator;
 	
 	// Fonts for HUDS
-	transient HUDFont mHUDFont, mIndexFont, mBigFont, mConsoleFont, mQ4HudFont;
+	transient HUDFont mHUDFont, mIndexFont, mBigFont, mConsoleFont, mQ4HudFont, mSmallFont;
 	
 	// Life counter
 	double LifeCounterFade;
@@ -106,22 +132,56 @@ Class Doom4StatusBar : BaseStatusBar
 	Actor plr;
 	Vector2 BaseSize, DemonKeyOffsets, HPOffset, AmmoOffset;
 	double fadeamt;
-	int AspectRatio, DemonTimer;
+	int DemonTimer;
 	uint FakeCashTimer, FakeCash, Cash, PrevCash, HP, MaxHP, UpgradeMode;
 	uint8 DoomDollMax, DoomDollCount, MegasphereCount, MegasphereMax, AmmoClamp;
 	bool ignoreFakeUpdate, noReticle, addonOverride, automap, AmDemon, WasDemon, Resonator;
 	D4DHandler Event;
 
-	
+	override void Draw (int state, double TicFrac)
+	{
+		if (!plr)	plr = CPlayer.mo;
+		
+		Super.Draw (state, TicFrac);
+
+		if (state == HUD_StatusBar || state == HUD_Fullscreen)
+		{
+			/*
+			if (state == HUD_Fullscreen)
+			{
+				HPOffset = (70, 0); //(LOfx, LOfy);
+				AmmoOffset = (-70, 0); //(ROfx, ROfy);
+			}
+			else
+			{
+				HPOffset = (0,0);
+				AmmoOffset = (0,0);
+			}
+			
+			if (bars)
+			{
+				SetSize(-1, 1024, 768);
+				CompleteBorder = true;
+				BeginStatusBar(true);
+				DrawMainBar (TicFrac);
+			}
+			*/
+			BeginHud();
+			DrawFullScreenStuff();
+		}
+	}
 
 	override void Init()
 	{
 		Super.Init();
-		BaseSize = (1024, 768);
-		SetSize(0, BaseSize.x, BaseSize.y);
-		
-		CompleteBorder = true;
+		BaseSize = (320, 200);
+		SetSize(0, BaseSize.X, BaseSize.Y);
+	//	CompleteBorder = true;
 		FirstTic = true;
+		
+		String KS = "KEYSLOT0";
+		let id = TexMan.CheckForTexture(KS, TexMan.Type_Any);
+		if (id) [KeySlotSize.X, KeySlotSize.Y] = TexMan.GetSize(id);
 		
 		// Create the font used for the fullscreen HUD
 		Font fnt = "HUDFONT_DOOM";
@@ -134,11 +194,12 @@ Class Doom4StatusBar : BaseStatusBar
 		mConsoleFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
 		fnt = "Q4HUDFONT";
 		mQ4HudFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
+		fnt = "SMALLFNT";
+		mSmallFont = HUDFont.Create(fnt, fnt.GetCharWidth("0"), true);
 		mHealthInterpolator = DynamicValueInterpolator.Create(0, 0.25, 1, 20);
 		mHealthInterpolator2 = DynamicValueInterpolator.Create(0, 0.25, 1, 20);
 		mHealthInterpolator3 = DynamicValueInterpolator.Create(0, 0.25, 1, 20);
 		mHealthInterpolator4 = DynamicValueInterpolator.Create(0, 0.25, 1, 20);
-	//	mTimeInterpolator = DynamicValueInterpolator.Create(0, 0.25, 1, 40);
 		
 		DemonKeyOffsets = (DemonKeyOffsetX, DemonKeyOffsetY);
 	}
@@ -159,8 +220,6 @@ Class Doom4StatusBar : BaseStatusBar
 		mHealthInterpolator2.Reset(health);
 		mHealthInterpolator3.Reset(health);
 		mHealthInterpolator4.Reset(health);
-		
-	//	mTimeInterpolator.Reset(time);
 	}
 	
 	// For everything that doesn't need to be processed every frame, only update
@@ -169,8 +228,7 @@ Class Doom4StatusBar : BaseStatusBar
 	bool FirstTic;
 	override void Tick()
 	{
-		Super.Tick();		
-		AspectRatio = Screen.GetAspectRatio();
+		Super.Tick();
 		noReticle = GetAmountOnly("NoReticle");
 		DemonTimer = GetAmountOnly("DemonTimerToken");
 		DemonKeyOffsets = (DemonKeyOffsetX, DemonKeyOffsetY);
@@ -182,6 +240,9 @@ Class Doom4StatusBar : BaseStatusBar
 		}
 		
 		PrevCash = Cash;
+		WasDemon = AmDemon;
+		
+		AmDemon = (CPlayer.mo && CPlayer.mo is "DemonPlayerBase");
 		
 		if (AmDemon)
 		{
@@ -242,846 +303,10 @@ Class Doom4StatusBar : BaseStatusBar
 		automap = false;
 	}
 
-	override void Draw (int state, double TicFrac)
-	{
-		if (!plr)	plr = CPlayer.mo;
-		
-		Super.Draw (state, TicFrac);
-
-		if (addonOverride) return;
-
-		WasDemon = AmDemon;
-		AmDemon = GetAmountOnly("IAmADemonToken");
-		
-		if (state == HUD_StatusBar || state == HUD_Fullscreen)
-		{
-			if (state == HUD_Fullscreen)
-			{
-				HPOffset = (70, 0); //(LOfx, LOfy);
-				AmmoOffset = (-70, 0); //(ROfx, ROfy);
-			}
-			else
-			{
-				HPOffset = (0,0);
-				AmmoOffset = (0,0);
-			}
-			BeginStatusBar(true);
-			DrawMainBar (TicFrac);
-		}
-	}
-	
 	override void DrawAutomapHUD(double ticFrac)
 	{
 		automap = true;
 		Super.DrawAutomapHud(ticFrac);
-	}
-	
-	protected void DrawMainBar (double TicFrac)
-	{
-		if (!CPlayer || !CPlayer.mo)	return;
-		
-		// Draw the powerup screens first so they don't overlap the rest of the hud.
-		if (!automap)
-		{
-			if (GetAmountOnly("PowerD4QuadDamage"))	DrawImage("Shade2Ma", (-171, 0), imageAlignmentLeft, GetPowerFadeAlpha("PowerD4QuadDamage"));
-			if (GetAmountOnly("PowerD4Regen"))		DrawImage("Shade2Cy", (-171, 0), imageAlignmentLeft, GetPowerFadeAlpha("PowerD4Regen"));
-			if (GetAmountOnly("PowerD4Haste"))		DrawImage("Shade2Ye", (-171, 0), imageAlignmentLeft, GetPowerFadeAlpha("PowerD4Haste"));
-			if (GetAmountOnly("PowerD4Money"))		DrawImage("Shade2Gr", (-171, 0), imageAlignmentLeft, GetPowerFadeAlpha("PowerD4Money"));
-		}
-		
-		// Keys
-		static const Class<Inventory> keynames[] =
-		{
-			"BlueCard",	
-			"YellowCard",
-			"RedCard",
-			"BlueSkull",
-			"YellowSkull",
-			"RedSkull"
-		};
-		
-		static const String keyimg[] =
-		{
-			"KEYCB",
-			"KEYCY",
-			"KEYCR",
-			"SKKYB",
-			"SKKYY",
-			"SKKYR"
-		};
-		
-		
-		Vector2 KeyPos[6];
-		Vector2 SlotPos[6];
-		
-		KeyPos[0] = (LKeyX, TopKeyY);
-		KeyPos[1] = (MKeyX, TopKeyY);
-		KeyPos[2] = (RKeyX, TopKeyY);
-		KeyPos[3] = (LKeyX + CardOffX, BotKeyY);
-		KeyPos[4] = (MKeyX + CardOffX, BotKeyY);
-		KeyPos[5] = (RKeyX + CardOffX, BotKeyY);
-		SlotPos[0] = (LSlotX, TopSlotY);
-		SlotPos[1] = (MSlotX, TopSlotY);
-		SlotPos[2] = (RSlotX, TopSlotY);
-		SlotPos[3] = (LSlotX, BotSlotY);
-		SlotPos[4] = (MSlotX, BotSlotY);
-		SlotPos[5] = (RSlotX, BotSlotY);
-		
-		for (int i = 0; i < KeyPos.Size(); i++)
-		{
-			if (AmDemon)
-			{
-				KeyPos[i] += DemonKeyOffsets;
-				SlotPos[i] += DemonKeyOffsets;
-			}
-			else
-			{
-				KeyPos[i] += HPOffset;
-				SlotPos[i] += HPOffset;
-			}
-			int count = GetAmountOnly(keynames[i], true);
-			DrawImage((count ? "KEYSLOT1" : "KEYSLOT0"), SlotPos[i], imageAlignmentLeft);
-			if (count)	DrawImage(keyimg[i], KeyPos[i], imageAlignmentLeft);
-		}
-		
-		// Demon Runes
-		if (AmDemon)
-		{	
-			if (!automap)	DrawImage("Shade2Br", (-171, 0), imageAlignmentLeft);
-			
-			int inv, maxinv;
-			[inv, maxinv] = GetAmount("DemonTimerToken");
-			int timer = DemonTimer; //mTimeInterpolator.GetValue();
-			
-			static const String bars[] =
-			{
-				"RUNEBAR1",	"RUNEBAR0",
-				"RUNEBAR2", "RUNEBNIL",
-				"RUNEBAR3", "RUNEBNIL",
-				"RUNEBAR4", "RUNEBNIL",
-				"RUNEBAR5", "RUNEBNIL",
-				"RUNEBAR6", "RUNEBNIL",
-				"RUNEBAR7", "RUNEBNIL",
-				"RUNEBAR8", "RUNEBNIL",
-				"RUNEBAR9", "RUNEBNIL",
-				"RUNEBARA", "RUNEBNIL",
-				"RUNEBARB", "RUNEBNIL",
-				"RUNEBARC", "RUNEBNIL",
-				"RUNEBARD", "RUNEBNIL"
-				//"RUNEBARI", "RUNEBNIL"
-			};
-			int size = bars.Size();
-			Vector2 DBar1 = (BaseSize.X * 0.5,643);
-			int DBarAlign = DI_ITEM_HCENTER|DI_ITEM_TOP|DI_FORCESCALE;
-			for (int i = 0; i < size; i += 2)
-			{
-				int j = i / 2;
-			//	DrawBar(bars[i], bars[i + 1], timer - (maxinv * j), maxinv, (3, 643), 0, 0, imageAlignmentLeft);
-				DrawBar(bars[i], bars[i + 1], timer - (maxinv * j), maxinv, DBar1, 0, 0, DBarAlign);
-			}
-			
-		//	DrawBar("DEMNBAR2", "DEMNBAR0", mHealthInterpolator2.GetValue(), MaxHP, (18, 694), 0, 0, imageAlignmentLeft);
-		//	DrawBar("DEMNBAR3", "DEMNBAR0", mHealthInterpolator3.GetValue(), MaxHP, (18, 694), 0, 0, imageAlignmentLeft);
-		//	DrawBar("DEMNBAR1", "DEMNBAR0", mHealthInterpolator4.GetValue(), MaxHP, (18, 694), 0, 0, imageAlignmentLeft);
-			Vector2 DBar2 = (DBar1.x, 694);
-			DrawBar("DEMNBAR2", "DEMNBAR0", mHealthInterpolator2.GetValue(), MaxHP, DBar2, 0, 0, DBarAlign);
-			DrawBar("DEMNBAR3", "DEMNBAR0", mHealthInterpolator3.GetValue(), MaxHP, DBar2, 0, 0, DBarAlign);
-			DrawBar("DEMNBAR1", "DEMNBAR0", mHealthInterpolator4.GetValue(), MaxHP, DBar2, 0, 0, DBarAlign);
-			
-			if (!noReticle)
-			{
-				if (GetAmountOnly("IamHellKnight"))
-					DrawImage("rUpg_and", (465, 337), imageAlignmentLeft);
-				else if (GetAmountOnly("IamBaronOfHell"))
-					DrawImage("rBar_ell", (465, 337), imageAlignmentLeft);
-				else if (GetAmountOnly("IamRevenant"))
-				{
-					int a1, a2;
-					[a1, a2] = GetAmount("JetpackFuel");
-					
-					DrawBar(((GetAmountOnly("JetpackCooling")) ? "rRev_rs2" : "rRev_rs1"), 
-						"rRev_rs0", a1, a2, (456,356), 0, SHADER_VERT|SHADER_REVERSE, imageAlignmentLeft);
-						
-					DrawImage("rRev_nt0", (448, 320), imageAlignmentLeft);
-				}
-				else if (GetAmountOnly("IamCacodemon"))
-					DrawImage("rCac_mon", (448, 320), imageAlignmentLeft);
-				else if (GetAmountOnly("IamFatso"))
-					DrawImage("rFatso0", (448, 320), imageAlignmentLeft);
-				else if (GetAmountOnly("IamPainElemental"))
-					DrawImage("rPai_tal", (448, 320), imageAlignmentLeft);
-				else if (GetAmountOnly("IamCyberdemon"))
-					DrawImage("rCyb_mon", (448, 320), imageAlignmentLeft);
-				else if (GetAmountOnly("IamSpiderMastermind"))
-				{
-					DrawImage("rMas_ind", (448, 320), imageAlignmentLeft);
-					if (GetAmountOnly("FullyCharged"))
-						DrawImage("rMas_rge", (448, 320), imageAlignmentLeft);
-				}
-				else if (GetAmountOnly("IamArchvile"))
-				{
-					int a1, a2;
-					[a1, a2] = GetAmount("PlayerArchvileCharges");
-					
-					DrawBar("rSum_ar1", "rSum_ar0", a1, a2, (435, 307), 0, SHADER_VERT|SHADER_REVERSE, imageAlignmentLeft);
-					DrawImage("rSum_ner", (435, 307), imageAlignmentLeft);
-				}
-				else if (GetAmountOnly("IamArachnotron"))
-					DrawImage("rAra_ron", (448, 320), imageAlignmentLeft);
-			}
-		}
-		else // Regular Player
-		{
-			
-			// Draw the number of doom dolls.
-			if (DoomDollCount > 0)
-			{
-				DrawImage("Ddoll", (1024, 727), imageAlignmentLeft);
-				DrawStringScaled(mQ4HudFont, FormatNumber(DoomDollCount, 1, 2), (1008, 733), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 0.75);
-			}
-			
-			// Credits, lives and resistance counters
-			String which = (UpgradeMode > 0) ? "Crates:" : "Credits:";
-			DrawString(mConsoleFont, which, (1024, 8), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
-			//DrawStringScaled(mQ4HudFont, FormatNumber(Cash, 1), (1024, 24), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: 2);
-			DrawString(mQ4HudFont, FormatNumber(Cash, 1), (1024, 24), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
-			
-			if (FakeCash && FakeCashTimer > 0)
-			{
-				DrawStringScaled(mQ4HudFont, "+"..FormatNumber(FakeCash, 1), (1024, 56), DI_TEXT_ALIGN_RIGHT, Font.CR_ORANGE, alpha: fadeamt, scaling: 0.75);
-			}
-			
-			Vector2 LifePos = (1024, 100);
-			// Megasphere
-			if (Resonator)
-			{
-				LifePos.Y += 92;
-				int colRes = (MegasphereCount >= MegasphereMax) ? Font.CR_GREEN : Font.CR_WHITE;
-				DrawString(mConsoleFont, "Resistance:", (1024, 100), DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
-				DrawString(mQ4HudFont, FormatNumber(MegasphereCount, 1), (1024, 116), DI_TEXT_ALIGN_RIGHT, colRes);
-			}
-			// Lives
-			// Whenever a life is lost, flash it red for a moment and fade it out.
-			int LifeCounterColor = (LifeCount[0] > 0) ? Font.CR_WHITE : Font.CR_RED;
-			DrawString(mConsoleFont, "Lives:", LifePos, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE);
-			DrawString(mQ4HudFont, FormatNumber(LifeCount[0], 1), LifePos + (0, 16), DI_TEXT_ALIGN_RIGHT, LifeCounterColor);
-			
-			int PrevLives = GetAmountOnly("LifeRedFlash");
-			if (PrevLives)
-			{
-				LifeCount[1] = PrevLives;
-				LifeCounterFade = 1.5;
-			}
-			
-			if (LifeCounterFade > 0.0)
-			{
-				DrawString(mQ4HudFont, FormatNumber(LifeCount[1], 1), LifePos + (0, 16), DI_TEXT_ALIGN_RIGHT, Font.CR_RED, 
-					Clamp(LifeCounterFade, 0.0, 1.0));
-				double sub = 1.0 / 60.0;
-				LifeCounterFade -= sub;
-			}
-			
-			
-			
-			
-			//==================================================================
-			// Now for health + armor.
-			SetSize(0, BaseSize.X, BaseSize.Y);
-			// Base bar for health and armor.
-			DrawImage ("BODYBAR0", (-69, 669) + HPOffset, imageAlignmentLeft);
-			
-			// Health + Armor
-			hp = (CPlayer ? CPlayer.mo.health : 0);
-			if (hp > 0)
-			{
-				Vector2 ArmorTextPos = (-4, 679) + HPOffset;
-				int colArmor = Font.CR_WHITE;
-				int colArmorInvul = Font.CR_RED;
-				int armorAmount = GetArmorAmount(); 
-				let armor = BasicArmor(CPlayer.mo.FindInventory("BasicArmor"));
-				int armorDisplay = Clamp(armorAmount, 0, 200);
-				int armorMax = 200;
-				if (armor)	
-				{
-					armorDisplay = armor.Amount;
-					armorMax = Max(armorMax, armor.MaxAmount);
-				}
-				
-				// Armor
-				DrawBar("BODYARM1", "BODYARM0", armorDisplay, 				  armorMax - 100, (18, 676) + HPOffset, 0, 0, imageAlignmentLeft);
-				DrawBar("BODYARM2", "BODYARM0", Max(0, armorDisplay - (armorMax - 100)), 100, (18, 676) + HPOffset, 0, 0, imageAlignmentLeft);
-				
-				let invul = Powerup(CPlayer.mo.FindInventory("PowerInvulnerable",true));
-				if (invul && invul.EffectTics > 0)
-				{
-					double invulalpha = GetPowerFadeAlpha("PowerInvulnerable");
-					DrawStringScaled(mQ4HudFont, FormatNumber(armorAmount, 1, 3), 	(-4, 679) + HPOffset, DI_TEXT_ALIGN_RIGHT, colArmor, 1.0 - invulalpha, scaling: 0.5);
-					DrawStringScaled(mQ4HudFont, FormatNumber(666),					(-4, 679) + HPOffset, DI_TEXT_ALIGN_RIGHT, colArmorInvul, invulalpha, scaling: 0.5);
-				}
-				else
-				{
-					if (armorAmount > 999)
-					{
-						DrawString(mQ4HudFont, FormatNumber(armorAmount, 1, 4), 	(-4, 679) + HPOffset, DI_TEXT_ALIGN_RIGHT, colArmor, scale: (0.5, 0.5) * 3 / 4);
-					}
-					else
-						DrawString(mQ4HudFont, FormatNumber(armorAmount, 1, 3), 	(-4, 679) + HPOffset, DI_TEXT_ALIGN_RIGHT, colArmor, scale: (0.5, 0.5));
-				}
-				
-				
-				// Health
-				// This variable is the means of doing interpolation with the health bar.
-				int hpi = Clamp(mHealthInterpolator.GetValue(), 0, 200);
-				DrawBar("BODYHEL1", "BODYHEL0", hpi, 				100,	(18, 694) + HPOffset, 0, 0, imageAlignmentLeft);
-				DrawBar("BODYHEL2", "BODYHEL0", Max(0, hpi - 100), 	100,	(18, 694) + HPOffset, 0, 0, imageAlignmentLeft);
-				
-				if (hp > 999)
-					DrawString(mQ4HudFont, FormatNumber(hp, 1, 4), 		(-4, 697) + HPOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scale: (0.5, 0.5) * 3 / 4);
-				else
-					DrawString(mQ4HudFont, FormatNumber(hp, 1, 3), 		(-4, 697) + HPOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scale: (0.5, 0.5));
-				
-				DrawImage ("BODYHELC", (0, 697) + HPOffset, imageAlignmentLeft);
-			}
-
-			//======================================================================
-			// Kill Counter Medals
-			
-			Vector2 MetalCoords[2];
-			double MedalSpace = 50;
-			double MoveSpace = -20;
-			MetalCoords[1] = (560, 0);	//medal1GL
-			MetalCoords[0] = (580, 20);	//medal0
-			
-			// Offset indent based on 10s of cash.
-				 if (Cash >= 1000000000)	{ MetalCoords[0].X += MoveSpace * 5;	MetalCoords[1].X += MoveSpace * 5; }
-			else if (Cash >= 100000000)		{ MetalCoords[0].X += MoveSpace * 4;	MetalCoords[1].X += MoveSpace * 4; }
-			else if (Cash >= 10000000)		{ MetalCoords[0].X += MoveSpace * 3;	MetalCoords[1].X += MoveSpace * 3; }
-			else if (Cash >= 1000000)		{ MetalCoords[0].X += MoveSpace * 2; 	MetalCoords[1].X += MoveSpace * 2; }
-			else if (Cash >= 100000)		{ MetalCoords[0].X += MoveSpace; 		MetalCoords[1].X += MoveSpace; }
-			
-			// Set up the images.
-			String MedalImage[5];
-			int MedalCount = GetAmountOnly("RewardToken");
-			MedalImage[0] = (MedalCount > 0) ? "medal1GL" : "medal0";
-			MedalImage[1] = (MedalCount > 1) ? "medal1GL" : "medal0";
-			MedalImage[2] = (MedalCount > 2) ? "medal1GL" : "medal0";
-			MedalImage[3] = (MedalCount > 3) ? "medal1GL" : "medal0";
-			MedalImage[4] = (MedalCount > 4) ? "medal1GL" : "medal0";
-			
-			for (int i = 0; i < MedalImage.Size(); i++)
-			{
-				Vector2 MedalPos = (MedalCount > i) ? MetalCoords[1] : MetalCoords[0];
-				MedalPos.X += MedalSpace * i;
-				
-				DrawImage(MedalImage[i], MedalPos, imageAlignmentLeft);
-			}
-			
-			if (!CheckWeaponSelected("AkimboWeapon"))
-			{
-				
-			//	int GrenCharge, GrenChargeMax;
-				int GrenCooldown, GrenCooldownMax;
-				
-				
-				for (int i = 0; i < Doom4Player.GrenadeSelected.Size(); i++)
-				{
-					let gren = D4DGrenadeItem(CPlayer.mo.FindInventory(Doom4Player.GrenadeSelected[i]));
-					if (gren && gren.Selected)
-					{
-						GrenCooldownMax = gren.CooldownMax;
-						GrenCooldown = gren.Cooldown;
-						DrawImage((GrenCooldown > 0) ? gren.IconCooldown : gren.IconReady, (gren.PX, gren.PY) + AmmoOffset, imageAlignmentLeft, 1.0, (-1,-1), (gren.SX, gren.SY));
-						break;
-					}
-				}
-				// Recharging
-				if (GrenCooldown > 0)			
-					DrawBar("KEYSLOTR", "KEYSLOT0", GrenCooldown, GrenCooldownMax,	(825, 680) + AmmoOffset, 0, SHADER_VERT|SHADER_REVERSE, imageAlignmentLeft);
-				DrawImage((GrenCooldown > 0) ? "KEYSLOT0" : "KEYSLOT1", 			(825, 680) + AmmoOffset, imageAlignmentLeft);
-			}
-			//======================================================================
-			// Ammo Pane + Chainsaw + BFG Ammo Counters
-			
-			Ammo ammo1, ammo2;
-			int ac1, ac2;
-			[ammo1, ammo2, ac1, ac2] = GetCurrentAmmo();
-			DrawImage("AMMOPANE", (866, 669) + AmmoOffset, imageAlignmentLeft);
-			
-			bool DrawAmmoStandard = true;
-						
-			
-			if (GetAmountOnly("D4BFG"))
-			{
-				int BFGUpgrade = Clamp(GetAmountOnly("BFGUpgrade1"),0,1);
-				
-				int BFGAmmo = 0, BFGMaxAmmo = 0;
-				[BFGAmmo, BFGMaxAmmo] = GetAmount("D4BFGAmmo");
-				BFGMaxAmmo += BFGUpgrade;
-				/*
-				String BFGBar1 = BFGUpgrade ? "BFGAMM44" : "BFGAMM33";
-				String BFGBar2 = BFGUpgrade ? "BFGAMM04" : "BFGAMM03";
-				
-				DrawBar(BFGBar1, BFGBar2, BFGAmmo, BFGMaxAmmo, (878, 713), 0, SHADER_REVERSE, imageAlignmentLeft);
-				*/
-				
-				// Spaced by pixel size + 1 extra on the X axis.
-				if (BFGUpgrade)
-				{
-					DrawImage("BFGAMM02", (878, 713) + AmmoOffset, 				imageAlignmentLeft);
-					DrawImage("BFGAMM02", (878 + 23, 713) + AmmoOffset, 		imageAlignmentLeft);
-					DrawImage("BFGAMM02", (878 + (23 * 2), 713) + AmmoOffset,	imageAlignmentLeft);
-					DrawImage("BFGAMM02", (878 + (23 * 3), 713) + AmmoOffset,	imageAlignmentLeft);
-					
-					if (BFGAmmo > 0)
-					{
-						Switch (BFGAmmo)
-						{
-							Default:
-							Case 4: DrawImage("BFGAMM22", (878, 713) + AmmoOffset, imageAlignmentLeft);
-							Case 3: DrawImage("BFGAMM22", (878 + 23, 713) + AmmoOffset, imageAlignmentLeft);
-							Case 2: DrawImage("BFGAMM22", (878 + (23 * 2), 713) + AmmoOffset, imageAlignmentLeft);
-							Case 1: DrawImage("BFGAMM22", (878 + (23 * 3), 713) + AmmoOffset, imageAlignmentLeft);
-							Case 0: break;
-						}
-					}
-				}
-				else
-				{
-					DrawImage("BFGAMM01", (878, 713) + AmmoOffset, imageAlignmentLeft);
-					DrawImage("BFGAMM01", (878 + 31, 713) + AmmoOffset, imageAlignmentLeft);
-					DrawImage("BFGAMM01", (878 + 62, 713) + AmmoOffset, imageAlignmentLeft);
-					
-					if (BFGAmmo > 0)
-					{
-						Switch (BFGAmmo)
-						{
-							Default:
-							Case 3: DrawImage("BFGAMM11", (878, 713) + AmmoOffset, imageAlignmentLeft);
-							Case 2: DrawImage("BFGAMM11", (878 + 31, 713) + AmmoOffset, imageAlignmentLeft);
-							Case 1: DrawImage("BFGAMM11", (878 + 62, 713) + AmmoOffset, imageAlignmentLeft);
-							Case 0: break;
-						}
-					}
-				}
-			}
-			
-			if (GetAmountOnly("D4Chainsaw"))
-			{
-				int ChainsawAmmoUpgrade = GetAmountOnly("D4Backpack");
-				int ChainsawAmmo = 0, ChainsawAmmoMax = 0;
-				[ChainsawAmmo, ChainsawAmmoMax] = GetAmount("D4Fuel");
-				
-				if (ChainsawAmmoUpgrade > 0)
-					DrawBar("CSAMMO88", "CSAMMO08", ChainsawAmmo, ChainsawAmmoMax, (982, 713) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
-				else
-					DrawBar("CSAMMO55", "CSAMMO05", ChainsawAmmo, ChainsawAmmoMax, (982, 713) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
-			}
-			
-			//======================================================================
-			// Weapons
-			
-			
-			int amt = Clamp(GetAmountOnly("Counter"), 0, 52);
-			String DialName = "";
-			
-			if (amt > 0)
-			{
-				DialName = String.Format("cnt%02d", amt);
-				DrawImage(DialName, (465, 337), imageAlignmentLeft);
-			}
-			
-			// Independent Weapon Sections
-			
-			if (CheckWeaponSelected("D4DFist"))
-			{
-				DrawImage("fist", (983,676) + AmmoOffset, imageAlignmentLeft);
-			}
-			else if (CheckWeaponSelected("D4Chainsaw"))
-			{
-				DrawImage("chainsaw", (983,676) + AmmoOffset, imageAlignmentLeft);
-			}
-			else if (CheckWeaponSelected("D4Pistol"))
-			{
-				DrawImage("pistol", (983,676) + AmmoOffset, imageAlignmentLeft);
-				
-				// Reticle
-				if (!noReticle)	
-					DrawImage("rPistol", (465, 337), imageAlignmentLeft);
-				
-				// Lance stuff
-				if (GetAmountOnly("PistolUpgradeLance"))
-				{
-					DrawImage("zancmod0", (882, 673) + AmmoOffset, imageAlignmentLeft);
-					if (GetAmountOnly("PistolUpgradeLance"))
-						DrawImage("zancmod1", (882, 673) + AmmoOffset, imageAlignmentLeft);
-				}
-				
-				if (GetAmountOnly("PistolLanceReadyToken"))	
-					DrawImage("rPLance", (465, 337), imageAlignmentLeft);
-				
-				// Charge indicator
-				amt = Clamp(GetAmountOnly("PistolAltFireCounter"), 0, 52);
-				if (amt > 0)
-				{
-					if (amt >= 52)
-					{
-						String ring = (GetAmountOnly("PistolUpgradeAltDamage")) ? "red52" : "cya52";
-						DrawImage(ring, (465, 337), imageAlignmentLeft);
-					}
-					DialName = String.Format("cnt%02d", amt);
-					DrawImage(DialName, (465, 337), imageAlignmentLeft);
-				}
-			}
-			else if (CheckWeaponSelected("D4Shotgun"))
-			{
-				// Icon
-				DrawImage("shotgun", (983,676) + AmmoOffset, imageAlignmentLeft);
-				
-				// Mod Icons
-				if (GetAmountOnly("ShotgunMod1"))
-				{
-					DrawImage("zhrgbrs0", (882, 673) + AmmoOffset, imageAlignmentLeft);
-					if (GetAmountOnly("TriShotActive"))
-						DrawImage("zhrgbrs1", (882, 673) + AmmoOffset, imageAlignmentLeft);
-				}
-				if (GetAmountOnly("ShotgunMod2"))
-				{
-					DrawImage("zplosht0", (910, 673) + AmmoOffset, imageAlignmentLeft);
-					if (GetAmountOnly("GrenadeActive"))
-						DrawImage("zplosht1", (910, 673) + AmmoOffset, imageAlignmentLeft);
-				}
-				
-				// Tri-shot
-				if (GetAmountOnly("TriShotActive"))
-				{
-					// Timer
-					amt = Clamp(GetAmountOnly("SGTripleShotTimer"), 0, 52);
-					
-					// Reticle
-					if (!noReticle)
-					{
-						String reticle = (GetAmountOnly("AltFireToken")) ? "rSGT_ady" : "rSGT_dle";
-						DrawImage(reticle, (465, 337), imageAlignmentLeft);
-					}
-					
-					// Primed?
-					if (amt > 0 || GetAmountOnly("AltFireToken"))
-					{
-						int clipCount = Clamp(GetAmountOnly("TrishotClip"),0,3);
-						String ip = String.Format("rSGT_ip%d", clipCount);
-						DrawImage(ip, (465, 337), imageAlignmentLeft);
-					}
-					
-					// Cooldown ring
-					if (amt > 0)
-					{
-						DialName = String.Format("cnt%02d", amt);
-						DrawImage(DialName, (465, 337), imageAlignmentLeft);
-					}
-				}
-				else if (GetAmountOnly("GrenadeActive"))
-				{
-					// Timer
-					amt = Clamp(GetAmountOnly("SGGrenadeTimer"), 0, 52);
-					
-					// Reticle
-					if (!noReticle)
-					{
-						String reticle = (GetAmountOnly("AltFireToken")) ? "rSGG_ady" : "rSGG_dle";
-						DrawImage(reticle, (465, 337), imageAlignmentLeft);
-					}
-					
-					// Cooldown ring
-					if (amt > 0)
-					{
-						DialName = String.Format("cnt%02d", amt);
-						DrawImage(DialName, (465, 337), imageAlignmentLeft);
-					}
-				}
-				else
-				{
-					// Reticle
-					if (!noReticle)
-						DrawImage("rSG", (465, 337), imageAlignmentLeft);
-				}
-			}
-			else if (CheckWeaponSelected("D4SuperShotgun"))
-			{
-				// Reticle				
-				if (!noReticle)
-					DrawImage("rSSG", (464, 336), imageAlignmentLeft);
-				DrawImage("sshotgun", (983,676) + AmmoOffset, imageAlignmentLeft);
-			}
-			else if (CheckWeaponSelected("D4Repeater"))
-			{
-				if (!noReticle)
-				{
-					String img = GetAmountOnly("RepeaterAimHolding") ? "rRep_ire" : "rRep_ter";
-					DrawImage(img, (465, 337), imageAlignmentLeft);
-				}
-				DrawImage("repeater", (983,676) + AmmoOffset, imageAlignmentLeft);
-			}
-			else if (CheckWeaponSelected("D4AssaultRifle"))
-			{
-				DrawImage("harharha", (983,676) + AmmoOffset, imageAlignmentLeft);
-				
-				// Mod Icons
-				if (GetAmountOnly("AssaultRifleMod1"))
-				{
-					String img = (GetAmountOnly("TacticalScopeActive")) ? "zactscp1" : "zactscp0";
-					DrawImage(img, (882, 673) + AmmoOffset, imageAlignmentLeft);
-				}
-				if (GetAmountOnly("AssaultRifleMod2"))
-				{
-					String img = (GetAmountOnly("MicroMissilesActive")) ? "zissile1" : "zissile0";
-					DrawImage(img, (910, 673) + AmmoOffset, imageAlignmentLeft);
-				}
-				
-				if (!noReticle)
-				{
-					if (GetAmountOnly("AltFireToken"))
-					{
-						if (GetAmountOnly("TacticalScopeActive"))
-						{
-							DrawImage("rHar_ope", (131, 128), imageAlignmentLeft);
-						}
-						else if (GetAmountOnly("MicroMissilesActive"))
-						{
-							String img = String.Format("rHAR_ip%d",6 - Min(6, GetAmountOnly("MicroMissilesCounter")));
-							DrawImage(img, (448,320), imageAlignmentLeft);
-						}
-					}
-					else
-						DrawImage("rHarIdle", (464,337), imageAlignmentLeft);	
-						
-				}
-			}
-			else if (CheckWeaponSelected("D4Chaingun"))
-			{
-				DrawImage("chaingun", (983,676) + AmmoOffset, imageAlignmentLeft);
-				
-				if (GetAmountOnly("ChaingunMod1"))
-				{
-					String img = (GetAmountOnly("GatlingRotatorActive")) ? "zotator1" : "zotator0";
-					DrawImage(img, (882, 673) + AmmoOffset, imageAlignmentLeft);
-				}
-				if (GetAmountOnly("ChaingunMod2"))
-				{
-					String img = (GetAmountOnly("MobileTurretActive")) ? "zurrets1" : "zurrets0";
-					DrawImage(img, (910, 673) + AmmoOffset, imageAlignmentLeft);
-				}
-				
-				if (!noReticle)	DrawImage("rCha_gun", (464, 336), imageAlignmentLeft);
-			}
-			else if (CheckWeaponSelected("D4GrenadeLauncher"))
-			{
-				if (!noReticle)	DrawImage("rGL", (465, 337), imageAlignmentLeft);
-				DrawImage("grenader", (983,676) + AmmoOffset, imageAlignmentLeft);
-			}
-			else if (CheckWeaponSelected("D4RocketLauncher"))
-			{
-				// Mods Display
-				if (GetAmountOnly("RocketLauncherMod1"))
-				{
-					String img = (GetAmountOnly("DetonateActive")) ? "zetonat1" : "zetonat0";
-					DrawImage(img, (882, 673) + AmmoOffset, imageAlignmentLeft);
-				}
-				if (GetAmountOnly("RocketLauncherMod2"))
-				{
-					String img = (GetAmountOnly("LockOnActive")) ? "zocking1" : "zocking0";
-					DrawImage(img, (910, 673) + AmmoOffset, imageAlignmentLeft);
-				}
-				
-				// Mod Specifics
-				if (GetAmountOnly("DetonateActive"))
-				{
-					if (!noReticle) DrawImage("rRLD_ate", (465, 337), imageAlignmentLeft);
-				}
-				
-				// In the event the maximums are changed later, the system 
-				// will maintain without needing to change anything here.
-				// Hooray for automation!
-				else if (GetAmountOnly("LockOnActive"))
-				{
-					if (!noReticle) DrawImage("rRLL_kOn", (465, 337), imageAlignmentLeft);
-					int rmax;
-					[amt, rmax] = GetAmount("RLLockToken");
-					if (amt > 0)
-					{
-						DialName = String.Format("cnt%02d", Clamp(((52 * amt) / Max(1, rmax)), 0, 52));
-						DrawImage(DialName, (465, 337), imageAlignmentLeft);
-					}
-				}
-				else if (!noReticle)	DrawImage("rRL", (465, 337), imageAlignmentLeft);
-				DrawImage("rocketer", (983,676) + AmmoOffset, imageAlignmentLeft);
-			}
-			else if (CheckWeaponSelected("D4LightningGun"))
-			{
-				if (!noReticle)
-				{
-					String img = GetAmountOnly("AltFireToken") ? "rLig_un2" : "rLig_un1";
-					DrawImage(img, (464,336), imageAlignmentLeft);
-				}
-				DrawImage("thunderb", (983,676) + AmmoOffset, imageAlignmentLeft);
-			}
-			else if (CheckWeaponSelected("D4PlasmaRifle"))
-			{
-				if (GetAmountOnly("PlasmaRifleMod1"))
-				{
-					String img = (GetAmountOnly("HeatBlastActive")) ? "ztblast1" : "ztblast0";
-					DrawImage(img, (882, 673) + AmmoOffset, imageAlignmentLeft);
-				}
-				if (GetAmountOnly("PlasmaRifleMod2"))
-				{
-					String img = (GetAmountOnly("StunBombActive")) ? "ztunbom1" : "ztunbom0";
-					DrawImage(img, (910, 673) + AmmoOffset, imageAlignmentLeft);
-				}
-				
-				if (GetAmountOnly("HeatBlastActive"))
-				{
-					int Heat, HMax;
-					[Heat, HMax]= GetAmount("PlasmaHeatBlastCounter");	Heat = min(Heat, HMax);
-					
-					if (Heat > 0)
-					{
-						// Special image for max count. Don't bother mathing it out if so.
-						String img = (Heat >= HMax) ? "cya52" : String.Format("cnt%02d", Clamp(((52 * Heat) / Max(1, HMax)), 0, 52));
-						DrawImage(img, (465, 337), imageAlignmentLeft);
-					}
-				}
-				else if (GetAmountOnly("StunBombActive"))
-				{
-					int Stun, SMax;
-					[Stun, SMax] = GetAmount("PlasmaStunBombCounter");	Stun = min(Stun,SMax);
-					
-					if (Stun > 0)
-					{
-						String img = String.Format("cnt%02d", Clamp(((52 * Stun) / Max(1, SMax)), 0, 52));
-						DrawImage(img, (465, 337), imageAlignmentLeft);
-					}
-				}
-				if (!noReticle)	DrawImage("rPlasma", (464, 336), imageAlignmentLeft);
-				DrawImage("prifle", (983,676) + AmmoOffset, imageAlignmentLeft);
-			}
-			else if (CheckWeaponSelected("D4StaticRifle"))
-			{
-				int a1, a2;
-				[a1, a2] = GetAmount("StaticRifleChargingToken");	a1 = Min(a1, a2);
-				
-				if (a1 > 10)
-				{
-					String img = (a1 >= a2) ? "rng52" : String.Format("cnt%02d", Clamp(((52 * a1) / Max(1, a2)), 0, 52));
-					DrawImage(img, (465, 337), imageAlignmentLeft);
-				}
-				
-				if (!noReticle)	DrawImage("rSta_fle",  (464,336), imageAlignmentLeft);
-				
-				DrawImage("static", (983,676) + AmmoOffset, imageAlignmentLeft);
-			}
-			else if (CheckWeaponSelected("D4VortexRifle"))
-			{
-				int a1, a2;
-				[a1, a2] = GetAmount("VortexCharges");
-				
-				if (GetAmountOnly("VortexZoomed"))
-				{
-					String img = (a1 >= a2) ? "vortmas2" : "vortmask";
-					DrawImage(img, (-170, 0), imageAlignmentLeft);
-				}
-				
-				if (a1 > 0)
-				{
-					String img = (a1 >= a2) ? "cya52" : String.Format("cnt%02d", Clamp(((52 * a1) / Max(1, a2)), 0, 52));
-					DrawImage(img, (465, 337), imageAlignmentLeft);
-				}
-				
-				if (!noReticle)	DrawImage("rVor_fle", (465,337), imageAlignmentLeft);
-				DrawImage("vortex", (983,676) + AmmoOffset, imageAlignmentLeft);
-			}
-			else if (CheckWeaponSelected("D4GaussCannon"))
-			{
-				if (GetAmountOnly("GaussCannonMod1"))
-				{
-					String img = (GetAmountOnly("PrecisionActive")) ? "zrecblt1" : "zrecblt0";
-					DrawImage(img, (882, 673) + AmmoOffset, imageAlignmentLeft);
-				}
-				if (GetAmountOnly("GaussCannonMod2"))
-				{
-					String img = (GetAmountOnly("SiegeActive")) ? "ziegemd1" : "ziegemd0";
-					DrawImage(img, (910, 673) + AmmoOffset, imageAlignmentLeft);
-				}
-				
-				if (GetAmountOnly("PrecisionActive") && GetAmountOnly("AltFireToken"))
-				{
-					int a1, a2;
-					[a1, a2] = GetAmount("PrecisionShotChargesCounter");
-					
-					DrawBar("rGau_er1", "rGau_er0", a1, a2, (394, 334), 0, SHADER_VERT|SHADER_REVERSE, imageAlignmentLeft);
-					DrawImage("rGau_er4", (0,128), imageAlignmentLeft);
-				}
-				else if (!noReticle)
-				{
-					String img = GetAmountOnly("SiegeActive") ? "rGau_ege" : "rGauss";
-					DrawImage(img, (465, 337), imageAlignmentLeft);
-				}
-				
-				DrawImage("gauss", (983, 676) + AmmoOffset, imageAlignmentLeft);
-			}
-			else if (CheckWeaponSelected("D4CarrionCannon"))
-			{
-				if (!noReticle)	DrawImage("rHel_hot", (464,336), imageAlignmentLeft);
-				DrawImage("flare", (983,676) + AmmoOffset, imageAlignmentLeft);
-			}
-			else if (CheckWeaponSelected("D4BFG"))
-			{
-				if (!noReticle)	DrawImage("rBFG", (464,336), imageAlignmentLeft);
-				DrawImage("bfg", (983,676) + AmmoOffset, imageAlignmentLeft);
-			}
-			else DrawAmmoStandard = false;
-			
-			if (DrawAmmoStandard)
-			{
-				if (ammo1)
-				{	
-					AmmoClamp = (ammo1.Amount > 999) ? 4 : 3;
-					double scale = (AmmoClamp == 4) ? 0.35 : 0.5;
-					DrawBar("AMMOBAR1", "AMMOBAR0", ac1, ammo1.Default.MaxAmount, (881, 693) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
-					DrawBar("AMMOBAR2", "AMMOBAR0", ac1 - ammo1.Default.MaxAmount, ammo1.BackpackMaxAmount - ammo1.Default.MaxAmount, (881, 693) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
-					DrawStringScaled(mQ4HudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (983,676) + AmmoOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: scale);
-				}
-			}
-			else
-			{
-				double posx = 1038;
-				double scale = 0.35;
-				
-				if (ammo1 && ammo1 == ammo2)
-				{
-					if (ammo1) // Bottom
-					{
-						AmmoClamp = (ammo1.Amount > 999) ? 4 : 3;
-						DrawBar("AMMOBAR1", "AMMOBAR0", ac1, ammo1.Default.MaxAmount, (881, 693) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
-						DrawBar("AMMOBAR2", "AMMOBAR0", ac1 - ammo1.Default.MaxAmount, ammo1.BackpackMaxAmount - ammo1.Default.MaxAmount, (881, 693) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
-						DrawStringScaled(mQ4HudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (posx,694) + AmmoOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: scale);
-					}
-				}
-				else
-				{
-					if (ammo1) // Top
-					{
-						AmmoClamp = (ammo1.Amount > 999) ? 4 : 3;
-						DrawBar("AMMOBAR1", "AMMOBAR0", ac1, ammo1.MaxAmount, (881, 678) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
-						DrawStringScaled(mQ4HudFont, FormatNumber(ammo1.Amount, 1, AmmoClamp), (posx,679) + AmmoOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: scale);
-					}
-					if (ammo2) // Bottom
-					{
-						int AmmoClamp2 = (ammo2.Amount > 999) ? 4 : 3;
-						DrawBar("AMMOBAR2", "AMMOBAR0", ac2, ammo2.MaxAmount, (881, 693) + AmmoOffset, 0, SHADER_REVERSE, imageAlignmentLeft);
-						DrawStringScaled(mQ4HudFont, FormatNumber(ammo2.Amount, 1, AmmoClamp2), (posx,694) + AmmoOffset, DI_TEXT_ALIGN_RIGHT, Font.CR_WHITE, scaling: scale);
-					}
-				}
-			}
-		}
 	}
 }
 
@@ -1090,7 +315,7 @@ extend class Doom4StatusBar
 	double GetPowerFadeAlpha(Class<Powerup> item, int expirewarn = 105)
 	{
 		if (!CPlayer || !CPlayer.mo)	return 0.0;
-		if (!expirewarn)				return 1.0;
+		if (expirewarn < 1)				return 1.0;
 		
 		let power = Powerup(CPlayer.mo.FindInventory(item, true));
 		if (!power)	
@@ -1117,49 +342,5 @@ extend class Doom4StatusBar
 		
 		DrawString(font, string, pos, flags, translation, ALpha, wrapwidth, linespacing, (scaling, scaling));
 		
-		/*
-		scaling = abs(scaling);
-		
-		Vector2 OldScale = BaseSize, TempScale = BaseSize;
-		Vector2 ScaledPos = pos;
-		
-		bool sized = (scaling != 1.0);
-		if (sized)
-		{
-			TempScale /= scaling;
-			ScaledPos /= scaling;
-		}
-		
-		if (sized) SetSize(0, TempScale.X, TempScale.Y);
-		DrawString(font, string, ScaledPos, flags, translation, Alpha, wrapwidth, linespacing);
-		if (sized) SetSize(0, OldScale.X, OldScale.Y);
-		*/
-	}
-	
-	// Independent axis scaling.
-	void DrawStringScaledVector(HUDFont font, String string, Vector2 pos, int flags = 0, int translation = Font.CR_UNTRANSLATED, double Alpha = 1., int wrapwidth = -1, int linespacing = 4, Vector2 scaling = (1,1))
-	{
-		Vector2 OldScale = BaseSize, TempScale = BaseSize;
-		Vector2 ScaledPos = pos;
-	
-		if (scaling.X == 0 || scaling.Y == 0)
-			return;
-			
-		scaling.X = abs(scaling.X);
-		scaling.Y = abs(scaling.Y);
-		
-		bool sized = (scaling.X != 1.0 || scaling.Y != 1.0);
-		if (sized)
-		{
-			TempScale.X /= scaling.X;
-			TempScale.Y /= scaling.Y;
-			ScaledPos.X /= scaling.X;
-			ScaledPos.Y /= scaling.Y;
-		}
-		
-		
-		if (sized)	SetSize(0, TempScale.X, TempScale.Y);
-		DrawString(font, string, ScaledPos, flags, translation, Alpha, wrapwidth, linespacing);
-		if (sized)	SetSize(0, OldScale.X, OldScale.Y);
 	}
 }

@@ -1,8 +1,8 @@
 [enu default]
 
 SECRETMESSAGE = "";
-VERSION_NUMBER = "v3.0 Alpha 8.5";
-VERSION_DATE = "September 8, 2019";
+VERSION_NUMBER = "v3.0 Alpha 8.6";
+VERSION_DATE = "May 4, 2020";
 
 // This is where the footstep sounds for each texture are defined.
 // The definition MUST be STEP_<texturename>
@@ -371,47 +371,76 @@ RepeaterUpgradeAltAmmoD1 = 	"- Secondary Ammo Cost";
 PistolUpgradeAutomatic = 	"Prototype Trigger";
 PistolUpgradeAutomaticD1 = 	"Enables Primary Auto-Fire";
 PistolUpgradeAutomaticD2 = 	"Slower than rapid tapping"; //RED
+PistolUpgradeAutomaticF1 = 	"";
 
 PistolUpgradeAltDamage = 	"Mk. V Energy Converter";
 PistolUpgradeAltDamageD1 = 	"+ Secondary Damage";
+PistolUpgradeAltDamageF1 = 	"From Pea Shooter to Tomato Launcher in the blink of an eye.";
 
 PistolUpgradeAltCharge = 	"Mk. V Charge Battery";
 PistolUpgradeAltChargeD1 = 	"+ Secondary Charge Speed";
+PistolUpgradeAltChargeF1 = 	"Reaction Speed Level: 'BULLSHIT!' Fast";
 
 PistolUpgradeDamage = 		"Mk. VI Proto Generator";
 PistolUpgradeDamageD1 =		"+ Primary Damage";
+PistolUpgradeDamageF1 =		"Stolen from the Power Rangers by some creep who wanted to bang the pink one.";
 
 PistolUpgradeLance = 	    "Lance Mode Device";
-PistolUpgradeLanceD1 =    	"Superchange secondary fire to fire a powerful impact beam";
+PistolUpgradeLanceD1 =    	"Superchange secondary to fire a powerful impact beam";
 PistolUpgradeLanceD2 =  	"Lance has longer recovery after shots"; //RED
+PistolUpgradeLanceD2 =  	"Feels good getting a headshot from 500m away.";
 
 BFGUpgrade1 =				"Hyper Storage";
 BFGUpgrade1D1 =				"+1 Ammo Capacity";
+BFGUpgrade1F1 =				"Fuck limits.";
 
 BFGUpgrade2 =				"Orbiter";
 BFGUpgrade2D1 =				"Adds Secondary Fire";
 BFGUpgrade2D2 =				"BFG spins around shooter, striking enemies with lasers";
 BFGUpgrade2D3 =				"While orbiter is active, secondary extends time by 16s";
+BFGUpgrade2F1 =				"Like a Microwave belching Disco Fever.";
 
 BFGUpgrade3 =				"Adamantite Launch Bay";
 BFGUpgrade3D1 =				"+100% Primary Projectile Speed";
 BFGUpgrade3D2 =				"+200% Primary Projectile Laser Damage";
+BFGUpgrade3F1 =				"Turning up the 4 Chan Party Van to 11.";
 
 BFGUpgrade4 =				"Trajectory Redirection System";
 BFGUpgrade4D1 =				"+1 Projectile Redirection Charge Per Shot";
 BFGUpgrade4D2 =				"Mod Switch Key: Projectile trajectory changed to aimed location";
+BFGUpgrade4F1 =				"I'm feeling lucky, Krunk.";
 
 CarrionUpgradePickup =		"Decay Minimizer";
 CarrionUpgradePickupD1 =	"+ Ammo Per Pickup";
+CarrionUpgradePickupF1 =	"Super Speedy Argent Squeezy 1000 at your service!";
 
 CarrionUpgradeAmmo =		"Cell Purifier";
 CarrionUpgradeAmmoD1 =		"- Ammo Cost";
+CarrionUpgradeAmmoF1 =		"When less becomes more, wear that shit eating grin with pride.";
 
 CarrionUpgradeStun =		"Vorpal Stinger";
 CarrionUpgradeStunD1 =		"Attempts to continuously stun enemies";
+CarrionUpgradeStunF1 =		"Hornets, wasps and bees, OH YEAH!";
 
 CarrionUpgradeTime =		"Argent Accumulator";
 CarrionUpgradeTimeD1 =		"+1 Second to Portal Duration";
+CarrionUpgradeTimeF1 =		"Flame Belch's angry roided out older cousin";
+
+CrucibleUpgradeCleave =		"Makyr's Edge";
+CrucibleUpgradeCleaveD1 =	"Cleave multiple enemies with each attack";
+CrucibleUpgradeCleaveF1 =	"Bitcheroni Pizza, coming right up!";
+
+CrucibleUpgradeRange =		"Novak's Reach";
+CrucibleUpgradeRangeD1 =	"Extended Melee Range";
+CrucibleUpgradeRangeF1 =	"Lasts longer than 4 hours.";
+
+CrucibleUpgradeSyphon =		"Syphoning Blade";
+CrucibleUpgradeSyphonD1 =	"Brief invulnerability on damaging monsters";
+CrucibleUpgradeSyphonF1 =	"Delicious and nutritious. Tastes like buttsauce.";
+
+CrucibleUpgradeBattery =	"Blood Battery";
+CrucibleUpgradeBatteryD1 =	"+3 Ammo Capacity";
+CrucibleUpgradeBatteryF1 =	"Low refractory period? No problem!";
 
 HealthUpgrade1 =			"Health Cap + 25";
 HealthUpgrade2 =			"Health Cap + 50";

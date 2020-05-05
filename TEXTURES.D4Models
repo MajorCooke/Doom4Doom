@@ -1,0 +1,283 @@
+//==============================================================================
+// Beams
+//==============================================================================
+// Static Rifle
+Sprite X202C0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0
+	{
+		Style CopyAlpha
+		Blend 255, 128, 64, 1.0
+	}
+}
+// Bullets
+Sprite X202D0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0
+	{
+		Style CopyAlpha
+		Blend 255, 192, 96, 1.0
+	}
+}
+
+// BFG Beam
+Sprite X202E0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0
+	{
+		Style CopyAlpha
+		Blend 96, 255, 96, 1.0
+	}
+}
+
+// Lightning Beam
+Sprite X202F0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0
+	{
+		Style CopyAlpha
+		Blend 64, 64, 255, 1.0
+	}
+}
+// Lightning Beam Alt
+Sprite X202G0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0
+	{
+		Style CopyAlpha
+		Blend 128, 64, 255, 1.0
+	}
+}
+
+// Vortex Rifle
+Sprite X202H0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0
+	{
+		Style CopyAlpha
+		Blend 249, 17, 255, 1.0
+	}
+}
+
+// Carrion Merge Effect
+Sprite X202I0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0
+	{
+		Style CopyAlpha
+		Blend 255, 140, 80, 1.0
+	}
+}
+
+Sprite X202J0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0
+	{
+		Style Add
+		Blend 255, 0, 0, 1.0
+	}
+}
+
+Sprite X202K0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0
+	{
+		Style Add
+		Blend 255, 128, 0, 1.0
+	}
+}
+
+Sprite X202Z0, 125, 125
+{
+	Offset 62, 62
+	Patch X202B0, 0, 0	{ Style Add }
+}
+
+// Lightning Beam Alternatives
+Sprite X206G0, 64, 256
+{
+	Offset 32, 128
+	Patch X206F0, 0, 64
+	Patch X206F0, 0, -192
+}
+
+Sprite X206H0, 64, 256
+{
+	Offset 32, 128
+	Patch X206F0, 0, 128
+	Patch X206F0, 0, -128
+}
+
+Sprite X206I0, 64, 256
+{
+	Offset 32, 128
+	Patch X206F0, 0, 192
+	Patch X206F0, 0, -64
+}
+
+Sprite X206J0, 64, 256
+{
+	Offset 32, 128
+	Patch X206F0, 0, 192
+	Patch X206F0, 0, -64
+}
+
+Sprite X206K0, 64, 256
+{
+	Offset 32, 128
+	Patch X206F0, 0, 192
+	Patch X206F0, 0, -64
+}
+
+Sprite X206L0, 64, 256
+{
+	Offset 32, 128
+	Patch X206F0, 0, 192
+	Patch X206F0, 0, -64
+}
+
+Sprite X206M0, 64, 256
+{
+	Offset 32, 128
+	Patch X206F0, 0, 192
+	Patch X206F0, 0, -64
+}
+
+//------------------------------------------------------------------------------
+Graphic "GrenadeLauncherDiffuse", 960, 960
+{
+	Patch "models/grenadelauncher_diffuse_small.jpg", 0, 0
+	{
+		FlipY
+	}
+}
+Graphic "PlasmaRifleBaseSkin", 960, 480
+{
+	Patch "Materials/PlasmaRifleBaseSkin.jpg", 0, 0
+}
+Graphic "PlasmaRiflePlateSkin", 240, 120
+{
+	Patch "Materials/PlasmaRiflePlateSkin.jpg", 0, 0
+}
+Graphic "PlasmaRifleStunSkin", 480, 480
+{
+	Patch "Materials/PlasmaRifleStunSkin.jpg", 0, 0
+}
+
+Graphic "BFGSkin", 960, 960
+{
+	Patch "Materials/BFGSkin.jpg", 0, 0
+}
+
+Graphic "ChaingunSkin", 960, 960
+{
+	Patch "Materials/ChaingunSkin.jpg", 0, 0
+}
+
+Graphic "HARSkin", 960, 960
+{
+	Patch "Materials/HARSkin.jpg", 0, 0
+}
+
+Graphic "RocketLauncherSkin", 960, 960
+{
+	Patch "Materials/RocketLauncherSkin.jpg", 0, 0
+}
+/*
+Graphic "Skin", 960, 960
+{
+	Patch "Materials/Skin.jpg", 0, 0
+}
+*/
+
+//------------------------------------------------------------------------------
+Graphic "BFGAmmoSkin", 1024, 1024 
+{
+	Patch "Materials/BFGAmmoSkin.jpg", 0, 0 
+}
+Graphic "BulletsSmallSkin", 1024, 1024 
+{
+	Patch "Materials/BulletsSmallSkin.jpg", 0, 0
+}
+Graphic "BulletsBigSkin", 480, 480
+{
+	Patch "Materials/BulletsBigSkin.jpg", 0, 0
+	Patch "Materials/Brightmaps/Auto/BulletsBigSkin.jpg", 0, 0 { Style Add }
+}
+Graphic "GasCanSkin", 480, 480 
+{
+	Patch "Materials/GasCanSkin.jpg", 0, 0
+	Patch "Materials/Brightmaps/Auto/GasCanSkin.jpg", 0, 0 { Style Add }
+}
+Graphic "PlasmaBigSkin", 480, 480
+{
+	Patch "Materials/PlasmaBigSkin.jpg", 0, 0
+	Patch "Materials/Brightmaps/Auto/PlasmaBigSkin.jpg", 0, 0 { Style Add }
+}
+Graphic "PlasmaSmallSkin", 240, 240 
+{
+	Patch "Materials/PlasmaSmallSkin.jpg", 0, 0
+	Patch "Materials/Brightmaps/Auto/PlasmaSmallSkin.jpg", 0, 0 { Style Add }
+}
+Graphic "RocketBigSkin", 480, 480 
+{
+	Patch "Materials/RocketBigSkin.jpg", 0, 0
+	Patch "Materials/Brightmaps/Auto/RocketBigSkin.jpg", 0, 0 { Style Add }
+}
+Graphic "RocketSmallSkin", 480, 240 
+{
+	Patch "Materials/RocketSmallSkin.jpg", 0, 0
+}
+Graphic "ShellBigSkin", 480, 480
+{
+	Patch "Materials/ShellBigSkin.jpg", 0, 0
+	Patch "Materials/Brightmaps/Auto/ShellBigSkin.jpg", 0, 0 { Style Add }
+}
+Graphic "ShellSmallSkin", 240, 120
+{
+	Patch "Materials/ShellSmallSkin.jpg", 0, 0
+}
+//------------------------------------------------------------------------------
+Graphic "AmmoCubeSkin", 1024, 1024
+{
+	Patch "Materials/AmmoCubeSkin.jpg", 0, 0
+}
+Graphic "ArmorBigSkin", 1024, 1024
+{
+	Patch "Materials/ArmorBigSkin.jpg", 0, 0
+}
+Graphic "ArmorMediumSkin", 960, 960
+{
+	Patch "Materials/ArmorMediumSkin.jpg", 0, 0
+}
+Graphic "ArmorSmallSkin", 480, 480
+{
+	Patch "Materials/ArmorSmallSkin.jpg", 0, 0
+}
+/*
+Graphic "HealthSkin", 1024, 1024
+{
+	Patch "Materials/HealthSkin.jpg", 0, 0
+}
+Graphic "Materials/HealthGlassSkin.png", 240, 240
+{
+	Patch "Materials/HealthGlassSkin.jpg", 0, 0
+	{
+		Style "Translucent"
+		Alpha 0.7
+	}
+}
+*/
+Graphic "CrateMaxSkin", 960, 960
+{
+	Patch "Materials/CrateMaxSkin.jpg", 0, 0
+}
