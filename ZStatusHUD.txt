@@ -120,7 +120,19 @@ extend class Doom4StatusBar
 		}
 		else // Regular Player
 		{
+			//------------------------------------------------------------------
+			// Inventory Selection
 			
+			let inv = CPlayer.mo.InvSel;
+			if (inv)
+			{
+				Vector2 InvPos = (0, -20);
+				Vector2 InvScale = (1.5, 1.5);
+				DrawInventoryIcon(CPlayer.mo.InvSel, InvPos, HUDItemBot, scale: InvScale);
+				int fcolor = (IsInventoryBarVisible()) ? Font.CR_GOLD : Font.CR_GREEN;
+				DrawString(mConsoleFont, FormatNumber(inv.Amount, 1, 10), InvPos - (0, 50), DI_TEXT_ALIGN_CENTER|HUDItemBot, fcolor, scale: InvScale);
+			}
+			//------------------------------------------------------------------
 			// Draw the number of doom dolls.
 			if (DoomDollCount > -1)
 			{
@@ -129,7 +141,7 @@ extend class Doom4StatusBar
 			}
 			
 			// Credits, lives and resistance counters
-			Vector2 TextPos = (-5, 0) + (x2, y2);
+			Vector2 TextPos = (-5, 0);
 			Vector2 NumOffset = (-10, 20);
 			double NumTextScalar = 2;
 			Vector2 NumTextScale = (NumTextScalar, NumTextScalar);
@@ -243,7 +255,7 @@ extend class Doom4StatusBar
 			Vector2 MedalCoords[2];
 			double MedalSpace = 50;
 			double MoveSpace = -30;
-			MedalCoords[0] = (0, 25) + (x1, y1);	//medal0
+			MedalCoords[0] = (0, 25);	//medal0
 			MedalCoords[1] = MedalCoords[0] - (0, 20);	//medal1GL
 			
 			// Offset indent based on 10s of cash.
