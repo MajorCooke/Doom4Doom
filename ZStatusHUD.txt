@@ -899,8 +899,8 @@ extend class Doom4StatusBar
 				
 				if (InvVis)
 				{
-					InventoryBarState parms = InventoryBarState.Create(mConsoleFont, arrowoffs: (x2, y2)/*, flags: HUDItemTop*/);
-					DrawInventoryBar(parms, (x1, y1), 6, HUDItemTop, 0.5);
+					InventoryBarState parms = InventoryBarState.Create(mConsoleFont);
+					DrawInventoryBarScaled(parms, (x1, y1), 6, HUDItemTop, 0.5, 2);
 				}
 				
 				//void DrawInventoryBar(InventoryBarState parms, Vector2 position, int numfields, int flags = 0, double bgalpha = 1.)

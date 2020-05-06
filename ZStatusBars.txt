@@ -308,10 +308,10 @@ Class Doom4StatusBar : BaseStatusBar
 		automap = true;
 		Super.DrawAutomapHud(ticFrac);
 	}
-}
 
-extend class Doom4StatusBar
-{
+	//==========================================================================
+	// Custom helper functions
+	//==========================================================================
 	double GetPowerFadeAlpha(Class<Powerup> item, int expirewarn = 105)
 	{
 		if (!CPlayer || !CPlayer.mo)	return 0.0;
@@ -342,5 +342,68 @@ extend class Doom4StatusBar
 		
 		DrawString(font, string, pos, flags, translation, ALpha, wrapwidth, linespacing, (scaling, scaling));
 		
+	}
+	
+	void DrawInventoryBarScaled(InventoryBarState parms, Vector2 position, int numfields, int flags = 0, double bgalpha = 1., double scale = 1.0)
+	{
+		if (scale <= 0.0)
+			return;
+		Vector2 vscale = (1, 1) * scale;
+		
+		double width = parms.boxsize.X * numfields * scale;
+		[position, flags] = AdjustPosition(position, flags, width, parms.boxsize.Y * scale);
+		
+		CPlayer.mo.InvFirst = ValidateInvFirst(numfields);
+		if (CPlayer.mo.InvFirst == null) return;	// Player has no listed inventory items.
+		
+		Vector2 boxsize = parms.boxsize * scale;
+		// First draw all the boxes
+		for(int i = 0; i < numfields; i++)
+		{
+			DrawTexture(parms.box, position + (boxsize.X * i, 0), flags | DI_ITEM_LEFT_TOP, bgalpha, scale: vscale);
+		}
+		
+		// now the items and the rest
+		
+		Vector2 itempos = position + boxsize / 2;
+		Vector2 textpos = position + boxsize - (1, 1 + parms.amountfont.mFont.GetHeight());
+
+		int i = 0;
+		Inventory item;
+		for(item = CPlayer.mo.InvFirst; item != NULL && i < numfields; item = item.NextInv())
+		{
+			for(int j = 0; j < 2; j++)
+			{
+				if (j ^ !!(flags & DI_DRAWCURSORFIRST))
+				{
+					if (item == CPlayer.mo.InvSel)
+					{
+						double flashAlpha = bgalpha;
+						if (flags & DI_ARTIFLASH) flashAlpha *= itemflashFade;
+						DrawTexture(parms.selector, position + parms.selectofs + (boxsize.X * i, 0), flags | DI_ITEM_LEFT_TOP, flashAlpha, scale: vscale);
+					}
+				}
+				else
+				{
+					DrawInventoryIcon(item, itempos + (boxsize.X * i, 0), flags | DI_ITEM_CENTER, scale: vscale);
+				}
+			}
+			
+			if (parms.amountfont != null && (item.Amount > 1 || (flags & DI_ALWAYSSHOWCOUNTERS)))
+			{
+				DrawString(parms.amountfont, FormatNumber(item.Amount, 0, 5), textpos + (boxsize.X * i, 0), flags | DI_TEXT_ALIGN_RIGHT, parms.cr, parms.itemalpha, scale: vscale);
+			}
+			i++;
+		}
+		// Is there something to the left?
+		if (CPlayer.mo.FirstInv() != CPlayer.mo.InvFirst)
+		{
+			DrawTexture(parms.left, position + (-parms.arrowoffset.X, parms.arrowoffset.Y), flags | DI_ITEM_RIGHT|DI_ITEM_VCENTER);
+		}
+		// Is there something to the right?
+		if (item != NULL)
+		{
+			DrawTexture(parms.right, position + parms.arrowoffset + (width, 0), flags | DI_ITEM_LEFT|DI_ITEM_VCENTER);
+		}
 	}
 }
