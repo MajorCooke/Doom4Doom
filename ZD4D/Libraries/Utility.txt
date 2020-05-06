@@ -27,7 +27,8 @@ Class D4Msg play
 		CrateSuccess,
 		CrateFailure,
 		
-		NoGrenades,
+		NoEquip,
+		EquipNotReady,
 		MaxPrintStat
 	};
 	
@@ -40,12 +41,13 @@ Class D4Msg play
 		int fontcolor = Font.CR_ORANGE;
 		Switch(stat)
 		{
-			Case NoMods:		text = "No mods available";	break;
-			Case NoOtherMods:	text = "No other mods available";	break;
-			Case ModNotReady:	text = "Mod not ready";	break;
-			Case NotEnoughAmmo:	text = "Not enough ammo"; break;
-			Case ChargeTooLow:	text = "Charge too low"; break;
-			Case NoGrenades:	text = "No grenades available"; break;
+			Case NoMods:			text = "No mods available";	break;
+			Case NoOtherMods:		text = "No other mods available";	break;
+			Case ModNotReady:		text = "Mod not ready";	break;
+			Case NotEnoughAmmo:		text = "Not enough ammo"; break;
+			Case ChargeTooLow:		text = "Charge too low"; break;
+			Case NoEquip:			text = "No equipment available"; break;
+			Case EquipNotReady:		text = "Equipment not ready";	break;
 			
 			Case CrateSuccess:	text = "Crate delivered"; 		fontcolor = Font.CR_GREEN;	id = 111;	break;
 			case CrateFailure:	text = "Not enough credits";	fontcolor = Font.CR_RED; 	id = 111;	break;

@@ -224,6 +224,7 @@ Class Doom4Player : PlayerPawn
 			{
 				SetupOverlays(true);
 			}
+			else Species = "None";
 		}
 		Loop;
 	//==========================================================================
@@ -234,6 +235,7 @@ Class Doom4Player : PlayerPawn
 		// When starting a new map, clear out the old data.
 		M666 A 0 
 		{
+			if (health < 1)	return;
 			for (int i = 0; i < LifePos.Size(); i++)
 			{
 				LifePos[i] = Pos;
@@ -245,6 +247,7 @@ Class Doom4Player : PlayerPawn
 		// index (0). 
 		M666 A 35
 		{
+			if (health < 1)	return;
 			for (int i = LifePos.Size() - 1; i > 0; i--)
 			{
 				int j = i - 1;
@@ -357,18 +360,24 @@ Class Doom4Player : PlayerPawn
 	Overlay.Dashing:
 		M666 AAAAAA 1
 		{
+			if (health < 1)
+				return ResolveState("Overlay.DashManager");
 			double vz = Max(0.0, vel.z);
 			CurDashSpeed = FindInventory("PowerSpeed", true) ? DashSpeed * 1.5 : DashSpeed;
 			Vel3DFromAngle(CurDashSpeed, DashAngle, 0);
 			vel.z = vz;
+			
+			return ResolveState(null);
 		}
+	Overlay.DashWait:
 		M666 A 1
 		{
 			StateLabel next = "Overlay.DashManager";
 			
 			// If not teleported (xy will 0 out... I think), not on something 
 			// and not blocked, keep boosting the player in the direction.
-			if (Vel.XY != (0,0) && waterlevel < 1 &&
+			if (health > 0 &&
+				Vel.XY != (0,0) && waterlevel < 1 &&
 				!bONMOBJ && !A_CheckFloor("Null") && !A_CheckCeiling("Null") &&
 				!A_CheckBlock("Null",CBF_ABSOLUTEANGLE,AAPTR_DEFAULT,CurDashSpeed,0,0,DashAngle) &&
 				!(player.cheats & (CF_FLY|CF_NOCLIP2)))
@@ -391,26 +400,23 @@ Class Doom4Player : PlayerPawn
 			let plr = player;
 			if (!plr)	return ResolveState("Null");
 			
+			if (health < 1)	return ResolveState(null);
+			
 			int OID = OverlayID();
 			A_OverlayFlags(OID, PSPF_ADDWEAPON|PSPF_ADDBOB|PSPF_POWDOUBLE|PSPF_CVARFAST, false);
 			A_OverlayOffset(OID, -CannonArmX, -CannonArmY, WOF_INTERPOLATE);
 			
+			if (!GetSelectedEquipment())
+			{
+				A_SetInventory("FlameThrowerPickup",1);
+				let gren = D4DGrenadeItem(FindInventory("FlameThrowerPickup"));
+				if (gren)	gren.Selected = true;
+			}
+			
 			if (CheckEquipmentButton())
 			{
 				int ready = CheckEquipmentCharge(true);
-				if (ready < 0)
-				{
-					A_SetInventory("FlameThrowerPickup",1);
-					let gren = D4DGrenadeItem(FindInventory("FlameThrowerPickup"));
-					if (gren)	
-					{
-						gren.Selected = true;
-						gren.TakeCharge();
-						GrenadeToFire = gren.Grenade;
-						return ResolveState("DeployCannon");
-					}
-				}
-				else if (ready)
+				if (ready > 0)
 				{
 					let gren = GetSelectedEquipment();
 					if (gren)
@@ -421,12 +427,12 @@ Class Doom4Player : PlayerPawn
 					}
 					
 					// Shouldn't happen, but just in case.
-					ACS_NamedExecute("GrenadeUnavailPrint",0,4); //No grenade available
+					D4Msg.PrintStatus(D4Msg.NoEquip);		// No equipment available
 					A_PlaySound("Doom4/Player/Nope",CHAN_AUTO);
 				}
 				else
 				{
-					ACS_NamedExecute("GrenadeUnavailPrint",0,5); //Grenade not ready
+					D4Msg.PrintStatus(D4Msg.EquipNotReady); // Equipment not ready
 					A_PlaySound("Doom4/Player/Nope",CHAN_AUTO);
 				}
 				
@@ -448,6 +454,7 @@ Class Doom4Player : PlayerPawn
 				gren.master = self;
 				gren.target = self;
 				gren.angle = angle;
+				gren.SetOrigin(origin, false);
 			}
 			
 		}
@@ -472,7 +479,7 @@ Class Doom4Player : PlayerPawn
 		M201 A 12
 		{
 			A_OverlayOffset(OverlayID(), 0, 0, WOF_INTERPOLATE);
-			if (GrenadeToFire)
+			if (health > 0 && GrenadeToFire)
 			{
 				Vector3 px, py, pz, origin;
 				double OffsetForward = -1.0;
@@ -759,7 +766,7 @@ extend class Doom4Player
 		// Shield wall needs some special circumstance handling here. We need
 		// to block explosion damage since this is supposed to effectively act
 		// like map geometry. And rails.
-		if ((flags & (DMG_EXPLOSION|DMG_INFLICTOR_IS_PUFF)) && ShieldWall && (inflictor || source))
+		if (ShieldWall && (inflictor || source) && (flags & (DMG_EXPLOSION|DMG_INFLICTOR_IS_PUFF)))
 		{
 			Actor attacker = inflictor;
 			if (!attacker || (flags & DMG_INFLICTOR_IS_PUFF))	
@@ -784,36 +791,6 @@ extend class Doom4Player
 				}
 			}
 		}
-		// Prevent powerups like quad damage from hurting the player more than
-		// normal. Otherwise this makes rocket jumping a pain in the ass.
-		// Also, disable armor piercing because it's effectively a second skin.
-		if (inflictor)
-		{
-			inflictor.bPIERCEARMOR = false;
-			if (inflictor == self || inflictor.target == self)
-				flags |= DMG_NO_ENHANCE;
-		}
-		if (source)
-		{
-			
-			if (source == self)
-			{
-				int testdmg = GetModifiedDamage(damagetype, damage, true, inflictor, source, flags);
-				if (testdmg > damage)
-					flags |= DMG_NO_ENHANCE;
-			}
-			else source.bPIERCEARMOR = false;
-		}	
-		flags &= ~DMG_NO_ARMOR;
-		
-		// Make sure all armor gained has a 100% absorption rate.
-		let inv = BasicArmor(FindInventory("BasicArmor"));
-		if (inv)
-		{
-			inv.MaxAbsorb = Max(inv.MaxAbsorb, inv.MaxAmount, inv.Amount, 200);
-			inv.MaxFullAbsorb = Max(inv.MaxFullAbsorb, inv.MaxAmount, inv.Amount, 200);
-			inv.SavePercent = 100.0;
-		}
 		
 		// Can't touch dis.
 		if (CountInv("CantTouchThis"))
@@ -828,7 +805,7 @@ extend class Doom4Player
 		// of the internal damage, including thrusting since it's needless to call
 		// P_DamageMobj.
 		
-		if ((!TelefragDamage && IsInvul) || bNODAMAGE || CountInv("CantTouchThis"))
+		if ((!TelefragDamage && IsInvul) || bNODAMAGE)
 		{
 			// Mainly just doing this to play the sound effect of the pentagram.
 			damage = GetModifiedDamage(mod, damage, true);
@@ -840,8 +817,7 @@ extend class Doom4Player
 			if (damage < 1 && (!inflictor || (!inflictor.bCAUSEPAIN && !bALLOWPAIN)))
 				return 0;
 				
-			if (CountInv("Invulnerability") && CountInv("D4PentagramUpgrade3") && 
-				mod != 'Reflection' && damage > 0)
+			if (CountInv("D4PentagramUpgrade3") && mod != 'Reflection' && damage > 0)
 			{
 				// Make sure never to do this to self! Otherwise, infiniloops happen.
 				// Doze are bad. Weally weally bad. :(
@@ -895,10 +871,35 @@ extend class Doom4Player
 			damage = AdjustMegasphereDamage(damage);
 		}
 		
+		// Prevent powerups like quad damage from hurting the player more than
+		// normal. Otherwise this makes rocket jumping a pain in the ass.
+		// Also, disable armor piercing because it's effectively a second skin.
+		if (inflictor)
+		{
+			inflictor.bPIERCEARMOR = false;
+			if (inflictor == self || inflictor.target == self)
+				flags |= DMG_NO_ENHANCE;
+		}
+		if (source)
+		{
+			if (source == self)
+			{
+				int testdmg = GetModifiedDamage(damagetype, damage, true, inflictor, source, flags);
+				if (testdmg > damage)
+					flags |= DMG_NO_ENHANCE;
+			}
+			else source.bPIERCEARMOR = false;
+		}	
+		flags &= ~DMG_NO_ARMOR;
+		
 		int ArmorBefore = 0;
 		int ArmorAfter = 0;
 		let arm = BasicArmor(FindInventory("BasicArmor"));
-		if (arm)	ArmorBefore = arm.Amount;
+		if (arm)	
+		{
+			arm.SavePercent = 100.0;
+			ArmorBefore = arm.Amount;
+		}
 		
 		int finaldamage = damage;
 		
@@ -918,8 +919,8 @@ extend class Doom4Player
 		// or the player has buddha (doom doll), provided they can survive it.
 		// Otherwise, respawn the player if they were to die and consume a life.
 		
-		if (!FindInventory("PowerMorph",true) && 
-			UseLives && CountInv("D4ExtraLife") > 0 && !(CurSector.Flags & Sector.SECF_ENDLEVEL))
+		if (UseLives && !FindInventory("PowerMorph",true) && 
+			CountInv("D4ExtraLife") > 0 && !(CurSector.Flags & Sector.SECF_ENDLEVEL))
 		{
 			int prev = health;
 			finaldamage = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
@@ -972,7 +973,7 @@ extend class Doom4Player
 		
 		return finaldamage;
 	}
-	int PainTimer;
+	private int PainTimer;
 	int AdjustMegasphereDamage(int damage)
 	{
 		let inv = FindInventory("D4MegasphereDamageReducer");
@@ -1017,19 +1018,13 @@ extend class Doom4Player
 		{	Super.Die(source, inflictor, dmgflags);		return;		}
 		
 		// If the player has an extra life, abort dying.
-		if (UseLife())
-			return;
-		
-		if (!Event)	Event = D4DHandler.Fetch();
-		if (Event) Event.StorePlayerItems(self);
+		if (UseLife())	return;
 		
 		Super.Die(source, inflictor, dmgflags);
 		
 		A_RadiusGive("SyphonDestroyer",16386,RGF_MISSILES,1,"D4SyphonGrenade");
 		for (int i = 1; i < 9; i++)
 			A_StopSound(i);
-		A_Overlay(1,"Null");
-		A_ClearOverlays();
 	}
 	
 	//==========================================================================
@@ -1224,13 +1219,8 @@ extend class Doom4Player
 			UjumpsDone = 0;
 		}
 		if (PentaNoiseWait > 0)	PentaNoiseWait--;
-		if (level.maptime <= 1)	
-		{
-			if (!Event) Event = D4DHandler.Fetch();
-			if (Event)	Event.ReturnPlayerItems(self);
-			
-			InitPlayer();
-		}
+		if (level.maptime <= 1)	InitPlayer();
+		
 		SetInventory("LifeRedFlash",0);
 		
 		//----------------------------------------------------------------------

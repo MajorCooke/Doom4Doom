@@ -30,10 +30,46 @@ extend Class D4DHandler
 		*/
 		if (random[rng](1, chance) == 1)
 		{
+			// Check if ammo spawns were previously enabled, but only if the player
+			// isn't just entering the map.
+			bool ammospawned = (Spawnable[CrucibleAmmo] && level.maptime > 10);
 			let cruc = DECrucible(mo.Spawn('DECrucible', mo.pos, ALLOW_REPLACE));
+			
 			if (cruc)
 			{
 				cruc.vel = mo.vel;
+				
+				// Ammo has already spawned so don't bother.
+				if (ammospawned)	return;
+				
+				let it = ThinkerIterator.Create('Ammo', Thinker.STAT_DEFAULT);
+				Ammo mo = null;
+				while (mo = Ammo(it.Next()))
+				{
+					if (!mo || mo is 'DECrucibleAmmo' || mo.owner)	continue;
+					
+					String s = mo.GetClassName();
+					s = s.MakeLower();
+					
+					// Make sure it's not a flying pinata actor.
+					if (s.IndexOf("pinata") > -1)	continue;
+					
+					if (mo is "D4Bullets" || mo is "D4Shells" || mo is "D4Rockets" ||
+						mo is "D4Cells" || mo is "D4BFGAmmo")
+					{
+						int ran = random[rng](1,256);
+						
+						if (ran > DECrucibleAmmo_Chance)	continue;
+						
+						Actor cammo = mo.Spawn('DECrucibleAmmo', mo.pos, ALLOW_REPLACE);
+						if (cammo)
+						{
+							cammo.Angle = mo.Angle;
+							cammo.Pitch = mo.Pitch;
+							cammo.Vel = mo.Vel;
+						}
+					}
+				}
 			}
 		}
 	}

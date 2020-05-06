@@ -157,6 +157,17 @@ Class ArmorStripper : CustomInventory
 	}
 }
 
+Class D4ArmorPickup : BasicArmorPickup //replaces BasicArmorPickup
+{	
+	Default 
+	{
+		DistanceCheck "D4D_MaxDrawDistance";
+		Armor.SavePercent 100;
+		Armor.MaxAbsorb 0;
+		Armor.MaxFullAbsorb 0;
+	}
+}
+
 Class D4ArmorBasePickup : CustomInventory
 {
 	int BaseLimit;		// The soft limit without upgrades.
@@ -181,8 +192,8 @@ Class D4ArmorBasePickup : CustomInventory
 		D4ArmorBasePickup.SaveAmount 3;
 		D4ArmorBasePickup.BaseLimit 200;
 		D4ArmorBasePickup.MaxSaveAmount 200;
-		D4ArmorBasePickup.MaxAbsorb 200;
-		D4ArmorBasePickup.MaxFullAbsorb 200;
+		D4ArmorBasePickup.MaxAbsorb 0;
+		D4ArmorBasePickup.MaxFullAbsorb 0;
 		Inventory.PickupMessage "";
 		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
 		DistanceCheck "D4D_MaxDrawDistance";
@@ -226,16 +237,7 @@ Class D4ArmorBasePickup : CustomInventory
 	}
 }
 
-Class D4ArmorPickup : BasicArmorPickup //replaces BasicArmorPickup
-{	
-	Default 
-	{
-		DistanceCheck "D4D_MaxDrawDistance";
-		Armor.SavePercent 100;
-		Armor.MaxAbsorb 200;
-		Armor.MaxFullAbsorb 200;
-	}
-}
+
 /*
 Class D4BasicArmorBonus : BasicArmorBonus //replaces BasicArmorBonus
 {
@@ -259,8 +261,8 @@ Class D4ArmorBonus : D4ArmorBasePickup //replaces ArmorBonus
 		D4ArmorBasePickup.SaveAmount 3;
 		D4ArmorBasePickup.BaseLimit 200;
 		D4ArmorBasePickup.MaxSaveAmount 200;
-		D4ArmorBasePickup.MaxAbsorb 200;
-		D4ArmorBasePickup.MaxFullAbsorb 200;
+		D4ArmorBasePickup.MaxAbsorb 0;
+		D4ArmorBasePickup.MaxFullAbsorb 0;
 		DistanceCheck "D4D_MaxDrawDistance";
 		Inventory.PickUpSound "Doom4/Pickups/ArmorShard";
 		+INVENTORY.ALWAYSPICKUP
@@ -327,8 +329,8 @@ Class D4GreenArmorGiver : D4ArmorBasePickup
 		+INVENTORY.ALWAYSPICKUP
 		D4ArmorBasePickup.SavePercent 100;
 		D4ArmorBasePickup.SaveAmount 100;
-		D4ArmorBasePickup.MaxAbsorb 200;
-		D4ArmorBasePickup.MaxFullAbsorb 200;
+		D4ArmorBasePickup.MaxAbsorb 0;
+		D4ArmorBasePickup.MaxFullAbsorb 0;
 		
 	}
 }
@@ -341,8 +343,8 @@ Class D4BlueArmorGiver : D4GreenArmorGiver
 	{
 		D4ArmorBasePickup.SavePercent 100;
 		D4ArmorBasePickup.SaveAmount 200;
-		D4ArmorBasePickup.MaxAbsorb 200;
-		D4ArmorBasePickup.MaxFullAbsorb 200;
+		D4ArmorBasePickup.MaxAbsorb 0;
+		D4ArmorBasePickup.MaxFullAbsorb 0;
 	}
 }
 Class D4BlueArmor200 : D4BlueArmorGiver
@@ -372,6 +374,7 @@ Class ArmorSinglePoint : D4ArmorBonus
 		D4ArmorBasePickup.SaveAmount 1;
 	}
 }
+
 
 Class D4GreenArmor : D4ArmorBasePickup //replaces GreenArmor
 {
@@ -416,6 +419,9 @@ Class D4BlueArmor : D4ArmorBasePickup //replaces BlueArmor
 		Stop;
 	}
 }
+
+
+
 
 
 //=======================================================================

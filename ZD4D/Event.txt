@@ -44,7 +44,6 @@ Class D4DHandler : EventHandler
 	const TimeTrigger = Second * 5;
 	const DefaultDropChance = 200;
 	MCHandler MC;
-	
 
 	enum EObjectIndex
 	{
@@ -60,7 +59,6 @@ Class D4DHandler : EventHandler
 	AArray 	DemonRunes, Carrion;
 	Array<D4Restriction> RestrictList;
 	D4LootContainer LootList;
-	D4DDeathStorage Storage[MAXPLAYERS];
 	private int UpgradeMode, CurrentUpgradeMode;
 	
 	bool CheckActorSpawn(EObjectIndex index)			{	return Spawnable[index];	}
@@ -573,7 +571,7 @@ Class D4DHandler : EventHandler
 				{
 					count++;
 					mo.Destroy();
-					continue;
+					break;
 				}
 			}
 			
@@ -769,117 +767,43 @@ Class D4DHandler : EventHandler
 			mo.Destroy();
 		}
 	}
+}
+
+Class D4DHandlerStatic : StaticEventHandler
+{
+	private D4DeathStorage storage[MAXPLAYERS];
 	
-	//==========================================================================
-	// Death Storage
-	//
-	// The purpose of these is to store the player's items when they die in
-	// death exits, and restore them on the other side.
-	//==========================================================================
-	
-	int FetchPlayerNumber(Actor mo)
+	static clearscope D4DHandlerStatic Fetch()
 	{
-		if (!mo || !mo.player)	return-1;
-		
-		int i = 0;
-		for (i = 0; i < MAXPLAYERS; i++)
-			if (playeringame[i] && players[i].mo == mo)
-				return i;
-		
-		return -1;
+		return D4DHandlerStatic(Find("D4DHandlerStatic"));
 	}
 	
-	//--------------------------------------------------------------------------
-	// Stores the players items into D4DDeathStorage, a static thinker that
-	// crosses levels and remembers their inventory. This doesn't take into
-	// account any novelties - only the items they had and their amount.
-	void StorePlayerItems(Actor mo)
+	override void NewGame()
 	{
-		int i = FetchPlayerNumber(mo);
-		if (i < 0)	return;
-		
-		if (!Storage[i])	Storage[i] = new("D4DDeathStorage");
-		Storage[i].Init();
-		
-		for (let probe = mo.Inv; probe != null; probe = probe.Inv)
+		Super.NewGame();
+		for (int i = 0; i < storage.Size(); i++)
+			if (storage[i])	
+				storage[i] = null;
+	}
+	
+	override void WorldTick()
+	{
+		if (level.maptime < 35)
 		{
-			// Powerups, weapons, armor and health don't transfer over since they
-			// were dead.
-			if (!probe || probe is "Powerup" || probe is "Weapon" || probe is "BasicArmor" ||
-				probe is "Health")
-				continue;
-			
-			// Save it.
-			Storage[i].SetItem(probe.GetClass(), probe.Amount);
-			CVar debug = CVar.FindCVar("D4Debug");
-			if (debug && debug.GetInt() > 0)
-			{
-				String msg = String.Format("%s : %d ", probe.GetClassName(), probe.Amount);
-				Console.Printf("%s", msg);
-			}
+			for (int i = 0; i < storage.Size(); i++)
+				if (storage[i] && (level.maptime > 10 || storage[i].ReturnItems()))
+					storage[i] = null;
 		}
 	}
 	
-	//--------------------------------------------------------------------------
-	// 
-	void ReturnPlayerItems(Actor mo)
+	override void WorldThingDied(WorldEvent e)
 	{
-		int i = FetchPlayerNumber(mo);
-		if (i < 0 || !Storage[i])	return;
-		
-		let store = D4DDeathStorage(Storage[i]);
-		Class<Inventory> item = null;	int amt = 0;
-		
-		do
-		{
-			[item, amt] = store.GetNextItem();
-			if (item)
-			{
-				if (amt > 0)
-					mo.SetInventory(item, amt);
-				else
-				{
-					mo.SetInventory(item, 1);
-					mo.SetInventory(item, 0);
-				}
-					
-			}
-		}
-		while (amt > -1);
-	}
-	
-	//==========================================================================
-	// ChangeWeapons
-	//
-	// Sets the forthcoming weapon based on the command sent to it. Applicable
-	// commands are:
-	// 
-	// slot # (0-9)
-	// weapnext
-	// weapprev
-	//==========================================================================
-	void ChangeWeapons(ConsoleEvent e) 
-	{
-		int pnum = e.Player;
-		if (!playeringame[pnum])
+		Actor mo = e.Thing;
+		if (!mo || !mo.player)	
 			return;
 			
-		PlayerInfo player = players[pnum];
-
-		if (!player) // Return if the player is null
-			return;
-
-		Array<String> commandStrings;
-		e.Name.Split (commandStrings, ":");
-		if (commandStrings.Size() < 2) // Return if the array contains less than two strings
-			return;
-			
-		// At this point, we should have at minimum two strings in this form:
-		// [0] = AEoD_SelectWeapon
-		// [1] = <command>
-		// See InputProcess for the translations (from first to second array)
-		
-		let ready = player.ReadyWeapon;
-		let pending = player.PendingWeapon;
+		int i = mo.PlayerNumber();
+		storage[i] = new('D4DeathStorage');
+		storage[i].StoreItems(mo.player);
 	}
 }

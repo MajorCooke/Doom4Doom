@@ -32,6 +32,8 @@ Class BuyCrate : CustomInventory
 	}
 }
 
+Class D4BackpackSpawned : Inventory { Default { Inventory.InterhubAmount 0; }}
+Class D4AutomapSpawned : Inventory { Default { Inventory.InterhubAmount 0; }}
 
 Class CrateSpawner : Actor
 {
@@ -69,7 +71,9 @@ Class CrateSpawner : Actor
 		{
 			// 1. Check for map and give it if not present.
 			
-			if (random[rng](0,100) < 30 && Target.CountInv("PowerScanner") < 1)
+			if (Target.CountInv("D4AutomapSpawned") < 1 && 
+				Target.CountInv("PowerScanner") < 1 &&
+				random[rng](0,100) < 30)
 			{
 				for (int i = 0; i < 8; i++)
 				{
@@ -82,30 +86,50 @@ Class CrateSpawner : Actor
 			
 			// 2. Check for a backpack and give one if none are present.
 			
-			bool	has_bigfuckingguns = 	Target.CountInv("D4BFG"),
+			bool	has_bfg = 	Target.CountInv("D4BFG"),
 					has_fuelguns = 			Target.CountInv("D4Chainsaw");
 			
-			if (random[rng](0,100) < 60 && !Target.FindInventory("BackpackItem", true))
+			if (Target.CountInv("D4BackpackSpawned") < 1 && 
+				!Target.FindInventory("BackpackItem", true) &&
+				random[rng](0,100) < 60)
 			{
 				for (int i = 0; i < 4; i++)
 				{
-					A_SpawnItemEx("D4CellsSmall",20,0,0,0,0,0,		i * 90,	SXF_NOCHECKPOSITION);
-					A_SpawnItemEx("D4CellsSmall",14,0,0,0,0,0,45 + (i * 90),SXF_NOCHECKPOSITION);
-				}
-				A_SpawnItemEx("D4Bullets",0,0,160,0,0, 5,random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4Shells", 0,0,160,0,0,10,random(0,359),SXF_NOCHECKPOSITION);
-				A_SpawnItemEx("D4Rockets",0,0,160,0,0,15,random(0,359),SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("CellPack",20,0,0,0,0,0,		i * 90,	SXF_NOCHECKPOSITION);
+					A_SpawnItemEx("CellPack",14,0,0,0,0,0,45 + (i * 90),SXF_NOCHECKPOSITION);
+				} 
+				A_SpawnItemEx("ClipBox",0,0,160,0,0, 5,random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("ShellBox", 0,0,160,0,0,10,random(0,359),SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("RocketBox",0,0,160,0,0,15,random(0,359),SXF_NOCHECKPOSITION);
 				if (has_fuelguns)		A_SpawnItemEx("D4Fuel",   0,0,160,0,0,20,random(0,359),SXF_NOCHECKPOSITION);
-				if (has_bigfuckingguns)	A_SpawnItemEx("D4BFGAmmo",0,0,160,0,0,25,random(0,359),SXF_NOCHECKPOSITION);
+				if (has_bfg)			A_SpawnItemEx("D4BFGAmmo",0,0,160,0,0,25,random(0,359),SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("D4Backpack",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				return;
 			}
 			
 			// 3. Check for health and armor.
 			
-			if (random[rng](0,100) < 50 && Target.Health < Target.GetMaxHealth(true))
+			if (random[rng](1,100) <= 50 && Target.Health < Target.GetMaxHealth(true))
 			{
-				
+				Class<Inventory> item = 'Medikit';
+				int rn = random[rng](0,255);
+					 if (rn < 10)	item = 'Megasphere';
+				else if (rn < 30)	item = 'Soulsphere';
+				A_SpawnItemEx(item, flags: SXF_NOCHECKPOSITION);
+				return;
+			}
+			
+			if (random[rng](1,100) <= 50)
+			{
+				let armor = BasicArmor(Target.FindInventory("BasicArmor"));
+				if (armor)
+				{
+					int MaxAmt = Max(200, armor.MaxAmount);
+				}
+				else
+				{
+					A_SpawnItemEx("D4BlueArmor", flags: SXF_NOCHECKPOSITION);
+				}
 			}
 			
 			// 4. Check for ammo.
@@ -217,20 +241,29 @@ Class CrateItemSpawner : RandomSpawner
 {
 	Default
 	{
-		DropItem "D4Bullets", 	255, 40;
-		DropItem "D4Shells", 	255, 40;
-		DropItem "D4Cells", 	255, 40;
-		DropItem "D4Rockets", 	255, 40;
+		DropItem "ClipBoxReplacer", 	255, 40;
+		DropItem "ShellBoxReplacer", 	255, 40;
+		DropItem "CellPackReplacer", 	255, 40;
+		DropItem "RocketBoxReplacer", 	255, 40;
 		
-		DropItem "D4GreenArmor", 	255, 40;
+		DropItem "D4GreenArmor", 	255, 20;
 		DropItem "D4BlueArmor", 	255, 20;
-		DropItem "D4Medikit", 		255, 40;
+		DropItem "D4Stimpack",		255, 20;
+		DropItem "D4Medikit", 		255, 20;
 		
-		DropItem "D4BulletsSmall", 	255, 30;
-		DropItem "D4ShellsSmall", 	255, 30;
-		DropItem "D4CellsSmall", 	255, 30;
-		DropItem "D4RocketsSmall", 	255, 30;
+		DropItem "ClipReplacer", 		255, 30;
+		DropItem "ShellReplacer", 		255, 30;
+		DropItem "CellReplacer", 		255, 30;
+		DropItem "RocketAmmoReplacer", 	255, 30;
 		
+		DropItem "CratePowerupSpawner", 255, 60;
+	}
+}
+
+Class CratePowerupSpawner : RandomSpawner
+{
+	Default
+	{
 		DropItem "Allmap", 					255, 10;
 		DropItem "BlurSphere", 				255, 10;
 		DropItem "RadSuit", 				255, 10;
@@ -239,8 +272,8 @@ Class CrateItemSpawner : RandomSpawner
 		DropItem "D4BerserkSpawner",		255, 5;
 		DropItem "D4PentagramOfProtection",	255, 5;
 		DropItem "D4SoulSphereReplacer",	255, 5;
-		DropItem "D4QuadMoney",				255, 3;
 		DropItem "D4MegasphereReplacer",	255, 3;
+		DropItem "D4QuadMoney",				255, 1;
 	}
 }
 
@@ -248,32 +281,22 @@ Class CrateItemSpawnerBFG : RandomSpawner
 {
 	Default
 	{
-		DropItem "D4Bullets", 	255, 40;
-		DropItem "D4Shells", 	255, 40;
-		DropItem "D4Cells", 	255, 40;
-		DropItem "D4Rockets", 	255, 40;
-		DropItem "D4BFGAmmo", 	255, 10;
+		DropItem "ClipBoxReplacer", 	255, 40;
+		DropItem "ShellBoxReplacer", 	255, 40;
+		DropItem "CellPackReplacer", 	255, 40;
+		DropItem "RocketBoxReplacer", 	255, 40;
+		DropItem "D4BFGAmmo", 			255, 10;
 		
 		DropItem "D4GreenArmor", 	255, 40;
 		DropItem "D4BlueArmor", 	255, 20;
 		DropItem "D4Medikit", 		255, 40;
 		
-		DropItem "D4BulletsSmall", 	255, 30;
-		DropItem "D4ShellsSmall", 	255, 30;
-		DropItem "D4CellsSmall", 	255, 30;
-		DropItem "D4RocketsSmall", 	255, 30;
+		DropItem "ClipReplacer", 		255, 30;
+		DropItem "ShellReplacer", 		255, 30;
+		DropItem "CellReplacer", 		255, 30;
+		DropItem "RocketAmmoReplacer", 	255, 30;
 		
-		DropItem "Allmap", 				 255, 10;
-		DropItem "BlurSphere", 			 255, 10;
-		DropItem "RadSuit", 			 255, 10;
-		DropItem "Infrared", 			 255, 10;
-		DropItem "D4Haste", 			 255, 10;
-		DropItem "D4QuadMoney",			 255, 3;
-		DropItem "D4BerserkSpawner",		255, 5;
-		DropItem "D4PentagramOfProtection",	255, 5;
-		DropItem "D4SoulSphereReplacer",	255, 5;
-		DropItem "D4QuadMoney",				255, 3;
-		DropItem "D4MegasphereReplacer",	255, 3;
+		DropItem "CratePowerupSpawner", 255, 60;
 	}
 }
 
@@ -281,30 +304,17 @@ Class CrateItemSpawner1 : RandomSpawner
 {
 	Default
 	{
-		DropItem "D4Bullets",	255, 50;
-		DropItem "D4Shells", 	255, 50;
-		DropItem "D4Cells", 	255, 50;
-		DropItem "D4Rockets", 	255, 50;
+		
+		DropItem "ClipBoxReplacer",	255, 50;
+		DropItem "ShellBoxReplacer", 	255, 50;
+		DropItem "CellPackReplacer", 	255, 50;
+		DropItem "RocketBoxReplacer", 	255, 50;
 		DropItem "D4BFGAmmo", 	255, 10;
 		
 		DropItem "D4BlueArmor", 	255, 40;
 		DropItem "D4Medikit", 		255, 40;
 		
-		DropItem "D4Regeneration", 	255, 10;
-		DropItem "D4Haste", 		255,  8;
-		DropItem "SoulSphere", 		255,  6;
-		DropItem "D4Megasphere",	255,  4;
-		DropItem "D4ExtraLife",		 255, 2;
-		DropItem "D4DoomDoll", 		255,  1;
-
-		DropItem "D4QuadDamage",255,  6;
-		DropItem "RadSuit", 	255,  5;
-		DropItem "Infrared", 	255,  5;
-		DropItem "InvulnerabilitySphere", 255, 5;
-
-		DropItem "Berserk", 	255, 8;
-		DropItem "Allmap", 		255, 5;
-		DropItem "D4QuadMoney", 255, 3;
+		DropItem "CratePowerupSpawner", 255, 60;
 	}
 }
 
@@ -312,30 +322,16 @@ Class CrateItemSpawner1BFG : RandomSpawner
 {
 	Default
 	{
-		DropItem "D4Bullets", 	255, 45;
-		DropItem "D4Shells", 	255, 45;
-		DropItem "D4Cells",		255, 45;
-		DropItem "D4Rockets",	255, 45;
+		DropItem "ClipBoxReplacer", 	255, 45;
+		DropItem "ShellBoxReplacer", 	255, 45;
+		DropItem "CellPackReplacer",		255, 45;
+		DropItem "RocketBoxReplacer",	255, 45;
 		DropItem "D4BFGAmmo", 	255, 15;
 		
 		DropItem "D4BlueArmor", 	255, 40;
 		DropItem "D4Medikit", 		255, 40;
 		
-		DropItem "D4Regeneration", 	255, 10;
-		DropItem "D4Haste", 		255,  8;
-		DropItem "SoulSphere", 		255,  6;
-		DropItem "D4Megasphere",	255,  4;
-		DropItem "D4ExtraLife",		255,  2;
-		DropItem "D4DoomDoll", 		255,  1;
-
-		DropItem "D4QuadDamage",255,  6;
-		DropItem "RadSuit", 	255,  5;
-		DropItem "Infrared", 	255,  5;
-		DropItem "InvulnerabilitySphere", 255, 5;
-
-		DropItem "Berserk", 	255, 8;
-		DropItem "Allmap", 		255, 5;
-		DropItem "D4QuadMoney", 255, 3;
+		DropItem "CratePowerupSpawner", 255, 60;
 	}
 }
 Class CrateSpawned : Inventory {}
@@ -371,7 +367,7 @@ Class CrateItemSpawner2 : Actor
 	bool has_shellguns;
 	bool has_cellguns;
 	bool has_rocketguns;
-	bool has_bigfuckingguns;
+	bool has_bfg;
 	bool has_fuelguns;
 	int user_w;
 	
@@ -398,7 +394,7 @@ Class CrateItemSpawner2 : Actor
 							||	 	Target.CountInv("D4VortexRifle") 
 							||	 	Target.CountInv("D4GaussCannon");
 			has_rocketguns = 		Target.CountInv("D4RocketLauncher");
-			has_bigfuckingguns = 	Target.CountInv("D4BFG");
+			has_bfg = 	Target.CountInv("D4BFG");
 			has_fuelguns = 			Target.CountInv("D4Chainsaw");
 			
 			let defbullets =	GetDefaultByType("D4Bullets");
@@ -456,7 +452,7 @@ Class CrateItemSpawner2 : Actor
 				return;
 			}
 			
-			if (has_bigfuckingguns && 
+			if (has_bfg && 
 				Target.CountInv("D4BFGAmmo") < 1 && 
 				random(0,100) < 20 )
 			{
@@ -509,7 +505,7 @@ Class CrateItemSpawner2 : Actor
 				return;
 			}
 			
-			if (has_bigfuckingguns && 
+			if (has_bfg && 
 				Target.CountInv("D4BFGAmmo") < 2 && 
 				random(0,100) < 15 )
 			{
@@ -633,7 +629,7 @@ Class CrateItemSpawner2 : Actor
 			// 99. If all else fails, take a wild guess
 			
 			
-			if (has_bigfuckingguns)
+			if (has_bfg)
 			{	A_SpawnItemEx("CrateItemSpawner1BFG",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	}
 			else
 			{	A_SpawnItemEx("CrateItemSpawner1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	}

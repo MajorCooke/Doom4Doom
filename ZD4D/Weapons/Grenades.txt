@@ -299,7 +299,7 @@ Class GrenadeSwitchNext : CustomInventory
 			//	invoker.PrintMessage(Grenades[0].GetTag());
 			}
 			// No grenades.
-			else D4Msg.PrintStatus(D4Msg.NoGrenades);
+			else D4Msg.PrintStatus(D4Msg.NoEquip);
 			
 			return true;
 		}

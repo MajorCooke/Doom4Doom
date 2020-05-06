@@ -13,6 +13,9 @@ enum D4AmmoConstants
 	D4BFGAmmo_Amount = 30,
 	D4BFGAmmo_MaxAmount = 90,
 	D4Carrion_MaxAmount = 5000,
+	
+	DECrucibleAmmo_Chance = 8,
+	DECrucibleAmmo_ChanceSmall = 4
 };
 
 //=======================================================================
@@ -47,7 +50,7 @@ mixin class D4CheckAmmoSpawnable
 			a.vel = vel;
 	}
 	
-	action bool SpawnCrucibleAmmo(int chance = 256, int goodrange = 4)
+	action bool SpawnCrucibleAmmo(int chance = 256, int goodrange = DECrucibleAmmo_Chance)
 	{
 		let i = invoker;
 		if (!CheckEvent(chance, goodrange) ||

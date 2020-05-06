@@ -527,50 +527,57 @@ Struct ItemsToSave
 	}
 };
 
-Class OverlayBase : CustomInventory
+Class D4DeathStorage play
 {
-	int OID;
-	Property OverlayID: OID;
-	Default
+	private PlayerInfo plr;
+	private Array<Class<Inventory> > Items;
+	private Array<Int> Amounts;
+	
+	// Helper functions
+	private void AddItem(Inventory Item)
 	{
-		Inventory.MaxAmount 1;
-		+INVENTORY.UNDROPPABLE
-		+INVENTORY.UNTOSSABLE
-		+INVENTORY.AUTOACTIVATE
+		if (!Item)	return;
+		
+		Items.Push(Item.GetClass());
+		Amounts.Push(Item.Amount);
 	}
 	
-	States
+	bool StoreItems(PlayerInfo player)
 	{
-	Use:
-		TNT1 A 0
+		if (!player || !player.mo)	return false;
+		plr = player;
+		
+		Clear();
+		
+		for (let probe = player.mo.Inv; probe; probe = probe.Inv)
 		{
-			A_Overlay(invoker.OID, "Initialize");
+			if (probe.InterhubAmount < 1 || 
+				probe is "BasicArmor" || 
+				probe is "Health")
+				continue;
+			
+			AddItem(probe);
 		}
-		Fail;
-	Pickup:
-		TNT1 A 0
-		{
-			return true;
-		}
-		Stop;
-	Initialize:
-		TNT1 A 1;
-		Loop;
+		return true;
 	}
-}
-
-Class OverlayDash : OverlayBase 
-{
-}
-
-Class OverlayGrenade : OverlayBase
-{
-}
-
-Class OverlayLedge : OverlayBase
-{
-}
-
-Class OverlayLife : OverlayBase
-{
+	
+	bool ReturnItems()
+	{
+		if (!plr || !plr.mo)	return false;
+		
+		Actor mo = plr.mo;
+		for (int i = 0; i < Items.Size(); i++)
+		{
+			mo.SetInventory(Items[i], Max(1, Amounts[i]), true);
+			if (Amounts[i] < 1)
+				mo.SetInventory(Items[i], 0);
+		}
+		return true;
+	}
+	
+	private void Clear()
+	{
+		Items.Clear();
+		Amounts.Clear();
+	}
 }

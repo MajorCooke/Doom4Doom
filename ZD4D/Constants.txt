@@ -29,9 +29,6 @@ enum D4Constants
 						
 	CloudFlags = 		SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION|SXF_ABSOLUTEVELOCITY,
 	
-	//A specific number for specific things. Means change the blood color 
-	//particles without affecting the duration of the actors.
-	GibTID = 19999,
 	
 	// The following are shorter names for pointers. Convenience sake. Repeating AAPTR_
 	// over and over again is annoying. In the future I may expand this for all ZDoom flags,
