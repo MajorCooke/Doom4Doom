@@ -121,18 +121,6 @@ extend class Doom4StatusBar
 		else // Regular Player
 		{
 			//------------------------------------------------------------------
-			// Inventory Selection
-			
-			let inv = CPlayer.mo.InvSel;
-			if (inv)
-			{
-				Vector2 InvPos = (0, -20);
-				Vector2 InvScale = (1.5, 1.5);
-				DrawInventoryIcon(CPlayer.mo.InvSel, InvPos, HUDItemBot, scale: InvScale);
-				int fcolor = (IsInventoryBarVisible()) ? Font.CR_GOLD : Font.CR_GREEN;
-				DrawString(mConsoleFont, FormatNumber(inv.Amount, 1, 10), InvPos - (0, 50), DI_TEXT_ALIGN_CENTER|HUDItemBot, fcolor, scale: InvScale);
-			}
-			//------------------------------------------------------------------
 			// Draw the number of doom dolls.
 			if (DoomDollCount > -1)
 			{
@@ -895,6 +883,27 @@ extend class Doom4StatusBar
 						DrawStringScaled(mQ4HudFont, FormatNumber(ac2, 1, AmmoClamp2), AmmoTextPos2, DI_TEXT_ALIGN_RIGHT|HUDItemRightBot, Font.CR_WHITE, scaling: scale);
 					}
 				}
+			}
+			//------------------------------------------------------------------
+			// Inventory Selection
+			
+			let inv = CPlayer.mo.InvSel;
+			if (inv)
+			{
+				Vector2 InvPos = (0, -20);
+				Vector2 InvScale = (1.5, 1.5);
+				bool InvVis = IsInventoryBarVisible();
+				int fcolor = (InvVis) ? Font.CR_GOLD : Font.CR_GREEN;
+				DrawInventoryIcon(CPlayer.mo.InvSel, InvPos, HUDItemBot, scale: InvScale);
+				DrawString(mConsoleFont, FormatNumber(inv.Amount, 1, 10), InvPos - (0, 50), DI_TEXT_ALIGN_CENTER|HUDItemBot, fcolor, scale: InvScale);
+				
+				if (InvVis)
+				{
+					InventoryBarState parms = InventoryBarState.Create(mConsoleFont, arrowoffs: (x2, y2)/*, flags: HUDItemTop*/);
+					DrawInventoryBar(parms, (x1, y1), 6, HUDItemTop, 0.5);
+				}
+				
+				//void DrawInventoryBar(InventoryBarState parms, Vector2 position, int numfields, int flags = 0, double bgalpha = 1.)
 			}
 		}
 	}
