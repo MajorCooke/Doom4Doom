@@ -337,17 +337,11 @@ Class Doom4StatusBar : BaseStatusBar
 	// Uniform scaling.
 	void DrawStringScaled(HUDFont font, String string, Vector2 pos, int flags = 0, int translation = Font.CR_UNTRANSLATED, double Alpha = 1., int wrapwidth = -1, int linespacing = 4, double scaling = 1.0)
 	{
-		if (scaling == 0.0)
-			return;
-		
 		DrawString(font, string, pos, flags, translation, ALpha, wrapwidth, linespacing, (scaling, scaling));
-		
 	}
 	
 	void DrawInventoryBarScaled(InventoryBarState parms, Vector2 position, int numfields, int flags = 0, double bgalpha = 1., double scale = 1.0)
 	{
-		if (scale <= 0.0)
-			return;
 		Vector2 vscale = (1, 1) * scale;
 		
 		double width = parms.boxsize.X * numfields * scale;
@@ -398,12 +392,12 @@ Class Doom4StatusBar : BaseStatusBar
 		// Is there something to the left?
 		if (CPlayer.mo.FirstInv() != CPlayer.mo.InvFirst)
 		{
-			DrawTexture(parms.left, position + (-parms.arrowoffset.X, parms.arrowoffset.Y), flags | DI_ITEM_RIGHT|DI_ITEM_VCENTER);
+			DrawTexture(parms.left, position + (-parms.arrowoffset.X, parms.arrowoffset.Y), flags | DI_ITEM_RIGHT|DI_ITEM_VCENTER, scale: vscale);
 		}
 		// Is there something to the right?
 		if (item != NULL)
 		{
-			DrawTexture(parms.right, position + parms.arrowoffset + (width, 0), flags | DI_ITEM_LEFT|DI_ITEM_VCENTER);
+			DrawTexture(parms.right, position + parms.arrowoffset + (width, 0), flags | DI_ITEM_LEFT|DI_ITEM_VCENTER, scale: vscale);
 		}
 	}
 }
