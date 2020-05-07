@@ -88,8 +88,8 @@ Major Cooke             : Current owner. Project idea and direction.
                           Half Life-like laser for Gauss Cannon, Static 
                           Rifle and many more. Created the Carrion Cannon,
 						  powerup upgrades, and overhauled upgrade menu.
-						  Almost all new code for v3.0+. 
-						  Flamethrower icon sprites.
+						  Almost all new code for v3.0+.  Flamethrower icon 
+						  sprites. Crucible sprites &  weapon code.						  
                           General DECORATE & ZScript mastermind.
 
 
@@ -222,21 +222,21 @@ Croteam					: Serious Sam's Serious Damage sound
 
 	*** Beta Testers ***
 
-- 3xlneet
+
 - Colossus
-- ClownMan
 - DoomKrakken
+- FinnGamer
 - GlenSkunk
 - Hellstorm Archon
 - iSpook
 - Matsilagi
 - Maxwell
 - MJ79
+- Neccronixis
+- Simploo
 - Snivyus
 - TheZombieKiller
-- TiberiumSoul
 - Syrix
-- Shadowtiger
 
 
 	** Retired Testers **
@@ -251,6 +251,10 @@ Croteam					: Serious Sam's Serious Damage sound
 - Roxas					(2.0.3)
 - Xaser					(2.0.3)
 - Iamcarrotmaster		(3.0 Alpha 8)
+- Shadowtiger 			(3.0 Alpha 8)
+- TiberiumSoul 			(3.0 Alpha 8)
+- 3xlneet				(3.0 Alpha 8)
+- ClownMan				(3.0 ???)
 
 
 
