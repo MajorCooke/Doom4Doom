@@ -169,9 +169,10 @@ OptionMenu "D4DWeaponsMenu"
 	Control		"Slot 6 (Plasma, LightningGun)",			"slot 6"
 	Control		"Slot 7 (Static, Vortex, Gauss)",			"slot 7"
 	Control		"Slot 8 (BFG, Carrion)",					"slot 8"
-	Control		"Slot 9 (Akimbo)",							"slot 9"
+	Control		"Slot 9 (Crucible)",						"slot 9"
 	StaticText ""
 	StaticText "By Specific Weapon",1
+	Control		"Chainsaw",					"use D4Chainsaw"
 	Control		"Fist",						"use D4DFist"
 	Control		"Pistol",					"use D4Pistol"
 	Control		"Shotgun",					"use D4Shotgun"
@@ -188,7 +189,7 @@ OptionMenu "D4DWeaponsMenu"
 	Control		"Gauss Cannon",				"use D4GaussCannon"
 	Control		"BFG",						"use D4BFG"
 	Control		"Carrion Cannon",			"use D4CarrionCannon"
-	Control		"Chainsaw",					"use D4Chainsaw"
+	Control		"Crucible",					"use DECrucible"
 	Control		"Akimbo (requires 2 guns)", "use AkimboWeapon"
 }
 
@@ -356,10 +357,10 @@ OptionValue "CompletionistStyle"
 
 OptionValue "EnemyType"
 {
-	0, "Original Doom"
+	0, "'Classic' Doom"
 	1, "Doom(4) for Doom"
 	2, "Rainbow Doom(4) (Alpha)"
-	3, "Custom (See D4D Guide)"
+	3, "Vanilla/Custom (See D4D Guide)"
 }
 OptionValue "LootType"
 {
