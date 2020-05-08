@@ -555,7 +555,11 @@ Class D4UpgradeCase : CustomInventory
 					else if (quan < inv.Q3)	quan = inv.Q3;
 					else if (quan < inv.Q4)	quan = inv.Q4;
 					if (!SetInventory(inv.GetClass(), quan))
+					{
+						if (D4Debug)
+							Console.Printf("%s: Tried to upgrade but nothing happened", Items[RNG].GetClassName());
 						return true; // Nothing changed.
+					}
 				}
 				else 
 				{
@@ -565,15 +569,20 @@ Class D4UpgradeCase : CustomInventory
 						let defs = GetDefaultByType("UpgradeItem");
 						quan = defs.Quantity;
 					}
+					else
+					{
+						if (D4Debug)
+							Console.Printf("Giving %s %d", Items[RNG].GetClassName(), quan);
+					}
 					A_GiveInventory(Items[RNG], quan);
 				}
 				
 				// Finally, update the item itself and print the description.
-				let in2 = UpgradeItem(FindInventory(Items[RNG]));
-				if (in2)
+				
+				if (inv)
 				{
-					in2.UpdateItem();
-					in2.PrintDesc();
+					inv.UpdateItem();
+					inv.PrintDesc();
 				}
 				
 			}

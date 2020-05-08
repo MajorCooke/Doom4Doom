@@ -773,12 +773,6 @@ extend class BFGUpgrade1
 extend class CrucibleUpgradeBattery
 {
 	const Amt = 3;
-	Default
-	{
-		 Inventory.Amount Amt;
-		 Inventory.MaxAmount Amt;
-		 Inventory.InterHubAmount Amt;
-	}
 	// Up the max amount.
 	override void UpdateItem()
 	{
@@ -787,9 +781,9 @@ extend class CrucibleUpgradeBattery
 			let inv = Ammo(Owner.FindInventory("DECrucibleAmmo"));
 			if (inv)
 			{
-				inv.MaxAmount = inv.Default.MaxAmount + Default.Amount;
-				inv.InterHubAmount = inv.Default.InterHubAmount + Default.Amount;
-				inv.BackpackMaxAmount = inv.Default.BackpackMaxAmount + Default.Amount;
+				inv.MaxAmount = inv.Default.MaxAmount + Amt;
+				inv.InterHubAmount = inv.Default.InterHubAmount + Amt;
+				inv.BackpackMaxAmount = inv.Default.BackpackMaxAmount + Amt;
 			}
 		}
 	}
