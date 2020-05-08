@@ -1,13 +1,24 @@
-//==============================================================================
-//==============================================================================
-//
-//			Crucible
-//
-//	Ripped from Doom Eternal
-//	Sprites & Code: Major Cooke
-//
-//==============================================================================
-//==============================================================================
+/*==============================================================================
+================================================================================
+
+	Crucible
+
+	Model & Sounds: Doom Eternal
+	Sprites & Code: Major Cooke
+
+A relic from the Slayer's past, this is by far the most powerful weapon in his
+arsenal. Many other Argent based bladed weapons exist, but only the Crucible has
+proven powerful enough to slay titans from Hell.
+
+After slaying the Icon of Sin yet again, he proceeded to clean up any remaining
+demons, and discovered a few ways he could improve his sword even further. But a
+temporal anomaly threw him into the past to restart his adventure anew, and it
+took his weapons and upgrades with him, scattering them along his path. If the
+demons thought he was difficult to kill back when he first landed on Phobos so
+many years ago... They have no idea what's in store for them now.
+
+================================================================================
+==============================================================================*/
 
 Class DECrucibleAmmo : Ammo
 {
@@ -57,6 +68,7 @@ Class DECrucible : Doom4Weapon
 		CrucibleLength = 128,
 		CrucibleLengthUpgrade = 192
 	};
+	const BladeAlpha = 0.85;
 
 	const SideX = 300.0;
 	const SwingSpeed = (SideX / 15.0) * 2;
@@ -315,7 +327,7 @@ Class DECrucible : Doom4Weapon
 				if (i > Crucible_FirstLayer)
 					A_OverlayRenderStyle(i, STYLE_Add);
 			}
-			A_OverlayAlpha(Overlay_GlowBlade, 0.85);
+			A_OverlayAlpha(Overlay_GlowBlade, BladeAlpha);
 		}
 		else 
 		{
@@ -350,6 +362,8 @@ Class DECrucible : Doom4Weapon
 				pspr.bFlip = wep.bFlip;
 				pspr.bMirror = wep.bMirror;
 				pspr.alpha = wep.alpha;
+				if (pspr.ID == Overlay_GlowBlade)
+					pspr.alpha *= BladeAlpha;
 			}
 			pspr = pspr.Next;
 		}
@@ -708,39 +722,7 @@ Class DECruciblePuff : Actor
 	States
 	{
 	Spawn:
-		PLSS A 10; //NoDelay
-		/*
-		{
-			// Do nothing if it has the NODAMAGE flag since the primary tracer will handle it.
-			if (bNODAMAGE || !target) return;
-			
-			if (tracer && (tracer.bSHOOTABLE || tracer.bVULNERABLE) && 
-				(tracer.health > 0 || tracer.bICECORPSE) &&
-				!tracer.bFRIENDLY)
-			{
-				if (target && target.health > 0 && target.player)
-				{
-					let wep = target.player.ReadyWeapon;
-					if (target.CountInv("DECrucibleDamageToken") > 0 || 
-						wep && wep.CheckAmmo(Weapon.PrimaryFire, false, false))
-					{
-						A_StartSound("Eternal/Crucible/Slice");
-						int hp = tracer.health;
-						int dmg = tracer.DamageMobj(self, target, DECrucible.CrucibleDamage, "Crucible", 
-							DECrucible.DamageFlags);
-						
-						// Check the HP difference instead of damage, because the
-						// function could be used to fool damage attempts.
-						if (tracer.health < hp && dmg > 0)
-						{
-							target.A_SetInventory("DECrucibleDamageToken",1);
-							wep.DepleteAmmo(false);
-						}
-					}
-				}
-			}
-		}
-		*/
+		PLSS A 10;
 		Stop;
 	}
 }

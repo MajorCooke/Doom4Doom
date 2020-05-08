@@ -11,7 +11,7 @@ extend Class D4DHandler
 		{
 			Case 'D4BFG':			chance = 4;		break;
 			Case 'D4Chainsaw':		chance = 10;	break;
-			Default:	return;
+			Default:	chance = 100;
 		}
 		/*
 		// Check the players for the weapons.
