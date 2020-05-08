@@ -882,13 +882,8 @@ extend class Doom4Player
 		}
 		if (source)
 		{
-			if (source == self)
-			{
-				int testdmg = GetModifiedDamage(damagetype, damage, true, inflictor, source, flags);
-				if (testdmg > damage)
-					flags |= DMG_NO_ENHANCE;
-			}
-			else source.bPIERCEARMOR = false;
+			if (source == self)		flags |= DMG_NO_ENHANCE;
+			else 					source.bPIERCEARMOR = false;
 		}	
 		flags &= ~DMG_NO_ARMOR;
 		
@@ -909,7 +904,7 @@ extend class Doom4Player
 		// is called, which will handle reflect damage.
 		Actor who = null;
 		if (FindInventory("PowerReflection", true) && 
-			source && source.health > 0 && !source.bNOTARGETSWITCH && 
+			source && source != self && source.health > 0 && !source.bNOTARGETSWITCH && 
 			source.target && source.target != self && source.target.health > 0)
 		{
 			who = source;
@@ -944,7 +939,7 @@ extend class Doom4Player
 		// But this is only if the armor absorbs it all. Damage to the player
 		// himself is automatically handled via the event handler
 		DamageScreenEffects(finaldamage, ArmorBefore, ArmorAfter); // Shader effects
-		int ArmorTaken = abs(ArmorBefore - ArmorAfter);
+		int ArmorTaken = (ArmorBefore - ArmorAfter);
 		if ((source || inflictor) && finaldamage < 1 && ArmorTaken > 0)
 		{
 			if (!Event)	Event = D4DHandler.Fetch();
@@ -1083,7 +1078,7 @@ extend class Doom4Player
 				{
 					good = true;
 					TeleportMove(SpawnPoint, true);
-					SetXYZ(SpawnPoint);
+					SetOrigin(SpawnPoint, false);
 				}
 			}
 			
