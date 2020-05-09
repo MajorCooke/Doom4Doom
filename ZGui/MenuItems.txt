@@ -141,7 +141,7 @@ class OptionMenuItemPurchase : OptionMenuItem
 			if (UpgradeMode > 0)
 			{
 				badItem = true;
-				mLabel = "Can't Buy With Crates";
+				mLabel = "Can't Buy In Crate Mode";
 				return;
 			}
 		}
@@ -799,7 +799,7 @@ class OptionMenuItemCreditDisplay : OptionMenuItemDisplayInt
 	//==========================================================================
 	override int Draw (OptionMenuDescriptor d, int y, int indent, bool selected)
 	{
-		if (full || !m) 
+		if (full || !m || D4D_CurrentUpgradeMode > 0) 
 		{
 			return indent;
 		}
@@ -812,7 +812,8 @@ class OptionMenuItemCreditDisplay : OptionMenuItemDisplayInt
 			Case 1: 	col = Font.CR_GREEN; break;
 			Case 0: 	col = Font.CR_RED; break;
 		}
-		screen.DrawText(SmallFont, col, indent + CursorSpace(), y, Represent(), DTA_CleanNoMove_1, true);
+		drawValue(indent, y, col, Represent(), grayed);
+	//	screen.DrawText(SmallFont, col, indent + CursorSpace(), y, Represent(), DTA_CleanNoMove_1, true);
 		return indent;
 	}
 }
@@ -845,7 +846,7 @@ class OptionMenuItemCostDisplay : OptionMenuItemDisplayInt
 	
 	override int Draw (OptionMenuDescriptor d, int y, int indent, bool selected)
 	{
-		if (full) return indent;
+		if (full || D4D_CurrentUpgradeMode > 0) return indent;
 		return Super.Draw(d, y, indent, selected);
 	}
 }
