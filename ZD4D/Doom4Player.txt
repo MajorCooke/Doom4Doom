@@ -751,6 +751,16 @@ extend class Doom4Player
 		if ((player.cheats & CF_GODMODE2) ||
 			(player.mo == self && HPArmor))	
 			return -1;
+			
+		// Immune to barrels with the right upgrades. This is already present on
+		// the ProtectionBonus1 item itself but just in case someone tries bypassing,
+		// make sure the Slayer truly is protected.
+		if (damage > 0 && CountInv("ProtectionBonus1") && (
+			(source && (source is 'ExplosiveBarrel' || GetReplacee(source.GetClass()) is 'ExplosiveBarrel')) ||
+			(inflictor && (inflictor is 'ExplosiveBarrel' || GetReplacee(inflictor.GetClass()) is 'ExplosiveBarrel'))))
+		{
+			return -1;
+		}
 		
 		bool TelefragDamage = (!bLAXTELEFRAGDMG && damage >= TELEFRAG_DAMAGE);
 		bool IsInvul = (FindInventory("PowerInvulnerable", true) || bINVULNERABLE);
@@ -841,22 +851,6 @@ extend class Doom4Player
 			
 			DamageTypeReceived = "WhiteFlashDamage";
 			player.DamageCount = Clamp(player.DamageCount + int(damage * 0.5), 0, 100);
-			/*
-			if (PentaNoiseWait < 1)
-			{
-				let invul = FindInventory("PowerInvulnerable", true);
-				if (invul)	invul.A_PlaySound("PentagramOfProtection/Protect",CHAN_VOICE);
-				else 		A_PlaySound("PentagramOfProtection/Protect",CHAN_VOICE);
-				PentaNoiseWait = 70;
-			}
-			*/
-			/*
-			if (!bNODAMAGE && CountInv("D4PentagramUpgrade4"))
-			{
-				if (inflictor)
-					ApplyKickback(inflictor, source, damage, angle, mod, flags);
-			}
-			*/
 			return 0;
 		}
 		
@@ -871,6 +865,16 @@ extend class Doom4Player
 			damage = AdjustMegasphereDamage(damage);
 		}
 		
+		
+		// Make sure armor always takes the damage itself.
+		int ArmorBefore = 0, ArmorAfter = 0;
+		let arm = BasicArmor(FindInventory("BasicArmor"));
+		if (arm && arm.Amount > 0)	
+		{
+			arm.SavePercent = 100.0;
+			ArmorBefore = arm.Amount;
+		}
+		
 		// Prevent powerups like quad damage from hurting the player more than
 		// normal. Otherwise this makes rocket jumping a pain in the ass.
 		// Also, disable armor piercing because it's effectively a second skin.
@@ -883,19 +887,9 @@ extend class Doom4Player
 		if (source)
 		{
 			if (source == self)		flags |= DMG_NO_ENHANCE;
-			else 					source.bPIERCEARMOR = false;
+			else source.bPIERCEARMOR = false;
 		}	
 		flags &= ~DMG_NO_ARMOR;
-		
-		int ArmorBefore = 0;
-		int ArmorAfter = 0;
-		let arm = BasicArmor(FindInventory("BasicArmor"));
-		if (arm)	
-		{
-			arm.SavePercent = 100.0;
-			ArmorBefore = arm.Amount;
-		}
-		
 		int finaldamage = damage;
 		
 		// Disable targeting the player by mishaps. Make sure the damager is alive
@@ -910,10 +904,10 @@ extend class Doom4Player
 			who = source;
 			who.bNOTARGETSWITCH = true;
 		}
+		
 		// Don't consume extra lives inside of a sector meant to end the level,
 		// or the player has buddha (doom doll), provided they can survive it.
 		// Otherwise, respawn the player if they were to die and consume a life.
-		
 		if (UseLives && !FindInventory("PowerMorph",true) && 
 			CountInv("D4ExtraLife") > 0 && !(CurSector.Flags & Sector.SECF_ENDLEVEL))
 		{
@@ -931,8 +925,11 @@ extend class Doom4Player
 		else finaldamage = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
 		
 		if (who)	who.bNOTARGETSWITCH = false;
-		
 		if (arm)	ArmorAfter = arm.Amount;
+		
+		
+		
+		// Damage done, now deal with the consequences.
 		
 		// This is needed in the event armor absorbs the damage. Otherwise this
 		// won't trigger, and neither will the damage indicators.
@@ -1134,8 +1131,8 @@ extend class Doom4Player
 		if (!started) 
 		{
 			A_SetInventory("FlameThrowerPickup",1);
-			if (GetCvar("skill") >= 3)
-			{
+		//	if (GetCvar("skill") >= 3)
+		//	{
 				if (GetCvar("D4D_NMGrenades") >= 1) // Give and select frag if the setting isn't "Off" 
 				{
 					if (!CountInv("FragGrenadePickup"))
@@ -1157,7 +1154,7 @@ extend class Doom4Player
 					}
 					SelectEquipment("SyphonGrenadePickup");
 				}
-			}
+		//	}
 		}
 		started = true;
 		

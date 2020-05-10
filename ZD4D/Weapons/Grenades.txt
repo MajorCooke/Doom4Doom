@@ -49,20 +49,46 @@ Class D4DGrenadeItem : D4DKeeperItem
 			Charges++;
 		}
 		if (Cooldown < 1 && Charges < MaxCharges)
-			SetCooldown(-1);
+			SetCooldown();
 	}
 	
 	int GetCharges() const { return Charges; }
+	
 	bool TakeCharge()
 	{
 		if (Charges > 0)
-		{
+		{	// 
 			bool DoCooldown = (Cooldown < 1 && Charges >= MaxCharges);
 			Charges--;
 			if (DoCooldown)	SetCooldown();
 			return true;
 		}
 		return false;
+	}
+	
+	void SetCharges(int amt = -1, bool DoCooldown = false, bool limits = true)
+	{
+		if (amt > 0)
+		{
+			Charges = (limits) ? Clamp(amt, 1, MaxCharges) : Min(amt, MaxCharges);
+			if (DoCooldown)	SetCooldown();
+		}
+		else if (amt == 0)
+		{
+			Charges = 0;
+			SetCooldown();
+		}
+		else
+		{
+			Charges = MaxCharges;
+			SetCooldown(0);
+		}
+	}
+	
+	void AddCharge(int amt = 1, bool force = false)
+	{
+		if (amt < 1 || (Charges >= MaxCharges && !force))	return;
+		Charges += amt;
 	}
 	
 	void SetCooldown(int amt = -1)
@@ -120,7 +146,11 @@ Class D4DUtilityWorld : CustomInventory
 			
 			A_SetInventory(pick,1);
 			let gren = D4DGrenadeItem(FindInventory(pick));
-			if (gren)	gren.Selected = true;
+			if (gren)	
+			{
+				gren.Selected = true;
+				gren.SetCharges();
+			}
 		}		
 	}
 	
