@@ -846,7 +846,8 @@ Class D4DeathStorage play
 		
 		for (let probe = player.mo.Inv; probe; probe = probe.Inv)
 		{
-			if (probe is "BasicArmor" || 
+			if (probe.InterhubAmount < 1 || 
+				probe is "BasicArmor" || 
 				probe is "Health")
 				continue;
 			
