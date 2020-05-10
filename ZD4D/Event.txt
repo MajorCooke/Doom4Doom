@@ -786,6 +786,19 @@ Class D4DHandlerStatic : StaticEventHandler
 				storage[i] = null;
 	}
 	
+	private void ClearDeathStorage()
+	{
+		for (int i = 0; i < storage.Size(); i++)
+			if (storage[i])	
+				storage[i] = null;
+	}
+	
+	override void WorldLoaded(WorldEvent e)
+	{
+		if (e.IsSaveGame || e.IsReOpen)
+			ClearDeathStorage();
+	}
+	
 	override void WorldTick()
 	{
 		if (level.maptime < 35)
@@ -805,5 +818,60 @@ Class D4DHandlerStatic : StaticEventHandler
 		int i = mo.PlayerNumber();
 		storage[i] = new('D4DeathStorage');
 		storage[i].StoreItems(mo.player);
+	}
+}
+
+Class D4DeathStorage play
+{
+	Name MapName;
+	private PlayerInfo plr;
+	private Array<Class<Inventory> > Items;
+	private Array<Int> Amounts;
+	
+	// Helper functions
+	private void AddItem(Inventory Item)
+	{
+		if (!Item)	return;
+		
+		Items.Push(Item.GetClass());
+		Amounts.Push(Item.Amount);
+	}
+	
+	bool StoreItems(PlayerInfo player)
+	{
+		if (!player || !player.mo)	return false;
+		plr = player;
+		
+		Clear();
+		
+		for (let probe = player.mo.Inv; probe; probe = probe.Inv)
+		{
+			if (probe is "BasicArmor" || 
+				probe is "Health")
+				continue;
+			
+			AddItem(probe);
+		}
+		return true;
+	}
+	
+	bool ReturnItems()
+	{
+		if (!plr || !plr.mo)	return false;
+		
+		Actor mo = plr.mo;
+		for (int i = 0; i < Items.Size(); i++)
+		{
+			mo.SetInventory(Items[i], Max(1, Amounts[i]), true);
+			if (Amounts[i] < 1)
+				mo.SetInventory(Items[i], 0);
+		}
+		return true;
+	}
+	
+	private void Clear()
+	{
+		Items.Clear();
+		Amounts.Clear();
 	}
 }
