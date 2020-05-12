@@ -63,6 +63,17 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 		return shell;
 	}
 	
+	action void CheckDeath()
+	{
+		let i = invoker; let o = i.owner; if (!o || !o.player)	return;
+		let p = o.player;
+		if (p.health < 1)
+		{
+			A_Overlay(RGun, "Null");
+			A_Overlay(LGun, "Null");
+		}
+	}
+	
 	States
 	{
 	Spawn:
@@ -116,6 +127,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 	Deselect:
 		---- A 0 
 		{
+			CheckDeath();
 			A_Overlay(GunWatcher,"Null");
 			A_Overlay(SwitchWatcher,"Null");
 			A_SetInventory("SSLSecondShotToken",0);
@@ -355,18 +367,16 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			if (CountInv("SSGUpgrade2"))	//if you have piercing shots
 			{
 				
-				for (int i = 0; i < 10; i++)
+				for (int i = 0; i < 12; i++)
 				{
-					double sprs = 10.415 * 4.0;
-					if (i < 7)	{	A_RailAttack(0,offs,0,-1,-1,RGF_SILENT|RGF_EXPLICITANGLE,0,PuffRail,frandom(-newspread,newspread),frandom(-SpreadZ,SpreadZ));	}//,0,0,8192,0,"BulletSmallTracer");	}
-					else		{	A_RailAttack(0,offs,0,-1,-1,RGF_SILENT|RGF_EXPLICITANGLE,0,PuffRail,frandom(-newspread,newspread),frandom(-SpreadZ,SpreadZ));	}
+					A_RailAttack(0,offs,0,-1,-1,RGF_SILENT|RGF_EXPLICITANGLE,0,PuffRail,frandom(-newspread,newspread),frandom(-SpreadZ,SpreadZ));
 				}
 				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,7,0,"PacifistPuff",FBF_NORANDOMPUFFZ|FBF_PUFFTRACER,0,"BulletSmallTracer",0,offs);
 			}
 			else
 			{
 				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,7,0,PuffRail,FBF_PUFFTRACER,0,"BulletSmallTracer",0,offs);
-				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,3,0,PuffRail,FBF_PUFFTRACER,0,null,0,offs);
+				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,5,0,PuffRail,FBF_PUFFTRACER,0,null,0,offs);
 			}
 			
 			if (GetCvar("HQEffectsWeapons"))

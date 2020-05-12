@@ -100,6 +100,7 @@ Class DECrucible : Doom4Weapon
 		+DONTGIB
 		+BRIGHT
 		+FLOATBOB
+	//	+WEAPON.NODEATHDESELECT
 	}
 	
 	override void Travelled()
@@ -331,7 +332,6 @@ Class DECrucible : Doom4Weapon
 		}
 		else 
 		{
-			A_Overlay(Overlay_Controller, "Null");
 			A_ClearOverlays(Overlay_Controller, Crucible_LastLayer);
 		}
 	}
@@ -347,7 +347,16 @@ Class DECrucible : Doom4Weapon
 	{
 		let i = invoker; let o = i.owner; if (!o || !o.player)	return;
 		let plr = o.player;
+		
+		if (plr.health < 1)
+		{
+			DrawParts(false);
+			return;
+		}
+		
 		let wep = plr.FindPSprite(PSP_WEAPON);
+		
+		
 		
 		if (!wep || wep.Frame < Fr_A || wep.Frame > Fr_R)	return;
 		int frm = wep.Frame;
@@ -451,6 +460,7 @@ Class DECrucible : Doom4Weapon
 	Select:
 		M026 A 1
 		{	
+			SetAlpha(1);
 			DrawParts(true);
 			A_StartSound("Eternal/Crucible/Select", CHAN_WEAPON, CHANF_OVERLAP);
 			A_Raise(WeaponSwitchSpeed);
