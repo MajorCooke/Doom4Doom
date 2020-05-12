@@ -89,6 +89,13 @@ Class D4DGrenadeItem : D4DKeeperItem
 	{
 		if (amt < 1 || (Charges >= MaxCharges && !force))	return;
 		Charges += amt;
+		
+		if (Charges >= MaxCharges)
+		{
+			if (!force) 
+				Charges = MaxCharges;
+			SetCooldown(0);
+		}
 	}
 	
 	void SetCooldown(int amt = -1)
@@ -101,6 +108,13 @@ Class D4DGrenadeItem : D4DKeeperItem
 	void SetCooldownCap(int amt = -1)
 	{
 		CooldownMax = (amt < 1) ? Default.CooldownMax : amt;
+	}
+	
+	States
+	{
+	Held:
+		TNT1 A -1 { invoker.AddCharge(); }
+		Stop;
 	}
 }
 
@@ -136,22 +150,28 @@ Class D4DUtilityWorld : CustomInventory
 		D4DUtilityWorld.SpawnSprite "TNT1", Fr_A;
 	}
 	
-	action void ProcessPickup()
+	
+	
+	action bool ProcessPickup()
 	{
 		let pick = invoker.Pickup;
-		
-		if (!CountInv(pick))
-		{			
+		let gren = D4DGrenadeItem(FindInventory(pick));
+		if (!gren || gren.Amount < 1)
+		{
 			A_GiveInventory("GrenadeSelectedStripper",1);
+			A_GiveInventory(pick,1);
 			
-			A_SetInventory(pick,1);
-			let gren = D4DGrenadeItem(FindInventory(pick));
+			if (!gren)	gren = D4DGrenadeItem(FindInventory(pick));
 			if (gren)	
-			{
 				gren.Selected = true;
-				gren.SetCharges();
-			}
-		}		
+		}
+		if (gren && gren.Charges < gren.MaxCharges) 
+		{
+			gren.AddCharge();
+			return true;
+		}
+		
+		return false;
 	}
 	
 	action void SetupSprite()
@@ -176,7 +196,7 @@ Class D4DUtilityWorld : CustomInventory
 		TNT1 A -1 NoDelay SetupSprite();
 		Stop;
 	Pickup:
-		TNT1 A 0 ProcessPickup();
+		TNT1 A 0 { return ProcessPickup();	}
 		Stop;
 	}
 }

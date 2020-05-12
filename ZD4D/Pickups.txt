@@ -163,6 +163,7 @@ Class D4ArmorPickup : BasicArmorPickup //replaces BasicArmorPickup
 	{
 		DistanceCheck "D4D_MaxDrawDistance";
 		Armor.SavePercent 100;
+		Armor.SaveAmount 200;
 		Armor.MaxAbsorb 0;
 		Armor.MaxFullAbsorb 0;
 	}
@@ -227,8 +228,7 @@ Class D4ArmorBasePickup : CustomInventory
 				inv.Amount = Min(inv.Amount + int((invoker.SaveAmount * Max(1,invoker.Amount)) * SkillFactor), Cap);
 				invoker.Amount = 1;
 				if (inv.ArmorType == 'None')	inv.ArmorType = "D4ArmorPickup";
-				inv.MaxFullAbsorb = Max(inv.MaxFullAbsorb, invoker.MaxFullAbsorb);
-				inv.MaxAbsorb = Max(inv.MaxAbsorb, invoker.MaxAbsorb);
+				
 				return true;
 			}
 			return (invoker.bAlwaysPickup);

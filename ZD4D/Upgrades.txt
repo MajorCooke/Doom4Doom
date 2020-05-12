@@ -355,23 +355,9 @@ Class ProtectionBonus : UpgradeItem
 		UpgradeItem.Quantity 1;
 		UpgradeItem.Quantity2 2;
 		UpgradeItem.Quantity3 3;
-		UpgradeItem.Desc1 "+50% Environment Damage Reduction";
-		UpgradeItem.Desc2 "+50% Self Damage Reduction";
-		UpgradeItem.Desc3 "+50% Radius Damage Reduction";
 		Inventory.MaxAmount 3;
 	}
 	
-	override void PrintDesc()
-	{
-		int amt = Amount;
-		Switch (amt)
-		{
-			Case 1: Desc = Desc1; break;
-			Case 2: Desc = Desc2; break;
-			Case 3: Desc = Desc3; break;
-		}
-		Super.PrintDesc();
-	}
 	override void UpdateItem()
 	{
 		if (Owner)
@@ -422,6 +408,20 @@ Class ProtectionBonus1 : PowerProtection
 	{
 		Super.DoEffect();
 		EffectTics = 1000000;
+	}
+	
+	override void ModifyDamage(int damage, Name damageType, out int newdamage, bool passive, Actor inflictor, Actor source, int flags)
+	{
+		if (passive)
+		{
+			if (source && (source is 'ExplosiveBarrel' || GetReplacee(source.GetClass()) is 'ExplosiveBarrel') ||
+				(inflictor && (inflictor is 'ExplosiveBarrel' || GetReplacee(inflictor.GetClass()) is 'ExplosiveBarrel')))
+			{
+				newdamage = -1;
+				return;
+			}
+		}
+		Super.ModifyDamage(damage, damageType, newdamage, passive, inflictor, source, flags);
 	}
 }
 
