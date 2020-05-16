@@ -352,6 +352,9 @@ Class ProtectionBonus : UpgradeItem
 		UpgradeItem.Cost 5000;
 		UpgradeItem.Cost2 7500;
 		UpgradeItem.Cost3 10000;
+		UpgradeItem.Desc1 "$ProtectionBonus1";
+		UpgradeItem.Desc2 "$ProtectionBonus2";
+		UpgradeItem.Desc3 "$ProtectionBonus3";
 		UpgradeItem.Quantity 1;
 		UpgradeItem.Quantity2 2;
 		UpgradeItem.Quantity3 3;
@@ -367,6 +370,17 @@ Class ProtectionBonus : UpgradeItem
 			if (amt > 1)	{ Owner.A_SetInventory("ProtectionBonus2",1);	}
 			if (amt > 2)	{ Owner.A_SetInventory("ProtectionBonus3",1);	}
 		}
+	}
+	
+	override void PrintDesc()
+	{
+		Switch(Amount)
+		{
+			Case 1:	Desc = Desc1; break;
+			Case 2:	Desc = Desc2; break;
+			Case 3:	Desc = Desc3; break;
+		}
+		Super.PrintDesc();
 	}
 	
 	override void Travelled()
@@ -396,6 +410,7 @@ Class ProtectionBonus1 : PowerProtection
 		DamageFactor "Fire", 	0.5;	// for lava
 		DamageFactor "Crush", 	0.5;
 		DamageFactor "Falling", 0.0;
+		DamageFactor "Fall",	0.0;
 		+INVENTORY.PERSISTENTPOWER
 		+INVENTORY.UNTOSSABLE
 		+INVENTORY.UNDROPPABLE

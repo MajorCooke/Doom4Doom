@@ -228,7 +228,7 @@ Class DECrucible : Doom4Weapon
 					Powerup inv = Powerup(o.FindInventory("PowerInvulBase", true));
 					if (!inv)
 					{
-						o.A_GiveInventory("Invul1s",1);
+						o.A_GiveInventory("Invul3s",1);
 						inv = Powerup(o.FindInventory("PowerInvulBase", true));
 					}
 					if (inv)
