@@ -69,9 +69,10 @@ Class PlayerPainElemental : DemonPlayerBase
 		Player.SideMove 0.6, 0.3;
 		Scale 1.15;
 		DamageFactor "Normal", 0.35;
-		+THRUSPECIES
 		Species "PlayerPElemental";
+		+THRUSPECIES
 		+EXTREMEDEATH
+		+FORCERADIUSDMG
 	}
 	
 	States

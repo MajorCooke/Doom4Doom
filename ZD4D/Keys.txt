@@ -13,6 +13,26 @@ mixin class D4KeyTouch
 			Super.Touch(toucher);
 		}
 	}
+	
+	override void DepleteOrDestroy()
+	{
+		if (Owner)
+		{
+			Class<Inventory> check = species;
+			if (check)	Owner.SetInventory(check,0);
+		}
+		Super.DepleteOrDestroy();
+	}
+	
+	override void OnDestroy()
+	{
+		if (Owner)
+		{
+			Class<Inventory> check = species;
+			if (check)	Owner.SetInventory(check,0);
+		}
+		Super.OnDestroy();
+	}
 }
 
 Class D4RedCard : RedCard //replaces RedCard
@@ -22,6 +42,7 @@ Class D4RedCard : RedCard //replaces RedCard
 	{
 		Scale .2;
 		Inventory.PickupMessage "Red key";
+		Inventory.InterhubAmount 0;
 		Species "RedCard";
 	}
 	
@@ -49,6 +70,7 @@ Class D4YellowCard : YellowCard //replaces YellowCard
 	{
 		Scale .2;
 		Inventory.PickupMessage "Yellow key";
+		Inventory.InterhubAmount 0;
 		Species "YellowCard";
 	}
 	States
@@ -75,6 +97,7 @@ Class D4BlueCard : BlueCard //replaces BlueCard
 	{
 		Scale .2;
 		Inventory.PickupMessage "Blue key";
+		Inventory.InterhubAmount 0;
 		Species "BlueCard";
 	}
 	States
@@ -101,6 +124,7 @@ Class D4RedSkull : RedSkull //replaces RedSkull
 	{
 		Scale .4;
 		Inventory.PickupMessage "Red skull";
+		Inventory.InterhubAmount 0;
 		Species "RedSkull";
 	}
 	States
@@ -119,6 +143,7 @@ Class D4YellowSkull : YellowSkull //replaces YellowSkull
 	{
 		Scale .4;
 		Inventory.PickupMessage "Yellow skull";
+		Inventory.InterhubAmount 0;
 		Species "YellowSkull";
 	}
 	States
@@ -137,6 +162,7 @@ Class D4BlueSkull : BlueSkull //replaces BlueSkull
 	{
 		Scale .4;
 		Inventory.PickupMessage "Blue skull";
+		Inventory.InterhubAmount 0;
 		Species "BlueSkull";
 	}
 	States

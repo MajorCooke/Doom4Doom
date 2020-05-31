@@ -29,7 +29,6 @@ Class D4BFG : Doom4Weapon
 		Inventory.PickupSound "";
 		Obituary "%o felt the wrath of %k's beautiful greenliness.";
 		Tag "BFG 9000";
-		+DONTGIB
 	}
 	
 	// Upon spawning or travelling, makes BFG ammo spawn in place of cells

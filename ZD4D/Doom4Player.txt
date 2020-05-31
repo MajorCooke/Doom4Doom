@@ -1006,7 +1006,8 @@ extend class Doom4Player
 	//==========================================================================
 	override void Die(Actor source, Actor inflictor, int dmgflags)
 	{
-		if (!player || !player.mo || player.mo != self || FindInventory("PowerMorph", true))
+		if (!player || !player.mo || player.mo != self || FindInventory("PowerMorph", true) ||
+			player.mo.GetClass() != 'Doom4Player')
 		{	Super.Die(source, inflictor, dmgflags);		return;		}
 		
 		// If the player has an extra life, abort dying.

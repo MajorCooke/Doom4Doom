@@ -840,10 +840,10 @@ Class D4DHandlerStatic : StaticEventHandler
 	
 	override void WorldTick()
 	{
-		if (level.maptime < 35)
+		if (level.maptime > 5 && level.maptime < 35)
 		{
 			for (int i = 0; i < storage.Size(); i++)
-				if (storage[i] && (level.maptime > 10 || storage[i].ReturnItems()))
+				if (storage[i] && (level.maptime > 15 || storage[i].ReturnItems()))
 					storage[i] = null;
 		}
 	}
@@ -857,6 +857,7 @@ Class D4DHandlerStatic : StaticEventHandler
 		int i = mo.PlayerNumber();
 		storage[i] = new('D4DeathStorage');
 		storage[i].StoreItems(mo.player);
+		
 	}
 }
 
@@ -887,7 +888,9 @@ Class D4DeathStorage play
 		{
 			if (probe.InterhubAmount < 1 || 
 				probe is "BasicArmor" || 
-				probe is "Health")
+				probe is "Health" ||
+				probe is "Key" || 
+				probe is "RewardToken")
 				continue;
 			
 			AddItem(probe);

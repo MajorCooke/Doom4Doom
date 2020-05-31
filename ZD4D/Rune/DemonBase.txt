@@ -168,8 +168,7 @@ Class DemonPlayerBase : Doom4Player
 	{
 		Super.Tick();
 		
-		if (SpawnTime >= 5)
-			bPICKUP = true;
+		bPICKUP = (SpawnTime >= 35);
 		
 		if (!player || !player.mo || player.mo != self)
 			return;
@@ -314,7 +313,7 @@ Class DemonPlayerBase : Doom4Player
 	
 	override bool CanTouchItem(Inventory item)
 	{
-		if (SpawnTime < 5)
+		if (SpawnTime < 35)
 			return false;
 		
 		if (item == null ||
