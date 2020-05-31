@@ -816,7 +816,7 @@ Class D4DHandlerStatic : StaticEventHandler
 	{
 		return D4DHandlerStatic(Find("D4DHandlerStatic"));
 	}
-	
+	/*
 	override void NewGame()
 	{
 		Super.NewGame();
@@ -857,8 +857,8 @@ Class D4DHandlerStatic : StaticEventHandler
 		int i = mo.PlayerNumber();
 		storage[i] = new('D4DeathStorage');
 		storage[i].StoreItems(mo.player);
-		
 	}
+	*/
 }
 
 Class D4DeathStorage play
