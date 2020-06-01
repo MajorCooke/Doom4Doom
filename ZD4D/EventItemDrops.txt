@@ -395,21 +395,20 @@ extend class D4DHandler
 		}
 		
 		// First set up the base multiplier upon damage type when killed.
-		if (MOD == 'ChainsawPinata' || MOD == 'Crucible')
+		if (MOD == 'Crucible')
 		{
 			CashMul *= 4;
-			if (MOD == 'ChainsawPinata')
-			{
-				if (!(Restrictions & RF_NOBULLETS))	Pinatas.AddItem("D4PinataBulletsBig", 	LootDrop ? 4 : 1);
-				if (!(Restrictions & RF_NOSHELLS))	Pinatas.AddItem("D4PinataShellsBig", 	LootDrop ? 4 : 1);
-				if (!(Restrictions & RF_NOCELLS))	Pinatas.AddItem("D4PinataCellsBig", 	LootDrop ? 5 : 1);
-				if (!(Restrictions & RF_NOROCKETS))	Pinatas.AddItem("D4PinataRocketsBig", 	LootDrop ? 3 : 1);
-			}
-			else if (MOD == 'Crucible')
-			{
-				if (LootDrop && !(Restrictions & RF_NOHEALTH))
-					Pinatas.AddItem("D4PinataHealth", 5); 
-			}
+			if (LootDrop && !(Restrictions & RF_NOHEALTH))
+				Pinatas.AddItem("D4PinataHealth", 2); 
+		}
+		else if (MOD == 'ChainsawPinata')
+		{
+			CashMul *= 4;
+			if (!(Restrictions & RF_NOBULLETS))	Pinatas.AddItem("D4PinataBulletsBig", 	LootDrop ? 4 : 1);
+			if (!(Restrictions & RF_NOSHELLS))	Pinatas.AddItem("D4PinataShellsBig", 	LootDrop ? 4 : 1);
+			if (!(Restrictions & RF_NOCELLS))	Pinatas.AddItem("D4PinataCellsBig", 	LootDrop ? 5 : 1);
+			if (!(Restrictions & RF_NOROCKETS))	Pinatas.AddItem("D4PinataRocketsBig", 	LootDrop ? 3 : 1);
+			
 		}
 		else if (MOD == 'BerserkKill' || 
 				MOD == 'ChainsawKill' || 

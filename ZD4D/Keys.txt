@@ -13,7 +13,7 @@ mixin class D4KeyTouch
 			Super.Touch(toucher);
 		}
 	}
-	
+	/*
 	override void DepleteOrDestroy()
 	{
 		if (Owner)
@@ -33,6 +33,7 @@ mixin class D4KeyTouch
 		}
 		Super.OnDestroy();
 	}
+	*/
 }
 
 Class D4RedCard : RedCard //replaces RedCard

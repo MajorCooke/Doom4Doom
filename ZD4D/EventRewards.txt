@@ -1,0 +1,25 @@
+/*==============================================================================
+Event Rewards System
+
+This is responsible for giving rewards based on 1/5 kills and secrets given.
+==============================================================================*/
+
+// Since this is a local handler, we don't need to concern ourself with checking
+// the level.
+extend Class D4DHandler
+{
+	const Credit_FifthReward = 15;
+
+	int	KillCount,		KillTotal,		KillsEarned,
+		SecretCount,	SecretTotal,	SecretsFound;
+	
+	void UpdateMapStats()
+	{
+		// First, get the updated stats.
+		KillCount = level.killed_monsters;
+		KillTotal = level.total_monsters;
+		SecretCount = level.found_secrets;
+		SecretTotal = level.total_secrets;
+		
+	}
+}
