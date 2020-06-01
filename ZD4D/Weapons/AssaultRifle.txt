@@ -796,9 +796,9 @@ Class MGMiniMissile : D4D_Projectile
 	Looper:
 		SWMS A 1 Bright 
 		{
-			if (counter >=  TimerMax)
+			if (counter >= TimerMax)
 			{
-				return ResolveState("Explode");
+				return ResolveState("Death");
 			}
 			else
 			{
@@ -809,99 +809,8 @@ Class MGMiniMissile : D4D_Projectile
 			return ResolveState(null);
 		}
 		Loop;
-		
-	//crashes on a wall
-	Death:	
-		SWMS A 1 Bright
-		{
-			if (counter++ >= TimerMax)
-				return ResolveState("Explode");
-			else
-				A_SpawnItemEx("MGMiniMissileSmokeStuck",-5,0,0,frandom(0.3,-0.3),frandom(0.3,-0.3),frandom(0.2,1.5),0,SXF_NOCHECKPOSITION,64);
-			
-			return ResolveState(null);
-		}
-		Loop;
-
-	// hits a bleeding Monster;
-	XDeath:
-		TNT1 A 0
-		{
-			if (!tracer)	{	return ResolveState("Dropout");	}
-			UAnglea = angle;
-			UZ = pos.z;
-			A_Warp(AAPTR_TRACER,0,0,0,0,WARPF_NOCHECKPOSITION);
-			UAngleb = angle;
-			UZ -= pos.z;
-			A_Warp(AAPTR_TRACER,0,0,UZ,UAnglea-UAngleb,WARPF_NOCHECKPOSITION,null,0,-0.5);
-			return ResolveState(null);
-		}
-	Warping:
-		---- A 0 
-		{
-			StateLabel next = null;
-			if (!Tracer || Tracer.Health < 1)
-				next = "Dropout";
-			return ResolveState(next);
-		}
-		---- A 0 A_Warp(AAPTR_TRACER,0,0,UZ,UAnglea-UAngleb,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,null,0,-0.5);
-		SWMS A 1 Bright {count++;}
-		---- A 0 
-		{
-			if (!tracer || tracer.health < 1)	{	return ResolveState("Dropout");	}
-			if(counter>=TimerMax)
-			{
-				return ResolveState("Explode");
-			}
-			else
-			{
-				counter++;
-				if(GetCvar("HQEffectsWeapons"))
-				{
-					A_SpawnItemEx("MGMiniMissileSmokeStuck",-5,0,0,frandom(0.3,-0.3),frandom(0.3,-0.3),frandom(0.2,1.5),0,SXF_NOCHECKPOSITION,64);
-				}
-			}
-			return ResolveState(null);
-		}
-		Loop;
-
-	Dropout:
-		D008 P 0 
-		{
-			bNoGravity = bDropoff =  bMissile = false;
-			A_ChangeLinkFlags(false);
-			A_Gravity();
-			A_ChangeVelocity(frandom(-0.3,0.3),frandom(-0.3,0.3),-9,CVF_REPLACE);
-		}
-	LoopDropout:
-		SWMS A 1 Bright 
-		{
-			if(GetCvar("HQEffectsWeapons"))
-			{
-				A_SpawnItemEx("MGMiniMissileSmokeStuck",-5,0,0,frandom(0.3,-0.3),frandom(0.3,-0.3),frandom(0.2,1.5),0,SXF_NOCHECKPOSITION,128);
-			}
-			count += 3;
-		}
-		D008 P 0 
-		{
-			if(counter >= TimerMax)
-			{
-				return ResolveState("Explode");
-			}
-			else
-			{
-				counter++;
-				if(GetCvar("HQEffectsWeapons"))
-				{
-					A_SpawnItemEx("MGMiniMissileSmokeStuck",-5,0,0,frandom(0.3,-0.3),frandom(0.3,-0.3),frandom(0.2,1.5),0,SXF_NOCHECKPOSITION,64);
-				}
-			}
-			return ResolveState(null);
-		}
-		Loop;
-		
-	Explode:
-		TNT1 A 0 
+	Death:
+		TNT1 A 1
 		{
 			A_PlaySound("Doom4/Weapon/Machinegun/MiniMissileExplo");
 			A_Explode(48,32);
