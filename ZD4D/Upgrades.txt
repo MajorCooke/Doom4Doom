@@ -170,8 +170,12 @@ Class UpgradeItem : D4DKeeperItem
 		bool good = Super.HandlePickup(item);
 		if (good)
 		{
-			let inv = UpgradeItem(FindInventory(GetClass()));
-			if (inv)	inv.UpdateItem();
+			if (Owner)
+			{
+				let inv = UpgradeItem(Owner.FindInventory(GetClass()));
+				if (inv)	inv.UpdateItem();
+			}
+			else Console.Printf("No owner found!");
 		}
 		return good;
 	}
@@ -763,11 +767,13 @@ extend class BFGUpgrade1
 			let inv = Ammo(Owner.FindInventory("D4BFGAmmo"));
 			if (inv)
 			{
-				inv.MaxAmount = inv.Default.MaxAmount + Amount;
-				inv.InterHubAmount = inv.Default.InterHubAmount + Amount;
-				inv.BackpackMaxAmount = inv.Default.BackpackMaxAmount + Amount;
+				inv.MaxAmount = inv.Default.MaxAmount + 30;
+				inv.InterHubAmount = inv.Default.InterHubAmount + 30;
+				inv.BackpackMaxAmount = inv.Default.BackpackMaxAmount + 30;
 			}
+			else Console.Printf("BFG ammo not found!");
 		}
+		else Console.Printf("No owner found.");
 	}
 	override void DepleteOrDestroy()
 	{
