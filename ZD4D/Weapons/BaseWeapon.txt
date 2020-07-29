@@ -1,5 +1,6 @@
 #include "ZD4D/Weapons/GrenadeLauncher.txt"
 #include "ZD4D/Weapons/Crucible.txt"
+#include "ZD4D/Weapons/Unmakyr.txt"
 
 const SparsitySmall = 100.0; //10.415;
 //==============================================================================
@@ -17,6 +18,9 @@ Class Doom4Weapon : Weapon
 	const PunchSway = 53;
 	const WeaponSwitcher = 11;
 	
+	private int AlertTimer;
+	int AlertTimerStart;
+	
 	transient Cvar WeaponMode;
 	D4DHandler Event;
 	MCHandler MC;
@@ -29,8 +33,10 @@ Class Doom4Weapon : Weapon
 	
 	Property MultiplayerWeapon: MultiplayerWeapon;
 	Property CvarMode: CvarMode, CvarOn, CvarOff;
+	Property AlertTimerStart: AlertTimerStart;
 	Default 
 	{
+		Doom4Weapon.AlertTimerStart 35;
 		Doom4Weapon.CvarMode '', '', '';
 		Doom4Weapon.MultiplayerWeapon false;
 		+INVENTORY.UNDROPPABLE
@@ -64,6 +70,22 @@ Class Doom4Weapon : Weapon
 	//==========================================================================
 	//
 	//==========================================================================
+	
+	override void DoEffect()
+	{
+		if (Owner && AlertTimer > 0)
+			AlertTimer--;
+	}
+	
+	action void AlertMonsters()
+	{
+		let i = invoker;
+		if (i.AlertTimer < 1)
+		{
+			A_AlertMonsters();
+			i.AlertTimer = i.AlertTimerStart;
+		}
+	}
 	
 	action void FetchWeaponMode()
 	{
