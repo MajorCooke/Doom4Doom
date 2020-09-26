@@ -414,7 +414,7 @@ Class D4AbstractMonster : D4Actor
 						SetZ(pos.z + s);
 						if (TryMove(new, bDROPOFF))
 							good = true;
-						else SetXYZ(old);
+						else SetOrigin(old, false);
 						
 					}
 					else

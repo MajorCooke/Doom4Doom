@@ -20,13 +20,7 @@ Class Doom4Player : PlayerPawn
 		"FlameThrowerPickup",
 		"FragGrenadePickup",
 		"SyphonGrenadePickup",
-		"HoloGrenadePickup",
-		"PersonalPortalPickup",
-		"KineticMinePickup",
-		"TeslaRocketPickup",
-		"ShieldWallPickup",
-		"ThreatSensorPickup",
-		"ThreatScannerPickup"
+		"HoloGrenadePickup"
 	};
 	
 	D4DHandler Event;
@@ -40,9 +34,6 @@ Class Doom4Player : PlayerPawn
 	protected bool spawned;
 	D4DGrenadeItem EquipmentShortcut;
 	Class<Actor> GrenadeToFire;
-	D4PlayerLineFinder LineFinder;
-	protected D4ShieldWallTracer ShieldChecker;
-	protected D4ShieldWall ShieldWall;
 	protected Vector3 MantlePos[2];
 	protected double MantleCos;
 	protected Vector3 LifePos[3], LifeVel[3];
@@ -771,35 +762,6 @@ extend class Doom4Player
 		}
 		if (!TelefragDamage && (player.cheats & CF_GODMODE) && !(flags & DMG_FORCED))
 			return -1;
-			
-		// Shield wall needs some special circumstance handling here. We need
-		// to block explosion damage since this is supposed to effectively act
-		// like map geometry. And rails.
-		if (ShieldWall && (inflictor || source) && (flags & (DMG_EXPLOSION|DMG_INFLICTOR_IS_PUFF)))
-		{
-			Actor attacker = inflictor;
-			if (!attacker || (flags & DMG_INFLICTOR_IS_PUFF))	
-				attacker = source;
-				
-			if (attacker.pos != pos)
-			{
-				Vector3 end = pos; end.z += height * 0.5;
-				Vector3 start = attacker.pos; start.z += attacker.height * 0.75;
-				Vector3 dir = level.Vec3Diff(start, end);
-				double len = dir.Length();
-				dir = dir.Unit();
-				if (!ShieldChecker)	ShieldChecker = new('D4ShieldWallTracer');
-				
-				ShieldChecker.Target = self;
-				if (ShieldChecker.Trace(start, attacker.cursector, dir, len, 0))
-				{
-					// Hidden by the shield.
-					if (ShieldChecker.Results.HitType == TRACE_HitActor &&
-						ShieldChecker.Results.HitActor is 'D4ShieldWallBarrier')
-						return -1;
-				}
-			}
-		}
 		
 		// Can't touch dis.
 		if (CountInv("CantTouchThis"))

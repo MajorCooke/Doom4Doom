@@ -787,6 +787,7 @@ Class D4PinataCarrion : CustomInventory
 		+NOBLOCKMONST
 		+SEEINVISIBLE // Needed to stop A_Face* functions from misbehaving with invis powerups.
 		+NOTELESTOMP
+		+CANNOTPUSH
 		+INVENTORY.TRANSFER
 		BounceFactor 0.5;
 		DistanceCheck "D4D_MaxDrawDistance";

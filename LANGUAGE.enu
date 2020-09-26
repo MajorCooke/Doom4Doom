@@ -1,8 +1,8 @@
 [enu default]
 
 SECRETMESSAGE = "";
-VERSION_NUMBER = "v3.0 Alpha 8.6";
-VERSION_DATE = "May 4, 2020";
+VERSION_NUMBER = "v3.0 Alpha 8.7 (Final)";
+VERSION_DATE = "September 25, 2020";
 
 // This is where the footstep sounds for each texture are defined.
 // The definition MUST be STEP_<texturename>
@@ -458,10 +458,20 @@ AirUpgrade3 =				"Increased Air Control";
 AirUpgrade4 =				"Dash Ability";
 AirUpgradeF1 =				"The power of farts compels you higher!";
 
-ProtectionUpgrade1 =		"Environment Damage Reduction\nImmune to Barrel Damage";
-ProtectionUpgrade2 =		"Self Damage Reduction\nBarrels Respawn Once";
-ProtectionUpgrade3 =		"Radius Damage Reduction\nBarrels Drop Ammo";
-ProtectionUpgradeF1 =		"Rubber saves lives, kids.";
+ProtectionBonus1 =		"Environment Damage Reduction\nImmune to Barrel Damage";
+ProtectionBonus2 =		"Self Damage Reduction";
+ProtectionBonus3 =		"Radius Damage Reduction";
+
+ProtectionBonus1D1 =	"Environment Damage Reduction";
+ProtectionBonus1D2 =	"Immune to Barrel Damage";
+
+ProtectionBonus2D1 =	"Self Damage Reduction";
+ProtectionBonus2D2 =	"";
+
+ProtectionBonus3D1 =	"Radius Damage Reduction";
+ProtectionBonus3D2 =	"";
+
+ProtectionBonusF1 =		"Rubber saves lives, kids.";
 
 CrateQualityUpgrade1 =		"Big Crate Items";
 CrateQualityUpgrade2 =		"Situational Crate Items";
@@ -486,7 +496,10 @@ D4DoomDollUpgrade1 =		"Romero's Energizing Cologne";
 D4DoomDollUpgrade2 =		"Achmed's Dynamite Satchel";
 
 D4DoomDollUpgrade1D1 =		"+1000% Explosion Damage";
-D4DoomDollUpgrade2D1 =		"\cfOn Use:\n\cd+100% Movement Speed\n+100% Jump Height\nStacks with other movement powerups";
+D4DoomDollUpgrade2D1 =		"\cfOn Use:";
+D4DoomDollUpgrade2D2 =		"\cd+100% Movement Speed";
+D4DoomDollUpgrade2D3 =		"\cd+100% Jump Height";
+D4DoomDollUpgrade2D4 =		"\cdStacks with other movement powerups";
 
 D4RegenUpgrade1 =			"Exoskeleton Generator";
 D4RegenUpgrade2 =			"Secondary Conduit";
@@ -567,6 +580,3 @@ D4RegenUpgrade3F1 =			"When you wake up in a tub full of ice, you're laughing.";
 D4RegenUpgrade4F1 = 		"Steroids Without Consequences";
 
 
-ProtectionBonus1 =			"50% Environmental Protection";
-ProtectionBonus2 =			"50% Self Damage Reduction";
-ProtectionBonus3 =			"50% Radius Damage Reduction";

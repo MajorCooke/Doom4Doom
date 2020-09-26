@@ -15,6 +15,7 @@
 
 Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 {
+	Array<D4Rocket> Rockets;
 	Array<Actor> Targets;
 	MCHudShape Reticle;
 	const LockOnCone = cos(20); //0.93969262078
@@ -142,6 +143,11 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 		invoker.Targets.Clear();
 	}
 	
+	action void ClearRockets()
+	{
+		invoker.Rockets.Clear();
+	}
+	
 	action Actor A_FireSeekerRocket(class<Actor> missiletype, double angle = 0, bool useammo = true, double spawnofs_xy = 0, double spawnheight = 0, int flags = 0, double pitch = 0)
 	{
 		let mo = A_FireProjectile(missiletype, angle, useammo, spawnofs_xy, spawnheight, flags, pitch);
@@ -150,6 +156,49 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			mo.Tracer = invoker.Target;
 		}
 		return mo;
+	}
+	
+	action Actor A_FireDetonatorRocket(class<Actor> missiletype, double angle = 0, bool useammo = true, double spawnofs_xy = 0, double spawnheight = 0, int flags = 0, double pitch = 0)
+	{
+		let mo = D4Rocket(A_FireProjectile(missiletype, angle, useammo, spawnofs_xy, spawnheight, flags, pitch));
+		if (mo)
+		{
+			invoker.Rockets.Push(mo);
+		}
+		return mo;
+	}
+	
+	action int A_DetonateRockets()
+	{
+		int count = 0;
+		let i = invoker;
+		for (int j = 0; j < i.Rockets.Size(); j++)
+		{
+			let r = i.Rockets[j];
+			if (r && !r.bKILLED)
+			{
+				r.DetSecondary();
+				count++;
+			}
+		}
+		i.Rockets.Clear();
+		return count;
+	}
+	
+	private int Cleaner;
+	override void DoEffect()
+	{
+		Super.DoEffect();
+		if (++Cleaner >= Second)
+		{
+			Cleaner = 0;
+			Array<D4Rocket> temp; temp.Clear();
+			for (int i = 0; i < Rockets.Size(); i++)
+			{
+				if (Rockets[i])	temp.Push(Rockets[i]);
+			}
+			Rockets.Move(temp);
+		}
 	}
 	
 	States
@@ -320,7 +369,11 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 		#### B 1 Bright 
 		{
 			A_GunFlash("Null");
-			A_FireProjectile("D4Rocket",0,1,7);
+			
+			if (CountInv("DetonateActive"))
+				A_FireDetonatorRocket("D4Rocket",0,1,7);
+			else
+				A_FireProjectile("D4Rocket",0,1,7);
 			A_PlaySound("Doom4/Weapon/RocketLauncher/Fire",5,1);
 			A_Overlay(P1,"NormalPitchHandler");
 			A_GiveInventory("RocketFired",1);
@@ -425,7 +478,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 				{
 					A_SetInventory("RocketFired",2);
 				}
-				A_GiveToChildren("RLDetonatorSecondary",1);
+				A_DetonateRockets();
 				return ResolveState(null);
 			}
 			else if (CountInv("LockOnActive"))
@@ -740,16 +793,8 @@ Class RLDetonatorSecondary : CustomInventory
 				return false;
 			}
 			
-			A_Explode(130,180,0,0,60);	// High damage to enemies
-			A_Explode(30,128);			// Low damage to player
-			A_SpawnItemEx("D4ExploderDummy",0,0,0,0,0,0,0,32);	//had to, because this actor cannot a_quake since it disappears 
 			
-			for (int i = 0; i < 7; i++)
-				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
-				
-			A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-			A_PlaySound("Doom4/Weapon/RocketLauncher/Detonate");
-			A_GiveInventory("DetonateToken",1);
+			
 			return true;
 		}
 		Stop;
@@ -806,7 +851,6 @@ Class D4Rocket : D4AbstractMissilePlayer
 		Projectile;
 		+FORCERADIUSDMG
 		+EXTREMEDEATH
-		+NODAMAGETHRUST
 		Speed 21;
 		Radius 6;
 		Height 6;
@@ -814,6 +858,20 @@ Class D4Rocket : D4AbstractMissilePlayer
 		Damage 30;
 		DeathSound "Doom4/Weapon/RocketLauncher/HRExplo";
 		Decal "D4ExploScorch";
+	}
+	
+	void DetSecondary()
+	{
+		RocketDamage();
+		
+		A_QuakeEx(2,2,2,15,0,360,"",QF_SCALEDOWN,0,0,0,1);
+		
+		for (int i = 0; i < 7; i++)
+			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
+			
+		A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+		A_PlaySound("Doom4/Weapon/RocketLauncher/Detonate");
+		A_GiveInventory("DetonateToken",1);
 	}
 	
 	States
@@ -830,13 +888,15 @@ Class D4Rocket : D4AbstractMissilePlayer
 	Death:
 		TNT1 A 10
 		{
-			//DestroyFX();
-			bINVISIBLE = true;
+			bKILLED = bINVISIBLE = true;
 			A_GiveInventory("DetonateToken",1);
+			
+			RocketDamage();
+			/*
 			A_Explode(130,180,0,0,60);	// High damage to enemies
 			A_Explode(30,128);			// Low damage to player
 			A_RadiusThrust(180,180,RTF_THRUSTZ|RTF_AFFECTSOURCE|RTF_NOIMPACTDAMAGE,60);
-			
+			*/
 			A_QuakeEx(2,2,2,15,0,360,"",QF_SCALEDOWN,0,0,0,1);
 			if (GetCvar("HQEffectsWeapons"))
 			{

@@ -128,3 +128,18 @@ Class CrucibleAmmoBeam : MCBeam
 		
 	}
 }
+
+Class BFGBeamWave : MCBeamFlow
+{
+	Default
+	{
+	//	+INTERPOLATEANGLES
+	//	+DONTINTERPOLATE
+		Translation "0:255=%[0,0,0]:[1.0,2.0,1.0]";
+		MCBeamFlow.Width 10.0;
+		MCBeamFlow.Length 20.0;
+		MCBeamFlow.MaxBeams 200;
+		MCBeamFlow.SpriteName "X206";
+		MCBeamFlow.Frames Fr_F, Fr_M;
+	}
+}

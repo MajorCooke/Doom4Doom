@@ -121,9 +121,13 @@ Class D4DBeamSpawnerBase : D4DFX
 	Property MoveWithSource:	MoveWithSource;
 	Property MovePitchAngle:	MovePitchAngle;
 	Property Velocity:			Velocity;
+	Property Lengths:			LengthMin, LengthMax;
+	Property Widths:			WidthMin, WidthMax;
 	
 	Default
 	{
+		D4DBeamSpawnerBase.Lengths 100, 100;
+		D4DBeamSpawnerBase.Widths 100, 100;
 		D4DBeamSpawnerBase.BranchSize 1.0; //Do NOT Touch this value!
 		D4DBeamSpawnerBase.AimFlag FAF_BOTTOM;
 		+NOTONAUTOMAP
@@ -294,11 +298,9 @@ Class D4DBeamSpawnerBase : D4DFX
 				{
 					DistSq = (MaxDistance ** 2);
 				}
-				double RealLengthMin = LengthMin * 100;
-				double RealLengthMax = LengthMax * 100;
 				
-				Scale.X = frandom(WidthMin, WidthMax);
-				Scaled = Scale * 100.0;
+				Scale.X = frandom(WidthMin, WidthMax) * 100;
+				Scaled = Scale;
 				
 				// Waste no time or energy spawning and destroying needlessly.
 				// Simply skip to spawning the last beams.
@@ -313,8 +315,8 @@ Class D4DBeamSpawnerBase : D4DFX
 						return ResolveState(next);
 					}
 					// Adjust the scale to the random amount and get the distance.
-					Scale.Y = frandom(LengthMin, LengthMax);
-					Scaled = Scale * 100.0;
+					Scale.Y = frandom(LengthMin, LengthMax) * 100;
+					Scaled = Scale;
 					
 					
 					// Face towards where the beam should go.
@@ -364,7 +366,7 @@ Class D4DBeamSpawnerBase : D4DFX
 							bolt.Translation = Translation;
 							bolt.Spawner = self;
 							if (SpawnLast)
-								bolt.Scale.Y = Min(Scale.Y, (MaxDistance - CurDistance) * 0.01);
+								bolt.Scale.Y = Min(Scale.Y, (MaxDistance - CurDistance));
 							
 							if (StartBeam && (Starting || SpawnLast))
 								bolt.IsEnding = (SpawnLast) ? -1 : 1;
@@ -470,7 +472,7 @@ Class D4DBeamBase : D4DFX
 		D4DBeamBase.EndFrame Fr_Y;
 		RenderStyle "Add";
 	//	DistanceCheck "D4D_MaxDrawDistance";
-		XScale 0.1;
+		XScale 1.0;
 		YScale 1.0;
 		Projectile;
 		+BRIGHT
@@ -699,7 +701,7 @@ Class D4DBeamBase : D4DFX
 		---- A 1
 		{
 			Scale.X -= ScaleSub;
-			if (Scale.X <= 0.0)	return Destroy();
+			if (Scale.X <= 0.0)	{	Destroy();	return;	}
 		}
 		Wait;
 	ScaleOutSine:
@@ -708,7 +710,7 @@ Class D4DBeamBase : D4DFX
 			// Remember kids! After 90 degrees, the sine wave goes down!
 			CurrentSine += ScaleSub;
 			Scale.X = sin(CurrentSine) * TargetScale;
-			if (CurrentSine >= 180.0)	return Destroy();
+			if (CurrentSine >= 180.0)	{	Destroy();	return;	}
 		}
 		Wait;
 	// Without someone using these, modeldefs will throw a fit and refuse to start.

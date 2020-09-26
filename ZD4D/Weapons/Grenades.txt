@@ -122,13 +122,6 @@ Class FlameThrowerPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4
 Class FragGrenadePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Frag";		D4DGrenadeItem.Positions 0, 1;	}}
 Class HoloGrenadePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4PlayerHolograph";	D4DGrenadeItem.Icons "HoloGren", "HoloGre0", "";			Tag "Holo";		D4DGrenadeItem.Positions 1, 2;	}}
 Class SyphonGrenadePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4SyphonGrenade";	D4DGrenadeItem.Icons "SyphGren", "SyphGre0", "";			Tag "Syphon";	D4DGrenadeItem.Positions 1, 0;	}}
-Class PersonalPortalPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4PersonalPortal";	D4DGrenadeItem.Icons "PersTele", "PersTel0", "PersTel1";	Tag "Portal";	D4DGrenadeItem.Positions 1, 2;	}}
-Class TeslaRocketPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4TeslaRocket";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Tesla";	D4DGrenadeItem.Positions 2, 3;	}}
-Class ThreatSensorPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Sensor";	D4DGrenadeItem.Positions 2, 3;	}}
-Class ThreatScannerPickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4FragGrenade";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Scanner";	D4DGrenadeItem.Positions 2, 3;	}}
-Class KineticMinePickup : D4DGrenadeItem	{ Default { D4DGrenadeItem.Grenade "D4KineticMine";		D4DGrenadeItem.Icons "FragGren", "FragGre0", "";			Tag "Mine";		D4DGrenadeItem.Positions 2, 3;	}}
-Class ShieldWallPickup : D4DGrenadeItem		{ Default { D4DGrenadeItem.Grenade "D4ShieldWall";		D4DGrenadeItem.Icons "ShieldWa", "ShieldW0", "";			Tag "Shield";	D4DGrenadeItem.Positions 2, 3;	}}
-
 
 
 //------------------------------------------------------
@@ -233,30 +226,6 @@ Class SyphonGrenadeWorld : D4DUtilityWorld
 		Scale 0.3;
 	}
 }
-
-Class ShieldWallWorld : D4DUtilityWorld
-{
-	Default 
-	{
-		Inventory.PickupMessage "Shield Wall equipment";
-		D4DUtilityWorld.SpawnSprite "D4SW", Fr_A;
-		D4DUtilityWorld.Pickup "ShieldWallPickup";
-		Scale 1.0;
-	}
-}
-
-Class PersonalPortalWorld : D4DUtilityWorld
-{
-	Default 
-	{
-		Inventory.PickupMessage "Personal Portal equipment";
-		D4DUtilityWorld.SpawnSprite "D4PP", Fr_A;
-		D4DUtilityWorld.Pickup "PersonalPortalPickup";
-		Scale 1.0;
-	}
-}
-
-
 
 //--------------------------------------------------------------
 // To select next/prev grenade
@@ -366,27 +335,6 @@ Class GrenadeSwitchPrev : GrenadeSwitchNext
 //==============================================================================
 // Base class actor
 Class D4EquipmentProjectile : D4Actor {}
-
-//------------------------------------------------------------------------------
-// Kinetic Mine
-//------------------------------------------------------------------------------
-Class D4KineticMine : D4EquipmentProjectile
-{
-}
-
-//------------------------------------------------------------------------------
-// Personal Teleporter
-//------------------------------------------------------------------------------
-Class D4PersonalPortal : D4EquipmentProjectile
-{
-}
-
-//------------------------------------------------------------------------------
-// Tesla Rocket
-//------------------------------------------------------------------------------
-Class D4TeslaRocket : D4EquipmentProjectile
-{
-}
 
 //------------------------------------------------------------------------------
 // Syphon Grenade
@@ -701,6 +649,7 @@ Class D4FragGrenade : D4EquipmentProjectile
 {
 	int timer;
 	int armed;
+	bool Bounced;
 	Default 
 	{
 		Projectile;
@@ -713,6 +662,7 @@ Class D4FragGrenade : D4EquipmentProjectile
 		+ROLLSPRITE
 		+CANBOUNCEWATER
 		+EXTREMEDEATH
+		+BOUNCEAUTOOFFFLOORONLY
 		Scale 0.06;
 		Gravity 0.4;
 		Radius 5;
@@ -773,7 +723,11 @@ Class D4FragGrenade : D4EquipmentProjectile
 	ArmOnFloor:
 		D4GR D 1 
 		{
-			A_PlaySound("Doom4/Weapon/Grenade/FragBounce",5);
+			if (!Bounced)
+			{
+				A_PlaySound("Doom4/Weapon/Grenade/FragBounce",5);
+				Bounced = true;
+			}
 			if (!armed) //if it hadnt played the sound before
 			{
 				A_PlaySound("Doom4/Weapon/Grenade/FragArm",6);
@@ -792,16 +746,8 @@ Class D4FragGrenade : D4EquipmentProjectile
 		{
 			A_PlaySound("Doom4/Weapon/RocketLauncher/HRExplo",6);
 			A_AlertMonsters();
-			if (CountInv("ProtectionBonus2", TargetPtr))
-			{			
-				A_Explode(32,128);
-				A_Explode(224,192,0,0,96);
-			}
-			else
-			{			
-				A_Explode(64,128);	
-				A_Explode(192,192,0,0,96);
-			}
+			A_Explode(32,128);
+			A_Explode(224,192,0,0,96);
 			A_RadiusThrust(64,128,RTF_THRUSTZ|RTF_AFFECTSOURCE|RTF_NOIMPACTDAMAGE);
 			A_RadiusThrust(192,192,RTF_THRUSTZ|RTF_NOIMPACTDAMAGE,96);
 			
@@ -1110,27 +1056,9 @@ Class D4FlamePoint : D4EquipmentProjectile
 				A_AlertMonsters();
 			}
 			
-			// Perform delimited offsetting. This code makes the flame belcher
-			// stay with the shoulder cannon.
-			Vector3 x, y, z, origin;
-			[x, y, z] = MC_CoordUtil.GetAxes(target.pitch,target.angle,target.roll);
-			origin = target.Vec2OffsetZ(0,0,target.player.viewz) + -1.0 * x + -15.0 * y + 5.0 * z;
-			SetOrigin(origin, true);
 			
-			angle = target.angle;
-			pitch = target.pitch;
-			Vector2 orig = (angle, pitch);
 			
-			// Flaming dopefish belch. Tartarus sauce is spiciest, hands down.
-			int i = 0;
-			for (; i < IgniteRange; i += random(5,15))
-			{
-				double p = frandom(-10.0, 10.0);
-				double dist = frandom(0.0, IgniteRange);
-				A_SpawnItemEx("CarrionFlameFastSmall", 
-					cos(pitch) * i, frandom(-2.0, 2.0), -4.0 - sin(pitch) * i + frandom(-2.0, 2.0), 
-					frandom(-1.0, 1.0), frandom(-1.0, 1.0), 0, 0, SXF_NOCHECKPOSITION);
-			}
+			
 			
 			// Actual ignition code. Once every X tics, set fire to any monster
 			// in the way of the flames.
@@ -1170,6 +1098,17 @@ Class D4FlamePoint : D4EquipmentProjectile
 				}
 			}
 			*/
+			// Perform delimited offsetting. This code makes the flame belcher
+			// stay with the shoulder cannon.
+			Vector3 x, y, z, origin;
+			[x, y, z] = MC_CoordUtil.GetAxes(target.pitch,target.angle,target.roll);
+			origin = target.Vec2OffsetZ(0,0,target.player.viewz) + -1.0 * x + -15.0 * y + 5.0 * z;
+			SetOrigin(origin, true);
+			
+			angle = target.angle;
+			pitch = target.pitch;
+			Vector2 orig = (angle, pitch);
+			
 			if (!tr)	tr = new("D4DIgniteTrace");
 			tr.Ignored.Clear();
 			tr.Ignored.Push(target);
@@ -1213,11 +1152,21 @@ Class D4FlamePoint : D4EquipmentProjectile
 				}
 			}
 			*/
+			
+			// Flaming dopefish belch. Tartarus sauce is spiciest, hands down.
+			int i = 0;
+			for (; i < IgniteRange; i += random(5,15))
+			{
+				double p = frandom(-10.0, 10.0);
+				double dist = frandom(0.0, IgniteRange);
+				A_SpawnItemEx("CarrionFlameFastSmall", 
+					cos(pitch) * i, frandom(-2.0, 2.0), -4.0 - sin(pitch) * i + frandom(-2.0, 2.0), 
+					frandom(-1.0, 1.0), frandom(-1.0, 1.0), 0, 0, SXF_NOCHECKPOSITION);
+			}
 		}
 		Wait;
 	}
 }
-
 class D4DIgniteTrace : LineTracer play
 {
     Array<Actor> Ignored;
@@ -1257,12 +1206,48 @@ class D4DIgniteTrace : LineTracer play
 Class D4FlameTimer : Inventory 
 {
 	const DamageInterval = 17;
-	int tic, _damage;
+	int tic, _damage, prevhp;
 	Actor Damager;
 	
 	Default 
 	{ 
 		Inventory.MaxAmount 175; 
+	}
+	
+	override void ModifyDamage(int damage, Name DamageType, out int newdamage, bool passive, Actor inflictor, Actor source, int flags)
+	{
+		newdamage = damage;
+		if (Owner && passive)
+			prevhp = Owner.Health;
+	}
+	
+	override void AbsorbDamage(int damage, Name DamageType, out int newdamage, Actor inflictor, Actor source, int flags)
+	{
+		newdamage = damage;
+		if (Owner)
+			prevhp = Owner.Health;
+	}
+	
+	void SpawnShard(int damage)
+	{
+		if (!Owner)	return;
+		
+		double dmg = double(damage * 0.2);
+	
+		// Spawn armor shards.
+		if (dmg > 0 && Owner)
+		{
+			let chip = D4PinataArmor(Owner.Spawn('D4PinataArmor', Owner.Pos + (0, 0, Owner.Height * frandom(0.25, 0.75)), ALLOW_REPLACE));
+			if (chip)
+			{
+				chip.bTHRUACTORS = true;
+				chip.SaveAmount = Clamp(int(dmg), 1, 100);
+				chip.bTHRUACTORS = false;
+				chip.VelFromAngle(frandom[a](3,6),random[a](0,359));
+				chip.vel.Z += frandom[a](1,5);
+				chip.A_FaceMovementDirection(0,0);
+			}
+		}
 	}
 	
 	override void DoEffect()
@@ -1283,27 +1268,13 @@ Class D4FlameTimer : Inventory
 		// The flames themselves don't do much damage, about 50 in total. 
 		if (Owner.Health > 0 && --tic < 1)
 		{
+			if (prevhp < 1)	prevhp = Owner.Health;
 			tic = DamageInterval;
 			Owner.DamageMobj(self, Damager, 5, 'Normal', DMG_THRUSTLESS|DMG_NO_PAIN);
-			_damage += 10; // 2 shards instead of 1, to make it more useful.
 		}
 		
-		// Spawn armor shards.
-		if (_damage > 0 && Owner)
-		{
-			let chip = D4PinataArmor(Owner.Spawn('D4PinataArmor', Owner.Pos + (0, 0, Owner.Height * frandom(0.25, 0.75)), ALLOW_REPLACE));
-			if (chip)
-			{
-				chip.bTHRUACTORS = true;
-				double dmg = double(_damage / 5.0);
-				chip.SaveAmount = Clamp(int(dmg), 1, 100);
-				chip.bTHRUACTORS = false;
-				chip.VelFromAngle(frandom[a](3,6),random[a](0,359));
-				chip.vel.Z += frandom[a](1,5);
-				chip.A_FaceMovementDirection(0,0);
-			}
-			_damage = 0;
-		}
+		SpawnShard(_damage);
+		_damage = 0;
 		
 		// Spawn flames
 		int rng = random(1,4);
@@ -1318,202 +1289,11 @@ Class D4FlameTimer : Inventory
 				a.Scale *= 0.40;
 		}
 	}
-}
-
-//------------------------------------------------------------------------------
-// Shield Wall
-//------------------------------------------------------------------------------
-Class D4ShieldWall : D4EquipmentProjectile
-{
-	// Coordinates for the lasers, simply visual effects.
-	static const double OuterPoints[] = 
-	{
-		// Outer shell spawn points (y/z)
-		 256,	0,
-		 320,	32,
-		 320,	256,
-		 256,	288,
-		-256,	288,
-		-320,	256,
-		-320,	32,
-		-256,	0
-	};
 	
-	static const double InnerPoints[] =
+	override void OwnerDied()
 	{
-		// Inner shell spawn points (y/z)
-		 128,	16,
-		 224,	64,
-		 288,	64,
-		 288,	224,
-		 224,	224,
-		 128,	272,
-		-128,	272,
-		-224,	224,
-		-288,	224,
-		-288,	64,
-		-224,	64,
-		-128,	16
-	};
-	
-	Default
-	{
-		Projectile;
-		+THRUACTORS
-		+DONTSPLASH
-		+EXPLODEONWATER
-		-NOGRAVITY
-		Speed 4;
-		Radius 4;
-		Height 4;
-		
-	}
-	States
-	{
-	Spawn:
-		D4SW A 0;
-		Stop;
-	}
-}
-
-/*
-Doom4/ShieldWallImpact
-Doom4/ShieldWallLoop
-Doom4/ShieldWallOff
-Doom4/ShieldWallOn
-*/
-
-// While the barrier can stop most things,
-Class D4ShieldWallBarrier : Actor
-{
-	private Actor Owner;
-	private int Timer;
-	Default
-	{
-		+CANPASS
-		-COUNTKILL
-		+SOLID
-		-SHOOTABLE // Don't add this actor to the global monster list (MC_Utility).
-		+INVULNERABLE
-		+NODAMAGE
-		+NOBLOOD
-		+NOPAIN
-		+DONTRIP
-		+DONTTHRUST
-		+DONTBLAST
-		+DONTMORPH
-		+CANNOTPUSH
-		+NOICEDEATH
-		+NOGRAVITY
-		+NOTELEPORT
-		+NOTELESTOMP
-		+NOTELEFRAG
-		+NOTRIGGER
-		+THRUSPECIES
-		+FRIENDLY
-		+NEVERTARGET
-		+DONTCORPSE
-		+CANTSEEK
-		+BRIGHT
-		+STOPRAILS
-		Species "Player";
-		Radius 32;
-		Height 1;
-		Tag "Shield Wall";
+		SpawnShard(_damage);
+		Super.OwnerDied();
 	}
 	
-	override void PostBeginPlay()
-	{
-		Super.PostBeginPlay();
-		Owner = Target;
-	}
-	
-	// Don't block the owner.
-	override bool CanCollideWith(Actor other, bool passive)
-	{
-		if (!other)	return false;
-		if (other == Owner || (other.bMISSILE && other.target == owner))
-			return false;
-		return true;
-	}
-	
-	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
-	{
-		if (!(flags & DMG_EXPLOSION) && Timer < 1)
-		{
-			Timer = 17;
-			A_PlaySound("Doom4/ShieldWallImpact");
-		}
-		return -1;
-	}
-	
-	override void Tick()
-	{
-		if (IsFrozen())	return;
-		
-		if (Timer > 0)	Timer--;
-		
-		if (pos != SpawnPoint)
-			SetOrigin(SpawnPoint, false);
-		
-		
-		Super.Tick();
-	}
-	
-	States
-	{
-	Spawn:
-		TNT1 A 0 NoDelay
-		{
-			bSHOOTABLE = true;
-			
-			Alpha = 0.0;
-			Height = min(128, ceilingz - pos.z);
-		}
-		PLAY AAAAAAAAAA 1 A_FadeIn(0.1, FTF_CLAMP);
-		PLAY AAAAA 35;
-		PLAY A 1 A_FadeOut();
-		Wait;
-	}
-}
-
-// This is used by the player to initialize a trace and see if it hits either 
-// the player or the shield wall. This is important in order to block rails and
-// explosion damage. Rails in particular may have +FOILINVUL, preventing them
-// from being stopped, so the only solution is to just not take damage (see
-// Doom4player.txt's DamageMobj override).
-Class D4ShieldWallTracer : LineTracer
-{
-	Actor Target;
-	override ETraceStatus TraceCallback() 
-	{
-		switch (Results.HitType) 
-		{
-			case TRACE_HitActor:
-			{
-				let mo = Results.HitActor;
-				if (mo && (mo is 'D4ShieldWallBarrier' || mo == Target))
-					return TRACE_Stop;
-					
-				return TRACE_Skip;
-			}
-			case TRACE_HitFloor:
-			case TRACE_HitCeiling:
-				return TRACE_Stop;
-
-			case TRACE_HitWall:
-			{
-			//	if (Results.Tier == TIER_Upper || Results.Tier == TIER_Lower) 
-			//		return TRACE_Stop;
-				
-				if (Results.Tier == TIER_Middle)
-				{
-					let hl = Results.HitLine;
-					if (!(hl.flags & (Line.ML_BLOCKING | Line.ML_BLOCKEVERYTHING)))
-						return TRACE_Skip;
-				}
-			}
-		}
-		return TRACE_Stop;
-	}
 }

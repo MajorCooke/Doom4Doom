@@ -108,7 +108,7 @@ Script "D4ToggleSoviet" (void) net
 // Cash Display Handler
 //==============================================================================
 //==============================================================================
-
+/*
 Script "ShowCash" OPEN
 {
 	SetActivator(0,AAPTR_PLAYER1);
@@ -137,7 +137,7 @@ Script "ShowResistance" OPEN
 	//SetFont("Q4SMALLERHUDFONT");
 	//HudMessage(d:a;HUDMSG_PLAIN,			1101,CR_WHITE,0.96,0.100,0);
 }
-
+*/
 Function int UpdateCash (int fromCvar)
 {
 	int gettercvar = GetCvar("D4DCash");
@@ -492,28 +492,25 @@ Script "CompletionMessage" (int amount)
 				
 			SetMusicVolume(b);
 			oldcolor = color;
-			color = random(1,12);
+			color = random(0,11);
 			if (color == oldcolor) //Randomize the color if it was already used.
 			{
-				if (color == 12)
-					color = 1;
-				else
-					color++;
+				color = (color + 1) % 12;
 			}
 			switch(color)
 			{
-				case 1:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_BLUE,HudX,HudY,Duration,TypeTime,0);		break;
-				case 2:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_BRICK,HudX,HudY,Duration,TypeTime,0);		break;
-				case 3:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_ORANGE,HudX,HudY,Duration,TypeTime,0);		break;
-				case 4:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_CREAM,HudX,HudY,Duration,TypeTime,0);		break;
-				case 5:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_CYAN,HudX,HudY,Duration,TypeTime,0);		break;
-				case 6:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_OLIVE,HudX,HudY,Duration,TypeTime,0);		break;
-				case 7:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_DARKGRAY,HudX,HudY,Duration,TypeTime,0);	break;
-				case 8:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_DARKGREEN,HudX,HudY,Duration,TypeTime,0);	break;
-				case 9:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_DARKRED,HudX,HudY,Duration,TypeTime,0);		break;
-				case 10:		HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_GOLD,HudX,HudY,Duration,TypeTime,0);		break;
-				case 11:		HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_GREEN,HudX,HudY,Duration,TypeTime,0);		break;
-				case 12:		HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_PURPLE,HudX,HudY,Duration,TypeTime,0);		break;
+				case 0:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_BLUE,HudX,HudY,Duration,TypeTime,0);		break;
+				case 1:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_BRICK,HudX,HudY,Duration,TypeTime,0);		break;
+				case 2:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_ORANGE,HudX,HudY,Duration,TypeTime,0);		break;
+				case 3:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_CREAM,HudX,HudY,Duration,TypeTime,0);		break;
+				case 4:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_CYAN,HudX,HudY,Duration,TypeTime,0);		break;
+				case 5:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_OLIVE,HudX,HudY,Duration,TypeTime,0);		break;
+				case 6:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_DARKGRAY,HudX,HudY,Duration,TypeTime,0);	break;
+				case 7:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_DARKGREEN,HudX,HudY,Duration,TypeTime,0);	break;
+				case 8:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_DARKRED,HudX,HudY,Duration,TypeTime,0);		break;
+				case 9:			HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_GOLD,HudX,HudY,Duration,TypeTime,0);		break;
+				case 10:		HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_GREEN,HudX,HudY,Duration,TypeTime,0);		break;
+				case 11:		HudMessage(s:comp, d:amount; HUDMSG_TYPEON,i,CR_PURPLE,HudX,HudY,Duration,TypeTime,0);		break;
 			}
 			i--;
 			Delay(1);
@@ -529,213 +526,3 @@ Script "CompletionMessage" (int amount)
 		Terminate;
 	}
 }
-
-//==============================================================================
-//==============================================================================
-// Fuck death exits.
-//==============================================================================
-//==============================================================================
-
-// To expand saved item protection, simply increase the ItemTypeCount by
-// however many is needed, and make sure the cvar exists with the EXACT SAME
-// NAME AS THE ITEM. This will ease everyone's lives since it takes up less
-// memory and only requires a single array.
-
-// The scripts are optimized to process this array list. They expect the cvar
-// name to be the same as the item. Don't touch the functions.
-
-// ItemWatchMin and Max are used for the soviet chaingun. It basically requires
-// those items to be purchased first before it's made available.
-/*
-#define ItemTypeCount 77
-#define ItemWatchMin 1
-#define ItemWatchMax 25
-str SavedItems[ItemTypeCount] =
-{	
-	"D4DCash",
-	"AssaultRifleMod1", //1
-	"AssaultRifleMod2",
-	"ChaingunMod1",
-	"ChaingunMod2",
-	"GaussCannonMod1",
-	"GaussCannonMod2",
-	"PlasmaRifleMod1",
-	"PlasmaRifleMod2",
-	"RocketLauncherMod1",
-	"RocketLauncherMod2",
-	"ShotgunMod1",
-	"ShotgunMod2",
-	"SSGUpgrade1",
-	"SSGUpgrade2",
-	"SSGUpgrade3",
-	"SSGUpgrade4",
-	"PistolUpgradeAutomatic",
-	"PistolUpgradeAltDamage",
-	"PistolUpgradeAltCharge",
-	"PistolUpgradeDamage",
-	"PistolUpgradeLance",
-	"BFGUpgrade1",
-	"BFGUpgrade2",
-	"BFGUpgrade3",
-	"BFGUpgrade4", // 25
-	"StaticUpgrade1",
-	"StaticUpgrade2",
-	"StaticUpgrade3",
-	"StaticUpgrade4",
-	"SovietActive",
-	"SovietToken",
-	"LGUpgradeAmmo",
-	"LGUpgradeRange",
-	"LGUpgradeDamage",
-	"LGUpgradeAltFire",
-	"VortexUpgradeDamage",
-	"VortexUpgradeAmmo",
-	"VortexUpgradeAltSpeed",
-	"VortexUpgradeAltPierce",
-	"RepeaterUpgradePiercing",
-	"RepeaterUpgradeDamage",
-	"RepeaterUpgradeAltDamage",
-	"RepeaterUpgradeAltAmmo",
-	"D4CarrionCannon",
-	"D4CarrionToken",
-	"CarrionLevel",
-	"CarrionUpgradePickup",
-	"CarrionUpgradeAmmo",
-	"CarrionUpgradeStun",
-	"CarrionUpgradeTime",
-	"DollUses",
-	"FragGrenadePickup",
-	"HoloGrenadePickup",
-	"SyphonGrenadePickup",
-	"FragGrenadeSelected",
-	"MarineHoloSelected",
-	"SyphonGrenadeSelected",
-	"D4Stamina",
-	"ProtectionBonus1",
-	"ProtectionBonus2",
-	"ProtectionBonus3",
-	"D4ArmorCapRaiser",
-	"D4AirControl",
-	"D4HigherJump",
-	"D4MultiJump",
-	"D4CrateUpgrade",
-	"CashPercentBonus",
-	"D4MegasphereDamageReducer",
-	"D4MegachargeUpgrade1",
-	"D4MegachargeUpgrade2",
-	"D4DoomDollUpgrade1",
-	"D4DoomDollUpgrade2",
-	"D4RegenUpgrade1",
-	"D4RegenUpgrade2",
-	"D4RegenUpgrade3",
-	"D4RegenUpgrade4"
-};
-
-// Don't touch these.
-Script "SaveTokens" (void) //UNLOADING
-{
-	died = false;
-	Terminate;
-	
-	SetActivator(0,AAPTR_PLAYER1);
-	
-	if (GetActorProperty(0,APROP_Health) <= 0)
-		died = true;
-	else
-		died = false;
-		
-	for (int i = 0; i < ItemTypeCount; i++)
-	{
-		SetCvar(SavedItems[i], CheckInventory(SavedItems[i]));
-	}	
-}
-
-Script "RestoreTokens" (void) //ENTER
-{
-	SetActivator(0,AAPTR_PLAYER1);
-	if (died)
-	{
-		if (!notanewgame)
-			Delay(1);
-		
-		UpdateMsg(1);
-		for (int i = 1; i < ItemTypeCount; i++)
-		{
-			int cvar = GetCvar(SavedItems[i]);
-			if (cvar)	GiveInventory(SavedItems[i], cvar);
-		}
-		
-		if (GetCvar("D4MultiJump") != CheckInventory("D4MultiJump"))
-		{
-			TakeInventory("D4MultiJump",32767);
-			GiveInventory("D4MultiJump",GetCvar("D4MultiJump"));
-		}
-		
-		GiveInventory("D4HealthUpgrade",GetCvar("D4Stamina"));
-		died = false;
-	}
-}
-
-Script "UpdateBFGAmmo" ENTER
-{
-	SetActivator(0,AAPTR_PLAYER1);
-	if (GetCvar("BFGUpgrade1"))
-	{
-		SetAmmoCapacity("D4BFGAmmo",4);
-	}
-}
-
-str WeaponList[16] =
-{
-	"D4CarrionCannon",
-	"D4GaussCannon",
-	"D4PlasmaRifle",
-	"D4RocketLauncher",
-	"D4AssaultRifle",
-	"D4Chaingun",
-	"D4Supershotgun",
-	"D4Shotgun",
-	"D4StaticRifle",
-	"D4LightningGun",
-	"D4Pistol",
-	"D4BFG",
-	"D4Repeater",
-	"D4VortexRifle",
-};
-
-Script "UpdateWeaponList" (int skipcash)
-{
-	SetActivator(0,AAPTR_PLAYER1);
-	
-	if (!skipcash)	UpdateCash(0);
-	int cv = 0, ci = 0;
-	
-	for (int i = 0; i < 14; i++)
-	{
-		SetCvar(WeaponList[i], CheckInventory(WeaponList[i]));
-	}
-	
-	for (i = 1; i < ItemTypeCount; i++)
-	{
-		ci = CheckInventory(SavedItems[i]);
-		SetCvar(SavedItems[i], ci);
-	}
-}
-
-Script "RefreshCredits" (void)
-{
-	//UpdateMsg(0);
-	int t;
-		
-	for (int i = ItemWatchMin; i <= ItemWatchMax; i++)
-	{
-		if (!GetCvar(SavedItems[i]))
-			break;
-		t++;
-	}
-	if (t >= ItemWatchMax - ItemWatchMin)
-		SetCvar("ChaingunSpec", true);
-	else
-		SetCvar("ChaingunSpec", false);
-}
-*/

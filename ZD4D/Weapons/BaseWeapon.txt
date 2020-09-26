@@ -136,7 +136,7 @@ Class Doom4Weapon : Weapon
 	
 	protected action bool CheckInput(int btn, bool single = true)
 	{
-		if (single)	
+		if (!single)	
 			return (GetPlayerInput(MODINPUT_BUTTONS) & btn);
 		
 		return (GetPlayerInput(MODINPUT_BUTTONS) & btn) &&
@@ -1332,6 +1332,17 @@ Class D4AbstractMissilePlayer : D4AbstractMissile
 		// so no need for the species assignment and stuff.
 		Actor.PostBeginPlay();
 		HQ = GetCvar("HQEffectsWeapons");
+	}
+	
+	void RocketDamage()
+	{
+		if (Target && (!Target.bNORADIUSDMG || bFORCERADIUSDMG))
+		{
+			int selfdmg = GetRadiusDamage(Target, 30, 64, 0, bOLDRADIUSDMG);
+			if (selfdmg > 0)	Target.DamageMobj(self, Target, selfdmg, DamageType, DMG_EXPLOSION|DMG_THRUSTLESS);
+		}
+		Explode(0,0,0,6400,90,30,-1, 0, RADF_ALWAYSTHRUST, filter: 'PlayerPawn', eflags: EXF_PARENT);
+		Explode(160,180,60,6400, filter: 'PlayerPawn', eflags: EXF_PARENT|EXF_INVERSE);
 	}
 }
 

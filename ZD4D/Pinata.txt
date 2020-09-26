@@ -89,6 +89,7 @@ Class D4PinataBase : CustomInventory
 		+SKYEXPLODE
 		+SEEINVISIBLE
 		+DONTSPLASH
+		+CANNOTPUSH
 	}
 	
 	//==========================================================================
@@ -652,6 +653,7 @@ Class D4PinataArmor : D4ArmorBasePickup
 		+BOUNCEONCEILINGS
 		+NOBLOCKMONST
 		+SEEINVISIBLE
+		+CANNOTPUSH
 		+INVENTORY.ALWAYSPICKUP
 		BounceFactor 0.5;
 		DistanceCheck "D4D_MaxDrawDistance";
@@ -783,6 +785,7 @@ Class D4PinataHealth : D4Stimpack
 		+NOBLOCKMONST
 		+SEEINVISIBLE
 		+NOTELESTOMP
+		+CANNOTPUSH
 		Inventory.Amount 8;
 		DistanceCheck "D4D_MaxDrawDistance";
 	}
@@ -854,6 +857,7 @@ Class D4PinataBullets : D4Bullets
 		+NOBLOCKMONST
 		+NOTELESTOMP
 		+SEEINVISIBLE
+		+CANNOTPUSH
 		BounceFactor 0.5;
 		DistanceCheck "D4D_MaxDrawDistance";
 	}
@@ -936,6 +940,7 @@ Class D4PinataShells : D4Shells
 		+NOBLOCKMONST
 		+SEEINVISIBLE
 		+NOTELESTOMP
+		+CANNOTPUSH
 		DistanceCheck "D4D_MaxDrawDistance";
 	}
 		
@@ -1020,6 +1025,7 @@ Class D4PinataCells : D4Cells
 		+NOBLOCKMONST
 		+SEEINVISIBLE
 		+NOTELESTOMP
+		+CANNOTPUSH
 	}
 	States
 	{
@@ -1098,6 +1104,7 @@ Class D4PinataRockets : D4Rockets
 		+NOBLOCKMONST
 		+SEEINVISIBLE
 		+NOTELESTOMP
+		+CANNOTPUSH
 	}
 	
 	States
@@ -1177,6 +1184,7 @@ Class D4PinataBFG : D4BFGAmmo
 		+NOBLOCKMONST
 		+SEEINVISIBLE
 		+NOTELESTOMP
+		+CANNOTPUSH
 	}
 	
 	States
@@ -1248,6 +1256,7 @@ Class D4PinataBulletsZombieman : D4Bullets	//only dropped by these guys, and the
 		+NOBLOCKMONST
 		+SEEINVISIBLE
 		+NOTELESTOMP
+		+CANNOTPUSH
 	}
 	States
 	{
@@ -1298,6 +1307,7 @@ Class D4PinataShellsShotgunGuy : D4Shells	//only dropped by these guys, and they
 		+NOBLOCKMONST
 		+SEEINVISIBLE
 		+NOTELESTOMP
+		+CANNOTPUSH
 	}
 	States
 	{

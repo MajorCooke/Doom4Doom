@@ -1,7 +1,7 @@
 Model "D4DBeamBase"
 {
 	Model 0 "Models/BeamOffset.md3"
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -40,7 +40,7 @@ Model "D4DBeamBase"
 // Gauss Cannon
 Model "GaussTrail"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -58,7 +58,7 @@ Model "GaussTrail"
 
 Model "GaussTrailBig"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -74,26 +74,13 @@ Model "GaussTrailBig"
 	FrameIndex X202 Z 0 0
 }
 
-/*
-Model RGRail
-{ 
-   Path "MD3/Projectiles"
-   SKIN 0 "railcore.jpg"
-   MODEL 0 "railcore.md3"
-   Scale 1.0025 1.0025 1.0025
-   INHERITACTORPITCH
-   
-   FrameIndex RGRA A 0 0
-   FrameIndex RGRA B 0 1
-}
-*/
 
 //------------------------------------------------------------------------------
 // Static Rifle
 
 Model "StaticTrail"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -111,7 +98,7 @@ Model "StaticTrail"
 
 Model "StaticTrailBig"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -131,7 +118,7 @@ Model "StaticTrailBig"
 // Pistol Lance
 Model "LanceTrail"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -152,7 +139,7 @@ Model "LanceTrail"
 
 Model "VortexTrail"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -172,7 +159,7 @@ Model "VortexTrail"
 // Lightning Beam
 Model "LightningBeamPrimary"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -191,7 +178,7 @@ Model "LightningBeamPrimary"
 
 Model "NewLightningBeamPrimary"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -210,7 +197,7 @@ Model "NewLightningBeamPrimary"
 
 Model "NewCarrionBeamMerger"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -229,7 +216,7 @@ Model "NewCarrionBeamMerger"
 //------------------------------------------------------------------------------
 Model "BFGBeam"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -246,10 +233,30 @@ Model "BFGBeam"
 	FrameIndex X206 M 0 0
 }
 
+Model "BFGBeamWave"
+{
+	Scale 1.0 1.0 1.2
+
+	INTERPOLATEDOUBLEDFRAMES
+	DONTCULLBACKFACES
+	USEACTORPITCH
+	USEACTORROLL
+	Model 0 "Models/BeamOffset8.md3"
+	Skin 0 "Graphics/LtBmBlu1.png"
+	FrameIndex X206 F 0 0
+	FrameIndex X206 G 0 0
+	FrameIndex X206 H 0 0
+	FrameIndex X206 I 0 0
+	FrameIndex X206 J 0 0
+	FrameIndex X206 K 0 0
+	FrameIndex X206 L 0 0
+	FrameIndex X206 M 0 0
+}
+
 //------------------------------------------------------------------------------
 Model "CarrionTrail"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -267,7 +274,7 @@ Model "CarrionTrail"
 
 Model "CarrionBeam"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -287,7 +294,7 @@ Model "CarrionBeam"
 // Spider Mastermind laser
 Model "BigRedLaserDrillSMM"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -305,7 +312,7 @@ Model "BigRedLaserDrillSMM"
 
 Model "BigRedLaserDrillSMMPlayer"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -323,7 +330,7 @@ Model "BigRedLaserDrillSMMPlayer"
 
 Model "BigRedLaserDrillChaingunner"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -341,7 +348,7 @@ Model "BigRedLaserDrillChaingunner"
 
 Model "SMMBeamPlayer"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -353,7 +360,7 @@ Model "SMMBeamPlayer"
 
 Model "SMMBeamWarning"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -365,7 +372,7 @@ Model "SMMBeamWarning"
 
 Model "RevenantLaserWhite"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -377,7 +384,7 @@ Model "RevenantLaserWhite"
 
 Model "RevenantLaserYellow"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -389,7 +396,7 @@ Model "RevenantLaserYellow"
 
 Model "RevenantLaserOrange"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -401,7 +408,7 @@ Model "RevenantLaserOrange"
 
 Model "RevenantLaserRed"
 {
-	Scale 100.0 100.0 120.0
+	Scale 1.0 1.0 1.2
 
 	DONTCULLBACKFACES
 	USEACTORPITCH
@@ -462,127 +469,7 @@ Model IncendiaryBulletDMG //for the repeater upgraded
 	PITCHFROMMOMENTUM
 	FrameIndex TRAC A 0 0
 }
-/*
-Model "TrailBeam"
-{
-	Model 0 "Models/BeamOffset.md3"
-	Scale 100.0 100.0 120.0
 
-	DONTCULLBACKFACES
-	USEACTORPITCH
-	
-	Skin 0 "Graphics/BulletTex.png"
-	FrameIndex X163 B 0 0
-}
-
-Model "BulletTrailBeam"
-{
-	Model 0 "Models/BeamOffset.md3"
-	Scale 100.0 100.0 120.0
-
-	DONTCULLBACKFACES
-	USEACTORPITCH
-	
-	Skin 0 "Graphics/BulletTex.png"
-	FrameIndex X163 B 0 0
-}
-
-Model "BulletTrailBeamInverted"
-{
-	Model 0 "Models/BeamOffset.md3"
-	Scale 100.0 100.0 120.0
-
-	DONTCULLBACKFACES
-	USEACTORPITCH
-	
-	Skin 0 "Graphics/BulletTex.png"
-	FrameIndex X163 B 0 0
-}
-*/
-// Blue
-/*
-Model "SNLightningBeam"
-{
-	//Path "Models"
-	Model 0 "Models/BeamOffset.md3"
-	Scale 100.0 100.0 120.0
-
-	DONTCULLBACKFACES
-	USEACTORPITCH
-	
-	// Blue
-	Skin 0 "Graphics/LtBmBlu1.png"
-	FrameIndex LNBB A 0 0
-	Skin 0 "LtBmBlu2"
-	FrameIndex LNBB B 0 0
-	Skin 0 "LtBmBlu3"
-	FrameIndex LNBB C 0 0
-	Skin 0 "LtBmBlu4"
-	FrameIndex LNBB D 0 0
-	Skin 0 "LtBmBlu5"
-	FrameIndex LNBB E 0 0
-	Skin 0 "LtBmBlu6"
-	FrameIndex LNBB F 0 0
-	Skin 0 "LtBmBlu7"
-	FrameIndex LNBB G 0 0
-	Skin 0 "LtBmBlu8"
-	FrameIndex LNBB H 0 0
-	
-	// Green
-	Skin 0 "Graphics/LtBmGrn1.png"
-	FrameIndex LNBG A 0 0
-	Skin 0 "LtBmGrn2"
-	FrameIndex LNBG B 0 0
-	Skin 0 "LtBmGrn3"
-	FrameIndex LNBG C 0 0
-	Skin 0 "LtBmGrn4"
-	FrameIndex LNBG D 0 0
-	Skin 0 "LtBmGrn5"
-	FrameIndex LNBG E 0 0
-	Skin 0 "LtBmGrn6"
-	FrameIndex LNBG F 0 0
-	Skin 0 "LtBmGrn7"
-	FrameIndex LNBG G 0 0
-	Skin 0 "LtBmGrn8"
-	FrameIndex LNBG H 0 0
-	
-	// Red
-	Skin 0 "Graphics/LtBmRed1.png"
-	FrameIndex LNBR A 0 0
-	Skin 0 "LtBmRed2"
-	FrameIndex LNBR B 0 0
-	Skin 0 "LtBmRed3"
-	FrameIndex LNBR C 0 0
-	Skin 0 "LtBmRed4"
-	FrameIndex LNBR D 0 0
-	Skin 0 "LtBmRed5"
-	FrameIndex LNBR E 0 0
-	Skin 0 "LtBmRed6"
-	FrameIndex LNBR F 0 0
-	Skin 0 "LtBmRed7"
-	FrameIndex LNBR G 0 0
-	Skin 0 "LtBmRed8"
-	FrameIndex LNBR H 0 0
-	
-	// White
-	Skin 0 "Graphics/LtBmWht1.png"
-	FrameIndex LNBW A 0 0
-	Skin 0 "LtBmWht2"
-	FrameIndex LNBW B 0 0
-	Skin 0 "LtBmWht3"
-	FrameIndex LNBW C 0 0
-	Skin 0 "LtBmWht4"
-	FrameIndex LNBW D 0 0
-	Skin 0 "LtBmWht5"
-	FrameIndex LNBW E 0 0
-	Skin 0 "LtBmWht6"
-	FrameIndex LNBW F 0 0
-	Skin 0 "LtBmWht7"
-	FrameIndex LNBW G 0 0
-	Skin 0 "LtBmWht8"
-	FrameIndex LNBW H 0 0
-}
-*/
 //------------------------------------------------------------------------------
 // Weapons
 //------------------------------------------------------------------------------
@@ -652,19 +539,6 @@ Model D4RocketLauncher
 	
 	Rotation-Speed 50
 }
-/*
-Model SpinTop
-{
-	Model 0 "Models/RocketLauncher.md3"
-	Scale 1.0 1.0 1.2
-
-	USEACTORPITCH
-	USEACTORROLL
-	DONTCULLBACKFACES
-	
-	FrameIndex WPPK G 0 0
-}
-*/
 Model D4Chaingun
 {
 	Model 0 "Models/Chaingun.md3"
@@ -855,62 +729,11 @@ Model D4ArmorBonus
 
 //------------------------------------------------------------------------------
 // Upgrades + Drones
-/*
-Model D4UpgradeDrone
-{
-	Scale 1.0 1.0 1.2
-	Model 0 "Models/UpgradeDrone.md3"
-	Skin 0 "UpgradeDroneSkin"
-	FrameIndex D4DR A 0 0
-	FrameIndex D4DR B 0 1
-	FrameIndex D4DR C 0 2
-	FrameIndex D4DR D 0 3
-	FrameIndex D4DR E 0 4
-	FrameIndex D4DR F 0 5
-	FrameIndex D4DR G 0 6
-	FrameIndex D4DR H 0 7
-	FrameIndex D4DR I 0 8
-	FrameIndex D4DR J 0 9
-}
-*/
+
 Model D4UpgradeCase
 {
 	Scale 1.0 1.0 1.2
 	Model 0 "Models/UpgradeCrate.md3"
 	Skin 0 "CrateMaxSkin"
 	FrameIndex MICR A 0 0
-}
-
-//------------------------------------------------------------------------------
-// Shield Wall
-Model D4ShieldWall
-{
-	Scale 1.0 1.0 1.2
-	Model 0 "Models/ShieldWall.md3"
-	FrameIndex D4SW A 0 0
-}
-
-Model ShieldWallWorld
-{
-	Scale 1.0 1.0 1.2
-	Model 0 "Models/ShieldWall.md3"
-	FrameIndex D4SW A 0 0
-	Rotation-Speed 50
-}
-
-//------------------------------------------------------------------------------
-// Personal Teleporter
-Model D4PersonalPortal
-{
-	Scale 1.0 1.0 1.2
-	Model 0 "Models/PersonalTeleporter.md3"
-	FrameIndex D4PP A 0 0
-}
-
-Model PersonalPortalWorld
-{
-	Scale 1.0 1.0 1.2
-	Model 0 "Models/PersonalTeleporter.md3"
-	FrameIndex D4PP A 0 0
-	Rotation-Speed 50
 }

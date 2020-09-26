@@ -471,6 +471,7 @@ Class D4UpgradeCase : CustomInventory
 	bool NoFly;
 	Default
 	{
+		+DONTGIB
 		+INVENTORY.ALWAYSPICKUP
 		Inventory.PickupMessage "Random Upgrade gives you...";
 	}
@@ -718,7 +719,6 @@ Class D4UpgradePickupSpawner : Actor
 					!plr.CountInv("CrucibleUpgradeSyphon"))
 					{	SpawnCase = true; /*Console.Printf("15");*/ break;	}
 			}
-			
 			if (!plr.CountInv("D4MegachargeUpgrade1") || 
 				!plr.CountInv("D4MegachargeUpgrade2") ||
 				!plr.CountInv("D4DoomDollUpgrade1") || 
@@ -816,6 +816,7 @@ Class D4UpgradePickup : CustomInventory
 	{
 		+INVENTORY.ALWAYSPICKUP
 		+BRIGHT
+		+DONTGIB
 	}
 	
 	States

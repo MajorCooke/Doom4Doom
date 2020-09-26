@@ -895,7 +895,7 @@ extend class Doom4StatusBar
 				bool InvVis = IsInventoryBarVisible();
 				int fcolor = (InvVis) ? Font.CR_GOLD : Font.CR_GREEN;
 				DrawInventoryIcon(CPlayer.mo.InvSel, InvPos, HUDItemBot, scale: InvScale);
-				DrawString(mConsoleFont, FormatNumber(inv.Amount, 1, 10), InvPos - (0, 50), DI_TEXT_ALIGN_CENTER|HUDItemBot, fcolor, scale: InvScale);
+				DrawString(mConsoleFont, FormatNumber(inv.Amount, 1, 10), InvPos - (0, 55), DI_TEXT_ALIGN_CENTER|HUDItemBot, fcolor, scale: InvScale);
 				
 				if (InvVis)
 				{

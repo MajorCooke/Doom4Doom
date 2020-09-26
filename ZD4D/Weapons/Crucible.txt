@@ -211,7 +211,7 @@ Class DECrucible : Doom4Weapon
 			// Both only occur if the actor is a monster.
 			if (mo.bISMONSTER)
 			{
-				if (syphon)
+				if (syphon && dmg > 0 && mo.health < hp)
 				{
 					// Determine the duration. Calculations are as follows:
 					// 500 health = +1 second, accumulative.
@@ -221,9 +221,10 @@ Class DECrucible : Doom4Weapon
 					// 198 * 0.002 * 35
 					// 0.396 * 35
 					// 13.86 (rounded to 14) added to the duration.
+					
 					double duration = Second;
 					if (hp > SyphonMonsterHP)
-						duration += (double(hp - SyphonMonsterHP) * SyphonRatio * Second);
+						duration += ((double(hp - SyphonMonsterHP) * SyphonRatio * (Second)) + (Second * 2));
 					
 					Powerup inv = Powerup(o.FindInventory("PowerInvulBase", true));
 					if (!inv)
@@ -355,12 +356,9 @@ Class DECrucible : Doom4Weapon
 		}
 		
 		let wep = plr.FindPSprite(PSP_WEAPON);
-		
-		
-		
 		if (!wep || wep.Frame < Fr_A || wep.Frame > Fr_R)	return;
-		int frm = wep.Frame;
 		
+		int frm = wep.Frame;		
 		let pspr = plr.psprites;
 		while (pspr)
 		{
@@ -544,8 +542,13 @@ Class DECrucible : Doom4Weapon
 				Slice((-SwingSpeed,0,-SliceSpeed));
 			}
 			else
+			{
 				SliceAngle(0, 0, true, true);
-			
+				SliceAngle(5, 0, false, false);
+				SliceAngle(10, 0, false, false);
+				SliceAngle(-5, 0, false, false);
+				SliceAngle(-10, 0, false, false);
+			}
 			
 			A_WeaponOffset(-SwingSpeed, 0, WOF_ADD);
 			A_AlertMonsters();

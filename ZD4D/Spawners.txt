@@ -3,32 +3,18 @@ extend Class D4DHandler
 	void CheckCrucibleSpawn(Actor mobj)
 	{
 		let mo = Doom4Weapon(mobj);
-		if (!mo || mo.CountInv("CrateSpawned"))	return;
+		if (!mo || mo.CountInv("CrateSpawned") || mo.Owner)	return;
 		
 		int chance = 0;
 		Name repn = mo.GetClassName();
 		Switch (repn)
 		{
-			Case 'D4BFG':			chance = 4;		break;
+			Case 'D4BFG':			chance = 25;	break;
 			Case 'D4Chainsaw':		chance = 10;	break;
-			Default:	chance = 100;
+			Default:				chance = 1;		break;
 		}
-		/*
-		// Check the players for the weapons.
-		for (int i = 0; i < MAXPLAYERS; i++)
-		{
-			if (!playeringame[i] || !players[i].mo)	continue;
-			let mo = players[i].mo;
-			
-			if (mo.CountInv(mobj.GetClass()))
-			{
-				chance = 1;
-				break;
-			}
-		}
-		if (chance < 1)	return;
-		*/
-		if (random[rng](1, chance) == 1)
+		
+		if (random[rng](1, 100) <= chance)
 		{
 			// Check if ammo spawns were previously enabled, but only if the player
 			// isn't just entering the map.
@@ -127,6 +113,7 @@ extend Class D4DHandler
 					Case 'D4Bullets':		e.Replacee = 'ClipBox';		return;
 					Case 'D4RocketsSmall':	e.Replacee = 'RocketAmmo';	return;
 					Case 'D4Rockets':		e.Replacee = 'RocketBox';	return;
+					Case 'D4BFGAmmo':		e.Replacee = 'CellPack';	return;
 					Case 'D4CellsSmall':	e.Replacee = 'Cell';		return;
 					Case 'D4Cells':			e.Replacee = 'CellPack';	return;
 				}
@@ -227,16 +214,17 @@ extend Class D4DHandler
 													
 				else if (rep == 'Chaingun' || repn == 'STFChaingun' || repn == 'STFMinigun')
 				{
-					int rng = random[rngg](0,6);
+					int rng = random[rngg](0,2);
 					if (MPWeapons)
 					{
-						if (rng <= 1)			e.Replacement = 'D4Chaingun';
-						else if (rng <= 3)		e.Replacement = 'D4AssaultRifle';
+							 if (rng == 2)		e.Replacement = 'D4Chaingun';
+						else if (rng == 1)		e.Replacement = 'D4AssaultRifle';
 						else					e.Replacement = 'D4Repeater';
 					}
 					else
 					{
-						if (rng <= 2)			e.Replacement = 'D4Chaingun';
+						rng = random[rngg](0,1);
+						if (rng == 1)			e.Replacement = 'D4Chaingun';
 						else					e.Replacement = 'D4AssaultRifle';	
 					}
 				}

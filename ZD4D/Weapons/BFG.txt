@@ -201,6 +201,7 @@ Class BFGRedirectPuff : Actor
 		+NOTONAUTOMAP
 		+NEVERTARGET
 		+BRIGHT
+		+SKYEXPLODE
 		Radius 1;
 		Height 1;
 		RenderStyle "None";
@@ -226,7 +227,7 @@ Class BFGRedirector : CustomInventory
 		{
 			if (GetClass() is "D4BFG9000Shot")
 			{
-				if (!CountInv("RedirectedToken"))
+				if (!CountInv("RedirectedToken") && !bKILLED)
 				{
 					if (A_CheckProximity("Null","BFGRedirectPuff",32000,1,CPXF_SETTRACER))
 					{
@@ -256,7 +257,8 @@ Class D4BFGProjectile  : Actor
 	int drawBeams;
 	int renderer;
 	Array<Actor> Beamed, Monsters;
-	MCHandler handler;
+	Array<MCBeamFlow> Beams;
+	MCHandler Handler;
 	//==========================================================================
 	// Functions
 	//==========================================================================
@@ -265,25 +267,64 @@ Class D4BFGProjectile  : Actor
 	{
 		Super.PostBeginPlay();
 		Beamed.Clear();
-		handler = MCHandler.Fetch();
+		Beams.Clear();
+		Handler = MCHandler.Fetch();
 	}
 	
 	//--------------------------------------------------------------------------
 	// Spawns BFG lasers.
 	// As of alpha 8, effectively a copy paste of what I did for lightning gun
 	// without damage.
+	
+	int HandleBeams(int targets)
+	{
+		int live = 0;
+		
+		for (int i = 0; i < Beams.Size(); i++)
+		{
+			let b = BFGBeamWave(Beams[i]);
+			if (b && !b.bDESTROYED)
+			{
+				if (b.Tracer && b.Tracer.Health > 1)
+				{
+					if (Distance3DSquared(b.Tracer) <= (BFG_LaserRadius ** 2) && 
+						CheckSight(b.Tracer,SF_SEEPASTSHOOTABLELINES|SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
+					{
+						live++;
+						continue;
+					}	
+				}
+				b.Destroy();
+				Beams[i] = null;
+			}
+		}
+		return live;
+	}
+	
 	void BFGBeams(int maxtargets)
 	{
-		if (!handler)	handler = MCHandler.Fetch();
-		int size = handler.Monsters.Size();
-		if (handler && size > 0)
+		// Make sure the BFG isn't full on targets first.
+		if (HandleBeams(maxtargets) >= maxtargets)
+			return;
+	
+		if (!Handler)	Handler = MCHandler.Fetch();
+		int size = Handler.Monsters.Size();
+		if (Handler && size > 0)
 		{
 			int count = 0;
 			for (int i = 0; i < size; i++)
 			{
-				Actor mo = handler.Monsters.Actors[i];
-				if (!mo || mo.bCORPSE || mo.health < 1 || mo is "PlayerPawn" || mo.bDORMANT)
+				Actor mo = Handler.Monsters.Actors[i];
+				if (!mo || mo.bCORPSE || mo.health < 1 || mo is "PlayerPawn" || mo.bDORMANT ||
+					(!mo.bSHOOTABLE && !mo.bVULNERABLE) || mo.bFRIENDLY)
 					continue;
+					
+				bool cont = false;
+				for (int j = 0; j < Beams.Size(); j++)
+					if (Beams[j] && Beams[j].Tracer == mo)
+						{	cont = true;	break;	}
+						
+				if (cont)	continue;
 					
 				// Why "squared"? Don't you value a faster game? ;)
 				// Note: ** 2 is exactly squaring a value. ** 3 is cubed, etc.
@@ -292,8 +333,10 @@ Class D4BFGProjectile  : Actor
 					continue;
 				
 				A_Face(mo,0,0,0,0,FAF_MIDDLE);
-				Beamed.Push(mo);
+				if (Beamed.Find(mo) >= Beamed.Size())
+					Beamed.Push(mo);
 				
+				/*
 				Vector3 SH = mo.pos;
 				SH.z += mo.height / 2.0;
 				Actor Puff = Spawn("PacifistPuff", SH);
@@ -309,8 +352,41 @@ Class D4BFGProjectile  : Actor
 						Beamer.Pitch = Pitch;
 					}
 				}
-				
-				if (count++ > maxtargets)
+				*/
+				int spot = -1;
+				if (Beams.Size() >= maxtargets)
+				{
+					for (int j = 0; j < Beams.Size(); j++)
+					{
+						if (!Beams[j] || Beams[j].bDESTROYED)
+						{
+							spot = j;
+							break;
+						}
+					}
+				}
+				else spot = 0;
+				if (spot < 0)	return;
+				/*
+				Vector3 SH = mo.pos;
+				SH.z += mo.height / 2.0;
+				Actor Puff = Spawn("PacifistPuff", SH);
+				*/
+				let Beamer = BFGBeamWave(Spawn("BFGBeamWave",pos + (0,0,height * 0.5)));
+				if (Beamer)
+				{
+					Beamer.Target = self;
+					Beamer.Master = Target;
+					Beamer.Tracer = mo;
+					Beamer.Angle = Angle;
+					Beamer.Pitch = Pitch;
+					
+					if (Beams.Size() < maxtargets)
+						Beams.Push(Beamer);
+					else
+						Beams[spot] = Beamer;
+				}
+				if (++count >= maxtargets)
 					return;
 			}
 		}
@@ -318,6 +394,8 @@ Class D4BFGProjectile  : Actor
 	
 	void BFGDetonate()
 	{
+		DestroyBeams();
+		
 		if (Beamed.Size() < 1)	
 			return;
 		
@@ -342,6 +420,20 @@ Class D4BFGProjectile  : Actor
 			}
 			mo.DamageMobj(self, src, 2000, "BFGExploder");
 		}
+	}
+	
+	void DestroyBeams()
+	{
+		for (int i = 0; i < Beams.Size(); i++)
+		{
+			if (Beams[i]) Beams[i].Destroy();
+		}
+	}
+	
+	override void OnDestroy()
+	{
+		DestroyBeams();
+		Super.OnDestroy();
 	}
 }
 
@@ -376,6 +468,12 @@ Class D4BFG9000Shot : D4BFGProjectile
 		Decal "D4BFGLightning";
 	}
 	
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		Master = Target;
+	}
+	
 	//==========================================================================
 	// States
 	//==========================================================================
@@ -385,7 +483,7 @@ Class D4BFG9000Shot : D4BFGProjectile
 		BFE1 B 0 NoDelay 
 		{
 			A_PlaySound("Doom4/Weapon/BFG/Flying",7,0.6,1);
-			A_RearrangePointers(DefPtr,TargetPtr,DefPtr,4);
+			
 			A_FaceMovementDirection(0,0,0);
 			boosted = CountInv("BFGUpgrade3",TargetPtr);
 			if (boosted)
@@ -409,7 +507,7 @@ Class D4BFG9000Shot : D4BFGProjectile
 				BFGBeams(5);
 			
 			A_SpawnItemEx("D4BFGTrailSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_TRANSFERSCALE|SXF_TRANSFERSPRITEFRAME|SXF_TRANSFERPITCH|SXF_TRANSFERROLL);
-			int dmg = (boosted ? random[rng](10,20) : random[rng](3,6));
+			int dmg = (boosted ? random[rng](15,30) : random[rng](3,6));
 			A_Explode(dmg,BFG_LaserRadius,0,0,BFG_LaserRadius,damagetype: 'BFGBeam');
 			
 			if (GetCvar("HQEffectsWeapons"))	{	A_SpawnItemEx("D4BFGLightningGenerator",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION,192);	}			
@@ -418,6 +516,7 @@ Class D4BFG9000Shot : D4BFGProjectile
 	Death:
 		BFE1 C 0
 		{
+			bKILLED = true;
 			bRollSprite = false;
 			A_StopSound(7);
 			if (GetCvar("HQEffectsWeapons"))
@@ -561,6 +660,7 @@ Class D4BFG9000Orbiter : D4BFGProjectile
 	Death:
 		BFE1 C 0
 		{
+			bKILLED = true;
 			A_StopSound(7);
 			A_PlaySound("Doom4/Weapon/BFG/Impact",CHAN_AUTO,0.2);
 			A_TakeInventory("OrbiterActive",32767,0,TargetPtr);

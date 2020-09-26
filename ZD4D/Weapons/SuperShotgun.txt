@@ -359,7 +359,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			A_TakeInventory("D4Shells",1,TIF_NOTAKEINFINITE);
 			A_GunFlash("Null");
 			
-			Class<Actor> PuffRail = "D4BulletPuffSSG";
+			Class<Actor> PuffRail = "D4BulletPuffExtreme";
 			
 			int OID = OverlayID();
 			double sign = (OID == RGunFire || OID == RGunFire2) ? 1 : -1;
@@ -369,14 +369,14 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 				
 				for (int i = 0; i < 12; i++)
 				{
-					A_RailAttack(0,offs,0,-1,-1,RGF_SILENT|RGF_EXPLICITANGLE,0,PuffRail,frandom(-newspread,newspread),frandom(-SpreadZ,SpreadZ));
+					A_RailAttack(0,offs,0,-1,-1,RGF_SILENT|RGF_EXPLICITANGLE,0,'D4BulletPuffSSG',frandom(-newspread,newspread),frandom(-SpreadZ,SpreadZ));
 				}
-				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,7,0,"PacifistPuff",FBF_NORANDOMPUFFZ|FBF_PUFFTRACER,0,"BulletSmallTracer",0,offs);
+				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,7,DmgBase,"PacifistPuff",FBF_NORANDOMPUFFZ|FBF_PUFFTRACER,0,"BulletSmallTracer",0,offs);
 			}
 			else
 			{
-				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,7,0,PuffRail,FBF_PUFFTRACER,0,"BulletSmallTracer",0,offs);
-				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,5,0,PuffRail,FBF_PUFFTRACER,0,null,0,offs);
+				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,7,DmgBase,PuffRail,FBF_PUFFTRACER,0,"BulletSmallTracer",0,offs);
+				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,5,DmgBase,PuffRail,FBF_PUFFTRACER,0,null,0,offs);
 			}
 			
 			if (GetCvar("HQEffectsWeapons"))

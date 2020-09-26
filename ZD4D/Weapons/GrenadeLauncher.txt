@@ -185,8 +185,7 @@ Class D4Grenade : D4AbstractMissilePlayer
 		{
 			bNOINTERACTION = true;
 			A_Stop();
-			A_Explode(130,180,0,0,60);	//Damage to enemies
-			A_Explode(30,128);			//Damage to shooter
+			RocketDamage();
 			ExplodeEffects();
 		}
 		Stop;

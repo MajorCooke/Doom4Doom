@@ -163,7 +163,7 @@ OptionMenu "D4DWeaponsMenu"
 	StaticText "By Slot Number",1
 	Control		"Slot 1 (Fist, Chainsaw)",					"slot 1"
 	Control		"Slot 2 (Pistol)",							"slot 2"
-	Control		"Slot 3 (Shotgun, SS.)",					"slot 3"
+	Control		"Slot 3 ((Super) Shotgun)",					"slot 3"
 	Control		"Slot 4 (H.A.R., Repeater, Chaingun)",		"slot 4"
 	Control		"Slot 5 (Rocket, Grenade Launcher)",		"slot 5"
 	Control		"Slot 6 (Plasma, LightningGun)",			"slot 6"
@@ -190,7 +190,6 @@ OptionMenu "D4DWeaponsMenu"
 	Control		"BFG",						"use D4BFG"
 	Control		"Carrion Cannon",			"use D4CarrionCannon"
 	Control		"Crucible",					"use DECrucible"
-	Control		"Akimbo (requires 2 guns)", "use AkimboWeapon"
 }
 
 OptionMenu "D4DPerformanceOptions"
@@ -467,7 +466,7 @@ OptionMenu "CrucibleUpgradeRange"
 OptionMenu "CrucibleUpgradeSyphon"
 {
 	Class "D4DOptionMenuUpgrades"
-	Title "CrucibleUpgradeSyphon"
+	Title "$CrucibleUpgradeSyphon"
 	StaticText "$CrucibleUpgradeSyphonD1"
 	StaticText ""
 	Purchase CrucibleUpgradeSyphon
@@ -1649,11 +1648,14 @@ OptionMenu "ProtectionBonus"
 	StaticText " "
 	StaticText "------- STATUS -------", WHITE
 	StaticText " "
-	StaticTextTier "50% Environmental Protection", "ProtectionBonus", 1
+	StaticTextTier "$ProtectionBonus1D1", "ProtectionBonus", 1
+	StaticTextTier "$ProtectionBonus1D2", "ProtectionBonus", 1
 	StaticText " "
-	StaticTextTier "50% Self Damage Reduction", "ProtectionBonus", 2
+	StaticTextTier "$ProtectionBonus2D1", "ProtectionBonus", 2
+	StaticTextTier "$ProtectionBonus2D2", "ProtectionBonus", 2
 	StaticText " "
-	StaticTextTier "50% Radius Damage Reduction", "ProtectionBonus", 3
+	StaticTextTier "$ProtectionBonus3D1", "ProtectionBonus", 3
+	StaticTextTier "$ProtectionBonus3D2", "ProtectionBonus", 3
 	StaticText " "
 	Purchase ProtectionBonus
 	StaticText ""
@@ -1888,7 +1890,10 @@ OptionMenu "D4DoomDollUpgrade2"
 {
 	Class "D4DOptionMenuUpgrades"
 	Title "$D4DoomDollUpgrade2"
-	StaticText "$D4DoomDollUpgrade2D1", GREEN
+	StaticText "$D4DoomDollUpgrade2D1", GOLD
+	StaticText "$D4DoomDollUpgrade2D2", GREEN
+	StaticText "$D4DoomDollUpgrade2D3", GREEN
+	StaticText "$D4DoomDollUpgrade2D4", GREEN
 	StaticText ""
 	Purchase D4DoomDollUpgrade2
 	StaticText ""

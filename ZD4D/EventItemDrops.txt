@@ -28,7 +28,7 @@ Class D4LootContainer play
 		uint CashAmount = -1, uint CashChainsawPinata = -1,
 		uint UpgradeDropChance = -1, uint UpgradeDropAlways = -1,
 		uint RunePowerMin = 0, uint RunePowerMax = 7,
-		bool Parent = true, bool Replacee = true)
+		bool Parent = false, bool Replacee = true)
 	{
 		Class<Actor> ClassName = cls;
 		if (!ClassName)	return;
@@ -580,6 +580,9 @@ extend class D4DHandler
 					if (Max(1,random[drop](1, (UpgradeDropChance / Chance))) == 1)
 						UpgradeDropAlways++;
 				}
+				
+				if (D4D_PrintDebug == 2)
+					Console.Printf("Drop chance: %d", UpgradeDropChance);
 				
 				// If we have something to drop, do it.
 				if (UpgradeDropAlways > 0)

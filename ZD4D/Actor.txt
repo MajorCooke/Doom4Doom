@@ -1,5 +1,17 @@
 Class D4Actor : Actor 
 {
+	int Explode(int damage = -1, int radius = -1, int full = 0, 
+		double thrust = -1, double trad = -1, int tfull = -1,
+		int flags = XF_HURTSOURCE, int radflags = 0, 
+		bool alert = false, Name DamageType = 'None',
+		Class<Actor> filter = null, int eflags = EXF_PARENT)
+	{
+		Actor source = Target;
+		if (bISMONSTER) source = self;
+		return MC_Functions.Explode(self, source, damage, radius, full, thrust, 
+			trad, tfull, flags, radflags, alert, DamageType, filter, eflags);
+	}
+	
 	void SeekAng(double angl = 5, double heightoffset = 0.5, bool findtracer = false)
 	{
 		MC_Functions.StaticSeekAng(self, angl, heightoffset, findtracer);

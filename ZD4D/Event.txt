@@ -39,7 +39,7 @@ Class D4DHandler : EventHandler
 {
 	const Second = 35;
 	const TimeTrigger = Second * 5;
-	const DefaultDropChance = 200;
+	const DefaultDropChance = 150;
 	MCHandler MC;
 
 	enum EObjectIndex
@@ -112,7 +112,7 @@ Class D4DHandler : EventHandler
 		
 		LootList = D4LootContainer.Create();
 		
-		LootList.SetEntry('LegendaryZombie',				64, 2, 2, 100,-1,10, 0);
+		LootList.SetEntry('LegendaryZombie',				64, 2, 2, 100,-1,10, 0, Parent: true);
 		LootList.SetEntry('LegendaryAssaultCaptain',		64, 2, 2, 150,-1,10, 0);
 		LootList.SetEntry('LegendaryStealthTrooper',		64, 2, 2, 150,-1,10, 0);
 		LootList.SetEntry('LegendaryCommando',				64, 3, 2, 200,-1,10, 0);
@@ -159,6 +159,10 @@ Class D4DHandler : EventHandler
 		LootList.SetEntry('EnragedLegendaryRevenant',		64, 5, 3, 700,-1, 5, 0);
 		LootList.SetEntry('EnragedLegendarySentient',		64, 7, 3,1000,-1, 2, 1);
 		
+		// Minecraft Monsters
+		Lootlist.SetEntry('MCZombie',						32, 1, 0, 20);
+		Lootlist.SetEntry('MCSkeleton',						32, 1, 0, 20);
+		Lootlist.SetEntry('MCCreeper',						32, 1, 0, 20);
 		/*
 		zombieman 			5	
 		shotgunguy 			10
@@ -390,12 +394,13 @@ Class D4DHandler : EventHandler
 		{
 			let inv = D4FlameTimer(damaged.FindInventory('D4FlameTimer'));
 			
-			// Already accounted for by the damage dealer.
-			if (!inv || e.Inflictor == inv)	return;
 			
-			// Add up the damage dealt.The item will handle it from there and
-			// drop the shard.
-			inv._damage += e.Damage;
+			if (inv)	
+			{
+				if (e.DamageFlags & (DMG_NO_PROTECT|DMG_NO_ARMOR|DMG_FORCED))
+					inv.prevhp = Max(0, damaged.health) + e.Damage;
+				inv._damage += Max(0, e.Damage);
+			}
 		}
 	}
 	
@@ -505,13 +510,14 @@ Class D4DHandler : EventHandler
 			
 			if (ret)	return;
 		}
+		/*
 		if (e.Name == 'CountLines')
 		{
 			int c1 = 0, c2 = 0;
 			[c1, c2] = D4D_Utility.CountIntersectingLines(plr);
 			Console.Printf("%d lines iterated - %d in range", c1, c2);
 		}
-		else if (e.Name == 'SectorLight')		SetSectorLight(e);
+		else*/ if (e.Name == 'SectorLight')		SetSectorLight(e);
 		else if (e.Name == 'RemoveAmmo')		RemoveAmmoActors();
 		else if (e.Name == 'FindLiveTID')		FindLiveTID(e);
 		else if (e.Name == 'PrintSlots')		PrintSlots(e);
