@@ -1,0 +1,570 @@
+/*==============================================================================
+================================================================================
+
+	Unmakyr
+
+	Model & Sounds: Doom Eternal
+	Sprites & Code: Major Cooke
+
+================================================================================
+==============================================================================*/
+
+Class DEUnmakyr : Doom4Weapon
+{
+	enum EUnmakyrNums
+	{
+		UnmakyrDamage = 50,
+		
+		Overlay_Controller = 60,
+		Overlay_Flash,
+		Overlay_Base,
+		Overlay_Laser,
+		Overlay_Slide,
+		Overlay_Light,
+		Overlay_FlashLight,
+		Overlay_FlashMin,
+		Overlay_FlashMax = Overlay_FlashMin + 10,
+		
+		Unmakyr_First = Overlay_Flash,
+		Unmakyr_LastBase = Overlay_Light,
+		Unmakyr_LastFinal = Overlay_FlashMax
+	};
+
+	Default
+	{
+		+INVENTORY.UNDROPPABLE
+		+INVENTORY.UNTOSSABLE
+		Weapon.AmmoType1 "D4BFGAmmo";
+		Weapon.AmmoType2 "D4BFGAmmo";
+		Weapon.AmmoUse1 1;
+		Weapon.AmmoUse2 2;
+		Weapon.AmmoGive1 D4BFGAmmo_MaxAmount;
+		Weapon.AmmoGive2 D4BFGAmmo_MaxAmount;
+		Weapon.SelectionOrder 131;
+		Weapon.SlotNumber 8;
+		Weapon.SlotPriority 0.979;
+		Inventory.PickupMessage "UNMAKYR!";
+		Inventory.PickupSound "";
+		Obituary "%k became %o's heavenly Unmaking.";
+		Tag "Unmakyr";
+		Scale 0.75;
+	}
+	
+	
+	
+	/*
+	M033
+		A - Right Weapon
+		B - Right Laser
+			C - Center Weapon
+			D - Center Laser
+		E - Flare Flash
+		Z - Pickup Sprite
+
+	M034
+		ABCD -	Slide Right
+	----	EFGH -	Slide Center
+		IJKL -	Light Right
+	----	MNOP -	Light Center
+		QRST -	Flash Right
+	----	UVWX -	Flash Center
+	*/
+	
+	void SetLight(bool on)
+	{
+		if (Owner)
+		{
+			if (on)
+				Owner.A_AttachLight("UnmakyrLight", DynamicLight.PulseLight, Color(255, 255, 255, 10), 54, 74, 
+				DynamicLight.LF_DontLightSelf, (0,0,32), 0.7);
+			else
+				Owner.A_RemoveLight("UnmakyrLight");
+		}
+	}
+	
+	override void OnDestroy()
+	{
+		SetLight(false);
+		Super.OnDestroy();
+	}
+	
+	override void Travelled()
+	{
+		SetLight(false);
+		Super.Travelled();
+	}
+	
+	// Upon spawning or travelling, makes BFG ammo spawn in place of cells
+	// and allows BFG ammo pinatas to spawn.
+	override void EnableAmmoSpawn()
+	{
+		if (!Event) Event = D4DHandler.Fetch();
+		if (Event)	Event.SetActorSpawn(D4DHandler.BFGAmmo, true);
+	}
+	
+	override bool TryPickup (in out Actor toucher)
+	{
+		if (Super.TryPickup(toucher))
+		{
+			for (int i = 5; i < 7; i++)
+			A_StartSound("Doom4/Weapon/BFG/Pickup", i, CHANF_OVERLAP, 1, ATTN_NONE);
+			return true;
+		}
+		return false;
+	}
+	
+	//--------------------------------------------------------------------------
+	// DrawParts
+	// 
+	// (De)Activates all the overlays for the weapon and sets up the flags.
+	//--------------------------------------------------------------------------
+	private action void DrawParts(bool on)
+	{
+		if (on)
+		{
+			
+			A_Overlay(Overlay_Controller,	"Overlay.Controller");
+			A_Overlay(Overlay_Base, 		"Overlay.Base");
+			A_Overlay(Overlay_Laser, 		"Overlay.Laser");
+			A_Overlay(Overlay_Slide,		"Overlay.Slide");
+			A_Overlay(Overlay_Light, 		"Overlay.Light");
+			A_Overlay(Overlay_FlashLight,	"Overlay.FlashLight");
+			A_Overlay(Overlay_Flash,		"Overlay.Flash");
+			
+			int OverlayFlagsEnable = PSPF_ADDWEAPON|PSPF_RENDERSTYLE|PSPF_ALPHA,
+				OverlayFlagsDisable = PSPF_CVARFAST;
+			SetFlashAlpha(0);
+			for (int i = Unmakyr_First; i < Unmakyr_LastFinal; i++)
+			{
+				A_OverlayScale(i, 0.3, 0.3);
+				A_OverlayFlags(i, OverlayFlagsEnable, true);
+				A_OverlayFlags(i, OverlayFlagsDisable, false);
+				
+				if (i == Overlay_Laser || 
+					i == Overlay_FlashLight || 
+					i == Overlay_Flash ||
+					i == Overlay_Light)
+				{
+					A_OverlayRenderStyle(i, STYLE_Add);
+					if (i != Overlay_Light)
+						A_OverlayAlpha(i, 0);
+				}
+			}
+			
+			
+		}
+		else 
+		{
+			A_ClearOverlays(Overlay_Controller, Unmakyr_LastFinal);
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+	// UpdateOverlayFrames
+	// 
+	// Updates all the effect overlays to use the same frames/alpha/mirror/flip
+	// as the main weapon. Internal code already handles keeping the sprites to
+	// the player so position management isn't needed.
+	//--------------------------------------------------------------------------
+	
+	private action void UpdateOverlayFrames()
+	{
+		let i = invoker; let o = i.owner; if (!o)	return;
+		let plr = o.player;
+		
+		let wep = plr.FindPSprite(PSP_WEAPON);
+		if (!wep || wep.Frame < Fr_A || wep.Frame > Fr_Z)	return;
+		
+		wep.Scale = (testscale, testscale);
+		int frm = wep.Frame;		
+		let pspr = plr.psprites;
+		
+		while (pspr)
+		{
+			if (pspr.ID >= Unmakyr_First &&
+				pspr.ID <= Unmakyr_LastFinal)
+			{
+				pspr.Scale = wep.Scale;
+				pspr.bFlip = wep.bFlip;
+				pspr.bMirror = wep.bMirror;
+				
+			
+			
+				Switch (pspr.ID)
+				{
+					Case Overlay_Base:
+						OffsetPVertices(pspr, (130, 100));
+						break;
+					Case Overlay_Slide:
+						OffsetPVertices(pspr, (162, 81));
+						pspr.Frame = frm;	
+						break;
+					Case Overlay_Light:
+						OffsetPVertices(pspr, (130, 81));
+						pspr.InterpolateTic = false;
+						pspr.Frame = frm + Fr_I;
+						break;
+					Case Overlay_FlashLight:
+						OffsetPVertices(pspr, (130, 81));
+						pspr.InterpolateTic = false;
+						pspr.Frame = frm + Fr_Q;
+						pspr.Alpha = i.FlashAlpha;	
+						break;
+					Case Overlay_Flash:
+						OffsetPVertices(pspr, (85, 30));
+						pspr.InterpolateTic = false;
+						pspr.Alpha = i.FlashAlpha;	
+						break;
+					Case Overlay_Laser:
+						OffsetPVertices(pspr, (190, 100));
+						pspr.Alpha = i.FlashAlpha;	
+						break;
+				}
+				if (D4D_Debug == 2) pspr.alpha = 1.0;
+			}
+			pspr = pspr.Next;
+		}
+		
+		if (i.FlashAlpha > 0.0)
+			i.FlashAlpha = Clamp(i.FlashAlpha - i.FlashFade, 0.0, 1.0);
+	}
+	/*
+	private action Vector2 OffsetPSpriteFrame(PSprite pspr)
+	{
+		let i = invoker; let o = i.owner; 
+		if (!o || !pspr) return (0, 0);
+		
+		Switch (pspr.Frame)
+		{
+			Case Fr_J:
+			Case Fr_N:
+			Case Fr_R:
+			Case Fr_V:
+				return (0, 0);
+			Case Fr_K:
+			Case Fr_O:
+			Case Fr_S:
+			Case Fr_W:
+			Case Fr_L:
+			Case Fr_P:
+			Case Fr_T:
+			Case Fr_X:
+				return (0, 0);
+		}
+		return (0, 0);
+	}
+	*/
+	private action void OffsetPVertices(PSprite pspr, Vector2 n)
+	{
+		if (!pspr)	return;
+	//	n = n + 1 * OffsetPSpriteFrame(pspr);
+		pspr.bPivotPercent = false;
+		pspr.Coord0 = n;
+		pspr.Coord1 = n;
+		pspr.Coord2 = n;
+		pspr.Coord3 = n;
+		pspr.pivot = n;
+	}
+	
+	private action void OffsetVertices(int layer, double nx, double ny)
+	{
+		for (int i = 0; i < 4; i++)
+			A_OverlayVertexOffset(layer, 0, nx, ny);
+		A_OverlayPivot(layer, nx, ny);
+		A_OverlayFlags(layer, PSPF_PIVOTPERCENT, false);
+	}
+	
+	private action void SetAlpha(double amt)
+	{
+		amt = clamp(amt, 0.0, 1.0);
+		A_OverlayAlpha(OverlayID(), amt);
+	}
+	
+	
+	private action void SetFlashAlpha(double amt = 1.0, double fade = 0.25)
+	{
+		amt = clamp(amt, 0, 1);
+		invoker.FlashAlpha = amt;
+		invoker.FlashFade = clamp(fade, 0, 1);
+		
+		A_OverlayAlpha(Overlay_Flash, amt);
+		A_OverlayAlpha(Overlay_FlashLight, amt);
+		A_OverlayAlpha(Overlay_Laser, amt);
+	}
+	
+	private action void Fire(int iter, bool alt = false)
+	{
+		SetFlashAlpha(1, 0.2);
+		A_StartSound("Unmakyr/Fire", CHAN_WEAPON, CHANF_OVERLAP);
+		
+		Vector3 Offset = (-1.0, 8.0, -7.0);
+		Class<Actor> proj = (alt) ? 'UnmakyrSeeker' : 'UnmakyrProjectile';
+		UnmakyrProjectile misl = null;
+		
+		bool upgrade = CountInv('UnmakyrUpgradeBolts');
+		if (upgrade)	iter = 2;
+		
+		double 	ang = 0,
+				spread = 3,
+				dang = (upgrade) ? spread * 3 : spread + double(iter * spread),
+				add = (upgrade) ? spread : dang;
+		
+		bool Pierce = CountInv('UnmakyrUpgradePierce');
+		bool Explosive = CountInv('UnmakyrUpgradeExplode');
+		
+		for (ang = -dang; ang <= dang; ang += add)
+		{
+			misl = UnmakyrProjectile(FireProjectile(proj, Offset, (ang, 0), false));
+			if (misl)
+			{
+				misl.Pierce = Pierce;
+				misl.Explosive = Explosive;
+			}
+		}
+		
+		invoker.DepleteAmmo(alt);
+	}
+	
+	private double FlashAlpha, FlashFade;
+	
+	States
+	{
+	Overlay.Base:
+		TNT1 A 1; // Cancel out the interpolation since it's janky.
+		M033 A 0 { return ResolveState("Overlay.Waiting"); }
+	Overlay.Slide:
+		TNT1 A 1;
+		M034 A 0 { return ResolveState("Overlay.Waiting"); }
+	Overlay.Light:
+		TNT1 A 1;
+		M034 I 0 { return ResolveState("Overlay.WaitingBright"); }		
+	Overlay.Laser:
+		TNT1 A 1;
+		M033 B 0 { return ResolveState("Overlay.WaitingBright"); }
+	Overlay.Flash:
+		TNT1 A 1;
+		M033 E 0 { return ResolveState("Overlay.WaitingBright"); }
+	Overlay.FlashLight:
+		TNT1 A 1;
+		M034 Q 0 { return ResolveState("Overlay.WaitingBright"); }	//QRST
+		
+	Overlay.Waiting:
+		---- A -1;
+		Wait;
+	Overlay.WaitingBright:
+		---- A -1 Bright;
+		Wait;
+		
+	//--------------------------------------------------------------------------
+	// Functional Overlays
+	//--------------------------------------------------------------------------
+	Overlay.Controller:
+		TNT1 A 1 UpdateOverlayFrames();
+		Wait;
+		
+	Select:
+		M666 A 0 A_OverlayScale(OverlayID(), 0.2, 0.2);
+		M666 A 0
+		{
+			DrawParts(true);
+			invoker.SetLight(true);
+		}
+		---- A 1 A_Raise(WeaponSwitchSpeed);
+		Wait;
+	Deselect:
+		---- A 1 
+		{
+			invoker.SetLight(false);
+			A_Lower();
+		}
+		---- A 1 A_Lower(WeaponSwitchSpeed);
+		Wait;
+	Ready:
+		M666 A 1 
+		{
+			int flags = WRF_NOSECONDARY;
+			if (CountInv('UnmakyrUpgradeSeeker'))
+				flags = 0;
+			A_WeaponReady(flags);
+		}
+		Wait;
+	AltFire:
+		M666 B 2 Fire(2, true);
+		M666 CDCB 2;
+		---- A 0 A_Refire('AltFire');
+		Goto Ready;
+	Fire:
+		M666 B 1 Fire(0);
+		M666 CDCB 1;
+		---- A 0 A_Refire('Fire2');
+		Goto Ready;
+	Fire2:
+		
+		M666 B 1 Fire(1);
+		M666 CDCB 1;
+		---- A 0 A_Refire('Fire3');
+		Goto Ready;
+	Fire3:
+		
+		M666 B 1 Fire(2);
+		M666 CDCB 1;
+		---- A 0 A_Refire('Fire');
+		Goto Ready;
+	Spawn:
+		M033 Z -1;
+		Stop;
+	}
+}
+
+// UnmakyrUpgradeSeeker
+// UnmakyrUpgradeBolts
+// UnmakyrUpgradePierce
+// UnmakyrUpgradeExplode
+
+Class UnmakyrProjectile : D4D_Projectile_New
+{
+	const ExploDmg = 96;
+	const ExploRange = 96;
+	const RealDamage = 100;
+	mixin D4D_ActorFunctions;
+	private Actor Owner;
+	private Array<Actor> Hits;
+	Default
+	{
+		Projectile;
+		+DONTREFLECT
+		+EXTREMEDEATH
+		+FORCEXYBILLBOARD
+		+BRIGHT
+		Damage 0;
+		Scale 0.1;
+		Height 8;
+		Radius 4;
+		Speed 100;
+		Translation "0:255=%[0,0,0]:[1.5,0.5,0.5]";
+		DeathSound "Doom4/Weapon/PlasmaGun/PlasmaCrash";
+		Decal "D4Plasma";
+	}
+	
+	bool Pierce, Explosive;
+	
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+		Owner = Target;
+	}
+	
+	override void Tick()
+	{
+		Super.Tick();
+		if (Owner && Target != Owner)
+			Target = Owner;
+	}
+	
+	override int SpecialMissileHit(Actor victim)
+	{
+		if (!victim || victim.bKILLED)	return 1;
+		if (victim == Target || Hits.Find(victim) < Hits.Size())	return 1;
+		
+		if (victim == Tracer)	bSEEKERMISSILE = false;
+		
+		victim.DamageMobj(self, target, RealDamage * random(1, bSTRIFEDAMAGE ? 4 : 8), DamageType);
+		
+		
+		
+		if (Pierce)
+		{
+			if (Explosive)
+				Explode(ExploDmg, ExploRange, flags: 0);
+			if (!victim.bKILLED)
+				Hits.Push(victim);
+		}
+		
+		return (Pierce) ? 1 : -1;
+	}
+	
+	protected void Seek()
+	{
+		if (bSEEKERMISSILE)
+			SeekAng(10, 0.5, true);
+	}
+	/*
+	protected void FindSeekerTarget(double rad, bool close = true)
+	{
+		let it = MC_Map.MakeBTIPos(pos, (rad, rad));
+		if (!it)	return;
+		
+		Array<Actor> mon;
+		mon.Clear();
+		
+		Actor mo = null;
+		while (it.Next())
+		{
+			mo = it.thing;
+			
+			if (mo && mo != Target && !mo.bCANTSEEK && mo.bSHOOTABLE && mo.health > 0 && 
+				mo.bISMONSTER && Hits.Find(mo) < Hits.Size() && Target && 
+				!Target.IsTeamMate(mo) && CheckSight(mo, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
+			{
+				if (!close)
+				{
+					Tracer = mo;
+					return;
+				}
+				mon.Push(mo);
+			}
+		}
+		mo = null;
+		double closest = 32767 ** 2;
+		for (int i = 0; i < mon.Size(); i++)
+		{
+			if (!mon[i])	continue;
+			double dist = Distance3DSquared(mon[i]);
+			
+			if (dist < closest)
+			{
+				closest = dist;	
+				mo = mon[i];
+			}
+		}
+		Tracer = mo;
+	}
+	*/
+	States
+	{
+	Spawn:
+		TNT1 A 0 NoDelay A_Jump(256, irandom(1, 26));
+	Moving:
+		PLS1 ABCDEFGHIJKLMNOPQRSTUVWXYZ 1 Light("RedSmallPoint1") Seek();
+		PLS2 ABCDEF 1 Light("RedSmallPoint1") Seek();
+		Loop;
+	Death:
+		TNT1 A 15 
+		{
+			if (Explosive)
+				Explode(ExploDmg, ExploRange, flags: 0);
+			A_SpawnItemEx('D4PistolPuffBig3Red', flags: SXF_NOCHECKPOSITION);
+		}
+		Stop;
+	}
+}
+
+Class UnmakyrSeeker : UnmakyrProjectile
+{
+	Default
+	{
+		+SEEKERMISSILE
+	}
+}
+
+Class UnmakyrTrail : D4Actor
+{
+	Default
+	{
+		+NOINTERACTION
+		+NOBLOCKMAP
+		+NOTONAUTOMAP
+		+BRIGHT
+		RenderStyle "Add";
+	}
+}

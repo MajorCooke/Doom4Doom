@@ -403,19 +403,34 @@ Class D4SyphonGrenade : D4EquipmentProjectile
 				}
 				else 
 				{
-					let inv = BasicArmor(target.FindInventory("BasicArmor"));
+					let inv = BasicArmor(plr.FindInventory("BasicArmor"));
 					if (!inv)	
 					{
-						target.A_GiveInventory("SyphonArmor", 1);
-						inv = BasicArmor(target.FindInventory("BasicArmor"));
+						plr.A_GiveInventory("SyphonArmor", 1);
+						inv = BasicArmor(plr.FindInventory("BasicArmor"));
 						inv.Amount = 3;
+						inv.MaxAmount = 200;
 					}
-					int cap = inv.MaxAmount - (100 - target.CountInv("D4ArmorCapRaiser"));
-					cap = Max(cap, ArmorGreenNormal);
-					if (inv && inv.Amount < cap)
+					/*
+					int raiser = (invoker.bIgnoreUpgrades) ? 100 : CountInv("D4ArmorCapRaiser");
+					int Cap = Min(invoker.BaseLimit + raiser, invoker.MaxSaveAmount);
+					Cap = Max(Cap, inv.MaxAmount - (100 - raiser), ArmorGreenNormal);
+					*/
+					
+					if (inv)
 					{
-						inv.Amount = min(inv.Amount + 3, cap);						
+						inv.MaxAmount = Max(200, inv.MaxAmount);
+						int raiser = plr.CountInv('D4ArmorCapRaiser');
+						int Cap = Max(inv.MaxAmount - (100 - raiser), ArmorGreenNormal);
+						inv.Amount = Max(inv.Amount, min(inv.Amount + 3, Cap));
+						
 					}
+					/*
+					int cap = inv.MaxAmount - (100 - plr.CountInv("D4ArmorCapRaiser"));
+					cap = Max(cap, ArmorGreenNormal);
+					if (inv)
+						inv.Amount = min(inv.Amount + 3, cap);
+					*/
 				}
 				d--;
 				return ResolveState("ExplodeLoop");

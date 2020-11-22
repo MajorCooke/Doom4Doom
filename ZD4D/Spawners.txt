@@ -1,5 +1,129 @@
+
+Class D4PostProcessor : LevelPostProcessor
+{
+	protected void Apply(Name checksum, String mapname)
+	{
+		if (mapname == 'TITLEMAP')	return;
+		let SE = D4DHandlerStatic.Fetch();
+		if (!SE || SE.CheckAllSpawn())	
+		{
+			Console.Printf("Ended prematurely");
+			return;
+		}
+		
+		// Set up the spawn filters. First, go with flags.
+		
+		int mask = 0;
+		bool spawnmulti = sv_alwaysspawnmulti;
+		
+		if (deathmatch) 
+		{
+			mask = MTF_DEATHMATCH;
+		}
+		else if (multiplayer)
+		{
+			mask = MTF_COOPERATIVE;
+		}
+		else if (spawnmulti)
+		{
+			mask = MTF_COOPERATIVE|MTF_SINGLE;
+		}
+		else
+		{
+			mask = MTF_SINGLE;
+		}
+		
+		int SpawnFilter = G_SkillPropertyInt(SKILLP_SpawnFilter);
+		
+		uint tc = GetThingCount();
+		for (uint i = 0; i < tc; i++)
+		{
+			// Check the weapon IDs.
+			// 5010 = Pistol
+			// 2001 = Shotgun
+			// 2002 = Chaingun
+			// 2003 = Rocket Launcher
+			// 2004 = Plasma Rifle
+			// 2005 = Chainsaw
+			// 2006 = BFG 9000
+			// 82 = Super Shotgun
+			uint ednum = GetThingEdNum(i);
+			if (ednum != 5010)
+				if (ednum < 2001 || ednum > 2006)
+					continue;
+		
+			// See if it spawns at all.
+			uint tflag = GetThingFlags(i);
+			if (!(tflag & mask))	continue;
+		
+			// Make sure it fits the skill.
+		//	uint tskill = GetThingSkills(i);
+		//	if (!(tskill & mask))	continue;
+			
+			int r = random[rng](1,100);
+			int cap = 1;
+			
+			Switch(ednum)
+			{
+				Case 2005: //Chainsaw
+					SE.SetActorSpawn(D4DHandler.ChainsawAmmo, true);	
+					cap = 10;
+					break;
+				
+				Case 2006: //BFG
+					SE.SetActorSpawn(D4DHandler.BFGAmmo, true);			
+					cap = 25;
+					break;
+			}
+			
+			if (random[rng](1,100) <= cap)
+			{
+				SE.AddPostSpawn('DECrucible', GetThingPos(i));
+				SE.SetActorSpawn(D4DHandler.CrucibleAmmo, true);
+			}
+		}
+	}
+}
+
 extend Class D4DHandler
 {
+	void HandleAmmo(Actor mo)
+	{
+		if (mo is 'D4Bullets' || mo is 'D4Shells' || mo is 'D4Rockets' || mo is 'D4Cells')
+		{
+			String s = mo.GetClassName();
+			s = s.MakeLower();
+			if (s.IndexOf('pinata') > -1)
+				return;
+			
+			bool small = false;
+			int GasChance = D4FuelAmmo_Chance;
+			int CrucChance = DECrucibleAmmo_Chance;
+			if (s.IndexOf('small') > -1)
+			{
+				small = true;
+				GasChance = D4FuelAmmo_ChanceSmall;
+				CrucChance = DECrucibleAmmo_ChanceSmall;
+			}
+			
+			Array<Actor> Spawns; Spawns.Clear();
+			
+			if (CheckActorSpawn(ChainsawAmmo) && random[rng](1,256) <= GasChance)
+			{
+				Class<Inventory> Fuel = 'D4Fuel';
+				if (Small)	Fuel = 'D4FuelSmall';
+				let th = mo.Spawn(Fuel, mo.pos, ALLOW_REPLACE);
+				if (th)	th.vel = mo.vel;
+			}
+			
+			if (CheckActorSpawn(CrucibleAmmo) && random[rng](1,256) <= CrucChance)
+			{
+				let th = mo.Spawn('DECrucibleAmmo', mo.pos, ALLOW_REPLACE);
+				if (th)	th.vel = mo.vel;
+			}
+		}
+	}
+	
 	void CheckCrucibleSpawn(Actor mobj)
 	{
 		let mo = Doom4Weapon(mobj);
@@ -9,6 +133,7 @@ extend Class D4DHandler
 		Name repn = mo.GetClassName();
 		Switch (repn)
 		{
+			Case 'DEUnmakyr':
 			Case 'D4BFG':			chance = 25;	break;
 			Case 'D4Chainsaw':		chance = 10;	break;
 			Default:				chance = 1;		break;
@@ -18,7 +143,7 @@ extend Class D4DHandler
 		{
 			// Check if ammo spawns were previously enabled, but only if the player
 			// isn't just entering the map.
-			bool ammospawned = (Spawnable[CrucibleAmmo] && level.maptime > 10);
+		//	bool ammospawned = (Spawnable[CrucibleAmmo] && level.maptime > 10);
 			let cruc = DECrucible(mo.Spawn('DECrucible', mo.pos, ALLOW_REPLACE));
 			
 			if (cruc)
@@ -26,6 +151,7 @@ extend Class D4DHandler
 				cruc.vel = mo.vel;
 				
 				// Ammo has already spawned so don't bother.
+				/*
 				if (ammospawned)	return;
 				
 				let it = ThinkerIterator.Create('Ammo', Thinker.STAT_DEFAULT);
@@ -56,6 +182,7 @@ extend Class D4DHandler
 						}
 					}
 				}
+				*/
 			}
 		}
 	}
@@ -137,6 +264,7 @@ extend Class D4DHandler
 					Case 'D4LightningGun':
 					Case 'D4VortexRifle':
 					Case 'D4GaussCannon':		e.Replacee = 'PlasmaRifle';		return;
+					Case 'DEUnmakyr':
 					Case 'D4BFG':				e.Replacee = 'BFG9000';			return;
 				}
 			}
@@ -160,22 +288,36 @@ extend Class D4DHandler
 			{
 				Switch (repn)
 				{	
-					Case 'Clip':			e.Replacement = 'ClipReplacer';			return;
-					Case 'ClipBox':			e.Replacement = 'ClipBoxReplacer';		return;
-					Case 'Shell':			e.Replacement = 'ShellReplacer';		return;
-					Case 'ShellBox': 		e.Replacement = 'ShellBoxReplacer';		return;
-					Case 'RocketAmmo':		e.Replacement = 'RocketAmmoReplacer';	return;
-					Case 'RocketBox':		e.Replacement = 'RocketBoxReplacer';	return;
-					Case 'Cell':			e.Replacement = 'CellReplacer';			return;
-					Case 'CellPack':		e.Replacement = 'CellPackReplacer';		return;
+					Case 'Clip':			e.Replacement = 'D4BulletsSmall';	break;
+					Case 'ClipBox':			e.Replacement = 'D4Bullets';		break;
+					Case 'Shell':			e.Replacement = 'D4ShellsSmall';	break;
+					Case 'ShellBox': 		e.Replacement = 'D4Shells';			break;
+					Case 'RocketAmmo':		e.Replacement = 'D4RocketsSmall';	break;
+					Case 'RocketBox':		e.Replacement = 'D4Rockets';		break;
+					Case 'Cell':			e.Replacement = 'D4CellsSmall';		break;
+					Case 'CellPack':		e.Replacement = 'D4Cells';			break;
+					Default:				return;
+				}
+				repn = e.Replacement.GetClassName();
+				int chance = 0;
+				
+				Switch (repn)
+				{
+					Case 'D4CellsSmall':	chance = 10;	break;
+					Case 'D4Cells':			chance = 35;	break;
+				}
+				if (chance > 0 && random[rng](1,256) <= chance)
+				{
+					e.Replacement = 'D4BFGAmmo';
+					return;
 				}
 			}
 			else if (rep is 'Health')
 			{
 				Switch (repn)
 				{
-					Case 'Medikit':		e.Replacement = 'D4Medikit';	return;
-					Case 'Stimpack':	e.Replacement = 'D4Stimpack';	return;
+					Case 'Medikit':		e.Replacement = 'D4Medikit';		return;
+					Case 'Stimpack':	e.Replacement = 'D4Stimpack';		return;
 					Case 'HealthBonus':	e.Replacement = 'D4HealthBonus';	return;
 					Case 'SoulSphere':
 					{
@@ -251,7 +393,10 @@ extend Class D4DHandler
 					}
 				}
 				else if (rep == 'BFG9000' || repn == 'STFBFG9000' || repn == 'STFBFG10K')	
-												e.Replacement = 'D4BFG';
+				{
+					if (random[rngg](0,1))		e.Replacement = 'DEUnmakyr';
+					else					e.Replacement = 'D4BFG';
+				}
 			}
 			
 			// Powerups

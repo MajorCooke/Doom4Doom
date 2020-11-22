@@ -1,4 +1,26 @@
-Class D4Actor : Actor 
+mixin Class D4D_FastRNG
+{
+	private S7_FastRNG FRNG;
+	double FFRandom(double min, double max)
+	{
+		if (!FRNG)	FRNG = S7_FastRNG.Create();
+		return FRNG.GetFloat(min, max);
+	}
+	
+	int IFRandom(int min, int max)
+	{
+		if (!FRNG)	FRNG = S7_FastRNG.Create();
+		return FRNG.GetInt(min, max);
+	}
+	
+	int IRandom(int min, int max)
+	{
+		if (!FRNG)	FRNG = S7_FastRNG.Create();
+		return FRNG.GetInt(min, max);
+	}
+}
+
+mixin Class D4D_ActorFunctions
 {
 	int Explode(int damage = -1, int radius = -1, int full = 0, 
 		double thrust = -1, double trad = -1, int tfull = -1,
@@ -23,3 +45,11 @@ Class D4Actor : Actor
 		MC_Functions.StaticTurnAng(self, mo, angl, heightoffset);
 	}
 }
+
+Class D4Actor : Actor 
+{
+	mixin D4D_FastRNG;
+	mixin D4D_ActorFunctions;
+	
+}
+

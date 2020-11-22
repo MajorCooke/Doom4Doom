@@ -13,6 +13,9 @@
 
 Class D4GrenadeLauncher : Doom4Weapon
 {
+	const AmmoCost_Normal = 1;
+	const AmmoCost_Cluster = 4;
+	Array<D4Grenade> Grenades;
 	Default
 	{
 		Doom4Weapon.MultiplayerWeapon true;
@@ -20,13 +23,74 @@ Class D4GrenadeLauncher : Doom4Weapon
 		Inventory.PickupMessage "Grenade Launcher! Trickshot time!";
 		Weapon.SlotNumber 1;
 		Weapon.AmmoType1 "D4Rockets";
-		Weapon.AmmoType2 "D4Rockets";
-		Weapon.AmmoGive1 4;
+		Weapon.AmmoGive1 5;
 		Weapon.AmmoUse1 1;
 		Weapon.SelectionOrder 79;
 		Weapon.SlotNumber 5;
 		Weapon.SlotPriority 0.99;
 	}
+	
+	private bool Cluster;
+	private action void ToggleCluster()
+	{
+		let i = invoker; let o = i.owner; if (!o)	return;
+		
+		if (o.CountInv('GrenadeLauncherModCluster'))
+			i.Cluster = !i.Cluster;
+		else i.Cluster = false;
+		
+		if (i.Cluster)	
+		{
+			i.AmmoUse1 = AmmoCost_Cluster;
+			o.SetInventory('D4GLClusterActive',1);
+		}
+		else
+		{
+			i.AmmoUse1 = AmmoCost_Normal;
+			o.SetInventory('D4GLClusterActive',0);
+		}
+	}
+	
+	private action bool CheckCluster()
+	{	return invoker.Cluster;	}
+	
+	private int Timer;
+	override void DoEffect()
+	{
+		if (++Timer >= Second * 5)
+		{
+			Timer = 0;
+			
+			if (Grenades.Size() > 0 && 
+				Owner && Owner.Player && Owner.Player.ReadyWeapon == self)
+			{
+				Array<D4Grenade> temp; temp.Clear();
+				
+				for (int i = 0; i < Grenades.Size(); i++)
+				{
+					if (Grenades[i] && !Grenades[i].bKILLED)
+						temp.Push(Grenades[i]);
+				}
+				Grenades.Move(temp);
+			}
+		}
+	}
+	
+	private action void DetonateGrenades()
+	{
+		let j = invoker; let o = j.owner; if (!o)	return;
+		for (int i = 0; i < j.Grenades.Size(); i++)
+		{
+			if (j.Grenades[i] && !j.Grenades[i].bKILLED)
+			{
+				if (j.Grenades[i] is 'D4GrenadeCluster')
+					j.Grenades[i].bNODAMAGETHRUST = true;
+				j.Grenades[i].ExplodeMissile();
+			}
+			j.Grenades[i] = null;
+		}
+	}
+	
 	States
 	{
 	Select:
@@ -44,13 +108,20 @@ Class D4GrenadeLauncher : Doom4Weapon
 	Ready:
 		M202 A 1
 		{
+			A_Overlay(7002, "Overlay.KeyWatcher", true);
+			
 			A_WeaponReady(WRF_ALLOWUSER2);
 		}
 		Wait;
+		
 	Fire:
 		M202 A 2 bright
 		{
-			FireProjectile("D4Grenade", (-1.0, 8.0, -7.0));
+			Class<Actor> gren = 'D4Grenade';
+			if (CheckCluster())
+				gren = 'D4GrenadeCluster';
+			let grens = D4Grenade(FireProjectile(gren, (-1.0, 8.0, -7.0)));
+			if (grens)	invoker.Grenades.Push(grens);
 			A_PlaySound("Doom4/Weapon/GrenadeLauncher/Fire", CHAN_WEAPON);
 			if (IsDoubleSpeed())
 				A_Overlay(7001, "Overlay.OffsetsFast");
@@ -111,9 +182,29 @@ Class D4GrenadeLauncher : Doom4Weapon
 	Overlay.PitcherFast:
 		TNT1 A 1;
 		Stop;
+	Overlay.KeyWatcher:
+		TNT1 A 1
+		{
+			int old = GetPlayerInput(MODINPUT_OLDBUTTONS);
+			int input = GetPlayerInput(MODINPUT_BUTTONS);
+			if ((input & BT_ALTATTACK) && !(old & BT_ALTATTACK) && CountInv('GrenadeLauncherModDetonate'))
+				DetonateGrenades();
+			
+			if ((input & BT_RELOAD) && !(old & BT_RELOAD) && CountInv('GrenadeLauncherModCluster'))
+				ToggleCluster();
+		}
+		Wait;
 	Spawn:
 		M202 Z -1;
 		Stop;
+	}
+}
+
+Class D4GLClusterActive : Inventory
+{
+	Default
+	{
+		+INVENTORY.UNDROPPABLE
 	}
 }
 
@@ -142,6 +233,7 @@ Class D4Grenade : D4AbstractMissilePlayer
 		+BOUNCEONFLOORS
 		+BOUNCEONWALLS
 		+BOUNCEONCEILINGS
+		+HITTRACER
 	//	ReactionTime 99;
 		D4Grenade.TimeLimit 99;
 		BounceSound "Doom4/Weapon/GrenadeLauncher/Bounce";
@@ -165,6 +257,14 @@ Class D4Grenade : D4AbstractMissilePlayer
 		A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	//Center
 	}
 	
+	virtual void GrenadeBoom(bool det = false)
+	{
+		bKILLED = bNOINTERACTION = true;
+		A_Stop();
+		ExplodeEffects();
+		RocketDamage();
+	}
+	
 	States
 	{
 	Spawn:
@@ -178,16 +278,41 @@ Class D4Grenade : D4AbstractMissilePlayer
 			{
 				bBOUNCEONFLOORS = false;
 			}
+			tracer = null;
+			if (!bBOUNCEONFLOORS && pos.z <= floorz)
+				ExplodeMissile();
 		}
 		Wait;
 	Death:
-		TNT1 A 50 
-		{
-			bNOINTERACTION = true;
-			A_Stop();
-			RocketDamage();
-			ExplodeEffects();
-		}
+		TNT1 A 35 GrenadeBoom(!tracer);
 		Stop;
 	}
 }
+
+Class D4GrenadeCluster : D4Grenade
+{
+	override void GrenadeBoom(bool det)
+	{
+		bKILLED = bNOINTERACTION = true;
+		A_Stop();
+		ExplodeEffects();
+		RocketDamage();
+		
+		int count = (det) ? 4 : 3;
+		double div = 360.0 / count;
+		for (int i = 0; i < count; i++)
+		{
+			let gren = Spawn('D4Grenade', pos, ALLOW_REPLACE);
+			if (gren)
+			{
+				gren.Target = Target;
+				gren.Master = Master;
+				gren.Tracer = Tracer;
+				gren.Angle = Angle + irandom(-25, 25) + 45 + i * div;
+				gren.Vel3DFromAngle(ffrandom(3.0,6.0), gren.Angle, irandom(-75, 0));
+				gren.bBOUNCEONFLOORS = false;
+			}
+		}
+	}
+}
+

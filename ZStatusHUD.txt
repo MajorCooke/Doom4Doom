@@ -629,6 +629,17 @@ extend class Doom4StatusBar
 			{
 				if (!noReticle)	DrawImage("rGL", (0, 0), HUDItemMid);
 				DrawImage("grenader", WeaponIconPos, HUDItemRightBot);
+				
+				if (GetAmountOnly("GrenadeLauncherModDetonate"))
+				{
+					DrawImage("zetonat1", ModIconPos, HUDItemRightBot, scale: ModIconScale);
+				}
+				
+				if (GetAmountOnly("GrenadeLauncherModCluster"))
+				{
+					String img = (GetAmountOnly('D4GLClusterActive')) ? "ztblast1" : "ztblast0";
+					DrawImage(img, ModIconPo2, HUDItemRightBot, scale: ModIconScale);
+				}
 			}
 			else if (CheckWeaponSelected("D4RocketLauncher"))
 			{

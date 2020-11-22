@@ -45,6 +45,78 @@ Class DECrucibleAmmo : Ammo
 	}
 }
 
+// Checks for any points within
+/*
+Struct CrucibleSliceInfo
+{
+	Actor Owner;
+	Vector3 s, e, delta;
+	Array<DESliceCube> Cubes;
+	
+	void Start(Vector3 start, Vector3 end, Actor own = null)
+	{
+		if (own)	Owner = own;
+		
+		if (Owner)
+		{
+			Cubes.Clear();
+			s = start;
+			e = end;
+			delta = level.Vec3Diff(s,e);
+			Next(start, end);
+		}
+	}
+	
+	void Next(Vector3 start, Vector3 end)
+	{
+		if (!Owner)	return;
+		
+		Vector3 de = level.Vec3Diff(start, end).Length();
+					
+		Vector3 vmin = (min(s.x, e.x, start.x, end.x),
+						min(s.y, e.y, start.y, end.y),
+						min(s.z, e.z, start.z, end.z));
+		Vector3 vmax = (max(s.x, e.x, start.x, end.x),
+						max(s.y, e.y, start.y, end.y),
+						max(s.z, e.z, start.z, end.z));
+		
+		Vector3 mid = (vmin + vmax) * 0.5;
+		
+		let it = MC_Map.MakeBTIPos(mid, (dist, dist));
+		
+		
+		s = start;
+		e = end;
+		delta = de;
+	}
+}
+
+// Used for creating a cube based on the actor's hitbox size.
+Class DESliceCube play
+{
+	Actor mo;
+	Vector3 v1, v2;
+	double Smallest;
+	
+	static DESliceCube Box(Actor mo)
+	{
+		if (!mo)	return null;
+		
+		let c = new('DESliceCube');
+		
+		c.mo = mo;
+		
+		double rad = mo.Radius;
+		double hei = mo.Height;
+		c.Smallest = min(rad, hei);
+		
+		c.v1 = mo.Vec3Offset(-rad, -rad, 0, true);
+		c.v2 = mo.Vec3Offset(rad, rad, hei, true);
+		return c;
+	}
+}
+*/
+
 Class DECrucible : Doom4Weapon
 {
 	enum ECrucibleNums
@@ -77,7 +149,7 @@ Class DECrucible : Doom4Weapon
 	const SyphonMonsterHP = 500.0;
 	const SyphonRatio = 1.0 / SyphonMonsterHP;
 	
-	private bool flipped, repeat;
+	private bool flipped, repeat, cleave;
 	
 	Default
 	{
@@ -106,6 +178,7 @@ Class DECrucible : Doom4Weapon
 	override void Travelled()
 	{
 		if (Owner)	Owner.A_RemoveLight("CrucibleLight");
+		Super.Travelled();
 	}
 	
 	// Upon spawning or travelling, makes Crucible ammo spawn in place of ammo
@@ -126,7 +199,13 @@ Class DECrucible : Doom4Weapon
 		let i = invoker; let o = i.owner; if (!o)	return;
 		i.SwingAngle = (flags & WOF_ADD) ? i.SwingAngle + off.z : off.z;
 		A_OverlayOffset(OverlayID(), off.x, off.y, flags);
-		SliceAngle(i.SwingAngle, 0, !(flags & WOF_ADD));
+		
+		if (i.cleave)
+		{
+			SliceAngle(i.SwingAngle, 0, 0, !(flags & WOF_ADD));
+			SliceAngle(i.SwingAngle, 0, -3, !(flags & WOF_ADD));
+			SliceAngle(i.SwingAngle, 0, 3, !(flags & WOF_ADD));
+		}
 	}
 	
 	// Performs the actual trace function with the specified angle and roll.
@@ -137,13 +216,16 @@ Class DECrucible : Doom4Weapon
 	// than once, plus having a proper slicing arc that's not gimbal locked.
 	private bool TakeAmmo;
 	private DECrucibleTracer trc;
-	action void SliceAngle(double ang, double rol = 0.0, bool create = false, bool force = false)
+	action void SliceAngle(double ang, double rol = 0.0, double pit = 0.0, bool create = false, bool force = false)
 	{
 		let i = invoker;	let o = i.Owner;
 		if (!o)	return;
 		
-		bool cleave = (o.CountInv('CrucibleUpgradeCleave') > 0);
-		if (!force && !cleave)	return;
+		if (!force && !i.cleave)	
+		{
+			if (!i.TakeAmmo)
+				return;
+		}
 		bool syphon = (o.CountInv('CrucibleUpgradeSyphon') > 0);
 		
 		if (i.flipped)	ang = -ang;
@@ -155,11 +237,10 @@ Class DECrucible : Doom4Weapon
 		
 		double dist = (o.CountInv('CrucibleUpgradeRange')) ? CrucibleLengthUpgrade : CrucibleLength;
 		
-		double s = tan(ang);
 		Vector3 x, y, z, dir, origin;
 		[x, y, z] = MC_CoordUtil.GetAxes(o.pitch, o.angle, o.roll + rol);
 		// Future note to self, if pitch offset is needed: + Z * tan(pitchOffset)
-		dir = (X + Y * s).unit();
+		dir = (X + Y * tan(ang) + Z * tan(pit)).unit();
 		origin = o.Vec2OffsetZ(0, 0, o.player.viewz);
 		
 		if (create || !i.trc)	
@@ -174,7 +255,7 @@ Class DECrucible : Doom4Weapon
 		
 		bool xtreme = o.bEXTREMEDEATH;
 		o.bEXTREMEDEATH = true;
-		Class<Actor> pufftype = 'DECruciblePuff';
+		Class<Actor> pufftype = GetReplacement('DECruciblePuff');
 		let defs = GetDefaultByType(pufftype);
 		
 		i.trc.Trace(origin, o.CurSector, dir, dist, 0);
@@ -222,9 +303,10 @@ Class DECrucible : Doom4Weapon
 					// 0.396 * 35
 					// 13.86 (rounded to 14) added to the duration.
 					
-					double duration = Second;
+					double duration = Second * 2;
 					if (hp > SyphonMonsterHP)
-						duration += ((double(hp - SyphonMonsterHP) * SyphonRatio * (Second)) + (Second * 2));
+						duration += ((double(hp - SyphonMonsterHP) * SyphonRatio * (Second)));
+					
 					
 					Powerup inv = Powerup(o.FindInventory("PowerInvulBase", true));
 					if (!inv)
@@ -528,6 +610,8 @@ Class DECrucible : Doom4Weapon
 	Swing:
 		M026 E 1 
 		{
+			let i = invoker;	let o = i.owner;
+			i.cleave = (o.CountInv("CrucibleUpgradeCleave") > 0);
 			SetAlpha(1);
 			Slice((SideX - SwingSpeed, 32, SliceX - SliceSpeed), 0);
 			SetRepeat(false);
@@ -536,18 +620,33 @@ Class DECrucible : Doom4Weapon
 		#### EEFFFF 1 Slice((-SwingSpeed, 0, -SliceSpeed));
 		#### G 1 
 		{
-			if (CountInv("CrucibleUpgradeCleave"))
+			let inv = invoker;
+			if (inv.cleave)
 			{
 				SliceAngle(0);
 				Slice((-SwingSpeed,0,-SliceSpeed));
 			}
 			else
 			{
-				SliceAngle(0, 0, true, true);
-				SliceAngle(5, 0, false, false);
-				SliceAngle(10, 0, false, false);
-				SliceAngle(-5, 0, false, false);
-				SliceAngle(-10, 0, false, false);
+				for (double i = 0.0; i < 6; i += 3)
+				{
+					double j = i - 3;
+					SliceAngle(0, 0, j, true, true);
+					if (inv.flipped)
+					{
+						SliceAngle(10, 0, j, false, false);
+						SliceAngle(5, 0, j, false, false);
+						SliceAngle(-5, 0, j, false, false);
+						SliceAngle(-10, 0, j, false, false);
+					}
+					else
+					{
+						SliceAngle(-10, 0, j, false, false);
+						SliceAngle(-5, 0, j, false, false);
+						SliceAngle(5, 0, j, false, false);
+						SliceAngle(10, 0, j, false, false);
+					}
+				}
 			}
 			
 			A_WeaponOffset(-SwingSpeed, 0, WOF_ADD);

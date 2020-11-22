@@ -273,21 +273,27 @@ Class Doom4Weapon : Weapon
 	static bool IsDoubleSpeedGlobal(Actor mo)
 	{	return (mo && mo.FindInventory("PowerDoubleFiringSpeed", true));	}
 	
-	action Actor FireProjectile(Class<Actor> proj, Vector3 off, bool useammo = true)
+	action Actor FireProjectile(Class<Actor> proj, Vector3 off, vector2 AP = (0,0), bool useammo = true)
 	{
-		let o = invoker.owner;
+		let i = invoker;
+		let o = i.owner;
+		if (!o)	return null;
+		
 		Vector3 px, py, pz, origin;
-		[px, py, pz] = MC_CoordUtil.GetAxes(Pitch,Angle,Roll);
+		[px, py, pz] = MC_CoordUtil.GetAxes(o.Pitch, o.Angle, o.Roll);
 		origin = Vec2OffsetZ(0,0,player.viewz) + off.x * px + off.y * py + off.z * pz;
-		if (useammo)	A_FireProjectile("Nothing",0,true);
+		if (useammo)	invoker.DepleteAmmo(i.bAltFire);
 		let gren = Spawn(proj, origin, ALLOW_REPLACE);
 		if (gren)
 		{
+			Vector3 dir = (px + py * tan(AP.X) + pz * tan(AP.Y)).unit();
+			
+		//	gren.angle = o.angle;
+		//	gren.pitch = o.pitch;
 			gren.target = o;
-			gren.angle = o.angle;
-			gren.pitch = o.pitch;
-			if (gren.speed > 0)
-				gren.Vel3DFromAngle(gren.speed, o.angle, o.pitch);
+			gren.vel = dir * gren.speed;
+			[gren.angle, gren.pitch] = S7_Math.GetVectorAngles(gren.vel);
+			//gren.A_FaceMovementDirection();
 		}
 		return gren;
 	}
@@ -1201,6 +1207,42 @@ Class PistolTracerRed : FastProjectile
 	}
 }
 
+Class BulletSmallTracer : D4D_Projectile_New
+{
+	Default 
+	{
+		Projectile;
+		+RANDOMIZE
+		+FORCEXYBILLBOARD
+		+DONTSPLASH
+		+NOEXTREMEDEATH
+		+NOTIMEFREEZE
+		+PAINLESS
+		+BLOODLESSIMPACT
+		+NODAMAGETHRUST
+		+THRUACTORS
+		Damage 0;
+		Radius 2;
+		Height 2;
+		Speed 200;
+		RenderStyle "Add";
+		Alpha 0.9;
+		Scale 0.13;
+		//Translation "0:255=%[0,0,0]:[0,1,1.5]";
+	}
+	
+	States
+	{
+	Spawn:
+		TRAC A 10 Bright;
+		Stop;
+	Death:
+		TRAC A 1 Bright;
+		Stop;
+	}
+}
+
+/*
 Class BulletSmallTracer : Actor
 {
 	Actor Puff;
@@ -1285,6 +1327,7 @@ Class BulletSmallTracer : Actor
 		Stop;
 	}
 }
+*/
 
 
 Class D4AbstractMissile : D4Actor 
@@ -1338,7 +1381,8 @@ Class D4AbstractMissilePlayer : D4AbstractMissile
 	{
 		if (Target && (!Target.bNORADIUSDMG || bFORCERADIUSDMG))
 		{
-			int selfdmg = GetRadiusDamage(Target, 30, 64, 0, bOLDRADIUSDMG);
+			double per = MC_Functions.GetDamageFalloff(self, Target, 64, 0, bOLDRADIUSDMG, true);
+			int selfdmg = int(round(30.0 * per));	//GetRadiusDamage(Target, 30, 64, 0, bOLDRADIUSDMG);
 			if (selfdmg > 0)	Target.DamageMobj(self, Target, selfdmg, DamageType, DMG_EXPLOSION|DMG_THRUSTLESS);
 		}
 		Explode(0,0,0,6400,90,30,-1, 0, RADF_ALWAYSTHRUST, filter: 'PlayerPawn', eflags: EXF_PARENT);
@@ -1479,9 +1523,11 @@ class D4D_Projectile_Trace : LineTracer
 
 class D4D_Projectile_New : S7_Projectile
 {
+	mixin D4D_FastRNG;
 	Default
 	{
 		S7_Projectile.MovementMode FastProjectile;
+		S7_Projectile.FastProjCollision ColMode_EdgeCenters;
 		+DONTREFLECT
 	}
 }

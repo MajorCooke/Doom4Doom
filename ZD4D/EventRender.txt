@@ -30,9 +30,7 @@ extend Class D4DHandler
 	void AddDamageIndicator(Actor src, Actor inf, Actor plr, int damage)
 	{
 		if (ArrowManager)
-		{
 			ArrowManager.AddIndicator(src, inf, plr, damage);
-		}
 	}
 	
 	//--------------------------------------------------------------------------
@@ -137,7 +135,6 @@ Class D4VisualDamageManager play
 			if (Arrows[i] && Arrows[i].src == src)
 			{
 				Arrows[i].ResetTimer();
-			//	Console.Printf("Updated arrow.");
 				return;
 			}
 		}

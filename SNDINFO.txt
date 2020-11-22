@@ -1537,3 +1537,25 @@ $alias misc/gibbed Doom4/BoneCrunch
 $limit Doom4/BoneCrunch 0
 
 //==============================================================================
+// Unmakyr
+//==============================================================================
+
+Unmakyr/Fire1		"Sounds/Weapons/Unmakyr/Fire1.ogg"
+Unmakyr/Fire2		"Sounds/Weapons/Unmakyr/Fire2.ogg"
+Unmakyr/Fire3		"Sounds/Weapons/Unmakyr/Fire3.ogg"
+Unmakyr/Fire4		"Sounds/Weapons/Unmakyr/Fire4.ogg"
+Unmakyr/Fire5		"Sounds/Weapons/Unmakyr/Fire5.ogg"
+Unmakyr/Fire6		"Sounds/Weapons/Unmakyr/Fire6.ogg"
+
+$random Unmakyr/Fire
+{
+	Unmakyr/Fire1
+	Unmakyr/Fire2
+	Unmakyr/Fire3
+	Unmakyr/Fire4
+	Unmakyr/Fire5
+	Unmakyr/Fire6
+}
+
+$limit Unmakyr/Fire 0
+$PitchShift Unmakyr/Fire 1

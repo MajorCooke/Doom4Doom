@@ -35,21 +35,28 @@ Class D4Restriction play
 	bool parent, replacement;
 }
 
+Class D4PostSpawnList play
+{
+	Class<Actor> clsname;
+	Vector3 pos;
+}
+
 Class D4DHandler : EventHandler
 {
 	const Second = 35;
 	const TimeTrigger = Second * 5;
 	const DefaultDropChance = 150;
 	MCHandler MC;
-
-	enum EObjectIndex
+	private D4DHandlerStatic ES;
+	
+	enum ED4AmmoIndex
 	{
 		BFGAmmo = 0,
 		ChainsawAmmo,
 		CrucibleAmmo,
-		ObjectIndexMax
+		AmmoIndexMax
 	};
-	private bool Spawnable[ObjectIndexMax];	
+
 	private bool FirstTime;
 	private uint Timer;
 	
@@ -58,8 +65,16 @@ Class D4DHandler : EventHandler
 	D4LootContainer LootList;
 	private int UpgradeMode, CurrentUpgradeMode;
 	
-	bool CheckActorSpawn(EObjectIndex index)			{	return Spawnable[index];	}
-	void SetActorSpawn(EObjectIndex index, bool can) 	{	Spawnable[index] = can; 	}
+	bool CheckActorSpawn(int index)			
+	{
+		if (!ES)	ES = D4DHandlerStatic.Fetch();
+		return (ES && ES.CheckActorSpawn(index));	
+	}
+	void SetActorSpawn(int index, bool can)
+	{
+		if (!ES)	ES = D4DHandlerStatic.Fetch();
+		if (ES)		ES.SetActorSpawn(index, can);	
+	}
 	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
@@ -86,6 +101,7 @@ Class D4DHandler : EventHandler
 		Timer++;
 		if (Timer >= TimeTrigger)
 		{
+			Timer = 0;
 			DemonRunes.Clean();
 			Carrion.Clean();
 		}
@@ -160,9 +176,12 @@ Class D4DHandler : EventHandler
 		LootList.SetEntry('EnragedLegendarySentient',		64, 7, 3,1000,-1, 2, 1);
 		
 		// Minecraft Monsters
-		Lootlist.SetEntry('MCZombie',						32, 1, 0, 20);
-		Lootlist.SetEntry('MCSkeleton',						32, 1, 0, 20);
-		Lootlist.SetEntry('MCCreeper',						32, 1, 0, 20);
+		Lootlist.SetEntry('MCZombie',						32, 1, 0, 20, parent: true);
+		Lootlist.SetEntry('MCSkeleton',						32, 1, 0, 20, parent: true);
+		Lootlist.SetEntry('MCCreeper',						32, 1, 0, 20, parent: true);
+		Lootlist.SetEntry('MCSpider',						32, 1, 0, 20, parent: true);
+		Lootlist.SetEntry('MCEnderman',						32, 1, 0, 35, parent: true);
+		Lootlist.SetEntry('MCGhast',						32, 1, 0, 50, parent: true);
 		/*
 		zombieman 			5	
 		shotgunguy 			10
@@ -279,12 +298,13 @@ Class D4DHandler : EventHandler
 				mo.SetInventory('D4MonsterUpgrader', amt);
 			}
 		}
-		else if (mo is 'Doom4Weapon')
+		
+		
+		else if (mo is 'Doom4Weapon' && level.maptime > 5)
 			CheckCrucibleSpawn(mo);
+		
 		else if (mo is 'DemonRuneBase')
-		{
 			DemonRunes.Push(mo);
-		}
 		else if (mo.bNOINTERACTION || mo.bNOSECTOR)
 			return;
 		else
@@ -310,7 +330,11 @@ Class D4DHandler : EventHandler
 			}
 			else if (mo is 'D4UpgradeCase' && mo.bDROPPED)
 				texname = "PINBJ0";
-			else return;
+			else if (mo is 'Ammo')
+			{
+				HandleAmmo(mo);
+				return;
+			}
 			
 			if (!MC)	MC = MCHandler.Fetch();
 			if (MC)
@@ -819,39 +843,89 @@ Class D4DHandler : EventHandler
 			quad.Target = mo.Target;
 			quad.Master = mo.Master;
 			quad.Tracer = mo.Tracer;
+			quad.Alternative = mo.Alternative;
 			mo.Destroy();
 		}
 	}
 }
 
+//==============================================================================
+//==============================================================================
+// Static Handler
+// 
+// Used for keeping record of when a player dies at a death exit or has acquired 
+// certain weapons that can spawn ammo types.
+//==============================================================================
+//==============================================================================
+
 Class D4DHandlerStatic : StaticEventHandler
 {
-	private D4DeathStorage storage[MAXPLAYERS];
 	
+
 	static clearscope D4DHandlerStatic Fetch()
+	{	return D4DHandlerStatic(Find("D4DHandlerStatic"));	}
+
+	private Array<D4PostSpawnList> PostSpawns;
+	private D4DeathStorage storage[MAXPLAYERS];
+	private bool Spawnable[D4DHandler.AmmoIndexMax];
+	
+	void AddPostSpawn(Class<Actor> mo, Vector3 pos)
 	{
-		return D4DHandlerStatic(Find("D4DHandlerStatic"));
+		if (!mo)	return;
+		
+		let c = new('D4PostSpawnList');
+		c.clsname = mo;
+		c.pos = pos;
+		PostSpawns.Push(c);
 	}
+	
+	bool CheckAllSpawn()
+	{
+		for (int i = 0; i < Spawnable.Size(); i++)
+			if (!Spawnable[i])	return false;
+		return true;
+	}
+	bool CheckActorSpawn(int index)			{	return Spawnable[index];	}
+	void SetActorSpawn(int index, bool can)	{	Spawnable[index] = can;		}
+	void FetchActorSpawns(out Array<Bool> Spawnables)
+	{
+		Spawnables.Clear();
+		Spawnables.Reserve(D4DHandler.AmmoIndexMax);
+		for (int i = 0; i < Spawnable.Size(); i++)
+			Spawnables[i] = Spawnable[i];
+	}
+	
 	
 	override void NewGame()
 	{
+		for (int i = 0; i < Spawnable.Size(); i++)
+			Spawnable[i] = false;
+		ClearDeathStorage();
 		Super.NewGame();
-		for (int i = 0; i < storage.Size(); i++)
-			if (storage[i])	
-				storage[i] = null;
 	}
 	
 	private void ClearDeathStorage()
 	{
 		for (int i = 0; i < storage.Size(); i++)
-			if (storage[i])	
+			if (storage[i])
 				storage[i] = null;
 	}
 	
 	override void WorldLoaded(WorldEvent e)
 	{
 		if (e.IsSaveGame || e.IsReOpen)
+		{
 			ClearDeathStorage();
+			PostSpawns.Clear();
+			return;
+		}
+		
+		int size = PostSpawns.Size();
+		for (int i = 0; i < size; i++)
+			if (PostSpawns[i] && PostSpawns[i].clsname)
+				Actor.Spawn(PostSpawns[i].clsname, PostSpawns[i].pos, ALLOW_REPLACE);
+		
+		PostSpawns.Clear();
 	}
 	
 	override void WorldTick()
@@ -911,6 +985,13 @@ Class D4DeathStorage play
 			AddItem(probe);
 		}
 		return true;
+	}
+	
+	bool CheckItem(Class<Inventory> Item)
+	{
+		if (!Item || Items.Size() < 1 || !plr || !plr.mo)	return false;
+		
+		return (Items.Find(Item) < Items.Size());
 	}
 	
 	bool ReturnItems()

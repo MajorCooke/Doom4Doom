@@ -411,14 +411,84 @@ OptionMenu "D4DUpgrade.Weapons"
 	SubmenuWeapon "H. A. R.",				"D4DUpgrade.HAR", 				"D4AssaultRifle"
 	SubmenuWeapon "Chaingun",				"D4DUpgrade.Chaingun", 			"D4Chaingun"
 	SubmenuWeapon "Rocket Launcher",		"D4DUpgrade.RocketLauncher", 	"D4RocketLauncher"
+	SubmenuWeapon "Grenade Launcher",		"D4DUpgrade.GrenadeLauncher", 	"D4GrenadeLauncher"
 	SubmenuWeapon "Plasma Rifle",			"D4DUpgrade.PlasmaRifle", 		"D4PlasmaRifle"
 	SubmenuWeapon "Lightning Gun",			"D4DUpgrade.LightningGun", 		"D4LightningGun"
 	SubmenuWeapon "Vortex Rifle",			"D4DUpgrade.VortexRifle", 		"D4VortexRifle"
 	SubmenuWeapon "Static Rifle",			"D4DUpgrade.StaticRifle", 		"D4StaticRifle"
 	SubmenuWeapon "Gauss Cannon",			"D4DUpgrade.GaussCannon", 		"D4GaussCannon"
-	SubmenuWeapon "BFG",					"D4DUpgrade.BFG", 				"D4BFG"
 	SubmenuWeapon "Carrion Cannon",			"D4DUpgrade.CarrionCannon", 	"D4CarrionCannon"
+	SubmenuWeapon "BFG",					"D4DUpgrade.BFG", 				"D4BFG"
 	SubmenuWeapon "Crucible Sword",			"D4DUpgrade.Crucible",			"DECrucible"
+	SubmenuWeapon "Unmaykr",				"D4DUpgrade.Unmakyr",			"DEUnmakyr"
+}
+
+OptionMenu "D4DUpgrade.Unmakyr"
+{
+	Class "D4DOptionMenuUpgrades"
+	Title "Unmaykr"
+	StaticText "Choose An Upgrade", GOLD
+	StaticText ""
+	SubmenuReqs "$UnmakyrUpgradeSeeker",	"UnmakyrUpgradeSeeker",	"UnmakyrUpgradeSeeker"
+	StaticText ""
+	SubmenuReqs "$UnmakyrUpgradeBolts",		"UnmakyrUpgradeBolts",	"UnmakyrUpgradeBolts"
+	StaticText ""
+	SubmenuReqs "$UnmakyrUpgradePierce",	"UnmakyrUpgradePierce",	"UnmakyrUpgradePierce"
+	StaticText ""
+	SubmenuReqs "$UnmakyrUpgradeExplode",	"UnmakyrUpgradeExplode","UnmakyrUpgradeExplode"
+}
+
+OptionMenu "UnmakyrUpgradeSeeker"
+{
+	Class "D4DOptionMenuUpgrades"
+	Title "$UnmakyrUpgradeSeeker"
+	StaticText "$UnmakyrUpgradeSeekerD1"
+	StaticText "$UnmakyrUpgradeSeekerD2", YELLOW
+	StaticText ""
+	Purchase UnmakyrUpgradeSeeker
+	StaticText ""
+	CostDisplay UnmakyrUpgradeSeeker
+	StaticText ""
+	CreditDisplay UnmakyrUpgradeSeeker
+}
+
+OptionMenu "UnmakyrUpgradeBolts"
+{
+	Class "D4DOptionMenuUpgrades"
+	Title "$UnmakyrUpgradeBolts"
+	StaticText "$UnmakyrUpgradeBoltsD1"
+	StaticText ""
+	Purchase UnmakyrUpgradeBolts
+	StaticText ""
+	CostDisplay UnmakyrUpgradeBolts
+	StaticText ""
+	CreditDisplay UnmakyrUpgradeBolts
+}
+
+OptionMenu "UnmakyrUpgradePierce"
+{
+	Class "D4DOptionMenuUpgrades"
+	Title "$UnmakyrUpgradePierce"
+	StaticText "$UnmakyrUpgradePierceD1"
+	StaticText ""
+	Purchase UnmakyrUpgradePierce
+	StaticText ""
+	CostDisplay UnmakyrUpgradePierce
+	StaticText ""
+	CreditDisplay UnmakyrUpgradePierce
+}
+
+OptionMenu "UnmakyrUpgradeExplode"
+{
+	Class "D4DOptionMenuUpgrades"
+	Title "$UnmakyrUpgradeExplode"
+	StaticText "$UnmakyrUpgradeExplodeD1"
+	StaticText ""
+	Purchase UnmakyrUpgradeExplode
+	StaticText ""
+	CostDisplay UnmakyrUpgradeExplode
+	StaticText ""
+	CreditDisplay UnmakyrUpgradeExplode
 }
 
 //==============================================================================
@@ -904,6 +974,50 @@ OptionMenu "ChaingunMod3"
 	StaticText "+ Rolling Vision", RED
 	StaticText " "
 	Command "To Victory I Go.",	"FORMOTHERRUSSIA"
+}
+
+//==============================================================================
+// Grenade Launcher
+//==============================================================================
+OptionMenu "D4DUpgrade.GrenadeLauncher"
+{
+	Class "D4DOptionMenuUpgrades"
+	Title "Grenade Launcher"
+	StaticText "Choose An Upgrade"
+	StaticText ""
+	SubmenuReqs "$GrenadeLauncherModDetonate", "GrenadeLauncherModDetonate", "GrenadeLauncherModDetonate"
+	StaticText ""
+	SubmenuReqs "$GrenadeLauncherModCluster", "GrenadeLauncherModCluster", "GrenadeLauncherModCluster"
+}
+
+OptionMenu "GrenadeLauncherModDetonate"
+{
+	Class "D4DOptionMenuUpgrades"
+	Title "$GrenadeLauncherModDetonate"
+	StaticText "$GrenadeLauncherModDetonateD1", GREEN
+	StaticText ""
+	Purchase GrenadeLauncherModDetonate
+	StaticText ""
+	CostDisplay GrenadeLauncherModDetonate
+	StaticText ""
+	CreditDisplay GrenadeLauncherModDetonate
+}
+
+OptionMenu "GrenadeLauncherModCluster"
+{
+	Class "D4DOptionMenuUpgrades"
+	Title "$GrenadeLauncherModCluster"
+	StaticText "$GrenadeLauncherModClusterD1", GREEN
+	StaticText ""
+	StaticText "$GrenadeLauncherModClusterD2", RED
+	StaticText ""
+	StaticText "$GrenadeLauncherModClusterD3", YELLOW
+	StaticText ""
+	Purchase GrenadeLauncherModCluster
+	StaticText ""
+	CostDisplay GrenadeLauncherModCluster
+	StaticText ""
+	CreditDisplay GrenadeLauncherModCluster
 }
 
 //==============================================================================

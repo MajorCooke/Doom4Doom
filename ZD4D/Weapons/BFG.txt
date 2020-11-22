@@ -44,7 +44,7 @@ Class D4BFG : Doom4Weapon
 		if (Super.TryPickup(toucher))
 		{
 			for (int i = 5; i < 7; i++)
-			A_PlaySound("Doom4/Weapon/BFG/Pickup", i, 1, 0, ATTN_NONE);
+			A_StartSound("Doom4/Weapon/BFG/Pickup", i, CHANF_OVERLAP, 1, ATTN_NONE);
 			return true;
 		}
 		return false;

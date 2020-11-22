@@ -20,11 +20,11 @@ Class PistolLanceReadyToken : Inventory
 // With nothing: 	[104, 156]
 // With upgrade:	[156, 208]
 // Lance:			[191, 280] + 96 splash
-const PistolAltMin =		2.0;
-const PistolAltMax =		3.0;
-const PistolAltUpMin =		3.0;
-const PistolAltUpMax =		4.0;
-const PistolLanceBase =		100;
+const PistolAltMin =		1.5;
+const PistolAltMax =		2.0;
+const PistolAltUpMin =		2.25;
+const PistolAltUpMax =		3.0;
+const PistolLanceBase =		150;
 const PistolLanceMin =		90;
 const PistolLanceMax =		180;
 
@@ -223,8 +223,8 @@ Class D4Pistol : Doom4Weapon
 				else
 					dmg = frandom(PistolAltMin * dmg, PistolAltMax * dmg);
 			}
-				 if (count >= 48) 	puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffBig1Red" : "D4PistolPuffBig1");
-			else if (count >= 32) 	puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffBig1Red" : "D4PistolPuffBig1");
+				 if (count >= 48) 	puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffBig3Red" : "D4PistolPuffBig3");
+			else if (count >= 32) 	puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffBig2Red" : "D4PistolPuffBig2");
 			else if (count >= 16) 	puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffBig1Red" : "D4PistolPuffBig1");
 			else					puff = (CountInv("PistolUpgradeAltDamage") ? "D4PistolPuffRed" : "D4PistolPuffNormal");
 			A_FireBullets(0,0,1,dmg,puff,FBF_NORANDOMPUFFZ);

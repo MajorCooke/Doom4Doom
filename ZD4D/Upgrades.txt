@@ -303,11 +303,11 @@ Class LGUpgradeAmmo : LGUpgradeBase						{ Default { UpgradeItem.Cost 2000; }}
 Class LGUpgradeDamage : LGUpgradeBase					{ Default { UpgradeItem.Cost 9000; }}
 Class LGUpgradeAltFire : LGUpgradeBase					{ Default { UpgradeItem.Cost 9000; }}
 Class PistolUpgradeBase : UpgradeItem 					{ Default { UpgradeItem.GunNeeded "D4Pistol"; } }
-Class PistolUpgradeAutomatic : PistolUpgradeBase		{ Default { UpgradeItem.Cost 2000; }}
-Class PistolUpgradeAltDamage : PistolUpgradeBase		{ Default { UpgradeItem.Cost 4000; }}
-Class PistolUpgradeAltCharge : PistolUpgradeBase		{ Default { UpgradeItem.Cost 4000; }}
-Class PistolUpgradeDamage : PistolUpgradeBase			{ Default { UpgradeItem.Cost 2500; }}
-Class PistolUpgradeLance : PistolUpgradeBase			{ Default { UpgradeItem.Cost 12000; UpgradeItem.Requirements2 "PistolUpgradeAltCharge", 1, "PistolUpgradeAltDamage", 1; }}
+Class PistolUpgradeAutomatic : PistolUpgradeBase		{ Default { UpgradeItem.Cost 1000; }}
+Class PistolUpgradeAltDamage : PistolUpgradeBase		{ Default { UpgradeItem.Cost 2000; }}
+Class PistolUpgradeAltCharge : PistolUpgradeBase		{ Default { UpgradeItem.Cost 2000; }}
+Class PistolUpgradeDamage : PistolUpgradeBase			{ Default { UpgradeItem.Cost 1000; }}
+Class PistolUpgradeLance : PistolUpgradeBase			{ Default { UpgradeItem.Cost 10000; UpgradeItem.Requirements2 "PistolUpgradeAltCharge", 1, "PistolUpgradeAltDamage", 1; }}
 Class PlasmaRifleUpgradeBase : UpgradeItem 				{ Default { UpgradeItem.GunNeeded "D4PlasmaRifle"; } }
 Class PlasmaRifleMod1 : PlasmaRifleUpgradeBase			{ Default { UpgradeItem.Cost 5000; }}	// heat shot upgrade
 Class PlasmaRifleMod2 : PlasmaRifleUpgradeBase 			{ Default { UpgradeItem.Cost 3000; }}	// electric grenade upgrade
@@ -319,6 +319,9 @@ Class RepeaterUpgradeAltAmmo : RepeaterUpgradeBase		{ Default { UpgradeItem.Cost
 Class RocketLauncherUpgradeBase : UpgradeItem 			{ Default { UpgradeItem.GunNeeded "D4RocketLauncher"; } }
 Class RocketLauncherMod1 : RocketLauncherUpgradeBase	{ Default { UpgradeItem.Cost 5000; }}	// detonate
 Class RocketLauncherMod2 : RocketLauncherUpgradeBase 	{ Default { UpgradeItem.Cost 5000; }}	// lock on
+Class GrenadeLauncherUpgradeBase : UpgradeItem 			{ Default { UpgradeItem.GunNeeded "D4GrenadeLauncher"; } }
+Class GrenadeLauncherModDetonate : GrenadeLauncherUpgradeBase	{ Default { UpgradeItem.Cost 5000; }}	// detonate
+Class GrenadeLauncherModCluster : GrenadeLauncherUpgradeBase 	{ Default { UpgradeItem.Cost 5000; }}	// cluster
 Class ShotgunUpgradeBase : UpgradeItem					{ Default { UpgradeItem.GunNeeded "D4Shotgun"; } }
 Class ShotgunMod1 : ShotgunUpgradeBase 					{ Default { UpgradeItem.Cost 3000; }}	// Triple shot
 Class ShotgunMod2 : ShotgunUpgradeBase 					{ Default { UpgradeItem.Cost 3000; }}	// grenade mod
@@ -342,6 +345,13 @@ Class CrucibleUpgradeCleave : CrucibleUpgradeBase		{ Default { UpgradeItem.Cost 
 Class CrucibleUpgradeRange : CrucibleUpgradeBase		{ Default { UpgradeItem.Cost 20000;	}}
 Class CrucibleUpgradeSyphon : CrucibleUpgradeBase		{ Default { UpgradeItem.Cost 40000;	}}
 Class CrucibleUpgradeBattery : CrucibleUpgradeBase		{ Default { UpgradeItem.Cost 40000;	}}
+Class UnmakyrUpgradeBase : UpgradeItem					{ Default { UpgradeItem.GunNeeded "DEUnmakyr";	}	}
+Class UnmakyrUpgradeSeeker : UnmakyrUpgradeBase 		{ Default { UpgradeItem.Cost 40000;	}}
+Class UnmakyrUpgradeBolts : UnmakyrUpgradeBase 			{ Default { UpgradeItem.Cost 30000;	}}
+Class UnmakyrUpgradePierce : UnmakyrUpgradeBase 		{ Default { UpgradeItem.Cost 20000;	}}
+Class UnmakyrUpgradeExplode : UnmakyrUpgradeBase 		{ Default { UpgradeItem.Cost 30000;	}}
+
+
 
 //==============================================================================
 //==============================================================================

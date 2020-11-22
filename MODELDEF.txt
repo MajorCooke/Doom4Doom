@@ -484,7 +484,7 @@ Model D4GrenadeLauncher
 	Skin 0 "GrenadeLauncherDiffuse"
 	FrameIndex M202 Z 0 0
 	
-	Rotation-Speed 50
+	//Rotation-Speed 50
 }
 
 // Skin is not needed as the files are named appropriately to the materials
@@ -499,7 +499,7 @@ Model D4PlasmaRifle
 	
 	FrameIndex WPPK H 0 0
 	
-	Rotation-Speed 50
+	//Rotation-Speed 50
 }
 
 Model D4SuperShotgun
@@ -511,7 +511,7 @@ Model D4SuperShotgun
 	
 	FrameIndex WPPK D 0 0
 	
-	Rotation-Speed 50
+	//Rotation-Speed 50
 }
 
 Model D4AssaultRifle
@@ -524,7 +524,7 @@ Model D4AssaultRifle
 	
 	FrameIndex WPPK E 0 0
 	
-	Rotation-Speed 50
+	//Rotation-Speed 50
 }
 
 Model D4RocketLauncher
@@ -537,7 +537,7 @@ Model D4RocketLauncher
 	
 	FrameIndex WPPK G 0 0
 	
-	Rotation-Speed 50
+	//Rotation-Speed 50
 }
 Model D4Chaingun
 {
@@ -549,7 +549,7 @@ Model D4Chaingun
 	
 	FrameIndex WPPK F 0 0
 	
-	Rotation-Speed 50
+	//Rotation-Speed 50
 }
 
 Model D4BFG
@@ -562,7 +562,7 @@ Model D4BFG
 	
 	FrameIndex WPPK I 0 0
 	
-	Rotation-Speed 50
+	//Rotation-Speed 50
 }
 
 //------------------------------------------------------------------------------
@@ -736,4 +736,15 @@ Model D4UpgradeCase
 	Model 0 "Models/UpgradeCrate.md3"
 	Skin 0 "CrateMaxSkin"
 	FrameIndex MICR A 0 0
+}
+
+//------------------------------------------------------------------------------
+// Unmakyr
+Model "DEUnmakyr"
+{
+	ROTATING
+	Scale 1.0 1.0 1.2
+	Model 0 "Models/Unmakyr.obj"
+	FrameIndex M033 Z 0 0
+	
 }

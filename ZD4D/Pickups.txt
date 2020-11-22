@@ -717,8 +717,25 @@ Class D4UpgradePickupSpawner : Actor
 					!plr.CountInv("CrucibleUpgradeBattery") ||
 					!plr.CountInv("CrucibleUpgradeRange") ||
 					!plr.CountInv("CrucibleUpgradeSyphon"))
-					{	SpawnCase = true; /*Console.Printf("15");*/ break;	}
+					{	SpawnCase = true;	break;	}
 			}
+			
+			if (plr.CountInv("D4GrenadeLauncher"))
+			{
+				if (!plr.CountInv("GrenadeLauncherModDetonate") ||
+					!plr.CountInv("GrenadeLauncherModCluster"))
+					{	SpawnCase = true;	break;	}
+			}
+			
+			if (plr.CountInv("DEUnmakyr"))
+			{
+				if (!plr.CountInv("UnmakyrUpgradeSeeker") ||
+					!plr.CountInv("UnmakyrUpgradeBolts") ||
+					!plr.CountInv("UnmakyrUpgradePierce") ||
+					!plr.CountInv("UnmakyrUpgradeExplode"))
+					{	SpawnCase = true;	break;	}
+			}
+			
 			if (!plr.CountInv("D4MegachargeUpgrade1") || 
 				!plr.CountInv("D4MegachargeUpgrade2") ||
 				!plr.CountInv("D4DoomDollUpgrade1") || 

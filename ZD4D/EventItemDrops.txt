@@ -710,7 +710,8 @@ extend class D4DHandler
 						}
 					}
 					//BFG ammo giver, this one doesnt check for low ammo, but it does check for the weapon
-					if (!BFG && !(Restrictions & RF_NOBFGAMMO) && p.CountInv("D4BFG"))
+					if (!BFG && !(Restrictions & RF_NOBFGAMMO) && 
+						(p.CountInv("D4BFG") || p.CountInv('DEUnmakyr')))
 					{
 						BFG = true;
 						if (random[drop](1,512) < 16)	Pinatas.AddItem("D4PinataBFG", 1);
