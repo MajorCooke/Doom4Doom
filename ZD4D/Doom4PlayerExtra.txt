@@ -1,5 +1,56 @@
 extend class Doom4Player
 {
+	private Doom4SuperWeapon LastSuperWeapon;
+	
+	void SwitchToSuperWeapon()
+	{
+		let plr = GetRealPlayer();
+		if (!plr)	return;
+		
+		if (plr.ReadyWeapon is 'Doom4SuperWeapon')
+			LastSuperWeapon = Doom4SuperWeapon(plr.ReadyWeapon);
+		else if (LastSuperWeapon && A_SelectWeapon(LastSuperWeapon.GetClass()))
+			return;
+		
+		Array<Doom4SuperWeapon> weps; weps.Clear();
+		Inventory probe;
+		for (probe = Inv; probe; probe = probe.Inv)
+		{
+			let mo = Doom4SuperWeapon(probe);
+			if (mo)	weps.Push(mo);
+		}
+		
+		int size = weps.Size();
+		if (size < 1)	return;
+		
+		Doom4SuperWeapon wep = Doom4SuperWeapon(plr.ReadyWeapon);
+		if (!wep)	wep = LastSuperWeapon;
+		
+		if (size == 1)
+		{
+			A_SelectWeapon(weps[0].GetClass());
+			LastSuperWeapon = weps[0];
+			return;
+		}
+		
+		int index = weps.Find(wep);
+		int start = index;
+		if (!wep || index >= size)
+			index = 0;
+		
+		for (int i = 0; i < size; i++)
+		{
+			index = (index + 1) % size;
+			if (index == start)	return;
+			
+			if (A_SelectWeapon(weps[index].GetClass()))
+			{
+				LastSuperWeapon = weps[index];
+				return;
+			}
+		}
+		
+	}
 	PlayerInfo GetRealPlayer()
 	{
 		let plr = player;

@@ -528,7 +528,9 @@ Class D4DHandler : EventHandler
 		{
 			bool ret = true;
 			
-			if (e.Name == 'Dash')
+			if (e.Name == 'D4D_SuperWeapon')
+				pl.SwitchToSuperWeapon();
+			else if (e.Name == 'Dash')
 				pl.TryDash();
 			else ret = pl.TryEquipment(e.Name);
 			

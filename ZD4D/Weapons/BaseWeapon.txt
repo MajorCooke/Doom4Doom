@@ -571,6 +571,8 @@ Class Doom4Weapon : Weapon
 	}
 }
 
+Class Doom4SuperWeapon : Doom4Weapon {}
+
 Class BusyToken : Inventory { Default { Inventory.InterhubAmount 0; }}
 
 Class FinisherToken : Inventory {}
