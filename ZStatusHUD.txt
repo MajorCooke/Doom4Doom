@@ -293,7 +293,7 @@ extend class Doom4StatusBar
 					BFGPos2 = 			AmmoPane - (193, OtherAmmoY),
 					ModIconScale =		(ModIconScaler, ModIconScaler),
 					ModTextPos = 		AmmoPane - (10, 70),
-					ModTextScale = 		(testscale, testscale),
+					ModTextScale = 		(1, 1),
 					GrenTextPos =		AmmoPane - (255, 15);
 					
 			int 	ModLineSpace = 		1,
@@ -411,6 +411,13 @@ extend class Doom4StatusBar
 			if (CheckWeaponSelected("D4DFist"))
 			{
 				DrawImage("fist", WeaponIconPos, HUDItemRightBot, scale: ModIconScale);
+			}
+			else if (CheckWeaponSelected("DEUnmakyr"))
+			{
+				DrawImage("unmaykr", WeaponIconPos, HUDItemRightBot, scale: (0.35, 0.35));
+				
+				if (!noReticle)
+					DrawImage("unmaykrc", (0,0), HUDItemMid, scale: (0.5, 0.5));
 			}
 			else if (CheckWeaponSelected("D4Chainsaw"))
 			{

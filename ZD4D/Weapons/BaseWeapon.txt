@@ -292,7 +292,7 @@ Class Doom4Weapon : Weapon
 		//	gren.pitch = o.pitch;
 			gren.target = o;
 			gren.vel = dir * gren.speed;
-			[gren.angle, gren.pitch] = S7_Math.GetVectorAngles(gren.vel);
+			[gren.angle, gren.pitch] = MC_S7_Math.GetVectorAngles(gren.vel);
 			//gren.A_FaceMovementDirection();
 		}
 		return gren;
@@ -1523,13 +1523,13 @@ class D4D_Projectile_Trace : LineTracer
 
 // The base type for all fast projectiles
 
-class D4D_Projectile_New : S7_Projectile
+class D4D_Projectile_New : MC_S7_Projectile
 {
 	mixin D4D_FastRNG;
 	Default
 	{
-		S7_Projectile.MovementMode FastProjectile;
-		S7_Projectile.FastProjCollision ColMode_EdgeCenters;
+		MC_S7_Projectile.MovementMode FastProjectile;
+		MC_S7_Projectile.FastProjCollision ColMode_EdgeCenters;
 		+DONTREFLECT
 	}
 }

@@ -1,21 +1,21 @@
 mixin Class D4D_FastRNG
 {
-	private S7_FastRNG FRNG;
+	private MC_S7_FastRNG FRNG;
 	double FFRandom(double min, double max)
 	{
-		if (!FRNG)	FRNG = S7_FastRNG.Create();
+		if (!FRNG)	FRNG = MC_S7_FastRNG.Create();
 		return FRNG.GetFloat(min, max);
 	}
 	
 	int IFRandom(int min, int max)
 	{
-		if (!FRNG)	FRNG = S7_FastRNG.Create();
+		if (!FRNG)	FRNG = MC_S7_FastRNG.Create();
 		return FRNG.GetInt(min, max);
 	}
 	
 	int IRandom(int min, int max)
 	{
-		if (!FRNG)	FRNG = S7_FastRNG.Create();
+		if (!FRNG)	FRNG = MC_S7_FastRNG.Create();
 		return FRNG.GetInt(min, max);
 	}
 }
