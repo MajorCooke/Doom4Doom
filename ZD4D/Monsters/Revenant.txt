@@ -235,6 +235,7 @@ Class D4Revenant : D4AbstractBiggie //replaces Revenant
 		}
 		Stop;
 	Raise:
+		---- A 0 CheckRespawn();
 		SKEL Q 5 DoResurrect();
 		SKEL PONML 5;
 		---- A 0 DoResurrect(1);

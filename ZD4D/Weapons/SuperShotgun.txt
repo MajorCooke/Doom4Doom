@@ -369,7 +369,7 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 				
 				for (int i = 0; i < 12; i++)
 				{
-					A_RailAttack(0,offs,0,-1,-1,RGF_SILENT|RGF_EXPLICITANGLE,0,'D4BulletPuffSSG',frandom(-newspread,newspread),frandom(-SpreadZ,SpreadZ));
+					A_RailAttack(9,offs,0,-1,-1,RGF_SILENT|RGF_EXPLICITANGLE,0,'D4BulletPuffForRailsExtreme',frandom(-newspread,newspread),frandom(-SpreadZ,SpreadZ));
 				}
 				A_FireBullets(CountInv("SSGUpgrade3") ? SpreadZ : SpreadXY,SpreadZ,7,DmgBase,"PacifistPuff",FBF_NORANDOMPUFFZ|FBF_PUFFTRACER,0,"BulletSmallTracer",0,offs);
 			}

@@ -127,7 +127,7 @@ Class D4DHandler : EventHandler
 		ArrowManager = D4VisualDamageManager.Create();
 		
 		LootList = D4LootContainer.Create();
-		
+		/*
 		LootList.SetEntry('LegendaryZombie',				64, 2, 2, 100,-1,10, 0, Parent: true);
 		LootList.SetEntry('LegendaryAssaultCaptain',		64, 2, 2, 150,-1,10, 0);
 		LootList.SetEntry('LegendaryStealthTrooper',		64, 2, 2, 150,-1,10, 0);
@@ -174,14 +174,7 @@ Class D4DHandler : EventHandler
 		LootList.SetEntry('EnragedLegendaryTormentor',		64, 5, 3, 700,-1, 2, 0);
 		LootList.SetEntry('EnragedLegendaryRevenant',		64, 5, 3, 700,-1, 5, 0);
 		LootList.SetEntry('EnragedLegendarySentient',		64, 7, 3,1000,-1, 2, 1);
-		
-		// Minecraft Monsters
-		Lootlist.SetEntry('MCZombie',						32, 1, 0, 20, parent: true);
-		Lootlist.SetEntry('MCSkeleton',						32, 1, 0, 20, parent: true);
-		Lootlist.SetEntry('MCCreeper',						32, 1, 0, 20, parent: true);
-		Lootlist.SetEntry('MCSpider',						32, 1, 0, 20, parent: true);
-		Lootlist.SetEntry('MCEnderman',						32, 1, 0, 35, parent: true);
-		Lootlist.SetEntry('MCGhast',						32, 1, 0, 50, parent: true);
+		*/
 		/*
 		zombieman 			5	
 		shotgunguy 			10
@@ -276,6 +269,8 @@ Class D4DHandler : EventHandler
 	//
 	// Monsters, missiles, items, etc are all recorded in MC_Utility instead
 	// of here so they're globally accessible for other mods to use. 
+	
+	
 	override void WorldThingSpawned(WorldEvent e)
 	{
 		Actor mo = e.thing;
@@ -372,14 +367,18 @@ Class D4DHandler : EventHandler
 				Carrion.Actors[i] = null;
 		}
 	}
+	
+	private bool IsSummonerCount(Actor mo)
+	{
+		return (mo is 'Archvile' || mo is 'D4Archvile' || mo is 'D4BossBrain' || mo is 'PlayerArchvile');
+	}
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
 	override void WorldThingDied(WorldEvent e)
 	{
 		Actor mo = e.Thing;
 		
-		if (IsPlayerPawn(mo))
-			return;
+		if (IsPlayerPawn(mo))	return;
 		
 		DropPinatas(mo, e.Inflictor);
 	}
@@ -900,10 +899,15 @@ Class D4DHandlerStatic : StaticEventHandler
 	
 	override void NewGame()
 	{
-		for (int i = 0; i < Spawnable.Size(); i++)
-			Spawnable[i] = false;
+		ClearItemSpawnList();
 		ClearDeathStorage();
 		Super.NewGame();
+	}
+	
+	private void ClearItemSpawnList()
+	{
+		for (int i = 0; i < Spawnable.Size(); i++)
+			Spawnable[i] = false;
 	}
 	
 	private void ClearDeathStorage()
@@ -928,6 +932,14 @@ Class D4DHandlerStatic : StaticEventHandler
 				Actor.Spawn(PostSpawns[i].clsname, PostSpawns[i].pos, ALLOW_REPLACE);
 		
 		PostSpawns.Clear();
+	}
+	
+	override void WorldUnloaded(WorldEvent e)
+	{
+		if (e.IsSaveGame || e.IsReOpen)
+			return;
+			
+		ClearItemSpawnList();
 	}
 	
 	override void WorldTick()

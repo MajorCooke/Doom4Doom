@@ -159,6 +159,7 @@ Class D4DoomImp : D4AbstractMonster //replaces DoomImp
 		}
 		Stop;
 	Raise:
+		---- A 0 CheckRespawn();
 		ROAC M 8 DoResurrect();
 		ROAC LKJI 8;
 		---- A 0 DoResurrect(1);

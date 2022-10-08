@@ -225,6 +225,7 @@ Class D4FatsoTech : D4AbstractBiggie
 		TNT1 A 10 A_BossDeath();
 		Stop;
 	 Raise:
+		---- A 0 CheckRespawn();
 		FATT R 5 DoResurrect();
 		FATT QPONMLK 5;
 		---- A 0 DoResurrect(1);
@@ -781,6 +782,7 @@ Class D4FatsoHell : D4AbstractBiggie //replaces Fatso
 		TNT1 A 10 A_BossDeath();
 		Stop;
 	 Raise:
+		---- A 0 CheckRespawn();
 		FAT2 R 5 DoResurrect();
 		FAT2 QPONMLK 5;
 		---- A 0 DoResurrect(1);

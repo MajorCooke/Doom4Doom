@@ -438,6 +438,7 @@ Class D4HellKnight : D4AbstractBiggie //replaces HellKnight
 		Stop;
 		
 	Raise:
+		---- A 0 CheckRespawn();
 		E02D I 3 DoResurrect();
 		E02D HGFEDCBA  3;
 		---- A 0 DoResurrect(1);

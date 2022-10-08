@@ -47,6 +47,8 @@ extend Class D4DHandler
 	
 	private ui void RenderPowerupScreens(RenderEvent e)
 	{
+		if (bDESTROYED)	return;
+	
 		PlayerInfo plr = players[consoleplayer];
 		let mo = Actor(plr.mo);
 		if (!mo)	return;
@@ -87,9 +89,9 @@ extend Class D4DHandler
 		}
 	}
 	
-	private ui double GetPowerFadeAlpha(Actor mo, Class<Powerup> item, int expirewarn = 105)
+	private ui double GetPowerFadeAlpha(Actor mo, Class<Powerup> item, int expirewarn = 105) const
 	{
-		if (!mo || !item)	return 0.0;
+		if (bDESTROYED || !mo || !item)	return 0.0;
 		if (expirewarn < 1)	return 1.0;
 		
 		let power = Powerup(mo.FindInventory(item, true));
@@ -122,11 +124,19 @@ Class D4VisualDamageManager play
 	
 	protected void Init()
 	{
+		if (bDESTROYED)	return;
+		if (Arrows.Size() > 0)
+		{
+			for (int i = 0; i < Arrows.Size(); i++)
+				if (Arrows[i] && !Arrows[i].bDESTROYED)
+					Arrows[i].Destroy();
+		}
 		Arrows.Clear();
 	}
 	
 	void AddIndicator(Actor src, Actor inf, Actor plr, int damage = 0)
 	{
+		if (bDESTROYED)	return;
 		if ((!src && !inf) || !plr || src == plr)
 			return;
 		
@@ -158,6 +168,7 @@ Class D4VisualDamageManager play
 	
 	void Tick()
 	{
+		if (bDESTROYED)	return;
 		int size = Arrows.Size();
 		if (size < 1)	return;
 		
@@ -181,8 +192,9 @@ Class D4VisualDamageManager play
 		}
 	}
 	
-	ui void Render(RenderEvent e)
+	ui void Render(RenderEvent e) const
 	{
+		if (bDESTROYED)	return;
 		let CDIToggle = Cvar.GetCvar('D4D_DamageIndicators', players[consoleplayer]);
 		if (!CDIToggle || !CDIToggle.GetInt() || Arrows.Size() < 1)
 			return;
@@ -222,6 +234,8 @@ Class D4DamageIndicator play
 	
 	void Init()
 	{
+		if (bDESTROYED)	return;
+		
 		hadsrc = src != null;
 		hadinf = inf != null;
 		pinfo = plr.player;
@@ -252,14 +266,32 @@ Class D4DamageIndicator play
 		trans = new('Shape2DTransform');
 	}
 	
+	override void OnDestroy()
+	{
+		if (flat)	
+		{
+			flat.Clear();
+			flat.Destroy();
+		}
+		
+		if (trans)
+		{
+			trans.Clear();
+			trans.Destroy();
+		}
+		Super.OnDestroy();
+	}
+	
 	void ResetTimer(int time = -1)
 	{
+		if (bDESTROYED)	return;
 		if (time < 1)	time = (35 * 3);
 		Timer = time;
 	}
 	
 	void Tick()
 	{
+		if (bDESTROYED)	return;
 		if (--Timer < 0 || !plr)
 		{
 		//	Console.Printf("Destroyed");
@@ -275,13 +307,18 @@ Class D4DamageIndicator play
 	}
 	const ThirtyFifth = (1.0 / 35.0);
 	ui void Render( RenderEvent e, double _Alpha, double _Scale)
-	{	
+	{
+		if (bDESTROYED)	return;
+		
 		// Alpha is already clamped below.
 		double Alpha = (ThirtyFifth * Timer) * _Alpha;
 		double Scale = _Scale;
 		
-		if (bDESTROYED || Alpha <= 0.0 || !plr || plr.pos == srcpos || !hadsrc)
+		if (Alpha <= 0.0 || !plr || plr.pos == srcpos || !hadsrc)
 			return;
+			
+		if (D4D_PrintDebug == 5)
+			Console.Printf("%.1f", Alpha);
 		
 		// Grab the player preferences.
 		trans.Clear();
@@ -305,7 +342,7 @@ Class D4DamageIndicator play
 		
 			
 		// draw the shape
-		Screen.DrawShape(tex,false,flat,DTA_Alpha, Clamp(Alpha, 0.0, 1.0));
+		Screen.DrawShape(tex, false, flat, DTA_Alpha, Clamp(Alpha, 0.0, 1.0));
 		
 	}
 }

@@ -161,8 +161,6 @@ Class D4ChaingunGuy : D4AbstractMonster //replaces Chaingunguy // : ChaingunGuy
 	Death.MeleePunch:
 	Death.ChainsawPinata:	
 	XDeath:
-		
-		TNT1 A 0;
 		TNT1 A 10
 		{
 			bThruActors = true;
@@ -170,8 +168,10 @@ Class D4ChaingunGuy : D4AbstractMonster //replaces Chaingunguy // : ChaingunGuy
 			A_NoBlocking();	//just in case
 			A_StopBeam();
 		}
+		---- A RezTimer CanRaise;
 		Stop;
 	Raise:
+		---- A 0 CheckRespawn();
 		HRZR M 3 DoResurrect();
 		HRZR LKJI 3;
 		---- A 0 DoResurrect(1);
@@ -384,7 +384,13 @@ Class D4SergeantShield : D4AbstractMonster
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}
+		---- A RezTimer CanRaise;
 		Stop;
+	Raise:
+		CPOS M 4 DoResurrect(0);
+		CPOS LKJIH 4;
+		---- A 0 DoResurrect(1);
+		Goto See;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states
 	//------------------------------------------------------------------------

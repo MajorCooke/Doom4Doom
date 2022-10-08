@@ -21,7 +21,6 @@ Class D4GrenadeLauncher : Doom4Weapon
 		Doom4Weapon.MultiplayerWeapon true;
 		Tag "Grenade Launcher";
 		Inventory.PickupMessage "Grenade Launcher! Trickshot time!";
-		Weapon.SlotNumber 1;
 		Weapon.AmmoType1 "D4Rockets";
 		Weapon.AmmoGive1 5;
 		Weapon.AmmoUse1 1;
@@ -210,6 +209,7 @@ Class D4GLClusterActive : Inventory
 
 Class D4Grenade : D4AbstractMissilePlayer
 {
+	private Vector3 PrevPos;
 	private int Timer;
 	int TimeLimit;
 	Property TimeLimit: TimeLimit;
@@ -271,6 +271,9 @@ Class D4Grenade : D4AbstractMissilePlayer
 		GRNL AAAA 1 A_SpawnItemEx("D4RocketTrailSmoke",-5,random(5,-5),random(5,-5),0,0,0,0,SXF_NOCHECKPOSITION);
 		GRNL A 1
 		{
+			if (abs(vel.z) <= 1.0 && pos.z + height > ceilingz)
+				SetOrigin(pos - (0, 0, height),true);
+			
 			A_SpawnItemEx("D4RocketTrailSmoke",-5,random(5,-5),random(5,-5),0,0,0,0,SXF_NOCHECKPOSITION);
 			bNOGRAVITY = false;
 		//	A_CountDown();

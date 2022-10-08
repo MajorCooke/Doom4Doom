@@ -832,7 +832,9 @@ extend class Doom4Player
 		let arm = BasicArmor(FindInventory("BasicArmor"));
 		if (arm && arm.Amount > 0)	
 		{
+			arm.AbsorbCount = 0;
 			arm.SavePercent = 1.0;
+			if (arm.ArmorType == 'None')	arm.ArmorType = "D4ArmorPickup";
 			ArmorBefore = arm.Amount;
 		}
 		
@@ -850,8 +852,9 @@ extend class Doom4Player
 			if (source == self)		flags |= DMG_NO_ENHANCE;
 			else source.bPIERCEARMOR = false;
 		}	
-		flags &= ~DMG_NO_ARMOR;
 		int finaldamage = damage;
+		
+		flags &= ~DMG_NO_ARMOR;
 		
 		// Disable targeting the player by mishaps. Make sure the damager is alive
 		// but dont bother if they don't want to change anyway or they're already
@@ -889,7 +892,6 @@ extend class Doom4Player
 		if (arm)	ArmorAfter = arm.Amount;
 		
 		
-		
 		// Damage done, now deal with the consequences.
 		
 		// This is needed in the event armor absorbs the damage. Otherwise this
@@ -903,12 +905,18 @@ extend class Doom4Player
 			if (!Event)	Event = D4DHandler.Fetch();
 			Event.AddDamageIndicator(source, inflictor, self, finaldamage);
 		}
+		if (ArmorAfter < 1)
+		{
+			arm.SavePercent = 0;
+			arm.Amount = 0;
+			arm.ArmorType = 'None';
+		}
 		
 		if (GetClass() == 'Doom4Player')
 		{
 			if (PainTimer < 1 && health > 0 && (ArmorTaken > 0 || finaldamage > 0))
 			{
-				if (ArmorAfter <= 0)	A_StartSound("Eternal/Player/Pain", CHAN_VOICE, CHANF_OVERLAP);
+				if (ArmorAfter < 1)		A_StartSound("Eternal/Player/Pain", CHAN_VOICE, CHANF_OVERLAP);
 				else					A_StartSound("Eternal/Player/PainSmall", CHAN_VOICE, CHANF_OVERLAP);
 				PainTimer = 17;
 			}	
@@ -926,6 +934,7 @@ extend class Doom4Player
 		
 		return finaldamage;
 	}
+	
 	private int PainTimer;
 	int AdjustMegasphereDamage(int damage)
 	{

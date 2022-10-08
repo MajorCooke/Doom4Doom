@@ -485,9 +485,11 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 			A_BossDeath();
 			A_NoBlocking();	//just in case
 		}
+		---- A RezTimer CanRaise;
 		Stop;
 		
 	Raise:
+		---- A 0 CheckRespawn();
 		E01D I 3 DoResurrect();
 		E01D HGFEDCBA 3;
 		---- A 0 DoResurrect(1);

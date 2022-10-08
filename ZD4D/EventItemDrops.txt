@@ -6,6 +6,11 @@
 // 
 //==============================================================================
 
+Class D4LootService : Service
+{
+	
+}
+
 Class D4LootContainer play
 {
 	private Array<D4LootDef> Defs;
@@ -20,14 +25,17 @@ Class D4LootContainer play
 	protected D4LootContainer Init()
 	{
 		Defs.Clear();
+		
+		
+		
 		return self;
 	}
 	
 	void SetEntry(String cls, 
-		uint CrateDropChance, uint CrateDropAmount = 0, uint CrateDropAlways = 0,
-		uint CashAmount = -1, uint CashChainsawPinata = -1,
-		uint UpgradeDropChance = -1, uint UpgradeDropAlways = -1,
-		uint RunePowerMin = 0, uint RunePowerMax = 7,
+		int CrateDropChance, int CrateDropAmount = 0, int CrateDropAlways = 0,
+		int CashAmount = -1, int CashChainsawPinata = -1,
+		int UpgradeDropChance = -1, int UpgradeDropAlways = -1,
+		int RunePowerMin = 0, int RunePowerMax = 7,
 		bool Parent = false, bool Replacee = true)
 	{
 		Class<Actor> ClassName = cls;
@@ -35,7 +43,7 @@ Class D4LootContainer play
 		
 		if (RunePowerMin > RunePowerMax)
 		{
-			uint temp = RunePowerMax;
+			int temp = RunePowerMax;
 			RunePowerMax = RunePowerMin;
 			RunePowerMin = temp;
 		}
@@ -114,7 +122,7 @@ Class D4LootDef play
 	const DONT_USE = 0;
 	bool 			Parent, Replacee;
 	Class<Actor> 	ClassName;
-	uint			CrateDropChance, CrateDropAmount, CrateDropAlways,
+	int			CrateDropChance, CrateDropAmount, CrateDropAlways,
 					CashAmount, CashChainsawPinata,
 					UpgradeDropChance, UpgradeDropAlways,
 					RunePowerMin, RunePowerMax;
@@ -136,10 +144,10 @@ Class D4LootDef play
 	}
 		
 	static D4LootDef Create( Class<Actor> ClassName, 
-		uint CrateDropChance, uint CrateDropAmount, uint CrateDropAlways,
-		uint CashAmount, uint CashChainsawPinata,
-		uint UpgradeDropChance, uint UpgradeDropAlways,
-		uint RunePowerMin, uint RunePowerMax, 
+		int CrateDropChance, int CrateDropAmount, int CrateDropAlways,
+		int CashAmount, int CashChainsawPinata,
+		int UpgradeDropChance, int UpgradeDropAlways,
+		int RunePowerMin, int RunePowerMax, 
 		bool parent = true, bool replacee = true)
 	{
 		if (!ClassName)	return null;
@@ -160,26 +168,26 @@ Class D4LootDef play
 		return loot;
 	}
 	
-	void SetCrateDrops(uint CrateDropChance, uint CrateDropAmount, uint CrateDropAlways)
+	void SetCrateDrops(int CrateDropChance, int CrateDropAmount, int CrateDropAlways)
 	{
 		if (CrateDropChance >= 0)	self.CrateDropChance = CrateDropChance;
 		if (CrateDropAmount >= 0)	self.CrateDropAmount = CrateDropAmount;
 		if (CrateDropAlways >= 0)	self.CrateDropAlways = CrateDropAlways;
 	}
 	
-	void SetCashDrops(uint CashAmount, uint CashChainsawPinata)
+	void SetCashDrops(int CashAmount, int CashChainsawPinata)
 	{
 		if (CashAmount >= 0)		self.CashAmount = 			CashAmount;
 		if (CashChainsawPinata)		self.CashChainsawPinata = 	CashChainsawPinata;
 	}
 	
-	void SetUpgradeDrops(uint UpgradeDropChance, uint UpgradeDropAlways)
+	void SetUpgradeDrops(int UpgradeDropChance, int UpgradeDropAlways)
 	{
 		if (UpgradeDropChance)		self.UpgradeDropChance = UpgradeDropChance;
 		if (UpgradeDropAlways)		self.UpgradeDropAlways = UpgradeDropAlways;
 	}
 	
-	void SetRunePowers(uint RunePowerMin, uint RunePowerMax)
+	void SetRunePowers(int RunePowerMin, int RunePowerMax)
 	{
 		if (RunePowerMin > RunePowerMax)
 		{
@@ -193,16 +201,16 @@ Class D4LootDef play
 	}
 	
 	// The parameters are merely there to remind me of the order.
-	uint, uint, uint GetCrateDrops(int Chance = DONT_USE, int Amount = DONT_USE, int Always = DONT_USE)
+	int, int, int GetCrateDrops(int Chance = DONT_USE, int Amount = DONT_USE, int Always = DONT_USE)
 	{	return CrateDropChance, CrateDropAmount, CrateDropAlways;	}
 	
-	uint, uint GetCashDrops(int Amount = DONT_USE, int ChainsawPinata = DONT_USE)
+	int, int GetCashDrops(int Amount = DONT_USE, int ChainsawPinata = DONT_USE)
 	{	return CashAmount, CashChainsawPinata;	}
 	
-	uint, uint GetUpgradeDrops(int Chance = DONT_USE, int Always = DONT_USE)
+	int, int GetUpgradeDrops(int Chance = DONT_USE, int Always = DONT_USE)
 	{	return UpgradeDropChance, UpgradeDropAlways;	}
 	
-	uint, uint GetRunePowerThreshold(int Minimum = DONT_USE, int Maximum = DONT_USE)
+	int, int GetRunePowerThreshold(int Minimum = DONT_USE, int Maximum = DONT_USE)
 	{	return RunePowerMin, RunePowerMax;	}
 	
 }
@@ -566,6 +574,7 @@ extend class D4DHandler
 				// with the rest of the drop chances.
 				UpgradeDropAlways += Clamp(TotalMul - 5, 0, 2);
 				
+				int rng = 1;
 				if (UpgradeDropChance > 0)
 				{
 					// Give a slight boost to enemies that are bosses as they're tougher.
@@ -576,19 +585,27 @@ extend class D4DHandler
 						else
 							UpgradeDropChance -= 10;
 					}
-					
-					if (Max(1,random[drop](1, (UpgradeDropChance / Chance))) == 1)
+					UpgradeDropChance /= (Max(1,Chance));
+					UpgradeDropChance = Max(1,UpgradeDropChance);
+					rng = random[drop](1, UpgradeDropChance);
+					if (rng <= 1)
+					{
+						rng = 1;
 						UpgradeDropAlways++;
+					}
 				}
 				
-				if (D4D_PrintDebug == 2)
-					Console.Printf("Drop chance: %d", UpgradeDropChance);
+				if (D4D_PrintDebug == 3)
+					Console.Printf("Max: %d | RNG: %d", UpgradeDropChance, rng);
 				
 				// If we have something to drop, do it.
 				if (UpgradeDropAlways > 0)
 				{
+					if (D4D_PrintDebug == 3)
+						Console.Printf("Dropping %d upgrades from %s", UpgradeDropAlways, mo.GetClassName());
 					for (int i = 0; i < UpgradeDropAlways; i++)
 					{
+						
 						Actor item = mo.A_DropItem("D4UpgradePickupSpawner");
 						if (item)	item.bDROPPED = true;
 					}

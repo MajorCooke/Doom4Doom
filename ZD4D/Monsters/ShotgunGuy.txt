@@ -202,6 +202,7 @@ Class D4ShotgunGuy : D4AbstractMonster //replaces ShotgunGuy
 		}
 		Stop;
 	Raise:
+		---- A 0 CheckRespawn();
 		BBRG N 3 DoResurrect();
 		BBRG MLKJIH 3;
 		---- A 0 DoResurrect(1);

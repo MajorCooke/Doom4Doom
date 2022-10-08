@@ -576,7 +576,7 @@ Class DECrucible : Doom4Weapon
 			A_StartSound("Eternal/Crucible/Idle",10,CHANF_LOOP|CHANF_OVERLAP,0.2);
 			A_WeaponOffset(-2, 4, WOF_ADD);
 			A_AttachLight("CrucibleLight", DynamicLight.PulseLight, Color(255, 255, 10, 10), 54, 74, 
-				DynamicLight.LF_DontLightSelf, (0,0,32), 0.7);
+				DynamicLight.LF_DontLightSelf|DynamicLight.LF_Attenuate, (0,0,32), 0.7);
 		}
 		M026 D 3 bright A_WeaponOffset(-2, 4, WOF_ADD); //-10, 20
 		M026 DDD 1 bright A_WeaponOffset(3, -6, WOF_ADD);

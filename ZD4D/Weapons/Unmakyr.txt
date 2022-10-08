@@ -72,14 +72,17 @@ Class DEUnmakyr : Doom4SuperWeapon
 	
 	void SetLight(bool on)
 	{
+		
 		if (Owner)
 		{
 			if (on)
 				Owner.A_AttachLight("UnmakyrLight", DynamicLight.PulseLight, Color(255, 255, 255, 10), 54, 74, 
-				DynamicLight.LF_DontLightSelf, (0,0,32), 0.7);
+				DynamicLight.LF_DontLightSelf|DynamicLight.LF_Attenuate, 
+				(0,0,32), 0.7);
 			else
 				Owner.A_RemoveLight("UnmakyrLight");
 		}
+		
 	}
 	
 	override void OnDestroy()
@@ -425,7 +428,7 @@ Class UnmakyrProjectile : D4D_Projectile_New
 {
 	const ExploDmg = 96;
 	const ExploRange = 96;
-	const RealDamage = 100;
+	const RealDamage = 50;
 	mixin D4D_ActorFunctions;
 	private Actor Owner;
 	private Array<Actor> Hits;

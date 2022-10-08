@@ -370,8 +370,8 @@ Class D4BulletPuffGibDistance : D4BulletPuff
 			
 			int dmg = GetMissileDamage(mask, add);
 			if (RandomDamage)	dmg *= random(1,3);
-			A_FaceTarget(0,0,180);
-			Tracer.DamageMobj(self, target, dmg, DamageType, DMG_INFLICTOR_IS_PUFF|DMG_USEANGLE,angle);
+		//	A_FaceTarget(0,0);
+			Tracer.DamageMobj(self, target, dmg, DamageType, DMG_INFLICTOR_IS_PUFF);
 		}
 	}
 }

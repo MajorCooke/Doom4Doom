@@ -203,6 +203,7 @@ Class D4Demon : D4AbstractMonster //replaces Demon
 		}
 		Stop;
 	Raise:
+		---- A 0 CheckRespawn();
 		D4DG N 5 DoResurrect();
 		D4DG MLKJI 5;
 		---- A 0 DoResurrect(1);

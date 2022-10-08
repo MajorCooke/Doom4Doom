@@ -66,27 +66,28 @@ Class D4Arachnotron : D4AbstractBiggie //replaces Arachnotron // : Arachnotron	/
 	States
 	{
 	Spawn:
-		ARAC AB 10 A_Look();
+		ARAC AB 10 A_LookEx(label: "Sight");
 		Loop;
-	See:
+	Sight:
 		ARAC A 20;
+	See:
 		ARAC A 3 { D4Chase(); A_PlaySound("Player/Demon/ArachnotronStep"); }
 		ARAC ABBCC 3 D4Chase();
 		ARAC D 3 { D4Chase(); A_PlaySound("Player/Demon/ArachnotronStep"); }
 		ARAC DEEFF 3 D4Chase();
-		Goto See+1;
+		Goto See;
 	Missile:
 		ARAC A 20 BRIGHT A_FaceTarget();
 		ARAC G 2 BRIGHT A_FaceTarget();
 		ARAC H 2 BRIGHT A_SpawnProjectile("ArachnoPlasma",24,0,0);
 		ARAC G 2 BRIGHT;
 		ARAC H 2 BRIGHT A_SpawnProjectile("ArachnoPlasma",24,0,0);
-		---- A 0 A_MonsterRefire(20,"See");
+		---- A 0 A_MonsterRefire(20,"Sight");
 		Goto Missile+1;
 	Pain:
 		ARAC I 3;
 		ARAC I 3 A_Pain();
-		Goto See+1;
+		Goto See;
 	Pain.StunBomb:
 		ARAC I 0 { bNoPain = true; }
 		"####" "#######" 5 A_SpawnItemEx("StunBombSpark",0,random(10,-10),random(10,50),0,frandom(2,-2),frandom(0.1,2),0,SXF_NOCHECKPOSITION);
@@ -123,8 +124,6 @@ Class D4Arachnotron : D4AbstractBiggie //replaces Arachnotron // : Arachnotron	/
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-	
-		TNT1 A 0;
 		TNT1 A 10
 		{
 			bThruActors = true;
@@ -136,13 +135,14 @@ Class D4Arachnotron : D4AbstractBiggie //replaces Arachnotron // : Arachnotron	/
 			if (RuneChance(RuneChance_Arach))
 			{	A_SpawnItemEx("ArachnotronRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}
-		
+		---- A RezTimer CanRaise;
 		Stop;
     Raise:
+		---- A 0 CheckRespawn();
 		ARAC P 5 DoResurrect(0);
 		ARAC ONMLKJ 5;
 		---- A 0 DoResurrect(1);
-		Goto See+1;
+		Goto See;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states
 	//------------------------------------------------------------------------

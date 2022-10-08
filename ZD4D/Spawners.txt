@@ -5,35 +5,22 @@ Class D4PostProcessor : LevelPostProcessor
 	{
 		if (mapname == 'TITLEMAP')	return;
 		let SE = D4DHandlerStatic.Fetch();
-		if (!SE || SE.CheckAllSpawn())	
+		if (!SE)	
 		{
-			Console.Printf("Ended prematurely");
+		//	Console.Printf("Ended prematurely");
 			return;
 		}
 		
 		// Set up the spawn filters. First, go with flags.
-		
-		int mask = 0;
 		bool spawnmulti = sv_alwaysspawnmulti;
 		
-		if (deathmatch) 
-		{
-			mask = MTF_DEATHMATCH;
-		}
-		else if (multiplayer)
-		{
-			mask = MTF_COOPERATIVE;
-		}
-		else if (spawnmulti)
-		{
-			mask = MTF_COOPERATIVE|MTF_SINGLE;
-		}
-		else
-		{
-			mask = MTF_SINGLE;
-		}
+								int flagmask = MTF_SINGLE;
+		if (deathmatch) 			flagmask = MTF_DEATHMATCH;
+		else if (multiplayer)		flagmask = MTF_COOPERATIVE;
+		else if (spawnmulti)		flagmask = MTF_COOPERATIVE|MTF_SINGLE;
 		
-		int SpawnFilter = G_SkillPropertyInt(SKILLP_SpawnFilter);
+		
+		int skillmask = G_SkillPropertyInt(SKILLP_SpawnFilter);
 		
 		uint tc = GetThingCount();
 		for (uint i = 0; i < tc; i++)
@@ -54,11 +41,11 @@ Class D4PostProcessor : LevelPostProcessor
 		
 			// See if it spawns at all.
 			uint tflag = GetThingFlags(i);
-			if (!(tflag & mask))	continue;
+			if (!(tflag & flagmask))	continue;
 		
 			// Make sure it fits the skill.
-		//	uint tskill = GetThingSkills(i);
-		//	if (!(tskill & mask))	continue;
+			uint tskill = GetThingSkills(i);
+			if (!(tskill & skillmask))	continue;
 			
 			int r = random[rng](1,100);
 			int cap = 1;
@@ -71,6 +58,8 @@ Class D4PostProcessor : LevelPostProcessor
 					break;
 				
 				Case 2006: //BFG
+					if (D4D_PrintDebug == 7)
+						Console.Printf("BFG found. Ammo spawn enabled.");
 					SE.SetActorSpawn(D4DHandler.BFGAmmo, true);			
 					cap = 25;
 					break;
@@ -213,7 +202,7 @@ extend Class D4DHandler
 				e.Replacee = defs.Replacing;
 				e.IsFinal = true;
 				
-				if (D4D_PrintDebug > 0)
+				if (D4D_PrintDebug == 2)
 					Console.Printf("D4D: %s replaces %s", rep.GetClassName(), e.Replacee.GetClassName());
 					
 				return;

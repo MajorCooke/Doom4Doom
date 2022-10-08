@@ -6,32 +6,6 @@
 //================================================================================================================
 //================================================================================================================
 
-/*
-Rainbow Doom Archvile Schematics
-* Gains # health per level.
-
-Uncommon
-* 
-	
-Rare
-* 
-	
-Epic
-* 
-	
-Legendary
-* 
-	
-Relic
-* 
-
-CURSED (Black)
-* 
-
-BLESSED (White)
-* 
-*/
-
 Class ArchAttacking : Inventory {}
 Class D4Archvile : D4AbstractBiggie //replaces Archvile
 {
@@ -210,6 +184,7 @@ Class D4Archvile : D4AbstractBiggie //replaces Archvile
 		---- A -1 CanRaise { bCorpse = true; }
 		Stop;
 	Raise:
+		---- A 0 CheckRespawn();
 		---- A 0 DoResurrect(0);
 		DIAB ZYXWVUTSRQ 8;
 		---- A 0 DoResurrect(1);
@@ -232,6 +207,7 @@ Class D4Archvile : D4AbstractBiggie //replaces Archvile
 			A_NoBlocking();	//just in case
 			
 		}
+		---- A RezTimer CanRaise;
 		Stop;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states
@@ -536,6 +512,8 @@ Class SummonerSparks : Actor
 {
 	Default 
 	{
+		+BRIGHT
+		+NOTONAUTOMAP
 		+NOINTERACTION
 		Translation "0:255=%[0,0,0]:[1.0,0.0,0.0]";
 		Scale 0.4;
@@ -581,6 +559,27 @@ Class SummonerSparks : Actor
 			return ResolveState(null);
 		}
 		Stop;
+	}
+}
+
+Class SummonerSparksAlways : SummonerSparks
+{
+	States
+	{
+	Spawn:
+		DB08 A 0 Nodelay A_PlaySound("Doom4/Monsters/ArgentCharge",6,0.8);
+		DB08 ABCDEFGHIJKLMNOPQRSTUVWXYABCDEFGHIJ 1 Bright 
+		{
+			A_SpawnItemEx("SummonerTargetingSparks",0,0,0,1,frandom(3,-3),frandom(0.5,-0.5), 0,SXF_NOCHECKPOSITION,128);
+			A_SetScale(frandom(0.25,0.45));
+		}
+	Fading:
+		DB08 KLMNOPQRSTUVWXYABCDEFGHIJ 1 Bright
+		{
+			A_SetScale(frandom(0.25,0.45));
+			A_FadeOut(0.05);
+		}
+		Loop;
 	}
 }
 

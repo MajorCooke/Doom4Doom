@@ -20,7 +20,7 @@ enum RuneChances
 	RuneChance_Archie = 10,
 }
 
-Class D4AbstractMonster : D4Actor 
+Class D4AbstractMonster : D4Actor abstract
 {
 	int StaggerTimer;
 	meta Class<Actor> Replacing;
@@ -86,9 +86,6 @@ Class D4AbstractMonster : D4Actor
 	{
 		if (!passive)
 		{
-			if (ResurrectCvar == '')
-				return true;
-			
 			Cvar check = Cvar.FindCVar(ResurrectCvar);
 			return (!check || check.GetBool());
 		}
@@ -106,7 +103,7 @@ Class D4AbstractMonster : D4Actor
 		}
 	}
 	
-	bool CheckResurrectable()
+	bool CheckResurrectable() const
 	{
 		return (ResurrectCvar != '' && GetCvar(ResurrectCvar));
 	}
@@ -187,6 +184,32 @@ Class D4AbstractMonster : D4Actor
 			}
 			Beams.Clear();
 		}
+	}
+	
+	// Credit to Marisa Kirisame for helping with this.
+	Actor SpawnProjectile(Class<Actor> proj, Vector3 off, vector2 AP = (0,0))
+	{
+		if (!proj)	return null;
+		
+		Vector3 px, py, pz;
+		[px, py, pz] = MC_CoordUtil.GetAxes(Pitch, Angle, Roll);
+	//	Vector3 origin = Vec2OffsetZ(0,0,0) + off.x * px + off.y * py + off.z * pz;
+		
+		
+		bool sp = false; Actor gren = null;
+		
+		[sp, gren] = A_SpawnItemEx(proj, off.x, off.y, off.z, 0, 0, 0, AP.X, SXF_NOCHECKPOSITION);
+		
+		if (gren)
+		{
+			Vector3 dir = (px + py * tan(AP.X) + pz * tan(AP.Y)).unit();
+			
+			gren.Target = self;
+			if (gren.bSEEKERMISSILE)	gren.Tracer = Target;
+			gren.vel = dir * gren.speed;
+			[gren.angle, gren.pitch] = MC_S7_Math.GetVectorAngles(gren.vel);
+		}
+		return gren;
 	}
 	
 	//--------------------------------------------------------------------------
@@ -282,7 +305,7 @@ Class D4AbstractMonster : D4Actor
 	
 	//--------------------------------------------------------------------------
 	// Checks to see if HQ monster effects cvar is on or off.
-	bool CheckEffects()
+	bool CheckEffects() const
 	{
 		return HQEffects;
 	}
@@ -378,7 +401,7 @@ Class D4AbstractMonster : D4Actor
 	void D4Chase(statelabel melee = "Melee", statelabel missile = "Missile", int flags = 0, double maxturn = 30.0)
 	{
 		//Fuckin' STAY DOWN!!!
-		if (health < 1)
+		if (bKILLED || health < 1)
 		{
 			SetState(ResolveState("Death"));
 			return;
@@ -440,7 +463,6 @@ Class D4AbstractMonster : D4Actor
 	}
 	
 	//==========================================================================
-	//
 	// SpawnRune
 	//
 	// Spawns the rune after calling RuneChance, 
@@ -469,6 +491,7 @@ Class D4AbstractMonster : D4Actor
 		if (upgrade >= 6)	return 1;
 		int originalID = id;
 		id = Max(1, id - (upgrade * 2));
+		
 		// Spider masterminds are the rarest of enemies. Give them special 
 		// treatment so players can enjoy playing the hell out of them.
 		if (self is "D4SpiderMastermind" || self is "D4OldSpiderMastermind" || 
@@ -495,36 +518,6 @@ Class D4AbstractMonster : D4Actor
 			
 			return (random(1, Max(1, howmany / rarity)) == 1) ? 1 : 0;
 		}
-		/*
-		if (self is "D4SpiderMastermind" || self is "D4OldSpiderMastermind")
-		{
-			int howmany = Max(1,CountProximity("D4SpiderMastermind",32767) + CountProximity("D4OldSpiderMastermind",32767) + 1);
-			howmany -= upgrade;
-			howmany = Clamp(howmany,1,RuneChance_Master);
-			if (rarity == 2)
-			{
-				return (random(1,howmany) == 1) ? 1 : 0;
-			}
-			else if (rarity == 1)
-			{
-				return (random(1,howmany * 2) == 1) ? 1 : 0;
-			}
-		}
-		else if (CheckClass("D4Cyberdemon") || CheckClass("D4OldCyberdemon"))
-		{
-			int howmany = Max(1,CountProximity("D4Cyberdemon",32767) + CountProximity("D4OldCyberdemon",32767) + 1);
-			howmany -= upgrade;
-			howmany = Clamp(howmany,1,RuneChance_Cyber);
-			if (rarity == 2)
-			{
-				return (random(1,(howmany / 2)) == 1) ? 1 : 0;
-			}
-			else if (rarity == 1)
-			{
-				return (random(1,howmany) == 1) ? 1 : 0;
-			}
-		}
-		*/
 		else if (rarity == 2)		// Common
 		{
 			return (random(1, (id / 2)) == 1) ? 1 : 0;
@@ -543,9 +536,10 @@ Class D4AbstractMonster : D4Actor
 	// Splatters the enemy. Accept 0, Color_Green, Color_Blue or Color_Black
 	// for blood colors on the gib dropper.
 	//==========================================================================
-	
-	void XDeathGush(bool simple = false)
+	protected bool gibbed;
+	void XDeathGush(bool simple = false, bool actualgib = true)
 	{
+		gibbed = actualgib;
 		bTHRUACTORS = true;
 		MOD = DamagetypeReceived;
 		if ((MOD != 'Massacre'))
@@ -579,6 +573,9 @@ Class D4AbstractMonster : D4Actor
 		}
 	}
 	
+	
+	
+	
 	//==========================================================================
 	// Leaping
 	//==========================================================================
@@ -595,8 +592,6 @@ Class D4AbstractMonster : D4Actor
 	int oldLeap;
 	double leapDistance;
 
-	
-	
 	double GetGroundHeight()
 	{
 		double _floorz = GetZAt();
@@ -690,115 +685,41 @@ Class D4AbstractMonster : D4Actor
 		);
 	}
 	
-	/*
-	void A_Leap(StateLabel EndState = "See")
+	protected void CheckRespawn()
 	{
-		// if grounded, go to see.
-		if (CheckOnGround())
-		{
-			if (!oldLeap)
-			{
-				A_FaceTarget();
-				double vertical = 12;
-				if (target.pos.z-pos.z > 64 && ceilingz-pos.z > 128) vertical = 18;
-				double horizontalMult = leapDistance / 480;
-				double horizontal = 1;
-				for (int i = 0; i < 4; i++) horizontal *= horizontalMult; // pow is not defined
-				vector3 newdir = (cos(angle)*horizontal, sin(angle)*horizontal, vertical);
-				vel += newdir;
-				oldLeap = frame;
-			}
-			else
-			{
-				State next = ResolveState(EndState);
-				if (!next)
-					next = ResolveState("See");
-				if (next)
-					SetState(next);
-				return;
-			}
-		}
-		else if (vel.z > 0)
-		{
-			vector3 newdir = (cos(angle)*2, sin(angle)*2, 0);
-			vel += newdir;
-			//frame = oldLeap+1;
-		}
-		//else if (vel.z < 0)	frame = oldLeap+2;
+		if (!gibbed)	return;
 		
+		let s = FindState('XRaise');
+		if (s)	SetState(s);
 	}
 	
-	virtual double GetJumpDistance()
+	protected void XRespawn(int phase)
 	{
-		double dst = 480;
-		if (ceilingz-pos.z > 128) dst *= 2;
-		return dst;
-	}
-
-	bool CheckPitBeforeTarget(in out double dst)
-	{
-		if (!target || !CheckSight(target)) return false;
-		
-		int step = int(Max(1,radius/2));
-		vector3 CheckDirection = (target.pos-pos).Unit()*step;
-		
-		// Get the jump distance.
-		//dst = 480;
-		if (ceilingz-pos.z > 128) dst *= 2;
-		
-		int steps = min(Distance2D(target), dst)/step;
-		double curz = pos.z;
-		SetOrigin((pos.x, pos.y, pos.z+64), false);
-		for (int i = 0; i < steps; i++)
+		if (phase == 0)
 		{
-			double zat = GetZAt(pos.x + CheckDirection.x * i, pos.y + CheckDirection.y * i, 0, GZF_ABSOLUTEPOS|GZF_ABSOLUTEANG);
-			//A_LogFloat(zat);
-			if (curz - zat > MaxStepHeight * 2 || zat - curz > MaxStepHeight)
-			{
-				SetOrigin((pos.x, pos.y, curz), false);
-				return true;
-			}
+			let mo = Spawn("SummonerSparksAlways", pos + (0, 0, height * 0.5));
+			A_UnsetShootable();
 		}
-		
-		SetOrigin((pos.x, pos.y, curz), false);
-		return false;
-	}
-
-	bool TryLeap(StateLabel leapstate = null, int flags = 0)
-	{
-		if (!target) return false;
-		
-		double BaseDistance = 480;
-		double PassDistance = BaseDistance;
-		
-		if (CheckOnGround() && // if we are standing
-			// !random(0, 16) && // and we don't do this all the time
-			(((flags & JF_UP) && (abs(target.pos.z-pos.z) > Default.MaxStepHeight)) || // and target has more height difference than maxstepheight
-			 ((flags & JF_FORWARD) && CheckPitBeforeTarget(PassDistance)))) // and there's a deep pit in front of us
+		else if (phase == 1)
 		{
-			if (Distance2D(target) < PassDistance) // and target is within max jump radius
-			{
-				oldLeap = 0;
-				leapDistance = Distance2D(target);
-				
-				// A leapstate is not required -- one can use it for simple checking.
-				if (leapstate)
-				{
-					State next = FindState(leapstate, true);
-					if (next)	SetState(next);
-				}
-				return true;
-			}
+			let mo = Spawn("SummonTeleportFog", pos);
+			A_SetShootable();
+			SetState(FindState("See"));
 		}
-		
-		return false;
 	}
-	*/
+	
+	States
+	{
+	XRaise:
+		TNT1 A 35 XRespawn(0);
+		TNT1 A 1 XRespawn(1);
+		Wait;
+	}
 }
 
 
-Class D4AbstractBiggie : D4AbstractMonster {}
-Class D4AbstractBoss : D4AbstractBiggie 
+Class D4AbstractBiggie : D4AbstractMonster abstract {}
+Class D4AbstractBoss : D4AbstractBiggie abstract
 {
 	Default
 	{
@@ -810,23 +731,6 @@ Class D4AbstractBoss : D4AbstractBiggie
 Class PainSoundToken : Inventory
 {}
 
-// debug actor
-Class DecoTest : Actor
-{
-	Default
-	{
-		+NOINTERACTION
-		Scale 2.0;
-		alpha 0.4;
-	}
-	
-	States
-	{
-	Spawn:
-		TROO A 2 Bright;
-		Stop;
-	}
-}
 
 
 
