@@ -214,15 +214,13 @@ Class D4FatsoTech : D4AbstractBiggie
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-	
-		TNT1 A 10
+		TNT1 A 10 CanRaise
 		{
-			bThruActors = true;
 			XDeathGush();
 			A_NoBlocking();	//just in case
-			
 		}
 		TNT1 A 10 A_BossDeath();
+		---- A RezTimer CanRaise;
 		Stop;
 	 Raise:
 		---- A 0 CheckRespawn();
@@ -770,16 +768,13 @@ Class D4FatsoHell : D4AbstractBiggie //replaces Fatso
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		
-		TNT1 A 10
+		TNT1 A 10 CanRaise
 		{
-			bThruActors = true;
 			XDeathGush();
-			A_XScream();
 			A_NoBlocking();	//just in case
-			A_PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
 		}
 		TNT1 A 10 A_BossDeath();
+		---- A RezTimer CanRaise;
 		Stop;
 	 Raise:
 		---- A 0 CheckRespawn();

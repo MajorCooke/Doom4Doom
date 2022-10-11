@@ -195,14 +195,10 @@ Class D4Archvile : D4AbstractBiggie //replaces Archvile
 	Death.BerserkKill:
 	Death.MeleePunch:
 	Death.ChainsawPinata:
-	XDeath:		
-		
-		TNT1 A 0;
-		TNT1 A 35
+	XDeath:
+		TNT1 A 10 CanRaise
 		{
-			bThruActors = true;
 			XDeathGush();
-			
 			A_SetInventory("ArchAttacking",0);
 			A_NoBlocking();	//just in case
 			

@@ -193,14 +193,12 @@ Class D4Demon : D4AbstractMonster //replaces Demon
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		
-		TNT1 A 0;
-		TNT1 A 10
+		TNT1 A 10 CanRaise
 		{
-			bThruActors = true;
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}
+		---- A RezTimer CanRaise;
 		Stop;
 	Raise:
 		---- A 0 CheckRespawn();

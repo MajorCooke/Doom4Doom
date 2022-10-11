@@ -480,7 +480,6 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 		TNT1 A 0;
 		TNT1 A 10
 		{
-			bThruActors = true;
 			XDeathGush();
 			A_BossDeath();
 			A_NoBlocking();	//just in case

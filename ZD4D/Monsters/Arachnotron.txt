@@ -105,9 +105,10 @@ Class D4Arachnotron : D4AbstractBiggie //replaces Arachnotron // : Arachnotron	/
 			A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50), vel.x+random(4,-4), vel.y+ random(4,-4), random(3,4+4), 0,SXF_NOCHECKPOSITION|SXF_ABSOLUTEVELOCITY);
 			A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50), vel.x+random(4,-4), vel.y+ random(4,-4), random(3,4+4), 0,SXF_NOCHECKPOSITION|SXF_ABSOLUTEVELOCITY);
 			A_SpawnItemEx("NewMeat",random(25,-25),random(25,-25),random(10,50), vel.x+random(4,-4), vel.y+ random(4,-4), random(3,4+4), 0,SXF_NOCHECKPOSITION|SXF_ABSOLUTEVELOCITY);
-			
+			/*
 			if (RuneChance(RuneChance_Arach))
 			{	A_SpawnItemEx("ArachnotronRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
+			*/
 		}
 		ARAC J 10 A_Scream();
 		ARAC K 5 A_NoBlocking();
@@ -124,16 +125,11 @@ Class D4Arachnotron : D4AbstractBiggie //replaces Arachnotron // : Arachnotron	/
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		TNT1 A 10
+		TNT1 A 10 CanRaise
 		{
-			bThruActors = true;
 			XDeathGush();
 			A_BossDeath();
 			A_NoBlocking();	//just in case
-			
-			
-			if (RuneChance(RuneChance_Arach))
-			{	A_SpawnItemEx("ArachnotronRune",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 		}
 		---- A RezTimer CanRaise;
 		Stop;

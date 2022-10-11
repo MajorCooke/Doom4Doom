@@ -136,7 +136,6 @@ Class D4Cacodemon : D4AbstractBiggie //replaces Cacodemon
 	XDeath:
 		TNT1 A 10
 		{
-			bThruActors = true;
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}

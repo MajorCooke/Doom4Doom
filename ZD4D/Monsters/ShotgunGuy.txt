@@ -190,16 +190,12 @@ Class D4ShotgunGuy : D4AbstractMonster //replaces ShotgunGuy
 	Death.ChainsawPinata:
 	XDeath:
 		
-		TNT1 A 0;
-		TNT1 A 10
+		TNT1 A 10 CanRaise
 		{
-			bThruActors = true;
 			XDeathGush();
-			//D4DropItems();
-			//"ShotguyCashGiver");
-			A_KillMaster("Massacre",KILS_FOILINVUL,null,"D4DSpawner");
 			A_NoBlocking();	//just in case
 		}
+		---- A RezTimer CanRaise;
 		Stop;
 	Raise:
 		---- A 0 CheckRespawn();

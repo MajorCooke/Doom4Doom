@@ -428,15 +428,13 @@ Class D4HellKnight : D4AbstractBiggie //replaces HellKnight
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		
-		TNT1 A 0;
-		TNT1 A 10
+		TNT1 A 10 CanRaise
 		{
-			bThruActors = true;
 			XDeathGush();
+			A_NoBlocking();
 		}
+		---- A RezTimer CanRaise;
 		Stop;
-		
 	Raise:
 		---- A 0 CheckRespawn();
 		E02D I 3 DoResurrect();

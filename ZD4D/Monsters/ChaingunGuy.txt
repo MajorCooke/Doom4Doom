@@ -161,9 +161,8 @@ Class D4ChaingunGuy : D4AbstractMonster //replaces Chaingunguy // : ChaingunGuy
 	Death.MeleePunch:
 	Death.ChainsawPinata:	
 	XDeath:
-		TNT1 A 10
+		TNT1 A 10 CanRaise
 		{
-			bThruActors = true;
 			XDeathGush();
 			A_NoBlocking();	//just in case
 			A_StopBeam();
@@ -376,11 +375,8 @@ Class D4SergeantShield : D4AbstractMonster
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		
-		TNT1 A 0;
-		TNT1 A 35
+		TNT1 A 10 CanRaise
 		{
-			bThruActors = true;
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}

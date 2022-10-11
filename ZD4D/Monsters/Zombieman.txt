@@ -183,14 +183,12 @@ Class D4Zombieman : D4AbstractMonster //replaces Zombieman
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-	
-		TNT1 A 0;
 		TNT1 A 10
 		{
-			bThruActors = true;
 			XDeathGush();
 			A_NoBlocking();	//just in case;
 		}
+		---- A RezTimer CanRaise;
 		Stop;
 	Raise:
 		---- A 0 CheckRespawn();
