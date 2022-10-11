@@ -40,6 +40,9 @@ Class Doom4Player : PlayerPawn
 	protected Vector2 LifeAP[3];
 	
 	
+	private int privflags;
+	flagdef UnmorphInvul: privflags, 0;
+	
 	// Properties
 	meta bool UseLives;
 	Property UseLives: UseLives;
@@ -736,10 +739,7 @@ extend class Doom4Player
 			return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
 		}
 		
-		// There is one tic after morphing where the player is vulnerable before
-		// they receive their temporary invul. Negate all damage for that tic.
-		if ((player.cheats & CF_GODMODE2) ||
-			(player.mo == self && HPArmor))	
+		if (player.cheats & CF_GODMODE2)
 			return -1;
 			
 		// Immune to barrels with the right upgrades. This is already present on
@@ -753,11 +753,11 @@ extend class Doom4Player
 		}
 		
 		bool TelefragDamage = (!bLAXTELEFRAGDMG && damage >= TELEFRAG_DAMAGE);
-		bool IsInvul = (FindInventory("PowerInvulnerable", true) || bINVULNERABLE);
+		bool IsInvul = bINVULNERABLE || (FindInventory("PowerInvulnerable", true) != null);
 		
 		if (TelefragDamage)
 		{
-			if (bNODAMAGE || (IsInvul && CountInv("D4PentagramUpgrade4")))
+			if (bNODAMAGE || bUNMORPHINVUL || (IsInvul && CountInv("D4PentagramUpgrade4")))
 				TelefragDamage = false;
 		}
 		if (!TelefragDamage && (player.cheats & CF_GODMODE) && !(flags & DMG_FORCED))
@@ -776,7 +776,7 @@ extend class Doom4Player
 		// of the internal damage, including thrusting since it's needless to call
 		// P_DamageMobj.
 		
-		if ((!TelefragDamage && IsInvul) || bNODAMAGE)
+		if ((!TelefragDamage && IsInvul) || bNODAMAGE || bUNMORPHINVUL)
 		{
 			// Mainly just doing this to play the sound effect of the pentagram.
 			damage = GetModifiedDamage(mod, damage, true);
@@ -828,7 +828,7 @@ extend class Doom4Player
 		
 		
 		// Make sure armor always takes the damage itself.
-		int ArmorBefore = 0, ArmorAfter = 0;
+		int ArmorBefore = 0, ArmorAfter = 0, TotalPoints = Health;
 		let arm = BasicArmor(FindInventory("BasicArmor"));
 		if (arm && arm.Amount > 0)	
 		{
@@ -836,6 +836,7 @@ extend class Doom4Player
 			arm.SavePercent = 1.0;
 			if (arm.ArmorType == 'None')	arm.ArmorType = "D4ArmorPickup";
 			ArmorBefore = arm.Amount;
+			TotalPoints += ArmorBefore;
 		}
 		
 		// Prevent powerups like quad damage from hurting the player more than
@@ -861,21 +862,24 @@ extend class Doom4Player
 		// targeting the player. This flag will be reset after the main function
 		// is called, which will handle reflect damage.
 		Actor who = null;
+		bool nts = false;
 		if (FindInventory("PowerReflection", true) && 
 			source && source != self && source.health > 0 && !source.bNOTARGETSWITCH && 
 			source.target && source.target != self && source.target.health > 0)
 		{
 			who = source;
+			nts = who.bNOTARGETSWITCH;
 			who.bNOTARGETSWITCH = true;
 		}
 		
+		int prev = health;
 		// Don't consume extra lives inside of a sector meant to end the level,
 		// or the player has buddha (doom doll), provided they can survive it.
 		// Otherwise, respawn the player if they were to die and consume a life.
 		if (UseLives && !FindInventory("PowerMorph",true) && 
-			CountInv("D4ExtraLife") > 0 && !(CurSector.Flags & Sector.SECF_ENDLEVEL))
+			CountInv("D4ExtraLife") > 0 && 
+			(CurSector && !(CurSector.Flags & Sector.SECF_ENDLEVEL)))
 		{
-			int prev = health;
 			finaldamage = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
 			
 			// If the player still has health due to regular buddha or flag buddha,
@@ -887,8 +891,7 @@ extend class Doom4Player
 			}
 		}
 		else finaldamage = Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
-		
-		if (who)	who.bNOTARGETSWITCH = false;
+		if (who)	who.bNOTARGETSWITCH = nts;
 		if (arm)	ArmorAfter = arm.Amount;
 		
 		
@@ -919,18 +922,11 @@ extend class Doom4Player
 				if (ArmorAfter < 1)		A_StartSound("Eternal/Player/Pain", CHAN_VOICE, CHANF_OVERLAP);
 				else					A_StartSound("Eternal/Player/PainSmall", CHAN_VOICE, CHANF_OVERLAP);
 				PainTimer = 17;
-			}	
-			if (health <= 40)
-			{
-				if (!LowHP)
-				{
-					A_StartSound("Doom4/Player/LowHealth", CHAN_VOICE ,CHANF_OVERLAP);
-					LowHP = true;
-				}
 			}
+			if (TotalPoints > 45 && (TotalPoints - Max(0, finaldamage) <= 45))
+				A_StartSound("Doom4/Player/LowHealth", CHAN_VOICE, CHANF_OVERLAP);
+			
 		}
-		else
-			LowHP = false;
 		
 		return finaldamage;
 	}
@@ -1001,6 +997,8 @@ extend class Doom4Player
 	{
 		if (!player || !UseLives)
 			return false;
+		if (bUNMORPHINVUL)
+			return true;
 		int LifeCount = CountInv("D4ExtraLife");
 		if (LifeCount > 0 || CountInv("D4ExtraLifeProtection"))
 		{

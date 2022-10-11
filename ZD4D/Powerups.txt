@@ -1213,6 +1213,11 @@ Class PowerInvulBase : PowerInvulnerable
 			if (Owner.Player)	Owner.Player.DamageCount = 0;
 			Owner.bREFLECTIVE = false;
 			Owner.bNODAMAGE = false;
+			
+			let plr = Doom4Player(Owner);
+			if (plr)	plr.bUNMORPHINVUL = false;
+			
+			
 			DoEnd();
 		}
 		Super.EndEffect();

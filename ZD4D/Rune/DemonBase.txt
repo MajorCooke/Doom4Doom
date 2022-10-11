@@ -743,15 +743,24 @@ Class PowerRuneBase : PowerMorph
 			{
 				if (EffectTics <= 105)
 				{
+					double vol = 1.0;
+					bool trigger = false;
 					Switch (EffectTics)
 					{
 						Case 105:
-							Owner.A_PlaySound("PentagramOfProtection/Warning",7,1,0,ATTN_NONE);
-						Case 70:
-						Case 35:
-							Owner.A_SetBlend("Yellow",0.4,12);
-						Default:
+							trigger = true;
 							break;
+						Case 70:
+							trigger = true;	vol = 0.75;
+							break;
+						Case 35:							
+							trigger = true;	vol = 0.5;
+							break;
+					}
+					if (trigger)
+					{
+						Owner.A_StartSound("PentagramOfProtection/Warning",7,CHANF_OVERLAP,vol);
+						Owner.A_SetBlend("Yellow",0.4,12);
 					}
 				}
 			}
@@ -877,7 +886,6 @@ Class DemonRuneMorphOff : Actor
 		
 			target.A_GiveInventory("DemonOverlayCleaner",1);	//cleans the demon overlays on unmorphed player
 			target.A_GiveInventory("DemonWarpersCleaner",1);	//cleans the demon warpers on unmorphed player
-			target.A_GiveInventory("HealthArmorRestorer",1);	//restores health and armor
 		}
 		
 		// Reset all D4D monsters back to normal.

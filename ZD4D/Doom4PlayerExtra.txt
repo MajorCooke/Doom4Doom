@@ -1,6 +1,86 @@
+struct D4HPArmor
+{
+	int HP;
+	int Amount;
+	int AbsorbCount;
+	double SavePercent;
+	int MaxAbsorb;
+	int MaxFullAbsorb;
+	int BonusCount;
+	int BonusMax; //BasicArmorBonus
+	int ActualSaveAmount;
+	Name ArmorType;
+	
+	void Reset()
+	{
+		HP = 100;
+		SavePercent = 0;
+		Amount = AbsorbCount = MaxAbsorb = MaxFullAbsorb = BonusCount = ActualSaveAmount = 0;
+		ArmorType = 'None';
+	}
+}
+
 extend class Doom4Player
 {
 	private Doom4SuperWeapon LastSuperWeapon;
+	private D4HPArmor Recorder;
+	override void PreMorph(Actor mo, bool current)
+	{
+		if (!bUNMORPHINVUL && GetClassName() == 'Doom4Player')
+		{
+			bUNMORPHINVUL = true;
+			Recorder.Reset();
+			Recorder.HP = Max(100 + Stamina,Health);
+			bool first = false;
+			for (let probe = inv; probe != null; probe = probe.inv)
+			{
+				let arm = BasicArmor(probe);
+				if (!arm)	continue;
+				
+				Recorder.SavePercent = 		Max(Recorder.SavePercent, arm.SavePercent);
+				Recorder.Amount = 			Max(Recorder.Amount, arm.Amount);
+				Recorder.AbsorbCount = 		Max(Recorder.AbsorbCount, arm.AbsorbCount);
+				Recorder.MaxAbsorb = 		Max(Recorder.MaxAbsorb, arm.MaxAbsorb);
+				Recorder.MaxFullAbsorb = 	Max(Recorder.MaxFullAbsorb, arm.MaxFullAbsorb);
+				Recorder.BonusCount = 		Max(Recorder.BonusCount, arm.BonusCount);
+				Recorder.ActualSaveAmount = Max(Recorder.ActualSaveAmount, arm.ActualSaveAmount);
+				if (!first)
+				{
+					first = true;
+					Recorder.ArmorType = arm.ArmorType;
+				}
+			}
+		}
+	}
+	
+	override void PostUnmorph(Actor mo, bool current)
+	{
+		if (current && GetClassName() == 'Doom4Player')
+		{
+			bUNMORPHINVUL = false;
+			bNODAMAGE = bINVULNERABLE = true;
+			let arm = BasicArmor(FindInventory("BasicArmor",true));
+			if (!arm)	
+			{
+				A_GiveInventory('BlueArmor');
+				let arm = BasicArmor(FindInventory("BasicArmor",true));
+				if (!arm)	return;
+			}
+			
+			A_SetHealth(Recorder.HP);
+			arm.SavePercent = 		Recorder.SavePercent;
+			arm.Amount = 			Recorder.Amount;
+			arm.AbsorbCount = 		Recorder.AbsorbCount;
+			arm.MaxAbsorb = 		Recorder.MaxAbsorb;
+			arm.MaxFullAbsorb = 	Recorder.MaxFullAbsorb;
+			arm.BonusCount = 		Recorder.BonusCount;
+			arm.ActualSaveAmount = 	Recorder.ActualSaveAmount;
+			arm.ArmorType = 		Recorder.ArmorType;
+			
+			A_GiveInventory("Invul3s");
+			SetupOverlays(false);
+		}
+	}
 	
 	void SwitchToSuperWeapon()
 	{
@@ -65,7 +145,6 @@ extend class Doom4Player
 	//
 	//==========================================================================
 
-	private MCHealthArmorSaver HPArmor;
 	private Actor AbsoluteAlternative;
 	override bool MorphPlayer(playerinfo activator, Class<PlayerPawn> spawntype, int duration, int style, Class<Actor> enter_flash, Class<Actor> exit_flash)
 	{	
@@ -75,25 +154,10 @@ extend class Doom4Player
 		if (morph)	
 		{
 			AbsoluteAlternative = Alternative;
-			HPArmor = HPA;
 			let p = alternative.player;
 			Shader.SetEnabled(p, "damageshader", false);
 		}
 		return morph;
-	}
-	
-	override void PlayerThink()
-	{
-		Super.PlayerThink();
-		
-		let player = self.player;
-		if (HPArmor && player && player.mo == self)
-		{
-			HPArmor.Restore(self);
-			HPArmor = null;
-			A_GiveInventory("Invul3s");
-			SetupOverlays(false);
-		}
 	}
 	
 	override void MorphPlayerThink()
