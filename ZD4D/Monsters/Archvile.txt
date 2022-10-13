@@ -203,7 +203,7 @@ Class D4Archvile : D4AbstractBiggie //replaces Archvile
 			A_NoBlocking();	//just in case
 			
 		}
-		---- A RezTimer CanRaise;
+		---- A RezTimer CanRaise { bCORPSE = true; }
 		Stop;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states

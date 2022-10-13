@@ -128,10 +128,9 @@ Class D4Arachnotron : D4AbstractBiggie //replaces Arachnotron // : Arachnotron	/
 		TNT1 A 10 CanRaise
 		{
 			XDeathGush();
-			A_BossDeath();
 			A_NoBlocking();	//just in case
 		}
-		---- A RezTimer CanRaise;
+		---- A RezTimer CanRaise { A_BossDeath(); bCORPSE = true; }
 		Stop;
     Raise:
 		---- A 0 CheckRespawn();

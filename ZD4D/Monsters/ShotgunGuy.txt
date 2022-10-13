@@ -189,13 +189,12 @@ Class D4ShotgunGuy : D4AbstractMonster //replaces ShotgunGuy
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		
 		TNT1 A 10 CanRaise
 		{
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}
-		---- A RezTimer CanRaise;
+		---- A RezTimer CanRaise { bCORPSE = true; }
 		Stop;
 	Raise:
 		---- A 0 CheckRespawn();

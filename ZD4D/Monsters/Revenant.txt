@@ -227,11 +227,10 @@ Class D4Revenant : D4AbstractBiggie //replaces Revenant
 	XDeath:
 		TNT1 A 10 CanRaise
 		{
-			bThruActors = true;
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}
-		---- A RezTimer CanRaise;
+		---- A RezTimer CanRaise { bCORPSE = true; }
 		Stop;
 	Raise:
 		---- A 0 CheckRespawn();

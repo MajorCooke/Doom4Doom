@@ -188,7 +188,7 @@ Class D4Zombieman : D4AbstractMonster //replaces Zombieman
 			XDeathGush();
 			A_NoBlocking();	//just in case;
 		}
-		---- A RezTimer CanRaise;
+		---- A RezTimer CanRaise { bCORPSE = true; }
 		Stop;
 	Raise:
 		---- A 0 CheckRespawn();

@@ -219,8 +219,7 @@ Class D4FatsoTech : D4AbstractBiggie
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}
-		TNT1 A 10 A_BossDeath();
-		---- A RezTimer CanRaise;
+		---- A RezTimer CanRaise { A_BossDeath(); bCORPSE = true; }
 		Stop;
 	 Raise:
 		---- A 0 CheckRespawn();
@@ -773,8 +772,7 @@ Class D4FatsoHell : D4AbstractBiggie //replaces Fatso
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}
-		TNT1 A 10 A_BossDeath();
-		---- A RezTimer CanRaise;
+		---- A RezTimer CanRaise { A_BossDeath(); bCORPSE = true; }
 		Stop;
 	 Raise:
 		---- A 0 CheckRespawn();

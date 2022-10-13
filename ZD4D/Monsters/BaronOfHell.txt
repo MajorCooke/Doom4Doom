@@ -476,15 +476,13 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 	Death.MeleePunch:
 	Death.ChainsawPinata:
 	XDeath:
-		
-		TNT1 A 0;
 		TNT1 A 10
 		{
 			XDeathGush();
 			A_BossDeath();
 			A_NoBlocking();	//just in case
 		}
-		---- A RezTimer CanRaise;
+		---- A RezTimer CanRaise { bCORPSE = true; }
 		Stop;
 		
 	Raise:

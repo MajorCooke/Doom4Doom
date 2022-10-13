@@ -433,7 +433,7 @@ Class D4HellKnight : D4AbstractBiggie //replaces HellKnight
 			XDeathGush();
 			A_NoBlocking();
 		}
-		---- A RezTimer CanRaise;
+		---- A RezTimer CanRaise { bCORPSE = true; }
 		Stop;
 	Raise:
 		---- A 0 CheckRespawn();

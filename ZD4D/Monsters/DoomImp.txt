@@ -154,7 +154,7 @@ Class D4DoomImp : D4AbstractMonster //replaces DoomImp
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}
-		---- A RezTimer CanRaise;
+		---- A RezTimer CanRaise { bCORPSE = true; }
 		Stop;
 	Raise:
 		---- A 0 CheckRespawn();
