@@ -264,18 +264,3 @@ Class D4D_LineChecker : LineTracer
 		return TRACE_Skip;
 	}
 }
-
-/* 
-Now for some psuedocode rambling...
-
-I want to evolve the 3D floor detection of my code for mantling over, but this
-part will be tricky. 
-
-1. Get all lines attached to the player's next predicted position.
-
-2. Check for any lines that are single sided, or block the player. If so, no mantling.
-
-3. Make sure the ledge we want 
-
-*/
-

@@ -17,12 +17,11 @@ Map TITLEMAP "Doom 4 For Doom"
 }
 
 
-AddDefaultMap
+GameDefaults
 {
 	AirControl = 0.2
 	TeamDamage = 0
 	TeamPlayOn
-	TotalInfighting
 	// Because we no longer have any options besides OpenAL,
 	// lets precache the entire classes so we can have the sounds ready to go.
 	PrecacheClasses =

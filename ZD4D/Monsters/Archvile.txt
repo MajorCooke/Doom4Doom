@@ -9,7 +9,7 @@
 Class ArchAttacking : Inventory {}
 Class D4Archvile : D4AbstractBiggie //replaces Archvile
 {
-	
+	const SummonDistance = 1024.0 ** 2.0;
 	int flee;	
 	
 	Default 
@@ -118,7 +118,15 @@ Class D4Archvile : D4AbstractBiggie //replaces Archvile
 	//==============================================
 	// Summon and Argent attack
 	Missile:
-		TNT1 A 0 A_Jump(64,"Summon");
+		TNT1 A 0 
+		{
+			StateLabel next = "ArgentAttack";
+			if (Target && Distance3DSquared(Target) <= (SummonDistance + (Radius ** 2)) &&
+				irandom(1,256) <= 64)
+				next = "Summon";
+			
+			return ResolveState(next);
+		}
 		Goto ArgentAttack;
 		
 		ArgentAttack:
@@ -203,7 +211,7 @@ Class D4Archvile : D4AbstractBiggie //replaces Archvile
 			A_NoBlocking();	//just in case
 			
 		}
-		---- A RezTimer CanRaise { bCORPSE = true; }
+		---- A RezTimer CanRaise DoCorpse();
 		Stop;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states

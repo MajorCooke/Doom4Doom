@@ -146,11 +146,9 @@ OptionMenu "D4DKeybinds"
 	Control "Cancel Demon Rune",			"+user4"
 	StaticText ""
 	StaticText "Special Use", 1
-	Control "Akimbo Menu (Slot 9)",			"+user3"
 	Control "Buy Crate (500cr)",			"give BuyCrate"
 	Control "Dash (when available)",		"NetEvent Dash"
 	Control "Brofist (when available)",		"pukename D4DoomDoll"
-	Control "Chaingun Special Mode", 		"pukename D4ToggleSoviet"
 	Control "Panic Button (Clear Gibs)",	"RemoveAllGibs"
 	StaticText ""
 	SubMenu "Weapon keybinds",				"D4DWeaponsMenu"
@@ -924,8 +922,6 @@ OptionMenu "D4DUpgrade.Chaingun"
 	SubmenuReqs "$ChaingunMod1", "ChaingunMod1", "ChaingunMod1"
 	StaticText ""
 	SubmenuReqs "$ChaingunMod2", "ChaingunMod2", "ChaingunMod2"
-	StaticText ""
-	SubmenuReqs "Mother Russia's Gift", "ChaingunMod3", "", "", 1
 }
 
 OptionMenu "ChaingunMod1"
@@ -957,25 +953,6 @@ OptionMenu "ChaingunMod2"
 	CostDisplay ChaingunMod2
 	StaticText ""
 	CreditDisplay ChaingunMod2
-}
-OptionMenu "ChaingunMod3"
-{
-	Class "D4DOptionMenuUpgrades"
-	Title "Mother Russia's Gift"
-	StaticText "In Yu-Double-Ess-ARRRR, my comrade...", GOLD
-	StaticText "Spinmegun is paid for YOU.", GOLD
-	StaticText " "
-	StaticText "May your weapons sing the march of DooM.", GOLD
-	StaticText "Pack their bags and send them back to Hell!", GOLD
-	StaticText " "
-	StaticText "Motion Sickness Possible!", RED
-	StaticText " "
-	StaticText "Toggled with Chaingun Special Keybind", WHITE
-	StaticText " "
-	StaticText "+ %2000 Damage"
-	StaticText "+ Rolling Vision", RED
-	StaticText " "
-	Command "To Victory I Go.",	"FORMOTHERRUSSIA"
 }
 
 //==============================================================================
@@ -1467,11 +1444,7 @@ OptionMenu "BFGUpgrade2"
 {
 	Class "D4DOptionMenuUpgrades"
 	Title "$BFGUpgrade2"
-	StaticText "$BFGUpgrade2D1"
-	StaticText ""
-	StaticText "$BFGUpgrade2D2", TAN
-	StaticText ""
-	StaticText "$BFGUpgrade2D3", GOLD
+	StaticText "$BFGUpgrade2D1", GREEN
 	StaticText ""
 	Purchase BFGUpgrade2
 	StaticText ""
@@ -1647,8 +1620,6 @@ OptionMenu "D4Stamina"
 	CostDisplay D4Stamina
 	StaticText " "
 	CreditDisplay D4Stamina
-	StaticText ""
-	StaticText "$HealthUpgradeF1", WHITE
 }
 
 //==============================================================================
@@ -1681,8 +1652,6 @@ OptionMenu "D4ArmorCapRaiser"
 	CostDisplay D4ArmorCapRaiser
 	StaticText ""
 	CreditDisplay D4ArmorCapRaiser
-	StaticText ""
-	StaticText "$ArmorUpgradeF1", WHITE
 }
 //==============================================================================
 // Jump
@@ -1712,8 +1681,6 @@ OptionMenu "D4AirUpgrade"
 	CostDisplay D4AirUpgrade
 	StaticText ""
 	CreditDisplay D4AirUpgrade
-	StaticText ""
-	StaticText "$AirUpgradeF1", WHITE
 }
 
 //==============================================================================
@@ -1744,9 +1711,6 @@ OptionMenu "CashPercentBonus"
 	CostDisplay CashPercentBonus
 	StaticText ""
 	CreditDisplay CashPercentBonus
-	StaticText ""
-	StaticText ""
-	StaticText "$CashPercentBonus1F1", WHITE
 }
 
 //==============================================================================
@@ -1778,8 +1742,6 @@ OptionMenu "ProtectionBonus"
 	CostDisplay ProtectionBonus
 	StaticText ""
 	CreditDisplay ProtectionBonus
-	StaticText ""
-	StaticText "$ProtectionUpgradeF1", WHITE
 }
 
 //==============================================================================
@@ -1811,8 +1773,6 @@ OptionMenu "D4CrateUpgrade"
 	CostDisplay D4CrateUpgrade
 	StaticText ""
 	CreditDisplay D4CrateUpgrade
-	StaticText ""
-	StaticText "$CrateQualityUpgradeF1", WHITE
 }
 
 
@@ -1966,8 +1926,6 @@ OptionMenu "D4MegachargeUpgrade1"
 	CostDisplay D4MegachargeUpgrade1
 	StaticText ""
 	CreditDisplay D4MegachargeUpgrade1
-	StaticText ""
-	StaticText "$D4MegachargeUpgrade1F1", WHITE
 }
 
 OptionMenu "D4MegachargeUpgrade2"
@@ -1981,8 +1939,6 @@ OptionMenu "D4MegachargeUpgrade2"
 	CostDisplay D4MegachargeUpgrade2
 	StaticText ""
 	CreditDisplay D4MegachargeUpgrade2
-	StaticText ""
-	StaticText "$D4MegachargeUpgrade2F1", WHITE
 }
 
 //==============================================================================
@@ -1998,8 +1954,6 @@ OptionMenu "D4DoomDollUpgrade1"
 	CostDisplay D4DoomDollUpgrade1
 	StaticText ""
 	CreditDisplay D4DoomDollUpgrade1
-	StaticText ""
-	StaticText "$D4DoomDollUpgrade1F1", WHITE
 }
 
 OptionMenu "D4DoomDollUpgrade2"
@@ -2016,8 +1970,6 @@ OptionMenu "D4DoomDollUpgrade2"
 	CostDisplay D4DoomDollUpgrade2
 	StaticText ""
 	CreditDisplay D4DoomDollUpgrade2
-	StaticText ""
-	StaticText "$D4DoomDollUpgrade2F1", WHITE
 }
 
 //==============================================================================
@@ -2034,8 +1986,6 @@ OptionMenu "D4RegenUpgrade1"
 	CostDisplay D4RegenUpgrade1
 	StaticText ""
 	CreditDisplay D4RegenUpgrade1
-	StaticText ""
-	StaticText "$D4RegenUpgrade1F1", WHITE
 }
 
 OptionMenu "D4RegenUpgrade2"
@@ -2049,8 +1999,6 @@ OptionMenu "D4RegenUpgrade2"
 	CostDisplay D4RegenUpgrade2
 	StaticText ""
 	CreditDisplay D4RegenUpgrade2
-	StaticText ""
-	StaticText "$D4RegenUpgrade2F1", WHITE
 }
 
 OptionMenu "D4RegenUpgrade2NA"
@@ -2076,8 +2024,6 @@ OptionMenu "D4RegenUpgrade3"
 	CostDisplay D4RegenUpgrade3
 	StaticText ""
 	CreditDisplay D4RegenUpgrade3
-	StaticText ""
-	StaticText "$D4RegenUpgrade3F1", WHITE
 }
 
 OptionMenu "D4RegenUpgrade4"
@@ -2091,8 +2037,6 @@ OptionMenu "D4RegenUpgrade4"
 	CostDisplay D4RegenUpgrade4
 	StaticText ""
 	CreditDisplay D4RegenUpgrade4
-	StaticText ""
-	StaticText "$D4RegenUpgrade4F1", WHITE
 }
 
 //==============================================================================
@@ -2112,8 +2056,6 @@ OptionMenu "D4PentagramUpgrade1"
 	CostDisplay D4PentagramUpgrade1
 	StaticText ""
 	CreditDisplay D4PentagramUpgrade1
-	StaticText ""
-	StaticText "$D4PentagramUpgrade1F1", WHITE
 }
 
 OptionMenu "D4PentagramUpgrade2"
@@ -2130,8 +2072,6 @@ OptionMenu "D4PentagramUpgrade2"
 	CostDisplay D4PentagramUpgrade2
 	StaticText ""
 	CreditDisplay D4PentagramUpgrade2
-	StaticText ""
-	StaticText "$D4PentagramUpgrade2F1", WHITE
 }
 
 OptionMenu "D4PentagramUpgrade3"
@@ -2146,8 +2086,6 @@ OptionMenu "D4PentagramUpgrade3"
 	CostDisplay D4PentagramUpgrade3
 	StaticText ""
 	CreditDisplay D4PentagramUpgrade3
-	StaticText ""
-	StaticText "$D4PentagramUpgrade3F1", WHITE
 }
 
 OptionMenu "D4PentagramUpgrade4"
@@ -2165,8 +2103,6 @@ OptionMenu "D4PentagramUpgrade4"
 	CostDisplay D4PentagramUpgrade4
 	StaticText ""
 	CreditDisplay D4PentagramUpgrade4
-	StaticText ""
-	StaticText "$D4PentagramUpgrade4F1", WHITE
 }
 //==============================================================================
 // Demon Runes
@@ -2189,8 +2125,6 @@ OptionMenu "D4RuneUpgrade1"
 	CostDisplay D4RuneUpgrade1
 	StaticText ""
 	CreditDisplay D4RuneUpgrade1
-	StaticText ""
-	StaticText "$D4RuneUpgrade1F1", WHITE
 }
 
 OptionMenu "D4RuneUpgrade2"
@@ -2214,8 +2148,6 @@ OptionMenu "D4RuneUpgrade2"
 	CostDisplay D4RuneUpgrade2
 	StaticText ""
 	CreditDisplay D4RuneUpgrade2
-	StaticText ""
-	StaticText "$D4RuneUpgrade2F1", WHITE
 }
 
 OptionMenu "D4RuneUpgrade3"
@@ -2238,8 +2170,6 @@ OptionMenu "D4RuneUpgrade3"
 	CostDisplay D4RuneUpgrade3
 	StaticText ""
 	CreditDisplay D4RuneUpgrade3
-	StaticText ""
-	StaticText "$D4RuneUpgrade3F1", WHITE
 }
 
 OptionMenu "D4RuneUpgrade4"
@@ -2263,8 +2193,6 @@ OptionMenu "D4RuneUpgrade4"
 	CostDisplay D4RuneUpgrade4
 	StaticText ""
 	CreditDisplay D4RuneUpgrade4
-	StaticText ""
-	StaticText "$D4RuneUpgrade4F1", WHITE
 }
 
 //==============================================================================
@@ -2281,8 +2209,6 @@ OptionMenu "D4QuadUpgrade1"
 	CostDisplay D4QuadUpgrade1
 	StaticText ""
 	CreditDisplay D4QuadUpgrade1
-	StaticText ""
-	StaticText "$D4QuadUpgrade1F1", WHITE
 }
 
 OptionMenu "D4QuadUpgrade2"
@@ -2296,8 +2222,6 @@ OptionMenu "D4QuadUpgrade2"
 	CostDisplay D4QuadUpgrade2
 	StaticText ""
 	CreditDisplay D4QuadUpgrade2
-	StaticText ""
-	StaticText "$D4QuadUpgrade2F1", WHITE
 }
 
 //==============================================================================
@@ -2314,8 +2238,6 @@ OptionMenu "D4HasteUpgrade1"
 	CostDisplay D4HasteUpgrade1
 	StaticText ""
 	CreditDisplay D4HasteUpgrade1
-	StaticText ""
-	StaticText "$D4HasteUpgrade1F1", WHITE
 }
 
 OptionMenu "D4HasteUpgrade2"
@@ -2329,6 +2251,4 @@ OptionMenu "D4HasteUpgrade2"
 	CostDisplay D4HasteUpgrade2
 	StaticText ""
 	CreditDisplay D4HasteUpgrade2
-	StaticText ""
-	StaticText "$D4HasteUpgrade2F1", WHITE
 }

@@ -56,7 +56,14 @@ Class D4DHandler : EventHandler
 		CrucibleAmmo,
 		AmmoIndexMax
 	};
+	
+	enum ED4Obtained
+	{
+		OB_BFG = 		1,
+		OB_UNMAYKR = 	1 << 1
+	};
 
+	private int Obtained;
 	private bool FirstTime;
 	private uint Timer;
 	
@@ -64,6 +71,14 @@ Class D4DHandler : EventHandler
 	Array<D4Restriction> RestrictList;
 	D4LootContainer LootList;
 	private int UpgradeMode, CurrentUpgradeMode;
+	
+	void SetObtained(int flags, bool on)
+	{	
+		if (on)	Obtained |= flags;
+		else	Obtained &= ~flags;
+	}
+	bool GetObtained()			{	return Obtained; }
+	
 	
 	bool CheckActorSpawn(int index)			
 	{

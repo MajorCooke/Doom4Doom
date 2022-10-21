@@ -482,7 +482,7 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 			A_BossDeath();
 			A_NoBlocking();	//just in case
 		}
-		---- A RezTimer CanRaise { bCORPSE = true; }
+		---- A RezTimer CanRaise DoCorpse();
 		Stop;
 		
 	Raise:

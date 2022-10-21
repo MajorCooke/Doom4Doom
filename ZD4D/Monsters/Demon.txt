@@ -198,7 +198,7 @@ Class D4Demon : D4AbstractMonster //replaces Demon
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}
-		---- A RezTimer CanRaise { bCORPSE = true; }
+		---- A RezTimer CanRaise DoCorpse();
 		Stop;
 	Raise:
 		---- A 0 CheckRespawn();

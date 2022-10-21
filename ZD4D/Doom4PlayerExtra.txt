@@ -53,6 +53,12 @@ extend class Doom4Player
 		}
 	}
 	
+	override void PreUnmorph(Actor mo, bool current)
+	{
+		if (current && mo && GetClassName() == 'Doom4Player')
+			mo.A_ClearOverlays();
+	}
+	
 	override void PostUnmorph(Actor mo, bool current)
 	{
 		if (current && GetClassName() == 'Doom4Player')

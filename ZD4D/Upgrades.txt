@@ -283,8 +283,8 @@ Class AssaultRifleMod1 : AssaultRifleUpgradeBase 		{ Default {	UpgradeItem.Cost 
 Class AssaultRifleMod2 : AssaultRifleUpgradeBase 		{ Default {	UpgradeItem.Cost 4000;	}}	// mini missiles mod
 Class BFGUpgradeBase : UpgradeItem 						{ Default { UpgradeItem.GunNeeded "D4BFG"; } }
 Class BFGUpgrade1 : BFGUpgradeBase						{ Default {	UpgradeItem.Cost 10000;	}}	// Ammo Capacity
-Class BFGUpgrade2 : BFGUpgradeBase 						{ Default { UpgradeItem.Cost 20000; }} 	// Alt Fire
-Class BFGUpgrade3 : BFGUpgradeBase 						{ Default { UpgradeItem.Cost 10000; }}	// Projectile; Speed
+Class BFGUpgrade2 : BFGUpgradeBase 						{ Default { UpgradeItem.Cost 10000; }} 	// Alt Fire Spray Damage
+Class BFGUpgrade3 : BFGUpgradeBase 						{ Default { UpgradeItem.Cost 10000; }}	// Primary Projectile; Speed + Laser Damage
 Class BFGUpgrade4 : BFGUpgradeBase 						{ Default { UpgradeItem.Cost 10000; }}	// Redirector
 Class CarrionUpgradeBase : UpgradeItem 					{ Default { UpgradeItem.GunNeeded "D4CarrionCannon"; } }
 Class CarrionUpgradePickup : CarrionUpgradeBase 		{ Default { UpgradeItem.Cost 6666; }}
@@ -350,7 +350,6 @@ Class UnmakyrUpgradeSeeker : UnmakyrUpgradeBase 		{ Default { UpgradeItem.Cost 4
 Class UnmakyrUpgradeBolts : UnmakyrUpgradeBase 			{ Default { UpgradeItem.Cost 30000;	}}
 Class UnmakyrUpgradePierce : UnmakyrUpgradeBase 		{ Default { UpgradeItem.Cost 20000;	}}
 Class UnmakyrUpgradeExplode : UnmakyrUpgradeBase 		{ Default { UpgradeItem.Cost 30000;	}}
-
 
 
 //==============================================================================
@@ -777,13 +776,12 @@ extend class BFGUpgrade1
 			let inv = Ammo(Owner.FindInventory("D4BFGAmmo"));
 			if (inv)
 			{
-				inv.MaxAmount = inv.Default.MaxAmount + 30;
-				inv.InterHubAmount = inv.Default.InterHubAmount + 30;
-				inv.BackpackMaxAmount = inv.Default.BackpackMaxAmount + 30;
+				int mx = Max(D4BFGAmmo_Amount1, D4BFGAmmo_Amount2);
+				inv.MaxAmount = inv.Default.MaxAmount + mx;
+				inv.InterHubAmount = inv.Default.InterHubAmount + mx;
+				inv.BackpackMaxAmount = inv.Default.BackpackMaxAmount + mx;
 			}
-			else Console.Printf("BFG ammo not found!");
 		}
-		else Console.Printf("No owner found.");
 	}
 	override void DepleteOrDestroy()
 	{

@@ -109,8 +109,10 @@ Class DEUnmakyr : Doom4SuperWeapon
 	{
 		if (Super.TryPickup(toucher))
 		{
+			if (!Event) Event = D4DHandler.Fetch();
+			if (Event)	Event.SetObtained(D4DHandler.OB_UNMAYKR,true);
 			for (int i = 5; i < 7; i++)
-			A_StartSound("Doom4/Weapon/BFG/Pickup", i, CHANF_OVERLAP, 1, ATTN_NONE);
+				toucher.A_StartSound("Doom4/Weapon/BFG/Pickup", i, CHANF_OVERLAP, 1);
 			return true;
 		}
 		return false;

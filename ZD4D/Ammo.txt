@@ -10,7 +10,8 @@ enum D4AmmoConstants
 	D4Cells_MaxAmount2 = 300,
 	D4Rockets_MaxAmount1 = 30,
 	D4Rockets_MaxAmount2 = 40,
-	D4BFGAmmo_Amount = 30,
+	D4BFGAmmo_Amount1 = 30,
+	D4BFGAmmo_Amount2 = 5,
 	D4BFGAmmo_MaxAmount = 90,
 	D4Carrion_MaxAmount = 5000,
 	
@@ -537,9 +538,9 @@ Class D4BFGAmmo : Ammo
 		Inventory.PickupMessage "BFG cells";
 		Inventory.Icon "BFUGA0";
 		
-		Inventory.Amount D4BFGAmmo_Amount;
+		Inventory.Amount D4BFGAmmo_Amount1;
 		Inventory.MaxAmount D4BFGAmmo_MaxAmount;
-		Ammo.BackpackAmount D4BFGAmmo_Amount;
+		Ammo.BackpackAmount D4BFGAmmo_Amount1;
 		Ammo.BackpackMaxAmount D4BFGAmmo_MaxAmount;
 		Inventory.PickupSound "Doom4/Pickups/BFGAmmo";
 		DistanceCheck "D4D_MaxDrawDistance";

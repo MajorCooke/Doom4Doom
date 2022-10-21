@@ -143,3 +143,12 @@ Class BFGBeamWave : MCBeamFlow
 		MCBeamFlow.Frames Fr_F, Fr_M;
 	}
 }
+
+Class D4DStretchBeam : D4DFX
+{
+	Default
+	{
+		RenderRadius 4096;
+		
+	}
+}

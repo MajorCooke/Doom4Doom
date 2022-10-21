@@ -108,6 +108,12 @@ Class D4AbstractMonster : D4Actor abstract
 		return (ResurrectCvar != '' && GetCvar(ResurrectCvar));
 	}
 	
+	void DoCorpse()
+	{
+		if (bBOSSSPAWNED)	Destroy();
+		else				bCORPSE = true;
+	}
+	
 	void AimHead(Actor mo)
 	{
 		if (!mo)	return;

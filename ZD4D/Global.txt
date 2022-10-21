@@ -1,0 +1,13 @@
+// Global helper functions for actors to call from.
+
+Class D4D_Global play
+{
+	// Based on code from PhantomBeta.
+	static void FaceVector(Actor mo, Vector3 other, Vector2 APOffset = (0,0))
+	{
+		if (!mo)	return;
+        Vector3 diff = level.Vec3Diff(mo.pos + mo.WorldOffset, other);
+		mo.angle = VectorAngle(diff.X, diff.Y) + APOffset.X;
+		mo.pitch = -VectorAngle(diff.XY.Length(), diff.Z) + APOffset.Y;
+    }
+}

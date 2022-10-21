@@ -147,8 +147,9 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 			for (int i = 0; i < MAXPLAYERS; i++)
 			{
 				if (playeringame[i] && players[i].mo)
-				{
+				{	
 					let plr = players[i].mo;
+					/*
 					if (plr)
 					{
 						bool invul = plr.bINVULNERABLE;
@@ -157,10 +158,10 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 						if (inv)
 						{
 							inv.EffectTics = 1;
-							inv.EndEffect();
 						}						
 					}
 					plr = players[i].mo;
+					*/
 					if (plr && plr.health > 0) 
 						plr.A_GiveInventory("D4PentagramOfProtection");
 				}
@@ -183,7 +184,7 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 			}
 			else
 			{
-				A_SpawnItemEx("IOSFaceExploder",-288, angle: 90, flags: SXF_NOCHECKPOSITION);
+				A_SpawnItemEx("IOSFaceExploder",-288, angle: -90, flags: SXF_NOCHECKPOSITION|SXF_ABSOLUTEANGLE);
 			}
 		}
 		BBRN A 35

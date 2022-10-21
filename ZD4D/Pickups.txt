@@ -765,21 +765,6 @@ Class D4UpgradePickupSpawner : Actor
 				plr.CountInv("ProtectionBonus") < 	GetDefaultByType("ProtectionBonus").MaxAmount)
 				{	SpawnCase = true; /*Console.Printf("17");*/ break;	}
 		}
-				
-		// The weapons needed for the soviet chaingun have all been filled.
-		// Spawn it in addition to whatever else will spawn as a bonus reward.
-		if (CanSpawnSoviet && !SpawnedSoviet)
-		{
-			let soviet = Actor(Spawn("SovietChaingunUpgradePickup",pos));
-			if (soviet)	
-			{
-				SpawnedSoviet = true;
-				soviet.vel = vel;
-				soviet.target = target;
-				soviet.master = master;
-				soviet.tracer = tracer;
-			}
-		}
 		
 		if (SpawnCase)
 		{

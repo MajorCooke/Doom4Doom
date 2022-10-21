@@ -1349,7 +1349,7 @@ Class D4AbstractMissile : D4Actor
 			Tracer = Target.Target;
 			
 			if (Tracer && Tracer.Vel != (0,0,0) && !Tracer.FindInventory("PowerInvisibility",true) && 
-				GetCvar("D4D_MonProjIntercept"))
+				GetCvar("D4D_MonProjIntercept") && Target && Target.bISMONSTER)
 			{
 				D4D_Intercept.InterceptActor(self, Tracer, IAF_AIM|IAF_CLIPZ);
 			}

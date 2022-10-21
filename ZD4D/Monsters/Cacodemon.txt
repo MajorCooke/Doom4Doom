@@ -139,7 +139,7 @@ Class D4Cacodemon : D4AbstractBiggie //replaces Cacodemon
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}
-		---- A RezTimer CanRaise { bCORPSE = true; }
+		---- A RezTimer CanRaise DoCorpse();
 		Stop;
 		
 	Raise:

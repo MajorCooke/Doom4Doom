@@ -528,41 +528,6 @@ extend class D4DHandler
 						Chance *= 4;
 						CashPower = true;
 					}
-					
-					if (!Soviet && 
-					!plr.CountInv("SovietToken") &&
-					plr.CountInv("AssaultRifleMod1") &&
-					plr.CountInv("AssaultRifleMod2") &&
-					plr.CountInv("ChaingunMod1") &&
-					plr.CountInv("ChaingunMod2") &&
-					plr.CountInv("GaussCannonMod1") &&
-					plr.CountInv("GaussCannonMod2") &&
-					plr.CountInv("PlasmaRifleMod1") &&
-					plr.CountInv("PlasmaRifleMod2") &&
-					plr.CountInv("RocketLauncherMod1") &&
-					plr.CountInv("RocketLauncherMod2") &&
-					plr.CountInv("ShotgunMod1") &&
-					plr.CountInv("ShotgunMod2") &&
-					plr.CountInv("SSGUpgrade1") &&
-					plr.CountInv("SSGUpgrade2") &&
-					plr.CountInv("SSGUpgrade3") &&
-					plr.CountInv("SSGUpgrade4") &&
-					plr.CountInv("PistolUpgradeAutomatic") &&
-					plr.CountInv("PistolUpgradeAltDamage") &&
-					plr.CountInv("PistolUpgradeAltCharge") &&
-					plr.CountInv("PistolUpgradeDamage") &&
-					plr.CountInv("PistolUpgradeLance") &&
-					plr.CountInv("BFGUpgrade1") &&
-					plr.CountInv("BFGUpgrade2") &&
-					plr.CountInv("BFGUpgrade3") &&
-					plr.CountInv("BFGUpgrade4"))
-					{
-						Soviet = true;
-						mo.A_DropItem("SovietChaingunUpgradePickup");
-					}
-					
-					if (Soviet && CashPower)
-						break;
 				}
 				
 				

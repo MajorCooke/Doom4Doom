@@ -383,8 +383,15 @@ extend Class D4DHandler
 				}
 				else if (rep == 'BFG9000' || repn == 'STFBFG9000' || repn == 'STFBFG10K')	
 				{
-					if (random[rngg](0,1))		e.Replacement = 'DEUnmakyr';
-					else					e.Replacement = 'D4BFG';
+					if (Obtained <= 0 || ((Obtained & OB_BFG) && (Obtained & OB_UNMAYKR)))
+					{
+						if (random[rngg](0,1))	e.Replacement = 'DEUnmakyr';
+						else					e.Replacement = 'D4BFG';
+					}
+					else if (Obtained & OB_BFG)
+						e.Replacement = 'DEUnmakyr';
+					else
+						e.Replacement = 'D4BFG';
 				}
 			}
 			

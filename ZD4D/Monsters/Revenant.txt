@@ -110,12 +110,15 @@ Class D4Revenant : D4AbstractBiggie //replaces Revenant
 		//	A_CustomRailgun(0,12,"","Red",RGF_FULLBRIGHT|RGF_NOPIERCING|RGF_SILENT,1,0,"NoBloodPuff",0,0,2048,1,2,0,null,19);
 			
 		}
-		---- A 0 
-		{
+		---- A 0 A_SetBeamTranslation("RevYellow");
+	/*	{
+			
 			A_StopBeam();
 			A_StartBeam("RevenantLaserYellow", (0, -12, 50), 1, "NoBloodPuff");
 			A_StartBeam("RevenantLaserYellow", (0, 12, 50), 1, "NoBloodPuff");
+			
 		}
+	*/
 		SKEL KKKKKKKK 1
 		{
 			A_FaceTarget(0,0,0,0,FAF_MIDDLE);
@@ -124,9 +127,12 @@ Class D4Revenant : D4AbstractBiggie //replaces Revenant
 		}
 		---- A 0 
 		{
+			A_SetBeamTranslation("RevOrange");
+			/*
 			A_StopBeam();
 			A_StartBeam("RevenantLaserOrange", (0, -12, 50), 1, "NoBloodPuff");
 			A_StartBeam("RevenantLaserOrange", (0, 12, 50), 1, "NoBloodPuff");
+			*/
 		}
 		SKEL KKKKKKKK 1
 		{
@@ -135,9 +141,12 @@ Class D4Revenant : D4AbstractBiggie //replaces Revenant
 		}
 		---- A 0 
 		{
+			A_SetBeamTranslation("RevRed");
+			/*
 			A_StopBeam();
 			A_StartBeam("RevenantLaserRed", (0, -12, 50), 1, "NoBloodPuff");
 			A_StartBeam("RevenantLaserRed", (0, 12, 50), 1, "NoBloodPuff");
+			*/
 		}
 		SKEL KKKKKK 1
 		{
@@ -230,7 +239,7 @@ Class D4Revenant : D4AbstractBiggie //replaces Revenant
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}
-		---- A RezTimer CanRaise { bCORPSE = true; }
+		---- A RezTimer CanRaise DoCorpse();
 		Stop;
 	Raise:
 		---- A 0 CheckRespawn();
