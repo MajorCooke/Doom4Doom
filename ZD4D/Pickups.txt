@@ -605,9 +605,7 @@ Class D4UpgradePickupSpawner : Actor
 	{
 		items.Clear();
 		
-		bool SpawnedSoviet = false;
 		bool SpawnCase = false;
-		bool CanSpawnSoviet = false;
 		for (int i = 0; i < MAXPLAYERS; i++) 
 		{
 			if (!playeringame[i])	continue;
@@ -667,7 +665,6 @@ Class D4UpgradePickupSpawner : Actor
 					!plr.CountInv("BFGUpgrade3") ||	!plr.CountInv("BFGUpgrade4"))
 					{SpawnCase = true; /*Console.Printf("9");*/	}		else	filled++;
 			}
-			if (filled >= 9)	CanSpawnSoviet = true;
 			if (SpawnCase)		break;
 			if (plr.CountInv("D4Repeater"))
 			{
