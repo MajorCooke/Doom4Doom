@@ -58,6 +58,7 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 		+FLOORCLIP
 		+BOSSDEATH
 		+DONTCORPSE
+		+DONTHARMSPECIES
 		SeeSound "Doom4/Monsters/Baron/Sight";
 		PainSound "Doom4/Monsters/Baron/Pain";
 		DeathSound "Doom4/Monsters/Baron/Death";
@@ -71,6 +72,7 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 		PainChance "GloryKill", 255;
 		WoundHealth 150;
 		Tag "Baron of Hell";
+		Species "Bruiser";
 	}
 	
 	void BaronFlame(bool big, int count, Vector3 sp = (0,0,0), Vector3 vp = (0,0,0), double ang = 0)

@@ -84,8 +84,9 @@ Class D4AbstractMonster : D4Actor abstract
 	
 	override bool CanResurrect(Actor other, bool passive)
 	{
-		if (!passive)
+		if (passive)
 		{
+			if (ResurrectCvar == '')	return true;
 			Cvar check = Cvar.FindCVar(ResurrectCvar);
 			return (!check || check.GetBool());
 		}
@@ -101,11 +102,6 @@ Class D4AbstractMonster : D4Actor abstract
 			PostResurrect();
 			bNOPAIN = false;
 		}
-	}
-	
-	bool CheckResurrectable() const
-	{
-		return (ResurrectCvar != '' && GetCvar(ResurrectCvar));
 	}
 	
 	void DoCorpse()

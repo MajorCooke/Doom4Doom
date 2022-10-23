@@ -71,6 +71,7 @@ Class D4FatsoTech : D4AbstractBiggie
 		+FLOORCLIP
 		+BOSSDEATH 
 		+DONTCORPSE
+		+DONTHARMSPECIES
 		SeeSound "Doom4/Monsters/Mancubus/Sight";
 		PainSound "Doom4/Monsters/Mancubus/Pain";
 		DeathSound "Doom4/Monsters/Mancubus/Death";
@@ -595,6 +596,7 @@ Class D4FatsoHell : D4AbstractBiggie //replaces Fatso
 		+FLOORCLIP
 		+BOSSDEATH
 		+DONTCORPSE
+		+DONTHARMSPECIES
 		SeeSound "Doom4/Monsters/Mancubus/Sight";
 		PainSound "Doom4/Monsters/Mancubus/Pain";
 		DeathSound "Doom4/Monsters/Mancubus/Death";

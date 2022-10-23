@@ -5,11 +5,8 @@ Class D4PostProcessor : LevelPostProcessor
 	{
 		if (mapname == 'TITLEMAP')	return;
 		let SE = D4DHandlerStatic.Fetch();
-		if (!SE)	
-		{
-		//	Console.Printf("Ended prematurely");
-			return;
-		}
+		if (!SE)	return;
+		
 		
 		// Set up the spawn filters. First, go with flags.
 		bool spawnmulti = sv_alwaysspawnmulti;
@@ -259,7 +256,7 @@ extend Class D4DHandler
 			}
 		}
 	}
-	
+	private Class<Actor> SuperSpawned;
 	override void CheckReplacement(ReplaceEvent e)
 	{
 		Class<Actor> rep = e.Replacee;
@@ -381,8 +378,11 @@ extend Class D4DHandler
 						else					e.Replacement = 'D4PlasmaRifle';
 					}
 				}
+				/*
+				// Moved to the static handler so this can be remembered across maps.
 				else if (rep == 'BFG9000' || repn == 'STFBFG9000' || repn == 'STFBFG10K')	
 				{
+					
 					if (Obtained <= 0 || ((Obtained & OB_BFG) && (Obtained & OB_UNMAYKR)))
 					{
 						if (random[rngg](0,1))	e.Replacement = 'DEUnmakyr';
@@ -393,6 +393,7 @@ extend Class D4DHandler
 					else
 						e.Replacement = 'D4BFG';
 				}
+				*/
 			}
 			
 			// Powerups
@@ -490,109 +491,30 @@ extend Class D4DHandler
 	}
 }
 
-/*
-Class D4ReplacementManager
+extend class D4DHandlerStatic
 {
-	Array<D4ReplacementInfo> RepInfo;
-	
-	static D4ReplacementManager Create()
+	private Class<Actor> SuperSpawned;
+	override void CheckReplacement(ReplaceEvent e)
 	{
-		let rep = new('D4ReplacementManager');
-		if (rep)	rep.Init();
-		return rep;
-	}
+		Class<Actor> rep = e.Replacee;
+		Class<Actor> original = e.Replacement;
+		if (!rep || rep is 'Nothing')	return;
+		let defs = GetDefaultByType(rep);
+		Name repn = rep.GetClassName();
 	
-	protected void Init()
-	{
-		RepInfo.Clear();
-		
-	}
-	
-	
-	
-	Class<Actor> FindReplacement(Class<Actor> who) const
-	{
-		
-		return null;
-	}
-	
-	Class<Actor> FindReplacee(Class<Actor> who) const
-	{
-		
-		return null;
-	}
-}
-
-Class D4ReplacementInfo
-{
-	Class<Actor> Replacee;
-	Array<Class<Actor> > Replacement;
-	Array<Int> Chance;
-	
-	static D4ReplacementInfo Create(Class<Actor> mo)
-	{
-		let repinfo = new('D4ReplacementInfo');
-		if (repinfo)	repinfo.Init(mo);
-		return repinfo;
-	}
-	
-	protected void Init(Class<Actor> mo)
-	{
-		Replacee = mo;
-		Replacement.Clear();
-		Chance.Clear();
-	}
-	
-	Class<Actor> FindReplacee(Class<Actor> mo, bool parent = false)
-	{
-		int size = Replacement.Size();
-		if (!mo || size < 1)	return null;
-		
-		if (!parent)
-			if (Replacement.Find(mo) < size)	return Replacee;
-		else
-			for (int i = 0; i < size; i++)
-				if (mo is Replacement[i])	return Replacee;
-			
-		return null;
-	}
-	
-	// Dangerous if used by addons, should there be any.
-	private void _AddActor(String cls, int weight)
-	{
-		Mobj.Push(cls);
-		Chance.Push(weight);
-	}
-
-	//--------------------------------------------------------------------------
-	// The main function that handles everything needed to add an actor, 
-	// ensuring it exists and ensures it at least has some weight. This allows
-	// restricting monsters to either progression mode or random mode if desired.
-	// If the actor is already in, simply modify the weight with the parameters.
-	// Otherwise, push the initial stuff to the end of each array.
-	void AddActor(String cls, int weight = 1)
-	{
-		if (cls == '' || cls == 'None' || weight < 1)
-			return;
-			
-		Class<Actor> mon = cls;
-		if (!mon)
+		if (rep == 'BFG9000' || repn == 'STFBFG9000' || repn == 'STFBFG10K')	
 		{
-			Console.Printf("%s - bad actor", cls);	
-			return;
-		}
-		
-		int size = Mobj.Size();
-		if (size > 0)
-		{
-			int pos = Mobj.Find(mon);
-			if (pos < size)
+			if (!SuperSpawned)
 			{
-				Chance[pos] = weight;
-				return;
+				if (random[rngg](0,1))	e.Replacement = 'DEUnmakyr';
+				else					e.Replacement = 'D4BFG';
 			}
+			else if (SuperSpawned == 'D4BFG')
+				e.Replacement = 'DEUnmakyr';
+			else
+				e.Replacement = 'D4BFG';
+				
+			SuperSpawned = e.Replacement;
 		}
-		_AddActor(cls, weight);
 	}
 }
-*/

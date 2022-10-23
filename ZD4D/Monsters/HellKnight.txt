@@ -56,6 +56,7 @@ Class D4HellKnight : D4AbstractBiggie //replaces HellKnight
 		+FLOORCLIP
 		+BOSSDEATH
 		+DONTCORPSE
+		+DONTHARMSPECIES
 		SeeSound "Doom4/Monsters/HellKnight/Sight";
 		ActiveSound "Doom4/Monsters/HellKnight/Idle";
 		PainSound "Doom4/Monsters/HellKnight/Pain";
@@ -69,6 +70,7 @@ Class D4HellKnight : D4AbstractBiggie //replaces HellKnight
 		PainChance "GloryKill", 255;
 		WoundHealth 80;
 		Tag "Hell Knight";
+		Species "Bruiser";
 	}
 	States
 	{
