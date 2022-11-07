@@ -663,12 +663,10 @@ Class GCDebrisTrail : Actor
 }
 
 
-Class GaussShockwave : Actor 	//the actual puff, but not the ring
+Class GaussShockwave : D4DFX 	//the actual puff, but not the ring
 {
 	Default 
 	{
-		+NOBLOCKMAP
-		+THRUACTORS
 		+ALWAYSPUFF
 		+PUFFONACTORS
 		+FORCEXYBILLBOARD
@@ -724,11 +722,10 @@ Class GaussShockwave : Actor 	//the actual puff, but not the ring
 	}
 }
 
-Class GaussShockwaveRing : Actor
+Class GaussShockwaveRing : D4DFX
 {
 	Default
 	{
-		+NOINTERACTION
 		RenderStyle "Add";
 		Scale 0.15;
 		Alpha 0.99;
