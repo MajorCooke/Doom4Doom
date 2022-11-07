@@ -6,11 +6,6 @@
 // 
 //==============================================================================
 
-Class D4LootService : Service
-{
-	
-}
-
 Class D4LootContainer play
 {
 	private Array<D4LootDef> Defs;
@@ -25,9 +20,6 @@ Class D4LootContainer play
 	protected D4LootContainer Init()
 	{
 		Defs.Clear();
-		
-		
-		
 		return self;
 	}
 	
@@ -122,7 +114,7 @@ Class D4LootDef play
 	const DONT_USE = 0;
 	bool 			Parent, Replacee;
 	Class<Actor> 	ClassName;
-	int			CrateDropChance, CrateDropAmount, CrateDropAlways,
+	int				CrateDropChance, CrateDropAmount, CrateDropAlways,
 					CashAmount, CashChainsawPinata,
 					UpgradeDropChance, UpgradeDropAlways,
 					RunePowerMin, RunePowerMax;
@@ -217,7 +209,7 @@ Class D4LootDef play
 
 extend class D4DHandler
 {
-	Class<Actor> GetRune(Actor mon)
+	Class<Actor> GetRune(Actor mon, bool chance = true)
 	{
 		if (!mon)	return null;
 		
@@ -277,6 +269,7 @@ extend class D4DHandler
 			RuneChance_Archie
 		};
 		
+		// Get a rune name.
 		Class<Actor> rep = null;
 		int i = 0;
 		for (i = 0; i < Replaced.Size(); i++)
@@ -289,9 +282,52 @@ extend class D4DHandler
 				break;
 			}
 		}
-		// No rune found.
-		if (rep == null)
-			return null;
+		
+		// No rune found or we don't care for chance.
+		if (rep == null || !chance)
+			return rep;
+		
+		// Now check for limits.
+		bool limit = true;
+		for (int i = 0; i < MAXPLAYERS; i++)
+		{
+			if (playeringame[i]) 
+			{
+				let plr = players[i].mo;
+				if (plr && plr.CountInv("D4RuneUpgrade3"))
+				{
+					limit = false;
+					break;
+				}
+			}
+		}
+		
+		// Find how many exist.
+		/*
+		int cha = 100;
+		int size = DemonRunes.Size();
+		for (int i = 0; i < size; i++)
+		{
+			let mo = DemonRuneBase(DemonRunes.Actors[i]);
+			if (!mo || mo.Owner)
+				continue;
+			
+			if (mo.GetClass() == rep)
+			{
+				// If without the upgrade, only one is allowed to spawn.
+				// Otherwise, decrease spawn chance by 5% per each extra rune,
+				// to a minimum of 10%.
+				if (limit)	return null;
+				
+				if (cha <= 10)	break;
+				if (rep != 'CyberdemonRune' && rep != 'MastermindRune')
+					cha -= 5;
+			}
+			
+		}
+		cha = Max(10, cha);
+		*/
+			
 		// Black and white monsters always drop demon runes.
 		if (upgrade >= 6)	
 			return rep;
@@ -323,19 +359,26 @@ extend class D4DHandler
 						break;
 				}
 			}
-			ch = random(1, Max(1, howmany / rarity));
-			//Console.Printf("Chance: %d / %d -- %d", id, rarity, ch);
+			ch = irandom(1, Max(1, howmany / rarity));
 		}
 		else if (rarity >= 2)		// Common
 		{
-			ch = random(1, (id / 2));
-			//Console.Printf("Chance: %d / 2 -- %d", id, ch);
+			ch = irandom(1, (id / 2));
 		}
 		else if (rarity == 1) 	// Rare
 		{
-			ch = random(1, id);
-			//Console.Printf("Chance: %d -- %d", id, ch);
+			ch = irandom(1, id);
 		}
+		
+		/*
+		if (ch == 1 && cha < 100)
+		{
+			ch = irandom(1,100);
+			if (ch > cha)
+				rep = null;
+		}
+		return rep;
+		*/
 		return (ch == 1) ? rep : null;
 	}
 	
@@ -444,17 +487,6 @@ extend class D4DHandler
 			[UpgradeDropChance, UpgradeDropAlways] = Loot.GetUpgradeDrops();
 			
 		}
-		else if (d4m) // Not manually overridden -- D4D monster.
-		{
-			CrateDropChance = 		d4m.CrateDropChance;
-			CrateDropAmount = 		d4m.CrateDropAmount;
-			CrateDropAlways = 		d4m.CrateDropAlways;
-			CashChainsawPinata = 	d4m.CashChainsawPinata;
-			CashAmount = 			d4m.CashAmount;
-			UpgradeDropChance =		d4m.UpgradeDropChance;
-			UpgradeDropAlways =		d4m.UpgradeDropAlways;
-			
-		}
 		else	// Neither D4D monster nor a manually added one.
 		{
 			if (CurrentUpgradeMode)
@@ -464,16 +496,12 @@ extend class D4DHandler
 				CrateDropAlways = int(floor(spawnhp / 1000));
 				CrateDropChance = Max(1,spawnhp / 20) * (mo.bBOSS ? 2 : 1);
 				if (CrateDropChance > 256)
-				{
 					CrateDropAmount = CrateDropChance / 256;
-				}
 			}
 			else
-			{
 				CashAmount = spawnhp / (mo.bBOSS ? 12 : 15);
-			}
 		}
-		
+		// Demon runes
 		Class<Actor> rune = GetRune(mo);
 		if (rune)
 		{

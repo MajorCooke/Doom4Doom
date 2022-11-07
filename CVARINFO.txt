@@ -1,3 +1,4 @@
+user bool D4D_BerserkAutoSwitch = true;
 user bool D4D_SecondaryPriming = false;
 user bool D4D_BloodScreen = true;
 user bool D4D_DTMode = false;
@@ -17,6 +18,27 @@ server noarchive int D4D_PrintDebug = 0;
 server int D4D_MonsterType = 1;
 server bool D4D_LootDrop = true;
 server int D4D_CustomSpawnBias = 50;
+
+server int D4D_Dehacked = 1;
+server bool D4DH_Arachnotron = true;
+server bool D4DH_Archvile = true;
+server bool D4DH_BaronOfHell = true;
+server bool D4DH_HellKnight = true;
+server bool D4DH_Cacodemon = true;
+server bool D4DH_Cyberdemon = true;
+server bool D4DH_Demon = true;
+server bool D4DH_Spectre = true;
+server bool D4DH_ChaingunGuy = true;
+server bool D4DH_DoomImp = true;
+server bool D4DH_Fatso = true;
+server bool D4DH_LostSoul = true;
+server bool D4DH_PainElemental = true;
+server bool D4DH_Revenant = true;
+server bool D4DH_ShotgunGuy = true;
+server bool D4DH_SpiderMastermind = true;
+server bool D4DH_WolfensteinSS = true;
+server bool D4DH_Zombieman = true;
+server bool D4DH_BossBrain = true;
 
 
 server bool D4Debug = false;
@@ -41,7 +63,6 @@ server bool HQEffectsWeapons = true;
 server bool MPWeapons = true;
 server bool D4D_AllowClimbing = true;
 server bool D4D_PitchMod = false;
-//server bool D4D_TurningBehavior = false;
 server bool D4D_BloodSplatters = true;
 server int D4D_BloodTime = 10;
 //server int D4D_BeamTexture = 0;
@@ -52,7 +73,6 @@ server bool D4D_SilentMorphs = false;
 server bool D4D_DemonWarning = false;
 server bool D4D_DemonNameDisplay  = True;
 server bool D4D_EnhancedChase = true;
-server bool D4D_BerserkAutoSwitch = true;
 server int D4D_NMGrenades = 2; // [0,1,2] = [none,frag,all]
 server int D4D_UpgradeMode = 0; // [0,1] = [Credits, Drops]
 server cheat int D4D_CurrentUpgradeMode = 0;

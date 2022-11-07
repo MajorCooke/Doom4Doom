@@ -6,42 +6,12 @@
 //==============================================================================
 //==============================================================================
 
-/*
-Rainbow Doom Arachnotron Schematics
-* Gains 100 health per level.
-
-Uncommon
-* Has a chance to shoot extra bolts. 
-	
-Rare
-* Chance to shotgun spray
-	
-Epic
-* Attacks almost instantaneously
-	
-Legendary
-* Much more aggressive and retaliatory. Can dodge around
-	
-Relic
-* Merges shotgun and stream into one, shooting vast sprays of plasma.
-
-CURSED (Black)
-* Shoots single spider mastermind bolts without hesitation but cannot dodge.
-
-BLESSED (White)
-* Like cursed but shoots multiple.
-*/
-
 Class D4Arachnotron : D4AbstractBiggie //replaces Arachnotron // : Arachnotron	//to be edited
 {
 	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Arachnotron';
-		D4AbstractMonster.Rune "ArachnotronRune", RuneChance_Arach;
-		D4AbstractMonster.CrateDropAmount 2;
-		D4AbstractMonster.CrateDropChance 32;
-		D4AbstractMonster.CashAmount 80;
 		Health 500;
 		Radius 48;
 		Height 64;
@@ -303,14 +273,9 @@ Class D4ArachnoPuffBig1 : D4PistolPuffBig1
 //================================================================================================================
 Class D4OldArachnotron : D4AbstractBiggie //  : Arachnotron
 {	
-	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Arachnotron';
-		D4AbstractMonster.Rune "ArachnotronRune", RuneChance_Arach;
-		D4AbstractMonster.CrateDropAmount 2;
-		D4AbstractMonster.CrateDropChance 32;
-		D4AbstractMonster.CashAmount 80;
 		Health 500;
 		Radius 48;
 		Height 64;

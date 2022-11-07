@@ -12,21 +12,31 @@ Class D4DBerserk : Berserk
 		Inventory.PickupSound "Doom4/Pickups/Berserk";
 		Scale 0.7;
 	}
-	states
+	
+	override bool TryPickup(in out Actor toucher)
+	{
+		if (Super.TryPickup(toucher))
+		{
+			toucher.A_GiveInventory("PowerStrength");
+			toucher.GiveBody(toucher.GetSpawnHealth() + toucher.Stamina);
+			
+			if (toucher.player)
+			{
+				CVAR cv = Cvar.GetCvar('D4D_BerserkAutoSwitch', toucher.player);
+				if (cv && cv.GetBool())
+				{
+					A_SelectWeapon("D4DFist");
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+	
+	States
 	{
 	Spawn:
 		PSTR A -1 NODELAY A_SetAngle(random(0,359));
-		Stop;
-	Pickup:
-		TNT1 A 0 
-		{
-			A_GiveInventory("PowerStrength");
-			GiveBody(GetSpawnHealth() + Stamina);
-			if (GetCvar("D4D_BerserkAutoSwitch"))
-			{
-				A_SelectWeapon("D4DFist");
-			}
-		}
 		Stop;
 	}
 }

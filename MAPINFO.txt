@@ -88,42 +88,45 @@ skill Easy
 	EasyBossBrain
 	Name = "I'm too young to die"
 	PicName = "M_JKILL"
+	ACSReturn = 1
 }
 
 skill Normal
 {
 	SpawnFilter = Normal
-	DamageFactor = 1.0
 	Name = "Hurt me plenty"
 	DefaultSkill
 	PicName = "M_ROUGH"
+	ACSReturn = 2
 }
 
 skill Hard
 {
 	SpawnFilter = Nightmare
-	DamageFactor = 1.0
+	Aggressiveness = 0.5
 	Name = "Ultra Violence"
 	PicName = "M_HURT"
+	ACSReturn = 3
 }
 
 skill Nightmare
 {
 	SpawnFilter = Nightmare
-	DamageFactor = 1.5
+	Aggressiveness = 1.0
 	Name = "Nightmare"
 	PicName = "M_ULTRA"
+	ACSReturn = 4
 }
 
 skill UNightmare
 {
 	SpawnFilter = Nightmare
-	DamageFactor = 2.0
 	Name = "Ultra Nightmare"
 	FastMonsters
 	AmmoFactor = 2.0	//at least you will have a lot to shoot with
 	Mustconfirm = "Fast, extremely damaging and aggressive monsters. Not sure if is beatable. Test your metal?"
 	PicName = "M_NMARE"
+	ACSReturn = 5
 }
 
 DoomEdNums

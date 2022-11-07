@@ -38,10 +38,6 @@ Class D4Zombieman : D4AbstractMonster //replaces Zombieman
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Zombieman';
-		D4AbstractMonster.UpgradeDropChance 300;
-		D4AbstractMonster.CrateDropAmount 1;
-		D4AbstractMonster.CrateDropChance 2;
-		D4AbstractMonster.CashAmount 5;
 		DropItem "D4PinataBulletsZombieman";
 		Health 30;
 		Radius 20;
@@ -681,10 +677,6 @@ Class D4OldZombieman : D4AbstractMonster // : Zombieman ////replaces Zombieman
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Zombieman';
-		D4AbstractMonster.UpgradeDropChance 300;
-		D4AbstractMonster.CrateDropAmount 1;
-		D4AbstractMonster.CrateDropChance 2;
-		D4AbstractMonster.CashAmount 5;
 		Health 20;
 		Radius 20;
 		Height 56;

@@ -6,31 +6,6 @@
 //================================================================================================================
 //================================================================================================================
 
-/*
-Rainbow Doom Monster Schematics
-* Gains # health per level.
-
-Uncommon
-* 
-	
-Rare
-* 
-	
-Epic
-* 
-	
-Legendary
-* 
-	
-Relic
-* 
-
-CURSED (Black)
-* 
-
-BLESSED (White)
-* 
-*/
 
 Class D4Revenant : D4AbstractBiggie //replaces Revenant
 {
@@ -40,10 +15,6 @@ Class D4Revenant : D4AbstractBiggie //replaces Revenant
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Revenant';
-		D4AbstractMonster.Rune "RevenantRune", RuneChance_Rev;
-		D4AbstractMonster.CrateDropAmount 2;
-		D4AbstractMonster.CrateDropChance 64;
-		D4AbstractMonster.CashAmount 60;
 		Health 400;
 		Radius 20;
 		Height 56;
@@ -546,10 +517,6 @@ Class D4OldRevenant : D4AbstractBiggie // : Revenant ////replaces Revenant
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Revenant';
-		D4AbstractMonster.Rune "RevenantRune", RuneChance_Rev;
-		D4AbstractMonster.CrateDropAmount 2;
-		D4AbstractMonster.CrateDropChance 64;
-		D4AbstractMonster.CashAmount 60;
 		Health 300;
 		Radius 20;
 		Height 56;

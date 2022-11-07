@@ -42,10 +42,6 @@ Class D4HellKnight : D4AbstractBiggie //replaces HellKnight
 	Default 
 	{
 		D4AbstractMonster.Replacing 'HellKnight';
-		D4AbstractMonster.Rune "KnightRune", RuneChance_Knight;
-		D4AbstractMonster.CrateDropAmount 2;
-		D4AbstractMonster.CrateDropChance 16;
-		D4AbstractMonster.CashAmount 60;
 		Health 500;
 		Radius 24;
 		Height 64;
@@ -707,10 +703,6 @@ Class D4OldHellKnight : D4AbstractBiggie // : HellKnight ////replaces HellKnight
 	Default 
 	{
 		D4AbstractMonster.Replacing 'HellKnight';
-		D4AbstractMonster.Rune "KnightRune", RuneChance_Knight;
-		D4AbstractMonster.CrateDropAmount 2;
-		D4AbstractMonster.CrateDropChance 16;
-		D4AbstractMonster.CashAmount 60;
 		Radius 24;
 		Height 64;
 		Mass 1000;

@@ -41,10 +41,6 @@ Class D4Demon : D4AbstractMonster //replaces Demon
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Demon';
-		D4AbstractMonster.UpgradeDropChance 250;
-		D4AbstractMonster.CrateDropAmount 1;
-		D4AbstractMonster.CrateDropChance 4;
-		D4AbstractMonster.CashAmount 30;
 		Health 150;
 		PainChance 180;
 		Speed 10;
@@ -430,10 +426,6 @@ Class D4OldDemon : D4AbstractMonster // : Demon replaces Demon
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Demon';
-		D4AbstractMonster.UpgradeDropChance 250;
-		D4AbstractMonster.CrateDropAmount 1;
-		D4AbstractMonster.CrateDropChance 4;
-		D4AbstractMonster.CashAmount 30;
 		Health 150;
 		PainChance 180;
 		Speed 10;

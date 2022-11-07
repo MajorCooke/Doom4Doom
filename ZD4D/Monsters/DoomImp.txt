@@ -6,43 +6,12 @@
 //================================================================================================================
 //================================================================================================================
 
-/*
-Rainbow Doom Monster Schematics
-* Gains # health per level.
-
-Uncommon
-* 
-	
-Rare
-* 
-	
-Epic
-* 
-	
-Legendary
-* 
-	
-Relic
-* 
-
-CURSED (Black)
-* 
-
-BLESSED (White)
-* 
-*/
 
 Class D4DoomImp : D4AbstractMonster //replaces DoomImp
 {
-	
-	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'DoomImp';
-		D4AbstractMonster.UpgradeDropChance 285;
-		D4AbstractMonster.CrateDropAmount 1;
-		D4AbstractMonster.CrateDropChance 4;
-		D4AbstractMonster.CashAmount 10;
 		Health 60;
 		Radius 20;
 		Height 56;
@@ -687,10 +656,6 @@ Class D4OldDoomImp : D4AbstractMonster // : DoomImp ////replaces DoomImp
 	Default 
 	{
 		D4AbstractMonster.Replacing 'DoomImp';
-		D4AbstractMonster.UpgradeDropChance 285;
-		D4AbstractMonster.CrateDropAmount 1;
-		D4AbstractMonster.CrateDropChance 4;
-		D4AbstractMonster.CashAmount 10;
 		Health 60;
 		Radius 20;
 		Height 56;

@@ -31,10 +31,6 @@ Class D4AbstractMonster : D4Actor abstract
 	D4DHandler Event;
 	MCHandler MC;
 	uint PrevWoundHealth;
-	uint UpgradeDropChance, UpgradeDropAlways;
-	uint CrateDropChance, CrateDropAmount, CrateDropAlways;
-	uint CashAmount, CashChainsawPinata;
-	uint CashMultiplier;
 	bool ResurrectCheck;
 	uint ResurrectCheckTimer;
 	Name MOD;
@@ -45,25 +41,10 @@ Class D4AbstractMonster : D4Actor abstract
 	Property Replacing: Replacing;
 	Property ResurrectCvar: ResurrectCvar;
 	Property PowerColor: PowerColor;
-	Property Rune: RuneItem, RuneDropChance;
-	property UpgradeDropChance: UpgradeDropChance;
-	property UpgradeDropAlways: UpgradeDropAlways;
-	property CrateDropChance: CrateDropChance;
-	property CrateDropAmount: CrateDropAmount;
-	property CrateDropAlways: CrateDropAlways;
-	property CashAmount: CashAmount;
-	property CashChainsawFinisher: CashChainsawPinata;
 	Default
 	{
 		D4AbstractMonster.ResurrectCvar '';
 		D4AbstractMonster.PowerColor 'D4D';
-		D4AbstractMonster.UpgradeDropChance -1;
-		D4AbstractMonster.UpgradeDropAlways 0;
-		D4AbstractMonster.CrateDropAmount 0;
-		D4AbstractMonster.CrateDropChance 0;
-		D4AbstractMonster.CrateDropAlways 0;
-		D4AbstractMonster.CashAmount -1;
-		D4AbstractMonster.CashChainsawFinisher -1;
 		BloodColor "Red";
 		DamageFactor "Crush", 15.0;
 	}
@@ -225,12 +206,12 @@ Class D4AbstractMonster : D4Actor abstract
 	virtual int ChoosePowerLevel()
 	{
 		int rng = random(1, 2000);
-		if (rng <= 1)	return 7;	
-		if (rng <= 5)	return 6;	
-		if (rng <= 10)	return 5;	
-		if (rng <= 30)	return 4;	
-		if (rng <= 60)	return 3;	
-		if (rng <= 100)	return 2;	
+		if (rng <= 1)	return 7;
+		if (rng <= 5)	return 6;
+		if (rng <= 10)	return 5;
+		if (rng <= 30)	return 4;
+		if (rng <= 60)	return 3;
+		if (rng <= 100)	return 2;
 		if (rng <= 200)	return 1;
 		return 0;
 	}
@@ -467,69 +448,11 @@ Class D4AbstractMonster : D4Actor abstract
 	//==========================================================================
 	// SpawnRune
 	//
-	// Spawns the rune after calling RuneChance, 
+	// Moved to EventItemDrops.txt
 	//==========================================================================
 	
-	void SpawnRune()
-	{
-		if (!RuneItem || RuneDropChance < 1)
-			return;
-			
-		if (RuneChance(RuneDropChance))
-		{
-			let Rune = DemonRuneBase(Spawn(RuneItem, pos, ALLOW_REPLACE));
-			if (Rune)	Rune.OnDrop(self);
-		}
-	}
-	
-	int RuneChance(int id)
-	{
-		int rarity = int(GetCvar("D4D_DemonRunes"));
-		if (rarity < 1)	return 0;
-		
-		int upgrade = CountInv("D4MonsterUpgrader");
-		
-		// Black and white monsters always drop demon runes.
-		if (upgrade >= 6)	return 1;
-		int originalID = id;
-		id = Max(1, id - (upgrade * 2));
-		
-		// Spider masterminds are the rarest of enemies. Give them special 
-		// treatment so players can enjoy playing the hell out of them.
-		if (self is "D4SpiderMastermind" || self is "D4OldSpiderMastermind" || 
-			self is "D4Cyberdemon" || self is "D4OldCyberdemon")
-		{
-			// Only check for live ones.
-			// The event handler automatically transfers dead monsters from the
-			// Monsters to DeadMonsters array inside of it.
-			int howmany = 1;
-			if (!MC)	MC = MCHandler.Fetch();
-			if (MC)
-			{
-				
-				for (int i = 0; i < MC.Monsters.Size(); i++)
-				{
-					Actor mo = MC.Monsters.Actors[i];
-					if (mo && (mo is GetClass()) && mo.CountInv("D4MonsterUpgrader") == upgrade)
-					{
-						if (howmany++ >= originalID)
-							break;
-					}
-				}
-			}
-			
-			return (random(1, Max(1, howmany / rarity)) == 1) ? 1 : 0;
-		}
-		else if (rarity == 2)		// Common
-		{
-			return (random(1, (id / 2)) == 1) ? 1 : 0;
-		}
-		else if (rarity == 1) 	// Rare
-		{
-			return (random(1, id) == 1) ? 1 : 0;
-		}
-		return 0;
-	}
+	void SpawnRune()		{	}
+	int RuneChance(int id)	{	return 0;	}
 	
 	//==========================================================================
 	//
@@ -726,6 +649,7 @@ Class D4AbstractBoss : D4AbstractBiggie abstract
 	Default
 	{
 		DamageFactor "BFGBlast", 0.0;
+		DamageFactor "GaussSiege", 0.15;
 	}
 }
 

@@ -124,7 +124,7 @@ Class DemonPlayerBase : Doom4Player
 			"PlayerMastermind",
 			"PlayerPainElemental",
 			"PlayerRevenant",
-			"PlayerArchvile"			// The last one is comma conscientious. 
+			"PlayerArchvile"
 		};
 		
 		static const Sound SightSound[] =
@@ -252,7 +252,8 @@ Class DemonPlayerBase : Doom4Player
 				//	less powerful runes.
 				/*	if (PowerLevel > upgrade)
 						continue;
-					else */ if (PowerLevel < upgrade)
+					else */ 
+					if (PowerLevel < upgrade)
 					{
 						PowerLevel = upgrade;
 						A_SetInventory("D4MonsterUpgrader", upgrade);
@@ -563,6 +564,8 @@ Class DemonRuneBase : CustomInventory
 		if (GetClassName() == 'DemonRuneBase' || !Morph)
 		{	Destroy();	return;	}
 		
+		
+		
 		bool limit = true;
 		for (int i = 0; i < MAXPLAYERS; i++)
 		{
@@ -585,13 +588,14 @@ Class DemonRuneBase : CustomInventory
 			for (int i = 0; i < size; i++)
 			{
 				let mo = DemonRuneBase(Event.DemonRunes.Actors[i]);
-				if (!mo || mo == self)
+				if (!mo || mo == self || mo.GetClass() != GetClass())
 					continue;
 				
 				if (mo.PowerLevel == PowerLevel)
 				{	Destroy();	return;	}
 			}
 		}
+		
 		Name trans = 'None';
 		PowerLevel = Clamp(abs(PowerLevel), 0, MaxRunePower);
 		Switch (PowerLevel)
@@ -607,6 +611,7 @@ Class DemonRuneBase : CustomInventory
 		}
 		if (trans != 'None')
 			A_SetTranslation(trans);
+			
 		Super.PostBeginPlay();
 	}
 	
@@ -766,14 +771,6 @@ Class PowerRuneBase : PowerMorph
 			}
 		}
 		Super.DoEffect();
-	}
-	override void EndEffect()
-	{
-		if (Owner)	
-		{
-			Owner.A_SetInventory("D4MonsterUpgrader",0);
-		}
-		Super.EndEffect();
 	}
 }
 

@@ -73,13 +73,6 @@ Class D4SpiderMastermind : D4AbstractBoss //replaces SpiderMastermind
 	{
 		D4AbstractMonster.Replacing 'SpiderMastermind';
 		D4AbstractMonster.ResurrectCvar 'D4D_ResSpiderMastermind';
-		D4AbstractMonster.Rune "MastermindRune", RuneChance_Master;
-		D4AbstractMonster.UpgradeDropChance 5;
-		D4AbstractMonster.CrateDropAmount 3;
-		D4AbstractMonster.CrateDropChance 192;
-		D4AbstractMonster.CrateDropAlways 2;
-		D4AbstractMonster.CashAmount 400;
-		D4AbstractMonster.CashChainsawFinisher 2000;
 		+BOSS
 		+MISSILEMORE
 		+FLOORCLIP
@@ -837,13 +830,6 @@ Class D4OldSpiderMastermind : D4AbstractBoss // : SpiderMastermind
 	Default 
 	{
 		D4AbstractMonster.Replacing 'SpiderMastermind';
-		D4AbstractMonster.Rune "MastermindRune", RuneChance_Master;
-		D4AbstractMonster.UpgradeDropChance 5;
-		D4AbstractMonster.CrateDropAmount 3;
-		D4AbstractMonster.CrateDropChance 192;
-		D4AbstractMonster.CrateDropAlways 2;
-		D4AbstractMonster.CashAmount 400;
-		D4AbstractMonster.CashChainsawFinisher 2000;
 		+BOSS
 		+MISSILEMORE
 		+FLOORCLIP

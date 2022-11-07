@@ -108,17 +108,14 @@ The mod has quite a few custom keys to use. Make sure to go under
 
 1.8  Brofist (when available): Because you know you want to do it again.
 
-1.9  Chaingun Special Mode: Triggers the "special mode" of the chaingun if
-     the required criteria is met.
-
-1.10 Panic Button (clear gibs): As it says, by pressing this key, all gibs in 
+1.9	 Panic Button (clear gibs): As it says, by pressing this key, all gibs in 
      the current map will disappear. Good for if you went too overboard with the
      gore settings and it's lagging on you.
 
-1.11 Weapon Keybinds: In this sub menu, you can bind weapons to keys per slot
+1.10 Weapon Keybinds: In this sub menu, you can bind weapons to keys per slot
      or per weapon.
 	 
-1.12 Dash Ability: Once you've acquired the upgrade, press this key while pressing
+1.11 Dash Ability: Once you've acquired the upgrade, press this key while pressing
 	 a movement key to hurl yourself in that direction. Can only be used once while
 	 airborne. Recharges on the ground.
 
@@ -253,21 +250,21 @@ Here you can change several settings of how D4D displays some stuff.
 
     ** D4D Messages **
 
-3.1 Performance/V-Noise Master switches: The options here disable a lot of visual
-    effects, which in theory should improve performance since much less stuff
-    will be on screen at all times. However, by removing all the visual effects,
-    you are getting rid of a lot of visual noise, which is good for some players'
-    play-style. Use at your discretion.
-3.1.1 Monster HQ Effects: Toggles monsters high quality effects on/off. This
-      affects all their projectile trails and extra visual effects. They become
-      much more simplistic visually, but the behavior remains the same. This also
-      removes some "flame charging" effects from Imps and Baron of hell. This
-      option affects monster type D4D and Classic Doom types.
-3.1.2 Weapons HQ Effects: Toggles weapons high quality effects on/off. This affects
-      the smoke released by the weapon barrel and the projectiles' trails. However
-      this option does NOT affect other weapon settings like: casings spawning, 
-      tracer effects or explosion quakes, since all these have their own
-      switches.
+*	Performance/V-Noise Master switches: The options here disable a lot of visual
+	effects, which in theory should improve performance since much less stuff
+	will be on screen at all times. However, by removing all the visual effects,
+	you are getting rid of a lot of visual noise, which is good for some players'
+	play-style. Use at your discretion.
+*	Monster HQ Effects: Toggles monsters high quality effects on/off. This
+    affects all their projectile trails and extra visual effects. They become
+    much more simplistic visually, but the behavior remains the same. This also
+    removes some "flame charging" effects from Imps and Baron of hell. This
+    option affects monster type D4D and Classic Doom types.
+*	Weapons HQ Effects: Toggles weapons high quality effects on/off. This affects
+	the smoke released by the weapon barrel and the projectiles' trails. However
+	this option does NOT affect other weapon settings like: casings spawning, 
+	tracer effects or explosion quakes, since all these have their own
+	switches.
 
 3.2 Message Style
 3.2.1 Doom-esque: Will show the D4D quota messages with a small font in the lower 
@@ -295,9 +292,6 @@ Here you can change several settings of how D4D displays some stuff.
 
 
     * Other effects *
-3.9 Voxels: Toggle voxels on/off. If you turn this off, visual glitches will
-     occur, yet it might help with performance in some extreme cases. GZDOOM RESETS
-     THIS VALUE BACK TO "ON" EVERY TIME YOU OPEN GZDOOM.
 
 3.10 Blood HUD effect: Toggles on/off the effect of blood splattered on screen when
      you take damage (this only appears when you have no armor). Default "on".
@@ -321,7 +315,7 @@ Here you can change several settings of how D4D displays some stuff.
 
 //-------------------------------------------------------------------------------
 
-4 . * D4D General Options * 
+* D4D General Options * 
 
 //-------------------------------------------------------------------------------
 
@@ -329,77 +323,116 @@ General options that you might want to change right away
 
     ** Gameplay options **
 
-4.1 Monster type:
-4.1.1 D4D: This replaces all vanilla monsters with their D4D counterpart. These
+*	Multi Jump 
+	Toggles on/off the ability to perform a double jump. This is
+    recommended to use at your own discretion, since vanilla maps are not
+    designed with jumping in mind, much less double jumping. However, if you
+    do have double jump enabled, it's highly recommended to set SV_AIRCONTROL
+    on the console to 0.2.
+	ADDENDUM: As of D4D 3.0 Alpha versions, this should no longer be necessary.
+
+*	Ledge Grabbing 
+	Toggles on/off the ability to grab ledges. Much like 
+    "double jump", use at your own discretion. It can lead to some unexpected
+	results, and allow to climb to places you werent supposed to reach. To use,
+	simply look up while moving forward to move over the ledge if high enough.
+	Default "On"
+	
+*	Berserk Switch on Pickup 
+	Determines whether to switch to the fist upon pickup up a Berserk pack.
+	
+*	Grenade Starts 
+	Determines what grenades to include. Doesn't affect the Flamethrower, which
+	is always part of the arsenal.
+	
+*	Bonus Items Always Pickup
+	Disabling this will prevent wasteful gathering of bonus health/armor items.
+	
+*	Bonus Item Capacity
+	'Classic Doom': Bonuses fill up to the standard 200 threshold.
+	'Upgrade Based': Only fill up to the relevant upgrades purchased.
+	
+** Demon Runes **
+	
+*	Spawn Demon Runes: This option allows you to choose how often do
+    you want demon runes to spawn in the game.
+	OFF: Runes will never spawn
+	Common: Runes will be fairly easy to get
+	Rare:  Runes will be difficult to find
+	
+*	Silent Idle Demon-Player: Toggles ON/OFF. Default "ON". A demon player
+    will by default play idle noises at random intervals. Setting this
+	option to "OFF" will prevent these sounds from playing.
+	
+*	Show HUD Demon Name: Default YES. Displays the name of the demon you
+    morphed into, for as long as you're morphed.
+
+** Footsteps **
+
+*	Footsteps frequency 
+	Alters how often footsteps are played. Higher values mean more steps occurring.
+
+*	Footsteps volume 
+	Alters the volume of the footsteps. Higher values mean louder sounds.
+	
+
+	*** Monster Options **
+*	Monster type:
+**	D4D: This replaces all vanilla monsters with their D4D counterpart. These
       monsters are more aggressive and more challenging than their vanilla
       versions. This is the default, since the mod was balanced towards using
       these. Monsters have no undodgeable attacks, but their projectiles are
       much faster than the vanilla doom monsters. Almost all of the D4D
       monsters use custom graphics.
 	  
-4.1.2 Rainbow Doom(4): A customized version of D4D monsters that adds an extra
+**	Rainbow Doom(4): A customized version of D4D monsters that adds an extra
 	  challenge, along with some unique rewards. If you've played Colorful Hell,
 	  this is what that setting is based on.
 	  
-4.1.3 'Classic' Doom: They look and behave like vanilla. No changes to any of
+**	'Classic' Doom: They look and behave like vanilla. No changes to any of
       their values, being health, damage, or speed. They only have slighly
       visually updated projectile attacks, but the behavior remains the same.
       These monsters are the "easy" ones compared to D4D, but they are NOT 
 	  purely vanilla.
 	  
-4.1.4 Vanilla/Custom: No modded monsters from D4D will spawn, instead only the
+**	Vanilla/Custom: No modded monsters from D4D will spawn, instead only the
 	  absolute vanilla ones will. These can be overridden by other mods if one
 	  desires to incorporate more monster variety of another mod.
 	  
-
-4.2 Monster Drop Loot: Toggles on/off the loot monsters might drop when they
-    are killed in a variety of ways. This does not affect the ammo they would
-    drop in vanilla Doom. When "off" Chainsaw finishers (Chainsaw alt fire)
-    will still drop ammo, but much less.
-
-4.3 Double Jump: Toggles on/off the ability to perform a double jump. This is
-    recommened to use at your own discretion, since vanilla maps are not
-    designed with jumping in mind, much less double jumping. However, if you
-    do have double jump enabled, it's highly recommended to set SV_AIRCONTROL
-    on the console to 0.2.
-
-4.4 Ledge Grabbing: Toggles on/off the ability to grab ledges. Much like 
-    "double jump", use at your own discration. It can lead to some unexpected
-	results, and allow to climb to places you werent supposed to reach. 
-	Default "On"
-
-4.5 Syphon Strength: This affects how much health/armor the syphon grenade
-    gives when hitting monsters. "Easy" gives more health, while "hard" gives
-    less.
-
-
-    ** Monster behaviour **
-
-4.5 Archvile Monster Infights: By default, D4D archviles cannot be targetted
-    by other monsters. When you turn this on, they can be targeted by other 
-    monsters to cause infights.
+*	Preserve DEHACKED Monsters
+	Some WADs like Resurgence, Bloodstained, 180 Minutes Pour Vivre, & Scythe 2
+	have monster replacements made through a very old scripting language called
+	DEHACKED. This will prevent D4D's monster list from overriding if enabled.
+	Does not affect boss brain.
 	
-4.6 D4D HellKnight Melee Only: Toggles ON/OFF the HK being able to only
+*	Monsters Drop Loot: 
+	Toggles on/off the loot monsters might drop when they
+    are killed in a variety of ways. This does not affect the ammo they would
+    drop in vanilla Doom. When "off" Chainsaw finishers (Chainsaw secondary)
+    will still drop ammo, but much less.
+	
+*	Smarter Aiming
+	D4D's monsters will aim their projectiles in the direction you're moving,
+	giving a bigger challenge. Recommend disabling during slaughter maps.	
+	
+*	D4D HellKnight Melee Only: Toggles ON/OFF the HK being able to only
     perform melee attacks. When this is ON, HK will be faster and more
 	aggressive, and still be able to perform "Leap" attacks, but not
 	projectile attacks. When This is OFF, HK will be regular speed,
 	and also able to do projectile attacks.
 
+	** Resurrectable Monsters** (D4D monsters only)
+	For sadistic masochists only. Allows summoners to resurrect the following:
+	* Summoners
+	* Cyberdemons
+	* Spider Masterminds
+	
+	As of D4D 3.0, keep in mind summoners can 'resummon' those who were gibbed
+	too! Summoners resurrecting each other can be very difficult to combat, so
+	enable at your own risk!
+	
+	(Doesn't apply to monsters who were spawned by skull cubes.)
 
-    ** Demon Runes **
-	
-4.7 Spawn Demon Runes: This option allows you to choose how often do
-    you want demon runes to spawn in the game.
-	OFF: Runes will never spawn
-	Common: Runes will be fairly easy to get
-	Rare:  Runes will be difficult to find
-	
-4.8 Silent Idle Demon-Player: Toggles ON/OFF. Default "ON". A demon player
-    will by default play idle noises at random intervals. Setting this
-	option to "OFF" will prevent these sounds from playing.
-	
-4.9 Show HUD Demon Name: Default YES. Displays the name of the demon you
-     morphed into, for as long as you're morphed.
 
     ** Multiplayer Weapons **
 
@@ -425,13 +458,7 @@ General options that you might want to change right away
 	still spawns under it's own rules. See section 5 "D4D Weapons" for more
 	details.
 
-    ** Footsteps **
 
-4.12 Footsteps frequency: Alters how often footsteps are played. The higher the
-     number, the more frequent the footsteps are.
-
-4.13 Footsteps volume: Alters the volume of the footsteps. The higher the value,
-     the louder the sounds.
 
 
 

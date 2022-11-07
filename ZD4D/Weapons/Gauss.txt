@@ -674,6 +674,7 @@ Class GaussShockwave : Actor 	//the actual puff, but not the ring
 		+FORCEXYBILLBOARD
 		+PUFFGETSOWNER
 		+INVISIBLE
+		+FORCERADIUSDMG
 		Scale 0.15;
 		Translation "0:255=%[0,0,0]:[0.4,1.7,2.0]";
 		Alpha 0.99;
@@ -883,6 +884,8 @@ Class GaussSiegeTrail : Actor
 		+FORCEXYBILLBOARD
 		+EXTREMEDEATH
 		+PUFFGETSOWNER
+		+FORCERADIUSDMG
+		DamageType "GaussSiege";
 		RenderStyle "Add";
 		Translation "0:255=%[0,0,0]:[0.4,1.7,2.0]";
 		Scale 0.2;

@@ -6,47 +6,15 @@
 //================================================================================================================
 //================================================================================================================
 
-/*
-Rainbow Doom Monster Schematics
-* Gains # health per level.
-
-Uncommon
-* 
-	
-Rare
-* 
-	
-Epic
-* 
-	
-Legendary
-* 
-	
-Relic
-* 
-
-CURSED (Black)
-* 
-
-BLESSED (White)
-* 
-*/
 
 Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 {
-
 	int timer;
 	int count;
 	int chasecount;
-	
-	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'BaronofHell';
-		D4AbstractMonster.Rune "BaronRune", RuneChance_Baron;
-		D4AbstractMonster.CrateDropAmount 2;
-		D4AbstractMonster.CrateDropChance 32;
-		D4AbstractMonster.CashAmount 100;
 		Health 1000;
 		Radius 24;
 		Height 64;
@@ -1021,10 +989,6 @@ Class D4OldBaronOfHell : D4AbstractBiggie // : BaronOfHell
 	Default 
 	{	
 		D4AbstractMonster.Replacing 'BaronofHell';
-		D4AbstractMonster.Rune "BaronRune", RuneChance_Baron;
-		D4AbstractMonster.CrateDropAmount 2;
-		D4AbstractMonster.CrateDropChance 32;
-		D4AbstractMonster.CashAmount 100;
 		Health 1000;
 		Radius 24;
 		Height 64;

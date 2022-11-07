@@ -580,6 +580,7 @@ Class D4Chaingun : Doom4Weapon
 			MobileTurretArm:
 				CT2S "#" 1
 				{
+					A_SetViewPitch(0);
 					// Make sure the other overlays are gone.
 					A_Overlay(SovietsaurusSpinopatimus,"Null");
 					A_SetRoll(0,SPF_INTERPOLATE);

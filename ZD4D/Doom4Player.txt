@@ -775,7 +775,6 @@ extend class Doom4Player
 		// Handle Pentagram of Protection effects here. Pretty much a copy/pasta
 		// of the internal damage, including thrusting since it's needless to call
 		// P_DamageMobj.
-		
 		if ((!TelefragDamage && IsInvul) || bNODAMAGE || bUNMORPHINVUL)
 		{
 			// Mainly just doing this to play the sound effect of the pentagram.

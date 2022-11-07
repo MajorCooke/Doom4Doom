@@ -6,43 +6,11 @@
 //================================================================================================================
 //================================================================================================================
 
-/*
-Rainbow Doom Monster Schematics
-* Gains # health per level.
-
-Uncommon
-* 
-	
-Rare
-* 
-	
-Epic
-* 
-	
-Legendary
-* 
-	
-Relic
-* 
-
-CURSED (Black)
-* 
-
-BLESSED (White)
-* 
-*/
-
 Class D4PainElemental : D4AbstractBiggie //replaces PainElemental
 {
-	
-	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'PainElemental';
-		D4AbstractMonster.Rune "PainElementalRune", RuneChance_PainEl;
-		D4AbstractMonster.CrateDropAmount 2;
-		D4AbstractMonster.CrateDropChance 64;
-		D4AbstractMonster.CashAmount 80;
 		Health 400;
 		Radius 31;
 		Height 56;
@@ -506,10 +474,6 @@ Class D4OldPainElemental : D4AbstractBiggie // : PainElemental
 	Default 
 	{
 		D4AbstractMonster.Replacing 'PainElemental';
-		D4AbstractMonster.Rune "PainElementalRune", RuneChance_PainEl;
-		D4AbstractMonster.CrateDropAmount 2;
-		D4AbstractMonster.CrateDropChance 64;
-		D4AbstractMonster.CashAmount 80;
 		Health 400;
 		Radius 31;
 		Height 56;

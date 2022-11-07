@@ -46,10 +46,6 @@ Class D4ChaingunGuy : D4AbstractMonster //replaces Chaingunguy // : ChaingunGuy
 	Default 
 	{
 		D4AbstractMonster.Replacing 'ChaingunGuy';
-		D4AbstractMonster.UpgradeDropChance 260;
-		D4AbstractMonster.CrateDropAmount 1;
-		D4AbstractMonster.CrateDropChance 8;
-		D4AbstractMonster.CashAmount 20;
 		Health 70;
 		Radius 20;
 		Height 56;
@@ -288,10 +284,6 @@ Class D4SergeantShield : D4AbstractMonster
 	Default 
 	{
 		D4AbstractMonster.Replacing 'ChaingunGuy';
-		D4AbstractMonster.UpgradeDropChance 240;
-		D4AbstractMonster.CrateDropAmount 1;
-		D4AbstractMonster.CrateDropChance 8;
-		D4AbstractMonster.CashAmount 30;
 		Health 70;
 		Radius 20;
 		Height 56;
@@ -648,14 +640,9 @@ Class ElectricRailTrail : Actor
 
 Class D4OldChaingunGuy : D4AbstractMonster // : ChaingunGuy ////replaces ChaingunGuy
 {
-	
 	Default 
 	{
 		D4AbstractMonster.Replacing 'ChaingunGuy';
-		D4AbstractMonster.UpgradeDropChance 260;
-		D4AbstractMonster.CrateDropAmount 1;
-		D4AbstractMonster.CrateDropChance 8;
-		D4AbstractMonster.CashAmount 20;
 		Health 70;
 		Radius 20;
 		Height 56;

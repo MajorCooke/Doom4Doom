@@ -69,7 +69,7 @@ OptionMenu "D4DOptions"
 	Option "Multi jump",					"D4D_MultiJump",		"OnOff"
 	Option "Ledge grabbing",				"D4D_AllowClimbing",	"OnOff"
 	Option "Berserk Switch On Pickup",		"D4D_BerserkAutoSwitch","YesNo"
-	Option "Nightmare Grenade Starts",		"D4D_NMGrenades",		"NMGrenade"
+	Option "Grenade Starts",				"D4D_NMGrenades",		"NMGrenade"
 	Option "Bonus Items Always Pickup",		"D4D_BonusAlwaysPickup","YesNo"
 	Option "Bonus Item Capacity",			"D4D_BonusNoLimit",		"D4BonusLimits"
 	StaticText ""
@@ -278,6 +278,7 @@ OptionMenu "D4DMonsterOptions"
 {
 	Title "Monster Options"
 	StaticText "Monster Type Selection", GOLD
+	SubMenu "Dehacked Monsters",			"D4DDehackedOptions"
 	Option "Monster type",					"D4D_MonsterType",			"EnemyType"
 	SliderRange "D4D <-> Custom Spawn Ratio", "D4D_CustomSpawnBias",  0, 100, 1, 1, D4D_MonsterType, 3, 3
 	StaticText "Options", YELLOW
@@ -292,6 +293,46 @@ OptionMenu "D4DMonsterOptions"
 	Option "Archvile",						"D4D_ResArchvile",			"OnOff"
 	Option "Cyberdemon",					"D4D_ResCyberdemon",		"OnOff"
 	Option "Spider Mastermind",				"D4D_ResSpiderMastermind",	"OnOff"
+}
+
+OptionMenu "D4DDehackedOptions"
+{
+	Title "Dehacked Monster Compatibility"
+	Option "Preserve DEHACKED monsters",	"D4D_Dehacked",				"D4Dehacked"
+	
+	StaticText "Specific monster preservation", GOLD
+	Option "Zombie Man",		D4DH_Zombieman,			"D4PrePlace"
+	Option "Shotgunner",		D4DH_ShotgunGuy,		"D4PrePlace"
+	Option "Chaingunner",		D4DH_ChaingunGuy,		"D4PrePlace"
+	Option "Imp",				D4DH_DoomImp,			"D4PrePlace"
+	Option "Lost Soul",			D4DH_LostSoul,			"D4PrePlace"
+	Option "Demon",				D4DH_Demon,				"D4PrePlace"
+	Option "Spectre",			D4DH_Spectre,			"D4PrePlace"
+	Option "Cacodemon",			D4DH_Cacodemon,			"D4PrePlace"
+	Option "Hell Knight",		D4DH_HellKnight,		"D4PrePlace"
+	Option "Baron of Hell",		D4DH_BaronOfHell,		"D4PrePlace"
+	Option "Arachnotron",		D4DH_Arachnotron,		"D4PrePlace"
+	Option "Pain Elemental",	D4DH_PainElemental,		"D4PrePlace"
+	Option "Revenant",			D4DH_Revenant,			"D4PrePlace"
+	Option "Mancubus",			D4DH_Fatso,				"D4PrePlace"
+	Option "Arch Vile",			D4DH_Archvile,			"D4PrePlace"
+	Option "Cyberdemon",		D4DH_Cyberdemon,		"D4PrePlace"
+	Option "Spider Mastermind",	D4DH_SpiderMastermind,	"D4PrePlace"
+	Option "Nazi",				D4DH_WolfensteinSS,		"D4PrePlace"
+	Option "Boss Brain",		D4DH_BossBrain,			"D4PrePlace"
+}
+
+OptionValue "D4PrePlace"
+{
+	0, "Replace"
+	1, "Preserve"
+}
+
+OptionValue "D4Dehacked"
+{
+	0, "No"
+	1, "Specific"
+	2, "All"
 }
 
 OptionValue "D4BonusLimits"

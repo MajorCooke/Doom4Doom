@@ -141,8 +141,8 @@ Class D4Megasphere : Megasphere
 			}
 				
 			if (!invoker.bonus)	return true;
-			
-			if (CountInv("D4MegachargeUpgrade1") && CountInv("D4MegasphereDamageReducer") < 25)
+			let item = plr.FindInventory("D4MegasphereDamageReducer");
+			if (CountInv("D4MegachargeUpgrade1") && (!item || item.Amount < item.MaxAmount))
 			{
 				A_GiveInventory("D4MegasphereDamageReducer",1);
 			}
@@ -182,8 +182,8 @@ Class D4MegasphereDamageReducer : Inventory
 	{
 		+INVENTORY.UNTOSSABLE;
 		+INVENTORY.UNDROPPABLE;
-		Inventory.MaxAmount 25;
-		Inventory.InterhubAmount 25;
+		Inventory.MaxAmount 50;
+		Inventory.InterhubAmount 50;
 	}
 }
 

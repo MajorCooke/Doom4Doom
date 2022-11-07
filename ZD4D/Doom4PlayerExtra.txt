@@ -28,6 +28,7 @@ extend class Doom4Player
 	{
 		if (!bUNMORPHINVUL && GetClassName() == 'Doom4Player')
 		{
+			A_SetViewPitch(0);
 			bUNMORPHINVUL = true;
 			Recorder.Reset();
 			Recorder.HP = Max(100 + Stamina,Health);
@@ -61,6 +62,8 @@ extend class Doom4Player
 	
 	override void PostUnmorph(Actor mo, bool current)
 	{
+		A_SetInventory("D4MonsterUpgrader",0);
+		A_SetViewPitch(0);
 		if (current && GetClassName() == 'Doom4Player')
 		{
 			bUNMORPHINVUL = false;

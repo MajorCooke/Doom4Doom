@@ -175,10 +175,9 @@ extend Class D4DHandler
 	
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
-	// Replacements
+	// Replaceees
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
-	
 	override void CheckReplacee(ReplacedEvent e)
 	{
 		Class<Actor> rep = e.Replacement;
@@ -256,6 +255,67 @@ extend Class D4DHandler
 			}
 		}
 	}
+	
+	//--------------------------------------------------------------------------
+	// Replacements
+	//--------------------------------------------------------------------------
+	
+	private bool DehackedDone;
+	private Array<Class<Actor> > DehackedRep;
+	void RefreshDehackedList()
+	{
+		DehackedRep.Clear();
+		static const Class<Actor> rep[] =
+		{
+			"Zombieman",
+			"ShotgunGuy",
+			"ChaingunGuy",
+			"DoomImp",
+			"LostSoul",
+			"Demon",
+			"Spectre",
+			"Cacodemon",
+			"HellKnight",
+			"BaronOfHell",
+			"Arachnotron",
+			"PainElemental",
+			"Revenant",
+			"Fatso",
+			"Archvile",
+			"Cyberdemon",
+			"SpiderMastermind",
+			"WolfensteinSS",
+			"BossBrain"
+		};
+		
+		static const StateLabel SL[] =
+		{
+			"Spawn",
+			"See",
+			"Melee",
+			"Missile",
+			"Pain",
+			"Death",
+			"XDeath"
+		};
+		
+		for (int i = 0; i < rep.Size(); i++)
+		{
+			let defs = GetDefaultByType(rep[i]);
+			
+			for (int j = 0; j < SL.Size(); j++)
+			{
+				State s = defs.ResolveState(SL[j]);
+				if (s && s.bDEHACKED)
+				{
+					DehackedRep.Push(rep[i]);
+					break;
+				}
+			}
+		}
+		DehackedDone = true;
+	}
+	
 	private Class<Actor> SuperSpawned;
 	override void CheckReplacement(ReplaceEvent e)
 	{
@@ -423,10 +483,35 @@ extend Class D4DHandler
 				else if (rep == 'YellowSkull')		e.Replacement = 'D4YellowSkull';
 				else if (rep == 'BlueSkull') 		e.Replacement = 'D4BlueSkull';
 			}
-			else if (rep == 'AllMap') 					e.Replacement = 'D4AllMap';
+			else if (rep == 'AllMap') 				e.Replacement = 'D4AllMap';
 		}
-		else if (defs.bISMONSTER)
+		else if (defs.bISMONSTER || rep is 'BossBrain')
 		{
+			// Allow Dehacked monsters to be unreplaced.
+			if (D4D_Dehacked)
+			{
+				if (!DehackedDone)	RefreshDehackedList();
+				int index = DehackedRep.Find(rep);
+				if (index < DehackedRep.Size())
+				{
+					bool good = (D4D_Dehacked > 1);
+					if (!good)
+					{
+						String nam = String.Format("D4DH_%s", DehackedRep[index].GetClassName());
+						CVar cv = Cvar.FindCvar(nam);
+						good = cv && cv.GetBool();
+					}
+					if (good)
+					{
+						e.Replacement = null;
+						e.IsFinal = true;
+						return;
+					}
+				}
+			}
+			
+			if (rep == 'BossBrain')	{		e.Replacement = 'D4BossBrain'; return; }
+			
 			int rng = random[rngg](1,100);
 			int chance = D4D_CustomSpawnBias;
 			int type = D4D_MonsterType;
@@ -480,20 +565,23 @@ extend Class D4DHandler
 				else if (rep == 'WolfensteinSS')		e.Replacement = 'D4OldWolfensteinSS';
 				else if (rep == 'ZombieMan')			e.Replacement = 'D4ZombieMan';
 			}
+			
 		}
 		else if (rep is 'Blood')				e.Replacement = 'MCBloodSprite';
 		else if (rep == 'BulletPuff')			e.Replacement = 'D4BulletPuff';
 		else if (rep is 'ExplosiveBarrel')		e.Replacement = 'D4ExplosiveBarrel';
-		else if (rep == 'BossBrain')			e.Replacement = 'D4BossBrain';
 		else if (rep is 'PowerInvulnerable' && rep != 'PowerInvulBase')		
 												e.Replacement = 'PowerInvulBase';
 												
 	}
 }
 
+
+
 extend class D4DHandlerStatic
 {
 	private Class<Actor> SuperSpawned;
+		
 	override void CheckReplacement(ReplaceEvent e)
 	{
 		Class<Actor> rep = e.Replacee;

@@ -1,0 +1,155 @@
+/*==============================================================================
+Service Classes
+by Major Cooke 
+Massive shoutout to M8F for making the base service classes. These have been
+immensely helpful.
+	
+To register the service classes, simply copy/paste the ones desired and append
+a prefix to them. I.e. <prefix_>D4LootService will work. So long as the full
+name is there, it'll be registered.
+
+================================================================================
+
+Loot Service
+
+Allows setting custom loot for actors. Each separate variable is separated by the
+'|' character (minus the ''). 
+
+"Request" can be one of the following strings, all others are ignored:
+* GetLoot
+* GetRestrictions
+
+First variable is always the name of the actor, for all instructions above. All
+other specific variables, unless marked mandatory "(M)", can be left out.
+------
+GetLoot Vars
+
+* Inherit 
+	Applies the loot table to all who inherit from the actor.
+
+* Replacement 
+	Applies the loot table to all who replace the actor.
+
+* Credits:<Amount>[:DamageType] 
+	How many credits to give when the actor dies. Can specify damage types to 
+	override other types.
+	
+* Crates:<Amount>:<Chance>[:DamageType][:Stack][:Always]
+	Same as credits, but also includes a few extra parameters.
+	* Chance
+		Drop chance of each crate (1/Chance)
+	* Stack
+		If present, chance is for the whole amount to be given instead of per crate.
+	* DamageType
+		Same as Credits.
+	* Always
+		The amount of crates that always drop.
+		Can use a comma between the first number to indicate a min/max range.
+
+* Upgrades:<Amount>:<Chance>[:DamageType][:Stack][:Always]
+	Same as crates, but for upgrade drops.
+	
+
+ 
+
+
+
+	
+==============================================================================*/
+
+/*
+zombieman 			5	
+shotgunguy 			10
+imp 				10
+chaingun guy 		20
+demon				30
+spectre				30
+lost soul			10
+cacodemon			40
+hell knight			60
+revenant			60
+pain elemental		80
+baron of hell		100
+fatso				90
+arachnotron			80
+archvile			150
+cyberdemon			400
+mastermind			400
+Nazi 				40, not that they are hard, but they are easter eggs after all
+
+
+
+LootList.SetEntry('Zombieman',			2,		1, 0,	5,		-1, 300);
+LootList.SetEntry('ShotgunGuy',			4,		1, 0,	10,		-1, 290);
+LootList.SetEntry('ChaingunGuy', 		8,		1, 0,	20,		-1, 260);
+LootList.SetEntry('DoomImp',			4,		1, 0,	10,		-1, 285);
+LootList.SetEntry('Demon', 				4,		1, 0,	30,		-1, 250);
+LootList.SetEntry('Spectre',			4,		1, 0,	30,		-1, 250);
+LootList.SetEntry('LostSoul',			4,		1, 0,	10,		-1);
+LootList.SetEntry('Cacodemon',			28,		2, 0,	40,		-1);
+LootList.SetEntry('HellKnight',			16,		2, 0,	60,		-1);
+LootList.SetEntry('BaronOfHell',		32,		2, 0,	100,	-1);
+LootList.SetEntry('PainElemental',		64,		1, 0,	80,		-1);
+LootList.SetEntry('Fatso',				32,		2, 0,	90,		-1);
+LootList.SetEntry('Revenant',			48,		1, 0,	60,		-1);
+LootList.SetEntry('Arachnotron',		32,		2, 0,	80,		-1);
+LootList.SetEntry('Archvile',			64,		2, 0,	150,	-1);
+LootList.SetEntry('Cyberdemon',			128,	4, 2,	400,	2000);
+LootList.SetEntry('SpiderMastermind',	128,	4, 2,	400,	2000);
+LootList.SetEntry('SSNazi',				0,		0, 1,	40);
+*/
+Class D4LootService : Service
+{
+	static const String loot[] =
+	{
+		// Applies "Inherit" and "Replacement" flags to all loot tables built in this class.
+		"All|Inherit|Replacement", 
+		"Zombieman			|Credits:  5|Crates:1;Chance:  2			|",
+		"ShotgunGuy			|Credits: 10|Crates:1;Chance:  4			|",
+		"ChaingunGuy		|Credits: 20|Crates:1;Chance:  8			|",
+		"DoomImp			|Credits: 10|Crates:1;Chance:  4			|",
+		"Demon				|Credits: 30|Crates:1;Chance:  4			|",
+		"Spectre			|Copy: Demon",
+		"LostSoul			|Credits: 10|Crates:1;Chance:  4			|",
+		"Cacodemon			|Credits: 40|Crates:1;Chance: 28			|",
+		"HellKnight			|Credits: 60|Crates:1;Chance: 16			|",
+		"BaronOfHell		|Credits:100|Crates:1;Chance: 32			|",
+		"PainElemental		|Credits: 80|Crates:1;Chance: 64			|",
+		"Fatso				|Credits: 90|Crates:1;Chance: 32			|",
+		"Revenant			|Credits: 60|Crates:1;Chance: 48			|",
+		"Arachnotron		|Credits: 70|Crates:1;Chance: 32			|",
+		"Archvile			|Credits:150|Crates:2;Chance: 64			|",
+		"Cyberdemon			|Credits:400|Crates:4;Chance:128:Always:2	|",
+		"SpiderMastermind	|Credits:400|Crates:4;Chance:128;Always:2	|",
+		"SSNazi				|Credits: 40|Crates:0;Always:1				|"
+		
+	};
+	
+	static const String rest[] =
+	{
+		""
+	};
+	// !!! DO NOT MODIFY THESE UNLESS YOU KNOW WHAT YOU'RE DOING !!!
+	private String ProcessString(String request, String str, int index, double dArg, Object ob) const
+	{	
+		Name req = request;
+		if (req == "GetLoot")
+		{
+			if (index >= 0 && index < loot.Size())
+				return loot[index];
+		}
+		else if (req == 'GetRestrictions')
+		{
+			if (index >= 0 && index < rest.Size())
+				return rest[index];
+		}
+		return "";
+	}
+	
+	
+	override String GetString(String request, String str, int index, double dArg, Object ob)
+	{	return ProcessString(request, str, index, dArg, ob);	}
+	
+	override String GetStringUI(String request, String str, int index, double dArg, Object ob)
+	{	return ProcessString(request, str, index, dArg, ob);	}
+}

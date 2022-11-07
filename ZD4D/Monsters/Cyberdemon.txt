@@ -59,13 +59,6 @@ Class D4Cyberdemon : D4AbstractBoss //replaces Cyberdemon
 	{
 		D4AbstractMonster.Replacing 'Cyberdemon';
 		D4AbstractMonster.ResurrectCvar 'D4D_ResCyberdemon';
-		D4AbstractMonster.Rune "CyberdemonRune", RuneChance_Cyber;
-		D4AbstractMonster.UpgradeDropChance 5;
-		D4AbstractMonster.CrateDropAmount 3;
-		D4AbstractMonster.CrateDropChance 192;
-		D4AbstractMonster.CrateDropAlways 2;
-		D4AbstractMonster.CashAmount 400;
-		D4AbstractMonster.CashChainsawFinisher 2000;
 		D4AbstractMonster.PowerColor 'D4Cyberdemon';
 		Health 4000;
 		Radius 40;
@@ -162,12 +155,17 @@ Class D4Cyberdemon : D4AbstractBoss //replaces Cyberdemon
 		CYBR C 3 { D4Chase(); A_PlaySound("Doom4/Cyberdemon/StepMetal", 5); }
 		CYBR CDD 3 D4Chase();
 		Loop;
+	Melee:
 	Missile:
 		---- A 0 
 		{
 			A_PlaySound("Doom4/Cyberdemon/Attack",CHAN_ITEM);
 			if (target && Distance3DSquared(target) <= (LaserDistance ** 2))
+			{
+				if (target.bISMONSTER)
+					return A_Jump(256,"NormalRockets");
 				return A_Jump(256,"NormalRockets","StreamOfRockets","FireWave","LaserShot");
+			}
 			return A_Jump(256,"NormalRockets","StreamOfRockets","FireWave");
 		}
 		
@@ -264,11 +262,11 @@ Class D4Cyberdemon : D4AbstractBoss //replaces Cyberdemon
 		
 	FireWave:
 		CYBR E 10 A_FaceTarget();
-		CYBR F 6 Bright CyberFireWave(10);
+		CYBR F 6 Bright CyberFireWave(56);
 		CYBR EEEE 5 A_FaceTarget();
-		CYBR F 6 Bright CyberFireWave(80);
+		CYBR F 6 Bright CyberFireWave(56);
 		CYBR EEEE 5 A_FaceTarget();
-		CYBR F 6 Bright CyberFireWave(10);
+		CYBR F 6 Bright CyberFireWave(56);
 		Goto See;
 		
 	Pain:
@@ -782,13 +780,6 @@ Class D4OldCyberdemon : D4AbstractBoss // : Cyberdemon
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Cyberdemon';
-		D4AbstractMonster.Rune "CyberdemonRune", RuneChance_Cyber;
-		D4AbstractMonster.UpgradeDropChance 5;
-		D4AbstractMonster.CrateDropAmount 3;
-		D4AbstractMonster.CrateDropChance 192;
-		D4AbstractMonster.CrateDropAlways 2;
-		D4AbstractMonster.CashAmount 400;
-		D4AbstractMonster.CashChainsawFinisher 2000;
 		Health 4000;
 		Radius 40;
 		Height 110;

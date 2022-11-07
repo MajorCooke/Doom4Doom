@@ -6,32 +6,6 @@
 //================================================================================================================
 //================================================================================================================
 
-/*
-Rainbow Doom Monster Schematics
-* Gains # health per level.
-
-Uncommon
-* 
-	
-Rare
-* 
-	
-Epic
-* 
-	
-Legendary
-* 
-	
-Relic
-* 
-
-CURSED (Black)
-* 
-
-BLESSED (White)
-* 
-*/
-
 Class D4Cacodemon : D4AbstractBiggie //replaces Cacodemon
 {
 	
@@ -39,10 +13,6 @@ Class D4Cacodemon : D4AbstractBiggie //replaces Cacodemon
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Cacodemon';
-		D4AbstractMonster.Rune "CacodemonRune", RuneChance_Caco;
-		D4AbstractMonster.CrateDropAmount 2;
-		D4AbstractMonster.CrateDropChance 28;
-		D4AbstractMonster.CashAmount 40;
 		Health 400;
 		Radius 31;
 		Height 56;
@@ -433,10 +403,6 @@ Class D4OldCacodemon : D4AbstractBiggie // : Cacodemon ////replaces Cacodemon
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Cacodemon';
-		D4AbstractMonster.Rune "CacodemonRune", RuneChance_Caco;
-		D4AbstractMonster.CrateDropAmount 2;
-		D4AbstractMonster.CrateDropChance 28;
-		D4AbstractMonster.CashAmount 40;
 		Health 400;
 		Radius 31;
 		Height 56;

@@ -56,10 +56,6 @@ Class D4FatsoTech : D4AbstractBiggie
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Fatso';
-		D4AbstractMonster.Rune "FatsoRune", RuneChance_Fatso;
-		D4AbstractMonster.CrateDropAmount 2;
-		D4AbstractMonster.CrateDropChance 32;
-		D4AbstractMonster.CashAmount 90;
 		Health 800;
 		Radius 48;
 		Height 64;
@@ -581,10 +577,6 @@ Class D4FatsoHell : D4AbstractBiggie //replaces Fatso
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Fatso';
-		D4AbstractMonster.Rune "FatsoRune", RuneChance_Fatso;
-		D4AbstractMonster.CrateDropAmount 2;
-		D4AbstractMonster.CrateDropChance 32;
-		D4AbstractMonster.CashAmount 90;
 		Health 800;
 		Radius 48;
 		Height 64;
@@ -1052,10 +1044,6 @@ Class D4OldFatso : D4AbstractBiggie // : Fatso ////replaces Fatso
 	Default 
 	{
 		D4AbstractMonster.Replacing 'Fatso';
-		D4AbstractMonster.Rune "FatsoRune", RuneChance_Fatso;
-		D4AbstractMonster.CrateDropAmount 2;
-		D4AbstractMonster.CrateDropChance 32;
-		D4AbstractMonster.CashAmount 90;
 		Health 600;
 		Radius 48;
 		Height 64;

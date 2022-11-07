@@ -43,6 +43,7 @@ Class D4PostSpawnList play
 
 Class D4DHandler : EventHandler
 {
+	mixin D4D_FastRNG;
 	const Second = 35;
 	const TimeTrigger = Second * 5;
 	const DefaultDropChance = 150;
@@ -381,11 +382,6 @@ Class D4DHandler : EventHandler
 			if (i < Carrion.Size())
 				Carrion.Actors[i] = null;
 		}
-	}
-	
-	private bool IsSummonerCount(Actor mo)
-	{
-		return (mo is 'Archvile' || mo is 'D4Archvile' || mo is 'D4BossBrain' || mo is 'PlayerArchvile');
 	}
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
