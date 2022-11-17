@@ -61,50 +61,7 @@ Class D4AbstractMonster : D4Actor abstract
 		Event = D4DHandler.Fetch();
 		MC = MCHandler.Fetch();
 	}
-	private bool HasRezzer;
-	private Actor Rezzer;
-	override bool CanResurrect(Actor other, bool passive)
-	{
-		if (passive)
-		{
-			if (ResurrectCvar == '')	return true;
-			Cvar check = Cvar.FindCVar(ResurrectCvar);
-			bool good = (!check || check.GetBool());
-			if (good)
-			{
-				HasRezzer = (other != null && !other.bKILLED);
-				if (HasRezzer) Rezzer = other;
-			}
-			return good;
-		}
-		return true;
-	}
 	
-	private void CheckResurrector()
-	{
-		if (HasRezzer && (!Rezzer || Rezzer.bKILLED))
-		{
-			A_SetShootable();
-			A_Die("Silent");
-		}
-	}
-	
-	void DoResurrect(int stage = 0)
-	{
-		if (stage == 0)
-			bNOPAIN = true;
-		else
-		{
-			PostResurrect();
-			bNOPAIN = false;
-		}
-	}
-	
-	void DoCorpse()
-	{
-		if (bBOSSSPAWNED)	Destroy();
-		else				bCORPSE = true;
-	}
 	
 	void AimHead(Actor mo)
 	{
@@ -368,40 +325,6 @@ Class D4AbstractMonster : D4Actor abstract
 		Super.Deactivate(activator);
 	}
 	
-	override void Die(Actor source, Actor inflictor, int dmgflags)
-	{
-		HasRezzer = false;
-		Tracer = null;
-		A_StopBeam();
-		if (Spawner && Spawner.health > 0)
-		{
-			Spawner.bVULNERABLE = true;
-			Spawner.A_Die();
-		}
-		Super.Die(source, inflictor, dmgflags);
-		bSOLID = false;
-		if (DamageTypeReceived == 'Crush')
-		{
-			let next = FindState("XDeath", true);
-			if (next)	SetState(next);
-		}
-	}
-	
-	// Don't let removing scripts leave gaps.
-	override void OnDestroy()
-	{
-		if (health > 1)
-		{
-			if (Spawner && Spawner.health > 0)
-			{
-				Spawner.bVULNERABLE = true;
-				Spawner.A_Die();
-			}
-		}
-		A_StopBeam();
-		Super.OnDestroy();
-	}
-	
 	//--------------------------------------------------------------------------
 	//
 	// D4Chase(melee, missile, flags, max turn)
@@ -484,6 +407,35 @@ Class D4AbstractMonster : D4Actor abstract
 	void SpawnRune()		{	}
 	int RuneChance(int id)	{	return 0;	}
 	
+	override void Die(Actor source, Actor inflictor, int dmgflags)
+	{
+		HasRezzer = false;
+		Tracer = null;
+		A_StopBeam();
+		Super.Die(source, inflictor, dmgflags);
+		bSOLID = false;
+		if (DamageTypeReceived == 'Crush')
+		{
+			let next = FindState("XDeath", true);
+			if (next)	SetState(next);
+		}
+	}
+	
+	// Don't let removing scripts leave gaps.
+	override void OnDestroy()
+	{
+		if (health > 1)
+		{
+			if (Spawner && Spawner.health > 0)
+			{
+				Spawner.bVULNERABLE = true;
+				Spawner.A_Die();
+			}
+		}
+		A_StopBeam();
+		Super.OnDestroy();
+	}
+	
 	//==========================================================================
 	//
 	// XDeathGush(int bcolor)
@@ -527,8 +479,52 @@ Class D4AbstractMonster : D4Actor abstract
 			A_PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
 		}
 	}
+	//--------------------------------------------------------------------------
+	// Resurrection stuff
+	private bool HasRezzer;
+	private Actor Rezzer;
+	override bool CanResurrect(Actor other, bool passive)
+	{
+		if (passive)
+		{
+			if (ResurrectCvar == '')	return true;
+			Cvar check = Cvar.FindCVar(ResurrectCvar);
+			bool good = (!check || check.GetBool());
+			if (good)
+			{
+				HasRezzer = (other != null && !other.bKILLED);
+				if (HasRezzer) Rezzer = other;
+			}
+			return good;
+		}
+		return true;
+	}
 	
+	private void CheckResurrector()
+	{
+		if (HasRezzer && (!Rezzer || Rezzer.bKILLED))
+		{
+			A_SetShootable();
+			A_Die("Silent");
+		}
+	}
 	
+	void DoResurrect(int stage = 0)
+	{
+		if (stage == 0)
+			bNOPAIN = true;
+		else
+		{
+			PostResurrect();
+			bNOPAIN = false;
+		}
+	}
+	
+	void DoCorpse()
+	{
+		if (bBOSSSPAWNED)	Destroy();
+		else				bCORPSE = true;
+	}
 	
 	protected void CheckRespawn()
 	{
