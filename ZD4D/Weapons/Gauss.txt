@@ -639,11 +639,11 @@ Class GCImpactDebris : Actor
 		Stop;
 	}
 }
-Class GCDebrisTrail : Actor 
+Class GCDebrisTrail : D4DFX 
 {
 	Default 
 	{
-		+NOINTERACTION
+		+NOTONAUTOMAP
 		+FORCEXYBILLBOARD
 		Scale 0.02;
 		RenderStyle "Add";
@@ -667,6 +667,7 @@ Class GaussShockwave : D4DFX 	//the actual puff, but not the ring
 {
 	Default 
 	{
+		+NOTONAUTOMAP
 		+ALWAYSPUFF
 		+PUFFONACTORS
 		+FORCEXYBILLBOARD
@@ -726,6 +727,7 @@ Class GaussShockwaveRing : D4DFX
 {
 	Default
 	{
+		+NOTONAUTOMAP
 		RenderStyle "Add";
 		Scale 0.15;
 		Alpha 0.99;
@@ -747,11 +749,11 @@ Class GaussShockwaveRing : D4DFX
 	}
 }
 
-Class GaussImpactLightEmitter : Actor 
+Class GaussImpactLightEmitter : D4DFX 
 {
 	Default 
 	{
-		+NOINTERACTION
+		+NOTONAUTOMAP
 		RenderStyle "None";
 	}
 	States

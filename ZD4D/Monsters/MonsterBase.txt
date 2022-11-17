@@ -60,18 +60,33 @@ Class D4AbstractMonster : D4Actor abstract
 		Super.PostBeginPlay();
 		Event = D4DHandler.Fetch();
 		MC = MCHandler.Fetch();
-		oldLeap = false;
 	}
-	
+	private bool HasRezzer;
+	private Actor Rezzer;
 	override bool CanResurrect(Actor other, bool passive)
 	{
 		if (passive)
 		{
 			if (ResurrectCvar == '')	return true;
 			Cvar check = Cvar.FindCVar(ResurrectCvar);
-			return (!check || check.GetBool());
+			bool good = (!check || check.GetBool());
+			if (good)
+			{
+				HasRezzer = (other != null && !other.bKILLED);
+				if (HasRezzer) Rezzer = other;
+			}
+			return good;
 		}
 		return true;
+	}
+	
+	private void CheckResurrector()
+	{
+		if (HasRezzer && (!Rezzer || Rezzer.bKILLED))
+		{
+			A_SetShootable();
+			A_Die("Silent");
+		}
 	}
 	
 	void DoResurrect(int stage = 0)
@@ -298,8 +313,20 @@ Class D4AbstractMonster : D4Actor abstract
 	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
 	{
 		// Don't run this if dead or not shootable.
-		if (health < 1 || (!bSHOOTABLE && !bVULNERABLE))
+		if (health < 1 || (!bSHOOTABLE && !bVULNERABLE) || mod == 'Silent')
 			return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+			
+		if (!(flags & DMG_FORCED) && infighting < 1 && damage < TELEFRAG_DAMAGE)
+		{
+			if (source && source != self)
+			{
+				if (source.GetClass() == GetClass() && bDONTHARMCLASS)
+					return -1;
+					
+				if (source.species == species && !bDOHARMSPECIES)
+					return -1;
+			}
+		}
 		
 		// Do nothing further if no wound state is found, let the engine handle it instead.
 		let WoundState = ResolveState("Wound");
@@ -343,6 +370,8 @@ Class D4AbstractMonster : D4Actor abstract
 	
 	override void Die(Actor source, Actor inflictor, int dmgflags)
 	{
+		HasRezzer = false;
+		Tracer = null;
 		A_StopBeam();
 		if (Spawner && Spawner.health > 0)
 		{
@@ -383,6 +412,7 @@ Class D4AbstractMonster : D4Actor abstract
 	//--------------------------------------------------------------------------
 	void D4Chase(statelabel melee = "Melee", statelabel missile = "Missile", int flags = 0, double maxturn = 30.0)
 	{
+		HasRezzer = false;
 		//Fuckin' STAY DOWN!!!
 		if (bKILLED || health < 1)
 		{
@@ -500,116 +530,6 @@ Class D4AbstractMonster : D4Actor abstract
 	
 	
 	
-	
-	//==========================================================================
-	// Leaping
-	//==========================================================================
-	enum EJumpFlags
-	{
-		JF_FORWARD = (1<<0),
-		JF_UP = (1<<1),
-		
-		JF_ALL = JF_FORWARD|JF_UP
-	}
-	
-	
-
-	int oldLeap;
-	double leapDistance;
-
-	double GetGroundHeight()
-	{
-		double _floorz = GetZAt();
-		bool ok; Actor pOnmobj;
-		[ok, pOnmobj] = TestMobjZ(true);
-		if (!pOnmobj) return _floorz;
-		double _actorz = pOnmobj.pos.z + pOnmobj.height;
-		return max(_floorz, _actorz);
-	}
-	
-	// [MC] Do not call subfunctions. Graf has made it specifically clear they're
-	// quite speed hindering.
-	bool CheckOnGround()
-	{
-		bool ok; Actor pOnmobj;
-		
-		if (vel.z != 0)	return false;	// Remember, moving up and down lifts is not velocity.
-		double _floorz = GetZAt();
-		
-		[ok, pOnmobj] = TestMobjZ(true);
-		if (pOnmobj) return true;
-		double _actorz = pOnmobj.pos.z + pOnmobj.height;
-		double GroundHeight = max(_floorz, _actorz);
-		return (abs(GroundHeight - pos.z) < 1);
-	}
-	
-	double A_PrepareDrop()
-	{
-		vector2 aimbak = (angle, pitch);
-		A_FaceTarget(0,0);
-		angle = aimbak.x;
-		pitch = aimbak.y;
-		
-		double targdist = (target ? Distance3D(target) : 4096);
-		vector2 leadoffset;
-		
-		if (targdist > 2000) 
-			leadoffset = (frandom(-2.,2),frandom(-1.,1.));
-		else 
-			leadoffset = (deltaangle(aimbak.x, aimbak.x), deltaangle(aimbak.y, aimbak.y)) * targdist * frandom(0.055,0.067);
-
-		angle += leadoffset.x;
-		pitch += leadoffset.y;
-		return targdist;
-	}
-
-	void A_DropAdjust(class<actor> MissileType, class<actor> MissileType2,double offX, double offY, double offZ,
-						double Distance = 0, double speedmult = 1.0, double gravity = -1.0, actor target=null)
-	{
-		if (!target) target = self.target;
-		if (!target) return;
-		double ceil = CeilingZ - pos.z;
-		
-		double tarDist = A_PrepareDrop();
-		if (ceil < 80 || tarDist > 1000)
-		{
-			A_SpawnProjectile(MissileType2, offZ);
-			return;
-		}
-		let defs = GetDefaultByType(MissileType);
-		if (Distance < 1) 
-			Distance = Max(1, (target ? Distance2D(target) : 1));
-		if (Gravity < 0.0) 
-			Gravity = defs.Gravity;
-			
-		double NewSpeed = defs.Speed * speedmult;
-		if (defs.Gravity && Distance > NewSpeed)
-		{
-			int TicDistance = Distance / NewSpeed;
-            int DropAmount = 0;
-            for (int i = 1; i <= TicDistance; i++)
-			{
-                DropAmount += i;
-            }
-            pitch -= min(atan(DropAmount * Gravity / Distance), 30);
-        }
-
-        //because we don't shoot from height 32 but 42
-        if (Distance > 0) Pitch += atan(10 / Distance);
-		
-		A_DropProjectile(missiletype,offX,offY,offZ,tarDist);
-    }
-	
-	void A_DropProjectile(class<actor> missiletype, double offX, double offY, double offZ, double targdist)
-	{
-		A_SpawnItemEx(
-			missiletype, offX, offY, offZ,
-			cos(pitch) * offY, 0, -sin(pitch) * offY,
-			atan(offY / targdist),
-			flags: SXF_NOCHECKPOSITION|SXF_SETTARGET|SXF_TRANSFERPITCH
-		);
-	}
-	
 	protected void CheckRespawn()
 	{
 		if (!gibbed)	return;
@@ -627,18 +547,29 @@ Class D4AbstractMonster : D4Actor abstract
 		}
 		else if (phase == 1)
 		{
+			HasRezzer = false;
+			Rezzer = null;
 			let mo = Spawn("SummonTeleportFog", pos);
 			A_SetShootable();
-			SetState(FindState("See"));
+			SetState(ResolveState("See"));
 		}
 	}
 	
 	States
 	{
 	XRaise:
-		TNT1 A 35 XRespawn(0);
+		TNT1 A 1 XRespawn(0);
+		TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 1 CheckResurrector();
 		TNT1 A 1 XRespawn(1);
 		Wait;
+	Death.Silent:
+		TNT1 A 35 { bTHRUACTORS = true; }
+		TNT1 A -1 
+		{ 
+			bCORPSE = true;
+			if (bBOSS || bBOSSDEATH)	A_BossDeath();	
+		}
+		Stop;
 	}
 }
 

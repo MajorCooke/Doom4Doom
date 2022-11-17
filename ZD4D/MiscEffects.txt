@@ -47,14 +47,9 @@ Class D4DFX : D4Actor
 		D4DFX.RandomScaleFlip false;
 		+NOINTERACTION
 		+NOBLOCKMAP
+		+NOTONAUTOMAP
 		Radius 1;
 		Height 1;
-	}
-	
-	override void BeginPlay()
-	{
-		ChangeStatNum(Thinker.STAT_USER);
-		Super.BeginPlay();
 	}
 	
 	override void PostBeginPlay()

@@ -211,6 +211,7 @@ Class D4Grenade : D4AbstractMissilePlayer
 {
 	private Vector3 PrevPos;
 	private int Timer;
+	private int StuckTimer;
 	int TimeLimit;
 	Property TimeLimit: TimeLimit;
 	Default
@@ -224,7 +225,7 @@ Class D4Grenade : D4AbstractMissilePlayer
 		Radius 8;
 		Height 8;
 		Projectile;
-	//	BounceType "Doom";
+		
 		+FORCERADIUSDMG
 		+EXTREMEDEATH
 		+CANBOUNCEWATER
@@ -234,7 +235,7 @@ Class D4Grenade : D4AbstractMissilePlayer
 		+BOUNCEONWALLS
 		+BOUNCEONCEILINGS
 		+HITTRACER
-	//	ReactionTime 99;
+		
 		D4Grenade.TimeLimit 99;
 		BounceSound "Doom4/Weapon/GrenadeLauncher/Bounce";
 		DeathSound "Doom4/Weapon/GrenadeLauncher/Explode";
@@ -265,24 +266,38 @@ Class D4Grenade : D4AbstractMissilePlayer
 		RocketDamage();
 	}
 	
+	
+	override void Tick()
+	{
+		if (IsFrozen())	return;
+		
+		PrevPos = Pos;
+		Super.Tick();
+		
+		
+	}
+	
 	States
 	{
 	Spawn:
 		GRNL AAAA 1 A_SpawnItemEx("D4RocketTrailSmoke",-5,random(5,-5),random(5,-5),0,0,0,0,SXF_NOCHECKPOSITION);
 		GRNL A 1
 		{
+			
 			if (abs(vel.z) <= 1.0 && pos.z + height > ceilingz)
 				SetOrigin(pos - (0, 0, height),true);
 			
 			A_SpawnItemEx("D4RocketTrailSmoke",-5,random(5,-5),random(5,-5),0,0,0,0,SXF_NOCHECKPOSITION);
 			bNOGRAVITY = false;
-		//	A_CountDown();
+			
 			if (Timer >= TimeLimit || ++Timer >= TimeLimit)
-			{
 				bBOUNCEONFLOORS = false;
-			}
+				
+			if (PrevPos ~== Pos)
+				StuckTimer++;
+			
 			tracer = null;
-			if (!bBOUNCEONFLOORS && pos.z <= floorz)
+			if (StuckTimer >= 35 || (!bBOUNCEONFLOORS && pos.z <= floorz))
 				ExplodeMissile();
 		}
 		Wait;

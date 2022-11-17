@@ -386,7 +386,8 @@ extend class D4DHandler
 	{
 		// First, make sure it exists and it's a monster.
 		// Abort if they're set to not drop anything.
-		if (!mo || !mo.bISMONSTER || mo.bNOINTERACTION)	return false;
+		if (!mo || !mo.bISMONSTER || mo.bNOINTERACTION ||
+			mo.DamageTypeReceived == 'Silent')	return false;
 		int Restrictions = GetRestrictions(mo.GetClass());
 		if (Restrictions >= RF_NOTHING)					return true;
 		
