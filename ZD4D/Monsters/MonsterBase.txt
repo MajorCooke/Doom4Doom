@@ -410,7 +410,7 @@ Class D4AbstractMonster : D4Actor abstract
 	override void Die(Actor source, Actor inflictor, int dmgflags)
 	{
 		HasRezzer = false;
-		Tracer = null;
+		Rezzer = null;
 		A_StopBeam();
 		Super.Die(source, inflictor, dmgflags);
 		bSOLID = false;
@@ -487,9 +487,9 @@ Class D4AbstractMonster : D4Actor abstract
 	{
 		if (passive)
 		{
-			if (ResurrectCvar == '')	return true;
 			Cvar check = Cvar.FindCVar(ResurrectCvar);
 			bool good = (!check || check.GetBool());
+			
 			if (good)
 			{
 				HasRezzer = (other != null && !other.bKILLED);
