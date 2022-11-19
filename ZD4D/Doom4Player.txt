@@ -736,6 +736,12 @@ extend class Doom4Player
 		// Voodoo doll, or morphed.
 		if (!player || !player.mo || player.mo != self)
 		{
+			// Community Chest 1 made me do this. I hate those voodoo dolls smack
+			// dab in the middle of the action. Doesn't make any sense.
+			if (source && source != self && source is 'PlayerPawn' && source.player && 
+				mod != 'Telefrag')
+				return -1;
+				
 			return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
 		}
 		
