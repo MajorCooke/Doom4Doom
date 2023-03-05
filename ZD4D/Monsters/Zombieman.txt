@@ -70,7 +70,7 @@ Class D4Zombieman : D4AbstractMonster //replaces Zombieman
 		
 	//------------------------	
 	Missile:
-		TNT1 A 0 { if(random(1,8)==8) { A_PlaySound("Doom4/Monsters/Grunt/Attack",CHAN_AUTO); } }
+		TNT1 A 0 { if(random(1,8)==8) { PlaySound("Doom4/Monsters/Grunt/Attack",CHAN_AUTO); } }
 		TNT1 A 0 A_Jump(200,"PlasmaBurst"); // most of the time will do the plasma 4shot
 		
 		//------------------------
@@ -128,23 +128,23 @@ Class D4Zombieman : D4AbstractMonster //replaces Zombieman
 				Goto FinishPlasmaExplo;
 				
 				FinishPlasmaExplo:
-					TNT1 A 0 A_PlaySound("Doom4/Monsters/PlasmaShotBig");
+					TNT1 A 0 PlaySound("Doom4/Monsters/PlasmaShotBig");
 					RFTR F 5 Bright;
 					RFTR E 15;
 					Goto See;
 		//------------------------
 		PlasmaBurst:
 			RFTR E 10 A_FaceTarget();
-			//TNT1 A 0 A_PlaySound("Doom4/Monsters/PlasmaShot",CHAN_AUTO,0.6)
+			//TNT1 A 0 PlaySound("Doom4/Monsters/PlasmaShot",CHAN_AUTO,0.6)
 			RFTR F 5 Bright A_SpawnProjectile("ZombiemanPlasmaBall",31,7,0);
 			RFTR E 5 A_FaceTarget();
-			//TNT1 A 0 A_PlaySound("Doom4/Monsters/PlasmaShot",CHAN_AUTO,0.6)
+			//TNT1 A 0 PlaySound("Doom4/Monsters/PlasmaShot",CHAN_AUTO,0.6)
 			RFTR F 5 Bright A_SpawnProjectile("ZombiemanPlasmaBall",31,7,0);
 			RFTR E 5 A_FaceTarget();
-			//TNT1 A 0 A_PlaySound("Doom4/Monsters/PlasmaShot",CHAN_AUTO,0.6)
+			//TNT1 A 0 PlaySound("Doom4/Monsters/PlasmaShot",CHAN_AUTO,0.6)
 			RFTR F 5 Bright A_SpawnProjectile("ZombiemanPlasmaBall",31,7,0);
 			RFTR E 5 A_FaceTarget();
-			//TNT1 A 0 A_PlaySound("Doom4/Monsters/PlasmaShot",CHAN_AUTO,0.6)
+			//TNT1 A 0 PlaySound("Doom4/Monsters/PlasmaShot",CHAN_AUTO,0.6)
 			RFTR F 5 Bright A_SpawnProjectile("ZombiemanPlasmaBall",31,7,0);
 			RFTR E 5 A_FaceTarget();
 			Goto See;
@@ -181,6 +181,7 @@ Class D4Zombieman : D4AbstractMonster //replaces Zombieman
 	XDeath:
 		TNT1 A 10
 		{
+			bDONTGIB = true;
 			XDeathGush();
 			A_NoBlocking();	//just in case;
 		}
@@ -360,7 +361,7 @@ Class PlasmaExploder128 : D4AbstractMissile
 	}
 }
 
-Class PlasmaBombExplo : Actor 
+Class PlasmaBombExplo : D4DFX 
 {
 	Default 
 	{
@@ -386,7 +387,7 @@ Class PlasmaBombExplo : Actor
 	}
 }
 
-Class PlasmaBombExploSparkSpawner : Actor 
+Class PlasmaBombExploSparkSpawner : D4DFX 
 {
 	Default 
 	{
@@ -578,7 +579,7 @@ Class ZombiemanPlasmaBall : D4AbstractMissile //: FastProjectile
 	}
 }
 
-Class ZombiePlasmaTrail : Actor 
+Class ZombiePlasmaTrail : D4DFX 
 {
 	Default 
 	{
@@ -599,7 +600,7 @@ Class ZombiePlasmaTrail : Actor
 		Loop;
 	}
 }
-Class ZombiePlasmaBallPuff : Actor 
+Class ZombiePlasmaBallPuff : D4DFX 
 {
 	double  scaler;	//this one is to easily tweak the inherited versions
 	Default 

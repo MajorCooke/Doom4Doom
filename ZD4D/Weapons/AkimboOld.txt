@@ -2208,7 +2208,7 @@ Class AkimboWeapon : Weapon
 		{
 			if (!CountInv("RLTargetToken"))
 			{
-				A_RearrangePointers(DefPtr,DefPtr,NullPtr,4);
+				A_RearrangePointers(AAPTR_DEFAULT,AAPTR_DEFAULT,NullPtr,4);
 				A_GiveInventory("RLTargetToken",1);
 			}
 			return ResolveState("D4RocketLauncher.LockOnHold");

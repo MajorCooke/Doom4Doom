@@ -22,6 +22,34 @@ mixin Class D4D_FastRNG
 
 mixin Class D4D_ActorFunctions
 {
+	// Compatibility...
+	/*
+	
+	*/
+	
+	void SetViewAPR(Vector3 APR, bool add = false, bool interp = true)
+	{
+		int flag = (interp) ? SPF_INTERPOLATE : 0;
+		if (add)
+		{
+			A_SetViewAngle(APR.X, flag);
+			A_SetViewPitch(APR.Y, flag);
+			A_SetViewRoll (APR.Z, flag);
+		}
+		else
+		{
+			A_SetViewAngle(viewangle + APR.X, flag);
+			A_SetViewPitch(viewpitch + APR.Y, flag);
+			A_SetViewRoll (viewroll  + APR.Z, flag);
+		}
+	}
+	
+	void PlaySound(sound whattoplay = "weapons/pistol", int slot = CHAN_BODY, double volume = 1.0, bool looping = false, double attenuation = ATTN_NORM, bool local = false, double pitch = 0.0)
+	{
+		int flag = (looping) ? CHANF_LOOP : 0;
+		A_StartSound(whattoplay, slot, flag, volume, attenuation, pitch);
+	}
+
 	int Explode(int damage = -1, int radius = -1, int full = 0, 
 		double thrust = -1, double trad = -1, int tfull = -1,
 		int flags = XF_HURTSOURCE, int radflags = 0, 

@@ -119,7 +119,7 @@ Class D4MPWeapon : Actor
 	Spawn:
 		TNT1 A 0 NoDelay
 		{
-			rng = (CountInv("D4StaticRifle",Player1) ? random(1,3) : random(1,4));
+			rng = (CountInv("D4StaticRifle",AAPTR_PLAYER1) ? random(1,3) : random(1,4));
 				 if (rng == 1)	{	A_SpawnItemEx("D4LightningGun",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	}
 			else if (rng == 2)	{	A_SpawnItemEx("D4VortexRifle",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);	}
 			else if (rng == 3)	{	A_SpawnItemEx("D4Repeater",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);		}

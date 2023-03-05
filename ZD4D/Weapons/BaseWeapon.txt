@@ -6,8 +6,28 @@ const SparsitySmall = 100.0; //10.415;
 //
 //==============================================================================
 //==============================================================================
+mixin class D4D_WeaponAPR
+{
+	action void A_SetViewAPR(Vector3 APR, bool add = false, bool interp = true)
+	{
+		int flag = (interp) ? SPF_INTERPOLATE : 0;
+		if (!add)
+		{
+			A_SetViewAngle(APR.X, flag);
+			A_SetViewPitch(APR.Y, flag);
+			A_SetViewRoll (APR.Z, flag);
+		}
+		else
+		{
+			A_SetViewAngle(viewangle + APR.X, flag);
+			A_SetViewPitch(viewpitch + APR.Y, flag);
+			A_SetViewRoll (viewroll  + APR.Z, flag);
+		}
+	}
+}
 Class Doom4Weapon : Weapon
 {
+	mixin D4D_WeaponAPR;
 	const GrenadeOverlay = 50;
 	const GrenadePrimer = 51;
 	const PunchOverlay = 52;
@@ -120,6 +140,13 @@ Class Doom4Weapon : Weapon
 		*/
 	}
 	
+	action void PlaySound(sound whattoplay = "weapons/pistol", int slot = CHAN_BODY, double volume = 1.0, bool looping = false, double attenuation = ATTN_NORM, bool local = false, double pitch = 0.0)
+	{
+		let i = invoker; let o = i.owner; if (!o)	return;
+		int flag = (looping) ? CHANF_LOOP : 0;
+		o.A_StartSound(whattoplay, slot, flag, volume, attenuation, pitch);
+	}
+	
 	action void ToggleWeaponMode()
 	{
 		let i = invoker;
@@ -229,7 +256,7 @@ Class Doom4Weapon : Weapon
 		if (invoker.beams.Size() > 0)
 		{
 			A_StopSound(CHAN_WEAPON);	// Needed in the event StopSound is blank.
-			A_PlaySound(StopSound, CHAN_WEAPON);	//This won't do anything if StopSound is blank.
+			PlaySound(StopSound, CHAN_WEAPON);	//This won't do anything if StopSound is blank.
 			for (int i = 0; i < invoker.beams.Size(); i++)
 			{
 				let mo = invoker.Beams[i];
@@ -275,9 +302,7 @@ Class Doom4Weapon : Weapon
 	
 	action Actor FireProjectile(Class<Actor> proj, Vector3 off, vector2 AP = (0,0), bool useammo = true)
 	{
-		let i = invoker;
-		let o = i.owner;
-		if (!o)	return null;
+		let i = invoker; let o = i.owner;	if (!o)	return null;
 		
 		Vector3 px, py, pz, origin;
 		[px, py, pz] = MC_CoordUtil.GetAxes(o.Pitch, o.Angle, o.Roll);
@@ -287,17 +312,39 @@ Class Doom4Weapon : Weapon
 		if (gren)
 		{
 			Vector3 dir = (px + py * tan(AP.X) + pz * tan(AP.Y)).unit();
-			
-		//	gren.angle = o.angle;
-		//	gren.pitch = o.pitch;
 			gren.target = o;
 			gren.vel = dir * gren.speed;
 			[gren.angle, gren.pitch] = MC_S7_Math.GetVectorAngles(gren.vel);
-			//gren.A_FaceMovementDirection();
 		}
 		return gren;
 	}
+	/*
+	// When GZDoom 4.10 (or 5.0, whichever) becomes a thing, replace the above with
+	// this so it's one less dependency. Then apply the same to all other places
+	// with coordutil and remove the library.
 	
+	action Actor FireProjectile(Class<Actor> proj, Vector3 off, vector2 AP = (0,0), bool useammo = true)
+	{
+		let i = invoker; let o = i.owner;	if (!o)	return null;
+		off.y *= -1.0; 
+		Quat base = Quat.FromAngles(angle, pitch, roll);
+		Quat angs = Quat.FromAngles(AP.X, AP.Y, 0); // if roll is desired, plug in AP(R).Z where the 0 is.
+		
+		Vector3 origin = Vec2OffsetZ(0, 0, player.viewz) + base * off;
+		if (useammo)	invoker.DepleteAmmo(i.bAltFire);
+		
+		Vector3 res = base * angs * (1,0,0);
+		let gren = Spawn(proj, origin, ALLOW_REPLACE);
+		if (gren)
+		{
+			gren.target = o;
+			gren.vel = res * gren.speed;
+			gren.angle = atan2(res.y, res.x);
+			gren.pitch = -atan2(res.z, res.xy.Length());
+		}
+		return gren;
+	}
+	*/
 	override void OwnerDied()
 	{
 		A_StopBeam();
@@ -426,7 +473,7 @@ Class Doom4Weapon : Weapon
 	Finisher1:
 		---- A 0 
 		{
-			A_GiveInventory("GloryKill1Token",1,TargetPtr);
+			A_GiveInventory("GloryKill1Token",1,AAPTR_TARGET);
 			A_OverlayFlags(PunchOverlay,PSPF_ADDWEAPON,0);
 			A_OverlayOffset(PunchOverlay,0,32);
 			SetPlayerProperty(0,1,PROP_TOTALLYFROZEN); //player is made invulnerable, unshootable, unmovable and frozen for the duration of the Glory Kill
@@ -442,9 +489,9 @@ Class Doom4Weapon : Weapon
 		MELE "[" 1 A_OverlayOffset(PunchOverlay,-20,40);
 		MELE "[" 1 A_OverlayOffset(PunchOverlay,-40,50);
 		MELE A 1 A_OverlayOffset(PunchOverlay,40,50);
-		MELE B 1 { A_OverlayOffset(PunchOverlay,20,48); A_Playsound("Doom4/Other/MeleeSwing1",CHAN_BODY); }
+		MELE B 1 { A_OverlayOffset(PunchOverlay,20,48); PlaySound("Doom4/Other/MeleeSwing1",CHAN_BODY); }
 		MELE C 1 A_OverlayOffset(PunchOverlay,0,40);
-		MELE C 1 { A_OverlayOffset(PunchOverlay,-20,35); A_Playsound("Doom4/Weapon/Melee/Punch",CHAN_WEAPON); }
+		MELE C 1 { A_OverlayOffset(PunchOverlay,-20,35); PlaySound("Doom4/Weapon/Melee/Punch",CHAN_WEAPON); }
 		MELE C 1 { A_OverlayOffset(PunchOverlay,-40,35); A_SetAngle(5+angle); A_SetRoll(-5); A_SetPitch(-3); }
 		MELE C 1 { A_OverlayOffset(PunchOverlay,-60,35); A_SetAngle(5+angle); A_SetRoll(-10); A_SetPitch(-6); }
 		MELE C 1 A_OverlayOffset(PunchOverlay,-80,60);
@@ -455,10 +502,10 @@ Class Doom4Weapon : Weapon
 		MELE C 1 A_OverlayOffset(PunchOverlay,-200,160);
 		MELE G 1 A_OverlayOffset(PunchOverlay,20,80);
 		MELE G 1 A_OverlayOffset(PunchOverlay,10,70);
-		MELE H 1 { A_OverlayOffset(PunchOverlay,0,60); A_Playsound("Doom4/Other/MeleeSwing1",CHAN_BODY); }
+		MELE H 1 { A_OverlayOffset(PunchOverlay,0,60); PlaySound("Doom4/Other/MeleeSwing1",CHAN_BODY); }
 		MELE H 1 { A_OverlayOffset(PunchOverlay,10,50);  A_SetRoll(3); A_SetPitch(1); }
 		MELE I 1 { A_OverlayOffset(PunchOverlay,10,40);  A_SetRoll(6); A_SetPitch(2); }
-		MELE I 1 { A_OverlayOffset(PunchOverlay,10,35); A_Playsound("Doom4/Weapon/Melee/Kick",CHAN_WEAPON); }
+		MELE I 1 { A_OverlayOffset(PunchOverlay,10,35); PlaySound("Doom4/Weapon/Melee/Kick",CHAN_WEAPON); }
 		MELE I 1 A_OverlayOffset(PunchOverlay,-10,36);
 		MELE I 1 A_OverlayOffset(PunchOverlay,-12,40);
 		MELE H 1 A_OverlayOffset(PunchOverlay,-13,48);
@@ -480,7 +527,7 @@ Class Doom4Weapon : Weapon
 	Finisher2:	//double punch
 		---- A 0 
 		{
-			A_GiveInventory("GloryKill2Token",1,TargetPtr);
+			A_GiveInventory("GloryKill2Token",1,AAPTR_TARGET);
 			A_OverlayFlags(PunchOverlay,PSPF_ADDWEAPON,0);
 			A_OverlayOffset(PunchOverlay,0,32);
 			SetPlayerProperty(0,1,PROP_TOTALLYFROZEN);
@@ -496,9 +543,9 @@ Class Doom4Weapon : Weapon
 		MELE "[" 1 A_OverlayOffset(PunchOverlay,-20,40);
 		MELE "[" 1 A_OverlayOffset(PunchOverlay,-40,50);
 		MELE A 1 A_OverlayOffset(PunchOverlay,40,50);
-		MELE B 1 { A_OverlayOffset(PunchOverlay,20,48); A_Playsound("Doom4/Other/MeleeSwing1",CHAN_BODY); }
+		MELE B 1 { A_OverlayOffset(PunchOverlay,20,48); PlaySound("Doom4/Other/MeleeSwing1",CHAN_BODY); }
 		MELE C 1 A_OverlayOffset(PunchOverlay,0,40);
-		MELE C 1 { A_OverlayOffset(PunchOverlay,-20,35); A_Playsound("Doom4/Weapon/Melee/Punch",CHAN_WEAPON); }
+		MELE C 1 { A_OverlayOffset(PunchOverlay,-20,35); PlaySound("Doom4/Weapon/Melee/Punch",CHAN_WEAPON); }
 		MELE C 1 { A_OverlayOffset(PunchOverlay,-40,35); A_SetAngle(5+angle); A_SetRoll(-5); A_SetPitch(-3); }
 		MELE C 1 { A_OverlayOffset(PunchOverlay,-60,35); A_SetAngle(5+angle); A_SetRoll(-10); A_SetPitch(-6); }
 		MELE C 1 A_OverlayOffset(PunchOverlay,-80,60);
@@ -508,9 +555,9 @@ Class Doom4Weapon : Weapon
 		MELE C 1 { A_OverlayOffset(PunchOverlay,-180,140); A_SetAngle(-2+angle); A_SetRoll(0); A_SetPitch(0); }
 		MELE C 1 A_OverlayOffset(PunchOverlay,-200,160);
 		MELE D 1 A_OverlayOffset(PunchOverlay,-40,50);
-		MELE E 1 { A_OverlayOffset(PunchOverlay,-20,48); A_Playsound("Doom4/Other/MeleeSwing1",CHAN_BODY); }
+		MELE E 1 { A_OverlayOffset(PunchOverlay,-20,48); PlaySound("Doom4/Other/MeleeSwing1",CHAN_BODY); }
 		MELE F 1 A_OverlayOffset(PunchOverlay,0,40);
-		MELE F 1 { A_OverlayOffset(PunchOverlay,20,35); A_Playsound("Doom4/Weapon/Melee/Punch",CHAN_WEAPON); }
+		MELE F 1 { A_OverlayOffset(PunchOverlay,20,35); PlaySound("Doom4/Weapon/Melee/Punch",CHAN_WEAPON); }
 		MELE F 1 { A_OverlayOffset(PunchOverlay,40,35); A_SetAngle(-5+angle); A_SetRoll(-5); A_SetPitch(-3); }
 		MELE F 1 { A_OverlayOffset(PunchOverlay,60,35); A_SetAngle(-5+angle); A_SetRoll(-10); A_SetPitch(-6); }
 		MELE F 1 A_OverlayOffset(PunchOverlay,80,60);
@@ -532,7 +579,7 @@ Class Doom4Weapon : Weapon
 	Finisher3:
 		---- A 0 
 		{
-			A_GiveInventory("GloryKill3Token",1,TargetPtr);
+			A_GiveInventory("GloryKill3Token",1,AAPTR_TARGET);
 			A_OverlayFlags(PunchOverlay,PSPF_ADDWEAPON,0);
 			A_OverlayOffset(PunchOverlay,0,32);
 			SetPlayerProperty(0,1,PROP_TOTALLYFROZEN);
@@ -548,9 +595,9 @@ Class Doom4Weapon : Weapon
 		MELE "[" 1 A_OverlayOffset(PunchOverlay,-20,40);
 		MELE "[" 1 A_OverlayOffset(PunchOverlay,-40,50);
 		MELE J 1 { A_OverlayOffset(PunchOverlay,1,40); A_SetAngle(3+angle); A_SetPitch(-2); }
-		MELE J 1 { A_OverlayOffset(PunchOverlay,-5,0); A_SetAngle(3+angle); A_SetPitch(-4); A_Playsound("Doom4/Other/MeleeSwing1",CHAN_BODY); }
+		MELE J 1 { A_OverlayOffset(PunchOverlay,-5,0); A_SetAngle(3+angle); A_SetPitch(-4); PlaySound("Doom4/Other/MeleeSwing1",CHAN_BODY); }
 		MELE J 1 { A_OverlayOffset(PunchOverlay,-10,-40); A_SetAngle(3+angle); A_SetPitch(-8); }
-		MELE J 4 { A_OverlayOffset(PunchOverlay,-25,-90); A_Playsound("Doom4/Weapon/Melee/Punch",CHAN_WEAPON); }
+		MELE J 4 { A_OverlayOffset(PunchOverlay,-25,-90); PlaySound("Doom4/Weapon/Melee/Punch",CHAN_WEAPON); }
 		MELE J 1 { A_OverlayOffset(PunchOverlay,-20,-60); A_SetAngle(-2+angle); A_SetPitch(-8); }
 		MELE J 1 { A_OverlayOffset(PunchOverlay,-15,-30); A_SetAngle(-2+angle); A_SetPitch(-6); }
 		MELE J 1 { A_OverlayOffset(PunchOverlay,-10,0); A_SetAngle(-2+angle); A_SetPitch(-4); }
@@ -571,7 +618,17 @@ Class Doom4Weapon : Weapon
 	}
 }
 
-Class Doom4SuperWeapon : Doom4Weapon {}
+Class Doom4SuperWeapon : Doom4Weapon 
+{
+	override bool TryPickup(in out Actor toucher)
+	{
+		bool good = Super.TryPickup(toucher);
+		if (good)
+			toucher.A_StartSound("Doom4/Weapon/BFG/Pickup", 30, CHANF_OVERLAP);
+			
+		return good;
+	}
+}
 
 Class BusyToken : Inventory { Default { Inventory.InterhubAmount 0; }}
 
@@ -580,7 +637,7 @@ Class GloryKill1Token : Inventory {}
 Class GloryKill2Token : Inventory {}
 Class GloryKill3Token : Inventory {}
 
-Class GloryKillPuff : Actor 
+Class GloryKillPuff : D4DFX 
 {
 	Default 
 	{
@@ -601,7 +658,7 @@ Class GloryKillPuff : Actor
 		Stop;
 	}
 }
-Class MeleePunchPuff : Actor 
+Class MeleePunchPuff : D4Actor 
 {
 	Default 
 	{
@@ -732,14 +789,14 @@ Class FallingHands : Weapon
 		{
 			if(pitch < 80) { A_SetPitch(80, SPF_INTERPOLATE); }
 			A_Log("Impact Compensation.");
-			A_PlaySound("Doom4/Player/Climb",7); // placeholder sound
+			A_StartSound("Doom4/Player/Climb",7); // placeholder sound
 			A_Overlay(Overlay_AnglePitch,"Visuals");
 		}
 		TNT1 A 25;
 		TNT1 ABCDEFGH 1 A_SetPitch(pitch * 97 / 100 - frandom(0.1,1.0), SPF_INTERPOLATE);
 		TNT1 ABCDEFGHIJKLMNOPQRSTUVWXYZ 1 A_SetPitch(pitch * 95 / 100 - frandom(0.5,1.5), SPF_INTERPOLATE);
 		TNT1 ABCDEFGH 1 A_SetPitch(pitch * 90 / 100 - frandom(0.1,1.0), SPF_INTERPOLATE);
-		TNT1 A 0 A_TakeInventory("FallingHands",0x7FFFFFFF);
+		TNT1 A 0 A_SetInventory("FallingHands",0);
 		TNT1 A 0 A_SelectWeapon("D4Pistol");
 		TNT1 A 0 A_WeaponReady;
 	Visuals:
@@ -888,7 +945,7 @@ Class D4DoomDollHands : Weapon
 	}
 }
 
-Class BroFistPuff : Actor 
+Class BroFistPuff : D4DFX 
 {
 	Default 
 	{
@@ -920,7 +977,7 @@ Class BroFistPuff : Actor
 	}
 }
 
-Class DollExplosion : Actor
+Class DollExplosion : D4DFX
 {
 	Default
 	{
@@ -931,7 +988,7 @@ Class DollExplosion : Actor
 	States
 	{
 	Spawn:
-		TNT1 A 200 NoDelay A_PlaySound("Doom4/Other/DollExplode",CHAN_WEAPON,1,0,ATTN_NONE);
+		TNT1 A 200 NoDelay PlaySound("Doom4/Other/DollExplode",CHAN_WEAPON,1,0,ATTN_NONE);
 		Stop;
 	}
 }
@@ -1031,7 +1088,7 @@ Class DollJump : PowerupGiver
 //=======================================================================
 //=======================================================================
 
-Class D4BulletCasing : Actor 
+Class D4BulletCasing : D4Actor 
 {
 	double RollAmt;
 	Default 
@@ -1100,7 +1157,7 @@ Class D4ShellCasingSilent : D4ShellCasing
 
 
 
-Class NonPuff : Actor
+Class NonPuff : D4DFX
 {
 	Default
 	{
@@ -1245,7 +1302,7 @@ Class BulletSmallTracer : D4D_Projectile_New
 }
 
 /*
-Class BulletSmallTracer : Actor
+Class BulletSmallTracer : D4Actor
 {
 	Actor Puff;
 	bool DestroyMe, HadPuff, FirstTic;
@@ -1332,10 +1389,10 @@ Class BulletSmallTracer : Actor
 */
 
 
-Class D4AbstractMissile : D4Actor 
+Class D4AbstractMissile : D4Actor
 {
 	bool HQ;
-	
+	Vector2 AP;
 	override void PostBeginPlay()
 	{
 		HQ = GetCvar("HQEffects");
@@ -1352,6 +1409,7 @@ Class D4AbstractMissile : D4Actor
 				GetCvar("D4D_MonProjIntercept") && Target && Target.bISMONSTER)
 			{
 				D4D_Intercept.InterceptActor(self, Tracer, IAF_AIM|IAF_CLIPZ);
+				
 			}
 		}
 		Super.PostBeginPlay();
@@ -1432,7 +1490,7 @@ Class D4AbstractMissileQuake : D4AbstractMissile
 
 
 /** Trace test puffs **/
-class D4D_TraceTestPuff : Actor 
+class D4D_TraceTestPuff : D4DFX 
 {
     default 
 	{
@@ -1525,6 +1583,8 @@ class D4D_Projectile_Trace : LineTracer
 
 class D4D_Projectile_New : MC_S7_Projectile
 {
+	
+	mixin D4D_ActorFunctions;
 	mixin D4D_FastRNG;
 	Default
 	{
@@ -1536,6 +1596,7 @@ class D4D_Projectile_New : MC_S7_Projectile
 
 class D4D_Projectile : FastProjectile 
 {
+	mixin D4D_ActorFunctions;
     enum EMovementMode 
 	{
         Normal = 0, /// The projectile uses the normal movement code.

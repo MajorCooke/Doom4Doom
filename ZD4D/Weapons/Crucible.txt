@@ -181,14 +181,6 @@ Class DECrucible : Doom4Weapon
 		Super.Travelled();
 	}
 	
-	// Upon spawning or travelling, makes Crucible ammo spawn in place of ammo
-	// and allows Crucible ammo pinatas to spawn.
-	override void EnableAmmoSpawn()
-	{
-		if (!Event) Event = D4DHandler.Fetch();
-		if (Event)	Event.SetActorSpawn(D4DHandler.CrucibleAmmo, true);
-	}
-	
 	// Additively adds to the swing angle and automatically offsets the overlays.
 	// If WOF_ADD isn't included, signals to the weapon that this is the start
 	// of a new swing to create a new tracer, and thus take ammo upon damaging
@@ -733,7 +725,7 @@ Class DECrucible : Doom4Weapon
 	}
 }
 
-Class DECrucibleShadow : Actor
+Class DECrucibleShadow : D4DFX
 {
 	Default
 	{
@@ -808,7 +800,7 @@ Class DECrucibleTracer : LineTracer
 	}
 }
 
-Class DECruciblePuff : Actor
+Class DECruciblePuff : D4DFX
 {
 	Default
 	{

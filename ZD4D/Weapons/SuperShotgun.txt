@@ -239,14 +239,14 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 			{	
 				A_Overlay(RGunFire,"SSG.FireBullets");
 				int chan = (ssr) ? 7 : CHAN_WEAPON;
-				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",chan);
+				PlaySound("Doom4/Weapon/SuperShotgun/Fire",chan);
 				A_GiveInventory("SSRSecondShotToken",1);	ssr++;
 			}
 			else								
 			{
 				A_Overlay(RGunFire,"SSG.FireBullets");
 				A_Overlay(RGunFire2,"SSG.FireBullets");
-				A_PlaySound("Doom4/Weapon/SuperShotgun/Fire",CHAN_WEAPON);
+				PlaySound("Doom4/Weapon/SuperShotgun/Fire",CHAN_WEAPON);
 				A_GiveInventory("SSRSecondShotToken",2);	ssr += 2;
 			}
 			
@@ -589,18 +589,18 @@ Class D4SuperShotgun : Doom4Weapon //replaces SuperShotgun
 	
 	Overlay.ReloadSoundNormal:
 		TNT1 A 5;
-		TNT1 A 1 A_PlaySound("Doom4/Weapon/SuperShotgun/Open",5,SSGReloadVolume);
-		TNT1 A 10 A_PlaySound("Doom4/Weapon/SuperShotgun/EjectShell",6,SSGReloadVolume);
-		TNT1 A 6 A_PlaySound("Doom4/Weapon/SuperShotgun/ShellClick",5,SSGReloadVolume); 
-		TNT1 A 16 A_PlaySound("Doom4/Weapon/SuperShotgun/Load",6,SSGReloadVolume);
-		TNT1 A 1 A_PlaySound("Doom4/Weapon/SuperShotgun/Close",5,SSGReloadVolume);
+		TNT1 A 1 PlaySound("Doom4/Weapon/SuperShotgun/Open",5,SSGReloadVolume);
+		TNT1 A 10 PlaySound("Doom4/Weapon/SuperShotgun/EjectShell",6,SSGReloadVolume);
+		TNT1 A 6 PlaySound("Doom4/Weapon/SuperShotgun/ShellClick",5,SSGReloadVolume); 
+		TNT1 A 16 PlaySound("Doom4/Weapon/SuperShotgun/Load",6,SSGReloadVolume);
+		TNT1 A 1 PlaySound("Doom4/Weapon/SuperShotgun/Close",5,SSGReloadVolume);
 		Stop;
 	Overlay.ReloadSoundFast:
 		TNT1 A 11;
 	Overlay.ReloadSoundSanicDaHedgahmahoggy: // Crackhead getting crack, speed, and cocaine at once makes him super.
 		TNT1 A 1
 		{
-			A_PlaySound("Doom4/Weapon/SuperShotgun/FullReload", 5, SSGReloadVolume);
+			PlaySound("Doom4/Weapon/SuperShotgun/FullReload", 5, SSGReloadVolume);
 		}
 		Stop;
 	}
@@ -632,7 +632,7 @@ Class D4BulletPuffForRailsExtreme : D4BulletPuffForRails
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 //	Normal SSG
-Class SSGCasingSpawner : Actor 
+Class SSGCasingSpawner : D4DFX 
 {
 	const Flags = WARPF_NOCHECKPOSITION|WARPF_COPYPITCH;
 	const Distance = 18;
@@ -665,10 +665,10 @@ Class SSGCasingSpawner : Actor
 			{	pos = (sin(pitch) * 6);	}
 			
 			
-			A_Warp(MasterPtr,
+			A_Warp(AAPTR_MASTER,
 				(cos(-pitch)*(Distance)) - pos,
 				YOff,
-				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
+				(ZOff*GetCrouchFactor(AAPTR_MASTER))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
 			
 			if (D4D_Casings)
 			{
@@ -683,7 +683,7 @@ Class SSGCasingSpawner : Actor
 }
 
 //	Double SSG, right
-Class SSGCasingSpawnerRight : Actor 
+Class SSGCasingSpawnerRight : D4DFX 
 {
 	const Flags = WARPF_NOCHECKPOSITION|WARPF_COPYPITCH;
 	const Distance = 18;
@@ -715,10 +715,10 @@ Class SSGCasingSpawnerRight : Actor
 			{	pos = (sin(pitch) * 6);	}
 			
 			
-			A_Warp(MasterPtr,
+			A_Warp(AAPTR_MASTER,
 				(cos(-pitch)*(Distance)) - pos,
 				YOff,
-				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
+				(ZOff*GetCrouchFactor(AAPTR_MASTER))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
 			
 			if (D4D_Casings)
 			{
@@ -733,7 +733,7 @@ Class SSGCasingSpawnerRight : Actor
 }
 
 //	Double SSG, Left
-Class SSGCasingSpawnerLeft : Actor 
+Class SSGCasingSpawnerLeft : D4DFX 
 {
 	const Flags = WARPF_NOCHECKPOSITION|WARPF_COPYPITCH;
 	const Distance = 18;
@@ -762,10 +762,10 @@ Class SSGCasingSpawnerLeft : Actor
 			else //Looking up
 			{	pos = (sin(pitch) * 6);	}
 			
-			A_Warp(MasterPtr,
+			A_Warp(AAPTR_MASTER,
 				(cos(-pitch)*(Distance)) - pos,
 				YOff,
-				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
+				(ZOff*GetCrouchFactor(AAPTR_MASTER))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
 				
 			if (GetCvar("D4D_Casings"))
 			{

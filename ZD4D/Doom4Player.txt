@@ -1,9 +1,7 @@
 
-
-
-
 Class Doom4Player : PlayerPawn
 {
+	mixin D4D_ActorFunctions;
 	const DashSpeed = 30.0;
 	const DamageDegree = 8;
 	const ZFlagCheck =	CLOFF_ALLOWNULL|CLOFF_SKIPTARGET|CLOFF_FROMBASE|
@@ -421,12 +419,12 @@ Class Doom4Player : PlayerPawn
 					
 					// Shouldn't happen, but just in case.
 					D4Msg.PrintStatus(D4Msg.NoEquip);		// No equipment available
-					A_PlaySound("Doom4/Player/Nope",CHAN_AUTO);
+					PlaySound("Doom4/Player/Nope",CHAN_AUTO);
 				}
 				else
 				{
 					D4Msg.PrintStatus(D4Msg.EquipNotReady); // Equipment not ready
-					A_PlaySound("Doom4/Player/Nope",CHAN_AUTO);
+					PlaySound("Doom4/Player/Nope",CHAN_AUTO);
 				}
 				
 			}
@@ -440,10 +438,10 @@ Class Doom4Player : PlayerPawn
 			if (!level.IsPointInLevel(origin))
 				origin = pos;
 				
-			let gren = Spawn(GrenadeToFire, origin, ALLOW_REPLACE);
+			let gren = D4Actor(Spawn(GrenadeToFire, origin, ALLOW_REPLACE));
 			if (gren)
 			{
-				gren.A_PlaySound("Doom4/Weapon/Grenade/ThrowGren",5);
+				gren.A_StartSound("Doom4/Weapon/Grenade/ThrowGren",5);
 				gren.master = self;
 				gren.target = self;
 				gren.angle = angle;
@@ -486,7 +484,7 @@ Class Doom4Player : PlayerPawn
 				let gren = Spawn(GrenadeToFire, origin, ALLOW_REPLACE);
 				if (gren)
 				{
-					gren.A_PlaySound("Doom4/Weapon/Grenade/ThrowGren",5);
+					gren.A_StartSound("Doom4/Weapon/Grenade/ThrowGren",5);
 					gren.master = self;
 					gren.target = self;
 					gren.angle = angle;
@@ -957,7 +955,7 @@ extend class Doom4Player
 		if (health < 1)
 		{
 			effectSize = 0;
-			Shader.SetEnabled(player, "damageshader", false);
+			PPShader.SetEnabled("damageshader", false);
 			return;
 		}
 		if (damage > 0)
@@ -1167,10 +1165,10 @@ extend class Doom4Player
 		// Case sensitivity is important here for the shader strings, i.e. "damageFactor"
 		if (effectSize > 0) 
 		{
-			Shader.SetEnabled(player, "damageshader", true);
-			Shader.SetUniform1f(player, "damageshader", "damageFactor", effectSize);
+			PPShader.SetEnabled("damageshader", true);
+			PPShader.SetUniform1f("damageshader", "damageFactor", effectSize);
 		}
-		else Shader.SetEnabled(player, "damageshader", false);
+		else PPShader.SetEnabled("damageshader", false);
 		
 		double returnSpeed = 0;
 		if (effectSize != 0) returnSpeed = pow(0.01, 1/(effectSize * 5));
@@ -1249,7 +1247,7 @@ extend class Doom4Player
 						player.jumpTics = -1;
 						if (!(player.cheats & CF_PREDICTING)) 
 						{
-							A_PlaySound("*jump", CHAN_BODY);
+							PlaySound("*jump", CHAN_BODY);
 						}
 					}
 				}
@@ -1262,7 +1260,7 @@ extend class Doom4Player
 						
 					Vel.Z += 8.2 + (CountInv("D4HigherJump") * 1.5);
 					UjumpsDone++;
-					A_PlaySound("Doom4/Player/DoubleJump");
+					PlaySound("Doom4/Player/DoubleJump");
 				}
 			}
 		}

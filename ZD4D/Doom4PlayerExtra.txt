@@ -63,29 +63,33 @@ extend class Doom4Player
 	override void PostUnmorph(Actor mo, bool current)
 	{
 		A_SetInventory("D4MonsterUpgrader",0);
-		A_SetViewPitch(0);
 		if (current && GetClassName() == 'Doom4Player')
 		{
 			bUNMORPHINVUL = false;
 			bNODAMAGE = bINVULNERABLE = true;
-			let arm = BasicArmor(FindInventory("BasicArmor",true));
+			BasicArmor arm = BasicArmor(FindInventory("BasicArmor",true));
 			if (!arm)	
 			{
 				A_GiveInventory('BlueArmor');
-				let arm = BasicArmor(FindInventory("BasicArmor",true));
-				if (!arm)	return;
+				arm = BasicArmor(FindInventory("BasicArmor",true));
 			}
 			
 			A_SetHealth(Recorder.HP);
-			arm.SavePercent = 		Recorder.SavePercent;
-			arm.Amount = 			Recorder.Amount;
-			arm.AbsorbCount = 		Recorder.AbsorbCount;
-			arm.MaxAbsorb = 		Recorder.MaxAbsorb;
-			arm.MaxFullAbsorb = 	Recorder.MaxFullAbsorb;
-			arm.BonusCount = 		Recorder.BonusCount;
-			arm.ActualSaveAmount = 	Recorder.ActualSaveAmount;
-			arm.ArmorType = 		Recorder.ArmorType;
+			if (arm)
+			{
+				arm.SavePercent = 		Recorder.SavePercent;
+				arm.Amount = 			Recorder.Amount;
+				arm.AbsorbCount = 		Recorder.AbsorbCount;
+				arm.MaxAbsorb = 		Recorder.MaxAbsorb;
+				arm.MaxFullAbsorb = 	Recorder.MaxFullAbsorb;
+				arm.BonusCount = 		Recorder.BonusCount;
+				arm.ActualSaveAmount = 	Recorder.ActualSaveAmount;
+				arm.ArmorType = 		Recorder.ArmorType;
+			}
 			
+			SetViewAPR((0,0,0));
+			angle = mo.angle;
+			pitch = mo.pitch;
 			A_GiveInventory("Invul3s");
 			SetupOverlays(false);
 		}
@@ -164,7 +168,7 @@ extend class Doom4Player
 		{
 			AbsoluteAlternative = Alternative;
 			let p = alternative.player;
-			Shader.SetEnabled(p, "damageshader", false);
+			PPShader.SetEnabled("damageshader", false);
 		}
 		return morph;
 	}
@@ -174,7 +178,7 @@ extend class Doom4Player
 		Super.MorphPlayerThink();
 		
 		if (!(alternative is "Doom4Player"))
-			Shader.SetEnabled(player, "damageshader", false);
+			PPShader.SetEnabled("damageshader", false);
 	}
 	
 	//==========================================================================

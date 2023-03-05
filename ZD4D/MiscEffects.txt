@@ -79,7 +79,19 @@ Class D4DFX : D4Actor
 	}
 }
 
-
+Class D4Nothing : D4DFX
+{
+	Default
+	{
+		+NOSECTOR
+	}
+	States
+	{
+	Spawn:
+		TNT1 A 0;
+		Stop;
+	}
+}
 //---------------------------------------------------------------
 //---------------------------------------------------------------
 //		Explosions
@@ -270,7 +282,7 @@ Class D4BulletPuff : D4DFX //replaces BulletPuff
 			roll = random(0,359);
 			if (!random(0,2))
 			{
-				A_PlaySound("Doom4/Other/BulletHitConcrete",CHAN_AUTO,0.75,0,4);
+				PlaySound("Doom4/Other/BulletHitConcrete",CHAN_AUTO,0.75,0,4);
 			}
 		}
 		TNT1 A 0 
@@ -317,7 +329,7 @@ Class D4BulletPuff : D4DFX //replaces BulletPuff
 		{
 			if(random(1,2)==2)
 			{
-				A_PlaySound("Doom4/Other/BulletHitFlesh",CHAN_AUTO,1.0,0/*,4*/);
+				PlaySound("Doom4/Other/BulletHitFlesh",CHAN_AUTO,1.0,0/*,4*/);
 			}
 		}
 		TNT1 A 10;
@@ -406,7 +418,7 @@ Class BulletPuffParticle : D4DFX
 //==============================================================================
 
 
-Class PacifistPuff : Actor 
+Class PacifistPuff : D4DFX 
 {
 	Default 
 	{
@@ -467,7 +479,7 @@ Class NonPacifistPuffExtreme : NonPacifistPuff
 //
 //------------------------------------------------------------------
 //------------------------------------------------------------------
-Class GenericExplosionParticleSpawner : Actor //particles spawned by barrels and rockets
+Class GenericExplosionParticleSpawner : D4DFX //particles spawned by barrels and rockets
 {
 	
 	Default 
@@ -599,7 +611,7 @@ Class ModuleGiver : CustomInventory
 }
 
 ///////////////////////////////// temporary debug shit
-Class D4HologramTooOld : Actor 
+Class D4HologramTooOld : D4DFX 
 {
 	Default 
 	{
@@ -615,7 +627,7 @@ Class D4HologramTooOld : Actor
     }
 }
 /*
-Class SpinTop : Actor
+Class SpinTop : D4DFX
 {
 	const FullTurnSpeed = 6.0;
 	const FullRollPitchSpeed = 3.0;

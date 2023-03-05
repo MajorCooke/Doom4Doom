@@ -97,7 +97,7 @@ Class PlayerFatso : DemonPlayerBase
 		{
 			if (!GetCvar("D4D_SilentMorphs") && random(1,8)==8)
 			{
-				A_PlaySound("Doom4/Monsters/Mancubus/Idle",5);
+				PlaySound("Doom4/Monsters/Mancubus/Idle",5);
 			}
 		}
 		Loop;
@@ -110,12 +110,12 @@ Class PlayerFatso : DemonPlayerBase
 			{
 				if(USpeed > 10 )
 				{
-					A_PlaySound("Player/Demon/MechStep",CHAN_BODY,0.8);
+					PlaySound("Player/Demon/MechStep",CHAN_BODY,0.8);
 					A_SetTics(14);
 				}
 				else if(USpeed > 5)
 				{
-					A_PlaySound("Player/Demon/MechStep",CHAN_BODY,0.8);
+					PlaySound("Player/Demon/MechStep",CHAN_BODY,0.8);
 					A_SetTics(18);
 				}
 			}
@@ -170,11 +170,11 @@ Class D4DFatsoWeapon : DemonWeaponBase
 	FireP6:
 	FireP7:
 	FireP0:
-		//MARM A 25 A_PlaySound("Doom4/Monsters/Mancubus/Attack2",CHAN_WEAPON);
+		//MARM A 25 PlaySound("Doom4/Monsters/Mancubus/Attack2",CHAN_WEAPON);
 	FireLooper:
 		MARM A 0 
 		{
-			A_PlaySound("Player/Demon/Fatso/Fire",6);
+			PlaySound("Player/Demon/Fatso/Fire",6);
 			A_FireProjectile("D4FatsoPlayerFire",0,0,15,10);
 			A_FireProjectile("D4FatsoPlayerFire",0,0,-15,10);
 		}
@@ -196,7 +196,7 @@ Class D4DFatsoWeapon : DemonWeaponBase
 	AltFireP0:
 		MARM D 0 
 		{
-			A_PlaySound("Doom4/Other/FlamerStart",6);
+			PlaySound("Doom4/Other/FlamerStart",6);
 			A_WeaponOffset(0,12,WOF_ADD);
 		}
 	AltFireLoop:
@@ -205,7 +205,7 @@ Class D4DFatsoWeapon : DemonWeaponBase
 			A_FireProjectile("FatsoPlayerFlamethrower",0,0,15,10);
 			A_FireProjectile("FatsoPlayerFlamethrower",0,0,-15,10);
 		}
-		MARM A 0 A_PlaySound("Doom4/Other/FlamerLoop",7);
+		MARM A 0 PlaySound("Doom4/Other/FlamerLoop",7);
 		MARM D 0 A_Refire("AltFireLoop");
 		MARM A 0 
 		{
@@ -226,7 +226,7 @@ Class D4DFatsoWeapon : DemonWeaponBase
 
 //----------------------------------------
 // flame thrower attack
-Class FatsoPlayerFlamethrower : Actor 
+Class FatsoPlayerFlamethrower : D4Actor 
 {
 	int user_counter;
 	Default 
@@ -269,7 +269,7 @@ Class FatsoPlayerFlamethrower : Actor
 
 //----------------------------------------
 // fireball attack
-Class D4FatsoPlayerFire : Actor 
+Class D4FatsoPlayerFire : D4Actor 
 {
 	Default 
 	{

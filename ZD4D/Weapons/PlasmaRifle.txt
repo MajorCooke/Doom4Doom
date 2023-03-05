@@ -87,7 +87,7 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 		{
 			A_RemoveChildren(true,RMVF_EVERYTHING,"PlasmaHeatMuzzle");
 			A_TakeInventory("PlasmaMuzzlePresent",1);
-			A_StopSound(5);
+			A_StopSound(21);
 			A_Lower();
 		}
 	DesLoop:
@@ -137,16 +137,16 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 			Goto FireNormal;
 		
 		FireNormal:
+			#### A 0
+			{
+				A_StartSound("Doom4/Weapon/PlasmaGun/Fire",20,CHANF_OVERLAP);
+				A_StartSound("Doom4/Weapon/PlasmaGun/PlasmaLoop",21,CHANF_LOOP);
+				
+				return ResolveState("FireNormalLoop");
+			}
+		FireNormalLoop:
 			#### A 1 Bright 
 			{
-				if (CountInv("PlasmaShotCounter") > 0)
-				{
-					A_PlaySound("Doom4/Weapon/PlasmaGun/PlasmaLoop",5,1,2);
-				}
-				else if (CountInv("PlasmaShotCounter") < 1)
-				{
-					A_PlaySound("Doom4/Weapon/PlasmaGun/Fire",CHAN_WEAPON,1);
-				}
 				A_SetBlend("skyblue",0.03,3);
 				A_AlertMonsters();
 				A_GunFlash("Null");
@@ -168,32 +168,29 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 				A_WeaponOffset(-2,-3,WOF_ADD);
 			}
 			#### D 1 {	A_WeaponOffset(-2,-2,WOF_ADD);	A_SetTics(IsDoubleSpeed() ? 0 : 1); }
-			#### D 0 A_Refire("FireNormal");
+			#### D 0 A_Refire("FireNormalLoop");
 			Goto EndFire;
 			
 			EndFire:
 				#### A 0
 				{
 					if (CountInv("PlasmaShotCounter") > 1) //if player fired more than 2 shots, the looping sound was active, and needs to end with an echoey sound
-					{ A_PlaySound("Doom4/Weapon/PlasmaGun/Fire",CHAN_WEAPON,1); }
+					{ PlaySound("Doom4/Weapon/PlasmaGun/Fire",21,1); }
 					A_TakeInventory("PlasmaShotCounter",32767);
-					A_StopSound(5);
 				}
 				Goto Ready;
 		
 		//-------------------------------------------------------
 		// heat builder primary fire
 		HeatBuilderFire:
-			PRHF A 1 Bright
+			PRHF A 0 Bright
 			{
-				if (CountInv("PlasmaShotCounter") > 0)
-				{
-					A_PlaySound("Doom4/Weapon/PlasmaGun/PlasmaHeatLoop",5,1,2);
-				}
-				else if (CountInv("PlasmaShotCounter")< 1)
-				{
-					A_PlaySound("Doom4/Weapon/PlasmaGun/PlasmaHeatFire",CHAN_WEAPON,1);
-				}
+				PlaySound("Doom4/Weapon/PlasmaGun/PlasmaHeatLoop",21,1,2);
+				PlaySound("Doom4/Weapon/PlasmaGun/PlasmaHeatFire",CHAN_WEAPON,1);
+			}
+		HeatBuilderFireLoop:
+			---- A 1
+			{
 				A_SetBlend("skyblue",0.03,3);
 				A_AlertMonsters();
 				A_GunFlash("Null");
@@ -212,16 +209,16 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 				A_WeaponOffset(-2,-3,WOF_ADD);
 			}
 			PRHI A 1 {	A_WeaponOffset(-2,-2,WOF_ADD);	A_SetTics(IsDoubleSpeed() ? 0 : 1); }
-			PRHI A 0 A_Refire("HeatBuilderFire");
+			PRHI A 0 A_Refire("HeatBuilderFireLoop");
 			Goto EndHeatBuilderFire;
 			
 			EndHeatBuilderFire:
 				"----" A 0
 				{
 					if (CountInv("PlasmaShotCounter") > 1) //if player fired more than 2 shots, the looping sound was active, and needs to end with an echoey sound
-					{	A_PlaySound("Doom4/Weapon/PlasmaGun/PlasmaHeatFire",CHAN_WEAPON,1);	}
+					{	PlaySound("Doom4/Weapon/PlasmaGun/PlasmaHeatFire",CHAN_WEAPON,1);	}
 					A_TakeInventory("PlasmaShotCounter",100);
-					A_StopSound(5);
+					A_StopSound(21);
 				}
 				Goto Ready;
 				
@@ -262,8 +259,8 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 				{
 					A_GunFlash("Null");
 					A_AlertMonsters();
-					A_SpawnItemEx("HeatBlastExplo",0,6,32*GetCrouchFactor(DefPtr),0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_SETMASTER|SXF_SETTARGET);
-					A_PlaySound("Doom4/Weapon/PlasmaGun/PlasmaHeatExplo",CHAN_WEAPON,1);
+					A_SpawnItemEx("HeatBlastExplo",0,6,32*GetCrouchFactor(AAPTR_DEFAULT),0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_SETMASTER|SXF_SETTARGET);
+					PlaySound("Doom4/Weapon/PlasmaGun/PlasmaHeatExplo",CHAN_WEAPON,1);
 					A_SetBlend("SkyBlue",0.2,10);
 					A_SetPitch(pitch-4.0);
 					A_WeaponOffset(10,10,WOF_ADD);
@@ -308,7 +305,7 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 			StunBomb:
 				PRSF A 1 Bright 
 				{
-					A_PlaySound("Doom4/Weapon/PlasmaGun/AltFire",CHAN_WEAPON);
+					PlaySound("Doom4/Weapon/PlasmaGun/AltFire",CHAN_WEAPON);
 					A_GunFlash("Null");
 					A_FireProjectile("StunBomb",0,0,0);
 					A_AlertMonsters();
@@ -364,7 +361,7 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 			---- A 5;
 			//pull up StunBomb
 			PRSS AAAAABCD 1 A_WeaponOffset(0,-10,WOF_ADD); // 0 -80
-			PRSS D 0 A_PlaySound("Doom4/Weapon/PlasmaGun/SwitchToElectro",5,1);
+			PRSS D 0 PlaySound("Doom4/Weapon/PlasmaGun/SwitchToElectro",5,1);
 			PRSS D 0 A_GiveInventory("StunBombActive",1);
 			PRSS EFGHIJK 1;
 			PRSS LLLL 1 A_WeaponOffset(0,3,WOF_ADD);
@@ -379,7 +376,7 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 			#### #### 1 A_WeaponOffset(0,20,WOF_ADD); //+0 +80
 			#### "#" 5;
 			//pull up HeatBlast
-			PRHS X 0 A_PlaySound("Doom4/Weapon/PlasmaGun/SwitchToHeat",5,1);
+			PRHS X 0 PlaySound("Doom4/Weapon/PlasmaGun/SwitchToHeat",5,1);
 			PRHS X 0 A_GiveInventory("HeatBlastActive",1);
 			PRHS AAAAAABC 1 A_WeaponOffset(0,-10,WOF_ADD); // 0 -80
 			PRHS DEFGHIJK 1;
@@ -406,7 +403,7 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 			#### "#" 5;
 			//pull up StunBomb
 			PRSS AAAAABCD 1 A_WeaponOffset(0,-10,WOF_ADD); // 0 -80
-			PRSS D 0 A_PlaySound("Doom4/Weapon/PlasmaGun/SwitchToElectro",5,1);
+			PRSS D 0 PlaySound("Doom4/Weapon/PlasmaGun/SwitchToElectro",5,1);
 			PRSS D 0 A_TakeInventory("HeatBlastActive",1);
 			PRSS D 0 A_GiveInventory("StunBombActive",1);
 			PRSS EFGHIJK 1;
@@ -424,7 +421,7 @@ Class D4PlasmaRifle : Doom4Weapon //replaces PlasmaRifle
 			#### #### 1 A_WeaponOffset(0,20,WOF_ADD); //+0 +80
 			#### "#" 5;
 			//pull HeatBlast
-			TNT1 A 0 A_PlaySound("Doom4/Weapon/PlasmaGun/SwitchToHeat",5,1);
+			TNT1 A 0 PlaySound("Doom4/Weapon/PlasmaGun/SwitchToHeat",5,1);
 			TNT1 A 0 A_TakeInventory("StunBombActive",1);
 			PRHS X 0 A_GiveInventory("HeatBlastActive",1);
 			PRHS AAAAAABC 1 A_WeaponOffset(0,-10,WOF_ADD); // 0 -80
@@ -469,7 +466,7 @@ Class PlasmaShotCounter : Inventory //this is used only to know if it should Loo
 }
 
 
-Class D4DPlasmaBall : Actor 
+Class D4DPlasmaBall : D4Actor 
 {
 	Default 
 	{
@@ -580,7 +577,7 @@ Class D4PlasmaShockwave : D4DFX
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 
-Class HeatBlastExplo : Actor 
+Class HeatBlastExplo : D4DFX 
 {
 	const Flags = WARPF_NOCHECKPOSITION|WARPF_COPYPITCH|WARPF_COPYVELOCITY;
 	const Distance = 20;
@@ -614,7 +611,7 @@ Class HeatBlastExplo : Actor
 		{	
 			if (!master)	{ Destroy(); return; }
 			pitch = master.pitch;
-			Warp(Master,cos(-pitch)*(Distance),YOff,(ZOff*GetCrouchFactor(MasterPtr))+sin(-pitch)*Distance,0,Flags);
+			Warp(Master,cos(-pitch)*(Distance),YOff,(ZOff*GetCrouchFactor(AAPTR_MASTER))+sin(-pitch)*Distance,0,Flags);
 			
 			// Sets the damage of the wave via plasma heat counters.
 			strength = master.CountInv("PlasmaHeatBlastCounter");
@@ -684,7 +681,7 @@ Class HeatBlastExplo : Actor
 	}
 }
 
-Class PlasmaRifleHeatCloud : Actor 
+Class PlasmaRifleHeatCloud : D4DFX 
 {
 	Default 
 	{
@@ -716,7 +713,7 @@ Class PlasmaMuzzlePresent : Inventory
 {}
 
 // TO DO: 
-Class PlasmaHeatMuzzle : Actor 
+Class PlasmaHeatMuzzle : D4DFX 
 {
 	const Flags = WARPF_NOCHECKPOSITION|WARPF_COPYPITCH;
 	const Distance = 17;
@@ -764,11 +761,11 @@ Class PlasmaHeatMuzzle : Actor
 			{	pos = (sin(pitch) * 6);	}
 			
 			
-			A_Warp(MasterPtr,
+			A_Warp(AAPTR_MASTER,
 				(cos(-pitch)*(Distance)) - pos,
 				YOff * side,
-				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,WARPF_NOCHECKPOSITION|WARPF_COPYPITCH|WARPF_INTERPOLATE);
-			if (CountInv("PlasmaHeatBlastCounter", MasterPtr) >= 15)
+				(ZOff*GetCrouchFactor(AAPTR_MASTER))+(sin(-pitch)*(Distance)),0,WARPF_NOCHECKPOSITION|WARPF_COPYPITCH|WARPF_INTERPOLATE);
+			if (CountInv("PlasmaHeatBlastCounter", AAPTR_MASTER) >= 15)
 			{
 				if (GetCvar("HQEffectsWeapons"))
 				{
@@ -788,7 +785,7 @@ Class PlasmaHeatMuzzle : Actor
 		Stop;
 	}
 }
-Class PlasmaRifleSteam : Actor 
+Class PlasmaRifleSteam : D4DFX 
 {
 	int c;
 	
@@ -827,7 +824,7 @@ Class PlasmaRifleSteam : Actor
 //--------------------------------------------------------------------------------
 Class PlasmaStunBombCounter : Counter {}
 
-Class StunBomb : Actor 
+Class StunBomb : D4Actor 
 {
 	int angle;
 	
@@ -882,7 +879,7 @@ Class StunBomb : Actor
 	}
 }
 
-Class StunBombSpark : Actor 
+Class StunBombSpark : D4DFX 
 {
 	Default 
 	{
@@ -908,7 +905,7 @@ Class StunBombSpark : Actor
 	}
 }
 
-Class StunBombShockwave1 : Actor 
+Class StunBombShockwave1 : D4DFX 
 {
 	Default 
 	{
@@ -931,7 +928,7 @@ Class StunBombShockwave1 : Actor
 	}
 }
 
-Class StunBombShockwave2 : Actor 
+Class StunBombShockwave2 : D4DFX 
 {
 	Default 
 	{

@@ -41,9 +41,9 @@ Class D4Arachnotron : D4AbstractBiggie //replaces Arachnotron // : Arachnotron	/
 	Sight:
 		ARAC A 20;
 	See:
-		ARAC A 3 { D4Chase(); A_PlaySound("Player/Demon/ArachnotronStep"); }
+		ARAC A 3 { D4Chase(); PlaySound("Player/Demon/ArachnotronStep"); }
 		ARAC ABBCC 3 D4Chase();
-		ARAC D 3 { D4Chase(); A_PlaySound("Player/Demon/ArachnotronStep"); }
+		ARAC D 3 { D4Chase(); PlaySound("Player/Demon/ArachnotronStep"); }
 		ARAC DEEFF 3 D4Chase();
 		Goto See;
 	Missile:
@@ -85,7 +85,7 @@ Class D4Arachnotron : D4AbstractBiggie //replaces Arachnotron // : Arachnotron	/
 		ARAC LMNO 4;
 		ARAC P -1
 		{
-			A_BossDeath();
+			BossDeath();
 			bCORPSE = true;
 		}
 		Stop;
@@ -97,10 +97,11 @@ Class D4Arachnotron : D4AbstractBiggie //replaces Arachnotron // : Arachnotron	/
 	XDeath:
 		TNT1 A 10 CanRaise
 		{
+			bDONTGIB = true;
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}
-		---- A RezTimer CanRaise { A_BossDeath(); DoCorpse(); }
+		---- A RezTimer CanRaise { BossDeath(); DoCorpse(); }
 		Stop;
     Raise:
 		---- A 0 CheckRespawn();
@@ -201,6 +202,7 @@ Class D4Arachnotron : D4AbstractBiggie //replaces Arachnotron // : Arachnotron	/
 
 Class ArachnoPlasma : D4AbstractMissile
 {
+	
 	Default 
 	{
 		Projectile;
@@ -219,6 +221,13 @@ Class ArachnoPlasma : D4AbstractMissile
 		DeathSound "Doom4/Weapon/PlasmaGun/PlasmaCrash";
 		Decal "PurplePlasmaMonster";
 	}
+	
+	protected virtual void HitPuff()
+	{
+		A_SpawnItemEx("D4ArachnoPuffBig1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+	}
+	
+	
 	States
 	{
 	Spawn:
@@ -232,32 +241,48 @@ Class ArachnoPlasma : D4AbstractMissile
 		PLS2 ABCDEF 1 Light("PurpleSmallPoint1") Bright;
 		Loop;
 	Death:
-		TNT1 A 10 A_SpawnItemEx("D4ArachnoPuffBig1",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
+		TNT1 A 10 HitPuff();
 		Stop;
 	}
 }
 
 Class D4ArachnoPuffBig1 : D4PistolPuffBig1
 {
+	Color col1, col2, col3;
+//	String c1, c2;
+	Property Colors: col1, col2;
 	Default 
 	{
+		D4ArachnoPuffBig1.Colors "FFC5FF", "C175C1";
 		Scale 0.1;
 	}
+	
+	override void PostBeginPlay()
+	{
+		Super.PostBeginPlay();
+				
+		col3.r = ((col1.r + col2.r) / 2);
+		col3.g = ((col1.g + col2.g) / 2);
+		col3.b = ((col1.b + col2.b) / 2);
+	}
+	
+	void ParticleFX(int amt)
+	{
+		for (int i = 0; i < amt; i++)
+		{
+			A_SpawnParticle(col1,SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,vel.z-0.06);
+			A_SpawnParticle(col2,SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,vel.z-0.06);
+			A_SpawnParticle(col3,SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,vel.z-0.06);
+		}
+	}
+	
 	States
 	{
 	Spawn:
 		TNT1 A 0 NoDelay
 		{
 			scaler = 0.025;
-			if (HQ)
-			{
-				A_SpawnParticle("FFC5FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,vel.z-0.06);
-				A_SpawnParticle("FFC5FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,vel.z-0.06);
-				A_SpawnParticle("FF93FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,vel.z-0.06);
-				A_SpawnParticle("FF93FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,vel.z-0.06);
-				A_SpawnParticle("C175C1",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,vel.z-0.06);
-				A_SpawnParticle("C175C1",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,vel.z-0.06);
-			}
+			if (HQ) ParticleFX(2);
 			return A_Jump(256,"Type1","Type2","Type3","Type4","Type5","Type6","Type7","Type8");
 		}
 		Goto Type1;
@@ -352,7 +377,7 @@ Class D4OldArachnotron : D4AbstractBiggie //  : Arachnotron
 		BSPI P -1 
 		{	
 			bCorpse = true;	
-			A_BossDeath();
+			BossDeath();
 		}
 		Stop;
 	//------------------------------------------------------------------------
@@ -491,7 +516,7 @@ Class OldArachnotronPlasma : D4AbstractMissile //replaces ArachnotronPlasma
 	}
 }
 
-Class MonPlasmaTrail : Actor 
+Class MonPlasmaTrail : D4DFX 
 {
 	Default 
 	{

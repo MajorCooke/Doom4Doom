@@ -35,7 +35,7 @@ Class BuyCrate : CustomInventory
 Class D4BackpackSpawned : Inventory { Default { Inventory.InterhubAmount 0; }}
 Class D4AutomapSpawned : Inventory { Default { Inventory.InterhubAmount 0; }}
 
-Class CrateSpawner : Actor
+Class CrateSpawner : D4DFX
 {
 	enum ECrateLevels
 	{
@@ -62,8 +62,8 @@ Class CrateSpawner : Actor
 			return;
 		
 		A_SpawnItemEx("TeleportFog",0,0,-30,0,0,0,0,SXF_NOCHECKPOSITION);
-		A_PlaySound("Doom4/Other/Crate1",6);
-	//	A_PlaySound("Doom4/Other/Crate1",7);
+		PlaySound("Doom4/Other/Crate1",6);
+	//	PlaySound("Doom4/Other/Crate1",7);
 		
 		Upgrade = Target.CountInv("D4CrateUpgrade");
 		
@@ -200,7 +200,7 @@ Class CrateSpawner : Actor
 		{
 			A_Stop();
 			A_SpawnItemEx("TeleportFog",0,0,-30,0,0,0,0,SXF_NOCHECKPOSITION);
-			A_PlaySound("Doom4/Other/Crate1",6);
+			PlaySound("Doom4/Other/Crate1",6);
 			if (!Target)
 			{
 				A_SpawnItemEx("CrateItemSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
@@ -361,7 +361,7 @@ Class CrateWeaponSpawner : RandomSpawner
 	}
 }
 
-Class CrateItemSpawner2 : Actor
+Class CrateItemSpawner2 : D4DFX
 {
 	const LowDivisor = 3;
 	bool has_bulletguns;
@@ -642,7 +642,7 @@ Class CrateItemSpawner2 : Actor
 
 
 
-Class CrateItemSpawner3 : Actor
+Class CrateItemSpawner3 : D4DFX
 {
 	int user_missilesAround;
 	int user_monstersAround;
@@ -779,7 +779,7 @@ Class CrateItemSpawner3 : Actor
 				{ A_SpawnItemEx("BlurSphere",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 				else if (random(0,100) < 70)
 				{ A_SpawnItemEx("D4DoomDoll",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
-				else if (!CountInv("PowerScanner", TargetPtr))
+				else if (!CountInv("PowerScanner", AAPTR_TARGET))
 				{ A_SpawnItemEx("AllMap",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
 				else 
 				{ A_SpawnItemEx("CrateWeaponSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION); }
@@ -791,7 +791,7 @@ Class CrateItemSpawner3 : Actor
 			// 5. I don't need another
 			
 			
-			if (CountInv("PowerScanner", TargetPtr) == 0 &&
+			if (CountInv("PowerScanner", AAPTR_TARGET) == 0 &&
 				random(0,100) < 30 )
 			{
 				A_SpawnItemEx("D4HealthBonus", 20,  0,0,0,0,0,0,SXF_NOCHECKPOSITION);

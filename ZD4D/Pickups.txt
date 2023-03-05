@@ -444,11 +444,11 @@ Class D4Backpack : BackpackItem //replaces Backpack
 		{
 			A_SetAngle(random[rng](0,359));
 			
-			if (!CountInv("FragGrenadePickup",Player1))
+			if (!CountInv("FragGrenadePickup",AAPTR_PLAYER1))
 				A_SpawnItemEx("FragGrenadeWorld",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-			else if (!CountInv("HoloGrenadePickup",Player1))
+			else if (!CountInv("HoloGrenadePickup",AAPTR_PLAYER1))
 				A_SpawnItemEx("HoloGrenadeWorld",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-			else if (!CountInv("SyphonGrenadePickup",Player1))
+			else if (!CountInv("SyphonGrenadePickup",AAPTR_PLAYER1))
 				A_SpawnItemEx("SyphonGrenadeWorld",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 			
 		}
@@ -597,7 +597,7 @@ Class D4UpgradeCase : CustomInventory
 	}
 }
 
-Class D4UpgradePickupSpawner : Actor
+Class D4UpgradePickupSpawner : D4DFX
 {
 	Array<String> items;
 	
@@ -882,7 +882,7 @@ Class SovietChaingunUpgradePickup : D4UpgradePickup
 				A_SetInventory("SovietActive",1);
 			}
 			// BUGS THIS BIG BECOME FEATURES!
-			A_SetInventory("D4Bullets",CountInv("D4Bullets") + 666,DefPtr,true);
+			A_SetInventory("D4Bullets",CountInv("D4Bullets") + 666,AAPTR_DEFAULT,true);
 		}
 		Stop;
 	}

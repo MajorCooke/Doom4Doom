@@ -113,7 +113,7 @@ Class D4Demon : D4AbstractMonster //replaces Demon
 		D4DG E 8 
 		{
 			A_FaceTarget();
-			A_PlaySound("Doom4/Monsters/Pinky/Charge");
+			PlaySound("Doom4/Monsters/Pinky/Charge");
 			accelerator = 5;
 			chargecooldown = 5; //how many "see" cycles it takes him to try to charge again
 		}
@@ -124,7 +124,7 @@ Class D4Demon : D4AbstractMonster //replaces Demon
 		}
 		D4DG ABCDABCD 4 // full acceleration
 		{
-			if(A_CheckBlock("Null",0,DefPtr,speed) || (vel == (0,0,vel.z)))	//when it stops
+			if(A_CheckBlock("Null",0,AAPTR_DEFAULT,speed) || (vel == (0,0,vel.z)))	//when it stops
 			{
 				return ResolveState("CrashedSomewhere");
 			}
@@ -134,7 +134,7 @@ Class D4Demon : D4AbstractMonster //replaces Demon
 		}
 		D4DG ABCD 4 //slowing down
 		{
-			if (A_CheckBlock("Null",0,DefPtr,speed) || (vel == (0,0,vel.z)))	//when it stops
+			if (A_CheckBlock("Null",0,AAPTR_DEFAULT,speed) || (vel == (0,0,vel.z)))	//when it stops
 			{
 				return ResolveState("CrashedSomewhere");
 			}
@@ -147,7 +147,7 @@ Class D4Demon : D4AbstractMonster //replaces Demon
 		D4DG G 35 Fast  
 		{
 			A_QuakeEx(0,1,1,10,0,128,"",QF_Relative|QF_ScaleDown,0,0,0,0,0,1);
-			A_PlaySound("Doom4/Monsters/Pinky/Crash",7);
+			PlaySound("Doom4/Monsters/Pinky/Crash",7);
 			A_SetDamageType("PinkieRam");
 			A_Explode(30,50,XF_NOTMISSILE,0,50);
 			A_SetDamageType("Normal");
@@ -191,6 +191,7 @@ Class D4Demon : D4AbstractMonster //replaces Demon
 	XDeath:
 		TNT1 A 10 CanRaise
 		{
+			bDONTGIB = true;
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}
@@ -298,7 +299,7 @@ Class D4Demon : D4AbstractMonster //replaces Demon
 }
 
 
-Class DemonShield : Actor 
+Class DemonShield : D4Actor 
 {
 	int UDamage;
 	int MasterCheck1, MasterCheck2, HealthCheck1, HealthCheck2;
@@ -330,14 +331,14 @@ Class DemonShield : Actor
 		{
 			if (master && master.health > 50 && !master.CountInv("FinisherToken"))
 			{
-				A_Warp(MasterPtr,8,0,0,0,WARPF_NOCHECKPOSITION);
+				A_Warp(AAPTR_MASTER,8,0,0,0,WARPF_NOCHECKPOSITION);
 				
 				if (health < GetSpawnHealth())
 				{
 					// Damage the pinkie for the total amount of health lost. The pinkie will
 					// absorb half of it because of the damagetype. Transfer the damager
 					// for the sake of infighting.
-					A_DamageMaster((GetSpawnHealth() - health) / 2,DamageTypeReceived,0,null,"none",TargetPtr);
+					A_DamageMaster((GetSpawnHealth() - health) / 2,DamageTypeReceived,0,null,"none",AAPTR_TARGET);
 					A_ResetHealth(); //Needed to ensure 
 					A_ClearTarget();
 				}

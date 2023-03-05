@@ -1,0 +1,84 @@
+class D4D_JsonElementOrError {
+}
+
+class D4D_JsonElement : D4D_JsonElementOrError abstract {
+	abstract string serialize();
+}
+
+class D4D_JsonNumber : D4D_JsonElement abstract {
+	abstract D4D_JsonNumber negate();
+}
+
+class D4D_JsonInt : D4D_JsonNumber {
+	int i;
+	static D4D_JsonInt make(int i=0){
+		D4D_JsonInt ii=new("D4D_JsonInt");
+		ii.i=i;
+		return ii;
+	}
+	override D4D_JsonNumber negate(){
+		i=-i;
+		return self;
+	}
+	override string serialize(){
+		return ""..i;
+	}
+}
+
+class D4D_JsonDouble : D4D_JsonNumber {
+	double d;
+	static D4D_JsonDouble make(double d=0){
+		D4D_JsonDouble dd=new("D4D_JsonDouble");
+		dd.d=d;
+		return dd;
+	}
+	override D4D_JsonNumber negate(){
+		d=-d;
+		return self;
+	}
+	override string serialize(){
+		return ""..d;
+	}
+}
+
+class D4D_JsonBool : D4D_JsonElement {
+	bool b;
+	static D4D_JsonBool make(bool b=false){
+		D4D_JsonBool bb=new("D4D_JsonBool");
+		bb.b=b;
+		return bb;
+	}
+	override string serialize(){
+		return b?"true":"false";
+	}
+}
+
+class D4D_JsonString : D4D_JsonElement {
+	string s;
+	static D4D_JsonString make(string s=""){
+		D4D_JsonString ss=new("D4D_JsonString");
+		ss.s=s;
+		return ss;
+	}
+	override string serialize(){
+		return D4D_JSON.serialize_string(s);
+	}
+}
+
+class D4D_JsonNull : D4D_JsonElement {
+	static D4D_JsonNull make(){
+		return new("D4D_JsonNull");
+	}
+	override string serialize(){
+		return "null";
+	}
+}
+
+class D4D_JsonError : D4D_JsonElementOrError {
+	String what;
+	static D4D_JsonError make(string s){
+		D4D_JsonError e=new("D4D_JsonError");
+		e.what=s;
+		return e;
+	}
+}

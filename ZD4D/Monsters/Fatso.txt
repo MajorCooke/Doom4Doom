@@ -94,7 +94,7 @@ Class D4FatsoTech : D4AbstractBiggie
 		FATT G 1 
 		{	
 			HQ = GetCvar("HQEffects");
-			A_Playsound("Doom4/Monsters/Mancubus/Melee",CHAN_AUTO);
+			PlaySound("Doom4/Monsters/Mancubus/Melee",CHAN_AUTO);
 			A_ChangeVelocity(0,0,10); //jump willy!!
 			if (HQ)
 			{
@@ -153,7 +153,7 @@ Class D4FatsoTech : D4AbstractBiggie
 		FATT G 6 
 		{
 			A_FaceTarget();
-			A_PlaySound("Doom4/Monsters/Mancubus/Attack2");
+			PlaySound("Doom4/Monsters/Mancubus/Attack2");
 		}
 		FATT U 6 BRIGHT A_SpawnProjectile("D4FatsoPoison",20,-28,0);
 		FATT IG 4 A_FaceTarget();
@@ -168,7 +168,7 @@ Class D4FatsoTech : D4AbstractBiggie
 		FATT G 6
 		{
 			A_FaceTarget();
-			A_PlaySound("Doom4/Monsters/Mancubus/Attack2");
+			PlaySound("Doom4/Monsters/Mancubus/Attack2");
 		}
 		FATT V 6 BRIGHT A_SpawnProjectile("D4FatsoPoison",20,28,0);
 		FATT IG 4 A_FaceTarget();
@@ -200,7 +200,7 @@ Class D4FatsoTech : D4AbstractBiggie
 		FATT NOPQRS 4;
 		FATT T -1
 		{
-			A_BossDeath();
+			BossDeath();
 			bCorpse = true;
 		}
 	    Stop;
@@ -213,10 +213,11 @@ Class D4FatsoTech : D4AbstractBiggie
 	XDeath:
 		TNT1 A 10 CanRaise
 		{
+			bDONTGIB = true;
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}
-		---- A RezTimer CanRaise { A_BossDeath(); DoCorpse(); }
+		---- A RezTimer CanRaise { BossDeath(); DoCorpse(); }
 		Stop;
 	 Raise:
 		---- A 0 CheckRespawn();
@@ -332,7 +333,7 @@ Class FatsoShockwave : D4AbstractMissile
 	Spawn: 
 		TNT1 A 0 NODELAY
 		{
-			A_PlaySound("Doom4/Monsters/BaronCrash");
+			PlaySound("Doom4/Monsters/BaronCrash");
 			if (HQ)
 			{
 				A_SpawnItemEx("DoomImpExploParticle",0,0,0,frandom(-2,2),frandom(-2,2),frandom(0.2,2),random(0,359),SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
@@ -353,7 +354,7 @@ Class FatsoShockwave : D4AbstractMissile
 
 //----------------------------------------
 // fatso trail for when it jumps
-Class FatsoJumpGhost : Actor 
+Class FatsoJumpGhost : D4DFX 
 {
 	Default 
 	{
@@ -431,7 +432,7 @@ Class D4FatsoPoison : D4AbstractMissile
 		Stop;
     }
 }
-Class PoisonPoolSmokeTrail : Actor 
+Class PoisonPoolSmokeTrail : D4DFX 
 {
 	Default 
 	{
@@ -456,7 +457,7 @@ Class PoisonPoolSmokeTrail : Actor
 	}
 }
 
-Class PoisonPoolSplash : Actor 
+Class PoisonPoolSplash : D4DFX 
 {
 	Default 
 	{
@@ -539,7 +540,7 @@ Class PoisonAcidFloor : D4AbstractMissile
 	}
 }
 
-Class PoisonAcidGas : Actor 
+Class PoisonAcidGas : D4Actor 
 {
 	Default 
 	{
@@ -626,7 +627,7 @@ Class D4FatsoHell : D4AbstractBiggie //replaces Fatso
 			FAT2 G 10 A_FaceTarget();
 			FAT2 G 1 
 			{	
-				A_Playsound("Doom4/Monsters/Mancubus/Melee",CHAN_AUTO);
+				PlaySound("Doom4/Monsters/Mancubus/Melee",CHAN_AUTO);
 				A_ChangeVelocity(0,0,10); //jump willy!!
 				if (HQ)
 				{
@@ -676,7 +677,7 @@ Class D4FatsoHell : D4AbstractBiggie //replaces Fatso
 		// Flamethrower	
 		FlameThrower:
 			FAT2 G 10 A_FaceTarget();
-			FAT2 G 0 A_PlaySound("Doom4/Other/FlamerStart",6);
+			FAT2 G 0 PlaySound("Doom4/Other/FlamerStart",6);
 			FAT2 H 2 Bright
 			{
 				if(!A_JumpIfCloser(290,"Null"))	//if player goes too far
@@ -700,7 +701,7 @@ Class D4FatsoHell : D4AbstractBiggie //replaces Fatso
 		FAT2 G 6
 		{
 			A_FaceTarget();
-			A_PlaySound("Doom4/Monsters/Mancubus/Attack2");
+			PlaySound("Doom4/Monsters/Mancubus/Attack2");
 		}
 		FAT2 U 6 BRIGHT A_SpawnProjectile("D4FatsoFire",20,-28,0);
 		FAT2 IG 4 A_FaceTarget();
@@ -715,7 +716,7 @@ Class D4FatsoHell : D4AbstractBiggie //replaces Fatso
 		FAT2 G 6
 		{
 			A_FaceTarget();
-			A_PlaySound("Doom4/Monsters/Mancubus/Attack2");
+			PlaySound("Doom4/Monsters/Mancubus/Attack2");
 		}
 		FAT2 V 6 BRIGHT A_SpawnProjectile("D4FatsoFire",20,28,0);
 		FAT2 IG 4 A_FaceTarget();
@@ -751,7 +752,7 @@ Class D4FatsoHell : D4AbstractBiggie //replaces Fatso
 		FAT2 T -1 
 		{			
 			bCorpse = true;
-			A_BossDeath();
+			BossDeath();
 		}
 	    Stop;
 		
@@ -763,10 +764,11 @@ Class D4FatsoHell : D4AbstractBiggie //replaces Fatso
 	XDeath:
 		TNT1 A 10 CanRaise
 		{
+			bDONTGIB = true;
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}
-		---- A RezTimer CanRaise { A_BossDeath(); DoCorpse(); }
+		---- A RezTimer CanRaise { BossDeath(); DoCorpse(); }
 		Stop;
 	 Raise:
 		---- A 0 CheckRespawn();
@@ -867,7 +869,7 @@ Class D4FatsoHell : D4AbstractBiggie //replaces Fatso
 
 //----------------------------------------
 // fatso trail for when it jumps
-Class Fatso2JumpGhost : Actor 
+Class Fatso2JumpGhost : D4DFX 
 {
 	Default 
 	{
@@ -984,7 +986,7 @@ Class D4FatsoFire : D4AbstractMissile
 	}
 }
 
-Class FatsoExploParticle : Actor 
+Class FatsoExploParticle : D4DFX 
 {
 	Default 
 	{
@@ -1008,7 +1010,7 @@ Class FatsoExploParticle : Actor
 	}
 }
 
-Class FatsoFireTrail : Actor 
+Class FatsoFireTrail : D4DFX 
 {
 	Default 
 	{
@@ -1259,7 +1261,7 @@ Class OldFatShot : D4AbstractMissile //replaces FatShot
 		Stop;
 	}
 }
-Class FatsoBallTrail : Actor 
+Class FatsoBallTrail : D4DFX 
 {
 	Default 
 	{
@@ -1281,7 +1283,7 @@ Class FatsoBallTrail : Actor
 		Goto Spawn+2;
 	}
 }
-Class FatsoExploParticleOrange : Actor 
+Class FatsoExploParticleOrange : D4DFX 
 {
 	Default 
 	{

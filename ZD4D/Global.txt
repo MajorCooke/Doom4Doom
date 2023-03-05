@@ -10,4 +10,18 @@ Class D4D_Global play
 		mo.angle = VectorAngle(diff.X, diff.Y) + APOffset.X;
 		mo.pitch = -VectorAngle(diff.XY.Length(), diff.Z) + APOffset.Y;
     }
+	
+	static bool BelongsTo(Class<Actor> who, Class<Actor> base)
+	{
+		if (!who || !base)
+			return false;
+			
+		if (who == base ||
+			who is base)
+			return true;
+		
+		
+		return (Actor.GetReplacee(who) is base);
+			
+	}
 }

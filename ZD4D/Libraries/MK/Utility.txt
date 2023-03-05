@@ -1,0 +1,1501 @@
+// Misc. Utility code
+
+enum EDoExplosionFlags
+{
+	DE_BLAST = 1,		// sets BLASTED flag on pushed actors
+	DE_NOBLEED = 2,		// does not spawn blood decals on hit
+	DE_NOSPLASH = 4,	// like XF_NOSPLASH
+	DE_THRUWALLS = 8,	// damages through geometry (no sight check)
+	DE_NOTMISSILE = 16,	// instigator is the source itself (normally it'd be its target pointer)
+	DE_EXTRAZTHRUST = 32,	// applies a higher Z thrust to enemies on ground
+	DE_HOWL = 64,		// 25% chance for hit enemies to howl
+	DE_COUNTENEMIES = 128,	// only count hits for hostiles
+	DE_COUNTSTEALTH = 256,	// only count hits for inactive monsters
+	DE_COUNTFHKILLS = 512,	// only count kills for enemies that were at full health
+	DE_NOHURTFRIEND = 1024,	// splash damage will not affect allies
+	DE_CENTERHEIGHT = 2048,	// origin of explosion is at the center height of the source actor, rather than its base
+	DE_NONEXPLOSIVE = 4096	// does not count as explosive damage (DMG_EXPLOSION is not passed)
+};
+
+enum EExitType
+{
+	ET_Normal,
+	ET_Secret,
+	ET_EndGame,
+	ET_NewMap,
+};
+
+Struct SWWMProjectionData
+{
+	swwm_GM_Matrix wtc;
+	int viewx, viewy, vieww, viewh;
+}
+
+Class SWWMUtility
+{
+	// gets the names of all mod cvars
+	static clearscope void GetCVars( out Array<String> cvarlist )
+	{
+		cvarlist.Clear();
+		// common library cvars
+		let lmp = Wads.CheckNumForFullname("cvarinfo.shared");
+		if ( lmp == -1 ) ThrowAbortException("'cvarinfo.shared' not found");
+		String dat = Wads.ReadLump(lmp);
+		Array<String> list, ln;
+		// fucking Windows
+		dat.Replace("\r","");
+		list.Clear();
+		dat.Split(list,"\n");
+		for ( int i=0; i<list.Size(); i++ )
+		{
+			if ( (list[i].Length() == 0) || (list[i].Left(2) == "//") || (list[i].Left(1) == "") )
+				continue;
+			int eq = list[i].IndexOf("=");
+			if ( eq == -1 ) continue;
+			list[i].Truncate(eq);
+			ln.Clear();
+			list[i].Split(ln," ",0);
+			for ( int j=0; j<ln.Size(); j++ )
+			{
+				if ( (ln[j].Left(5) != "swwm_") ) continue;
+				cvarlist.Push(ln[j]);
+			}
+		}
+		// mod-specific cvars
+		lmp = Wads.CheckNumForFullname("cvarinfo.base");
+		if ( lmp == -1 ) ThrowAbortException("'cvarinfo.base' not found");
+		dat = Wads.ReadLump(lmp);
+		dat.Replace("\r","");
+		list.Clear();
+		dat.Split(list,"\n");
+		String pfx = SWWMMODPREFIX.."_";
+		int pfxlen = pfx.Length();
+		for ( int i=0; i<list.Size(); i++ )
+		{
+			if ( (list[i].Length() == 0) || (list[i].Left(2) == "//") || (list[i].Left(1) == "") )
+				continue;
+			int eq = list[i].IndexOf("=");
+			if ( eq == -1 ) continue;
+			list[i].Truncate(eq);
+			ln.Clear();
+			list[i].Split(ln," ",0);
+			for ( int j=0; j<ln.Size(); j++ )
+			{
+				if ( (ln[j].Left(pfxlen) != pfx) ) continue;
+				cvarlist.Push(ln[j]);
+			}
+		}
+	}
+
+	// sends
+	static clearscope void SendTooltip( Class<SWWMWeapon> which )
+	{
+		if ( !swwm_weapontooltips ) return;
+		CVar v = CVar.FindCVar('swwm_tooltipshown');
+		String tt = v.GetString();
+		Array<String> wpn;
+		tt.Split(wpn,",");
+		for ( int i=0; i<wpn.Size(); i++ )
+		{
+			if ( wpn[i] == which.GetClassName() ) return;
+		}
+		if ( tt == "" ) tt = which.GetClassName();
+		else tt = tt..","..which.GetClassName();
+		v.SetString(tt);
+		// this is kinda hacky but hey, as long as it works
+		Console.MidPrint(null,"swwmwpntooltip."..which.GetClassName());
+		v = CVar.FindCVar('swwm_tooltipnote');
+		if ( v.GetBool() ) return;
+		v.SetBool(true);
+		Console.Printf(StringTable.Localize("$SWWM_TTNOTE"));
+	}
+
+	// gutamatics caching
+	static clearscope void PrepareProjData( out SWWMProjectionData d, Vector3 viewpos, double angle, double pitch, double roll, double fov )
+	{
+		double aspect = Screen.GetAspectRatio();
+		// vertical fov
+		double fovratio = (aspect>=1.3)?1.333333:aspect;
+		double fovy = 2.*atan(tan(clamp(fov,5,170)/2.)/fovratio);
+		// world→clip matrix
+		swwm_GM_Matrix view = swwm_GM_Matrix.view(viewpos,angle,pitch,roll);
+		swwm_GM_Matrix perp = swwm_GM_Matrix.perspective(fovy,aspect,5,65535);
+		d.wtc = perp.multiplyMatrix(view);
+		// screen coord data
+		int sblocks = CVar.FindCVar('screenblocks').GetInt();
+		int viewx, viewy, vieww, viewh;
+		[viewx, viewy, vieww, viewh] = Screen.GetViewWindow();
+		int sh = Screen.GetHeight();
+		int h = sh;
+		if ( sblocks < 10 ) h = (sblocks*sh/10)&~7;
+		int bottom = sh-(h+viewy-((h-viewh)/2));
+		d.viewx = viewx;
+		d.viewy = sh-bottom-h;
+		d.vieww = vieww;
+		d.viewh = h;
+	}
+
+	static clearscope Vector3 ProjectPoint( SWWMProjectionData d, Vector3 worldpos )
+	{
+		return d.wtc.multiplyVector3(worldpos).asVector3();
+	}
+
+	static clearscope Vector2 NDCToViewport( SWWMProjectionData d, Vector3 ndc )
+	{
+		return (d.viewx,d.viewy)+(((ndc.x+1)*d.vieww)/2,((-ndc.y+1)*d.viewh)/2);
+	}
+
+	// checks if a point is inside the viewport
+	static clearscope bool TestScreenBounds( SWWMProjectionData d, Vector2 vpos )
+	{
+		return ((vpos.x == clamp(vpos.x,d.viewx,d.viewx+d.vieww))
+			&& (vpos.y == clamp(vpos.y,d.viewy,d.viewy+d.viewh)));
+	}
+
+	// less code duplication
+	static clearscope void AdjustClean_1( out double x, out double y )
+	{
+		x = (x-160)*CleanXFac_1+(Screen.GetWidth()*.5);
+		y = (y-100)*CleanYFac_1+(Screen.GetHeight()*.5);
+	}
+	static clearscope void AdjustClean_1x( out double x )
+	{
+		x = (x-160)*CleanXFac_1+(Screen.GetWidth()*.5);
+	}
+	static clearscope void AdjustClean_1y( out double y )
+	{
+		y = (y-100)*CleanYFac_1+(Screen.GetHeight()*.5);
+	}
+
+	// Vector/Axis utility functions
+	static clearscope Vector3 Vec3FromAngles( double angle, double pitch )
+	{
+		return (cos(angle)*cos(pitch),sin(angle)*cos(pitch),-sin(pitch));
+	}
+	static clearscope Vector3 CircleOffset( Vector3 y, Vector3 z, double angle, double radius )
+	{
+		return y*cos(angle)*radius+z*sin(angle)*radius;
+	}
+	static clearscope Vector3 ConeSpread( Vector3 x, Vector3 y, Vector3 z, double angle, double spread )
+	{
+		return (x+y*cos(angle)*spread+z*sin(angle)*spread).unit();
+	}
+	static clearscope Vector3 RotateVector3( Vector3 v, double angle )
+	{
+		Vector2 v2d = Actor.RotateVector(v.xy,angle);
+		return (v2d.x,v2d.y,v.z);
+	}
+	static clearscope Vector3 AngleToVector3( double angle, double length = 1. )
+	{
+		Vector2 v2d = Actor.AngleToVector(angle,length);
+		return (v2d.x,v2d.y,0);
+	}
+
+	// thanks zscript
+	static clearscope double fract( double a )
+	{
+		return a-floor(a);
+	}
+
+	static clearscope double lerp( double a, double b, double theta )
+	{
+		return a*(1.-theta)+b*theta;
+	}
+	static clearscope Vector3 LerpVector3( Vector3 a, Vector3 b, double theta )
+	{
+		return a*(1.-theta)+b*theta;
+	}
+	static clearscope Vector2 LerpVector2( Vector2 a, Vector2 b, double theta )
+	{
+		return a*(1.-theta)+b*theta;
+	}
+	static clearscope Color LerpColor( Color a, Color b, double theta )
+	{
+		Color c = Color(
+			int(a.a*(1.-theta)+b.a*theta),
+			int(a.r*(1.-theta)+b.r*theta),
+			int(a.g*(1.-theta)+b.g*theta),
+			int(a.b*(1.-theta)+b.b*theta)
+		);
+		return c;
+	}
+
+	// yes, "smerp", blame my unreal engine roots
+	// sine method, strong easing in/out, but calls a trig function
+	// iirc unreal uses cubic hermite with just plain multiplication, which
+	// is less expensive, but the easing is too subtle for my needs
+	static clearscope double smerp( double theta )
+	{
+		return (sin((theta-.5)*180.)+1.)/2.;
+	}
+
+	// bit ugly, but it works
+	static clearscope void ThousandsStr( out String s, int col = Font.CR_UNDEFINED, String colstr = "" )
+	{
+		if ( (col < Font.CR_UNDEFINED) || (col >= Font.NUM_TEXT_COLORS) )
+			ThrowAbortException("col parameter out of range, use colstr for non-standard font colors.");
+		String nstr = s;
+		s.Truncate(0);
+		int len = nstr.CodePointCount();
+		int t = len;
+		if ( nstr.Left(1) == "-" ) t++;
+		for ( int i=0, pos=0; i<len; i++ )
+		{
+			int ch;
+			[ch, pos] = nstr.GetNextCodePoint(pos);
+			s.AppendCharacter(ch);
+			t = (t-1)%3;
+			if ( (pos < len) && !t )
+			{
+				if ( colstr != "" ) s.AppendFormat("\c[%s],\c-",colstr);
+				else if ( col != Font.CR_UNDEFINED ) s.AppendFormat("\c%c,\c-",0x61+col);
+				else s.AppendCharacter(0x2C);
+			}
+		}
+	}
+	static clearscope String ThousandsNum( int n, int col = Font.CR_UNDEFINED, String colstr = "", int digits = 0 )
+	{
+		String nstr;
+		if ( digits > 0 ) nstr = String.Format("%0*d",digits,n);
+		else nstr = String.Format("%d",n);
+		ThousandsStr(nstr,col,colstr);
+		return nstr;
+	}
+
+	// this can probably be simplified, but I'm lazy
+	static clearscope Vector3 HSVtoRGB( Vector3 hsv )
+	{
+		Vector3 p;
+		p.x = abs(fract(hsv.x+1.)*6.-3.);
+		p.y = abs(fract(hsv.x+(2./3.))*6.-3.);
+		p.z = abs(fract(hsv.x+(1./3.))*6.-3.);
+		Vector3 p2;
+		p2.x = (1.-hsv.y)+clamp(p.x-1.,0.,1.)*hsv.y;
+		p2.y = (1.-hsv.y)+clamp(p.y-1.,0.,1.)*hsv.y;
+		p2.z = (1.-hsv.y)+clamp(p.z-1.,0.,1.)*hsv.y;
+		return p2*hsv.z;
+	}
+
+	static clearscope void StripColor( out String str )
+	{
+		int len = str.CodePointCount();
+		for ( int i=0, pos=0; i<len; i++ )
+		{
+			int remlen = 0;
+			int cplen = 0;
+			int ch, nxt;
+			[ch, nxt] = str.GetNextCodePoint(pos);
+			if ( ch != 0x1C )
+			{
+				pos = nxt;
+				continue;
+			}
+			remlen++;
+			cplen++;
+			[ch, nxt] = str.GetNextCodePoint(pos+remlen);
+			if ( ch == 0x5B )
+			{
+				int ch2;
+				do
+				{
+					[ch2, nxt] = str.GetNextCodePoint(pos+remlen);
+					remlen += nxt-(pos+remlen);
+					cplen++;
+				}
+				while ( ch2 != 0x5D );
+			}
+			remlen++;
+			str.Remove(pos,remlen);
+			len -= cplen;
+			i--;
+		}
+	}
+
+	// "fast" exponentiation with integer exponents using loops
+	static clearscope double IntPowF( double base, int exp )
+	{
+		if ( exp < 0 ) return 1./IntPowF(base,-exp);
+		if ( exp == 0 ) return 1.;
+		double rslt = base;
+		for ( int i=0; i<exp; i++ ) rslt *= base;
+		return rslt;
+	}
+	static clearscope int IntPow( int base, int exp )
+	{
+		if ( exp < 0 ) return int(1./IntPow(base,-exp));
+		if ( exp == 0 ) return 1;
+		int rslt = base;
+		for ( int i=0; i<exp; i++ ) rslt *= base;
+		return rslt;
+	}
+
+	static clearscope String SuperscriptNum( int val )
+	{
+		// unicode is fun
+		static const int digs[] = {0x2070,0x00B9,0x00B2,0x00B3,0x2074,0x2075,0x2076,0x2077,0x2078,0x2079};
+		String str = "";
+		int digits = int(Log10(val));
+		for ( int i=digits; i>=0; i-- )
+		{
+			int d = int(val/(10**i))%10;
+			str.AppendCharacter(digs[d]);
+		}
+		return str;
+	}
+
+	static clearscope void BeautifyClassName( out String str )
+	{
+		String workstr = str;
+		str.Truncate(0);
+		workstr.Replace("_"," ");
+		int len = workstr.CodePointCount();
+		for ( int i=0, pos=0; i<len; i++ )
+		{
+			int cp1;
+			[cp1, pos] = workstr.GetNextCodePoint(pos);
+			str.AppendCharacter(cp1);
+			if ( i < len-1 )
+			{
+				int cp2 = workstr.GetNextCodePoint(pos);
+				// this looks awkward, but I have to also account for non-letter characters
+				// uppercase after lowercase
+				if ( (String.CharUpper(cp1) != cp1) && (String.CharLower(cp2) != cp2) )
+					str.AppendCharacter(0x20);
+				// uppercase after non-letter
+				else if ( (String.CharUpper(cp1) == cp1) && (String.CharLower(cp1) == cp1) && (String.CharLower(cp2) != cp2) )
+					str.AppendCharacter(0x20);
+				// non-letter after lowercase
+				else if ( (String.CharUpper(cp1) != cp1) && (String.CharLower(cp2) == cp2) && (String.CharUpper(cp2) == cp2) )
+					str.AppendCharacter(0x20);
+			}
+		}
+	}
+
+	static double PitchTo( Actor a, Actor b, double hfact = 1. )
+	{
+		if ( !a || !b ) return 0;
+		Vector3 thispos = a.player?a.Vec2OffsetZ(0,0,a.player.viewz):a.Vec3Offset(0,0,a.missileheight);
+		Vector3 otherpos = b.Vec3Offset(0,0,b.height*hfact);
+		Vector3 diff = level.Vec3Diff(thispos,otherpos);
+		double dist = diff.length();
+		if ( dist > 0 ) return -asin(diff.z/dist);
+		return 0;
+	}
+
+	static clearscope int GetLineLock( Line l )
+	{
+		int locknum = l.locknumber;
+		if ( !locknum )
+		{
+			// check the special
+			switch ( l.special )
+			{
+			case FS_Execute:
+				locknum = l.Args[2];
+				break;
+			case Door_LockedRaise:
+			case Door_Animated:
+				locknum = l.Args[3];
+				break;
+			case ACS_LockedExecute:
+			case ACS_LockedExecuteDoor:
+			case Generic_Door:
+				locknum = l.Args[4];
+				break;
+			}
+		}
+		return locknum;
+	}
+
+	// return if a line is an exit, and additionally the type of exit
+	static clearscope bool, int IsExitLine( Line l )
+	{
+		if ( l.special == Exit_Secret )
+			return true, ET_Secret;
+		if ( l.special == Exit_Normal )
+			return true, ET_Normal;
+		if ( l.special == Teleport_EndGame )
+			return true, ET_EndGame;
+		if ( l.special == Teleport_NewMap )
+			return true, ET_NewMap;
+		// spooktober™
+		if ( ((l.special == ACS_Execute) || (l.special == ACS_ExecuteAlways)) && (l.Args[0] == -Int('MapFadeOut')) )
+		{
+			if ( level.levelnum == 1 )
+			{
+				let lv = levelinfo.FindLevelByNum(l.Args[2]);
+				if ( lv && lv.mapname.Left(6) ~== "SECRET" )
+					return true, ET_Secret;
+				else return true, ET_NewMap;
+			}
+			return true, ET_Normal;
+		}
+		return false, ET_Normal;
+	}
+
+	static clearscope bool IsTeleportLine( Line l, bool all = false )
+	{
+		// must be two-sided and crossable
+		if ( !l.sidedef[1] || !(l.Activation&(SPAC_Cross|SPAC_MCross|SPAC_PCross|SPAC_AnyCross)) ) return false;
+		// filter lines that aren't player-activated (unless checking all)
+		if ( !all && !(l.Activation&SPAC_PlayerActivate) ) return false;
+		// typical teleports
+		if ( (l.special == Teleport) || (l.special == Teleport_NoStop) )
+			return true;
+		// if checking all, also include sneaky teleports
+		if ( all && ((l.special == Teleport_Line) || (l.special == Teleport_NoFog)) )
+			return true;
+		// exits are included too
+		if ( IsExitLine(l) )
+			return true;
+		return false;
+	}
+
+	// how the fuck is this not available to ZScript?
+	// copied from P_PointOnLineSidePrecise()
+	static clearscope int PointOnLineSide( Vector2 p, Line l )
+	{
+		if ( !l ) return 0;
+		return (((p.y-l.v1.p.y)*l.delta.x+(l.v1.p.x-p.x)*l.delta.y) > double.epsilon);
+	}
+
+	// haha another one
+	// copied from BoxOnLineSide()
+	static clearscope int BoxOnLineSide( double top, double bottom, double left, double right, Line l )
+	{
+		if ( !l ) return 0;
+		int p1, p2;
+		if ( l.delta.x == 0 )
+		{
+			// ST_VERTICAL:
+			p1 = (right < l.v1.p.x);
+			p2 = (left < l.v1.p.x);
+			if ( l.delta.y < 0 )
+			{
+				p1 ^= 1;
+				p2 ^= 1;
+			}
+		}
+		else if ( l.delta.y == 0 )
+		{
+			// ST_HORIZONTAL:
+			p1 = (top > l.v1.p.y);
+			p2 = (bottom > l.v1.p.y);
+			if ( l.delta.x < 0 )
+			{
+				p1 ^= 1;
+				p2 ^= 1;
+			}
+		}
+		else if ( (l.delta.x*l.delta.y) >= 0 )
+		{
+			// ST_POSITIVE:
+			p1 = PointOnLineSide((left,top),l);
+			p2 = PointOnLineSide((right,bottom),l);
+		}
+		else
+		{
+			// ST_NEGATIVE:
+			p1 = PointOnLineSide((right,top),l);
+			p2 = PointOnLineSide((left,bottom),l);
+		}
+		return (p1==p2)?p1:-1;
+	}
+
+	// wrapper
+	static clearscope int ActorOnLineSide( Actor a, Line l )
+	{
+		double box[4];
+		box[0] = a.pos.y+a.radius;
+		box[1] = a.pos.y-a.radius;
+		box[2] = a.pos.x-a.radius;
+		box[3] = a.pos.x+a.radius;
+		return BoxOnLineSide(box[0],box[1],box[2],box[3],l);
+	}
+
+	// box intersection check, for collision detection
+	static clearscope bool BoxIntersect( Actor a, Actor b, Vector3 ofs = (0,0,0), int pad = 0 )
+	{
+		Vector3 diff = level.Vec3Diff(level.Vec3Offset(a.pos,ofs),b.pos);
+		if ( (abs(diff.x) > (a.radius+b.radius+pad)) || (abs(diff.y) > (a.radius+b.radius+pad)) ) return false;
+		if ( (diff.z > a.height+pad) || (diff.z < -(b.height+pad)) ) return false;
+		return true;
+	}
+
+	// extruded box intersection check, useful when checking things that might be hit along a path
+	static clearscope bool ExtrudeIntersect( Actor a, Actor b, Vector3 range, int steps, int pad = 0 )
+	{
+		if ( steps <= 0 ) return BoxIntersect(a,b,pad:pad);
+		double step = 1./steps;
+		for ( double i=step; i<=1.; i+=step )
+		{
+			if ( BoxIntersect(a,b,range*i,pad) )
+				return true;
+		}
+		return false;
+	}
+
+	// sphere intersection check, useful for proximity detection
+	static clearscope bool SphereIntersect( Actor a, Vector3 p, double radius )
+	{
+		Vector3 ap = p+level.Vec3Diff(p,a.pos);	// portal-relative actor position
+		Vector3 amin = ap+(-a.radius,-a.radius,0),
+			amax = ap+(a.radius,a.radius,a.height);
+		double distsq = 0.;
+		if ( p.x < amin.x ) distsq += (amin.x-p.x)*(amin.x-p.x);
+		if ( p.x > amax.x ) distsq += (p.x-amax.x)*(p.x-amax.x);
+		if ( p.y < amin.y ) distsq += (amin.y-p.y)*(amin.y-p.y);
+		if ( p.y > amax.y ) distsq += (p.y-amax.y)*(p.y-amax.y);
+		if ( p.z < amin.z ) distsq += (amin.z-p.z)*(amin.z-p.z);
+		if ( p.z > amax.z ) distsq += (p.z-amax.z)*(p.z-amax.z);
+		return (distsq <= (radius*radius));
+	}
+
+	// hitscan exit point calculation given actor, entry point and direction
+	static clearscope Vector3 TraceExit( Actor a, Vector3 p, Vector3 d )
+	{
+		Vector3 ap = p+level.Vec3Diff(p,a.pos);	// portal-relative actor position
+		Vector3 amin = ap+(-a.radius,-a.radius,0),
+			amax = ap+(a.radius,a.radius,a.height);
+		Vector3 tmax, div = (1./d.x,1./d.y,1./d.z);
+		if ( div.x < 0 ) tmax.x = (amin.x-p.x)*div.x;
+		else tmax.x = (amax.x-p.x)*div.x;
+		if ( div.y < 0 ) tmax.y = (amin.y-p.y)*div.y;
+		else tmax.y = (amax.y-p.y)*div.y;
+		if ( div.z < 0 ) tmax.z = (amin.z-p.z)*div.z;
+		else tmax.z = (amax.z-p.z)*div.z;
+		return level.Vec3Offset(p,min(min(tmax.x,tmax.y),tmax.z)*d);
+	}
+
+	// Liang-Barsky line clipping
+	static clearscope bool, Vector2, Vector2 LiangBarsky( Vector2 minclip, Vector2 maxclip, Vector2 v0, Vector2 v1 )
+	{
+		double t0 = 0., t1 = 1.;
+		double xdelta = v1.x-v0.x;
+		double ydelta = v1.y-v0.y;
+		double p, q, r;
+		for ( int i=0;i<4; i++ )
+		{
+			switch ( i )
+			{
+			case 0:
+				p = -xdelta;
+				q = -(minclip.x-v0.x);
+				break;
+			case 1:
+				p = xdelta;
+				q = (maxclip.x-v0.x);
+				break;
+			case 2:
+				p = -ydelta;
+				q = -(minclip.y-v0.y);
+				break;
+			case 3:
+				p = ydelta;
+				q = (maxclip.y-v0.y);
+				break;
+			}
+			if ( (p == 0.) && (q<0.) ) return false, (0,0), (0,0);
+			if ( p < 0 )
+			{
+				r = q/p;
+				if ( r > t1 ) return false, (0,0), (0,0);
+				else if ( r > t0 ) t0 = r;
+			}
+			else if ( p > 0 )
+			{
+				r = q/p;
+				if ( r < t0 ) return false, (0,0), (0,0);
+				else if ( r < t1 ) t1 = r;
+			}
+		}
+		Vector2 ov0 = v0+(xdelta,ydelta)*t0;
+		Vector2 ov1 = v0+(xdelta,ydelta)*t1;
+		return true, ov0, ov1;
+	}
+
+	static clearscope bool IsValidLockNum( int l )
+	{
+		if ( (l < 1) || (l > 255) ) return true;
+		return SWWMCachedLockInfo.IsValidLock(l);
+	}
+
+	static clearscope Color GetLockColor( int l )
+	{
+		return SWWMCachedLockInfo.GetLockColor(l);
+	}
+
+	// Thanks to ZZYZX and Nash
+	static play void SetToSlopeSpecific( Actor a, double dang, SecPlane plane, bool flipnorm )
+	{
+		Vector3 fnormal;
+		if ( flipnorm ) fnormal = -plane.Normal;
+		else fnormal = plane.Normal;
+		vector2 fnormalp1 = ((fnormal.x != 0) || (fnormal.y != 0))?(fnormal.x,fnormal.y).Unit():(0,0);
+		vector2 fnormalp2 = ((fnormal.x,fnormal.y).Length(),fnormal.z);
+		double fang = atan2(fnormalp1.y,fnormalp1.x); // floor angle (not pitch!)
+		double fpitch = atan2(fnormalp2.x,fnormalp2.y); // floor pitch
+		double ddiff1 = sin(fang-dang);
+		double ddiff2 = cos(fang-dang);
+		a.pitch = fpitch*ddiff2;
+		a.roll = -fpitch*ddiff1;
+		a.angle = dang;
+	}
+
+	static play void SetToSlope( Actor a, double dang, bool ceil = false )
+	{
+		Sector sect;
+		SecPlane plane;
+		Vector3 fnormal;
+		bool flipnorm;
+		if ( ceil )
+		{
+			sect = a.CeilingSector;
+			plane = sect.ceilingplane;
+			flipnorm = true;
+			fnormal = -sect.ceilingplane.Normal;
+		}
+		else
+		{
+			sect = a.FloorSector;
+			plane = sect.floorplane;
+			flipnorm = false;
+			fnormal = sect.floorplane.Normal;
+		}
+		// find closest 3d floor for its normal
+		F3DFloor ff;
+		for ( int i=0; i<sect.Get3DFloorCount(); i++ )
+		{
+			if ( !(sect.Get3DFloor(i).flags&F3DFloor.FF_SOLID) ) continue;
+			if ( !ceil && !(sect.Get3DFloor(i).top.ZAtPoint(a.pos.xy) ~== a.floorz) ) continue;
+			else if ( ceil && !(sect.Get3DFloor(i).top.ZAtPoint(a.pos.xy) ~== a.ceilingz) ) continue;
+			ff = sect.Get3DFloor(i);
+			break;
+		}
+		if ( ff )
+		{
+			if ( ceil )
+			{
+				plane = ff.bottom;
+				flipnorm = false;
+				fnormal = ff.bottom.Normal;
+			}
+			else
+			{
+				plane = ff.top;
+				flipnorm = true;
+				fnormal = -ff.top.Normal;
+			}
+		}
+		SetToSlopeSpecific(a,dang,plane,flipnorm);
+	}
+
+	// try to be as thorough as possible in checking if DEHACKED has altered this actor
+	static clearscope bool CheckDehackery( Class<Actor> cls )
+	{
+		let def = GetDefaultByType(cls);
+		for ( State s=def.SpawnState; s; s=s.NextState )
+		{
+			if ( s.bDEHACKED ) return true;
+			// keep checking until we hit a loop, just in case
+			if ( s.NextState && (s.DistanceTo(s.NextState) <= 0) ) break;
+		}
+		for ( State s=def.SeeState; s; s=s.NextState )
+		{
+			if ( s.bDEHACKED ) return true;
+			// keep checking until we hit a loop, just in case
+			if ( s.NextState && (s.DistanceTo(s.NextState) <= 0) ) break;
+		}
+		for ( State s=def.MissileState; s; s=s.NextState )
+		{
+			if ( s.bDEHACKED ) return true;
+			// keep checking until we hit a loop, just in case
+			if ( s.NextState && (s.DistanceTo(s.NextState) <= 0) ) break;
+		}
+		for ( State s=def.MeleeState; s; s=s.NextState )
+		{
+			if ( s.bDEHACKED ) return true;
+			// keep checking until we hit a loop, just in case
+			if ( s.NextState && (s.DistanceTo(s.NextState) <= 0) ) break;
+		}
+		return false;
+	}
+
+	// Apply full 3D knockback in a specific direction, useful for hitscan
+	static play void DoKnockback( Actor Victim, Vector3 HitDirection, double MomentumTransfer, bool ExtraZThrust = false )
+	{
+		if ( !Victim )
+			return;
+		if ( Victim.bDORMANT )	// no dormant knockback
+			return;
+		if ( !Victim.bSHOOTABLE && !Victim.bVULNERABLE )
+			return;
+		if ( Victim.bDONTTHRUST || (Victim.Mass >= Actor.LARGE_MASS) )
+			return;
+		Vector3 Momentum = HitDirection*MomentumTransfer;
+		if ( (Victim.pos.z <= Victim.floorz) || !Victim.TestMobjZ() )
+			Momentum.z = max(Momentum.z,(ExtraZThrust?.4:.1)*Momentum.length());
+		Momentum /= GameTicRate*max(50,Victim.Mass);
+		Victim.vel += Momentum;
+	}
+
+	// complete spherical and more accurate replacement of A_Explode
+	// 100% free of the buggery GZDoom's own splash damage has
+	// returns the number of shootables hit/killed
+	static play int, int DoExplosion( Actor Source, double Damage, double MomentumTransfer, double ExplosionRadius, double FullDamageRadius = 0., int flags = 0, Name DamageType = '', Actor ignoreme = null, int dmgflags = 0, Actor realsource = null, Actor realinflictor = null )
+	{
+		FullDamageRadius = min(FullDamageRadius,ExplosionRadius);
+		// debug, display radius sphere
+		if ( swwm_debugblast )
+		{
+			let s = Actor.Spawn("RadiusDebugSphere",(flags&DE_CENTERHEIGHT)?Source.Vec3Offset(0,0,Source.height/2):Source.pos);
+			s.Scale *= ExplosionRadius;
+			s.SetShade((Damage>0)?"Green":"Blue");
+			if ( FullDamageRadius > 0. )
+			{
+				let s = Actor.Spawn("RadiusDebugSphere",(flags&DE_CENTERHEIGHT)?Source.Vec3Offset(0,0,Source.height/2):Source.pos);
+				s.Scale *= FullDamageRadius;
+				s.SetShade("Red");
+			}
+		}
+		if ( !(flags&DE_NOSPLASH) ) Source.CheckSplash(ExplosionRadius);
+		double brange;
+		// sanity checks are needed to avoid division by zero or other weirdness
+		if ( ExplosionRadius == FullDamageRadius ) brange = 1.;
+		else brange = 1./(ExplosionRadius-FullDamageRadius);
+		Actor Instigator = realsource?realsource:(flags&DE_NOTMISSILE)?Source:Source.target;
+		int dflg = ((flags&DE_NONEXPLOSIVE)?0:DMG_EXPLOSION)|dmgflags;
+		BlockThingsIterator bi = BlockThingsIterator.Create(Source,ExplosionRadius);
+		int nhit = 0, nkill = 0;
+		Array<Actor> washit;
+		washit.Clear();
+		while ( bi.Next() )
+		{
+			Actor a = bi.Thing;
+			washit.Push(a);
+			// early checks for self and ignored actor (usually the instigator)
+			if ( !a || (a == ignoreme) || (a == Source) )
+				continue;
+			// can't be affected
+			if ( !a.bSHOOTABLE && !a.bVULNERABLE )
+				continue;
+			// no blasting if no radius dmg (unless forced)
+			if ( a.bNORADIUSDMG && !Source.bFORCERADIUSDMG )
+				continue;
+			// check the DONTHARMCLASS/DONTHARMSPECIES flags
+			if ( !a.player && ((Source.bDONTHARMCLASS && (a.GetClass() == Source.GetClass())) || (Source.bDONTHARMSPECIES && (a.GetSpecies() == Source.GetSpecies()))) )
+				continue;
+			// check friendliness
+			if ( (flags&DE_NOHURTFRIEND) && Instigator && Instigator.IsFriend(a) )
+				continue;
+			// can we see it
+			if ( !(flags&DE_THRUWALLS) && !Source.CheckSight(a,SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY) )
+				continue;
+			// intersecting?
+			if ( !SphereIntersect(a,Source.pos,ExplosionRadius) )
+				continue;
+			// calculate factor
+			Vector3 dir;
+			if ( flags&DE_CENTERHEIGHT ) dir = level.Vec3Diff(Source.Vec3Offset(0,0,Source.Height/2),a.Vec3Offset(0,0,a.Height/2));
+			else dir = level.Vec3Diff(Source.pos,a.Vec3Offset(0,0,a.Height/2));
+			double dist = dir.length();
+			// intersecting, randomize direction
+			if ( dir.length() <= double.epsilon )
+			{
+				double ang = FRandom[DoBlast](0,360);
+				double pt = FRandom[DoBlast](-90,90);
+				dir = Vec3FromAngles(ang,pt);
+			}
+			dir /= dist;
+			dist = clamp(dist-FullDamageRadius,0,min(dist,ExplosionRadius));
+			double damagescale;
+			if ( ExplosionRadius == FullDamageRadius ) damagescale = 1.;
+			else damagescale = 1.-clamp((dist-a.Radius)*brange,0.,1.);
+			double mm = MomentumTransfer*damagescale;
+			// no knockback if massive/unpushable
+			if ( (abs(mm) > 0.) && !a.bDORMANT && !a.bDONTTHRUST && (a.Mass < Actor.LARGE_MASS) )
+			{
+				Vector3 Momentum = dir*mm;
+				if ( (a.pos.z <= a.floorz) || !a.TestMobjZ() )
+					Momentum.z = max(Momentum.z,(flags&DE_EXTRAZTHRUST?.4:.1)*Momentum.length());
+				Momentum /= GameTicRate*max(50,a.Mass);	// prevent tiny things from getting yeeted at warp speed
+				a.vel += Momentum;
+				if ( (flags&DE_BLAST) && a.bCANBLAST && !a.bDONTBLAST ) a.bBLASTED = true;
+			}
+			// hit it
+			bool inactive = (!a.player&&!a.target);
+			bool hostile = (Instigator&&a.IsHostile(Instigator)&&(a.bISMONSTER||a.player));
+			if ( (!(flags&DE_COUNTENEMIES) || hostile) && (!(flags&DE_COUNTSTEALTH) || inactive) ) nhit++;
+			int dmg = int(Damage*damagescale);
+			if ( dmg <= 0 ) continue;	// no harm
+			int oldhp = a.Health;
+			int basehp = a.GetSpawnHealth();
+			int ndmg = a.DamageMobj(realinflictor?realinflictor:Source,Instigator,dmg,(DamageType=='')?Source.DamageType:DamageType,dflg,atan2(-dir.y,-dir.x));
+			if ( a && !(flags&DE_NOBLEED) ) a.TraceBleed((ndmg>0)?ndmg:dmg,Source);
+			if ( (flags&DE_HOWL) && a && (a.Health > 0) && a.bISMONSTER && !Random[DoBlast](0,3) ) a.Howl();
+			if ( (flags&DE_COUNTFHKILLS) && (oldhp < basehp) ) continue;	// was not at full health
+			if ( (!a || (a.Health <= 0)) && (!(flags&DE_COUNTENEMIES) || hostile) && (!(flags&DE_COUNTSTEALTH) || inactive) ) nkill++;
+		}
+		// traverse portals (needed since BlockThingsIterator can't properly cross sector portals in both vertical directions)
+		let hnd = SWWMHandler(EventHandler.Find("SWWMHandler"));
+		if ( !hnd || (hnd.psectors.Size() <= 1) ) return nhit, nkill;
+		int thisgroup = Source.CurSector.portalgroup;
+		for ( int i=0; i<hnd.psectors.Size(); i++ )
+		{
+			if ( i == thisgroup ) continue;
+			Vector2 relpos = Source.pos.xy+PortalDisplacement(level.Sectors[hnd.psectors[thisgroup]],level.Sectors[hnd.psectors[i]]);
+			bi = BlockThingsIterator.CreateFromPos(relpos.x,relpos.y,Source.pos.z,Source.pos.z+Source.height,ExplosionRadius,false);
+			while ( bi.Next() )
+			{
+				Actor a = bi.Thing;
+				// early exit for already processed actors
+				if ( washit.Find(a) < washit.Size() )
+					continue;
+				washit.Push(a);
+				// early checks for self and ignored actor (usually the instigator)
+				if ( !a || (a == ignoreme) || (a == Source) )
+					continue;
+				// can't be affected
+				if ( !a.bSHOOTABLE && !a.bVULNERABLE )
+					continue;
+				// no blasting if no radius dmg (unless forced)
+				if ( a.bNORADIUSDMG && !Source.bFORCERADIUSDMG )
+					continue;
+				// check the DONTHARMCLASS/DONTHARMSPECIES flags
+				if ( !a.player && ((Source.bDONTHARMCLASS && (a.GetClass() == Source.GetClass())) || (Source.bDONTHARMSPECIES && (a.GetSpecies() == Source.GetSpecies()))) )
+					continue;
+				// check friendliness
+				if ( (flags&DE_NOHURTFRIEND) && Instigator && Instigator.IsFriend(a) )
+					continue;
+				// can we see it
+				if ( !(flags&DE_THRUWALLS) && !Source.CheckSight(a,SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY) )
+					continue;
+				// intersecting?
+				if ( !SphereIntersect(a,Source.pos,ExplosionRadius) )
+					continue;
+				// calculate factor
+				Vector3 dir;
+				if ( flags&DE_CENTERHEIGHT ) dir = level.Vec3Diff(Source.Vec3Offset(0,0,Source.Height/2),a.Vec3Offset(0,0,a.Height/2));
+				else dir = level.Vec3Diff(Source.pos,a.Vec3Offset(0,0,a.Height/2));
+				double dist = dir.length();
+				// intersecting, randomize direction
+				if ( dir.length() <= double.epsilon )
+				{
+					double ang = FRandom[DoBlast](0,360);
+					double pt = FRandom[DoBlast](-90,90);
+					dir = Vec3FromAngles(ang,pt);
+				}
+				dir /= dist;
+				dist = clamp(dist-FullDamageRadius,0,min(dist,ExplosionRadius));
+				double damagescale;
+				if ( ExplosionRadius == FullDamageRadius ) damagescale = 1.;
+				else damagescale = 1.-clamp((dist-a.Radius)*brange,0.,1.);
+				double mm = MomentumTransfer*damagescale;
+				// no knockback if massive/unpushable
+				if ( (abs(mm) > 0.) && !a.bDORMANT && !a.bDONTTHRUST && (a.Mass < Actor.LARGE_MASS) )
+				{
+					Vector3 Momentum = dir*mm;
+					if ( (a.pos.z <= a.floorz) || !a.TestMobjZ() )
+						Momentum.z = max(Momentum.z,(flags&DE_EXTRAZTHRUST?.4:.1)*Momentum.length());
+					Momentum /= GameTicRate*max(50,a.Mass);	// prevent tiny things from getting yeeted at warp speed
+					a.vel += Momentum;
+					if ( (flags&DE_BLAST) && a.bCANBLAST && !a.bDONTBLAST ) a.bBLASTED = true;
+				}
+				// hit it
+				bool inactive = (!a.player&&!a.target);
+				bool hostile = (Instigator&&a.IsHostile(Instigator)&&(a.bISMONSTER||a.player));
+				if ( (!(flags&DE_COUNTENEMIES) || hostile) && (!(flags&DE_COUNTSTEALTH) || inactive) ) nhit++;
+				int dmg = int(Damage*damagescale);
+				if ( dmg <= 0 ) continue;	// no harm
+				int oldhp = a.Health;
+				int basehp = a.GetSpawnHealth();
+				int ndmg = a.DamageMobj(realinflictor?realinflictor:Source,Instigator,dmg,(DamageType=='')?Source.DamageType:DamageType,dflg,atan2(-dir.y,-dir.x));
+				if ( a && !(flags&DE_NOBLEED) ) a.TraceBleed((ndmg>0)?ndmg:dmg,Source);
+				if ( (flags&DE_HOWL) && a && (a.Health > 0) && a.bISMONSTER && !Random[DoBlast](0,3) ) a.Howl();
+				if ( (flags&DE_COUNTFHKILLS) && (oldhp < basehp) ) continue;	// was not at full health
+				if ( (!a || (a.Health <= 0)) && (!(flags&DE_COUNTENEMIES) || hostile) && (!(flags&DE_COUNTSTEALTH) || inactive) ) nkill++;
+			}
+		}
+		return nhit, nkill;
+	}
+
+	static play bool InPlayerFOV( PlayerInfo p, Actor a, double maxdist = 0. )
+	{
+		double vfov = p.fov*.5;
+		double hfov = atan(Screen.GetAspectRatio()*tan(vfov));
+		let mo = p.camera;
+		if ( !mo ) return false;
+		Vector3 pp;
+		if ( !a.CheckSight(mo,SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY) ) return false;
+		if ( mo is 'PlayerPawn' ) pp = mo.Vec2OffsetZ(0,0,PlayerPawn(mo).player.viewz);
+		else pp = mo.Vec3Offset(0,0,mo.GetCameraHeight());
+		Vector3 sc = level.SphericalCoords(pp,a.pos,(mo.angle,mo.pitch));
+		if ( (abs(sc.x) > hfov) || (abs(sc.y) > vfov) ) return false;
+		if ( (maxdist > 0.) && (sc.z > maxdist) ) return false;
+		return true;
+	}
+
+	// ui-friendly version without CheckSight call
+	static clearscope bool InPlayerFOVSimple( PlayerInfo p, Actor a, double maxdist = 0. )
+	{
+		double vfov = p.fov*.5;
+		double hfov = atan(Screen.GetAspectRatio()*tan(vfov));
+		let mo = p.camera;
+		if ( !mo ) return false;
+		Vector3 pp;
+		if ( mo is 'PlayerPawn' ) pp = mo.Vec2OffsetZ(0,0,PlayerPawn(mo).player.viewz);
+		else pp = mo.Vec3Offset(0,0,mo.GetCameraHeight());
+		Vector3 sc = level.SphericalCoords(pp,a.pos,(mo.angle,mo.pitch));
+		if ( (abs(sc.x) > hfov) || (abs(sc.y) > vfov) ) return false;
+		if ( (maxdist > 0.) && (sc.z > maxdist) ) return false;
+		return true;
+	}
+
+	// calculate angle, pitch and yscale of YBeam based on direction vector and length
+	static clearscope double, double, double CalcYBeam( Vector3 dir, double dist )
+	{
+		// new code post pixelstretch bug fix, don't use yet
+		/*dir *= level.pixelstretch;
+		double len = dir.length();
+		dir /= len;
+		double angle = atan2(dir.y,dir.x);
+		double pitch = asin(-dir.z)+90;
+		double yscale = dist*len;
+		return angle, pitch, yscale;*/
+		double angle = atan2(dir.y,dir.x);
+		double pitch = asin(-dir.z)+90;
+		return angle, pitch, dist;
+	}
+
+	// the stupidest thing ever, it's called BlockingLine but it's not always blocking us
+	static play bool BlockingLineIsBlocking( Actor a, int blockflags = Line.ML_BLOCKEVERYTHING, Line testline = null )
+	{
+		Line l = testline?testline:a.BlockingLine;
+		// not blocked
+		if ( !l ) return false;
+		// one-sided always blocking
+		if ( !l.sidedef[1] ) return true;
+		// same for block everything lines
+		if ( l.flags&blockflags ) return true;
+		// lower and upper bounds hit?
+		double afloor = l.frontsector.floorplane.ZAtPoint(a.pos.xy),
+			bfloor = l.backsector.floorplane.ZAtPoint(a.pos.xy),
+			aceil = l.frontsector.ceilingplane.ZAtPoint(a.pos.xy),
+			bceil = l.backsector.ceilingplane.ZAtPoint(a.pos.xy);
+		if ( (min(a.pos.z+a.height,a.ceilingz) > min(aceil,bceil)) || (max(a.pos.z,a.floorz) < max(afloor,bfloor)) )
+			return true;
+		// solid 3d floor bounds hit?
+		for ( int i=0; i<l.frontsector.Get3DFloorCount(); i++ )
+		{
+			F3DFloor ff = l.frontsector.Get3DFloor(i);
+			if ( !(ff.flags&(F3DFloor.FF_EXISTS|F3DFloor.FF_SOLID)) ) continue;
+			double floor = ff.top.ZAtPoint(a.pos.xy);
+			double ceil = ff.bottom.ZAtPoint(a.pos.xy);
+			if ( (a.pos.z+a.height > ceil) && (a.pos.z < floor) )
+				return true;
+		}
+		for ( int i=0; i<l.backsector.Get3DFloorCount(); i++ )
+		{
+			F3DFloor ff = l.backsector.Get3DFloor(i);
+			if ( !(ff.flags&(F3DFloor.FF_EXISTS|F3DFloor.FF_SOLID)) ) continue;
+			double floor = ff.top.ZAtPoint(a.pos.xy);
+			double ceil = ff.bottom.ZAtPoint(a.pos.xy);
+			if ( (a.pos.z+a.height > ceil) && (a.pos.z < floor) )
+				return true;
+		}
+		return false;
+	}
+
+	static play Vector3 UseLinePos( Line l )
+	{
+		Vector3 al, ah, bl, bh;
+		if ( !l.sidedef[1] )
+		{
+			// just the whole line
+			al = (l.v1.p,l.frontsector.floorplane.ZatPoint(l.v1.p));
+			ah = (l.v1.p,l.frontsector.ceilingplane.ZatPoint(l.v1.p));
+			bl = (l.v2.p,l.frontsector.floorplane.ZatPoint(l.v2.p));
+			bh = (l.v2.p,l.frontsector.ceilingplane.ZatPoint(l.v2.p));
+			return (al+ah+bl+bh)*.25;
+		}
+		SecPlane highestfloor, lowestfloor, lowestceiling, highestceiling;
+		if ( (l.frontsector.floorplane.ZatPoint(l.v1.p) > l.backsector.floorplane.ZatPoint(l.v1.p))
+			&& (l.frontsector.floorplane.ZatPoint(l.v2.p) > l.backsector.floorplane.ZatPoint(l.v2.p)) )
+		{
+			highestfloor = l.frontsector.floorplane;
+			lowestfloor = l.backsector.floorplane;
+		}
+		else
+		{
+			highestfloor = l.backsector.floorplane;
+			lowestfloor = l.frontsector.floorplane;
+		}
+		if ( (l.frontsector.ceilingplane.ZatPoint(l.v1.p) < l.backsector.ceilingplane.ZatPoint(l.v1.p))
+			&& (l.frontsector.ceilingplane.ZatPoint(l.v2.p) < l.backsector.ceilingplane.ZatPoint(l.v2.p)) )
+		{
+			lowestceiling = l.frontsector.ceilingplane;
+			highestceiling = l.backsector.ceilingplane;
+		}
+		else
+		{
+			lowestceiling = l.backsector.ceilingplane;
+			highestceiling = l.frontsector.ceilingplane;
+		}
+		// try to guess what the part that triggers this is
+		if ( l.Activation&SPAC_Cross )
+		{
+			// pick the "intersection"
+			al = (l.v1.p,highestfloor.ZatPoint(l.v1.p));
+			ah = (l.v1.p,lowestceiling.ZatPoint(l.v1.p));
+			bl = (l.v2.p,highestfloor.ZatPoint(l.v2.p));
+			bh = (l.v2.p,lowestceiling.ZatPoint(l.v2.p));
+			return (al+ah+bl+bh)*.25;
+		}
+		// check if lower part available
+		al = (l.v1.p,lowestfloor.ZatPoint(l.v1.p));
+		ah = (l.v1.p,highestfloor.ZatPoint(l.v1.p));
+		bl = (l.v2.p,lowestfloor.ZatPoint(l.v2.p));
+		bh = (l.v2.p,highestfloor.ZatPoint(l.v2.p));
+		if ( ((al-ah).length() > 0) && ((bl-bh).length() > 0) )
+			return (al+ah+bl+bh)*.25;
+		// check if upper part available
+		al = (l.v1.p,lowestceiling.ZatPoint(l.v1.p));
+		ah = (l.v1.p,highestceiling.ZatPoint(l.v1.p));
+		bl = (l.v2.p,lowestceiling.ZatPoint(l.v2.p));
+		bh = (l.v2.p,highestceiling.ZatPoint(l.v2.p));
+		if ( ((al-ah).length() > 0) && ((bl-bh).length() > 0) )
+			return (al+ah+bl+bh)*.25;
+		// check for 3d floors
+		bool floorfound = false;
+		Vector3 fal, fah, fbl, fbh;
+		for ( int i=0; i<l.backsector.Get3DFloorCount(); i++ )
+		{
+			let ff = l.backsector.Get3DFloor(i);
+			fal = (l.v1.p,ff.model.floorplane.ZAtPoint(l.v1.p));
+			fah = (l.v1.p,ff.model.floorplane.ZAtPoint(l.v1.p));
+			fbl = (l.v2.p,ff.model.ceilingplane.ZAtPoint(l.v2.p));
+			fbh = (l.v2.p,ff.model.ceilingplane.ZAtPoint(l.v2.p));
+			// skip if higher, we'll go with the lowest 3d floor (may not be right, but whatever)
+			if ( floorfound && (fah.z > ah.z) && (fbh.z > bh.z) && (fal.z > al.z) && (fbl.z > bl.z) ) continue;
+			al = fal;
+			ah = fah;
+			bl = fbl;
+			bh = fbh;
+			floorfound = true;
+		}
+		if ( floorfound ) return (al+ah+bl+bh)*.25;
+		for ( int i=0; i<l.frontsector.Get3DFloorCount(); i++ )
+		{
+			let ff = l.frontsector.Get3DFloor(i);
+			fal = (l.v1.p,ff.model.floorplane.ZAtPoint(l.v1.p));
+			fah = (l.v1.p,ff.model.floorplane.ZAtPoint(l.v1.p));
+			fbl = (l.v2.p,ff.model.ceilingplane.ZAtPoint(l.v2.p));
+			fbh = (l.v2.p,ff.model.ceilingplane.ZAtPoint(l.v2.p));
+			// skip if higher, we'll go with the lowest 3d floor (may not be right, but whatever)
+			if ( floorfound && (fah.z > ah.z) && (fbh.z > bh.z) && (fal.z > al.z) && (fbl.z > bl.z) ) continue;
+			al = fal;
+			ah = fah;
+			bl = fbl;
+			bh = fbh;
+			floorfound = true;
+		}
+		if ( floorfound ) return (al+ah+bl+bh)*.25;
+		// check for midtex
+		if ( !l.sidedef[0].GetTexture(1).IsNull() )
+		{
+			double ofs = l.sidedef[0].GetTextureYOffset(1);
+			Vector2 siz = TexMan.GetScaledSize(l.sidedef[0].GetTexture(1));
+			Vector2 tofs = TexMan.GetScaledOffset(l.sidedef[0].GetTexture(1));
+			ofs += tofs.y;
+			ofs *= l.sidedef[0].GetTextureYScale(1);
+			siz.y *= l.sidedef[0].GetTextureYScale(1);
+			if ( l.flags&Line.ML_DONTPEGBOTTOM )
+			{
+				al = (l.v1.p,highestfloor.ZAtPoint(l.v1.p)+ofs);
+				bl = (l.v2.p,highestfloor.ZAtPoint(l.v2.p)+ofs);
+				ah = al+(0,0,siz.y);
+				bh = bl+(0,0,siz.y);
+			}
+			else
+			{
+				ah = (l.v1.p,lowestceiling.ZAtPoint(l.v1.p)+ofs);
+				bh = (l.v2.p,lowestceiling.ZAtPoint(l.v2.p)+ofs);
+				al = ah-(0,0,siz.y);
+				bl = bh-(0,0,siz.y);
+			}
+			return (al+ah+bl+bh)*.25;
+		}
+		if ( !l.sidedef[1].GetTexture(1).IsNull() )
+		{
+			double ofs = l.sidedef[1].GetTextureYOffset(1);
+			Vector2 siz = TexMan.GetScaledSize(l.sidedef[1].GetTexture(1));
+			Vector2 tofs = TexMan.GetScaledOffset(l.sidedef[1].GetTexture(1));
+			ofs += tofs.y;
+			ofs *= l.sidedef[1].GetTextureYScale(1);
+			siz.y *= l.sidedef[1].GetTextureYScale(1);
+			if ( l.flags&Line.ML_DONTPEGBOTTOM )
+			{
+				al = (l.v1.p,highestfloor.ZAtPoint(l.v1.p)+ofs);
+				bl = (l.v2.p,highestfloor.ZAtPoint(l.v2.p)+ofs);
+				ah = al+(0,0,siz.y);
+				bh = bl+(0,0,siz.y);
+			}
+			else
+			{
+				ah = (l.v1.p,lowestceiling.ZAtPoint(l.v1.p)+ofs);
+				bh = (l.v2.p,lowestceiling.ZAtPoint(l.v2.p)+ofs);
+				al = ah-(0,0,siz.y);
+				bl = bh-(0,0,siz.y);
+			}
+			return (al+ah+bl+bh)*.25;
+		}
+		// just use the intersection
+		al = (l.v1.p,highestfloor.ZatPoint(l.v1.p));
+		ah = (l.v1.p,lowestceiling.ZatPoint(l.v1.p));
+		bl = (l.v2.p,highestfloor.ZatPoint(l.v2.p));
+		bh = (l.v2.p,lowestceiling.ZatPoint(l.v2.p));
+		return (al+ah+bl+bh)*.25;
+	}
+
+	// get how much a sector's physical position is offset by portals
+	static Vector2 PortalDisplacement( Sector a, Sector b )
+	{
+		if ( a.portalgroup == b.portalgroup ) return (0,0);	// ez
+		// we can't access level.displacements, so we gotta improvise
+		Vector2 pdisp = b.centerspot-a.centerspot;
+		Vector2 vdisp = level.Vec2Diff(a.centerspot,b.centerspot);
+		return pdisp-vdisp;
+	}
+
+	// returns the plural tag (if available)
+	static clearscope string GetAmmoTag( Inventory i )
+	{
+		if ( i is 'MagAmmo' ) return StringTable.Localize("$T_"..MagAmmo(i).PickupTag.."S");
+		if ( i is 'SWWMAmmo' ) return StringTable.Localize("$T_"..SWWMAmmo(i).PickupTag.."S");
+		return i.GetTag();
+	}
+	// because of zscript fuckery with GetDefaultByType
+	static clearscope string GetAmmoTagClass( Class<Inventory> i )
+	{
+		if ( i is 'MagAmmo' ) return StringTable.Localize("$T_"..GetDefaultByType((Class<MagAmmo>)(i)).PickupTag.."S");
+		if ( i is 'SWWMAmmo' ) return StringTable.Localize("$T_"..GetDefaultByType((Class<SWWMAmmo>)(i)).PickupTag.."S");
+		return GetDefaultByType(i).GetTag();
+	}
+
+	// full reset of inventory (excluding collectibles, and optionally resetting the score)
+	static play void WipeInventory( Actor mo, bool allplayers = false )
+	{
+		if ( allplayers )
+		{
+			for ( int i=0; i<MAXPLAYERS; i++ )
+			{
+				if ( !playeringame[i] || !players[i].mo ) continue;
+				WipeInventory(players[i].mo,false);
+			}
+			return;
+		}
+		PlayerInfo p = mo.player;
+		if ( !p || !p.mo ) return;
+		Actor last = p.mo;
+		while ( last.inv )
+		{
+			let inv = last.inv;
+			inv.Destroy();
+			if ( !inv.bDestroyed ) last = inv;
+			else last = inv;
+		}
+		p.mo.GiveDefaultInventory();
+		p.mo.BringUpWeapon();
+		p.health = p.mo.Health = p.mo.SpawnHealth();
+	}
+
+	// sets all carried ammo back to zero
+	// resets hammerspace capacity
+	static play void ResetAmmo( Actor mo )
+	{
+		PlayerInfo p = mo.player;
+		if ( !p || !p.mo ) return;
+		for ( Inventory i=p.mo.inv; i; i=i.inv )
+		{
+			if ( (i is 'Ammo') || (i is 'MagAmmo') )
+			{
+				i.Amount = 0;
+				i.MaxAmount = i.default.MaxAmount;
+			}
+			if ( i.GetClassName() == "HammerspaceEmbiggener" )
+				i.Amount = 0;
+		}
+		// also gives back any ammo from carried weapons (provided they don't have NOFIRSTGIVE)
+		for ( Inventory i=p.mo.inv; i; i=i.inv )
+		{
+			if ( !(i is 'Weapon') ) continue;
+			let w = Weapon(i);
+			if ( (w is 'SWWMWeapon') && SWWMWeapon(w).bNOFIRSTGIVE ) continue;
+			if ( w.Ammo1 ) w.Ammo1.Amount = min(w.Ammo1.MaxAmount,w.Ammo1.Amount+w.default.AmmoGive1);
+			if ( w.Ammo2 && (w.Ammo2 != w.Ammo1) ) w.Ammo2.Amount = min(w.Ammo2.MaxAmount,w.Ammo2.Amount+w.default.AmmoGive2);
+		}
+	}
+
+	// removes all usable items
+	static play void ResetItems( Actor mo )
+	{
+		PlayerInfo p = mo.player;
+		if ( !p || !p.mo ) return;
+		Actor last = p.mo;
+		while ( last.inv )
+		{
+			let inv = last.inv;
+			if ( !inv.bINVBAR )
+			{
+				last = inv;
+				continue;
+			}
+			inv.Destroy();
+			if ( !inv.bDestroyed ) last = inv;
+		}
+	}
+
+	// resets health and removes worn armor
+	static play void ResetHealth( Actor mo )
+	{
+		PlayerInfo p = mo.player;
+		if ( !p || !p.mo ) return;
+		p.mo.maxhealth = p.mo.starthealth = p.mo.default.health;
+		p.health = p.mo.health = p.mo.SpawnHealth();
+		for ( Inventory i=p.mo.inv; i; i=i.inv )
+		{
+			if ( !(i is 'SWWMArmor') ) continue;
+			i.Amount = 0;
+		}
+	}
+
+	// for Equinox
+	static play void SpawnVanillaBossBrain( int tid )
+	{
+		let ai = Level.CreateActorIterator(tid);
+		Actor a;
+		while ( a = ai.Next() )
+		{
+			let bb = a.Spawn("BossBrain",a.pos,NO_REPLACE);
+			bb.angle = a.angle;
+		}
+	}
+
+	// for Omnisight
+	static play void SpawnExitMarkers()
+	{
+		// make sure we're not called multiple times, in case some
+		// mapper is foolish enough to spawn more than one map revealer
+		let ti = ThinkerIterator.Create("SWWMExitMarker",Thinker.STAT_MAPMARKER);
+		if ( ti.Next() ) return;
+		// for skipping over merged exit lines (sharing vertices)
+		Array<Line> skipme;
+		skipme.Clear();
+		// find exit lines
+		for ( int i=0; i<level.lines.Size(); i++ )
+		{
+			Line l = level.lines[i];
+			bool isexit;
+			int exittype;
+			[isexit, exittype] = IsExitLine(l);
+			if ( !isexit )
+				continue;
+			if ( skipme.Find(l) < skipme.Size() ) continue;
+			skipme.Push(l);
+			// look for connected lines
+			Array<Line> con;
+			con.Clear();
+			con.Push(l);
+			int found;
+			if ( l.frontsector )
+			{
+				do
+				{
+					found = 0;
+					for ( int j=0; j<l.frontsector.Lines.Size(); j++ )
+					{
+						let l2 = l.frontsector.Lines[j];
+						if ( (l2.special != l.special) || (con.Find(l2) < con.Size()) ) continue;
+						// needs to have a point in common with this one or any of the added lines
+						bool nomatches = true;
+						for ( int k=0; k<con.Size(); k++ )
+						{
+							if ( (l2.v1 != con[k].v1) && (l2.v2 != con[k].v2) && (l2.v1 != con[k].v2) && (l2.v2 != con[k].v1) )
+								continue;
+							nomatches = false;
+							break;
+						}
+						if ( nomatches ) continue;
+						skipme.Push(l2);
+						con.Push(l2);
+						found++;
+					}
+				}
+				while ( found > 0 );
+			}
+			if ( l.backsector )
+			{
+				do
+				{
+					found = 0;
+					for ( int j=0; j<l.backsector.Lines.Size(); j++ )
+					{
+						let l2 = l.backsector.Lines[j];
+						if ( (l2.special != l.special) || (con.Find(l2) < con.Size()) ) continue;
+						// needs to have a point in common with this one or any of the added lines
+						bool nomatches = true;
+						for ( int k=0; k<skipme.Size(); k++ )
+						{
+							if ( (l2.v1 != skipme[k].v1) && (l2.v2 != skipme[k].v2) && (l2.v1 != skipme[k].v2) && (l2.v2 != skipme[k].v1) )
+								continue;
+							nomatches = false;
+							break;
+						}
+						if ( nomatches ) continue;
+						skipme.Push(l2);
+						con.Push(l2);
+						found++;
+					}
+				}
+				while ( found > 0 );
+			}
+			Vector3 lpos = (0,0,0);
+			for ( int i=0; i<con.Size(); i++ )
+				lpos += UseLinePos(con[i]);
+			lpos /= con.Size();
+			let m = Actor.Spawn("SWWMExitMarker",lpos);
+			m.SetState(m.SpawnState+exittype);
+		}
+	}
+
+	// checks if we're playing in doom 1
+	// this is used so we can sometimes replace the shotgun with a SSG slot weapon
+	static bool IsDoomOne()
+	{
+		if ( !(gameinfo.GameType&GAME_DOOM) ) return false;
+		// is the map in ExMx format? Then it's likely we're playing a doom 1 map
+		if ( (level.mapname.Length() >= 4) && (level.mapname.Mid(0,1) == "E") && (level.mapname.ByteAt(1) >= 0x30) && (level.mapname.ByteAt(1) < 0x40) && (level.mapname.Mid(2,1) == "M") && (level.mapname.ByteAt(3) >= 0x30) && (level.mapname.ByteAt(3) < 0x40) )
+			return true;
+		return false;
+	}
+
+	// check that all players can get enough of this if needed
+	//  multi: check for multiple copies, not just single instances
+	//         (useful e.g. for dual wieldable weapons)
+	static bool CheckNeedsItem( Class<Inventory> itm, bool multi = false )
+	{
+		int np = 0;
+		for ( int i=0; i<MAXPLAYERS; i++ )
+		{
+			if ( !playeringame[i] ) continue;
+			np++;
+		}
+		int required = np;
+		if ( multi ) required *= GetDefaultByType(itm).MaxAmount;
+		// subtract all that exist already (either in world or owned)
+		let ti = ThinkerIterator.Create(itm);
+		Inventory i;
+		while ( i = Inventory(ti.Next()) )
+		{
+			if ( multi ) required -= i.Amount;
+			else required--;
+		}
+		// check travelling inventory separately, as by default iterators don't check anything below STAT_FIRST_THINKING
+		ti = ThinkerIterator.Create(itm,Thinker.STAT_TRAVELLING);
+		while ( i = Inventory(ti.Next()) )
+		{
+			if ( multi ) required -= i.Amount;
+			else required--;
+		}
+		return (required>0);
+	}
+
+	// checks if instances of a certain item exist
+	//  skipme: optionally, ignore checking for one specific instance
+	//          (useful to check if we're the only copy of an item)
+	//  mapstart: this function is being called during map load, so we
+	//            should also check STAT_TRAVELLING inventory
+	//  worldonly: only checks for items that are placed in the world
+	//  ownedonly: only checks for items that are owned by players
+	//             (note that this is mutually exclusive with worldonly)
+	static bool ItemExists( Class<Inventory> itm, Inventory skipme = null, bool mapstart = false, bool worldonly = false, bool ownedonly = false )
+	{
+		let ti = ThinkerIterator.Create(itm);
+		Inventory i;
+		while ( i = Inventory(ti.Next()) )
+		{
+			if ( i == skipme ) continue;
+			if ( worldonly && i.Owner ) continue;
+			if ( ownedonly && (!i.Owner || !i.Owner.player) ) continue;
+			return true;
+		}
+		if ( worldonly || !mapstart ) return false;
+		ti = ThinkerIterator.Create(itm,Thinker.STAT_TRAVELLING);
+		while ( i = Inventory(ti.Next()) )
+		{
+			if ( i == skipme ) continue;
+			if ( ownedonly && (!i.Owner || !i.Owner.player) ) continue;
+			return true;
+		}
+		return false;
+	}
+
+	// multi-weapon spawn stuff
+
+	static private Class<Weapon> PickPair( Class<Weapon> a, Class<Weapon> b )
+	{
+		if ( !ItemExists(a,mapstart:true) ) return a;
+		if ( !ItemExists(b,mapstart:true) ) return b;
+		return Random[Replacements](0,1)?a:b;
+	}
+
+	// individual PickSlot definitions should be put on an extend
+
+	// what RandomSpawner does, basically (simplified for items)
+	static play void TransferItemProp( Actor a, Actor b, bool bundlehack = false )
+	{
+		if ( bundlehack )
+		{
+			b.spawnpoint = b.pos;
+			b.spawnangle = int(b.angle);
+		}
+		else
+		{
+			b.spawnpoint = a.spawnpoint;
+			b.spawnangle = a.spawnangle;
+			b.angle = a.angle;
+			b.pitch = a.pitch;
+			b.roll = a.roll;
+		}
+		b.special = a.special;
+		b.FloatBobPhase = a.FloatBobPhase;	// important
+		for ( int i=0; i<5; i++ ) b.args[i] = a.args[i];
+		b.special1 = a.special1;
+		b.special2 = a.special2;
+		b.spawnflags = a.spawnflags&~MTF_SECRET;
+		b.HandleSpawnFlags();
+		b.spawnflags = a.spawnflags;
+		b.bCountSecret = a.spawnflags&MTF_SECRET;
+		b.ChangeTid(a.tid);
+		b.vel = b.vel;
+		b.master = b.master;
+		b.tracer = b.tracer;
+		b.target = b.target;
+		b.bDROPPED = a.bDROPPED;
+	}
+}
+
+Class RadiusDebugSphere : SWWMNonInteractiveActor
+{
+	Default
+	{
+		RenderStyle "AddStencil";
+		StencilColor "White";
+	}
+	States
+	{
+	Spawn:
+		XZW1 A 1 BRIGHT A_FadeOut();
+		Wait;
+	}
+}

@@ -102,7 +102,7 @@ Class PlayerArachnotron : DemonPlayerBase
 			else
 			{
 				if (!GetCvar("D4D_SilentMorphs") && random(1,5)==5)
-				{	A_PlaySound("Doom4/Monsters/Arachnotron/Idle",5);	}
+				{	PlaySound("Doom4/Monsters/Arachnotron/Idle",5);	}
 			}
 		}
 		Loop;
@@ -113,7 +113,7 @@ Class PlayerArachnotron : DemonPlayerBase
 		{
 			if(((vel.XY dot vel.XY) > 2.0) && A_CheckFloor("Null"))
 			{
-				A_PlaySound("Player/Demon/ArachnotronStep",CHAN_BODY);
+				PlaySound("Player/Demon/ArachnotronStep",CHAN_BODY);
 			}
 		}
 		Wait;
@@ -126,6 +126,27 @@ Class D4DArachnotronWeapon : DemonWeaponBase
 	{
 		Tag "Demonic Plasma Launcher";
 	}
+	
+	action void FirePlasma(int amt, bool alt)
+	{
+		if (alt)
+		{
+			for (int i = 0; i < amt; i++)
+			{
+				let mo = PlayerArachnoPlasma2(A_FireProjectile("PlayerArachnoPlasma2",frandom(1.0,-1.0),0));
+				if (mo)	mo.SetPowerLevel(GetPowerLevel());
+			}
+		}
+		else
+		{
+			for (int i = 0; i < amt; i++)
+			{
+				let mo = PlayerArachnoPlasma(A_FireProjectile("PlayerArachnoPlasma",0,0,0));
+				if (mo)	mo.SetPowerLevel(GetPowerLevel());
+			}
+		}
+	}
+	
 	States
 	{
 	Ready:
@@ -154,20 +175,22 @@ Class D4DArachnotronWeapon : DemonWeaponBase
 	FireP0:
 		ARPL N 1
 		{
-			A_PlaySound("Doom4/Monsters/PlasmaShot",CHAN_WEAPON,0.7);
-			A_FireProjectile("PlayerArachnoPlasma",0,0,0);
+			PlaySound("Doom4/Monsters/PlasmaShot",CHAN_WEAPON,0.7);
+		//	A_FireProjectile("PlayerArachnoPlasma",0,0,0);
+			FirePlasma(1, false);
 			A_SetBlend("Purple",0.05,3);
-			A_SetPitch(pitch-0.9, SPF_INTERPOLATE);
+			A_SetViewPitch(viewpitch-0.9, SPF_INTERPOLATE);
 		}
-		ARPL JKL 1 A_SetPitch(pitch+0.3, SPF_INTERPOLATE);
+		ARPL JKL 1 A_SetViewPitch(viewpitch+0.3, SPF_INTERPOLATE);
 		ARPL N 1
 		{
-			A_PlaySound("Doom4/Monsters/PlasmaShot",7,0.7);
-			A_FireProjectile("PlayerArachnoPlasma",0,0,0);
+			PlaySound("Doom4/Monsters/PlasmaShot",7,0.7);
+		//	A_FireProjectile("PlayerArachnoPlasma",0,0,0);
+			FirePlasma(1, false);
 			A_SetBlend("Purple",0.05,3);
-			A_SetPitch(pitch-0.9, SPF_INTERPOLATE);
+			A_SetViewPitch(viewpitch-0.9, SPF_INTERPOLATE);
 		}
-		ARPL IJK 1 A_SetPitch(pitch+0.3, SPF_INTERPOLATE);
+		ARPL IJK 1 A_SetViewPitch(viewpitch+0.3, SPF_INTERPOLATE);
 		ARPL L 1 A_Refire;
 		Goto Ready;
 	AltFireP1:
@@ -180,7 +203,9 @@ Class D4DArachnotronWeapon : DemonWeaponBase
 	AltFireP0:
 		ARPL N 1 
 		{
-			A_PlaySound("Doom4/Monsters/PlasmaShotgun",CHAN_WEAPON);
+			PlaySound("Doom4/Monsters/PlasmaShotgun",CHAN_WEAPON);
+			FirePlasma(8, true);
+			/*
 			A_FireProjectile("PlayerArachnoPlasma2",frandom(1.0,-1.0),0);
 			A_FireProjectile("PlayerArachnoPlasma2",frandom(1.0,-1.0),0);
 			A_FireProjectile("PlayerArachnoPlasma2",frandom(1.0,-1.0),0);
@@ -189,10 +214,11 @@ Class D4DArachnotronWeapon : DemonWeaponBase
 			A_FireProjectile("PlayerArachnoPlasma2",frandom(1.0,-1.0),0);
 			A_FireProjectile("PlayerArachnoPlasma2",frandom(1.0,-1.0),0);
 			A_FireProjectile("PlayerArachnoPlasma2",frandom(1.0,-1.0),0);
-			A_SetPitch(pitch-5, SPF_INTERPOLATE);
+			*/
+			A_SetViewPitch(viewpitch-5, SPF_INTERPOLATE);
 		}
-		ARPL AAABB 1 A_SetPitch(pitch+1, SPF_INTERPOLATE);
-		ARPL BCCDDEEFFG 1; //A_SetPitch(pitch+.01, SPF_INTERPOLATE);
+		ARPL AAABB 1 A_SetViewPitch(viewpitch+1, SPF_INTERPOLATE);
+		ARPL BCCDDEEFFG 1; //A_SetViewPitch(viewpitch+.01, SPF_INTERPOLATE);
 		ARPL IJKL 1;
 		Goto Ready;
 		
@@ -208,14 +234,111 @@ Class D4DArachnotronWeapon : DemonWeaponBase
 		SHOT A 0;
 		Stop;
 	}
-}	
+}
+/*
+D4D_Red
+D4D_Orange
+D4D_Green
+D4D_Blue
+D4D_Purple
+D4D_Black
+D4D_White
+
+pointlight PurpleSmallPoint1
+{
+    color 0.5 0.0 0.5
+    size 30
+	//attenuate 1
+}
+*/
+
+mixin Class D4D_Arachnocolors
+{
+	Color col1, col2;
+	private int powerlevel;
+	
+	void SetPowerLevel(int lev)
+	{
+		lev = Clamp(lev, 0, 7);
+		powerlevel = lev;
+		Switch(lev)
+		{
+			Default:
+				col1 = Color("FFC5FF");
+				Translation = Default.Translation;
+				break;
+			Case 1:
+				col1 = Color(255,	000,	255,	000);
+				A_SetTranslation('D4D_Green');
+				break;
+			Case 2:
+				col1 = Color(255,	000,	000,	255);
+				A_SetTranslation('D4D_Blue');
+				break;
+			Case 3:
+				col1 = Color(255,	255,	000,	255);
+				A_SetTranslation('D4D_Purple');
+				break;
+			Case 4:
+				col1 = Color(255,	255,	128,	000);
+				A_SetTranslation('D4D_Orange');
+				break;
+			Case 5:
+				col1 = Color(255,	255,	000,	000);
+				A_SetTranslation('D4D_Red');
+				break;
+			Case 6:
+				col1 = Color(255,	064,	064,	064);
+				A_SetTranslation('None');
+				break;
+			Case 7:
+				col1 = Color(255,	255,	255,	255);
+				A_SetTranslation('None');
+				break;
+		}
+		col2 = col1;
+		col2.r /= 2;
+		col2.g /= 2;
+		col2.b /= 2;
+		Color coll = col2;
+		if (powerlevel >= 6)	coll = Color("FFFFFF");
+		int style = (powerlevel == 6) ? STYLE_Subtract : STYLE_Add;
+		A_SetRenderStyle(1, style);
+		SetLightColor(coll);
+	}
+	
+	private void SetLightColor(Color lcol, bool subtract = false)
+	{
+		int flags = DynamicLight.LF_Attenuate;
+		if (subtract) 
+			flags |= DynamicLight.LF_Subtractive;
+		A_AttachLight("ArachnoLight", DynamicLight.PointLight, lcol, 30, 30, flags);
+	}
+	
+	override int SpecialMissileHit(Actor victim)
+	{
+		if (!victim || victim.bKILLED || victim.bCORPSE || victim == target)
+			return 1;
+			
+		victim.DamageMobj(self, target, 7 * random(1,8) + 7 * powerlevel * 2, DamageType);
+		return -1;
+	}
+	
+	void ParticleFX()
+	{
+		A_SpawnParticle(col1,SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,0);
+		A_SpawnParticle(col2,SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,0);
+	}
+	
+}
 
 Class PlayerArachnoPlasma : ArachnoPlasma
 {
+	mixin D4D_Arachnocolors;
 	Default 
 	{
-		Damage 7;
 		Speed 30;
+		Damage 0;
 		SeeSound "";
 		+EXTREMEDEATH
 	}
@@ -225,29 +348,22 @@ Class PlayerArachnoPlasma : ArachnoPlasma
 		TNT1 A 0 NoDelay 
 		{
 			A_SetScale(frandom(0.06,0.08));
-			return A_Jump(256,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26);
+			return A_Jump(256,random(1,26));
 		}
 	Moving:
-		PLS1 ABCDEFGHIJKLMNOPQRSTUVWXYZ 1 Light("PurpleSmallPoint1") Bright 
-		{
-			A_SpawnParticle("FFC5FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,0);
-			A_SpawnParticle("FF93FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,0);
-		}
-		PLS2 ABCDEF 1 Light("PurpleSmallPoint1") Bright 
-		{
-			A_SpawnParticle("FFC5FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,0);
-			A_SpawnParticle("FF93FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,0);
-		}
+		PLS1 ABCDEFGHIJKLMNOPQRSTUVWXYZ 1 Bright ParticleFX();
+		PLS2 ABCDEF 1 Bright ParticleFX();
 		Loop;
 	}
 }
 
 Class PlayerArachnoPlasma2 : ArachnoPlasma
 {
+	mixin D4D_Arachnocolors;
 	Default 
 	{
-		Damage 7;
 		Speed 45;
+		Damage 0;
 		SeeSound "";
 		+EXTREMEDEATH
 	}
@@ -258,18 +374,13 @@ Class PlayerArachnoPlasma2 : ArachnoPlasma
 		{
 			ThrustThingZ(0,random(5,-5),0,1);
 			A_SetScale(frandom(0.06,0.08));
-			return A_Jump(256,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26);
+			return A_Jump(256,random(1,26));
 		}
 	Moving:
-		PLS1 ABCDEFGHIJKLMNOPQRSTUVWXYZ 1 Light("PurpleSmallPoint1") Bright 
+		PLS1 ABCDEFGHIJKLMNOPQRSTUVWXYZ 1 Bright ParticleFX();
+		PLS2 ABCDEF 1 Bright 
 		{
-			A_SpawnParticle("FFC5FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,0);
-			A_SpawnParticle("FF93FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,0);
-		}
-		PLS2 ABCDEF 1 Light("PurpleSmallPoint1") Bright 
-		{
-			A_SpawnParticle("FFC5FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,0);
-			A_SpawnParticle("FF93FF",SPF_FULLBRIGHT,random(15,30),random(2,3),0,0,0,0,frandom(0.85,-0.85),frandom(0.85,-0.85),frandom(-0.85,0.85),0,0,0);
+			ParticleFX();
 			A_ChangeVelocity(random(-1,1),random(-1,1),random(-1,1));
 		}
 		Loop;

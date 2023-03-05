@@ -60,13 +60,31 @@ Class D4Revenant : D4AbstractBiggie //replaces Revenant
 		SKEL I 6 A_SkelFist();
 		Goto See;
 	Missile:
+		#### K 10 bright
+		{
+			A_FaceTarget();
+			if (random(1,5) <= 1)
+				A_StartSound("Doom4/Monsters/Revenant/Attack");
+		}
+		#### J 10 bright
+		{
+			A_FaceTarget();
+			A_SpawnProjectile("D4RevRocket2",50,14,0);
+			A_SpawnProjectile("D4RevRocket2",50,-14,0);
+		}
+		#### K 10 A_FaceTarget();
+		Goto See;
+		
+		
+	/*
 		---- A 0 A_Jump(180,"Barrage");
 		Goto TargettedRockets;
+	*/
 	TargettedRockets:
 		SKEL K 10 
 		{
 			A_FaceTarget();
-			A_PlaySound("Doom4/Monsters/Revenant/Attack",CHAN_AUTO);
+			PlaySound("Doom4/Monsters/Revenant/Attack",CHAN_AUTO);
 		}
 		SKEL K 0
 		{
@@ -207,6 +225,7 @@ Class D4Revenant : D4AbstractBiggie //replaces Revenant
 	XDeath:
 		TNT1 A 10 CanRaise
 		{
+			bDONTGIB = true;
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}
@@ -355,7 +374,7 @@ Class RevenantRocketFast : D4D_Projectile
 			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
 			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
 			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(3,7),0,0,0,0,frandom(4.5,-4.5),frandom(4.5,-4.5),frandom(1,8),0,0,-0.4);
-			A_PlaySound("Doom4/Weapon/Machinegun/MiniMissileExplo");
+			PlaySound("Doom4/Weapon/Machinegun/MiniMissileExplo");
 			A_SpawnItemEx("MGMiniMissileExploSlightlyBigger",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 			return ResolveState("DeathCont");
 		}
@@ -384,7 +403,7 @@ Class RevenantRocketFastLQ : RevenantRocketFast
 	Death:
 		TNT1 A 0
 		{
-			A_PlaySound("Doom4/Weapon/Machinegun/MiniMissileExplo");
+			PlaySound("Doom4/Weapon/Machinegun/MiniMissileExplo");
 			A_SpawnItemEx("MGMiniMissileExploSlightlyBigger",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 			return ResolveState("DeathCont");
 		}
@@ -443,7 +462,7 @@ Class RevenantRocketSpinning : D4AbstractMissile
 			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
 			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
 			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
-			A_PlaySound("Doom4/Weapon/Machinegun/MiniMissileExplo");
+			PlaySound("Doom4/Weapon/Machinegun/MiniMissileExplo");
 			A_SpawnItemEx("MGMiniMissileExplo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 			return ResolveState("DeathCont");
 		}
@@ -457,11 +476,51 @@ Class RevenantRocketSpinning : D4AbstractMissile
 	}
 }
 
-Class MonsterRocketTrailFire : Actor //centered flare behind the rocket
+Class D4RevRocket2 : Actor
+{
+	Default
+	{
+		Projectile;
+		+BRIGHT;
+		Speed 25;
+		FastSpeed 30;
+		Damage 5;
+		Radius 3;
+		Height 6;
+		Scale 0.6;
+		
+		SeeSound "Player/Demon/Revenant/Fire";
+	}
+	
+	States
+	{
+	Spawn:
+		SWMS A -1;
+		Loop;
+	Death:
+		TNT1 A 10
+		{
+			bNOINTERACTION = bINVISIBLE = true;
+			A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+			A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+			A_SpawnParticle("FF0000",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+			A_SpawnParticle("BD0000",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+			A_SpawnParticle("BD0000",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+			A_SpawnParticle("BD0000",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
+			A_StartSound("Doom4/Weapon/Machinegun/MiniMissileExplo");
+			A_SpawnItemEx("MGMiniMissileExplo",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
+		}
+		Stop;
+	}
+}
+
+Class MonsterRocketTrailFire : D4DFX //centered flare behind the rocket
 {
 	Default 
 	{
-		+CLIENTSIDEONLY
 		+NOINTERACTION
 		+FORCEXYBILLBOARD
 		+NOTONAUTOMAP
@@ -483,11 +542,10 @@ Class MonsterRocketTrailFire : Actor //centered flare behind the rocket
 		Stop;		
 	}
 }
-Class RocketGasTrail : Actor 
+Class RocketGasTrail : D4DFX 
 {
 	Default 
 	{
-		+CLIENTSIDEONLY
 		+NOINTERACTION
 		+FORCEXYBILLBOARD
 		RenderStyle "Add";

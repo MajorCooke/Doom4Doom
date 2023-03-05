@@ -81,10 +81,10 @@ Class D4LootContainer play
 		for (int i = 0; i < Defs.Size(); i++)
 		{
 			let def = D4LootDef(Defs[i]);
-			if (def && 
-				(def.ClassName == check || 
+			if	(def && 
+				(def.ClassName == check) || 
 				(def.Parent && check is def.ClassName) ||
-				(def.Replacee && def.ClassName is Actor.GetReplacee(check))))
+				(def.Replacee && def.ClassName is Actor.GetReplacee(check)))
 				return def;
 			
 		}
@@ -333,7 +333,7 @@ extend class D4DHandler
 			return rep;
 			
 		int originalID = id;
-		id = Max(1, id - (upgrade * 2));
+		id = Max(1, id - (upgrade * 3));
 		
 		// Give spider masterminds and cyberdemons special treatments since they
 		// are the biggest monsters.
@@ -363,7 +363,7 @@ extend class D4DHandler
 		}
 		else if (rarity >= 2)		// Common
 		{
-			ch = irandom(1, (id / 2));
+			ch = irandom(1, int(floor(id / 2)));
 		}
 		else if (rarity == 1) 	// Rare
 		{

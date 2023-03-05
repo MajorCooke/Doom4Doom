@@ -94,6 +94,13 @@ extend Class AkimboWeapon
 	//==========================================================================
 	// Sound Management
 	//==========================================================================
+	/*
+	action void PlaySound(sound whattoplay = "weapons/pistol", int slot = CHAN_BODY, double volume = 1.0, bool looping = false, double attenuation = ATTN_NORM, bool local = false, double pitch = 0.0)
+	{
+		let i = invoker; let o = i.owner; if (!o)	return;
+		int flag = (looping) ? CHANF_LOOP : 0;
+		o.A_StartSound(whattoplay, slot, flag, volume, attenuation, pitch);
+	}
 	
 	action void AkPlaySound(Sound snd, int slot = CHAN_BODY, double volume = 1.0, bool looping = false, int attenuation = ATTN_NORM, bool local = false, int id = 0)
 	{
@@ -101,7 +108,9 @@ extend Class AkimboWeapon
 		int who = (id < 0) ? Left : Right;
 		
 		if (who < 0 || who > invoker.SoundMaker.Size())	return;
-		invoker.SoundMaker[who].A_PlaySound(snd,slot,volume,looping,attenuation,local);
+		
+		int flag = (looping) ? CHANF_LOOP : 0;
+		invoker.SoundMaker[who].A_StartSound(snd,slot,volume,looping,attenuation,local);
 	}
 	
 	action void AkStopSound(int chmin, int chmax = -1, int id = 0)
@@ -126,7 +135,7 @@ extend Class AkimboWeapon
 					invoker.SoundMaker[who].A_StopSound(chmin);		
 		}
 	}
-	
+	*/
 	//==========================================================================
 	// State/Status Management
 	//==========================================================================
@@ -640,7 +649,7 @@ extend Class AkimboWeapon
 				if (CountInv("PistolLanceActive"))	A_SetInventory("PistolLanceActive",0);
 				else
 				{
-					A_PlaySound("Doom4/Weapon/GaussGun/PrecisionDown",CHAN_WEAPON,1);	
+				//	A_PlaySound("Doom4/Weapon/GaussGun/PrecisionDown",CHAN_WEAPON,1);	
 					A_SetInventory("PistolLanceActive",1);
 				}
 				return true;
@@ -663,7 +672,7 @@ extend Class AkimboWeapon
 				if (CountInv("LGChainToggle"))	A_SetInventory("LGChainToggle",0);
 				else
 				{
-					A_PlaySound("Doom4/Weapon/GaussGun/PrecisionDown",CHAN_WEAPON,1);	
+				//	A_PlaySound("Doom4/Weapon/GaussGun/PrecisionDown",CHAN_WEAPON,1);	
 					A_SetInventory("LGChainToggle",1);
 				}
 				return true;				
@@ -843,7 +852,6 @@ extend Class AkimboWeapon
 			{
 				io.A_SetInventory(ActiveMod1,0);
 				io.A_SetInventory(ActiveMod2,1);
-				AkPlaySound(snd,5,1);
 				return spr2;
 				
 			}
@@ -852,7 +860,6 @@ extend Class AkimboWeapon
 				if (checkonly) return 'OKAY';
 				io.A_SetInventory(ActiveMod1,1);
 				io.A_SetInventory(ActiveMod2,0);
-				AkPlaySound(snd,5,1);
 				return spr1;
 			}
 		}
@@ -861,7 +868,6 @@ extend Class AkimboWeapon
 			if (checkonly) return 'OKAY';
 			A_SetInventory(ActiveMod1,1);
 			A_SetInventory(ActiveMod2,0);
-			AkPlaySound(snd,5,1);
 			return spr1;
 		}
 		else if (io.CountInv(Mod2) && (!io.CountInv(ActiveMod2) || io.CountInv(ActiveMod1))) //if it has MicroMissiles
@@ -869,7 +875,6 @@ extend Class AkimboWeapon
 			if (checkonly) return 'OKAY';
 			io.A_SetInventory(ActiveMod1,0);
 			io.A_SetInventory(ActiveMod2,1);
-			AkPlaySound(snd,5,1);
 			return spr2;
 		}
 		else
@@ -1304,7 +1309,6 @@ extend Class AkimboWeapon
 	{
 		invoker.owner.A_SetInventory("CarrionPortalsOpened",count);
 		invoker.owner.A_AlertMonsters();
-		invoker.owner.A_PlaySound("Doom4/Monsters/ArgentCharge",CHAN_AUTO,1,0,ATTN_NONE);
 		invoker.owner.A_TakeInventory("D4Carrion",ammoConsume,TIF_NOTAKEINFINITE);
 	}
 	
@@ -1321,7 +1325,7 @@ extend Class AkimboWeapon
 	Overlay.OffsetManager:
 		TNT1 A 1
 		{
-			//if (invoker.SoundMaker[Left])	invoker.SoundMaker[Left].A_Warp(MasterPtr, 5, -5,
+			//if (invoker.SoundMaker[Left])	invoker.SoundMaker[Left].A_Warp(AAPTR_MASTER, 5, -5,
 			let io = PlayerPawn(invoker.owner);
 			for (int i = 0; i < 2; i++)
 			{
@@ -1387,7 +1391,6 @@ extend Class AkimboWeapon
 			if (!AkimboCheckWeapons())
 			{
 				A_SelectWeapon("D4Pistol");
-				A_PlaySound("Doom4/Player/Nope",CHAN_AUTO);
 				return ResolveState("Deselect");
 			}
 			let isl = invoker.SoundMaker[Left];
@@ -1520,29 +1523,11 @@ extend Class AkimboWeapon
 					Console.Printf("Can't switch weapons while firing");
 				}
 			}
-			
-			/*
-			if ((invoker.InputCur & BT_ATTACK) && !(invoker.InputOld & BT_ATTACK))
-			{
-				
-				uint size = invoker.WeaponList.Size();
-				A_SetInventory("LeftWeaponCount", Clamp(((CountInv("LeftWeaponCount") + 1) % size), 1, size - 1));
-				
-				A_SetInventory("RightWeaponCount", Clamp(((CountInv("RightWeaponCount") + 1) % size), 1, size - 1));
-				uint cnt = CountInv("LeftWeaponCount");
-				A_SetInventory("RightWeaponCount",cnt);
-				invoker.LeftGun = invoker.WeaponList[cnt];
-				
-				A_Overlay(OV_LeftWeapon, invoker.WeaponReadyStates[cnt]);
-				A_OverlayFlags(OV_LeftWeapon, PSPF_ADDWEAPON|PSPF_FLIP|PSPF_MIRROR, true);
-				A_Overlay(OV_RightWeapon, invoker.WeaponReadyStates[cnt]);
-				A_OverlayFlags(OV_RightWeapon, PSPF_ADDWEAPON, true);
-			}
-			*/
 		}
 		Loop;
 	Fire:
 		M666 A 1;
 		Goto Ready;
 	}
+	
 }

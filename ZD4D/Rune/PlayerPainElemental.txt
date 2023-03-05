@@ -99,7 +99,7 @@ Class PlayerPainElemental : DemonPlayerBase
 		{
 			if (!GetCvar("D4D_SilentMorphs") && random(1,8)==8)
 			{
-				A_PlaySound("Doom4/Monsters/PainElemental/Idle",5);
+				PlaySound("Doom4/Monsters/PainElemental/Idle",5);
 			}
 		}
 		Loop;
@@ -116,30 +116,23 @@ Class D4DPainElementalWeapon : DemonWeaponBase
 	
 	action bool FireLostSoul(bool cooldown = true)
 	{
-		A_PlaySound("Player/Demon/LostSoul/Attack",CHAN_WEAPON);
-		if (cooldown)
-		{
-			Actor b; bool a;
-			[a, b] = A_SpawnItemEx("LostSoulFriend",20*cos(pitch),0,5-sin(pitch)*20,cos(-pitch)*22,0,-sin(pitch)*22,0,SXF_SETMASTER);
-			if (a && b)	//if succesful spawn
-			{
-				if (invoker.target && !invoker.target.bFRIENDLY)
-					b.target = invoker.target;
-				invoker.cooldown = 25;	//long cool off
-				return true;
-			}		
-			A_SpawnItemEx("LostSoulDeatherer",0,0,0,22,0,0,0,SXF_SETMASTER);	//this is if failed spawn
-			invoker.cooldown = 10;		//slight cool off 
-			return false;
-		}
+		PlaySound("Player/Demon/LostSoul/Attack",CHAN_WEAPON);
 		Actor b; bool a;
 		[a, b] = A_SpawnItemEx("LostSoulFriend",20*cos(pitch),0,5-sin(pitch)*20,cos(-pitch)*22,0,-sin(pitch)*22,0,SXF_SETMASTER);
-		if (a && b)
+		if (a && b)	//if succesful spawn
 		{
 			if (invoker.target && !invoker.target.bFRIENDLY)
 				b.target = invoker.target;
-		}
-		return true;
+				b.LastEnemy = b.target;
+				b.LastHeard = b.target;
+			if (cooldown)
+				invoker.cooldown = 25;	//long cool off
+			return true;
+		}		
+		A_SpawnItemEx("LostSoulDeatherer",0,0,0,22,0,0,0,SXF_SETMASTER);	//this is if failed spawn
+		if (cooldown)
+			invoker.cooldown = 10;		//slight cool off 
+		return false;
 	}
 	
 	States
@@ -148,19 +141,19 @@ Class D4DPainElementalWeapon : DemonWeaponBase
 		M666 A 1
 		{
 			if (invoker.cooldown > 0)	
-			{	
 				invoker.cooldown--;
-			}
+			
 		}
 		Wait;
 	Ready:
 		TNT1 A 0 
 		{
 			A_GiveInventory("FlyingMonsterPowerup",1);
-			
 		}
+	AReady:
 		TNT1 A 1 
 		{
+			
 			int flags = WRF_DISABLESWITCH;
 			if (invoker.cooldown > 0)
 				flags |= WRF_NOPRIMARY;
@@ -179,6 +172,8 @@ Class D4DPainElementalWeapon : DemonWeaponBase
 			let o = invoker.owner;
 			if (o)
 			{
+				
+				A_Overlay(6010,"Overlay.LostSoulCooler",true);
 				FTranslatedLineTarget t;
 				let o = invoker.owner;
 				LineAttack(angle, 32766, pitch, 0, 'Normal', "LSTargetPuff", LAF_NOINTERACT|LAF_OVERRIDEZ, t, invoker.owner.player.viewz);
@@ -189,31 +184,42 @@ Class D4DPainElementalWeapon : DemonWeaponBase
 			return CheckPrimary();
 		}
 		
-		Goto Ready;
-	AltFire:
-		---- A 1 CheckSecondary();
-		Goto Ready;
+		Goto AReady;
 	FireP7:
 		---- A 1 FireLostSoul();
+		---- AAAAAAA 1 FireLostSoul(false);
+		Goto AReady;
 	FireP6:
 		---- A 1 FireLostSoul();
+		---- AAAAAA 1 FireLostSoul(false);
+		Goto AReady;
 	FireP5:
 		---- A 1 FireLostSoul();
+		---- AAAAA 1 FireLostSoul(false);
+		Goto AReady;
 	FireP4:
 		---- A 1 FireLostSoul();
+		---- AAAA 1 FireLostSoul(false);
+		Goto AReady;
 	FireP3:
 		---- A 1 FireLostSoul();
+		---- AAA 1 FireLostSoul(false);
+		Goto AReady;
 	FireP2:
 		---- A 1 FireLostSoul();
+		---- AA 1 FireLostSoul(false);
+		Goto AReady;
 	FireP1:
 		---- A 1 FireLostSoul();
+		---- A 1 FireLostSoul(false);
+		Goto AReady;
 	FireP0:
-		TNT1 A 1 
-		{
-			A_Overlay(6010,"Overlay.LostSoulCooler",true);
-			FireLostSoul();
-		}
-		Goto Ready+1;
+		TNT1 A 1 FireLostSoul();
+		Goto AReady;
+	
+	AltFire:
+		---- A 1 CheckSecondary();
+		Goto AReady;
 	AltFireP1:
 	AltFireP2:
 	AltFireP3:
@@ -295,7 +301,7 @@ Class LostSoulFriend : D4LostSoulNoCash
 	}
 }
 
-Class LSTargetPuff : Actor
+Class LSTargetPuff : D4Actor
 {
 	Default
 	{
@@ -317,7 +323,7 @@ Class LSTargetPuff : Actor
 	}
 }
 
-Class LostSoulDeatherer : Actor 
+Class LostSoulDeatherer : D4DFX 
 {
 	Default 
 	{
@@ -329,7 +335,7 @@ Class LostSoulDeatherer : Actor
 	Spawn:
 		TNT1 A 10 NODELAY
 		{
-			A_PlaySound("skull/death");
+			PlaySound("skull/death");
 			A_Explode(random(30,50),64,0);
 			if (GetCvar("HQEffectsWeapons"))
 			{
@@ -346,7 +352,7 @@ Class LostSoulDeatherer : Actor
 	}
 }
 
-Class PainKamikazeExploFX : Actor 
+Class PainKamikazeExploFX : D4DFX 
 {
 	int UAngle;
 	Default 
@@ -376,7 +382,7 @@ Class PainKamikazeExploFX : Actor
 	}
 }
 
-Class PainElementalExplosionSpriteSlower : Actor 
+Class PainElementalExplosionSpriteSlower : D4DFX 
 {
 	Default 
 	{

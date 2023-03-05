@@ -22,6 +22,7 @@ Class D4PainElemental : D4AbstractBiggie //replaces PainElemental
 		+NOGRAVITY 
 		+DONTCORPSE
 		+DONTFALL
+		+DONTGIB
 		SeeSound "Doom4/Monsters/PainElemental/Sight";
 		PainSound "Doom4/Monsters/PainElemental/Pain";
 		DeathSound "Doom4/Monsters/PainElemental/DeathExplo";
@@ -52,7 +53,7 @@ Class D4PainElemental : D4AbstractBiggie //replaces PainElemental
 		PAIN F 0 BRIGHT
 		{
 			A_FaceTarget();
-			A_PainAttack2("D4LostSoulNoCash");
+			A_PainAttack2("D4LostSoulNoCash", 0, 0, 0);
 		}
 		Goto See;
 	Pain.StunBomb:
@@ -99,7 +100,7 @@ Class D4PainElemental : D4AbstractBiggie //replaces PainElemental
 				A_PainDie("D4LostSoulNoCash");
 			}
 		}
-		PAIN I 3 BRIGHT A_PlaySound(DeathSound, 7);
+		PAIN I 3 BRIGHT PlaySound(DeathSound, 7);
 		PAIN J 3 BRIGHT ;
 		PAIN K 3 Bright
 		{
@@ -233,7 +234,7 @@ extend class D4PainElemental
 		}
 
 		// [RH] make this optional
-		if (limit < 0 /*&& compat_limitpain()*/)
+		if (limit < 0 && compat_limitpain)
 			limit = 21;
 
 		if (limit > 0)
@@ -371,7 +372,7 @@ extend class D4PainElemental
 Class IWasMeleeKilled : Inventory
 {}
 
-Class PainElementalExplosionSprite : Actor 
+Class PainElementalExplosionSprite : D4DFX 
 {
 	Default 
 	{
@@ -396,7 +397,7 @@ Class PainElementalExplosionSprite : Actor
 	}
 }
 
-Class D4PainElmBreath : Actor 
+Class D4PainElmBreath : D4DFX 
 {
 	bool HQ;
 	Default 
@@ -419,13 +420,13 @@ Class D4PainElmBreath : Actor
 				A_SetTics(35);
 				return ResolveState(null);
 			}
-			if(A_JumpIfHealthLower(1,"Null",MasterPtr))
+			if(A_JumpIfHealthLower(1,"Null",AAPTR_MASTER))
 			{
 				return ResolveState("Null"); //removes it when master died
 			}
 			else
 			{
-				A_Warp(MasterPtr,8,0,0,0,WARPF_NOCHECKPOSITION,"Null");
+				A_Warp(AAPTR_MASTER,8,0,0,0,WARPF_NOCHECKPOSITION,"Null");
 				if (!A_CheckSight("Null"))
 				{
 					A_SpawnItemEx("PainBreath",15,15,20,frandom(1,-1),frandom(0.3,1.2),frandom(0.6,-0.6),0,SXF_NOCHECKPOSITION,96);
@@ -436,7 +437,7 @@ Class D4PainElmBreath : Actor
 		}
 	}
 }
-Class PainBreath : Actor 
+Class PainBreath : D4DFX 
 {
 	Default 
 	{

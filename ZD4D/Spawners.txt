@@ -1,4 +1,3 @@
-
 Class D4PostProcessor : LevelPostProcessor
 {
 	protected void Apply(Name checksum, String mapname)
@@ -44,20 +43,20 @@ Class D4PostProcessor : LevelPostProcessor
 			uint tskill = GetThingSkills(i);
 			if (!(tskill & skillmask))	continue;
 			
-			int r = random[rng](1,100);
 			int cap = 1;
-			
+			// Handles Crucible spawning, and enabling of ammo types for chainsaw
+			// and BFG/Unmaykr
 			Switch(ednum)
 			{
 				Case 2005: //Chainsaw
-					SE.SetActorSpawn(D4DHandler.ChainsawAmmo, true);	
+					SE.SetActorSpawn(D4DHandlerStatic.ChainsawAmmo, true);	
 					cap = 10;
 					break;
 				
 				Case 2006: //BFG
 					if (D4D_PrintDebug == 7)
 						Console.Printf("BFG found. Ammo spawn enabled.");
-					SE.SetActorSpawn(D4DHandler.BFGAmmo, true);			
+					SE.SetActorSpawn(D4DHandlerStatic.BFGAmmo, true);			
 					cap = 25;
 					break;
 			}
@@ -65,7 +64,7 @@ Class D4PostProcessor : LevelPostProcessor
 			if (random[rng](1,100) <= cap)
 			{
 				SE.AddPostSpawn('DECrucible', GetThingPos(i));
-				SE.SetActorSpawn(D4DHandler.CrucibleAmmo, true);
+				SE.SetActorSpawn(D4DHandlerStatic.CrucibleAmmo, true);
 			}
 		}
 	}
@@ -94,7 +93,7 @@ extend Class D4DHandler
 			
 			Array<Actor> Spawns; Spawns.Clear();
 			
-			if (CheckActorSpawn(ChainsawAmmo) && random[rng](1,256) <= GasChance)
+			if (CheckActorSpawn(D4DHandlerStatic.ChainsawAmmo) && random[rng](1,256) <= GasChance)
 			{
 				Class<Inventory> Fuel = 'D4Fuel';
 				if (Small)	Fuel = 'D4FuelSmall';
@@ -102,7 +101,7 @@ extend Class D4DHandler
 				if (th)	th.vel = mo.vel;
 			}
 			
-			if (CheckActorSpawn(CrucibleAmmo) && random[rng](1,256) <= CrucChance)
+			if (CheckActorSpawn(D4DHandlerStatic.CrucibleAmmo) && random[rng](1,256) <= CrucChance)
 			{
 				let th = mo.Spawn('DECrucibleAmmo', mo.pos, ALLOW_REPLACE);
 				if (th)	th.vel = mo.vel;
@@ -127,138 +126,21 @@ extend Class D4DHandler
 		
 		if (random[rng](1, 100) <= chance)
 		{
-			// Check if ammo spawns were previously enabled, but only if the player
-			// isn't just entering the map.
-		//	bool ammospawned = (Spawnable[CrucibleAmmo] && level.maptime > 10);
 			let cruc = DECrucible(mo.Spawn('DECrucible', mo.pos, ALLOW_REPLACE));
 			
 			if (cruc)
 			{
 				cruc.vel = mo.vel;
-				
-				// Ammo has already spawned so don't bother.
-				/*
-				if (ammospawned)	return;
-				
-				let it = ThinkerIterator.Create('Ammo', Thinker.STAT_DEFAULT);
-				Ammo mo = null;
-				while (mo = Ammo(it.Next()))
-				{
-					if (!mo || mo is 'DECrucibleAmmo' || mo.owner)	continue;
-					
-					String s = mo.GetClassName();
-					s = s.MakeLower();
-					
-					// Make sure it's not a flying pinata actor.
-					if (s.IndexOf("pinata") > -1)	continue;
-					
-					if (mo is "D4Bullets" || mo is "D4Shells" || mo is "D4Rockets" ||
-						mo is "D4Cells" || mo is "D4BFGAmmo")
-					{
-						int ran = random[rng](1,256);
-						
-						if (ran > DECrucibleAmmo_Chance)	continue;
-						
-						Actor cammo = mo.Spawn('DECrucibleAmmo', mo.pos, ALLOW_REPLACE);
-						if (cammo)
-						{
-							cammo.Angle = mo.Angle;
-							cammo.Pitch = mo.Pitch;
-							cammo.Vel = mo.Vel;
-						}
-					}
-				}
-				*/
 			}
 		}
 	}
-	
-	//--------------------------------------------------------------------------
-	//--------------------------------------------------------------------------
-	// Replaceees
-	//--------------------------------------------------------------------------
-	//--------------------------------------------------------------------------
-	override void CheckReplacee(ReplacedEvent e)
-	{
-		Class<Actor> rep = e.Replacement;
-		if (rep == null)	return;
-		
-		//Console.Printf("D4D: Checking replacement for %s", rep.GetClassName());
-		//let mon = (Class<D4AbstractMonster>)(rep);
-		//if (mon)
-		Name repn = rep.GetClassName();
-		let defs = GetDefaultByType(rep);
-		
-		if (rep is 'D4AbstractMonster')
-		{
-			let mon = (Class<D4AbstractMonster>)(rep);
-			let defs = GetDefaultByType(mon);
-			if (defs.Replacing)	
-			{
-				e.Replacee = defs.Replacing;
-				e.IsFinal = true;
-				
-				if (D4D_PrintDebug == 2)
-					Console.Printf("D4D: %s replaces %s", rep.GetClassName(), e.Replacee.GetClassName());
-					
-				return;
-			}
-		}
-		else if (rep is 'Inventory')
-		{
-			if (rep is 'Armor')
-			{
-				Switch (repn)
-				{
-					Case 'D4ArmorBonus':	e.Replacee = 'ArmorBonus';	return;
-					Case 'D4BlueArmor':		e.Replacee = 'BlueArmor';	return;
-					Case 'D4GreenArmor':	e.Replacee = 'GreenArmor';	return;
-				}
-			}
-			else if (rep is 'Ammo')
-			{
-				Switch (repn)
-				{
-					Case 'D4ShellsSmall':	e.Replacee = 'Shell';		return;
-					Case 'D4Shells':		e.Replacee = 'ShellBox';	return;
-					Case 'D4BulletsSmall':	e.Replacee = 'Clip';		return;
-					Case 'D4Bullets':		e.Replacee = 'ClipBox';		return;
-					Case 'D4RocketsSmall':	e.Replacee = 'RocketAmmo';	return;
-					Case 'D4Rockets':		e.Replacee = 'RocketBox';	return;
-					Case 'D4BFGAmmo':		e.Replacee = 'CellPack';	return;
-					Case 'D4CellsSmall':	e.Replacee = 'Cell';		return;
-					Case 'D4Cells':			e.Replacee = 'CellPack';	return;
-				}
-			}
-			else if (rep is 'Doom4Weapon')
-			{
-				Switch(repn)
-				{
-					Case 'D4DFist':				e.Replacee = 'Fist';			return;
-					Case 'D4Chainsaw':			e.Replacee = 'Chainsaw';		return;
-					Case 'D4Pistol':			e.Replacee = 'Pistol';			return;
-					Case 'D4StaticRifle':
-					Case 'D4Shotgun':			e.Replacee = 'Shotgun';			return;
-					Case 'D4SuperShotgun':		e.Replacee = 'SuperShotgun';	return;
-					Case 'D4Chaingun':		
-					Case 'D4AssaultRifle':
-					Case 'D4Repeater':			e.Replacee = 'Chaingun';		return;
-					Case 'D4RocketLauncher':	
-					Case 'D4GrenadeLauncher':	e.Replacee = 'RocketLauncher';	return;
-					Case 'D4PlasmaRifle':		
-					Case 'D4LightningGun':
-					Case 'D4VortexRifle':
-					Case 'D4GaussCannon':		e.Replacee = 'PlasmaRifle';		return;
-					Case 'DEUnmakyr':
-					Case 'D4BFG':				e.Replacee = 'BFG9000';			return;
-				}
-			}
-		}
-	}
-	
-	//--------------------------------------------------------------------------
-	// Replacements
-	//--------------------------------------------------------------------------
+}
+
+
+
+extend class D4DHandlerStatic
+{
+	private Class<Actor> SuperSpawned;
 	
 	private bool DehackedDone;
 	private Array<Class<Actor> > DehackedRep;
@@ -316,19 +198,20 @@ extend Class D4DHandler
 		DehackedDone = true;
 	}
 	
-	private Class<Actor> SuperSpawned;
+	//--------------------------------------------------------------------------
+	// Replacements
+	//--------------------------------------------------------------------------
+			
 	override void CheckReplacement(ReplaceEvent e)
 	{
 		Class<Actor> rep = e.Replacee;
 		Class<Actor> original = e.Replacement;
-		if (!rep || rep is 'Nothing')	return;
-		
+		if (!rep || rep is 'D4Nothing')	return;
 		let defs = GetDefaultByType(rep);
-				
 		Name repn = rep.GetClassName();
 		
 		if (rep is 'TeleportFog')					e.Replacement = 'D4Fog';
-		else if (rep is 'Inventory')
+		if (rep is 'Inventory')
 		{
 			if (rep is 'Ammo')
 			{
@@ -344,18 +227,21 @@ extend Class D4DHandler
 					Case 'CellPack':		e.Replacement = 'D4Cells';			break;
 					Default:				return;
 				}
-				repn = e.Replacement.GetClassName();
-				int chance = 0;
-				
-				Switch (repn)
+				if (CheckActorSpawn(BFGAmmo)) // BFG Ammo outright replaces cells unlike the others.
 				{
-					Case 'D4CellsSmall':	chance = 10;	break;
-					Case 'D4Cells':			chance = 35;	break;
-				}
-				if (chance > 0 && random[rng](1,256) <= chance)
-				{
-					e.Replacement = 'D4BFGAmmo';
-					return;
+					repn = e.Replacement.GetClassName();
+					int chance = 0;
+					
+					Switch (repn)
+					{
+						Case 'D4CellsSmall':	chance = 10;	break;
+						Case 'D4Cells':			chance = 35;	break;
+					}
+					if (chance > 0 && random[rng](1,256) <= chance)
+					{
+						e.Replacement = 'D4BFGAmmo';
+						return;
+					}
 				}
 			}
 			else if (rep is 'Health')
@@ -391,16 +277,16 @@ extend Class D4DHandler
 				{
 					e.Replacement = 'D4Chainsaw';
 				}
-				else if (rep == 'Shotgun' || repn == 'STFShotgun')
+				else if (rep == 'Shotgun')
 				{
 					if (MPWeapons && random[rngg](0,1))
 												e.Replacement = 'D4StaticRifle';
 					else						e.Replacement = 'D4Shotgun';
 				}
-				else if (rep == 'SuperShotgun' || repn == 'STFSuperShotgun') 	
+				else if (rep == 'SuperShotgun') 	
 												e.Replacement = 'D4SuperShotgun';
 													
-				else if (rep == 'Chaingun' || repn == 'STFChaingun' || repn == 'STFMinigun')
+				else if (rep == 'Chaingun')
 				{
 					int rng = random[rngg](0,2);
 					if (MPWeapons)
@@ -416,13 +302,13 @@ extend Class D4DHandler
 						else					e.Replacement = 'D4AssaultRifle';	
 					}
 				}
-				else if (rep == 'RocketLauncher' || repn == 'STFRocketLauncher' || repn == 'STFGrenadeLauncher')	
+				else if (rep == 'RocketLauncher')	
 				{
 					if (MPWeapons && random[rngg](0,1))
 												e.Replacement = 'D4GrenadeLauncher';
 					else						e.Replacement = 'D4RocketLauncher';
 				}
-				else if (rep == 'PlasmaRifle' || repn == 'STFPlasmaRifle' || repn == 'STFRailgun')		
+				else if (rep == 'PlasmaRifle')		
 				{
 					int rng = random[rngg](0,3);
 					if (MPWeapons)
@@ -438,22 +324,21 @@ extend Class D4DHandler
 						else					e.Replacement = 'D4PlasmaRifle';
 					}
 				}
-				/*
-				// Moved to the static handler so this can be remembered across maps.
-				else if (rep == 'BFG9000' || repn == 'STFBFG9000' || repn == 'STFBFG10K')	
+				else if (rep == 'BFG9000')	
 				{
-					
-					if (Obtained <= 0 || ((Obtained & OB_BFG) && (Obtained & OB_UNMAYKR)))
+					if (!SuperSpawned)
 					{
 						if (random[rngg](0,1))	e.Replacement = 'DEUnmakyr';
 						else					e.Replacement = 'D4BFG';
 					}
-					else if (Obtained & OB_BFG)
+					else if (SuperSpawned == 'D4BFG')
 						e.Replacement = 'DEUnmakyr';
 					else
 						e.Replacement = 'D4BFG';
+						
+					SuperSpawned = e.Replacement;
 				}
-				*/
+				
 			}
 			
 			// Powerups
@@ -572,37 +457,146 @@ extend Class D4DHandler
 		else if (rep is 'ExplosiveBarrel')		e.Replacement = 'D4ExplosiveBarrel';
 		else if (rep is 'PowerInvulnerable' && rep != 'PowerInvulBase')		
 												e.Replacement = 'PowerInvulBase';
-												
+	}
+	
+	//--------------------------------------------------------------------------
+	// Replaceees
+	//--------------------------------------------------------------------------
+	
+	override void CheckReplacee(ReplacedEvent e)
+	{
+		Class<Actor> rep = e.Replacement;
+		if (rep == null)	return;
+		
+		//Console.Printf("D4D: Checking replacement for %s", rep.GetClassName());
+		//let mon = (Class<D4AbstractMonster>)(rep);
+		//if (mon)
+		Name repn = rep.GetClassName();
+		let defs = GetDefaultByType(rep);
+		if (rep is 'D4AbstractMonster')
+		{
+			let mon = (Class<D4AbstractMonster>)(rep);
+			let defs = GetDefaultByType(mon);
+			if (defs.Replacing)	
+			{
+				e.Replacee = defs.Replacing;
+				e.IsFinal = true;
+				
+				if (D4D_PrintDebug == 2)
+					Console.Printf("D4D: %s replaces %s", rep.GetClassName(), e.Replacee.GetClassName());
+					
+				return;
+			}
+		}
+		else if (rep is 'Inventory')
+		{
+			if (rep is 'Armor')
+			{
+				Switch (repn)
+				{
+					Case 'D4ArmorBonus':	e.Replacee = 'ArmorBonus';	return;
+					Case 'D4BlueArmor':		e.Replacee = 'BlueArmor';	return;
+					Case 'D4GreenArmor':	e.Replacee = 'GreenArmor';	return;
+				}
+			}
+			else if (rep is 'Ammo')
+			{
+				Switch (repn)
+				{
+					Case 'D4ShellsSmall':	e.Replacee = 'Shell';		return;
+					Case 'D4Shells':		e.Replacee = 'ShellBox';	return;
+					Case 'D4BulletsSmall':	e.Replacee = 'Clip';		return;
+					Case 'D4Bullets':		e.Replacee = 'ClipBox';		return;
+					Case 'D4RocketsSmall':	e.Replacee = 'RocketAmmo';	return;
+					Case 'D4Rockets':		e.Replacee = 'RocketBox';	return;
+					Case 'D4BFGAmmo':		e.Replacee = 'CellPack';	return;
+					Case 'D4CellsSmall':	e.Replacee = 'Cell';		return;
+					Case 'D4Cells':			e.Replacee = 'CellPack';	return;
+				}
+			}
+			else if (rep is 'Doom4Weapon')
+			{
+				Switch(repn)
+				{
+					Case 'D4DFist':				e.Replacee = 'Fist';			return;
+					Case 'D4Chainsaw':			e.Replacee = 'Chainsaw';		return;
+					Case 'D4Pistol':			e.Replacee = 'Pistol';			return;
+					Case 'D4StaticRifle':
+					Case 'D4Shotgun':			e.Replacee = 'Shotgun';			return;
+					Case 'D4SuperShotgun':		e.Replacee = 'SuperShotgun';	return;
+					Case 'D4Chaingun':		
+					Case 'D4AssaultRifle':
+					Case 'D4Repeater':			e.Replacee = 'Chaingun';		return;
+					Case 'D4RocketLauncher':	
+					Case 'D4GrenadeLauncher':	e.Replacee = 'RocketLauncher';	return;
+					Case 'D4PlasmaRifle':		
+					Case 'D4LightningGun':
+					Case 'D4VortexRifle':
+					Case 'D4GaussCannon':		e.Replacee = 'PlasmaRifle';		return;
+					Case 'DEUnmakyr':
+					Case 'D4BFG':				e.Replacee = 'BFG9000';			return;
+				}
+			}
+		}
 	}
 }
 
-
-
-extend class D4DHandlerStatic
-{
-	private Class<Actor> SuperSpawned;
-		
-	override void CheckReplacement(ReplaceEvent e)
-	{
-		Class<Actor> rep = e.Replacee;
-		Class<Actor> original = e.Replacement;
-		if (!rep || rep is 'Nothing')	return;
-		let defs = GetDefaultByType(rep);
-		Name repn = rep.GetClassName();
+Class D4ReplaceService : Service
+{	
 	
-		if (rep == 'BFG9000' || repn == 'STFBFG9000' || repn == 'STFBFG10K')	
-		{
-			if (!SuperSpawned)
-			{
-				if (random[rngg](0,1))	e.Replacement = 'DEUnmakyr';
-				else					e.Replacement = 'D4BFG';
-			}
-			else if (SuperSpawned == 'D4BFG')
-				e.Replacement = 'DEUnmakyr';
-			else
-				e.Replacement = 'D4BFG';
+	private String ProcessString(String request, String str, int type, double dArg, Object ob) const
+	{
+		Name req = request;
 				
-			SuperSpawned = e.Replacement;
+		Switch (req)
+		{
+			Case 'DNAChainsaw':			
+				return "D4Chainsaw";
+				
+			Case 'DNAPistol':	
+				return "D4Pistol";
+				
+			Case 'STFShotgun':
+			Case 'DNAShotgun':
+				return "Shotgun";
+				
+			Case 'DNASuperShotgun':
+			Case 'STFSuperShotgun':
+				return "D4SuperShotgun";
+				
+			Case 'DNAChaingun':
+			Case 'STFChaingun':
+			Case 'STFMinigun':
+				return "D4Chaingun";
+				
+			Case 'GaussRifle':			
+				return "D4GaussCannon";
+				
+			Case 'DNARocketLauncher':	
+			Case 'STFRocketLauncher':
+				return "RocketLauncher";
+				
+			Case 'GrenadeLauncher':		
+			Case 'STFGrenadeLauncher':
+				return "D4GrenadeLauncher";
+				
+			Case 'DNAPlasmaRifle':
+			Case 'STFPlasmaRifle':
+			Case 'STFRailgun':
+				return "PlasmaRifle";
+				
+			Case 'DNABFG9000':	
+			Case 'STFBFG9000':
+			Case 'STFBFG10K':		
+				return "BFG9000";
 		}
+		return request;
 	}
+	
+	
+	override String GetString(String request, String str, int index, double dArg, Object ob)
+	{	return ProcessString(request, str, index, dArg, ob);	}
+	
+	override String GetStringUI(String request, String str, int index, double dArg, Object ob)
+	{	return ProcessString(request, str, index, dArg, ob);	}
 }

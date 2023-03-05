@@ -29,7 +29,7 @@ enum D4AmmoConstants
 //=======================================================================
 mixin class D4CheckAmmoSpawnable
 {
-	D4DHandler Event;
+	D4DHandlerStatic Event;
 	
 	action bool CheckEvent(int chance, int goodrange)
 	{
@@ -37,7 +37,7 @@ mixin class D4CheckAmmoSpawnable
 		if (random[rng](1, chance) > goodrange)	return false;
 		
 		let i = invoker;
-		i.Event = D4DHandler.Fetch();
+		i.Event = D4DHandlerStatic.Fetch();
 		if (!i.Event)	return false;
 		return true;
 	}
@@ -58,7 +58,7 @@ mixin class D4CheckAmmoSpawnable
 	{
 		let i = invoker;
 		if (!CheckEvent(chance, goodrange) ||
-			!i.Event.CheckActorSpawn(D4DHandler.CrucibleAmmo))	return false;
+			!i.Event.CheckActorSpawn(D4DHandlerStatic.CrucibleAmmo))	return false;
 		
 		SpawnAmmo('DECrucibleAmmo');
 		return true;
@@ -68,7 +68,7 @@ mixin class D4CheckAmmoSpawnable
 	{
 		let i = invoker;
 		if (!CheckEvent(chance, goodrange) ||
-			!i.Event.CheckActorSpawn(D4DHandler.ChainsawAmmo))	return false;
+			!i.Event.CheckActorSpawn(D4DHandlerStatic.ChainsawAmmo))	return false;
 		
 		Class<Inventory> cls = (small) ? 'D4FuelSmall' : 'D4Fuel';
 		SpawnAmmo(cls, true);
@@ -79,7 +79,7 @@ mixin class D4CheckAmmoSpawnable
 	{
 		let i = invoker;
 		if (!CheckEvent(chance, goodrange) ||
-			!i.Event.CheckActorSpawn(D4DHandler.BFGAmmo))	return false;
+			!i.Event.CheckActorSpawn(D4DHandlerStatic.BFGAmmo))	return false;
 
 		SpawnAmmo('D4BFGAmmo');
 		return true;
@@ -524,6 +524,7 @@ Class D4RocketsSmall : D4Rockets //replaces RocketAmmo
 //==============================================================================
 Class D4BFGAmmo : Ammo
 {
+	mixin D4D_ActorFunctions;
 	enum EParts
 	{
 		Outer = 0,
@@ -582,7 +583,7 @@ Class D4BFGAmmo : Ammo
 	Spawn:
 		TNT1 A 0 NoDelay
 		{
-			A_PlaySound("Doom4/Weapon/BFG/AmmoLoop",7,0.5,true,5);
+			PlaySound("Doom4/Weapon/BFG/AmmoLoop",7,0.5,true,5);
 			Vector3 offs = RingOffset * Scale.X;
 			Vector3 SpawnPos = Vec3Offset(offs.x, offs.y, offs.z);
 			
@@ -963,7 +964,7 @@ Class D4PinataCarrion : CustomInventory
 	}
 }
 
-Class CarrionFog : Actor
+Class CarrionFog : D4DFX
 {
 	Default 
 	{
@@ -975,7 +976,7 @@ Class CarrionFog : Actor
 	States
 	{
 	Spawn:
-		DB26 A 0 NoDelay A_PlaySound("Doom4/Monsters/QuakeTport",7,0.2);
+		DB26 A 0 NoDelay PlaySound("Doom4/Monsters/QuakeTport",7,0.2);
 		DB26 ABCDEFGHIIJJKKLLMMNNOO 1 Bright;
 		DB26 PQQRRSSTTUUVV 1 Bright A_FadeOut(0.035);
 		Stop;

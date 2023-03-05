@@ -126,12 +126,12 @@ Class D4Pistol : Doom4Weapon
 		{
 			if (CountInv("PistolUpgradeDamage"))
 			{
-				A_PlaySound("Doom4/Weapon/Pistol2/Fire",CHAN_WEAPON,1);
+				PlaySound("Doom4/Weapon/Pistol2/Fire",CHAN_WEAPON,1);
 				A_FireProjectile("PistolTracerRed",0,0,6);
 			}
 			else
 			{
-				A_PlaySound("Doom4/Weapon/Pistol/Fire",CHAN_WEAPON,1);
+				PlaySound("Doom4/Weapon/Pistol/Fire",CHAN_WEAPON,1);
 				A_FireProjectile("PistolTracerNormal",0,0,6);
 			}
 			A_AlertMonsters();
@@ -163,7 +163,7 @@ Class D4Pistol : Doom4Weapon
 			TNT1 A 0 
 			{
 				Sound snd = CountInv("PistolUpgradeAltCharge") ? "Doom4/Weapon/Pistol2/Charge" : "Doom4/Weapon/Pistol/Charge";
-				A_PlaySound(snd,5,1,1);
+				PlaySound(snd,5,1,1);
 				
 				PSprite psp = player.FindPSprite(OverlayID());
 				if (psp) psp.Sprite = GetSpriteIndex(CountInv("PistolUpgradeAltDamage") ? "PIS2" : "WEP1");
@@ -185,7 +185,7 @@ Class D4Pistol : Doom4Weapon
 					if (!CountInv("PistolLanceReadyToken"))
 					{
 						A_SetInventory("PistolLanceReadyToken",1);
-						A_PlaySound("Doom4/Weapon/Shotgun/TripleShotAim",CHAN_WEAPON,1);
+						PlaySound("Doom4/Weapon/Shotgun/TripleShotAim",CHAN_WEAPON,1);
 					}
 				}				
 				if (counter[0] >= 50)
@@ -238,12 +238,12 @@ Class D4Pistol : Doom4Weapon
 			if (CountInv("PistolUpgradeAltDamage"))
 			{
 				A_FireProjectile("PistolTracerRed",0,0,6);
-				A_PlaySound("Doom4/Weapon/Pistol2/ChargedFire",CHAN_WEAPON,1);
+				PlaySound("Doom4/Weapon/Pistol2/ChargedFire",CHAN_WEAPON,1);
 			}
 			else
 			{
 				A_FireProjectile("PistolTracerNormal",0,0,6);
-				A_PlaySound("Doom4/Weapon/Pistol/ChargedFire",CHAN_WEAPON,1);
+				PlaySound("Doom4/Weapon/Pistol/ChargedFire",CHAN_WEAPON,1);
 			}
 			A_AlertMonsters();
 			A_TakeInventory("PistolAltFireCounter",200);
@@ -270,7 +270,7 @@ Class D4Pistol : Doom4Weapon
 	ReleaseLance:	
 		#### B 2 Bright
 		{
-			A_PlaySound("Doom4/Weapon/PistolL/Fire",CHAN_WEAPON,1);
+			PlaySound("Doom4/Weapon/PistolL/Fire",CHAN_WEAPON,1);
 			int dmg = PistolLanceBase + random(PistolLanceMin,PistolLanceMax);
 			A_FireBullets(0,0,1,dmg,"LanceShockwave",FBF_NORANDOM|FBF_NORANDOMPUFFZ|FBF_PUFFTRACER,1024,"LanceTrailSpawner",0,5);
 			//A_RailAttack(PistolLanceBase + random(PistolLanceMin,PistolLanceMax),2,1,"Red","Red",RGF_SILENT|RGF_FULLBRIGHT|RGF_NOPIERCING,0,"LanceShockwave",0,0,0,0,5,1.0,"LanceTrail",5);
@@ -293,7 +293,7 @@ Class D4Pistol : Doom4Weapon
 		#### D 1 { A_WeaponOffset(8,25); }
 		#### D 1 { A_WeaponOffset(6,27); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 		#### D 1 { A_WeaponOffset(3,30); }
-		#### D 1 A_PlaySound("Doom4/Weapon/PistolL/Smoke",CHAN_WEAPON,1);
+		#### D 1 PlaySound("Doom4/Weapon/PistolL/Smoke",CHAN_WEAPON,1);
 		#### DDDDDDDD 3 A_FireProjectile("SGSmokeSpawner",0,0,6,2);
 		#### C 1 { A_WeaponOffset(2,32); A_SetTics((IsDoubleSpeed() ? 0 : 1)); }
 		#### C 1 { A_WeaponOffset(1,33); }
@@ -310,7 +310,7 @@ Class D4Pistol : Doom4Weapon
 				else
 				{
 					A_SetInventory("PistolLanceActive",1);
-					A_PlaySound("Doom4/Weapon/GaussGun/PrecisionDown",CHAN_WEAPON,1);	
+					PlaySound("Doom4/Weapon/GaussGun/PrecisionDown",CHAN_WEAPON,1);	
 				}
 			}
 		}
@@ -595,7 +595,7 @@ Class D4PistolPuffBig3Red : D4PistolPuffBig3
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
 
-Class LanceImpactDebris : Actor 
+Class LanceImpactDebris : D4Actor 
 {
 	Default 
 	{
@@ -626,7 +626,7 @@ Class LanceImpactDebris : Actor
 		Stop;
 	}
 }
-Class LanceDebrisTrail : Actor 
+Class LanceDebrisTrail : D4DFX 
 {
 	Default 
 	{
@@ -650,7 +650,7 @@ Class LanceDebrisTrail : Actor
 }
 
 
-Class LanceShockwave : Actor 	//the actual puff
+Class LanceShockwave : D4DFX 	//the actual puff
 {
 	Default 
 	{
@@ -712,7 +712,7 @@ Class LanceShockwave : Actor 	//the actual puff
 	}
 }
 
-Class LanceImpactLightEmitter : Actor 
+Class LanceImpactLightEmitter : D4DFX 
 {
 	Default 
 	{
@@ -733,7 +733,7 @@ Class LanceImpactLightEmitter : Actor
 	}
 }
 
-Class LanceImpactVapor : Actor 
+Class LanceImpactVapor : D4DFX 
 {
 	Default 
 	{

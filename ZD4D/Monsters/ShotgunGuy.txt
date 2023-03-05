@@ -74,7 +74,7 @@ Class D4ShotgunGuy : D4AbstractMonster //replaces ShotgunGuy
 		Loop;
 	//------------------------	
 	Missile:
-		TNT1 A 0 { if(random(1,8)==8) { A_PlaySound("Doom4/Monsters/Grunt/Attack",CHAN_AUTO); } }
+		TNT1 A 0 { if(random(1,8)==8) { PlaySound("Doom4/Monsters/Grunt/Attack",CHAN_AUTO); } }
 		TNT1 A 0 A_Jump(200,"PlasmaBurst"); // most of the time will do the plasma 3shot
 		
 		//------------------------
@@ -132,7 +132,7 @@ Class D4ShotgunGuy : D4AbstractMonster //replaces ShotgunGuy
 				Goto FinishPlasmaExplo;
 				
 				FinishPlasmaExplo:
-					TNT1 A 0 A_PlaySound("Doom4/Monsters/PlasmaShotBig");
+					TNT1 A 0 PlaySound("Doom4/Monsters/PlasmaShotBig");
 					BBRG F 5 Bright;
 					BBRG E 15;
 					Goto See;
@@ -141,7 +141,7 @@ Class D4ShotgunGuy : D4AbstractMonster //replaces ShotgunGuy
 			BBRG E 10 A_FaceTarget();
 			BBRG F 5 Bright 
 			{
-				A_PlaySound("Doom4/Monsters/PlasmaShotgun",CHAN_AUTO);
+				PlaySound("Doom4/Monsters/PlasmaShotgun",CHAN_AUTO);
 				A_SpawnProjectile("ShotgunnerPlasmaBall",35,4,frandom(7,-7));
 				A_SpawnProjectile("ShotgunnerPlasmaBall",35,4,frandom(7,-7));
 				A_SpawnProjectile("ShotgunnerPlasmaBall",35,4,frandom(7,-7));
@@ -187,6 +187,7 @@ Class D4ShotgunGuy : D4AbstractMonster //replaces ShotgunGuy
 	XDeath:
 		TNT1 A 10 CanRaise
 		{
+			bDONTGIB = true;
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}
@@ -507,7 +508,7 @@ Class D4OldShotgunGuy : D4AbstractMonster // : ShotgunGuy ////replaces ShotgunGu
 	}
 }
 
-Class ShotgunAmmoOrWep : Actor
+Class ShotgunAmmoOrWep : D4DFX
 {
 	Default
 	{
@@ -518,7 +519,7 @@ Class ShotgunAmmoOrWep : Actor
 	Spawn:
 		TNT1 A 0 NoDelay
 		{
-			if (!CountInv("D4Shotgun",Player1))
+			if (!CountInv("D4Shotgun",AAPTR_PLAYER1))
 			{
 				A_DropItem("D4Shotgun");
 			}

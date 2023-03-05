@@ -374,7 +374,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 				A_FireDetonatorRocket("D4Rocket",0,1,7);
 			else
 				A_FireProjectile("D4Rocket",0,1,7);
-			A_PlaySound("Doom4/Weapon/RocketLauncher/Fire",5,1);
+			PlaySound("Doom4/Weapon/RocketLauncher/Fire",5,1);
 			A_Overlay(P1,"NormalPitchHandler");
 			A_GiveInventory("RocketFired",1);
 			A_WeaponOffset(10,7,WOF_ADD);
@@ -557,7 +557,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 					if (Targ)	
 					{
 						A_SetInventory("RLLockToken", LockTokenTick);
-						A_PlaySound("Doom4/Weapon/RocketLauncher/StartLockOn",6);
+						PlaySound("Doom4/Weapon/RocketLauncher/StartLockOn",6);
 					}
 					else
 						A_SetInventory("RLLockToken",0);
@@ -602,7 +602,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			A_SetInventory("RLTargetToken",0);
 			A_FireSeekerRocket("D4RocketSeeker",0,1,7);
 			A_Overlay(P2,"TriplePitchHandler");
-			A_PlaySound("Doom4/Weapon/RocketLauncher/Fire",5,1);
+			PlaySound("Doom4/Weapon/RocketLauncher/Fire",5,1);
 			A_WeaponOffset(2,0,WOF_ADD); //for recoil effect
 		}
 		#### CDE 1 bright A_WeaponOffset(1,1,WOF_ADD);
@@ -619,7 +619,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			A_FireSeekerRocket("D4RocketSeeker",0,1,7);
 			A_WeaponOffset(2,0,WOF_ADD);	//for recoil effect
 			A_Overlay(P3,"TriplePitchHandler");
-			A_PlaySound("Doom4/Weapon/RocketLauncher/Fire",6,1);
+			PlaySound("Doom4/Weapon/RocketLauncher/Fire",6,1);
 			return ResolveState(null);
 		}
 		#### CDE 1 bright  A_WeaponOffset(1,1,WOF_ADD);
@@ -632,7 +632,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			}
 			A_GunFlash("Null");
 			A_FireSeekerRocket("D4RocketSeeker",0,1,7);
-			A_PlaySound("Doom4/Weapon/RocketLauncher/Fire",7,1);
+			PlaySound("Doom4/Weapon/RocketLauncher/Fire",7,1);
 			A_Overlay(P4,"TriplePitchHandler");
 			A_WeaponOffset(2,0,WOF_ADD);	//for recoil effect
 			return ResolveState(null);
@@ -693,7 +693,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			//hide normal fire
 			RLNI AAAA 1 A_WeaponOffset(1,20,WOF_ADD); //+0 +80
 			//pull of and arm LockOn mod
-			RLLS B 0 A_PlaySound("Doom4/Weapon/RocketLauncher/SwitchToLock",5,1);
+			RLLS B 0 PlaySound("Doom4/Weapon/RocketLauncher/SwitchToLock",5,1);
 			RLLS KKKKK 1 A_WeaponOffset(0,-15,WOF_ADD);
 			RLLS KJIHGFEDCB 1; //A_WeaponOffset(0,-8,WOF_ADD); // 0 -80
 			RLLS B 0 A_GiveInventory("LockOnActive",1);
@@ -706,7 +706,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			//hide normal fire
 			RLNI AAAA 1 A_WeaponOffset(1,20,WOF_ADD); //+0 +80
 			//pull up Detonate	
-			RLDS j 0 A_PlaySound("Doom4/Weapon/RocketLauncher/SwitchToDetonate",5,1);		
+			RLDS j 0 PlaySound("Doom4/Weapon/RocketLauncher/SwitchToDetonate",5,1);		
 			RLDS PPPPP 1 A_WeaponOffset(0,-15,WOF_ADD);
 			RLDS ONMLKJ 1;
 			RLDS IHGFEE 1;
@@ -720,7 +720,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			//hide Detonate
 			RLDI AAAA 1 A_WeaponOffset(0,20,WOF_ADD); //+0 +80
 			//pull of and arm LockOn mod
-			RLLS B 0 A_PlaySound("Doom4/Weapon/RocketLauncher/SwitchToLock",5,1);
+			RLLS B 0 PlaySound("Doom4/Weapon/RocketLauncher/SwitchToLock",5,1);
 			RLLS KKKKK 1 A_WeaponOffset(0,-15,WOF_ADD);
 			RLLS KJIHGFEDCB 1; //A_WeaponOffset(0,-8,WOF_ADD); // 0 -80
 			RLLS B 0 A_TakeInventory("DetonateActive",1);
@@ -734,7 +734,7 @@ Class D4RocketLauncher : Doom4Weapon //replaces RocketLauncher
 			//hide LockOn
 			RLLI AAAA 1 A_WeaponOffset(0,20,WOF_ADD); //+0 +80
 			//pull up Detonate			
-			RLDS j 0 A_PlaySound("Doom4/Weapon/RocketLauncher/SwitchToDetonate",5,1);
+			RLDS j 0 PlaySound("Doom4/Weapon/RocketLauncher/SwitchToDetonate",5,1);
 			RLDS PPPPP 1 A_WeaponOffset(0,-15,WOF_ADD);
 			RLDS ONMLKJ 1;
 			RLDS IHGFEE 1;
@@ -800,7 +800,7 @@ Class RLDetonatorSecondary : CustomInventory
 		Stop;
 	}
 }
-Class D4ExploderDummy : Actor 
+Class D4ExploderDummy : D4DFX 
 {
 	Default 
 	{
@@ -870,7 +870,7 @@ Class D4Rocket : D4AbstractMissilePlayer
 			A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);
 			
 		A_SpawnItemEx("D4RocketExplosion",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-		A_PlaySound("Doom4/Weapon/RocketLauncher/Detonate");
+		PlaySound("Doom4/Weapon/RocketLauncher/Detonate");
 		A_GiveInventory("DetonateToken",1);
 	}
 	
@@ -1011,7 +1011,7 @@ Class D4RocketTrailFire2 : D4RocketTrailFire1 //centered flare behind the rocket
 	}
 }
 
-Class D4RocketTrailFire : Actor
+Class D4RocketTrailFire : D4DFX
 {
 	Default
 	{

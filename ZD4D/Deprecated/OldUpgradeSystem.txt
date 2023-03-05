@@ -226,20 +226,20 @@ Class Holocone : Actor
 			A_SpawnItemEx("HoloCursor",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS|SXF_SETTRACER);
 			user_divider = 0;
 			// 1. Get the inventory.
-			if (CountInv("D4GaussCannon",MasterPtr))		{	A_SetUserArray(user_weapon,ID_GaussCannon,ID_GaussCannon);			user_divider++;	}
-			if (CountInv("D4PlasmaRifle",MasterPtr))		{	A_SetUserArray(user_weapon,ID_PlasmaRifle,ID_PlasmaRifle);			user_divider++;	}
-			if (CountInv("D4RocketLauncher",MasterPtr))	{	A_SetUserArray(user_weapon,ID_RocketLauncher,ID_RocketLauncher);	user_divider++;	}
-			if (CountInv("D4AssaultRifle",MasterPtr))		{	A_SetUserArray(user_weapon,ID_AssaultRifle,ID_AssaultRifle);		user_divider++;	}
-			if (CountInv("D4Chaingun",MasterPtr))			{	A_SetUserArray(user_weapon,ID_Chaingun,ID_Chaingun);				user_divider++;	}
-			if (CountInv("D4SuperShotgun",MasterPtr))		{	A_SetUserArray(user_weapon,ID_SuperShotgun,ID_SuperShotgun);		user_divider++;	}
-			if (CountInv("D4Shotgun",MasterPtr))			{	A_SetUserArray(user_weapon,ID_Shotgun,ID_Shotgun);					user_divider++;	}
-			if (CountInv("D4Pistol",MasterPtr))			{	A_SetUserArray(user_weapon,ID_Pistol,ID_Pistol);					user_divider++;	}
-			if (CountInv("D4BFG",MasterPtr))				{	A_SetUserArray(user_weapon,ID_BFG,ID_BFG);							user_divider++;	}
-			if (CountInv("D4LightningGun",MasterPtr))		{	A_SetUserArray(user_weapon,ID_LightningGun,ID_LightningGun);		user_divider++;	}
-			if (CountInv("D4StaticRifle",MasterPtr))		{	A_SetUserArray(user_weapon,ID_StaticRifle,ID_StaticRifle);			user_divider++;	}
-			if (CountInv("D4Repeater",MasterPtr))			{	A_SetUserArray(user_weapon,ID_Repeater,ID_Repeater);				user_divider++;	}
-			if (CountInv("D4VortexRifle",MasterPtr))		{	A_SetUserArray(user_weapon,ID_VortexRifle,ID_VortexRifle);			user_divider++;	}
-			if (CountInv("D4CarrionCannon",MasterPtr))		{	A_SetUserArray(user_weapon,ID_Hellshot,ID_Hellshot);				user_divider++;	}
+			if (CountInv("D4GaussCannon",AAPTR_MASTER))		{	A_SetUserArray(user_weapon,ID_GaussCannon,ID_GaussCannon);			user_divider++;	}
+			if (CountInv("D4PlasmaRifle",AAPTR_MASTER))		{	A_SetUserArray(user_weapon,ID_PlasmaRifle,ID_PlasmaRifle);			user_divider++;	}
+			if (CountInv("D4RocketLauncher",AAPTR_MASTER))	{	A_SetUserArray(user_weapon,ID_RocketLauncher,ID_RocketLauncher);	user_divider++;	}
+			if (CountInv("D4AssaultRifle",AAPTR_MASTER))		{	A_SetUserArray(user_weapon,ID_AssaultRifle,ID_AssaultRifle);		user_divider++;	}
+			if (CountInv("D4Chaingun",AAPTR_MASTER))			{	A_SetUserArray(user_weapon,ID_Chaingun,ID_Chaingun);				user_divider++;	}
+			if (CountInv("D4SuperShotgun",AAPTR_MASTER))		{	A_SetUserArray(user_weapon,ID_SuperShotgun,ID_SuperShotgun);		user_divider++;	}
+			if (CountInv("D4Shotgun",AAPTR_MASTER))			{	A_SetUserArray(user_weapon,ID_Shotgun,ID_Shotgun);					user_divider++;	}
+			if (CountInv("D4Pistol",AAPTR_MASTER))			{	A_SetUserArray(user_weapon,ID_Pistol,ID_Pistol);					user_divider++;	}
+			if (CountInv("D4BFG",AAPTR_MASTER))				{	A_SetUserArray(user_weapon,ID_BFG,ID_BFG);							user_divider++;	}
+			if (CountInv("D4LightningGun",AAPTR_MASTER))		{	A_SetUserArray(user_weapon,ID_LightningGun,ID_LightningGun);		user_divider++;	}
+			if (CountInv("D4StaticRifle",AAPTR_MASTER))		{	A_SetUserArray(user_weapon,ID_StaticRifle,ID_StaticRifle);			user_divider++;	}
+			if (CountInv("D4Repeater",AAPTR_MASTER))			{	A_SetUserArray(user_weapon,ID_Repeater,ID_Repeater);				user_divider++;	}
+			if (CountInv("D4VortexRifle",AAPTR_MASTER))		{	A_SetUserArray(user_weapon,ID_VortexRifle,ID_VortexRifle);			user_divider++;	}
+			if (CountInv("D4CarrionCannon",AAPTR_MASTER))		{	A_SetUserArray(user_weapon,ID_Hellshot,ID_Hellshot);				user_divider++;	}
 			
 			if (user_divider < 1)	{	user_divider = 1;	} //Prevent division by 0.
 			user_count = 0;
@@ -294,13 +294,13 @@ Class Holocone : Actor
 				{
 					if (user_last)
 					{	
-						A_Warp(MasterPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE|WARPF_MOVEPTR|WARPF_STOP);
-						A_GiveInventory("TrueHoloEnder",1,MasterPtr);
+						A_Warp(AAPTR_MASTER,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE|WARPF_MOVEPTR|WARPF_STOP);
+						A_GiveInventory("TrueHoloEnder",1,AAPTR_MASTER);
 						return ResolveState("Null");	
 					}
 					return ResolveState("Break");	
 				}
-				A_Warp(MasterPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE|WARPF_MOVEPTR|WARPF_STOP);
+				A_Warp(AAPTR_MASTER,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE|WARPF_MOVEPTR|WARPF_STOP);
 				return ResolveState(null);
 			}
 			return ResolveState("Looping");
@@ -310,11 +310,11 @@ Class Holocone : Actor
 		TNT1 A 1
 		{
 			if (!user_last &&
-				(CountInv("EndHoloToken",MasterPtr) || GetZAt(0,0) > pos.z || GetZAt(0,0,0,GZF_CEILING) < (pos.z + 56)))
+				(CountInv("EndHoloToken",AAPTR_MASTER) || GetZAt(0,0) > pos.z || GetZAt(0,0,0,GZF_CEILING) < (pos.z + 56)))
 			{
-				A_GiveInventory("HoloCooldown",8,MasterPtr); //Prevent breakage.
-				A_GiveInventory("EndHoloToken",1,MasterPtr);
-				A_GiveInventory("WeaponRestorer",1,MasterPtr);
+				A_GiveInventory("HoloCooldown",8,AAPTR_MASTER); //Prevent breakage.
+				A_GiveInventory("EndHoloToken",1,AAPTR_MASTER);
+				A_GiveInventory("WeaponRestorer",1,AAPTR_MASTER);
 				A_GiveToSiblings("EndHoloEffect",1);
 				A_SetUserVar(user_last,1);
 				A_SetUserVar(user_cd,0);
@@ -329,7 +329,7 @@ Class Holocone : Actor
 				return ResolveState("Looping");
 			}
 			A_SetUserVar(user_cd, user_cd - 1);
-			A_Warp(MasterPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE|WARPF_MOVEPTR|WARPF_STOP);
+			A_Warp(AAPTR_MASTER,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE|WARPF_MOVEPTR|WARPF_STOP);
 			return ResolveState(null);
 		}
 		Loop;
@@ -402,7 +402,7 @@ Class HoloSelectable : Actor
 		{
 			user_t = tid;	//Don't keep the TID for compatibility sake
 			Thing_ChangeTID(0,0);
-			A_Warp(MasterPtr,-Distance,0,ZHeight,180,WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE);
+			A_Warp(AAPTR_MASTER,-Distance,0,ZHeight,180,WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE);
 			A_SetUserVarFloat(user_dist, GetDistance(false, TracerPtr));
 			A_SetUserVarFloat(user_scale, Scale.X);
 			if (user_t == ID_Pistol)						{	return ResolveState(2);	} // B
@@ -451,14 +451,14 @@ Class HoloSelectable : Actor
 			}
 			if (user_weap <= 1)
 			{
-				A_TakeInventory("HoloRotate",32767,0,MasterPtr);
-				A_TakeInventory("HoloRotateLeft",32767,0,MasterPtr);
-				A_TakeInventory("HoloRotateRight",32767,0,MasterPtr);
+				A_TakeInventory("HoloRotate",32767,0,AAPTR_MASTER);
+				A_TakeInventory("HoloRotateLeft",32767,0,AAPTR_MASTER);
+				A_TakeInventory("HoloRotateRight",32767,0,AAPTR_MASTER);
 			}
-			else if (CountInv("HoloRotate",MasterPtr))		{	return ResolveState("Rotation");	}
+			else if (CountInv("HoloRotate",AAPTR_MASTER))		{	return ResolveState("Rotation");	}
 			
 			//if (IsPointerEqual(TracerPtr,NullPtr))		{	return ResolveState("FadeOut");	}
-			if (CountInv("MenuToken",MasterPtr))		{	return ResolveState("InactiveStart");	}
+			if (CountInv("MenuToken",AAPTR_MASTER))		{	return ResolveState("InactiveStart");	}
 			if (CountInv("LookingAt"))				{	return ResolveState("Highlight");	}
 			return ResolveState("Idling");
 		}
@@ -471,8 +471,8 @@ Class HoloSelectable : Actor
 		{
 			A_TakeInventory("LookingAt",32767);
 			
-				 if (CountInv("HoloRotateLeft",MasterPtr) > 0)		{ user_dir = -1; }
-			else if (CountInv("HoloRotateRight",MasterPtr) > 0)	{ user_dir = 1; }
+				 if (CountInv("HoloRotateLeft",AAPTR_MASTER) > 0)		{ user_dir = -1; }
+			else if (CountInv("HoloRotateRight",AAPTR_MASTER) > 0)	{ user_dir = 1; }
 			else 
 			{ 
 				user_dir = 0;	
@@ -486,16 +486,16 @@ Class HoloSelectable : Actor
 	RotateLoop:
 		M668 "#" 1
 		{
-			A_Warp(MasterPtr,-Distance,0,ZHeight,
+			A_Warp(AAPTR_MASTER,-Distance,0,ZHeight,
 			(user_dir * (user_rotate / RotateTime)),
 			WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_USECALLERANGLE);
 			
 			USin += (180/RotateTime);
 			if (USin > 90)
 			{ 
-				A_TakeInventory("HoloRotate",32767,0,MasterPtr);
-				A_TakeInventory("HoloRotateLeft",32767,0,MasterPtr);
-				A_TakeInventory("HoloRotateRight",32767,0,MasterPtr);
+				A_TakeInventory("HoloRotate",32767,0,AAPTR_MASTER);
+				A_TakeInventory("HoloRotateLeft",32767,0,AAPTR_MASTER);
+				A_TakeInventory("HoloRotateRight",32767,0,AAPTR_MASTER);
 				return ResolveState("Idling2");
 			}
 			return ResolveState(null);
@@ -514,12 +514,12 @@ Class HoloSelectable : Actor
 	HighLoop:
 		M669 "#" 1
 		{
-			if (CountInv("MenuSelect",MasterPtr))
+			if (CountInv("MenuSelect",AAPTR_MASTER))
 			{
 				A_PlaySound("Doom4/Menu/Select",Channels,1);
 				A_SetUserVar(user_menu,1);	//Indicates its been selected.
-				A_TakeInventory("MenuSelect",32767,0,MasterPtr);
-				A_GiveInventory("MenuToken",1,MasterPtr);
+				A_TakeInventory("MenuSelect",32767,0,AAPTR_MASTER);
+				A_GiveInventory("MenuToken",1,AAPTR_MASTER);
 				return ResolveState("Blink");
 			}
 			return ResolveState(null);
@@ -528,7 +528,7 @@ Class HoloSelectable : Actor
 		{
 			if (user_rotate == 0) 
 			{	A_SetUserVarFloat(user_rotate, Max(1,CountInv("HoloWeaponCount",TracerPtr)));	}
-			if (CountInv("HoloRotate",MasterPtr))	{	return ResolveState("Rotation");	}
+			if (CountInv("HoloRotate",AAPTR_MASTER))	{	return ResolveState("Rotation");	}
 		
 			// Misc checks to make sure the holograph is still going on, 
 			// including sight checks to highlight.
@@ -548,8 +548,8 @@ Class HoloSelectable : Actor
 	Blink:
 		M668 "#" 6
 	BlinkToNew:
-		M669 "##########" 1 A_SetScale(Scale.X-(Scale.Y/10.0),Scale.Y,DefPtr,true)
-		WPPK "##########" 1 A_SetScale(Scale.X+(Scale.Y/10.0),Scale.Y,DefPtr,true)
+		M669 "##########" 1 A_SetScale(Scale.X-(Scale.Y/10.0),Scale.Y,AAPTR_DEFAULT,true)
+		WPPK "##########" 1 A_SetScale(Scale.X+(Scale.Y/10.0),Scale.Y,AAPTR_DEFAULT,true)
 		
 	// Here's how this works. WeaponUpgrade1-4 (or more if needed) will each have
 	// their own list of upgrades to give within them, so one does not need to make
@@ -706,11 +706,11 @@ Class HoloSelectable : Actor
 	SelectedWait:
 		WPPK "#" 1
 		{
-			if (CountInv("MenuToken",MasterPtr) == 2)
+			if (CountInv("MenuToken",AAPTR_MASTER) == 2)
 			{	
 				if (Scale.X > MinScale) { A_SetScale(Scale.X-0.05); }
 			}
-			else if (CountInv("MenuToken",MasterPtr) == 1)
+			else if (CountInv("MenuToken",AAPTR_MASTER) == 1)
 			{	
 				if (Scale.X < MaxScale) { A_SetScale(Scale.X+0.05); }
 			}
@@ -723,8 +723,8 @@ Class HoloSelectable : Actor
 		}
 		Loop;
 	BlinkToOld:
-		WPPK "##########" 1 A_SetScale(Scale.X-(Scale.Y/10.0),Scale.Y,DefPtr,true)
-		M668 "##########" 1 A_SetScale(Scale.X+(Scale.Y/10.0),Scale.Y,DefPtr,true)
+		WPPK "##########" 1 A_SetScale(Scale.X-(Scale.Y/10.0),Scale.Y,AAPTR_DEFAULT,true)
+		M668 "##########" 1 A_SetScale(Scale.X+(Scale.Y/10.0),Scale.Y,AAPTR_DEFAULT,true)
 		Goto Idle;
 		
 	//==========================================================================
@@ -733,11 +733,11 @@ Class HoloSelectable : Actor
 	InactiveStart:
 		M668 "#" 0 
 		{
-			A_Warp(MasterPtr,0,0,ZHeight,0,WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE);
+			A_Warp(AAPTR_MASTER,0,0,ZHeight,0,WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE);
 			A_SetUserArrayFloat(UX, 0, x);
 			A_SetUserArrayFloat(UY, 0, y);
 			A_SetUserArrayFloat(UZ, 0, z);
-			A_Warp(MasterPtr,-Distance,0,ZHeight,0,WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE);
+			A_Warp(AAPTR_MASTER,-Distance,0,ZHeight,0,WARPF_NOCHECKPOSITION|WARPF_USECALLERANGLE);
 			A_SetUserArrayFloat(UX, 1, x);
 			A_SetUserArrayFloat(UY, 1, y);
 			A_SetUserArrayFloat(UZ, 1, z);
@@ -759,7 +759,7 @@ Class HoloSelectable : Actor
 		TNT1 "#" 1 //See TEXTURES.AED.
 		{
 			if (IsPointerEqual(TracerPtr,NullPtr))	{	return ResolveState("Null");	}
-			if (!CountInv("MenuToken",MasterPtr))	
+			if (!CountInv("MenuToken",AAPTR_MASTER))	
 			{	
 				A_ChangeVelocity(((UXb-UXa)/TimeDivider),((UYb-UYa)/TimeDivider),0,CVF_REPLACE);
 				return ResolveState("Normalize");	
@@ -964,43 +964,43 @@ Class WeaponUpgradeHolo : Actor
 		
 		TNT1 A 0
 		{
-			if (user_t == ID_U1AssaultRifle)		{	user_direw = 1;		if (CountInv("AssaultRifleMod1",MasterPtr)) 	{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(1);	} // A
-			if (user_t == ID_U2AssaultRifle)		{	user_direw = -1;	if (CountInv("AssaultRifleMod2",MasterPtr)) 	{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(2);	} // B
-			if (user_t == ID_U1Chaingun)			{	user_direw = 1;		if (CountInv("ChaingunMod1",MasterPtr)) 		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(3);	} // C
-			if (user_t == ID_U2Chaingun)			{	user_direw = -1;	if (CountInv("ChaingunMod2",MasterPtr)) 		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(4);	} // D
-			if (user_t == ID_U1GaussCannon)			{	user_direw = 1;		if (CountInv("GaussCannonMod1",MasterPtr)) 	{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(5);	} // E
-			if (user_t == ID_U2GaussCannon)			{	user_direw = -1;	if (CountInv("GaussCannonMod2",MasterPtr)) 	{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(6);	} // F
-			if (user_t == ID_U1PlasmaRifle)			{	user_direw = 1;		if (CountInv("PlasmaRifleMod1",MasterPtr)) 	{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(7);	} // G
-			if (user_t == ID_U2PlasmaRifle)			{	user_direw = -1;	if (CountInv("PlasmaRifleMod2",MasterPtr)) 	{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(8);	} // H
-			if (user_t == ID_U1RocketLauncher)		{	user_direw = 1;		if (CountInv("RocketLauncherMod1",MasterPtr))	{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(9);	} // I
-			if (user_t == ID_U2RocketLauncher)		{	user_direw = -1;	if (CountInv("RocketLauncherMod2",MasterPtr))	{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(10);	} // J
-			if (user_t == ID_U1Shotgun)				{	user_direw = 1;		if (CountInv("ShotgunMod1",MasterPtr))			{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(11);	} // K
-			if (user_t == ID_U2Shotgun)				{	user_direw = -1;	if (CountInv("ShotgunMod2",MasterPtr))			{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(12);	} // L
-			if (user_t == ID_U1LightningGun)		{	user_direw = 1;		user_dirns = 1;		if (CountInv("LGUpgradeAmmo",MasterPtr))				{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(19);	} // S
-			if (user_t == ID_U2LightningGun)		{	user_direw = -1;	user_dirns = 1;		if (CountInv("LGUpgradeRange",MasterPtr))				{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(20);	} // T			
-			if (user_t == ID_U3LightningGun)		{	user_direw = 1;		user_dirns = -1;	if (CountInv("LGUpgradeDamage",MasterPtr))				{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(32);	} // B
-			if (user_t == ID_U4LightningGun)		{	user_direw = -1;	user_dirns = -1;	if (CountInv("LGUpgradeAltFire",MasterPtr))			{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(31);	} // A
-			if (user_t == ID_U1SuperShotgun)		{	user_direw = 1;		user_dirns = 1;		if (CountInv("SSGUpgrade1",MasterPtr))					{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(13);	} // M	
-			if (user_t == ID_U2SuperShotgun)		{	user_direw = -1;	user_dirns = 1;		if (CountInv("SSGUpgrade2",MasterPtr))					{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(14);	} // N
-			if (user_t == ID_U3SuperShotgun)		{	user_direw = 1;		user_dirns = -1;	if (CountInv("SSGUpgrade3",MasterPtr))					{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(15);	} // O
-			if (user_t == ID_U4SuperShotgun)		{	user_direw = -1;	user_dirns = -1;	if (CountInv("SSGUpgrade4",MasterPtr))					{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(16);	} // P
-			if (user_t == ID_U1StaticRifle)			{	user_direw = 1;		user_dirns = 1;		if (CountInv("StaticUpgrade1",MasterPtr))				{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(21);	} // U	
-			if (user_t == ID_U2StaticRifle)			{	user_direw = -1;	user_dirns = 1;		if (CountInv("StaticUpgrade2",MasterPtr))				{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(22);	} // V
-			if (user_t == ID_U3StaticRifle)			{	user_direw = 1;		user_dirns = -1;	if (CountInv("StaticUpgrade3",MasterPtr))				{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(14);	} // N
-			if (user_t == ID_U4StaticRifle)			{	user_direw = -1;	user_dirns = -1;	if (CountInv("StaticUpgrade4",MasterPtr))				{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(13);	} // M
+			if (user_t == ID_U1AssaultRifle)		{	user_direw = 1;		if (CountInv("AssaultRifleMod1",AAPTR_MASTER)) 	{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(1);	} // A
+			if (user_t == ID_U2AssaultRifle)		{	user_direw = -1;	if (CountInv("AssaultRifleMod2",AAPTR_MASTER)) 	{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(2);	} // B
+			if (user_t == ID_U1Chaingun)			{	user_direw = 1;		if (CountInv("ChaingunMod1",AAPTR_MASTER)) 		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(3);	} // C
+			if (user_t == ID_U2Chaingun)			{	user_direw = -1;	if (CountInv("ChaingunMod2",AAPTR_MASTER)) 		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(4);	} // D
+			if (user_t == ID_U1GaussCannon)			{	user_direw = 1;		if (CountInv("GaussCannonMod1",AAPTR_MASTER)) 	{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(5);	} // E
+			if (user_t == ID_U2GaussCannon)			{	user_direw = -1;	if (CountInv("GaussCannonMod2",AAPTR_MASTER)) 	{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(6);	} // F
+			if (user_t == ID_U1PlasmaRifle)			{	user_direw = 1;		if (CountInv("PlasmaRifleMod1",AAPTR_MASTER)) 	{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(7);	} // G
+			if (user_t == ID_U2PlasmaRifle)			{	user_direw = -1;	if (CountInv("PlasmaRifleMod2",AAPTR_MASTER)) 	{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(8);	} // H
+			if (user_t == ID_U1RocketLauncher)		{	user_direw = 1;		if (CountInv("RocketLauncherMod1",AAPTR_MASTER))	{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(9);	} // I
+			if (user_t == ID_U2RocketLauncher)		{	user_direw = -1;	if (CountInv("RocketLauncherMod2",AAPTR_MASTER))	{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(10);	} // J
+			if (user_t == ID_U1Shotgun)				{	user_direw = 1;		if (CountInv("ShotgunMod1",AAPTR_MASTER))			{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(11);	} // K
+			if (user_t == ID_U2Shotgun)				{	user_direw = -1;	if (CountInv("ShotgunMod2",AAPTR_MASTER))			{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(12);	} // L
+			if (user_t == ID_U1LightningGun)		{	user_direw = 1;		user_dirns = 1;		if (CountInv("LGUpgradeAmmo",AAPTR_MASTER))				{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(19);	} // S
+			if (user_t == ID_U2LightningGun)		{	user_direw = -1;	user_dirns = 1;		if (CountInv("LGUpgradeRange",AAPTR_MASTER))				{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(20);	} // T			
+			if (user_t == ID_U3LightningGun)		{	user_direw = 1;		user_dirns = -1;	if (CountInv("LGUpgradeDamage",AAPTR_MASTER))				{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(32);	} // B
+			if (user_t == ID_U4LightningGun)		{	user_direw = -1;	user_dirns = -1;	if (CountInv("LGUpgradeAltFire",AAPTR_MASTER))			{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(31);	} // A
+			if (user_t == ID_U1SuperShotgun)		{	user_direw = 1;		user_dirns = 1;		if (CountInv("SSGUpgrade1",AAPTR_MASTER))					{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(13);	} // M	
+			if (user_t == ID_U2SuperShotgun)		{	user_direw = -1;	user_dirns = 1;		if (CountInv("SSGUpgrade2",AAPTR_MASTER))					{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(14);	} // N
+			if (user_t == ID_U3SuperShotgun)		{	user_direw = 1;		user_dirns = -1;	if (CountInv("SSGUpgrade3",AAPTR_MASTER))					{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(15);	} // O
+			if (user_t == ID_U4SuperShotgun)		{	user_direw = -1;	user_dirns = -1;	if (CountInv("SSGUpgrade4",AAPTR_MASTER))					{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(16);	} // P
+			if (user_t == ID_U1StaticRifle)			{	user_direw = 1;		user_dirns = 1;		if (CountInv("StaticUpgrade1",AAPTR_MASTER))				{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(21);	} // U	
+			if (user_t == ID_U2StaticRifle)			{	user_direw = -1;	user_dirns = 1;		if (CountInv("StaticUpgrade2",AAPTR_MASTER))				{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(22);	} // V
+			if (user_t == ID_U3StaticRifle)			{	user_direw = 1;		user_dirns = -1;	if (CountInv("StaticUpgrade3",AAPTR_MASTER))				{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(14);	} // N
+			if (user_t == ID_U4StaticRifle)			{	user_direw = -1;	user_dirns = -1;	if (CountInv("StaticUpgrade4",AAPTR_MASTER))				{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(13);	} // M
 			
-			if (user_t == ID_U1Pistol)				{	user_direw = 1;		user_dirns = 1;		if (CountInv("PistolUpgradeAltCharge",MasterPtr))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(33);	} // C
-			if (user_t == ID_U2Pistol)				{	user_direw = -1;	user_dirns = 1;		if (CountInv("PistolUpgradeAltDamage",MasterPtr))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(23);	} // W
-			if (user_t == ID_U3Pistol)				{	user_direw = 1;		user_dirns = -1;	if (CountInv("PistolUpgradeAutomatic",MasterPtr))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(34);	} // D
-			if (user_t == ID_U4Pistol)				{	user_direw = -1;	user_dirns = -1;	if (CountInv("PistolUpgradeDamage",MasterPtr))			{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(35);	} // E
-			if (user_t == ID_U1VortexRifle)			{	user_direw = 1;		user_dirns = 1;		if (CountInv("VortexUpgradeDamage",MasterPtr))			{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(40);	} // J
-			if (user_t == ID_U2VortexRifle)			{	user_direw = -1;	user_dirns = 1;		if (CountInv("VortexUpgradeAmmo",MasterPtr))			{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(19);	} // S
-			if (user_t == ID_U3VortexRifle)			{	user_direw = 1;		user_dirns = -1;	if (CountInv("VortexUpgradeAltSpeed",MasterPtr))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(41);	} // K
-			if (user_t == ID_U4VortexRifle)			{	user_direw = -1;	user_dirns = -1;	if (CountInv("VortexUpgradeAltPierce",MasterPtr))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(14);	} // N
-			if (user_t == ID_U1Repeater)			{	user_direw = 1;		user_dirns = 1;		if (CountInv("RepeaterUpgradePiercing",MasterPtr))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(39);	} // I
-			if (user_t == ID_U2Repeater)			{	user_direw = -1;	user_dirns = 1;		if (CountInv("RepeaterUpgradeDamage",MasterPtr))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(36);	} // F
-			if (user_t == ID_U3Repeater)			{	user_direw = 1;		user_dirns = -1;	if (CountInv("RepeaterUpgradeAltDamage",MasterPtr))	{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(38);	} // H
-			if (user_t == ID_U4Repeater)			{	user_direw = -1;	user_dirns = -1;	if (CountInv("RepeaterUpgradeAltAmmo",MasterPtr))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(37);	} // G
+			if (user_t == ID_U1Pistol)				{	user_direw = 1;		user_dirns = 1;		if (CountInv("PistolUpgradeAltCharge",AAPTR_MASTER))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(33);	} // C
+			if (user_t == ID_U2Pistol)				{	user_direw = -1;	user_dirns = 1;		if (CountInv("PistolUpgradeAltDamage",AAPTR_MASTER))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(23);	} // W
+			if (user_t == ID_U3Pistol)				{	user_direw = 1;		user_dirns = -1;	if (CountInv("PistolUpgradeAutomatic",AAPTR_MASTER))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(34);	} // D
+			if (user_t == ID_U4Pistol)				{	user_direw = -1;	user_dirns = -1;	if (CountInv("PistolUpgradeDamage",AAPTR_MASTER))			{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(35);	} // E
+			if (user_t == ID_U1VortexRifle)			{	user_direw = 1;		user_dirns = 1;		if (CountInv("VortexUpgradeDamage",AAPTR_MASTER))			{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(40);	} // J
+			if (user_t == ID_U2VortexRifle)			{	user_direw = -1;	user_dirns = 1;		if (CountInv("VortexUpgradeAmmo",AAPTR_MASTER))			{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(19);	} // S
+			if (user_t == ID_U3VortexRifle)			{	user_direw = 1;		user_dirns = -1;	if (CountInv("VortexUpgradeAltSpeed",AAPTR_MASTER))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(41);	} // K
+			if (user_t == ID_U4VortexRifle)			{	user_direw = -1;	user_dirns = -1;	if (CountInv("VortexUpgradeAltPierce",AAPTR_MASTER))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(14);	} // N
+			if (user_t == ID_U1Repeater)			{	user_direw = 1;		user_dirns = 1;		if (CountInv("RepeaterUpgradePiercing",AAPTR_MASTER))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(39);	} // I
+			if (user_t == ID_U2Repeater)			{	user_direw = -1;	user_dirns = 1;		if (CountInv("RepeaterUpgradeDamage",AAPTR_MASTER))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(36);	} // F
+			if (user_t == ID_U3Repeater)			{	user_direw = 1;		user_dirns = -1;	if (CountInv("RepeaterUpgradeAltDamage",AAPTR_MASTER))	{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(38);	} // H
+			if (user_t == ID_U4Repeater)			{	user_direw = -1;	user_dirns = -1;	if (CountInv("RepeaterUpgradeAltAmmo",AAPTR_MASTER))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(37);	} // G
 			if (user_t == ID_U3Chaingun)			{	user_dirns = 1;		return ResolveState("Checker");	}
 
 			return ResolveState("Null");
@@ -1048,7 +1048,7 @@ Class WeaponUpgradeHolo : Actor
 	BoughtIdle:
 		M671 A 1
 		{
-			if (CountInv("MenuToken",MasterPtr) < 1)
+			if (CountInv("MenuToken",AAPTR_MASTER) < 1)
 			{	return ResolveState("MoveToNothing");	}
 			return ResolveState(null);
 		}
@@ -1074,8 +1074,8 @@ Class WeaponUpgradeHolo : Actor
 		"####" "#" 0
 		{
 			if (IsPointerEqual(TracerPtr,NullPtr))		{	return ResolveState("FadeOut");	}
-			if (CountInv("MenuToken",MasterPtr) > 1)	{	return ResolveState("Inact");		}
-			if (!CountInv("MenuToken",MasterPtr))		{	return ResolveState("MoveToNothing");	}
+			if (CountInv("MenuToken",AAPTR_MASTER) > 1)	{	return ResolveState("Inact");		}
+			if (!CountInv("MenuToken",AAPTR_MASTER))		{	return ResolveState("MoveToNothing");	}
 			if (Scale.X < 0.5)						
 			{	
 				A_SetScale(Scale.X+0.05);	
@@ -1160,14 +1160,14 @@ Class WeaponUpgradeHolo : Actor
 			ACS_NamedExecute("ShowUpgradeName",0,user_t,0,0);
 			ACS_NamedExecute("ShowCost",0,UCost,user_dirns,user_direw);
 			ACS_NamedExecute("ShowRequirements",0,user_require,user_dirns,user_direw);
-			user_cash = CountInv("D4DCash",MasterPtr);
+			user_cash = CountInv("D4DCash",AAPTR_MASTER);
 			user_looking = 1;
 			A_PlaySound("Doom4/Menu/Hover",Channels,1);
 		}
 	HighLoop:
 		"####" "#" 1
 		{			
-			if (CountInv("MenuSelect",MasterPtr))
+			if (CountInv("MenuSelect",AAPTR_MASTER))
 			{
 				// Check for requirements first.
 				// Then, check the above prices.
@@ -1175,49 +1175,49 @@ Class WeaponUpgradeHolo : Actor
 				// Requirement 1: SSG Double Double Trouble Trouble
 				// Needs: All three SSG upgrades.
 				if ((user_require == 1 && (
-					!CountInv("SSGUpgrade1",MasterPtr) ||
-					!CountInv("SSGUpgrade2",MasterPtr) )) 
+					!CountInv("SSGUpgrade1",AAPTR_MASTER) ||
+					!CountInv("SSGUpgrade2",AAPTR_MASTER) )) 
 					
 					||
 				
 				// Requirement 2: SSG Double Trouble
 				// Needs: Reload Speed
 					(user_require == 2 && (
-					!CountInv("SSGUpgrade1",MasterPtr)))
+					!CountInv("SSGUpgrade1",AAPTR_MASTER)))
 					
 					||
 					
 				// Requirement 3: Static Upgrade 2
 				// Needs: Static Upgrade 1
 					(user_require == 3 && (
-					!CountInv("StaticUpgrade1",MasterPtr)))
+					!CountInv("StaticUpgrade1",AAPTR_MASTER)))
 					
 					||
 					
 				// Requirement 3: Static Upgrade 3
 				// Needs: Static Upgrade 2
 					(user_require == 4 && (
-					!CountInv("StaticUpgrade2",MasterPtr)))
+					!CountInv("StaticUpgrade2",AAPTR_MASTER)))
 					
 					||
 					
 				// Requirement 3: Static Upgrade 4
 				// Needs: Static Upgrade 3
 					(user_require == 5 && (
-					!CountInv("StaticUpgrade3",MasterPtr)))
+					!CountInv("StaticUpgrade3",AAPTR_MASTER)))
 					)
 				{
-					A_TakeInventory("MenuSelect",32767,0,MasterPtr);
+					A_TakeInventory("MenuSelect",32767,0,AAPTR_MASTER);
 					A_PlaySound("Doom4/Player/Nope",Channels);
 				}
 				else if (user_cash < UCost)
 				{	
-					A_TakeInventory("MenuSelect",32767,0,MasterPtr);
+					A_TakeInventory("MenuSelect",32767,0,AAPTR_MASTER);
 					A_PlaySound("Doom4/Player/Nope",Channels);
 				}
 				else
 				{
-					A_TakeInventory("MenuSelect",32767,0,MasterPtr);
+					A_TakeInventory("MenuSelect",32767,0,AAPTR_MASTER);
 					A_PlaySound("Doom4/Menu/Select",Channels,1);
 					user_menu = 1;	//Indicates its been selected.
 					return ResolveState("Blink");
@@ -1229,7 +1229,7 @@ Class WeaponUpgradeHolo : Actor
 		{
 			// Misc checks to make sure the holograph is still going on, 
 			// including sight checks to highlight.
-			if (!CountInv("MenuToken",MasterPtr))		
+			if (!CountInv("MenuToken",AAPTR_MASTER))		
 			{	ACS_NamedExecuteAlways("ClearHoloText",0,0,0,0); return ResolveState("MoveToNothing");	}
 			//if (IsPointerEqual(TracerPtr,NullPtr))	
 			//{	return ResolveState("FadeOut");	}
@@ -1261,63 +1261,63 @@ Class WeaponUpgradeHolo : Actor
 	PurchaseFramed:
 		"####" "#" 0
 		{
-				 if (user_t == ID_U1AssaultRifle)	{	A_GiveInventory("AssaultRifleMod1",1,MasterPtr);	}
-			else if (user_t == ID_U2AssaultRifle)	{	A_GiveInventory("AssaultRifleMod2",1,MasterPtr);	}
-			else if (user_t == ID_U1Chaingun)		{	A_GiveInventory("ChaingunMod1",1,MasterPtr);		}
-			else if (user_t == ID_U2Chaingun)		{	A_GiveInventory("ChaingunMod2",1,MasterPtr);		}
+				 if (user_t == ID_U1AssaultRifle)	{	A_GiveInventory("AssaultRifleMod1",1,AAPTR_MASTER);	}
+			else if (user_t == ID_U2AssaultRifle)	{	A_GiveInventory("AssaultRifleMod2",1,AAPTR_MASTER);	}
+			else if (user_t == ID_U1Chaingun)		{	A_GiveInventory("ChaingunMod1",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U2Chaingun)		{	A_GiveInventory("ChaingunMod2",1,AAPTR_MASTER);		}
 			else if (user_t == ID_U3Chaingun)		
 			{	
 				A_PrintBold("\ckChaingun Special Mode toggles Soviet mode.\nOptions->D4D Mod Options->Customize Keybinds");
-				A_GiveInventory("SovietToken",1,MasterPtr); 
-				A_GiveInventory("SovietActive",1,MasterPtr);		
+				A_GiveInventory("SovietToken",1,AAPTR_MASTER); 
+				A_GiveInventory("SovietActive",1,AAPTR_MASTER);		
 			}
-			else if (user_t == ID_U1Pistol)			{	A_GiveInventory("PistolUpgradeAltCharge",1,MasterPtr);		}
-			else if (user_t == ID_U2Pistol)			{	A_GiveInventory("PistolUpgradeAltDamage",1,MasterPtr);		}
-			else if (user_t == ID_U3Pistol)			{	A_GiveInventory("PistolUpgradeAutomatic",1,MasterPtr);		}
-			else if (user_t == ID_U4Pistol)			{	A_GiveInventory("PistolUpgradeDamage",1,MasterPtr);		}
-			else if (user_t == ID_U1GaussCannon)	{	A_GiveInventory("GaussCannonMod1",1,MasterPtr);	}
-			else if (user_t == ID_U2GaussCannon)	{	A_GiveInventory("GaussCannonMod2",1,MasterPtr);	}
-			else if (user_t == ID_U1PlasmaRifle)	{	A_GiveInventory("PlasmaRifleMod1",1,MasterPtr);	}
-			else if (user_t == ID_U2PlasmaRifle)	{	A_GiveInventory("PlasmaRifleMod2",1,MasterPtr);	}
-			else if (user_t == ID_U1RocketLauncher)	{	A_GiveInventory("RocketLauncherMod1",1,MasterPtr);	}
-			else if (user_t == ID_U2RocketLauncher)	{	A_GiveInventory("RocketLauncherMod2",1,MasterPtr);	}
-			else if (user_t == ID_U1Shotgun)		{	A_GiveInventory("ShotgunMod1",1,MasterPtr);		}
-			else if (user_t == ID_U2Shotgun)		{	A_GiveInventory("ShotgunMod2",1,MasterPtr);		}
+			else if (user_t == ID_U1Pistol)			{	A_GiveInventory("PistolUpgradeAltCharge",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U2Pistol)			{	A_GiveInventory("PistolUpgradeAltDamage",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U3Pistol)			{	A_GiveInventory("PistolUpgradeAutomatic",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U4Pistol)			{	A_GiveInventory("PistolUpgradeDamage",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U1GaussCannon)	{	A_GiveInventory("GaussCannonMod1",1,AAPTR_MASTER);	}
+			else if (user_t == ID_U2GaussCannon)	{	A_GiveInventory("GaussCannonMod2",1,AAPTR_MASTER);	}
+			else if (user_t == ID_U1PlasmaRifle)	{	A_GiveInventory("PlasmaRifleMod1",1,AAPTR_MASTER);	}
+			else if (user_t == ID_U2PlasmaRifle)	{	A_GiveInventory("PlasmaRifleMod2",1,AAPTR_MASTER);	}
+			else if (user_t == ID_U1RocketLauncher)	{	A_GiveInventory("RocketLauncherMod1",1,AAPTR_MASTER);	}
+			else if (user_t == ID_U2RocketLauncher)	{	A_GiveInventory("RocketLauncherMod2",1,AAPTR_MASTER);	}
+			else if (user_t == ID_U1Shotgun)		{	A_GiveInventory("ShotgunMod1",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U2Shotgun)		{	A_GiveInventory("ShotgunMod2",1,AAPTR_MASTER);		}
 			// Reload Speed
-			else if (user_t == ID_U1SuperShotgun)	{	A_GiveInventory("SSGUpgrade1",1,MasterPtr);		}
+			else if (user_t == ID_U1SuperShotgun)	{	A_GiveInventory("SSGUpgrade1",1,AAPTR_MASTER);		}
 			// Piercing Shot
-			else if (user_t == ID_U2SuperShotgun)	{	A_GiveInventory("SSGUpgrade2",1,MasterPtr);		}
+			else if (user_t == ID_U2SuperShotgun)	{	A_GiveInventory("SSGUpgrade2",1,AAPTR_MASTER);		}
 			// Double Shot
-			else if (user_t == ID_U3SuperShotgun)	{	A_GiveInventory("SSGUpgrade3",1,MasterPtr);		}
+			else if (user_t == ID_U3SuperShotgun)	{	A_GiveInventory("SSGUpgrade3",1,AAPTR_MASTER);		}
 			// Spread Decrease
-			else if (user_t == ID_U4SuperShotgun)	{	A_GiveInventory("SSGUpgrade4",1,MasterPtr);		}
+			else if (user_t == ID_U4SuperShotgun)	{	A_GiveInventory("SSGUpgrade4",1,AAPTR_MASTER);		}
 			
-			else if (user_t == ID_U1LightningGun)	{	A_GiveInventory("LGUpgradeAmmo",1,MasterPtr);		}
-			else if (user_t == ID_U2LightningGun)	{	A_GiveInventory("LGUpgradeRange",1,MasterPtr);		}
-			else if (user_t == ID_U3LightningGun)	{	A_GiveInventory("LGUpgradeDamage",1,MasterPtr);		}
-			else if (user_t == ID_U4LightningGun)	{	A_GiveInventory("LGUpgradeAltFire",1,MasterPtr);		}
-			else if (user_t == ID_U1StaticRifle)	{	A_GiveInventory("StaticUpgrade1",1,MasterPtr);		}
-			else if (user_t == ID_U2StaticRifle)	{	A_GiveInventory("StaticUpgrade2",1,MasterPtr);		}
-			else if (user_t == ID_U3StaticRifle)	{	A_GiveInventory("StaticUpgrade3",1,MasterPtr);		}
-			else if (user_t == ID_U4StaticRifle)	{	A_GiveInventory("StaticUpgrade4",1,MasterPtr);		}
+			else if (user_t == ID_U1LightningGun)	{	A_GiveInventory("LGUpgradeAmmo",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U2LightningGun)	{	A_GiveInventory("LGUpgradeRange",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U3LightningGun)	{	A_GiveInventory("LGUpgradeDamage",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U4LightningGun)	{	A_GiveInventory("LGUpgradeAltFire",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U1StaticRifle)	{	A_GiveInventory("StaticUpgrade1",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U2StaticRifle)	{	A_GiveInventory("StaticUpgrade2",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U3StaticRifle)	{	A_GiveInventory("StaticUpgrade3",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U4StaticRifle)	{	A_GiveInventory("StaticUpgrade4",1,AAPTR_MASTER);		}
 			
-			else if (user_t == ID_U1VortexRifle)	{	A_GiveInventory("VortexUpgradeDamage",1,MasterPtr);		}
-			else if (user_t == ID_U2VortexRifle)	{	A_GiveInventory("VortexUpgradeAmmo",1,MasterPtr);		}
-			else if (user_t == ID_U3VortexRifle)	{	A_GiveInventory("VortexUpgradeAltSpeed",1,MasterPtr);		}
-			else if (user_t == ID_U4VortexRifle)	{	A_GiveInventory("VortexUpgradeAltPierce",1,MasterPtr);		}
-			else if (user_t == ID_U1Repeater)		{	A_GiveInventory("RepeaterUpgradePiercing",1,MasterPtr);		}
-			else if (user_t == ID_U2Repeater)		{	A_GiveInventory("RepeaterUpgradeDamage",1,MasterPtr);		}
-			else if (user_t == ID_U3Repeater)		{	A_GiveInventory("RepeaterUpgradeAltDamage",1,MasterPtr);		}
-			else if (user_t == ID_U4Repeater)		{	A_GiveInventory("RepeaterUpgradeAltAmmo",1,MasterPtr);		}
-			//if (user_t == ID_U1Pistol)				{	user_direw = 1;		user_dirns = 1;		if (CountInv("PistolUpgradeAutomatic",MasterPtr))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(33);	} // C
-			//if (user_t == ID_U2Pistol)				{	user_direw = -1;	user_dirns = 1;		if (CountInv("PistolUpgradeAltDamage",MasterPtr))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(23);	} // W
-			//if (user_t == ID_U3Pistol)				{	user_direw = 1;		user_dirns = -1;	if (CountInv("PistolUpgradeAltCharge",MasterPtr))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(34);	} // D
-			//if (user_t == ID_U4Pistol)				{	user_direw = -1;	user_dirns = -1;	if (CountInv("PistolUpgradeDamage",MasterPtr))			{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(35);	} // E
+			else if (user_t == ID_U1VortexRifle)	{	A_GiveInventory("VortexUpgradeDamage",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U2VortexRifle)	{	A_GiveInventory("VortexUpgradeAmmo",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U3VortexRifle)	{	A_GiveInventory("VortexUpgradeAltSpeed",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U4VortexRifle)	{	A_GiveInventory("VortexUpgradeAltPierce",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U1Repeater)		{	A_GiveInventory("RepeaterUpgradePiercing",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U2Repeater)		{	A_GiveInventory("RepeaterUpgradeDamage",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U3Repeater)		{	A_GiveInventory("RepeaterUpgradeAltDamage",1,AAPTR_MASTER);		}
+			else if (user_t == ID_U4Repeater)		{	A_GiveInventory("RepeaterUpgradeAltAmmo",1,AAPTR_MASTER);		}
+			//if (user_t == ID_U1Pistol)				{	user_direw = 1;		user_dirns = 1;		if (CountInv("PistolUpgradeAutomatic",AAPTR_MASTER))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(33);	} // C
+			//if (user_t == ID_U2Pistol)				{	user_direw = -1;	user_dirns = 1;		if (CountInv("PistolUpgradeAltDamage",AAPTR_MASTER))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(23);	} // W
+			//if (user_t == ID_U3Pistol)				{	user_direw = 1;		user_dirns = -1;	if (CountInv("PistolUpgradeAltCharge",AAPTR_MASTER))		{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(34);	} // D
+			//if (user_t == ID_U4Pistol)				{	user_direw = -1;	user_dirns = -1;	if (CountInv("PistolUpgradeDamage",AAPTR_MASTER))			{ user_purchased = 1; return ResolveState("Bought"); }	return ResolveState(35);	} // E
 			if (UCost)
 			{	
-				A_GiveInventory("D4DCashFake",UCost,MasterPtr);
-				A_TakeInventory("D4DCash",UCost,0,MasterPtr);	
-				A_GiveInventory("CashUpdaterNegative",1,MasterPtr);
+				A_GiveInventory("D4DCashFake",UCost,AAPTR_MASTER);
+				A_TakeInventory("D4DCash",UCost,0,AAPTR_MASTER);	
+				A_GiveInventory("CashUpdaterNegative",1,AAPTR_MASTER);
 			}
 			user_purchased = 1;
 		}
@@ -1330,7 +1330,7 @@ Class WeaponUpgradeHolo : Actor
 	Inact:
 		"####" "#" 1
 		{
-			if (CountInv("MenuToken",MasterPtr) == 2)
+			if (CountInv("MenuToken",AAPTR_MASTER) == 2)
 			{
 				if (Scale.X > 0.25)
 				{	A_SetScale(Scale.X-0.05);	}
@@ -1338,9 +1338,9 @@ Class WeaponUpgradeHolo : Actor
 				{	A_SetScale(0.25);	}
 				return ResolveState(null);				
 			}
-			else if (CountInv("MenuToken",MasterPtr) == 1)
+			else if (CountInv("MenuToken",AAPTR_MASTER) == 1)
 			{	return ResolveState("Idling");			}
-			else if (!CountInv("MenuToken",MasterPtr))
+			else if (!CountInv("MenuToken",AAPTR_MASTER))
 			{	return ResolveState("MoveToNothing");	}
 			return ResolveState(null);
 		}
@@ -1380,28 +1380,28 @@ Class WeaponUpgradeHolo : Actor
 		TNT1 A 0
 		{
 			if (GetCvar("vid_renderer") &&
-			CountInv("AssaultRifleMod1",MasterPtr) &&
-			CountInv("AssaultRifleMod2",MasterPtr) &&
-			CountInv("ChaingunMod1",MasterPtr) &&
-			CountInv("ChaingunMod2",MasterPtr) &&
-			CountInv("GaussCannonMod1",MasterPtr) &&
-			CountInv("GaussCannonMod2",MasterPtr) &&
-			CountInv("PlasmaRifleMod1",MasterPtr) &&
-			CountInv("PlasmaRifleMod2",MasterPtr) &&
-			CountInv("RocketLauncherMod1",MasterPtr) &&
-			CountInv("RocketLauncherMod2",MasterPtr) &&
-			CountInv("ShotgunMod1",MasterPtr) &&
-			CountInv("ShotgunMod2",MasterPtr) &&
-			CountInv("SSGUpgrade1",MasterPtr) &&
-			CountInv("SSGUpgrade2",MasterPtr) &&
-			CountInv("SSGUpgrade3",MasterPtr) &&
-			CountInv("SSGUpgrade4",MasterPtr) &&
-			CountInv("PistolUpgradeAutomatic",MasterPtr) &&
-			CountInv("PistolUpgradeAltDamage",MasterPtr) &&
-			CountInv("PistolUpgradeAltCharge",MasterPtr) &&
-			CountInv("PistolUpgradeDamage",MasterPtr))
+			CountInv("AssaultRifleMod1",AAPTR_MASTER) &&
+			CountInv("AssaultRifleMod2",AAPTR_MASTER) &&
+			CountInv("ChaingunMod1",AAPTR_MASTER) &&
+			CountInv("ChaingunMod2",AAPTR_MASTER) &&
+			CountInv("GaussCannonMod1",AAPTR_MASTER) &&
+			CountInv("GaussCannonMod2",AAPTR_MASTER) &&
+			CountInv("PlasmaRifleMod1",AAPTR_MASTER) &&
+			CountInv("PlasmaRifleMod2",AAPTR_MASTER) &&
+			CountInv("RocketLauncherMod1",AAPTR_MASTER) &&
+			CountInv("RocketLauncherMod2",AAPTR_MASTER) &&
+			CountInv("ShotgunMod1",AAPTR_MASTER) &&
+			CountInv("ShotgunMod2",AAPTR_MASTER) &&
+			CountInv("SSGUpgrade1",AAPTR_MASTER) &&
+			CountInv("SSGUpgrade2",AAPTR_MASTER) &&
+			CountInv("SSGUpgrade3",AAPTR_MASTER) &&
+			CountInv("SSGUpgrade4",AAPTR_MASTER) &&
+			CountInv("PistolUpgradeAutomatic",AAPTR_MASTER) &&
+			CountInv("PistolUpgradeAltDamage",AAPTR_MASTER) &&
+			CountInv("PistolUpgradeAltCharge",AAPTR_MASTER) &&
+			CountInv("PistolUpgradeDamage",AAPTR_MASTER))
 			{
-				if (CountInv("SovietToken",MasterPtr))
+				if (CountInv("SovietToken",AAPTR_MASTER))
 				{	
 					user_purchased = 1;
 					return ResolveState("Bought");
@@ -1527,40 +1527,40 @@ Class HoloCursor : Actor
 		M667 Z 0 NoDelay 
 		{
 			UZ = 45;
-			A_Warp(MasterPtr,Distance,0,UZ,0,WARPF_NOCHECKPOSITION);
+			A_Warp(AAPTR_MASTER,Distance,0,UZ,0,WARPF_NOCHECKPOSITION);
 			
-			A_RearrangePointers(NullPtr,DefPtr,DefPtr,4);
-			if (CountInv("D4GaussCannon",MasterPtr))		{	user_weap++;	}
-			if (CountInv("D4PlasmaRifle",MasterPtr))		{	user_weap++;	}
-			if (CountInv("D4RocketLauncher",MasterPtr))	{	user_weap++;	}
-			if (CountInv("D4AssaultRifle",MasterPtr))		{	user_weap++;	}
-			if (CountInv("D4Chaingun",MasterPtr))			{	user_weap++;	}
-			if (CountInv("D4SuperShotgun",MasterPtr))		{	user_weap++;	}
-			if (CountInv("D4Shotgun",MasterPtr))			{	user_weap++;	}
-			if (CountInv("D4StaticRifle",MasterPtr))		{	user_weap++;	}
-			if (CountInv("D4LightningGun",MasterPtr))		{	user_weap++;	}
-			if (CountInv("D4BFG",MasterPtr))				{	user_weap++;	}
-			if (CountInv("D4CarrionCannon",MasterPtr))		{	user_weap++;	}
-			if (CountInv("D4Pistol",MasterPtr))			{	user_weap++;	}
-			if (CountInv("D4VortexRifle",MasterPtr))		{	user_weap++;	}
-			if (CountInv("D4Repeater",MasterPtr))			{	user_weap++;	}
+			A_RearrangePointers(NullPtr,AAPTR_DEFAULT,AAPTR_DEFAULT,4);
+			if (CountInv("D4GaussCannon",AAPTR_MASTER))		{	user_weap++;	}
+			if (CountInv("D4PlasmaRifle",AAPTR_MASTER))		{	user_weap++;	}
+			if (CountInv("D4RocketLauncher",AAPTR_MASTER))	{	user_weap++;	}
+			if (CountInv("D4AssaultRifle",AAPTR_MASTER))		{	user_weap++;	}
+			if (CountInv("D4Chaingun",AAPTR_MASTER))			{	user_weap++;	}
+			if (CountInv("D4SuperShotgun",AAPTR_MASTER))		{	user_weap++;	}
+			if (CountInv("D4Shotgun",AAPTR_MASTER))			{	user_weap++;	}
+			if (CountInv("D4StaticRifle",AAPTR_MASTER))		{	user_weap++;	}
+			if (CountInv("D4LightningGun",AAPTR_MASTER))		{	user_weap++;	}
+			if (CountInv("D4BFG",AAPTR_MASTER))				{	user_weap++;	}
+			if (CountInv("D4CarrionCannon",AAPTR_MASTER))		{	user_weap++;	}
+			if (CountInv("D4Pistol",AAPTR_MASTER))			{	user_weap++;	}
+			if (CountInv("D4VortexRifle",AAPTR_MASTER))		{	user_weap++;	}
+			if (CountInv("D4Repeater",AAPTR_MASTER))			{	user_weap++;	}
 		}
 	Input:
 		M667 Z 1
 		{
-			user_menu = CountInv("MenuToken",MasterPtr);
+			user_menu = CountInv("MenuToken",AAPTR_MASTER);
 			//==================================================================
 			// Adjust the angle and z based on raw input. The player's totally frozen
 			// so it must be raw, not modded.
 			user_mousespeed = GetCvar("D4D_MenuMouseSpeed);
-			user_a = user_a + ((GetPlayerInput(INPUT_YAW,MasterPtr))/32767.0) * user_mousespeed;
-			UZ = UZ + ((GetPlayerInput(INPUT_PITCH,MasterPtr))/32767.0) * (user_mousespeed * 2);
+			user_a = user_a + ((GetPlayerInput(INPUT_YAW,AAPTR_MASTER))/32767.0) * user_mousespeed;
+			UZ = UZ + ((GetPlayerInput(INPUT_PITCH,AAPTR_MASTER))/32767.0) * (user_mousespeed * 2);
 			user_a = Clamp(user_a,-AngleLimit,AngleLimit);
 			UZ = Clamp(UZ,0,ZLimit);
 			
 			//==================================================================
 			// Move the pointer.
-			A_Warp(MasterPtr,Distance,0,UZ,user_a,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
+			A_Warp(AAPTR_MASTER,Distance,0,UZ,user_a,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
 			
 			//==================================================================
 			// Cooldown to prevent breaking things such as selecting menu items
@@ -1573,15 +1573,15 @@ Class HoloCursor : Actor
 			
 			//==================================================================
 			// Secondary fire = up one menu level.
-			if ((GetPlayerInput(INPUT_BUTTONS,MasterPtr) & BT_ALTATTACK) &&
-				!(GetPlayerInput(INPUT_OLDBUTTONS,MasterPtr) & BT_ALTATTACK))
+			if ((GetPlayerInput(INPUT_BUTTONS,AAPTR_MASTER) & BT_ALTATTACK) &&
+				!(GetPlayerInput(INPUT_OLDBUTTONS,AAPTR_MASTER) & BT_ALTATTACK))
 			{
-				A_GiveInventory("TextClearer",1,MasterPtr);
-				if (GetCvar("D4D_SecondaryExit) > 0 && !(CountInv("MenuToken",MasterPtr)))
-				{	A_GiveInventory("ToggleMenu",1,MasterPtr);	}
-				A_TakeInventory("MenuToken",1,0,MasterPtr);
+				A_GiveInventory("TextClearer",1,AAPTR_MASTER);
+				if (GetCvar("D4D_SecondaryExit) > 0 && !(CountInv("MenuToken",AAPTR_MASTER)))
+				{	A_GiveInventory("ToggleMenu",1,AAPTR_MASTER);	}
+				A_TakeInventory("MenuToken",1,0,AAPTR_MASTER);
 				A_GiveToSiblings("LookingAtClearer",1);
-				A_RearrangePointers(NullPtr,DefPtr,NullPtr);
+				A_RearrangePointers(NullPtr,AAPTR_DEFAULT,NullPtr);
 				user_cd = RotateTime + 15;
 			}
 			
@@ -1590,20 +1590,20 @@ Class HoloCursor : Actor
 			// Pressing strafe/user keys also works.
 			if (user_menu <= 0 && user_weap > 1)
 			{
-				if (user_a > RotateThreshold || GetPlayerInput(INPUT_BUTTONS,MasterPtr) & (BT_MOVELEFT|BT_USER1))
+				if (user_a > RotateThreshold || GetPlayerInput(INPUT_BUTTONS,AAPTR_MASTER) & (BT_MOVELEFT|BT_USER1))
 				{
-					A_GiveInventory("HoloRotateLeft",1,MasterPtr);
-					A_GiveInventory("HoloRotate",1,MasterPtr);
+					A_GiveInventory("HoloRotateLeft",1,AAPTR_MASTER);
+					A_GiveInventory("HoloRotate",1,AAPTR_MASTER);
 					user_cd = RotateTime;
-					A_GiveInventory("TextClearer",1,MasterPtr);
+					A_GiveInventory("TextClearer",1,AAPTR_MASTER);
 					return ResolveState(null);
 				}
-				else if (user_a < -RotateThreshold || GetPlayerInput(INPUT_BUTTONS,MasterPtr) & (BT_MOVERIGHT|BT_USER2))
+				else if (user_a < -RotateThreshold || GetPlayerInput(INPUT_BUTTONS,AAPTR_MASTER) & (BT_MOVERIGHT|BT_USER2))
 				{
-					A_GiveInventory("HoloRotateRight",1,MasterPtr);
-					A_GiveInventory("HoloRotate",1,MasterPtr);
+					A_GiveInventory("HoloRotateRight",1,AAPTR_MASTER);
+					A_GiveInventory("HoloRotate",1,AAPTR_MASTER);
 					user_cd = RotateTime;
-					A_GiveInventory("TextClearer",1,MasterPtr);
+					A_GiveInventory("TextClearer",1,AAPTR_MASTER);
 					return ResolveState(null);
 				}
 			}
@@ -1615,7 +1615,7 @@ Class HoloCursor : Actor
 				//==================================================================
 				// If we don't have one, check for a selectable holo based on how 
 				// far into the menu we are.
-				if (IsPointerEqual(TargetPtr,NullPtr))
+				if (IsPointerEqual(AAPTR_TARGET,NullPtr))
 				{
 					//if (user_menu >= 2)
 					//{	A_CheckProximity("Null","HoloConfirmation",CDist,1,CPXF_CLOSEST|CPXF_SETTARGET);	}
@@ -1626,34 +1626,34 @@ Class HoloCursor : Actor
 				}
 				//==================================================================
 				// Holo found.
-				if (!IsPointerEqual(TargetPtr,NullPtr))
+				if (!IsPointerEqual(AAPTR_TARGET,NullPtr))
 				{
-					if (GetDistance(true,TargetPtr) <= CDist) 
+					if (GetDistance(true,AAPTR_TARGET) <= CDist) 
 					{	//In range. Highlight it.				
-						A_RearrangePointers(DefPtr,DefPtr,TargetPtr);
+						A_RearrangePointers(AAPTR_DEFAULT,AAPTR_DEFAULT,AAPTR_TARGET);
 						
-						if (!CountInv("LookingAt",TargetPtr))
-						{	A_GiveInventory("LookingAt",1,TargetPtr);	}
+						if (!CountInv("LookingAt",AAPTR_TARGET))
+						{	A_GiveInventory("LookingAt",1,AAPTR_TARGET);	}
 						
 						//==========================================================
 						// Primary Fire = Select Menu. Only give it once.
 						// This code replicates the NOAUTOFIRE flag on weapons.
 						
-						if ((GetPlayerInput(INPUT_BUTTONS,MasterPtr) & BT_ATTACK) &&
-							!(GetPlayerInput(INPUT_OLDBUTTONS,MasterPtr) & BT_ATTACK))
-						{	A_GiveInventory("MenuSelect",1,MasterPtr);		}
+						if ((GetPlayerInput(INPUT_BUTTONS,AAPTR_MASTER) & BT_ATTACK) &&
+							!(GetPlayerInput(INPUT_OLDBUTTONS,AAPTR_MASTER) & BT_ATTACK))
+						{	A_GiveInventory("MenuSelect",1,AAPTR_MASTER);		}
 						
-						else if (!(GetPlayerInput(INPUT_BUTTONS,MasterPtr) & BT_ATTACK))
-						{	A_TakeInventory("MenuSelect",32767,MasterPtr);	}
+						else if (!(GetPlayerInput(INPUT_BUTTONS,AAPTR_MASTER) & BT_ATTACK))
+						{	A_TakeInventory("MenuSelect",32767,AAPTR_MASTER);	}
 					}
 					else	// Out of range, so clear all of them just to be safe.
 					{
-						if (!IsPointerEqual(TargetPtr,NullPtr))
+						if (!IsPointerEqual(AAPTR_TARGET,NullPtr))
 						{	
-							A_TakeInventory("MenuSelect",32767,MasterPtr);
-							A_GiveInventory("TextClearer",1,MasterPtr);
+							A_TakeInventory("MenuSelect",32767,AAPTR_MASTER);
+							A_GiveInventory("TextClearer",1,AAPTR_MASTER);
 							A_GiveToSiblings("LookingAtClearer",1);
-							A_RearrangePointers(NullPtr,DefPtr,NullPtr);
+							A_RearrangePointers(NullPtr,AAPTR_DEFAULT,NullPtr);
 							A_ClearTarget();
 						}
 					}
@@ -1787,16 +1787,16 @@ Class HoloVelocityKeeper : Actor
 			UY = vel.y;
 			UZ = vel.z;
 			A_Stop();
-			A_Warp(MasterPtr,0,0,0,0,WARPF_COPYPITCH|WARPF_NOCHECKPOSITION);
+			A_Warp(AAPTR_MASTER,0,0,0,0,WARPF_COPYPITCH|WARPF_NOCHECKPOSITION);
 			UPitch = pitch;
-			A_SetPitch(0,SPF_INTERPOLATE,MasterPtr);
+			A_SetPitch(0,SPF_INTERPOLATE,AAPTR_MASTER);
 		}
 	Death:
 		TNT1 A 0 
 		{
-			A_ChangeVelocity(UX,UY,UZ,CVF_REPLACE,MasterPtr);
+			A_ChangeVelocity(UX,UY,UZ,CVF_REPLACE,AAPTR_MASTER);
 		}
-		TNT1 A 1 A_SetPitch(UPitch,SPF_INTERPOLATE,MasterPtr)
+		TNT1 A 1 A_SetPitch(UPitch,SPF_INTERPOLATE,AAPTR_MASTER)
 		Stop;
 	}
 }

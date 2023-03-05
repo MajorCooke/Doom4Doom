@@ -35,24 +35,7 @@ enum D4Constants
 	// over and over again is annoying. In the future I may expand this for all ZDoom flags,
 	// provided Doomscript doesn't outright deprecate them, which it will...
 	
-	// Turns out I was right, past me. ZScript has no use for these. ;)
-	DefPtr =			AAPTR_DEFAULT,
-	TargetPtr =			AAPTR_TARGET,
-	MasterPtr = 		AAPTR_MASTER,
-	TracerPtr = 		AAPTR_TRACER,
-	NoPtr =				AAPTR_NULL,
-	NullPtr =			AAPTR_NULL,
-	LineTarget =		AAPTR_LINETARGET,
-	PlrGetTarget =		AAPTR_PLAYER_GETTARGET,
-	FriendPlr =			AAPTR_FRIENDPLAYER,
-	Player1 =			AAPTR_PLAYER1,
-	Player2 =			AAPTR_PLAYER2,
-	Player3 =			AAPTR_PLAYER3,
-	Player4 =			AAPTR_PLAYER4,
-	Player5 =			AAPTR_PLAYER5,
-	Player6 =			AAPTR_PLAYER6,
-	Player7 =			AAPTR_PLAYER7,
-	Player8 =			AAPTR_PLAYER8,
+	
 	
 	//==========================================================================
 	// Overlays

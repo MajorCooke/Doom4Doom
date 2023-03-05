@@ -1,0 +1,85 @@
+
+class D4D_JsonObjectKeys {
+	Array<String> keys;
+}
+
+
+class D4D_JsonObject : D4D_JsonElement {
+	Map<String,D4D_JsonElement> data;
+	
+	static D4D_JsonObject make(){
+		return new("D4D_JsonObject");
+	}
+	
+	D4D_JsonElement Get(String key){
+		if(!data.CheckKey(key)) return null;
+		return data.Get(key);
+	}
+	
+	void Set(String key,D4D_JsonElement e){
+		data.Insert(key,e);
+	}
+	
+	bool Insert(String key,D4D_JsonElement e){//only inserts if key doesn't exist, otherwise fails and returns false
+		if(data.CheckKey(key)) return false;
+		data.Insert(key,e);
+		return true;
+	}
+	
+	bool Delete(String key){
+		if(!data.CheckKey(key)) return false;
+		data.Remove(key);
+		return true;
+	}
+    
+	void GetKeysInto(out Array<String> keys){
+		keys.Clear();
+		MapIterator<String,D4D_JsonElement> it;
+		it.Init(data);
+		while(it.Next()){
+			keys.Push(it.GetKey());
+		}
+	}
+    
+	D4D_JsonObjectKeys GetKeys(){
+		D4D_JsonObjectKeys keys = new("D4D_JsonObjectKeys");
+        GetKeysInto(keys.keys);
+		return keys;
+	}
+    
+    deprecated("0.0", "Use IsEmpty Instead") bool empty() {
+        return data.CountUsed() == 0;
+    }
+
+	bool IsEmpty(){
+		return data.CountUsed() == 0;
+	}
+	
+	void Clear(){
+		data.Clear();
+	}
+	
+	uint size(){
+		return data.CountUsed();
+	}
+	
+	override string serialize(){
+		String s;
+		s.AppendCharacter(D4D_JSON.CURLY_OPEN);
+		bool first = true;
+		
+		MapIterator<String,D4D_JsonElement> it;
+		it.Init(data);
+		
+		while(it.Next()){
+			if(!first){
+				s.AppendCharacter(D4D_JSON.COMMA);
+			}
+			s.AppendFormat("%s:%s", D4D_JSON.serialize_string(it.GetKey()), it.GetValue().serialize());
+			first = false;
+		}
+		
+		s.AppendCharacter(D4D_JSON.CURLY_CLOSE);
+		return s;
+	}
+}

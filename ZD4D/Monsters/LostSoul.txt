@@ -142,7 +142,7 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 			A_FaceTarget();
 			if (bFriendly)	
 				return ResolveState("SkipWarning");
-			A_PlaySound("Doom4/Monsters/LostSoul/Attack",CHAN_AUTO,0.6);
+			PlaySound("Doom4/Monsters/LostSoul/Attack",CHAN_AUTO,0.6);
 			return ResolveState(null);
 		}
 		PSUL AAAAAAAAAA 2 BRIGHT Light("RedMediumFlicker3")
@@ -319,7 +319,7 @@ Class D4LostSoulNoCash : D4AbstractMonster 		//see at the bottom of the file for
 	}
 }
 
-Class D4LostSoulDead : Actor
+Class D4LostSoulDead : D4Actor
 {
 	double RollAmt;
 	Default
@@ -381,7 +381,7 @@ Class D4LostSoulDead : Actor
 			A_SpawnItemEx("LostSoulExploParticle",0,0,25,frandom(-2,2),frandom(-2,2),frandom(-2,2),random(0,359),SXF_NOCHECKPOSITION);
 			
 			A_SpawnItemEx("D4BloodCloud",0,0,height / 2.0, flags: SXF_NOCHECKPOSITION);
-			A_PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
+			PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
 		}
 		Stop;
 	}
@@ -393,7 +393,7 @@ Class D4LostSoulDead : Actor
 
 //*********************************************
 // 
-Class LostSoulExploParticle : Actor 
+Class LostSoulExploParticle : D4DFX 
 {
 	Default 
 	{
@@ -420,7 +420,7 @@ Class LostSoulExploParticle : Actor
 
 
 
-Class LostSoulRedFlame2 : Actor 
+Class LostSoulRedFlame2 : D4DFX 
 {
 	Default 
 	{
@@ -437,7 +437,7 @@ Class LostSoulRedFlame2 : Actor
 		Wait;
 	}
 }
-Class LostSoulRedFlame : Actor 
+Class LostSoulRedFlame : D4DFX 
 {
 	Default 
 	{
@@ -505,7 +505,7 @@ Class LostSoulBlueFlame : LostSoulRedFlame
 	}
 }
 
-Class LostSoulRedFlare : Actor 
+Class LostSoulRedFlare : D4DFX 
 {
 	Default 
 	{
@@ -639,7 +639,7 @@ Class D4OldLostSoulNoCash : D4AbstractMonster
 }
 
 
-Class LostSoulExploParticleRed : Actor 
+Class LostSoulExploParticleRed : D4DFX 
 {
 	int counter;
 	Default 

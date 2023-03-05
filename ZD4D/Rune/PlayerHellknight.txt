@@ -43,20 +43,6 @@ Class PowerKnightMorph : PowerRuneBase
 	}
 }
 
-Class Tester : Actor 
-{
-	Default 
-	{
-		+NOINTERACTION
-	}
-	States
-	{
-	Spawn:
-		PLAY A 10 NODELAY A_Explode(100,1024,XF_HURTSOURCE,0,1024);
-		Stop;
-	}
-}
-
 Class PlayerKnight : DemonPlayerBase
 {
 	double  USpeed;
@@ -115,7 +101,7 @@ Class PlayerKnight : DemonPlayerBase
 			NoFastOverlay(OverlayID());
 			if (!GetCvar("D4D_SilentMorphs") && random(1,5)==5)
 			{
-				A_PlaySound("Doom4/Monsters/HellKnight/Idle",5);
+				PlaySound("Doom4/Monsters/HellKnight/Idle",5);
 			}
 		}
 		Loop;
@@ -128,12 +114,12 @@ Class PlayerKnight : DemonPlayerBase
 			{
 				if(USpeed > 150)
 				{
-					A_PlaySound("Player/Demon/HeavyStep",CHAN_AUTO,0.7);
+					PlaySound("Player/Demon/HeavyStep",CHAN_AUTO,0.7);
 					A_SetTics(12);
 				}
 				else if(USpeed > 20)
 				{
-					A_PlaySound("Player/Demon/HeavyStep",CHAN_AUTO,0.7);
+					PlaySound("Player/Demon/HeavyStep",CHAN_AUTO,0.7);
 					A_SetTics(15);
 				}
 			}
@@ -151,12 +137,26 @@ Class D4DKnightWeapon : DemonWeaponBase
 		Weapon.BobSpeed 2.0;
 		Weapon.BobRangeX 0.7;
 		Weapon.BobRangeY 0.5;
-		Tag "Big Brown Hands";
+		Tag "Knight Hands";
 	}
+			
+	
+	
+	private action void ViewSwing(bool left)
+	{
+		StateLabel	next = "Overlay.SwingRight";
+		if (left)	next = "Overlay.SwingLeft";
+		for (int i = 1000; i < 2000; i++)
+		{
+			if (A_Overlay(i, next, true))
+				return;
+		}
+	}
+	
 	States
 	{
 	Ready:
-		HB2S A 0 A_TakeInventory("PunchedAlready");
+		HB2S A 0 A_SetInventory("PunchedAlready",0);
 		HB2S A 1 A_WeaponReady(WRF_DISABLESWITCH);
 		Wait;
 	Deselect:
@@ -180,31 +180,51 @@ Class D4DKnightWeapon : DemonWeaponBase
 	FireP6:
 	FireP7:
 	FireP0:
-		TNT1 A 0 { if(random(1,6)==6) { A_PlaySound("Doom4/Monsters/HellKnight/Attack",7); } }
+		TNT1 A 0 { if(random(1,6)==6) { PlaySound("Doom4/Monsters/HellKnight/Attack",7); } }
 		TNT1 A 0 A_Jump(256,"SwingRight","SwingLeft");
 	SwingRight:
-		HB2M ABC 1;
-		HB2M D 1 		{ A_GiveInventory("ShorterKnightPunchFeelerProc"); A_SetAngle(angle+2, SPF_INTERPOLATE); A_SetPitch(pitch+1, SPF_INTERPOLATE); A_SetRoll(-3,SPF_INTERPOLATE); }
-		HB2M EF 1 		{ A_GiveInventory("KnightPunchFeelerProc"); A_SetAngle(angle+2, SPF_INTERPOLATE); A_SetPitch(pitch+1, SPF_INTERPOLATE); }
-		HB2M GH 1 		{ A_GiveInventory("ShorterKnightPunchFeelerProc"); A_SetAngle(angle-0.5, SPF_INTERPOLATE); A_SetPitch(pitch-0.25, SPF_INTERPOLATE); }
-		W666 AAAAAA 1 	{ A_GiveInventory("WeakerKnightPunchFeelerProc"); A_SetAngle(angle-0.5, SPF_INTERPOLATE); A_SetPitch(pitch-0.25, SPF_INTERPOLATE); }
-		W666 A 1 		{ A_SetAngle(angle-0.5, SPF_INTERPOLATE); A_SetPitch(pitch-0.25, SPF_INTERPOLATE); A_SetRoll(0,SPF_INTERPOLATE); }
-		W666 AAA 1 		{ A_SetAngle(angle-0.5, SPF_INTERPOLATE); A_SetPitch(pitch-0.25, SPF_INTERPOLATE); }
-		W666 A 3;
+		HB2M A 1		ViewSwing(true);
+		#### BC 1		;
+		HB2M D 1 		DemonPunch(random(90,200), 66);
+		HB2M EF 1 		DemonPunch(random(90,200), 80);
+		HB2M GH 1 		DemonPunch(random(90,200), 66);
+		W666 AAAAAA 1 	DemonPunch(random(45,100), 60); 
+		W666 A 1 		;
+		W666 AAA 1 		;
+		W666 A 3		;
 		Goto Ready;
 	SwingLeft:
-		HB2N ABC 1;
-		HB2N D 1 		{ A_GiveInventory("ShorterKnightPunchFeelerProc"); A_SetAngle(angle-2, SPF_INTERPOLATE); A_SetPitch(pitch+1, SPF_INTERPOLATE); A_SetRoll(+3,SPF_INTERPOLATE); }
-		HB2N EF 1 		{ A_GiveInventory("KnightPunchFeelerProc"); A_SetAngle(angle-2, SPF_INTERPOLATE); A_SetPitch(pitch+1, SPF_INTERPOLATE); }
-		HB2N GH 1 		{ A_GiveInventory("ShorterKnightPunchFeelerProc"); A_SetAngle(angle+0.5, SPF_INTERPOLATE); A_SetPitch(pitch-0.25, SPF_INTERPOLATE); }
-		W666 AAAAAA 1 	{ A_GiveInventory("WeakerKnightPunchFeelerProc"); A_SetAngle(angle+0.5, SPF_INTERPOLATE); A_SetPitch(pitch-0.25, SPF_INTERPOLATE); }
-		W666 A 1 		{ A_SetAngle(angle+0.5, SPF_INTERPOLATE); A_SetPitch(pitch-0.25, SPF_INTERPOLATE); A_SetRoll(0,SPF_INTERPOLATE); }
-		W666 AAA 1 		{ A_SetAngle(angle+0.5, SPF_INTERPOLATE); A_SetPitch(pitch-0.25, SPF_INTERPOLATE); }
-		W666 A 3;
+		HB2N A 1		ViewSwing(false);
+		#### BC 1		;
+		HB2N D 1 		DemonPunch(random(90,200), 66);
+		HB2N EF 1 		DemonPunch(random(90,200), 80);
+		HB2N GH 1 		DemonPunch(random(90,200), 66);
+		W666 AAAAAA 1 	DemonPunch(random(45,100), 60);
+		W666 A 1		;
+		W666 AAA 1		;
+		W666 A 3		;
 		Goto Ready;
 	
+	Overlay.SwingLeft:
+		TNT1 A 1		A_SetViewAPR((2,	1.0,	-3),true);
+		TNT1 AA 1		A_SetViewAPR((2,	1.0,	0),true);
+		TNT1 AA 1		A_SetViewAPR((-0.5, -.25,	0),true);
+		TNT1 AAAAAA 1	A_SetViewAPR((-0.5, -.25,	0),true);
+		TNT1 A 1		A_SetViewAPR((-0.5, -.25,	3),true);
+		TNT1 AAA 1		A_SetViewAPR((-0.5, -.25,	0),true);
+		Stop;
+	Overlay.SwingRight:
+		TNT1 A 1		A_SetViewAPR((-2,	1.0,	3),true);
+		TNT1 AA 1		A_SetViewAPR((-2,	1.0,	0),true);
+		TNT1 AA 1		A_SetViewAPR((0.5,	-.25,	0),true);
+		TNT1 AAAAAA 1	A_SetViewAPR((0.5,	-.25,	0),true);
+		TNT1 A 1		A_SetViewAPR((0.5,	-.25,	-3),true);
+		TNT1 AAA 1		A_SetViewAPR((0.5,	-.25,	0),true);
+		Stop;
+		
 	
-	
+		
+		
 	AltFireP1:
 	AltFireP2:
 	AltFireP3:
@@ -230,8 +250,8 @@ Class D4DKnightWeapon : DemonWeaponBase
 			
 			W666 A 1
 			{
-				if (pitch<50)
-				{	A_SetPitch(pitch+5, SPF_INTERPOLATE); }
+				if (viewpitch<50)
+				{	A_SetViewPitch(viewpitch+5, SPF_INTERPOLATE); }
 				
 				if (invoker.owner.bONMOBJ || A_CheckFloor("Null"))
 				{
@@ -257,7 +277,7 @@ Class D4DKnightWeapon : DemonWeaponBase
 							
 							if (mo == invoker.owner)	continue;
 							
-							mo.DamageMobj(self, self, 200, "Melee");
+							mo.DamageMobj(self, self, 200 * GetPowerLevel(true), "Melee");
 							mo.bSOLID = false;
 							Temp.Push(mo);
 						}
@@ -270,8 +290,8 @@ Class D4DKnightWeapon : DemonWeaponBase
 						Temp.Clear();
 					}
 					A_Stop();
-					A_Explode(128,256,XF_NOTMISSILE);
-					A_PlaySound("Doom4/Monsters/BaronCrash",7);
+					A_Explode(128 * GetPowerLevel(true),256,XF_NOTMISSILE);
+					PlaySound("Doom4/Monsters/BaronCrash",7);
 					
 					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
 					A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
@@ -283,8 +303,8 @@ Class D4DKnightWeapon : DemonWeaponBase
 				}
 				HB2S A 1
 				{
-					if (pitch>0)
-					{	A_SetPitch(pitch-5, SPF_INTERPOLATE);
+					if (viewpitch>0)
+					{	A_SetViewPitch(viewpitch-5, SPF_INTERPOLATE);
 						return ResolveState(null);
 					}
 					else
@@ -305,29 +325,4 @@ Class D4DKnightWeapon : DemonWeaponBase
 		SHOT A 0;
 		Stop;
 	}
-}	
-
-
-Class KnightPunchFeelerProc : CustomInventory
-{ States { Pickup:
-		TNT1 A 0 { if(!countInv("PunchedAlready")) {
-				A_CustomPunch(random(90,200),1,0,"DemonPuffMelee",80,0,0,null,"Doom4/Weapon/Melee/Punch","Doom4/Other/MeleeSwing1");
-		}	}
-		Stop;
-}	}
-
-Class ShorterKnightPunchFeelerProc : CustomInventory
-{ States { Pickup:
-		TNT1 A 0 { if(!countInv("PunchedAlready")) {
-				A_CustomPunch(random(90,200),1,0,"DemonPuffMelee",66,0,0,null,"Doom4/Weapon/Melee/Punch","");
-		}	}
-		Stop;
-}	}
-
-Class WeakerKnightPunchFeelerProc : CustomInventory
-{ States { Pickup:
-		TNT1 A 0 { if(!countInv("PunchedAlready")) {
-				A_CustomPunch(random(10,100),1,0,"DemonPuffMelee",60,0,0,null,"Doom4/Weapon/Melee/Punch","");
-		}	}
-		Stop;
-}	}
+}

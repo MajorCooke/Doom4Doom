@@ -193,7 +193,7 @@ Class D4Chaingun : Doom4Weapon
 		M666 A 0 A_Refire("NewHold");
 		M666 A 0 
 		{
-			A_PlaySound("Doom4/Weapon/Chaingun/WindDown",5,0.6);
+			PlaySound("Doom4/Weapon/Chaingun/WindDown",5,0.6);
 			A_SetInventory("FireToken",0);
 		}
 		Goto Ready;
@@ -276,7 +276,7 @@ Class D4Chaingun : Doom4Weapon
 		M666 "#" 0 A_Refire("AltHold");
 		M666 "#" 0 
 		{
-			A_PlaySound("Doom4/Weapon/Chaingun/WindDown",5,0.6);
+			PlaySound("Doom4/Weapon/Chaingun/WindDown",5,0.6);
 			A_SetInventory("AltFireToken",0);
 		}
 		Goto Ready;
@@ -387,8 +387,8 @@ Class D4Chaingun : Doom4Weapon
 				((GetPlayerInput(MODINPUT_BUTTONS|MODINPUT_OLDBUTTONS) & BT_ALTATTACK) 
 				&& CountInv("GatlingRotatorActive")))
 			{
-				if (CountInv("SpinUpCount") == 2)	{	A_PlaySound("Doom4/Weapon/Chaingun/WindUp",5,0.6);	}
-				if (CountInv("SpinUpCount") == 14)	{	A_PlaySound("Doom4/Weapon/Chaingun/Loop",5,0.6,1);	}
+				if (CountInv("SpinUpCount") == 2)	{	PlaySound("Doom4/Weapon/Chaingun/WindUp",5,0.6);	}
+				if (CountInv("SpinUpCount") == 14)	{	PlaySound("Doom4/Weapon/Chaingun/Loop",5,0.6,1);	}
 				
 				// Slowly climb up. Or... quickly.
 				if (CountInv("SpinUpCount") < SpinMax)
@@ -409,7 +409,7 @@ Class D4Chaingun : Doom4Weapon
 					{	
 						A_Overlay(NoiseLayer,"Null");
 						A_Overlay(PrepLayer,"Null");
-						A_PlaySound("Doom4/Weapon/Chaingun/Loop;",5,0.6,1);
+						PlaySound("Doom4/Weapon/Chaingun/Loop;",5,0.6,1);
 					}
 				}
 			}
@@ -509,7 +509,7 @@ Class D4Chaingun : Doom4Weapon
 			{
 				A_GunFlash("Null");
 				A_Overlay(ChaingunFlash, "Overlay.Flash");
-				A_PlaySound("Doom4/Weapon/Chaingun/Fire",CHAN_WEAPON,0.8);
+				PlaySound("Doom4/Weapon/Chaingun/Fire",CHAN_WEAPON,0.8);
 				
 				if (cnt < 30 && !IsDoubleSpeed())
 				{	A_SetTics(2);	}
@@ -562,11 +562,11 @@ Class D4Chaingun : Doom4Weapon
 			A_GiveInventory("ChaingunFireTracker",1);
 			int cnt = CountInv("ChaingunFireTracker");
 			if (cnt == 1)
-			{	A_PlaySound("Doom4/Weapon/Chaingun/Fire",5,0.8);	}
+			{	PlaySound("Doom4/Weapon/Chaingun/Fire",5,0.8);	}
 			else if (cnt == (4 - IsDoubleSpeed()))
-			{	A_PlaySound("Doom4/Weapon/Chaingun/Fire",6,0.8);	}
+			{	PlaySound("Doom4/Weapon/Chaingun/Fire",6,0.8);	}
 			else if (cnt == (7 - IsDoubleSpeed() * 2))
-			{	A_PlaySound("Doom4/Weapon/Chaingun/Fire",7,0.8);	}
+			{	PlaySound("Doom4/Weapon/Chaingun/Fire",7,0.8);	}
 			
 			if (cnt >= (IsDoubleSpeed() ? 6 : 10))
 			{	A_TakeInventory("ChaingunFireTracker",1000);	}
@@ -594,7 +594,7 @@ Class D4Chaingun : Doom4Weapon
 					{	return ResolveState("MobileTurretReady");	}
 					A_GiveInventory("AltFireToken",1);					
 					A_SetSpeed(0.75);
-					A_PlaySound("Doom4/Weapon/Chaingun/ReadyTurret",5,1);
+					PlaySound("Doom4/Weapon/Chaingun/ReadyTurret",5,1);
 					return ResolveState(null);
 				}
 				//CGNS "###" 1 A_WeaponOffset(4,20,WOF_ADD) //+16 +80
@@ -610,7 +610,7 @@ Class D4Chaingun : Doom4Weapon
 				{
 					A_SetInventory("AltFireToken",0);
 					A_SetSpeed(1);
-					A_PlaySound("Doom4/Weapon/Chaingun/UnreadyTurret",5,1);
+					PlaySound("Doom4/Weapon/Chaingun/UnreadyTurret",5,1);
 				}
 				/*CGTS AAA 1 A_WeaponOffset(4,20,WOF_ADD) //+16 +80
 				CGNS AAAAAAAA 1 A_WeaponOffset(-2,-10,WOF_ADD)*/
@@ -623,7 +623,7 @@ Class D4Chaingun : Doom4Weapon
 	MobileTurretFire:
 		CGTF A 0 
 		{
-			A_PlaySound("Doom4/Weapon/Chaingun/TurretFire",CHAN_WEAPON,1,1);
+			PlaySound("Doom4/Weapon/Chaingun/TurretFire",CHAN_WEAPON,1,1);
 			
 		}
 	MobileTurretFireContinue:
@@ -657,7 +657,7 @@ Class D4Chaingun : Doom4Weapon
 		CGTS A 1 
 		{
 			A_QuakeEx(0,1,1,5,0,48,"",QF_Relative|QF_ScaleDown,0,0,0,0,0,1);
-			A_PlaySound("Doom4/Weapon/Chaingun/TurretEnd",CHAN_WEAPON);
+			PlaySound("Doom4/Weapon/Chaingun/TurretEnd",CHAN_WEAPON);
 			A_StopSound(6);
 			A_WeaponOffset(0, 33);
 		}
@@ -719,7 +719,7 @@ Class D4Chaingun : Doom4Weapon
 				A_TakeInventory("SpinLoopFrame",32767);
 				A_TakeInventory("SpinUpCount",32767);
 				A_TakeInventory("FrameTimeLeft",32767);
-				A_PlaySound("Doom4/Weapon/Chaingun/SwitchToTurret",5,1);
+				PlaySound("Doom4/Weapon/Chaingun/SwitchToTurret",5,1);
 				A_GiveInventory("MobileTurretActive",1);
 			}
 			//pull of and arm MobileTurret mod
@@ -736,7 +736,7 @@ Class D4Chaingun : Doom4Weapon
 				A_TakeInventory("SpinLoopFrame",32767);
 				A_TakeInventory("SpinUpCount",32767);
 				A_TakeInventory("FrameTimeLeft",32767);
-				A_PlaySound("Doom4/Weapon/Chaingun/UnreadyTurret",5,1);
+				PlaySound("Doom4/Weapon/Chaingun/UnreadyTurret",5,1);
 				A_TakeInventory("MobileTurretActive",1);
 				A_WeaponOffset(4,20,WOF_ADD);
 			}
@@ -754,7 +754,7 @@ Class D4Chaingun : Doom4Weapon
 				A_TakeInventory("SpinLoopFrame",32767);
 				A_TakeInventory("SpinUpCount",32767);
 				A_TakeInventory("FrameTimeLeft",32767);
-				A_PlaySound("Doom4/Weapon/Chaingun/SwitchToRotator",5,1);
+				PlaySound("Doom4/Weapon/Chaingun/SwitchToRotator",5,1);
 				A_GiveInventory("GatlingRotatorActive",1);
 			}
 			//pull up
@@ -771,7 +771,7 @@ Class D4Chaingun : Doom4Weapon
 				A_TakeInventory("SpinLoopFrame",32767);
 				A_TakeInventory("SpinUpCount",32767);
 				A_TakeInventory("FrameTimeLeft",32767);
-				A_PlaySound("Doom4/Weapon/Chaingun/SwitchToTurret",5,1);
+				PlaySound("Doom4/Weapon/Chaingun/SwitchToTurret",5,1);
 				A_TakeInventory("GatlingRotatorActive",1);
 				A_GiveInventory("MobileTurretActive",1);
 			}
@@ -788,7 +788,7 @@ Class D4Chaingun : Doom4Weapon
 				A_TakeInventory("SpinLoopFrame",32767);
 				A_TakeInventory("SpinUpCount",32767);
 				A_TakeInventory("FrameTimeLeft",32767);
-				A_PlaySound("Doom4/Weapon/Chaingun/SwitchToRotator",5,1);
+				PlaySound("Doom4/Weapon/Chaingun/SwitchToRotator",5,1);
 				A_TakeInventory("MobileTurretActive",1);
 				A_GiveInventory("GatlingRotatorActive",1);
 			}
@@ -811,7 +811,7 @@ Class D4BulletPuffTurret : D4BulletPuffGibDistance
 
 //----------------------------------------------------
 // Smoke
-Class CGSmokeSpawner : Actor 
+Class CGSmokeSpawner : D4DFX 
 {
 	Default 
 	{
@@ -830,7 +830,7 @@ Class CGSmokeSpawner : Actor
     }
 }
 
-Class CGSmoke : Actor 
+Class CGSmoke : D4DFX 
 {
 	Default 
 	{
@@ -859,7 +859,7 @@ Class CGSmoke : Actor
 
 //----------------------------------------------------
 
-Class GatlingRotatorExplosivePuff : Actor 
+Class GatlingRotatorExplosivePuff : D4DFX 
 {
 	Default 
 	{
@@ -901,7 +901,7 @@ Class GatlingRotatorExplosivePuff : Actor
 }
 
 
-Class NoPuff : Actor 
+Class NoPuff : D4DFX 
 {
 	Default 
 	{
@@ -939,7 +939,7 @@ Class FlashFrame :				Inventory	{ Default { Inventory.InterhubAmount 0; }}
 //	Casing
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-Class ChaingunCasingSpawner : Actor 
+Class ChaingunCasingSpawner : D4DFX 
 {
 	const Flags = WARPF_NOCHECKPOSITION|WARPF_COPYPITCH;
 	const Distance = 22;
@@ -975,10 +975,10 @@ Class ChaingunCasingSpawner : Actor
 			{	pos = (sin(pitch) * 6);	}
 			
 			
-			A_Warp(MasterPtr,
+			A_Warp(AAPTR_MASTER,
 				(cos(-pitch)*(Distance)) - pos,
 				YOff,
-				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
+				(ZOff*GetCrouchFactor(AAPTR_MASTER))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
 			
 			if (GetCvar("D4D_Casings"))
 			{
@@ -995,7 +995,7 @@ Class ChaingunCasingSpawner : Actor
 	}
 }
 
-Class TurretCasingSpawner : Actor 
+Class TurretCasingSpawner : D4DFX 
 {
 	const Flags = WARPF_NOCHECKPOSITION|WARPF_COPYPITCH;
 	const Distance = 22;
@@ -1028,10 +1028,10 @@ Class TurretCasingSpawner : Actor
 			{	pos = (sin(pitch) * 6);	}
 			
 			
-			A_Warp(MasterPtr,
+			A_Warp(AAPTR_MASTER,
 				(cos(-pitch)*(Distance)) - pos,
 				YOff,
-				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
+				(ZOff*GetCrouchFactor(AAPTR_MASTER))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
 			
 			if (GetCvar("D4D_Casings"))
 			{

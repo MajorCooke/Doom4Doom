@@ -154,7 +154,7 @@ Class D4VortexRifle : Doom4Weapon
 	FireNormal:
 		VTXG B 2 Bright
 		{
-			A_PlaySound("Doom4/Weapon/Vortex/Fire",CHAN_WEAPON);
+			PlaySound("Doom4/Weapon/Vortex/Fire",CHAN_WEAPON);
 			
 			//normal, min 100, max 300, avg 200
 			//upgraded, min 200, max 400, avg 300
@@ -187,7 +187,7 @@ Class D4VortexRifle : Doom4Weapon
 		R016 N 2 Bright
 		{
 			A_StopSound(5);
-			A_PlaySound("Doom4/Weapon/Vortex/Fire",CHAN_WEAPON);
+			PlaySound("Doom4/Weapon/Vortex/Fire",CHAN_WEAPON);
 			//when normal, 
 			// min charge -> min 100+(1charges*2)=102, max 300+(1charges*2)=302, avg 202
 			// max charge -> min 100+(52charges*2)=204, max 300+(52charges*2)=404, avg 304
@@ -264,7 +264,7 @@ Class D4VortexRifle : Doom4Weapon
 				A_SetInventory("VortexZoomed",0);
 				A_ZoomFactor(1.00);
 				A_SetSpeed(1.0);
-				A_PlaySound("Doom4/Weapon/Shotgun/CancelAim",6);
+				PlaySound("Doom4/Weapon/Shotgun/CancelAim",6);
 			}
 			VTXG AAAAAAAAAAAAAAAAAAAAAAAAAAA 1;	//27 tics
 			VTXG A 0 A_SetInventory("VortexReloadPositionTracker",0);
@@ -293,11 +293,11 @@ Class D4VortexRifle : Doom4Weapon
 				//checks for ammo, to play or not the charging sound
 				invoker.AmmoUse1 = CountInv("VortexUpgradeAmmo") ? VortexRifle_AmmoCostUZ : VortexRifle_AmmoCostNZ;
 				if (A_JumpIfNoAmmo("Null"))
-					A_PlaySound("Doom4/Weapons/Machinegun/ZoomIn",5);
+					PlaySound("Doom4/Weapons/Machinegun/ZoomIn",5);
 				else
 				{
 					A_GiveInventory("VortexEnoughAmmo");
-					A_PlaySound("Doom4/Weapon/Vortex/ZoomIn",5,1,1);
+					PlaySound("Doom4/Weapon/Vortex/ZoomIn",5,1,1);
 				}
 			}
 			Goto AltFireHolding;
@@ -334,15 +334,15 @@ Class D4VortexRifle : Doom4Weapon
 						A_SetInventory("VortexCharges",0);
 						A_ZoomFactor(1.0);
 						A_SetSpeed(1.0);
-						A_PlaySound("Doom4/Weapon/Shotgun/CancelAim",6);
+						PlaySound("Doom4/Weapon/Shotgun/CancelAim",6);
 					}
 					Goto Ready;
 	}
 }
 
-Class VortexTrailSoftware : Actor 
+Class VortexTrailSoftware : D4DFX 
 {	// [DBT] you cant say i dont love you guys, i even recolored to doom pallete!
-	// [MC] Yeah well I don't.
+	// [MC] Yeah, well, I don't. Software is ded. Long live hardware renderer!
 	Default 
 	{
 		+NOINTERACTION

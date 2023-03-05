@@ -97,7 +97,7 @@ Class D4Repeater : Doom4Weapon
 			Sound snd = ((A_CheckInfiniteAmmo() || CountInv("D4Bullets") >= i.AmmoUse1) && 
 						(!CheckWeaponMode()))
 						? "Doom4/Weapon/Repeater/FireTriple" : "Doom4/Weapon/Repeater/FireSingle";
-			A_PlaySound(snd,CHAN_WEAPON);
+			PlaySound(snd,CHAN_WEAPON);
 			return ResolveState("FireLoop");
 		}
 	FireLoop:
@@ -184,7 +184,7 @@ Class D4Repeater : Doom4Weapon
 				return ResolveState("AltFireShoot");
 			}
 			
-			A_PlaySound("Doom4/Weapon/Shotgun/GrenadeAim",6);
+			PlaySound("Doom4/Weapon/Shotgun/GrenadeAim",6);
 			A_GiveInventory("RepeaterAimHolding");
 			A_ZoomFactor(1.1,ZOOM_NOSCALETURNING);
 			return ResolveState(null);
@@ -212,15 +212,15 @@ Class D4Repeater : Doom4Weapon
 		{
 			A_TakeInventory("RepeaterAimHolding");
 			A_ZoomFactor(1.00);
-			A_PlaySound("Doom4/Weapon/Shotgun/CancelAim",6);
+			PlaySound("Doom4/Weapon/Shotgun/CancelAim",6);
 		}
 		Goto Ready;
 	
 	AltFireShoot:
 		M021 B 2 Bright
 		{
-			A_PlaySound("Doom4/Weapon/Repeater/FireSingle",CHAN_WEAPON);
-			A_PlaySound("Doom4/Weapon/HellShot/AltFire",5);
+			PlaySound("Doom4/Weapon/Repeater/FireSingle",CHAN_WEAPON);
+			PlaySound("Doom4/Weapon/HellShot/AltFire",5);
 			//Ammo upgrade?
 			A_TakeInventory(invoker.AmmoType1, (CountInv("RepeaterUpgradeAltAmmo") ? 5 : 8), TIF_NOTAKEINFINITE);
 			
@@ -390,7 +390,7 @@ Class IncendiaryBullet : FastProjectile
 	}
 }
 
-Class FlareParticleSpawner : Actor 
+Class FlareParticleSpawner : D4DFX 
 {
 	Default 
 	{

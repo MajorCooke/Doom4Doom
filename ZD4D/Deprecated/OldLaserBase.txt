@@ -78,7 +78,7 @@ Class MovingTrailBeam : Actor
 		"####" "#" 0
 		{
 			if (!pflags)	{ pflags = WARPF_INTERPOLATE|WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEOFFSET;	}
-			A_Warp(DefPtr,0,0,zoffset,0,WARPF_NOCHECKPOSITION);
+			A_Warp(AAPTR_DEFAULT,0,0,zoffset,0,WARPF_NOCHECKPOSITION);
 			// If it's a secondary trail (vertical)
 			/*
 			if (tid > 0)	
@@ -95,22 +95,22 @@ Class MovingTrailBeam : Actor
 			UScale = Scale.X;
 			UAngle = angle;
 			UPitch = pitch;
-			dist = GetDistance(false, TargetPtr);
+			dist = GetDistance(false, AAPTR_TARGET);
 			pa = pos;
 			
 			// Move to the shooter so we can get just how far out we are.
-			A_Warp(TargetPtr,0,0,0,0,WARPF_NOCHECKPOSITION);
+			A_Warp(AAPTR_TARGET,0,0,0,0,WARPF_NOCHECKPOSITION);
 			pb = pa - pos;
 			
 			// Now move back without interpolating. Otherwise it'll look weird.
-			A_Warp(TargetPtr, pb.x, pb.y, pb.z, 0, WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEOFFSET);
+			A_Warp(AAPTR_TARGET, pb.x, pb.y, pb.z, 0, WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEOFFSET);
 			angle = UAngle;
 			pitch = UPitch;
 		}
 		"####" "#" 1 
 		{
 			A_FadeIn(1.0,FTF_CLAMP);
-			A_Warp(TargetPtr, pb.x + vel.x, pb.y + vel.y, pb.z + vel.z, 0, pflags);
+			A_Warp(AAPTR_TARGET, pb.x + vel.x, pb.y + vel.y, pb.z + vel.z, 0, pflags);
 			angle = UAngle;
 			pitch = UPitch;
 		}
@@ -127,7 +127,7 @@ Class MovingTrailBeam : Actor
 				A_SetScale(Scale.X - (UScale / Max(1.0, time)), Scale.Y);
 				if (Scale.X <= 0)	{ return ResolveState("Null"); }
 			}
-			A_Warp(TargetPtr, pb.x + vel.x, pb.y + vel.y, pb.z + vel.z ,0, pflags);
+			A_Warp(AAPTR_TARGET, pb.x + vel.x, pb.y + vel.y, pb.z + vel.z ,0, pflags);
 			angle = UAngle;
 			pitch = UPitch;
 			return ResolveState(null);
@@ -171,7 +171,7 @@ Class TrailBeam : Actor
 	Process:
 		"####" "#" 1
 		{
-			//A_Warp(DefPtr,0,0,ZOffset,0,WARPF_NOCHECKPOSITION);
+			//A_Warp(AAPTR_DEFAULT,0,0,ZOffset,0,WARPF_NOCHECKPOSITION);
 			UScale = Scale.X;
 			neg = ((UScale < 0) ? 1 : 0);
 			// If it's a secondary trail (vertical)
@@ -363,7 +363,7 @@ Class TrailBeamStaticScalingSpawner : Actor
 			//Include this if one wishes to spawn a laser which co-works with this one.
 			A_SpawnItemEx("TrailBeamJitterSpawner",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPOINTERS);
 
-			A_RearrangePointers(DefPtr,TargetPtr,DefPtr,4);
+			A_RearrangePointers(AAPTR_DEFAULT,AAPTR_TARGET,AAPTR_DEFAULT,4);
 			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 			// Grab the velocity IMMEDIATELY.
 			if (target) { vel = target.vel; }
@@ -387,7 +387,7 @@ Class TrailBeamStaticScalingSpawner : Actor
 				if (DoCheckSight)		{	checksight = (!(A_CheckSight("Null")) ? 1 : 0);	}
 				else						{	checksight = 1;	}
 				
-				if (DoCheckFOV)		{	checkfovb = ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,Player1)) <= checkfova) ? 1 : 0);	}
+				if (DoCheckFOV)		{	checkfovb = ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,AAPTR_PLAYER1)) <= checkfova) ? 1 : 0);	}
 				else						{	checkfovb = 1;		}
 				
 				// Spawn the beam with the same angle and pitch. Note that the
@@ -396,7 +396,7 @@ Class TrailBeamStaticScalingSpawner : Actor
 				// Then move forward by a beam's length and repeat until done.
 				if (checkrangeb && checksight && checkfovb)
 				{	A_SpawnItemEx("TrailBeamStaticScaling",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,SpawnFlags);	}
-				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
+				A_Warp(AAPTR_DEFAULT,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
 				dista += StepDistance;
 			}
 		}
@@ -474,7 +474,7 @@ Class TrailBeamJitterSpawner : Actor
 	Setup:
 		TNT1 A 0
 		{
-			A_RearrangePointers(DefPtr,TargetPtr,DefPtr,4);
+			A_RearrangePointers(AAPTR_DEFAULT,AAPTR_TARGET,AAPTR_DEFAULT,4);
 			// Grab the velocity IMMEDIATELY.
 			if (target) { vel = target.vel; }
 			
@@ -554,7 +554,7 @@ Class TrailBeamJitterSpawner : Actor
 				if (DoCheckSight)		{	checksight = (!(A_CheckSight("Null")) ? 1 : 0);	}
 				else						{	checksight = 1;	}
 				
-				if (DoCheckFOV)		{	checkfovb = ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,Player1)) <= checkfova) ? 1.0 : 0.0);	}
+				if (DoCheckFOV)		{	checkfovb = ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,AAPTR_PLAYER1)) <= checkfova) ? 1.0 : 0.0);	}
 				else						{	checkfovb = 1;		}
 				
 				// Spawn the beam with the same angle and pitch. Note that the
@@ -564,7 +564,7 @@ Class TrailBeamJitterSpawner : Actor
 				if (checkrangeb && checksight && checkfovb)
 				{	A_SpawnItemEx("LaserBeamJitter",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,SpawnFlags);	}
 				
-				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
+				A_Warp(AAPTR_DEFAULT,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
 				dista += StepDistance;
 			}
 			
@@ -574,7 +574,7 @@ Class TrailBeamJitterSpawner : Actor
 			{	return ResolveState("Null");	}
 			
 			dista = 0.0;
-			A_Warp(DefPtr,P.x,P.y,P.z,UAngle,WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEPOSITION|WARPF_ABSOLUTEANGLE);
+			A_Warp(AAPTR_DEFAULT,P.x,P.y,P.z,UAngle,WARPF_NOCHECKPOSITION|WARPF_ABSOLUTEPOSITION|WARPF_ABSOLUTEANGLE);
 			pitch = UPitch;
 			return ResolveState(null);
 		}
@@ -741,7 +741,7 @@ Class LightningBeamV2 : Actor
 				// and spawn it FORWARD based on half the beam's length.
 				// Then move forward by a beam's length and repeat until done.
 				A_SpawnItemEx("LightningTrailBeamV2",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,flags);
-				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
+				A_Warp(AAPTR_DEFAULT,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
 				dista += StepDistance;
 			}
 		}
@@ -788,11 +788,11 @@ Class LightningBeamV3 : Actor
 				
 				if (A_CheckProximity("Null","LightningPuffV3",256,1,CPXF_SETTARGET))
 				{
-					A_TransferPointer(TargetPtr,DefPtr,TargetPtr,MasterPtr);
+					A_TransferPointer(AAPTR_TARGET,AAPTR_DEFAULT,AAPTR_TARGET,AAPTR_MASTER);
 					
-					A_Warp(TargetPtr,0,0,0,0,WARPF_NOCHECKPOSITION);
+					A_Warp(AAPTR_TARGET,0,0,0,0,WARPF_NOCHECKPOSITION);
 					A_FaceTracer(0,0,0,0,FAF_MIDDLE);
-					A_DamageTracer(countinv("LGUpgradeDamage") ? random(LGChainDmgMinUpgrade,LGChainDmgMaxUpgrade) : random(LGChainDmgMin,LGChainDmgMax),"None",0,null,"None",MasterPtr);
+					A_DamageTracer(countinv("LGUpgradeDamage") ? random(LGChainDmgMinUpgrade,LGChainDmgMaxUpgrade) : random(LGChainDmgMin,LGChainDmgMax),"None",0,null,"None",AAPTR_MASTER);
 				}
 				else
 				{
@@ -863,7 +863,7 @@ Class LightningBeamV3 : Actor
 				else
 				{	A_SpawnItemEx("LightningTrailBeamV3",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,flags);	}
 				
-				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
+				A_Warp(AAPTR_DEFAULT,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
 				dista += StepDistance;
 			}
 		}
@@ -961,7 +961,7 @@ Class BigRedLaserDrillSMM : TrailBeamStaticScalingSpawner
 			checkrangea = 4096;
 			checkfova = 90.0;
 			
-			A_RearrangePointers(DefPtr,TargetPtr,DefPtr,4);
+			A_RearrangePointers(AAPTR_DEFAULT,AAPTR_TARGET,AAPTR_DEFAULT,4);
 			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 			
 			if (GetDistance(true,TracerPtr) <= 2048)
@@ -986,7 +986,7 @@ Class BigRedLaserDrillSMM : TrailBeamStaticScalingSpawner
 				if (DoCheckSight)		{	checksight = (!(A_CheckSight("Null")) ? 1 : 0);	}
 				else						{	checksight = 1;	}
 				
-				if (DoCheckFOV)		{	checkfovb = ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,Player1)) <= checkfova) ? 1 : 0);	}
+				if (DoCheckFOV)		{	checkfovb = ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,AAPTR_PLAYER1)) <= checkfova) ? 1 : 0);	}
 				else						{	checkfovb = 1;		}
 				
 				// Spawn the beam with the same angle and pitch. Note that the
@@ -995,7 +995,7 @@ Class BigRedLaserDrillSMM : TrailBeamStaticScalingSpawner
 				// Then move forward by a beam's length and repeat until done.
 				if (checkrangeb && checksight && checkfovb)
 				{	A_SpawnItemEx("BigRedLaserBeamSMM",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,SpawnFlags);	}
-				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
+				A_Warp(AAPTR_DEFAULT,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
 				dista += StepDistance;
 			}
 		}
@@ -1138,7 +1138,7 @@ Class BFGBeamGZ : Actor
 				UPitch = pitch;
 				UAngle = angle;
 				dista = 0;
-				distb = Min(MaxDistance,GetDistance(true,TargetPtr));
+				distb = Min(MaxDistance,GetDistance(true,AAPTR_TARGET));
 				choke = random(ChokeMin,ChokeMax);
 				
 				Scale.X = 0.075;
@@ -1181,7 +1181,7 @@ Class BFGBeamGZ : Actor
 				if (!A_CheckSight("Null") && (dista < distb - (StepDistance / 2.0)))
 				{	A_SpawnItemEx("BFGBeamLaser",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,flags);	}
 				
-				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
+				A_Warp(AAPTR_DEFAULT,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
 				dista += StepDistance;
 			}
 			if (count < MaxLife)	
@@ -1314,7 +1314,7 @@ Class BigRedLaserDrill : TrailBeamStaticScalingSpawner
 			checkrangea = 2048;
 			checkfova = 90.0;
 			
-			A_RearrangePointers(DefPtr,TargetPtr,DefPtr,4);
+			A_RearrangePointers(AAPTR_DEFAULT,AAPTR_TARGET,AAPTR_DEFAULT,4);
 			A_FaceTracer(0,0,0,0,FAF_MIDDLE);
 			
 			if (HQ)
@@ -1338,7 +1338,7 @@ Class BigRedLaserDrill : TrailBeamStaticScalingSpawner
 				if (DoCheckSight)		{	checksight = (!(A_CheckSight("Null")) ? 1 : 0);	}
 				else						{	checksight = 1;	}
 				
-				if (DoCheckFOV)		{	checkfovb = ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,Player1)) <= checkfova) ? 1 : 0);	}
+				if (DoCheckFOV)		{	checkfovb = ((abs(GetAngle(GAF_RELATIVE|GAF_SWITCH,AAPTR_PLAYER1)) <= checkfova) ? 1 : 0);	}
 				else						{	checkfovb = 1;		}
 				
 				// Spawn the beam with the same angle and pitch. Note that the
@@ -1347,7 +1347,7 @@ Class BigRedLaserDrill : TrailBeamStaticScalingSpawner
 				// Then move forward by a beam's length and repeat until done.
 				if (checkrangeb && checksight && checkfovb)
 				{	A_SpawnItemEx("BigRedLaserBeamCgunner",cos(pitch) * (StepDistance / 2.0),0,-sin(pitch) * (StepDistance / 2.0),0,0,0,0,SpawnFlags);	}
-				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
+				A_Warp(AAPTR_DEFAULT,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
 				dista += StepDistance;
 			}
 		}
@@ -1485,7 +1485,7 @@ Class CarrionMergeBeam : Actor
 					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-StepDistHalf			, 0, -sin(pitch) *-(StepDistHalf			 ));
 				}
 				
-				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
+				A_Warp(AAPTR_DEFAULT,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
 				dista += StepDistance;
 			}
 			
@@ -1567,7 +1567,7 @@ Class CarrionShotTrackingLaser : Actor
 			
 			
 			
-			A_Warp(MasterPtr,0,7.5,0,0,WARPF_NOCHECKPOSITION|WARPF_STOP,"Null",0.6 + sin(pitch) * 0.2, -0.6 + cos(pitch) * 0.4);
+			A_Warp(AAPTR_MASTER,0,7.5,0,0,WARPF_NOCHECKPOSITION|WARPF_STOP,"Null",0.6 + sin(pitch) * 0.2, -0.6 + cos(pitch) * 0.4);
 			count = 0;
 			angdiff = abs(GetAngle(GAF_RELATIVE,TracerPtr));
 			
@@ -1613,7 +1613,7 @@ Class CarrionShotTrackingLaser : Actor
 					A_SpawnParticle("FF2846",SPF_FULLBRIGHT|SPF_RELATIVE,2,10,0,cos(pitch) *-StepDistHalf			, 0, -sin(pitch) *-(StepDistHalf			 ));
 				}
 				
-				A_Warp(DefPtr,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
+				A_Warp(AAPTR_DEFAULT,cos(pitch) * StepDistance,0,-sin(pitch) * StepDistance,0,WARPF_NOCHECKPOSITION);
 				dista += StepDistance;
 				count = (count + 1) % 8;
 			}
@@ -1849,7 +1849,7 @@ Class BulletTracerFX : Actor
 			else if (dista >= TravelTic)
 			{
 				count++;
-				A_Warp(DefPtr,cos(pitch)*TravelTic,0,-sin(pitch)*TravelTic,0,WARPF_NOCHECKPOSITION);
+				A_Warp(AAPTR_DEFAULT,cos(pitch)*TravelTic,0,-sin(pitch)*TravelTic,0,WARPF_NOCHECKPOSITION);
 				return ResolveState("Break");
 			}
 			return ResolveState("Looping");
@@ -1904,7 +1904,7 @@ Class BFGBeam : Actor
 				Vector3 tpos = tracer.pos;	tpos.z += tracer.height / 2.0;
 				SetOrigin(tpos, false);
 				A_FaceTarget(0,0,0,0,FAF_MIDDLE);
-				dist = GetDistance(true, TargetPtr);
+				dist = GetDistance(true, AAPTR_TARGET);
 				return ResolveState("Beam");
 			}
 			return ResolveState("Null");

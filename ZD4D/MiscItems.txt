@@ -48,7 +48,6 @@ Class SuperArmorToken  : Inventory { Default { Inventory.MaxAmount 100; }}
 Class SuperAmmoToken   : Inventory { Default { Inventory.MaxAmount 100; }}
 Class      AmmoToken   : Inventory { Default { Inventory.MaxAmount 100; }}
  
-Class Nothing : Actor { Default { +NOINTERACTION } States { Spawn: TNT1 A 1; Stop; } }
 Class KonamiToken : Inventory { Default { Inventory.MaxAmount 10; }}
 
 Class DeathByMassacre : Inventory {}
@@ -69,7 +68,7 @@ Class CashPercentBonusTemp : Inventory
 	}
 }
 
-Class stfu : Actor
+Class stfu : D4DFX
 {
 	Default
 	{

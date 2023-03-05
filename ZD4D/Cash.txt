@@ -112,7 +112,7 @@ Nazi 				40, not that they are hard, but they are easter eggs after all
 //----------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------
 // Save us some copy/paste floatsam crap.
-Class CashGiverBase : Actor
+Class CashGiverBase : D4Actor
 {
 	int Multiplier; // Set by the dropper, not here.
 	int CashAmt;
@@ -124,8 +124,8 @@ Class CashGiverBase : Actor
 		bool dropUpgrades = GetCvar("D4D_CurrentUpgradeMode");
 		if (dropUpgrades)
 		{
-			int CPB1 = CountInv("CashPercentBonus", Player1);
-			int CPB2 = CountInv("CashPercentBonusTemp", Player1);
+			int CPB1 = CountInv("CashPercentBonus", AAPTR_PLAYER1);
+			int CPB2 = CountInv("CashPercentBonusTemp", AAPTR_PLAYER1);
 			int premix = 1 + amt + CPB1 + CPB2;
 			int chance = random(premix,BaseRNG);
 			
@@ -139,18 +139,18 @@ Class CashGiverBase : Actor
 					count++;
 					premix -= BaseRNG;
 				}
-				A_GiveInventory("D4DCash",		premix + count, Player1);
-				A_GiveInventory("D4DCashFake",	premix + count, Player1);
-				A_GiveInventory("CashUpdater",1,Player1);
+				A_GiveInventory("D4DCash",		premix + count, AAPTR_PLAYER1);
+				A_GiveInventory("D4DCashFake",	premix + count, AAPTR_PLAYER1);
+				A_GiveInventory("CashUpdater",1,AAPTR_PLAYER1);
 			}
 		}
 		else
 		{
 			if (Multiplier < 1)	Multiplier = 1;
-			if (CountInv("CashPercentBonus", Player1) > 0 || CountInv("CashPercentBonusTemp", Player1) > 0)
+			if (CountInv("CashPercentBonus", AAPTR_PLAYER1) > 0 || CountInv("CashPercentBonusTemp", AAPTR_PLAYER1) > 0)
 			{
-				int CPB1 = CountInv("CashPercentBonus", Player1);
-				int CPB2 = CountInv("CashPercentBonusTemp", Player1);
+				int CPB1 = CountInv("CashPercentBonus", AAPTR_PLAYER1);
+				int CPB2 = CountInv("CashPercentBonusTemp", AAPTR_PLAYER1);
 				
 				CashAmtPercent = amt * (CPB1 + CPB2);
 				CashAmt = amt + (CashAmtPercent / 100);
@@ -161,9 +161,9 @@ Class CashGiverBase : Actor
 			}
 			CashAmt *= Multiplier;
 			if (CashAmt < 1)	return;
-			A_GiveInventory("D4DCash",		CashAmt, Player1);
-			A_GiveInventory("D4DCashFake",	CashAmt, Player1);
-			A_GiveInventory("CashUpdater",1,Player1);
+			A_GiveInventory("D4DCash",		CashAmt, AAPTR_PLAYER1);
+			A_GiveInventory("D4DCashFake",	CashAmt, AAPTR_PLAYER1);
+			A_GiveInventory("CashUpdater",1,AAPTR_PLAYER1);
 		}
 	}
 	

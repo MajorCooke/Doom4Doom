@@ -109,11 +109,11 @@ Class D4SpiderMastermind : D4AbstractBoss //replaces SpiderMastermind
 		SPID AB 10 A_Look();
 		Goto Idle+1;
 	See:
-		SPID A 3 { D4Chase(); A_PlaySound("Player/Demon/MastermindStep"); }
+		SPID A 3 { D4Chase(); PlaySound("Player/Demon/MastermindStep"); }
 		SPID ABB 3 D4Chase();
-		SPID C 3 { D4Chase(); A_PlaySound("Player/Demon/MastermindStep"); }
+		SPID C 3 { D4Chase(); PlaySound("Player/Demon/MastermindStep"); }
 		SPID CDD 3 D4Chase();
-		SPID E 3 { D4Chase(); A_PlaySound("Player/Demon/MastermindStep"); }
+		SPID E 3 { D4Chase(); PlaySound("Player/Demon/MastermindStep"); }
 		SPID EFF 3 D4Chase();
 		Loop;
 		
@@ -168,22 +168,22 @@ Class D4SpiderMastermind : D4AbstractBoss //replaces SpiderMastermind
 		{
 			A_FaceTarget(0,0,0,0,FAF_MIDDLE);
 			A_SpawnItemEx("LaserChargeIndicator",0,0,0,0,0,0,0,SXF_SETMASTER|SXF_NOCHECKPOSITION);
-			A_PlaySound("Doom4/SpiderMastermind/LaserCharge",5,1,0,(target is "PlayerPawn" ? ATTN_NONE : ATTN_NORM));
+			PlaySound("Doom4/SpiderMastermind/LaserCharge",5,1,0,(target is "PlayerPawn" ? ATTN_NONE : ATTN_NORM));
 			A_StartBeam("SMMBeamWarning",(10,0,40),1,"PacifistPuff", dist: 32766);
 		}
 		SPID GGGGGGGGGG 2 
 		{
 			A_FaceTarget(0,0,0,0,FAF_MIDDLE);
-		//	A_CustomBulletAttack(0,0,1,0,"PacifistPuff",32767,CBAFlags,TargetPtr,"WhiteLaser",40,0);
+		//	A_CustomBulletAttack(0,0,1,0,"PacifistPuff",32767,CBAFlags,AAPTR_TARGET,"WhiteLaser",40,0);
 			A_UpdateBeamTracer("PacifistPuff", dist: 32766);
 		}
 		SPID G 3 //gives you a tiny bit of chance to run away
 		{
 			A_FaceTarget(0,0,0,0,FAF_MIDDLE);
 			int attn = (target is "PlayerPawn" ? ATTN_NONE : ATTN_NORM);
-			A_PlaySound("Doom4/Monsters/MastermindLaserFire",5,1,0,attn);
-			A_PlaySound("Doom4/SpiderMastermind/LaserLoop",6,1,1,attn);
-			A_PlaySound("Doom4/SpiderMastermind/LaunchPlasma",7,1,0,attn);
+			PlaySound("Doom4/Monsters/MastermindLaserFire",5,1,0,attn);
+			PlaySound("Doom4/SpiderMastermind/LaserLoop",6,1,1,attn);
+			PlaySound("Doom4/SpiderMastermind/LaunchPlasma",7,1,0,attn);
 			UPitch = pitch;
 			count = 0;
 			A_UpdateBeamTracer("PacifistPuff", dist: 32766);
@@ -192,7 +192,7 @@ Class D4SpiderMastermind : D4AbstractBoss //replaces SpiderMastermind
 		{
 			A_StopBeam();
 			if (!count)
-				A_CustomBulletAttack(0,0,1,0,"PacifistPuffSMM",SMMLaserRange,CBAFlags,TargetPtr,"BigRedLaserDrillSMMSpawner",40,0);
+				A_CustomBulletAttack(0,0,1,0,"PacifistPuffSMM",SMMLaserRange,CBAFlags,AAPTR_TARGET,"BigRedLaserDrillSMMSpawner",40,0);
 			
 			int dmg = ((count <= 28) ? 5 : 15) * random(1,8); 
 			A_CustomRailgun(dmg,0,"","",SRailFlags,0,0,"NonPacifistPuffExtreme",0,0,32766,4,1.0,3.0,null,8);
@@ -215,15 +215,15 @@ Class D4SpiderMastermind : D4AbstractBoss //replaces SpiderMastermind
 	//---------------------------------------------------
 	// Electro beams attack
 	EletricBeams:
-		SPID A 0 A_PlaySound("Doom4/SpiderMasterMind/LaserCharge",5,1,0,(target is "PlayerPawn" ? ATTN_NONE : ATTN_NORM));
+		SPID A 0 PlaySound("Doom4/SpiderMasterMind/LaserCharge",5,1,0,(target is "PlayerPawn" ? ATTN_NONE : ATTN_NORM));
 		SPID AAAA 5 A_FaceTarget(0,0,0,0,FAF_MIDDLE);	//aims at target
 		SPID A 0	//attack setup
 		{
 			direction = randompick(-1,1); //if 1, means will turn left, -1 means right
 			UAngle = 0;
 			UPitch = pitch;
-			A_PlaySound("Doom4/SpiderMastermind/LaserLoop",6,1,1,(target is "PlayerPawn" ? ATTN_NONE : ATTN_NORM));
-			A_PlaySound("Doom4/Monsters/MastermindBeamFire",7,1);
+			PlaySound("Doom4/SpiderMastermind/LaserLoop",6,1,1,(target is "PlayerPawn" ? ATTN_NONE : ATTN_NORM));
+			PlaySound("Doom4/Monsters/MastermindBeamFire",7,1);
 		}
 		
 		SPID AAAAAAAAAAAAA 2
@@ -274,7 +274,7 @@ Class D4SpiderMastermind : D4AbstractBoss //replaces SpiderMastermind
 			A_StopSound(6);	A_Scream(); 
 		}
 		SPID K 10 
-		{	A_NoBlocking();	A_PlaySound("Doom4/SpiderMastermind/GunExplode",7);	}
+		{	A_NoBlocking();	PlaySound("Doom4/SpiderMastermind/GunExplode",7);	}
 		SPID L 10;
 		SPID M 10
 		{
@@ -287,7 +287,7 @@ Class D4SpiderMastermind : D4AbstractBoss //replaces SpiderMastermind
 		---- A -1 CanRaise 
 		{
 			bCorpse = true;
-			A_BossDeath();
+			BossDeath();
 		}
 		Stop;
 		
@@ -313,7 +313,7 @@ Class D4SpiderMastermind : D4AbstractBoss //replaces SpiderMastermind
 			A_Scream(); 
 		}
 		SPID K 10 
-		{	A_NoBlocking();	A_PlaySound("Doom4/SpiderMastermind/GunExplode",7);	}
+		{	A_NoBlocking();	PlaySound("Doom4/SpiderMastermind/GunExplode",7);	}
 		SPID L 10 ;
 		SPID M 10 
 		{
@@ -417,7 +417,7 @@ Class D4SpiderMastermind : D4AbstractBoss //replaces SpiderMastermind
 	}
 }
 
-Class BossExploderSFX : Actor 
+Class BossExploderSFX : D4DFX 
 {
 	Default 
 	{
@@ -428,7 +428,7 @@ Class BossExploderSFX : Actor
 	Spawn:
 		TNT1 AAAA 10 NODELAY
 		{
-			A_PlaySound("Doom4/Weapon/RocketLauncher/Q4Explo");
+			PlaySound("Doom4/Weapon/RocketLauncher/Q4Explo");
 			A_SetTics(random(10,20));
 		}
 		Stop;
@@ -445,7 +445,7 @@ Class PacifistPuffSMM : PacifistPuff
 	}
 }
 
-Class SpiderMastermindDeathFX : Actor 
+Class SpiderMastermindDeathFX : D4DFX 
 {
 	const MinX = 20;
 	const MaxX = 45;
@@ -467,7 +467,7 @@ Class SpiderMastermindDeathFX : Actor
 	Spawn:
 		TNT1 A 1 NoDelay
 		{
-			A_Warp(MasterPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_COPYVELOCITY);
+			A_Warp(AAPTR_MASTER,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_COPYVELOCITY);
 			if (UMax <= 0)
 			{	UMax = 50;	}
 			
@@ -497,9 +497,9 @@ Class SpiderMastermindDeathFX : Actor
 			
 			if (c == 20)
 			{
-				A_PlaySound("Doom4/Other/GibExplode1",5);
-				A_PlaySound("Doom4/Other/GibExplode2",6);
-				A_PlaySound("Doom4/Other/GibExplode3",7);
+				PlaySound("Doom4/Other/GibExplode1",5);
+				PlaySound("Doom4/Other/GibExplode2",6);
+				PlaySound("Doom4/Other/GibExplode3",7);
 			}
 			c++;
 			
@@ -569,7 +569,7 @@ Class SMMLaserStrongInvis : SMMLaserWeakInvis
 		Damage 15;
 	}
 }
-Class SMMLaserTrail : Actor 
+Class SMMLaserTrail : D4DFX 
 {
 	Default 
 	{
@@ -600,7 +600,7 @@ Class SMMLaserTrail : Actor
 	}
 }
 
-Class LaserChargeIndicator : Actor 
+Class LaserChargeIndicator : D4DFX 
 {
 	Default 
 	{
@@ -618,7 +618,7 @@ Class LaserChargeIndicator : Actor
 		{
 			A_FadeIn(0.05);
 			A_SetScale(Scale.X-0.1);
-			A_Warp(MasterPtr,30,4,45,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
+			A_Warp(AAPTR_MASTER,30,4,45,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE);
 		}
 		Stop;
 	}
@@ -659,7 +659,7 @@ Class SMMElectroBeam2 : SMMElectroBeam //stronger version, since it's not aimed 
 }
 
 
-Class SMMElectroBeamTrail : Actor 
+Class SMMElectroBeamTrail : D4DFX 
 {
 	Default 
 	{
@@ -733,7 +733,7 @@ Class SMMPlasma : D4AbstractMissile
 	}
 }
 
-Class SSMPlasmaTrail : Actor 
+Class SSMPlasmaTrail : D4DFX 
 {
 	Default 
 	{
@@ -754,7 +754,7 @@ Class SSMPlasmaTrail : Actor
 		Loop;
 	}
 }
-Class SMMPlasmaBallPuff : Actor 
+Class SMMPlasmaBallPuff : D4DFX 
 {
 	const Scalar = 0.035;
 	double scaler;	//this one is to easily tweak the inherited versions
@@ -897,7 +897,7 @@ Class D4OldSpiderMastermind : D4AbstractBoss // : SpiderMastermind
 		SPID S -1 
 		{			
 			bCorpse = true;
-			A_BossDeath();
+			BossDeath();
 		}
 		Stop;
 	//------------------------------------------------------------------------

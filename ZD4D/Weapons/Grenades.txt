@@ -378,15 +378,15 @@ Class D4SyphonGrenade : D4EquipmentProjectile
 			//if (pos.z <= floorz + 1)	SetXYZ(pos + (0, 0, floorz + 1));
 			A_SpawnItemEx("SyphonShockwaveBig",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 			A_SpawnItemEx("SyphonShockwaveBigFlat",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH);
-			A_PlaySound("Doom4/Weapon/Grenade/FragArm",5);
-			A_PlaySound("Doom4/Weapon/Grenade/SyphonExplo",CHAN_WEAPON);
+			PlaySound("Doom4/Weapon/Grenade/FragArm",5);
+			PlaySound("Doom4/Weapon/Grenade/SyphonExplo",CHAN_WEAPON);
 			A_AlertMonsters();
 		}
 		Goto Explode;
 	Explode:
 		TNT1 A 0
 		{
-			A_PlaySound("Doom4/Weapon/Grenade/SyphonSuck",((c % 3) + 5),0.5);
+			PlaySound("Doom4/Weapon/Grenade/SyphonSuck",((c % 3) + 5),0.5);
 			d = A_RadiusGive("PinkShadowSpawner",256,RGF_MONSTERS|RGF_CUBE,1,null,"None",0,5);
 		}
 	ExplodeLoop:
@@ -484,7 +484,7 @@ Class SyphonDestroyer : CustomInventory
 	Pickup:
 		TNT1 A 0
 		{
-			A_Remove(DefPtr,RMVF_EVERYTHING,"D4SyphonGrenade");
+			A_Remove(AAPTR_DEFAULT,RMVF_EVERYTHING,"D4SyphonGrenade");
 		}
 		Stop;
 	}
@@ -698,7 +698,7 @@ Class D4FragGrenade : D4EquipmentProjectile
 
 			if (timer==75 && armed==0) //if 50 tics passed, plays the arm sound
 			{
-				A_PlaySound("Doom4/Weapon/Grenade/FragArm",6);
+				PlaySound("Doom4/Weapon/Grenade/FragArm",6);
 				armed = 1;	//and marks the grenade as "armed"
 			}
 			if (timer>=100)
@@ -717,7 +717,7 @@ Class D4FragGrenade : D4EquipmentProjectile
 	Death:
 		D4GR D 1
 		{
-			A_PlaySound("Doom4/Weapon/Grenade/FragBounce",5);
+			PlaySound("Doom4/Weapon/Grenade/FragBounce",5);
 			timer = 0;
 			if (A_CheckFloor("Null") || bONMOBJ)	//if it hits the floor
 			{
@@ -727,7 +727,7 @@ Class D4FragGrenade : D4EquipmentProjectile
 			//otherwise
 			if (timer == 25 && armed == 0) //if 25 tics passed, plays the arm sound
 			{
-				A_PlaySound("Doom4/Weapon/Grenade/FragArm",6);
+				PlaySound("Doom4/Weapon/Grenade/FragArm",6);
 				armed = 1;	//and marks the grenade as "armed"
 			}
 			if (timer >= 50)
@@ -743,12 +743,12 @@ Class D4FragGrenade : D4EquipmentProjectile
 		{
 			if (!Bounced)
 			{
-				A_PlaySound("Doom4/Weapon/Grenade/FragBounce",5);
+				PlaySound("Doom4/Weapon/Grenade/FragBounce",5);
 				Bounced = true;
 			}
 			if (!armed) //if it hadnt played the sound before
 			{
-				A_PlaySound("Doom4/Weapon/Grenade/FragArm",6);
+				PlaySound("Doom4/Weapon/Grenade/FragArm",6);
 				armed = 1;
 			}
 			if (timer >= 25)
@@ -762,7 +762,7 @@ Class D4FragGrenade : D4EquipmentProjectile
 	Explode:
 		TNT1 A 0 
 		{
-			A_PlaySound("Doom4/Weapon/RocketLauncher/HRExplo",6);
+			PlaySound("Doom4/Weapon/RocketLauncher/HRExplo",6);
 			A_AlertMonsters();
 			A_Explode(32,128);
 			A_Explode(224,192,0,0,96);
@@ -926,7 +926,7 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 	Spawn:
 		PLAZ E 0 NoDelay 
 		{
-			A_PlaySound("Doom4/HoloSpawn",CHAN_AUTO);
+			PlaySound("Doom4/HoloSpawn",CHAN_AUTO);
 			A_SetAngle(random(0,359));
 			countdowntimer = 0;
 		}
@@ -943,7 +943,7 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 		Loop;
 	Missile:
 	TickTock:
-		PLAZ E 0 A_PlaySound("Doom4/Weapon/PlasmaGun/PlasmaLoop",5,1,true);
+		PLAZ E 0 PlaySound("Doom4/Weapon/PlasmaGun/PlasmaLoop",5,1,true);
 	TickTockLoop:
 		PLAZ F 0
 		{
@@ -964,7 +964,7 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 				{	
 					A_ClearTarget();
 					A_StopSound(5);
-					A_PlaySound("Doom4/Weapon/PlasmaGun/Fire",5,1);
+					PlaySound("Doom4/Weapon/PlasmaGun/Fire",5,1);
 					return ResolveState("Idle");	
 				}
 			}
@@ -981,7 +981,7 @@ Class D4PlayerHolograph : D4EquipmentProjectile
 	}
 }
 
-Class NewPlasmaBallNoDamage : Actor 
+Class NewPlasmaBallNoDamage : D4Actor 
 {
 	Default 
 	{
@@ -1070,7 +1070,7 @@ Class D4FlamePoint : D4EquipmentProjectile
 			// First tic, annoy monsters.
 			if (count == 1)
 			{
-				A_PlaySound("CarrionCannon/BurnEnd", CHAN_AUTO);
+				PlaySound("CarrionCannon/BurnEnd", CHAN_AUTO);
 				A_AlertMonsters();
 			}
 			

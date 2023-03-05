@@ -83,7 +83,7 @@ Class D4DoomImp : D4AbstractMonster //replaces DoomImp
 			ROAC G 6 
 			{
 				A_SpawnProjectile("D4DoomImpBallHuge",35,5,0);
-				A_PlaySound("Doom4/Monsters/Imp/Attack");
+				PlaySound("Doom4/Monsters/Imp/Attack");
 			}
 			Goto See;
 			
@@ -120,6 +120,7 @@ Class D4DoomImp : D4AbstractMonster //replaces DoomImp
 	XDeath:
 		TNT1 A 10 CanRaise
 		{
+			bDONTGIB = true;
 			XDeathGush();
 			A_NoBlocking();	//just in case
 		}
@@ -223,7 +224,7 @@ Class D4DoomImp : D4AbstractMonster //replaces DoomImp
 	}
 }
 
-Class ImpFlameletSmallLight : Actor //this one is just to display some lights
+Class ImpFlameletSmallLight : D4DFX //this one is just to display some lights
 {
 	Default 
 	{
@@ -237,7 +238,7 @@ Class ImpFlameletSmallLight : Actor //this one is just to display some lights
 		Stop;
 	}
 }
-Class ImpFlameletBigLight : Actor //this one is just to display some lights
+Class ImpFlameletBigLight : D4DFX //this one is just to display some lights
 {
 	Default 
 	{
@@ -434,7 +435,7 @@ Class D4DoomImpBallHuge : D4AbstractMissile
 	}
 }
 
-Class DoomImpBallFlamelet : Actor 
+Class DoomImpBallFlamelet : D4DFX 
 {
 	Default 
 	{
@@ -452,7 +453,7 @@ Class DoomImpBallFlamelet : Actor
 		Stop;
 	}
 }
-Class DoomImpBallSmokeTrail : Actor 
+Class DoomImpBallSmokeTrail : D4DFX 
 {
 	Default 
 	{
@@ -488,7 +489,7 @@ Class DoomImpBallSmokeTrail : Actor
 		Wait;
 	}
 }
-Class DoomImpBallFlareTrail : Actor 
+Class DoomImpBallFlareTrail : D4DFX 
 {
 	Default 
 	{
@@ -512,7 +513,7 @@ Class DoomImpBallFlareTrail : Actor
 	}
 }
 
-Class DoomImpBallFlarePrepare : Actor 
+Class DoomImpBallFlarePrepare : D4DFX 
 {
 	Default 
 	{
@@ -538,7 +539,7 @@ Class DoomImpBallFlarePrepare : Actor
 
 //*********************************************
 // doomimp ball explo
-Class DoomImpExploParticle : Actor 
+Class DoomImpExploParticle : D4DFX 
 {
 	Default 
 	{
@@ -561,7 +562,7 @@ Class DoomImpExploParticle : Actor
 		Wait;
 	}
 }
-Class DoomImpBallSmokeExplo : Actor 
+Class DoomImpBallSmokeExplo : D4DFX 
 {
 	Default 
 	{
@@ -587,7 +588,7 @@ Class DoomImpBallSmokeExplo : Actor
 	}
 }
 
-Class FireBallImpactDebris : Actor 
+Class FireBallImpactDebris : D4Actor 
 {
 	Default 
 	{
@@ -618,7 +619,7 @@ Class FireBallImpactDebris : Actor
 		Stop;
 	}
 }
-Class FireballDebrisTrail : Actor 
+Class FireballDebrisTrail : D4DFX 
 {
 	Default 
 	{

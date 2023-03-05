@@ -1,5 +1,5 @@
 /*
-Class D4BossEye : Actor //replaces BossEye
+Class D4BossEye : D4DFX //replaces BossEye
 {
 	Default
 	{
@@ -21,6 +21,7 @@ Class D4BossEye : Actor //replaces BossEye
 */
 Class D4BossBrain : BossBrain //replaces BossBrain
 {
+	mixin D4D_ActorFunctions;
 	double bat;
 	bool seeBase;
 	Default
@@ -73,12 +74,12 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 			
 			if (mo is "SpawnShot")
 			{
-				let explo =	mo.Spawn("D4RocketExplosion",mo.pos);
+				let explo =	D4RocketExplosion(mo.Spawn("D4RocketExplosion",mo.pos));
 				if (explo)
 				{
 					explo.A_XScream();
-					explo.A_PlaySound("Doom4/Weapon/RocketLauncher/HRExplo",CHAN_AUTO);
-					explo.A_PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
+					explo.PlaySound("Doom4/Weapon/RocketLauncher/HRExplo",CHAN_AUTO);
+					explo.PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
 				}
 				
 				mo.Spawn("BloodGibDropper",mo.pos);
@@ -128,7 +129,7 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 		BBRN B 8
 		{
 			bNOPAIN = true;
-			A_PlaySound("brain/pain",CHAN_VOICE,1,0,ATTN_NONE);
+			PlaySound("brain/pain",CHAN_VOICE,1,0,ATTN_NONE);
 			A_QuakeEx(3,3,1,70,0,32767,"",QF_SCALEDOWN);
 		}
 		BBRN B 27
@@ -142,7 +143,7 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 		{
 			if (!seeBase)
 				seeBase = !(A_CheckSight("Null"));
-			A_PlaySound("Doom4/Other/DollExplode",7,1,0,ATTN_NONE);
+			PlaySound("Doom4/Other/DollExplode",7,1,0,ATTN_NONE);
 			A_QuakeEx(5,5,3,35*5,0,32767,"",QF_SCALEUP|QF_SCALEDOWN|QF_MAX|QF_FULLINTENSITY|QF_RELATIVE);
 			for (int i = 0; i < MAXPLAYERS; i++)
 			{
@@ -189,13 +190,13 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 		}
 		BBRN A 35
 		{
-			A_PlaySound("BossMegaExplosion",5,1,0,ATTN_NONE);
+			PlaySound("BossMegaExplosion",5,1,0,ATTN_NONE);
 		}
 		TNT1 A 245
 		{
 			KillEverything();
 			A_QuakeEx(6,6,3,35*500,0,32767,"",QF_RELATIVE|QF_SCALEDOWN);
-			A_PlaySound("brain/death",6,1,0,ATTN_NONE);
+			PlaySound("brain/death",6,1,0,ATTN_NONE);
 		}
 		TNT1 A 1
 		{
@@ -222,7 +223,7 @@ Class D4BossBrain : BossBrain //replaces BossBrain
 	}
 }
 
-Class IOSFaceExploder : Actor
+Class IOSFaceExploder : D4DFX
 {
 	double px1, px2, py1, py2, pz1, pz2;
 	int count[2];
@@ -272,7 +273,7 @@ Class IOSFaceExploder : Actor
 										(atPos ? frandom(0.0, 359.9) : angle),
 										frandom(pz1, pz2));
 										
-				let explo =	Spawn("D4RocketExplosionNoGL",spos);
+				let explo =	D4DFX(Spawn("D4RocketExplosionNoGL",spos));
 				//let explo = Actor(A_SpawnItemEx("D4RocketExplosionNoGL",flags: SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION));
 				if (explo)
 				{
@@ -280,7 +281,7 @@ Class IOSFaceExploder : Actor
 					explo.A_SetRenderStyle(1.0,STYLE_Translucent);
 				//	explo.Translation = Translation;
 				//	explo.SetOrigin(spos, false);
-					if (!atPos)	explo.A_Warp(DefPtr,0,frandom(py1, py2),flags: WARPF_NOCHECKPOSITION);
+					if (!atPos)	explo.A_Warp(AAPTR_DEFAULT,0,frandom(py1, py2),flags: WARPF_NOCHECKPOSITION);
 					
 					double zmin = pos.Z + Min(pz1, pz2);
 					double zmax = pos.Z + Max(pz1, pz2);
@@ -292,7 +293,7 @@ Class IOSFaceExploder : Actor
 										Min(explo.ceilingz - 1.0, zmax) );
 					
 					explo.SetOrigin(sep, false);
-					explo.A_PlaySound("Doom4/Weapon/RocketLauncher/HRExplo",CHAN_AUTO,0.5);
+					explo.PlaySound("Doom4/Weapon/RocketLauncher/HRExplo",CHAN_AUTO,0.5);
 				}
 			}
 		}
@@ -335,7 +336,7 @@ Class IOSFaceExploder : Actor
 	}
 }
 
-Class D4SmallNuke : Actor
+Class D4SmallNuke : D4DFX
 {
 	double size;
 	Default
@@ -368,7 +369,7 @@ Class D4SmallNuke : Actor
 	Spawn:
 		X119 A 1 NoDelay
 		{
-			A_PlaySound("Doom4/Other/DollExplode",CHAN_AUTO,1);
+			PlaySound("Doom4/Other/DollExplode",CHAN_AUTO,1);
 			UpScale();
 		}
 		

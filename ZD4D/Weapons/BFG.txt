@@ -30,29 +30,7 @@ Class D4BFG : Doom4SuperWeapon
 		Obituary "%o felt the wrath of %k's beautiful greenliness.";
 		Tag "BFG 9000";
 	}
-	
-	// Upon spawning or travelling, makes BFG ammo spawn in place of cells
-	// and allows BFG ammo pinatas to spawn.
-	override void EnableAmmoSpawn()
-	{
-		if (!Event) Event = D4DHandler.Fetch();
-		if (Event)	Event.SetActorSpawn(D4DHandler.BFGAmmo, true);
-	}
-	
-	override bool TryPickup (in out Actor toucher)
-	{
-		if (Super.TryPickup(toucher))
-		{
-			if (!Event) Event = D4DHandler.Fetch();
-			if (Event)	Event.SetObtained(D4DHandler.OB_BFG,true);
-			
-			for (int i = 10; i < 13; i++)
-				toucher.A_StartSound("Doom4/Weapon/BFG/Pickup", i, CHANF_OVERLAP);
-			return true;
-		}
-		return false;
-	}
-	
+		
 	private int szoom;
 	private action void SetSineZoom(int amt, bool change = true, bool add = true)
 	{
@@ -99,7 +77,7 @@ Class D4BFG : Doom4SuperWeapon
 		WEP7 A 0 
 		{
 			SetSineZoom(0);
-			A_PlaySound("Doom4/Weapon/BFG/Fire",CHAN_WEAPON,1);
+			PlaySound("Doom4/Weapon/BFG/Fire",CHAN_WEAPON,1);
 		}
 		WEP7 BBCCDDEEFFGGHHIIJJKKLLMMNN 1 Bright SetSineZoom(16);
 		WEP7 O 1 Bright offset(2,37) SetSineZoom(18);
@@ -185,7 +163,7 @@ Class D4BFG : Doom4SuperWeapon
 	}
 }
 
-Class AmmoWaster : Actor 
+Class AmmoWaster : D4DFX 
 {
 	Default 
 	{
@@ -199,7 +177,7 @@ Class AmmoWaster : Actor
 	}
 }
 
-Class BFGRedirectPuff : Actor 
+Class BFGRedirectPuff : D4Actor 
 {
 	Default 
 	{
@@ -263,7 +241,7 @@ Class OrbiterExtender : Inventory { Default { Inventory.MaxAmount 500;	Inventory
 //-----------------------------------------------------------------
 //-----------------------------------------------------------------
 const BFG_LaserRadius = 1024;
-Class D4BFGProjectile  : Actor 
+Class D4BFGProjectile  : D4Actor 
 {
 	int drawBeams;
 	int renderer;
@@ -493,10 +471,10 @@ Class D4BFG9000Shot : D4BFGProjectile
 	Spawn:
 		BFE1 B 0 NoDelay 
 		{
-			A_PlaySound("Doom4/Weapon/BFG/Flying",7,0.6,1);
+			PlaySound("Doom4/Weapon/BFG/Flying",7,0.6,1);
 			
 			A_FaceMovementDirection(0,0,0);
-			boosted = CountInv("BFGUpgrade3",TargetPtr);
+			boosted = CountInv("BFGUpgrade3",AAPTR_TARGET);
 			if (boosted)
 			{
 				A_ScaleVelocity(2);
@@ -648,7 +626,7 @@ Class D4BFG9000ShotNormal : D4AbstractMissile
 		BFE1 C 0
 		{
 			bKILLED = true;
-			A_PlaySound("Doom4/Weapon/BFG/Impact",CHAN_AUTO,0.2);
+			PlaySound("Doom4/Weapon/BFG/Impact",CHAN_AUTO,0.2);
 			if (HQEffectsWeapons)
 			{
 				A_SpawnItemEx("BFGImpactVapor",3,0,0,frandom(-4,4),frandom(-4,4),frandom(-4,4),0,SXF_NOCHECKPOSITION,128);
@@ -690,7 +668,7 @@ Class D4BFG9000ShotNormal : D4AbstractMissile
 	}
 }
 
-Class D4BFGShockwave2 : Actor 
+Class D4BFGShockwave2 : D4DFX 
 {
 	double URoll;
 	Default 
@@ -764,7 +742,7 @@ Class D4BFGShockwaveSpray : D4DFX
 	}
 }
 
-Class D4BFGImpactLightEmitter : Actor 
+Class D4BFGImpactLightEmitter : D4DFX 
 {
 	Default 
 	{
@@ -790,7 +768,7 @@ Class D4BFGImpactLightEmitter : Actor
 	}
 }
 
-Class BFGImpactVapor : Actor 
+Class BFGImpactVapor : D4DFX 
 {
 	Default 
 	{
@@ -817,7 +795,7 @@ Class BFGImpactVapor : Actor
 		Goto Spawn+1;
 	}
 }
-Class D4BFGShockwave1 : Actor 
+Class D4BFGShockwave1 : D4DFX 
 {
 	Default 
 	{
@@ -847,7 +825,7 @@ Class D4BFGShockwave1 : Actor
 }
 
 
-Class D4BFGLightningGenerator : Actor 
+Class D4BFGLightningGenerator : D4DFX 
 {
 	const AngMin = 5.0;
 	const AngMax = 30.0;
@@ -910,7 +888,7 @@ Class D4BFGLightningGenerator : Actor
 			
 			if (c <= 0)
 			{
-				A_Warp(DefPtr,cos(UPitch)*Speed*count,0,-sin(UPitch)*Speed*count,0,WARPF_NOCHECKPOSITION);
+				A_Warp(AAPTR_DEFAULT,cos(UPitch)*Speed*count,0,-sin(UPitch)*Speed*count,0,WARPF_NOCHECKPOSITION);
 				UPitch += (frandom(amin,amax)*frandompick(-1,1));
 				A_SetAngle(angle+(frandom(amin,amax)*frandompick(-1,1)));
 				A_SetPitch(UPitch);
@@ -947,7 +925,7 @@ Class D4BFGKillToken : Inventory	{	Default { Inventory.MaxAmount 1;	}}
 // -----------------------------------------------------------------------------
 // This spawns the trails.
 
-Class D4BFGTrailSpawner : Actor 
+Class D4BFGTrailSpawner : D4DFX 
 {
 	double scalar, s, c;
 	bool skip;

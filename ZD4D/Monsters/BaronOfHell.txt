@@ -20,7 +20,7 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 		Height 64;
 		Mass 1000;
 	//	Speed 5.667;
-		Speed 15;
+		Speed 8;
 		PainChance 50;
 		Monster;
 		+FLOORCLIP
@@ -61,6 +61,24 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 				A_SpawnItemEx("BaronOfHellHandFlamelet",sp.x,sp.y,sp.z,vp.x,vp.y,vp.z,ang,SXF_NOCHECKPOSITION);
 	}
 	
+	void BaronMelee()
+	{
+		if (target)
+		{
+			let cls = target.GetClass();
+			int dmg;
+			if (target is "PlayerPawn" ||
+				D4D_Global.BelongsTo(cls, 'Cyberdemon') ||
+				D4D_Global.BelongsTo(cls, 'SpiderMastermind'))
+				dmg = irandom(20,30);
+			else
+				dmg = irandom(80, 100);
+			
+			dmg += dmg * CountInv('D4MonsterUpgrader');
+			A_CustomMeleeAttack(dmg,"Doom4/Other/MeleeHit");
+		}
+	}
+	
 	States
 	{
 	Spawn:
@@ -93,12 +111,12 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 		//"####" "#" 0 A_Jump(256,"Leap"); //debug
 		E01I A 0 
 		{
-			A_PlaySound("Doom4/Monsters/Baron/Attack",CHAN_AUTO);
+			PlaySound("Doom4/Monsters/Baron/Attack",CHAN_AUTO);
 			HQ = GetCvar("HQEffects");
 			bSPRITEFLIP = false;
 		}
-		"####" "#" 0 A_Jump(170,"FireBall");
-		Goto Leap;
+		"####" "#" 0 A_Jump(64,"Leap");
+		Goto Fireball;
 	//--------------------------------------
 	// Regular fireball
 	FireBall:	
@@ -251,7 +269,7 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 			if (target)
 			{
 				double dist = Distance3DSquared(target);
-				if (dist >= (250 ** 2) && dist < (768 ** 2)) 
+				if (dist >= (250 ** 2) && dist < (512 ** 2)) 
 					next = "CanLeap";
 			}
 			return ResolveState(next);
@@ -263,9 +281,9 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 		{
 			timer = 0;
 			//{ bNoPain = true; }
-			//A_PlaySound("L4D/Hunter/Lunge",6);
+			//PlaySound("L4D/Hunter/Lunge",6);
 			A_FaceTarget();
-			A_RearrangePointers(DefPtr, DefPtr, NullPtr, 4);
+			tracer = null;
 		}
 		E01L A 1 
 		{
@@ -294,7 +312,7 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 		LeapLoop:
 			E01L BBBBC 1
 			{
-				A_RearrangePointers(DefPtr, DefPtr, NullPtr, 4);
+				tracer = null;
 				A_SpawnItemEx("BaronLeapTrail",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSPRITEFRAME|SXF_TRANSFERSCALE);
 				if (A_CheckFloor("Null") || bONMOBJ)
 				{	return ResolveState("LeapEnd");	}
@@ -310,7 +328,7 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 		LeapEnd:
 			E01L C 1 
 			{
-				A_PlaySound("fiend/land");
+				PlaySound("fiend/land");
 				//{ bNoPain = false; }
 				A_Stop();
 			}
@@ -332,7 +350,7 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 				A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("BaronShockwave",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
-				A_PlaySound("Doom4/Monsters/BaronCrash",7);
+				PlaySound("Doom4/Monsters/BaronCrash",7);
 				A_QuakeEx(4,4,0,20,0,512,"",QF_SCALEDOWN);
 			}
 			
@@ -351,8 +369,8 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 			"####" "#" 1 
 			{
 				A_DamageTracer(random(15,30),"Melee",DMSS_AFFECTARMOR);
-				A_PlaySound("quake4/Misc/MeleeHit",5);
-				A_PlaySound("fiend/land");
+				PlaySound("quake4/Misc/MeleeHit",5);
+				PlaySound("fiend/land");
 				//{ bNoPain = false; }	
 				A_RadiusThrust(8000,128,RTF_NOIMPACTDAMAGE);
 			}
@@ -372,7 +390,7 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 				}
 				A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
 				A_SpawnItemEx("BruiserDustCloud",0,0,0,frandom(-2.5,2.5),frandom(-2.5,2.5),frandom(0.5,2.5),random(0,359),SXF_NOCHECKPOSITION);
-				A_PlaySound("Doom4/Monsters/BaronCrash",7);
+				PlaySound("Doom4/Monsters/BaronCrash",7);
 				A_SpawnItemEx("BaronShockwave",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 				A_QuakeEx(4,4,0,20,0,512,"",QF_SCALEDOWN);
 			}
@@ -387,23 +405,23 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 			return A_Jump(256,"Melee1","Melee2");
 		}
 	Melee1:
-		E01M ABCC 3 A_FaceTarget();
+		E01M ABCC 2 A_FaceTarget();
 		E01M D 3 
 		{
 			A_FaceTarget();
-			A_PlaySound("Doom4/Other/MeleeSwing");
+			PlaySound("Doom4/Other/MeleeSwing");
 		}
-		E01M E 3 A_CustomMeleeAttack(random(20,30),"Doom4/Other/MeleeHit");
+		E01M E 3 BaronMelee();
 		E01M FG 5;
 		Goto See;
 	Melee2:
-		E01N ABCC 3 A_FaceTarget();
+		E01N ABCC 2 A_FaceTarget();
 		E01N D 3 
 		{
 			A_FaceTarget();
-			A_PlaySound("Doom4/Other/MeleeSwing");
+			PlaySound("Doom4/Other/MeleeSwing");
 		}
-		E01N E 3 A_CustomMeleeAttack(random(20,30),"Doom4/Other/MeleeHit");
+		E01N E 3 BaronMelee();
 		E01N FG 5;
 		Goto See;
 	
@@ -436,7 +454,7 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 		E01D I -1 
 		{
 			bCorpse = true;
-			A_BossDeath();
+			BossDeath();
 		}
 		Stop;
 
@@ -448,8 +466,9 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 	XDeath:
 		TNT1 A 10
 		{
+			bDONTGIB = true;
 			XDeathGush();
-			A_BossDeath();
+			BossDeath();
 			A_NoBlocking();	//just in case
 		}
 		---- A RezTimer CanRaise DoCorpse();
@@ -553,7 +572,16 @@ Class D4BaronOfHell : D4AbstractBiggie //replaces BaronofHell
 	}
 }
 
-Class HellBaronSoul : Actor 
+Class D4BaronNoBoss : D4BaronofHell
+{
+	Default
+	{
+		-BOSS
+		-BOSSDEATH
+	}
+}
+
+Class HellBaronSoul : D4DFX 
 {
 	Default 
 	{
@@ -567,7 +595,7 @@ Class HellBaronSoul : Actor
 	}
 }
 
-Class BaronLeapTrail : Actor 
+Class BaronLeapTrail : D4DFX 
 {
 	Default 
 	{
@@ -624,7 +652,7 @@ Class BaronShockwave : D4AbstractMissile
 	}
 }
 //------------------------------------------------------------
-Class BaronOfHellHandFlamelet : Actor 
+Class BaronOfHellHandFlamelet : D4DFX 
 {
 	Default 
 	{
@@ -644,7 +672,7 @@ Class BaronOfHellHandFlamelet : Actor
 	}
 }
 
-Class BaronFlameletSmallLight : Actor //this one is just to display some lights
+Class BaronFlameletSmallLight : D4DFX //this one is just to display some lights
 {
 	Default 
 	{
@@ -659,7 +687,7 @@ Class BaronFlameletSmallLight : Actor //this one is just to display some lights
 	}
 }
 
-Class BaronHandFlare : Actor 
+Class BaronHandFlare : D4DFX 
 {
 	Default 
 	{
@@ -779,7 +807,7 @@ Class D4BaronBallNormal : D4AbstractMissile
 }
 
 
-Class BaronBallFlareTrail : Actor 
+Class BaronBallFlareTrail : D4DFX 
 {
 	Default 
 	{
@@ -803,7 +831,7 @@ Class BaronBallFlareTrail : Actor
 	}
 }
 
-Class BaronBallImpactVapor : Actor 
+Class BaronBallImpactVapor : D4DFX 
 {
 	Default 
 	{
@@ -930,7 +958,7 @@ Class D4BaronBallBig : D4AbstractMissile
 		Stop;
 	}
 }
-Class BaronBallBigTrail : Actor 
+Class BaronBallBigTrail : D4DFX 
 {
 	Default 
 	{
@@ -951,7 +979,7 @@ Class BaronBallBigTrail : Actor
 		Loop;
 	}
 }
-Class BaronOfHellBallBigFlamelet : Actor 
+Class BaronOfHellBallBigFlamelet : D4DFX 
 {
 	Default 
 	{
@@ -1057,7 +1085,7 @@ Class D4OldBaronOfHell : D4AbstractBiggie // : BaronOfHell
 		BOSS O -1 
 		{
 			bCorpse = true;
-			A_BossDeath();
+			BossDeath();
 		}
 		Stop;
 	//------------------------------------------------------------------------

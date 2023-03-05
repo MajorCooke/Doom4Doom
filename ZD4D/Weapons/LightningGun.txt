@@ -113,8 +113,8 @@ Class D4LightningGun : Doom4Weapon
 	Fire:
 		TNT1 A 0 
 		{
-			A_PlaySound("Doom4/Weapon/LightningGun/LightningGunFire", 5, 1, 1);
-			A_PlaySound("Doom4/Weapon/LightningGun/LG2Loop", CHAN_WEAPON, 0.5, 1);
+			PlaySound("Doom4/Weapon/LightningGun/LightningGunFire", 5, 1, 1);
+			PlaySound("Doom4/Weapon/LightningGun/LG2Loop", CHAN_WEAPON, 0.5, 1);
 			int Dist = CountInv("LGUpgradeRange") ? 1024 : 768;
 			A_StartBeam("NewLightningBeamPrimary",(LGDist, LGOff, LGHeight), 1, "LightningPuffV2", 0, 0, 0, Dist);
 		}
@@ -144,7 +144,7 @@ Class D4LightningGun : Doom4Weapon
 	//===========================================================================	
 	// Alt Fire
 	AltFire:
-		LGNG A 3 A_PlaySound("Doom4/Weapon/LightningGun/LightningGunFire", CHAN_WEAPON, 1, 1);
+		LGNG A 3 PlaySound("Doom4/Weapon/LightningGun/LightningGunFire", CHAN_WEAPON, 1, 1);
 		LGNG B 3 A_GiveInventory("AltFireToken",1);
 		Goto AltHold;
 		
@@ -169,7 +169,7 @@ Class D4LightningGun : Doom4Weapon
 	AltEndHold:
 		LGNI A 0 
 		{
-			A_PlaySound("Doom4/Weapon/LightningGun/LightningGunEnd", CHAN_WEAPON);
+			PlaySound("Doom4/Weapon/LightningGun/LightningGunEnd", CHAN_WEAPON);
 			A_StopSound(5);
 		}
 		LGNG B 3;
@@ -212,7 +212,7 @@ Class LightningPuffFX : D4DFX
 		Wait;
 	}
 }
-Class LightningPuffV2 : Actor 
+Class LightningPuffV2 : D4DFX 
 {
 	Default 
 	{
@@ -313,7 +313,7 @@ Class LightningPuffV3 : LightningPuffV2
 	}
 }
 
-Class LGPuff : Actor 
+Class LGPuff : D4DFX 
 {
 	Default 
 	{
@@ -360,5 +360,5 @@ Class LGChainToggle : Inventory
 	}
 }
 
-Class LGAltPuff : Nothing {}
-Class D4LGTrailAltFire : Nothing {}
+Class LGAltPuff : D4Nothing {}
+Class D4LGTrailAltFire : D4Nothing {}

@@ -34,13 +34,6 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 		Weapon.SelectionOrder 90;
 	}
 	
-	// Upon spawning or travelling, makes the fuel spawn with some ammo types.
-	override void EnableAmmoSpawn()
-	{
-		if (!Event) Event = D4DHandler.Fetch();
-		if (Event)	Event.SetActorSpawn(D4DHandler.ChainsawAmmo, true);
-	}
-	
 	States
 	{
 	Spawn:
@@ -51,7 +44,7 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 		{
 			if (player && player.mo == invoker.owner)
 			{
-				A_PlaySound("Doom4/Weapon/Chainsaw/Idle",CHAN_WEAPON,0.25,1);
+				PlaySound("Doom4/Weapon/Chainsaw/Idle",CHAN_WEAPON,0.25,1);
 			}
 			if (CountInv("BloodyChainsawToken"))	return ResolveState("BloodySel");
 			
@@ -68,7 +61,7 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 		"####" "#" 0 
 		{
 			A_StopSound(CHAN_WEAPON);
-			A_PlaySound("Doom4/Weapon/Chainsaw/Down",5,0.5);
+			PlaySound("Doom4/Weapon/Chainsaw/Down",5,0.5);
 			
 			// Must be spent immediately or you get nothing.
 			A_SetInventory("OnAcid",0);
@@ -86,7 +79,7 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 		CSWN A 0 
 		{
 			if (player && player.mo && player.mo == invoker.owner)
-				A_PlaySound("Doom4/Weapon/Chainsaw/Idle",CHAN_WEAPON,0.25,1);
+				PlaySound("Doom4/Weapon/Chainsaw/Idle",CHAN_WEAPON,0.25,1);
 		}
 		//CSWN A 0 A_JumpIfInventory("ChainsawKill",1,"ReadyAfterCSawKill");
 		CSWN A 0 
@@ -146,7 +139,7 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 	// Primary fire
 	Fire:
 		"####" AAA 1 A_WeaponOffset(-12,25,WOF_ADD);
-		"####" "#" 0 A_PlaySound("Doom4/Weapon/Chainsaw/Fire",CHAN_WEAPON,1.0,1);
+		"####" "#" 0 PlaySound("Doom4/Weapon/Chainsaw/Fire",CHAN_WEAPON,1.0,1);
 		"####" CCC 1 A_WeaponOffset(12,-25,WOF_ADD);
 	Hold:
 		"####" C 1 
@@ -159,7 +152,7 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 	EndHold:
 		"####" "#" 0 A_WeaponOffset(0,32);
 		"####" CCC 1 A_WeaponOffset(-12,25,WOF_ADD);
-		"####" "#" 0 A_PlaySound("Doom4/Weapon/Chainsaw/Down",5,0.5);
+		"####" "#" 0 PlaySound("Doom4/Weapon/Chainsaw/Down",5,0.5);
 		"####" AAA 1 A_WeaponOffset(12,-25,WOF_ADD);
 		Goto Idle;
 		
@@ -179,13 +172,13 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 			else if (!CountInv("D4Fuel") && !invoker.CheckAmmo(1, false, true) && !CountInv("OnAcid"))
 			{	
 				D4Msg.PrintStatus(D4Msg.NotEnoughAmmo);
-				A_PlaySound("Doom4/Player/Nope");
+				PlaySound("Doom4/Player/Nope");
 				return ResolveState("HoldingAfterNoAmmoMessage");
 			}
 			return ResolveState(1);
 		}
 		"####" AAA 1 A_WeaponOffset(-12,25,WOF_ADD);
-		"####" "#" 0 A_PlaySound("Doom4/Weapon/Chainsaw/AltFire",CHAN_WEAPON,1.0,1);
+		"####" "#" 0 PlaySound("Doom4/Weapon/Chainsaw/AltFire",CHAN_WEAPON,1.0,1);
 		"####" EEE 1 A_WeaponOffset(12,-25,WOF_ADD);
 		
 	AltHold:
@@ -202,7 +195,7 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 		"####" A 0 
 		{
 			D4Msg.PrintStatus(D4Msg.NotEnoughAmmo);
-			A_PlaySound("Doom4/Player/Nope");
+			PlaySound("Doom4/Player/Nope");
 			return ResolveState("HoldingAfterNoAmmoMessage");
 		}
 	NEAHold:
@@ -228,7 +221,7 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 		"####" AAA 1 A_WeaponOffset(-12,25,WOF_ADD);
 		CSWN A 15 
 		{
-			A_PlaySound("Doom4/Weapon/Chainsaw/Dip",CHAN_AUTO,1);
+			PlaySound("Doom4/Weapon/Chainsaw/Dip",CHAN_AUTO,1);
 			A_SetInventory("BloodyChainsawToken",0);
 		}
 		"####" AAA 1 A_WeaponOffset(12,-25,WOF_ADD);
@@ -244,7 +237,7 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 		"####" A 0 
 		{
 			D4Msg.PrintStatus(D4Msg.NotEnoughAmmo);
-			A_PlaySound("Doom4/Player/Nope");
+			PlaySound("Doom4/Player/Nope");
 		}
 		"####" EEE 1 A_WeaponOffset(-12,25,WOF_ADD);
 		"####" AAA 1 A_WeaponOffset(12,-25,WOF_ADD);
@@ -261,13 +254,13 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 	DealDamage:
 		"####" "#" 0 
 		{
-			A_PlaySound("Doom4/Weapon/Chainsaw/Execute",5,0.4);
+			PlaySound("Doom4/Weapon/Chainsaw/Execute",5,0.4);
 			A_SetBlend("Red",0.4,35);
 			A_WeaponOffset(0,32); //resets to original offsets
 		}
 		CSWB EFEF 1;  //has sprite names, because will always be bloody after execution
 		CSWB EEE 1 A_WeaponOffset(-12,25,WOF_ADD);
-		"####" "#" 0 A_PlaySound("Doom4/Weapon/Chainsaw/Idle",CHAN_WEAPON,0.25,1);	//returns to idle(ready) anim
+		"####" "#" 0 PlaySound("Doom4/Weapon/Chainsaw/Idle",CHAN_WEAPON,0.25,1);	//returns to idle(ready) anim
 		"####" AAA 1 A_WeaponOffset(12,-25,WOF_ADD);
 		
 	HoldingAfterPinataKill:	//this one is to guarantee player doesnt accidentally kill more monsters and spend fuel by holding altfire
@@ -306,7 +299,7 @@ Class D4Chainsaw : Doom4Weapon //replaces Chainsaw
 			
 	EndAltHold:	//the animation between firing and idle
 		"####" EEE 1 A_WeaponOffset(-12,25,WOF_ADD);
-		"####" "#" 0 A_PlaySound("Doom4/Weapon/Chainsaw/Down",5,0.6);
+		"####" "#" 0 PlaySound("Doom4/Weapon/Chainsaw/Down",5,0.6);
 		"####" AAA 1 A_WeaponOffset(12,-25,WOF_ADD);
 		Goto Idle;
 
@@ -320,7 +313,7 @@ Class CountDownToBurn : Inventory { Default { Inventory.MaxAmount 350; Inventory
 Class NotEnoughFuel : Inventory { Default { Inventory.InterhubAmount 0; }}
 //-------------------------------------------------------------------
 // Main vertical puff
-Class ChainsawPuff : Actor 
+Class ChainsawPuff : D4DFX 
 {
 	Default 
 	{
@@ -343,7 +336,7 @@ Class ChainsawPuff : Actor
 	States
 	{
 	Spawn:	//hit non bleeding actor
-		TNT1 A 0 NODELAY A_PlaySound("Doom4/Weapon/Chainsaw/WallHit",CHAN_BODY,0.5);
+		TNT1 A 0 NODELAY PlaySound("Doom4/Weapon/Chainsaw/WallHit",CHAN_BODY,0.5);
 		Goto Choose;
 	
 	Xdeath:	//hit bleeding actor
@@ -351,7 +344,7 @@ Class ChainsawPuff : Actor
 			Stop;
 			
 	Crash:	//hit walls or planes
-		TNT1 A 0 A_PlaySound("Doom4/Weapon/Chainsaw/WallHit",CHAN_BODY,0.5);
+		TNT1 A 0 PlaySound("Doom4/Weapon/Chainsaw/WallHit",CHAN_BODY,0.5);
 	Choose:
 		TNT1 A 0 
 		{
@@ -512,7 +505,7 @@ Class ReplaceBarrel : CustomInventory
 				GetClass() is "D4ExplosiveBarrel")
 			{
 				A_SpawnItemEx("D4EmptyBarrel",0,0,0,vel.x,vel.y,vel.z,angle,SXF_NOCHECKPOSITION|SXF_ABSOLUTEVELOCITY|SXF_TRANSFERSPECIAL|SXF_CLEARCALLERSPECIAL|SXF_CLEARCALLERTID,0,tid);
-				A_Remove(DefPtr,RMVF_EVERYTHING);
+				A_Remove(AAPTR_DEFAULT,RMVF_EVERYTHING);
 				return true;
 			}
 			return false;

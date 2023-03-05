@@ -56,7 +56,7 @@ Class D4CarrionCannon : Doom4Weapon
 	{
 		invoker.owner.A_SetInventory("CarrionPortalsOpened",count);
 		invoker.owner.A_AlertMonsters();
-		invoker.owner.A_PlaySound("Doom4/Monsters/ArgentCharge",CHAN_AUTO,1,0,ATTN_NONE);
+		PlaySound("Doom4/Monsters/ArgentCharge",CHAN_AUTO,1,0,ATTN_NONE);
 		invoker.owner.A_TakeInventory("D4Carrion",ammoConsume,TIF_NOTAKEINFINITE);
 	}
 	
@@ -112,7 +112,7 @@ Class D4CarrionCannon : Doom4Weapon
 				A_AlertMonsters();
 				A_SetInventory("CarrionShotOut",1);
 				A_FireProjectile("CarrionPrimary",0,0,4);
-				A_PlaySound("CarrionCannon/Unleash",CHAN_WEAPON,1);
+				PlaySound("CarrionCannon/Unleash",CHAN_WEAPON,1);
 			}
 		}
 		HELG G 2 bright;
@@ -226,7 +226,7 @@ Class D4CarrionCannon : Doom4Weapon
 			}
 			else
 			{
-				A_PlaySound("Doom4/Player/Nope",CHAN_AUTO);
+				PlaySound("Doom4/Player/Nope",CHAN_AUTO);
 				D4Msg.PrintStatus(D4Msg.NotEnoughAmmo);
 			}
 			return ResolveState(null);
@@ -292,7 +292,7 @@ Class D4CarrionCannon : Doom4Weapon
 	}
 }
 
-Class CarrionPortalOpener : Actor 
+Class CarrionPortalOpener : D4DFX 
 {
 	int cur;
 	int count;
@@ -325,18 +325,18 @@ Class CarrionPortalOpener : Actor
 			}
 			/*
 			count = 0;
-			cut = CountInv("CarrionUpgradeAmmo",TargetPtr) ? 2 : 1;
+			cut = CountInv("CarrionUpgradeAmmo",AAPTR_TARGET) ? 2 : 1;
 			while (dist <= 4096 && count < 5)
 			{
 				olddist = dist;
 				dist += 256;
-				A_Warp(MasterPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_COPYINTERPOLATION,"Null",0.5);
+				A_Warp(AAPTR_MASTER,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_COPYINTERPOLATION,"Null",0.5);
 				cur = A_RadiusGive("CarrionPortalSpawner",dist,RGF_NOMASTER|RGF_MONSTERS|RGF_CUBE,1,null,"None",olddist,5 - count);
 				count += cur;
 			}
 			if (count > 0)
-			{	A_TakeInventory("D4Carrion",CarrionAmmoCostSecondary / cut,TIF_NOTAKEINFINITE,MasterPtr);	} //Will finish this tomorrow.
-			A_GiveInventory("CarrionPortalsOpened",count,MasterPtr);
+			{	A_TakeInventory("D4Carrion",CarrionAmmoCostSecondary / cut,TIF_NOTAKEINFINITE,AAPTR_MASTER);	} //Will finish this tomorrow.
+			A_GiveInventory("CarrionPortalsOpened",count,AAPTR_MASTER);
 			*/
 		}
 		Stop;
@@ -372,8 +372,8 @@ Class CarrionPortal : D4Actor
 			}
 			else
 			{
-				cut = CountInv("CarrionUpgradeAmmo",TargetPtr) ? 2 : 1;
-				duration = (35 * 2) + (CountInv("CarrionUpgradeTime",TargetPtr) ? 35 : 0);
+				cut = CountInv("CarrionUpgradeAmmo",AAPTR_TARGET) ? 2 : 1;
+				duration = (35 * 2) + (CountInv("CarrionUpgradeTime",AAPTR_TARGET) ? 35 : 0);
 			}
 			
 		}
@@ -407,11 +407,11 @@ Class CarrionPortal : D4Actor
 			// Empower the other portals because one of them died before it could start.
 			if (count < 17 && (!tracer || tracer.bKilled))
 			{	
-				if (CountInv("CarrionPortalsOpened",TargetPtr) == 1 && !GetCvar("sv_infiniteammo"))
+				if (CountInv("CarrionPortalsOpened",AAPTR_TARGET) == 1 && !GetCvar("sv_infiniteammo"))
 				{
-					A_GiveInventory("D4Carrion",CarrionAmmoCostPrimary / cut,TargetPtr);
+					A_GiveInventory("D4Carrion",CarrionAmmoCostPrimary / cut,AAPTR_TARGET);
 				}
-				if (!spec)	{ 	A_TakeInventory("CarrionPortalsOpened",1,0,TargetPtr);	}
+				if (!spec)	{ 	A_TakeInventory("CarrionPortalsOpened",1,0,AAPTR_TARGET);	}
 				return ResolveState("Null");
 			}
 			
@@ -435,7 +435,7 @@ Class CarrionPortal : D4Actor
 	}
 }
 
-Class CarrionFirePillar : D4Actor 
+Class CarrionFirePillar : D4DFX
 {
 	int t;
 	double USpeed;
@@ -476,7 +476,7 @@ Class CarrionFirePillar : D4Actor
 			Pz = pos.z;
 			// Preserve the Z at all times.
 			
-			//A_Warp(DefPtr,0,0,(pos.z - floorz),0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_TOFLOOR);
+			//A_Warp(AAPTR_DEFAULT,0,0,(pos.z - floorz),0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE|WARPF_TOFLOOR);
 			
 			count = int(USpeed / 8.0);
 			if (!A_CheckRange(2048,"Null",true))
@@ -497,14 +497,14 @@ Class CarrionFirePillar : D4Actor
 			}
 			
 			// This will never miss.
-			if (A_JumpIfHigherOrLower("Death",null,0,0,false,TracerPtr) && t <= 1)
+			if (A_JumpIfHigherOrLower("Death",null,0,0,false,AAPTR_TRACER) && t <= 1)
 			{	
-				A_Warp(TracerPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_STOP);	
+				A_Warp(AAPTR_TRACER,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_STOP);	
 				return ResolveState("Death");
 			}
 			else if (pos.z <= floorz)
 			{
-				A_Warp(DefPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_TOFLOOR|WARPF_STOP);	
+				A_Warp(AAPTR_DEFAULT,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_TOFLOOR|WARPF_STOP);	
 				return ResolveState("Death");
 			}
 			return ResolveState(null);
@@ -520,7 +520,7 @@ Class CarrionFirePillar : D4Actor
 			}
 			else
 			{
-				A_Explode(125 / Clamp(CountInv("CarrionPortalsOpened",TargetPtr),1,5),96,0,0,48);
+				A_Explode(125 / Clamp(CountInv("CarrionPortalsOpened",AAPTR_TARGET),1,5),96,0,0,48);
 			}
 			count = 25;
 			
@@ -542,7 +542,7 @@ Class CarrionFirePillar : D4Actor
 			if (t == 1 || t == 667)
 			{	
 				A_SpawnItemEx("CarrionBlastBack",0,0,15,0,0,0,0,SXF_NOCHECKPOSITION);
-				A_PlaySound("CarrionCannon/Burning",5,1,1);
+				PlaySound("CarrionCannon/Burning",5,1,1);
 				return ResolveState(1);
 			}
 			return ResolveState("Null");
@@ -550,15 +550,15 @@ Class CarrionFirePillar : D4Actor
 		Wait;
 		TNT1 A 55
 		{
-			if (CountInv("CarrionUpgradeTime",TargetPtr) || t >= 666)
+			if (CountInv("CarrionUpgradeTime",AAPTR_TARGET) || t >= 666)
 			{
 				A_SetTics(55+35);
 			}
 		}
 		TNT1 A 35 
 		{
-			A_SetInventory("CarrionBombard",0,TracerPtr);
-			A_PlaySound("CarrionCannon/BurnEnd",5,1,0);
+			A_SetInventory("CarrionBombard",0,AAPTR_TRACER);
+			PlaySound("CarrionCannon/BurnEnd",5,1,0);
 		}
 		Stop;
 	}
@@ -838,6 +838,7 @@ Class CarrionPortalsOpened : Inventory
 Class CarrionPrimary : FastProjectile
 {
 	mixin D4D_FX;
+	mixin D4D_ActorFunctions;
 	mixin D4D_FastRNG;
 	
 	enum CarrionPrimary
@@ -971,10 +972,10 @@ Class CarrionPrimary : FastProjectile
 				}
 				if (charge < MaxTime &&
 					targ.CountInv("CarrionShotOut") &&
-					//(GetPlayerInput(MODINPUT_BUTTONS,TargetPtr) & (BT_ATTACK)) &&
+					//(GetPlayerInput(MODINPUT_BUTTONS,AAPTR_TARGET) & (BT_ATTACK)) &&
 					trac.health > 0)
 				{
-					cut = CountInv("CarrionUpgradeAmmo",TargetPtr) ? 2 : 1;
+					cut = CountInv("CarrionUpgradeAmmo",AAPTR_TARGET) ? 2 : 1;
 					
 					bool infammo = (sv_infiniteammo || targ.FindInventory("PowerInfiniteAmmo",true));
 					
@@ -985,11 +986,11 @@ Class CarrionPrimary : FastProjectile
 							sizex = Scale.X;
 							sizey = Scale.Y;
 							
-							A_PlaySound("Doom4/Monsters/ArgentCharge",CHAN_AUTO,1,0,ATTN_NONE);
+							PlaySound("Doom4/Monsters/ArgentCharge",CHAN_AUTO,1,0,ATTN_NONE);
 						}
 					//	A_SetRoll(roll + RollAmt,SPF_INTERPOLATE);
 						
-						A_Warp(TracerPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",0.5);
+						A_Warp(AAPTR_TRACER,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",0.5);
 						if (trac.bSHOOTABLE)
 						{
 							USin += (90.0/70.0);
@@ -1012,15 +1013,15 @@ Class CarrionPrimary : FastProjectile
 			if (charge)
 			{
 				if (Laser)	Laser.Kill = true;
-				A_GiveInventory("CarrionTick",charge,TargetPtr);
-				A_GiveInventory("CarrionShootSound",1,TargetPtr);
+				A_GiveInventory("CarrionTick",charge,AAPTR_TARGET);
+				A_GiveInventory("CarrionShootSound",1,AAPTR_TARGET);
 				A_GiveInventory("KillLaser");
 				
 				Sound 							explosnd = "CarrionCannon/ExplosionBig";
 				if (charge <= (70/3))			explosnd = "CarrionCannon/ExplosionSmall";
 				else if (charge <= (70/3)*2)	explosnd = "CarrionCannon/ExplosionMedium";
 					
-				A_PlaySound(explosnd, CHAN_AUTO);
+				A_StartSound(explosnd, 20, CHANF_OVERLAP);
 				A_SpawnItemEx("CarrionShockwave",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERTRANSLATION);
 				dmg = charge * (MaxDamage / 70.0);
 				
@@ -1082,6 +1083,7 @@ Class CarrionTick : Inventory
 
 Class CarrionShootSound : CustomInventory
 {
+	mixin D4D_ActorFunctions;
 	const MaxAmt = 70;
 	Default 
 	{
@@ -1092,11 +1094,11 @@ Class CarrionShootSound : CustomInventory
 	Pickup:
 		TNT1 A 0
 		{
-				 if (CountInv("CarrionTick") >= MaxAmt)			{	A_PlaySound("CarrionCannon/Shoot7",CHAN_WEAPON,1);	}
-			else if (CountInv("CarrionTick") >= (MaxAmt/4)*3)	{	A_PlaySound("CarrionCannon/Shoot6",CHAN_WEAPON,1);	}
-			else if (CountInv("CarrionTick") >= (MaxAmt/4)*2)	{	A_PlaySound("CarrionCannon/Shoot5",CHAN_WEAPON,1);	}
-			else if (CountInv("CarrionTick") >= (MaxAmt/4)*1)	{	A_PlaySound("CarrionCannon/Shoot4",CHAN_WEAPON,1);	}
-			else 												{	A_PlaySound("CarrionCannon/Shoot3",CHAN_WEAPON,1);	}
+				 if (CountInv("CarrionTick") >= MaxAmt)			{	A_StartSound("CarrionCannon/Shoot7",21, CHANF_OVERLAP);	}
+			else if (CountInv("CarrionTick") >= (MaxAmt/4)*3)	{	A_StartSound("CarrionCannon/Shoot6",21, CHANF_OVERLAP);	}
+			else if (CountInv("CarrionTick") >= (MaxAmt/4)*2)	{	A_StartSound("CarrionCannon/Shoot5",21, CHANF_OVERLAP);	}
+			else if (CountInv("CarrionTick") >= (MaxAmt/4)*1)	{	A_StartSound("CarrionCannon/Shoot4",21, CHANF_OVERLAP);	}
+			else 												{	A_StartSound("CarrionCannon/Shoot3",21, CHANF_OVERLAP);	}
 			A_SetInventory("CarrionTick",0);
 		}
 		Stop;
@@ -1165,7 +1167,7 @@ Class CarrionExplosion : D4DFX
 			{
 				move = (0,0,-48);
 				A_SetScale(1.5);
-				A_PlaySound("Doom4/Other/DollExplode",CHAN_AUTO,1);
+				PlaySound("Doom4/Other/DollExplode",CHAN_AUTO,1);
 			}
 			SetOrigin(pos + move, false);
 		}
@@ -1229,7 +1231,7 @@ Class CarrionAbsorbant : CustomInventory
 			bSOLID = bCORPSE = false;
 			
 			A_SpawnItemEx("CorpseFader",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_TRANSFERSCALE|SXF_TRANSFERSPRITEFRAME);
-			A_Remove(DefPtr,RMVF_EVERYTHING);
+			A_Remove(AAPTR_DEFAULT,RMVF_EVERYTHING);
 			return true;
 		}
 		Stop;

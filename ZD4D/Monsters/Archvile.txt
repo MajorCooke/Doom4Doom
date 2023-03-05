@@ -200,6 +200,7 @@ Class D4Archvile : D4AbstractBiggie //replaces Archvile
 	XDeath:
 		TNT1 A 10 CanRaise
 		{
+			bDONTGIB = true;
 			XDeathGush();
 			A_SetInventory("ArchAttacking",0);
 			A_NoBlocking();	//just in case
@@ -303,7 +304,7 @@ Class D4Archvile : D4AbstractBiggie //replaces Archvile
 	}
 }
 
-Class SummonerMonsterSpawner : Actor 
+Class SummonerMonsterSpawner : D4DFX 
 {
 	Default 
 	{
@@ -343,6 +344,11 @@ Class SummonerMonsterSpawner : Actor
 		TNT1 A 0 A_SpawnItemEx("SummonTeleportFog",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION);
 		TNT1 A 1 
 		{
+			if (!level.IsPointInLevel(pos))
+			{
+				Destroy();
+				return;
+			}
 			let mon = Spawn("TporDropBallSpawner", pos, ALLOW_REPLACE);
 			if (mon)
 			{
@@ -357,12 +363,12 @@ Class TporDropBallSpawner : RandomSpawner
 {
 	Default 
 	{
-		DropItem "D4ChaingunGuy", 255, 10;
-		DropItem "D4DoomImp", 255, 10;
-		DropItem "D4Demon", 255, 6;
-		DropItem "D4LostSoul", 255, 10;
-		DropItem "D4Revenant", 255, 2;
-		DropItem "D4HellKnight", 255, 2;
+		DropItem "D4ChaingunGuy", 255, 20;
+		DropItem "D4DoomImp", 255, 20;
+		DropItem "D4LostSoul", 255, 20;
+		DropItem "D4HellKnight", 255, 10;
+		DropItem "D4Revenant", 255, 10;
+		DropItem "D4BaronNoBoss", 255, 5;
 	}
 	
 	override void PostSpawn(Actor spawned)
@@ -375,7 +381,17 @@ Class TporDropBallSpawner : RandomSpawner
 				spawned.Species = Tracer.Species;
 			spawned.bTHRUSPECIES = Tracer.bTHRUSPECIES;
 			spawned.bMTHRUSPECIES = Tracer.bMTHRUSPECIES;
+			
+			let sp = D4AbstractMonster(spawned);
+			
+			if (sp)
+			{
+				let mo = D4AbstractMonster(Tracer);
+				if (mo) sp.SetPostPowerLevel(tracer.CountInv('D4MonsterUpgrader'));
+			}
 		}
+		// Don't linger for barons, etc. It'll just screw with the map specials.
+		if (!bDESTROYED && (spawned.bBOSS || spawned.bBOSSDEATH))	Destroy();
 	}
 }
 
@@ -394,8 +410,8 @@ Class SummonTeleportFog : D4AbstractMissile
 	Spawn:
 		DB26 A 0 NODELAY
 		{
-			A_PlaySound("Doom4/Monsters/ArchSummonSFX1",6);
-			A_PlaySound("Doom4/Monsters/QuakeTport",7,0.6);
+			PlaySound("Doom4/Monsters/ArchSummonSFX1",6);
+			PlaySound("Doom4/Monsters/QuakeTport",7,0.6);
 		}
 		DB26 ABCDEFGHIIJJKKLLMMNNOO 1 Bright;
 		DB26 PQQRRSSTTUUVV 1 Bright A_FadeOut(0.035);
@@ -461,7 +477,7 @@ Class SummonerProjectile : D4D_Projectile
 	}
 }
 
-Class SummonerTrailSpawner : Actor //dummy to spawn muliple trails through D4D_Projectile's method
+Class SummonerTrailSpawner : D4DFX //dummy to spawn muliple trails through D4D_Projectile's method
 {
 	bool HQ;
 	Default 
@@ -506,7 +522,7 @@ Class SummonerTrail : ArchvileTPortTrail
 }
 
 
-Class SummonerSparks : Actor 
+Class SummonerSparks : D4DFX 
 {
 	Default 
 	{
@@ -529,14 +545,14 @@ Class SummonerSparks : Actor
 	States
 	{
 	Spawn:
-		DB08 A 0 Nodelay A_PlaySound("Doom4/Monsters/ArgentCharge",6,0.8);
+		DB08 A 0 Nodelay PlaySound("Doom4/Monsters/ArgentCharge",6,0.8);
 		DB08 ABCDEFGHIJKLMNOPQRSTUVWXYABCDEFGHIJKLMNOPQRSTUVWXY 1 Bright 
 		{
 			if (!master || master.health < 1)
 			{	return ResolveState("Null");	}
 			if (CheckSight(master, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
 			{	
-				A_Warp(TargetPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",0.5,1.0);
+				A_Warp(AAPTR_TARGET,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",0.5,1.0);
 				A_FadeTo(0.99,1.0,FTF_CLAMP);
 				if (HQ)
 				{
@@ -546,7 +562,7 @@ Class SummonerSparks : Actor
 			}
 			else
 			{
-				A_Warp(TargetPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",0.5,1.0);
+				A_Warp(AAPTR_TARGET,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_INTERPOLATE,"Null",0.5,1.0);
 				A_FadeTo(0.3,1.0,FTF_CLAMP);
 				if (HQ)
 				{
@@ -565,7 +581,7 @@ Class SummonerSparksAlways : SummonerSparks
 	States
 	{
 	Spawn:
-		DB08 A 0 Nodelay A_PlaySound("Doom4/Monsters/ArgentCharge",6,0.8);
+		DB08 A 0 Nodelay PlaySound("Doom4/Monsters/ArgentCharge",6,0.8);
 		DB08 ABCDEFGHIJKLMNOPQRSTUVWXYABCDEFGHIJ 1 Bright 
 		{
 			A_SpawnItemEx("SummonerTargetingSparks",0,0,0,1,frandom(3,-3),frandom(0.5,-0.5), 0,SXF_NOCHECKPOSITION,128);
@@ -581,7 +597,7 @@ Class SummonerSparksAlways : SummonerSparks
 	}
 }
 
-Class SummonerTargetingSparks : Actor //spawned in front of the player
+Class SummonerTargetingSparks : D4DFX //spawned in front of the player
 {
 	Default 
 	{
@@ -615,7 +631,7 @@ Class SummonerTargetingSparks : Actor //spawned in front of the player
 	}
 }
 
-Class SummonerHandSparks : Actor //spawned in the hands of the archvile
+Class SummonerHandSparks : D4DFX //spawned in the hands of the archvile
 {
 	Default 
 	{
@@ -843,12 +859,8 @@ Class DBTArchvileFire : D4AbstractMissile //replaces ArchvileFire
 	}
 }
 
-Class ArchvileFireFx : Actor 
+Class ArchvileFireFx : D4DFX 
 {
-	Default 
-	{
-		+NOINTERACTION
-	}
 	States
 	{
 	Spawn:
@@ -861,7 +873,7 @@ Class ArchvileFireFx : Actor
 	}
 }
 
-Class FlmThrwrSmoke : Actor 
+Class FlmThrwrSmoke : D4DFX 
 {
 	Default 
 	{
@@ -884,7 +896,7 @@ Class FlmThrwrSmoke : Actor
 	}
 }
 
-Class FTFlameTrail2 : Actor 
+Class FTFlameTrail2 : D4DFX 
 {
 	Default 
 	{

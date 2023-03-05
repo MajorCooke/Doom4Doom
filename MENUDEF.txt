@@ -76,7 +76,6 @@ OptionMenu "D4DOptions"
 	StaticText "Demon Runes", 1
 	Option "Spawn Demon Runes",				"D4D_DemonRunes",		"DemonRunes"
 	Option "Silent idle demon-player",		"D4D_SilentMorphs",		"YesNo"
-	Option "Show HUD Demon Name",			"D4D_DemonNameDisplay",	"YesNo"
 	StaticText ""
 	StaticText "Footsteps", 1
 	Slider "Footsteps volume",				"fs_volume_mul",	0.0, 3.0, 0.1, 2
@@ -1989,7 +1988,10 @@ OptionMenu "D4DoomDollUpgrade1"
 {
 	Class "D4DOptionMenuUpgrades"
 	Title "$D4DoomDollUpgrade1"
-	StaticText "$D4DoomDollUpgrade1D1"
+	StaticText "$D4DoomDollUpgrade1D1", GOLD
+	StaticText "$D4DoomDollUpgrade1D2", GREEN
+	StaticText "$D4DoomDollUpgrade1D3", GREEN
+	StaticText "$D4DoomDollUpgrade1D4", GREEN
 	Purchase D4DoomDollUpgrade1
 	StaticText ""
 	CostDisplay D4DoomDollUpgrade1
@@ -2001,10 +2003,7 @@ OptionMenu "D4DoomDollUpgrade2"
 {
 	Class "D4DOptionMenuUpgrades"
 	Title "$D4DoomDollUpgrade2"
-	StaticText "$D4DoomDollUpgrade2D1", GOLD
-	StaticText "$D4DoomDollUpgrade2D2", GREEN
-	StaticText "$D4DoomDollUpgrade2D3", GREEN
-	StaticText "$D4DoomDollUpgrade2D4", GREEN
+	StaticText "$D4DoomDollUpgrade2D1"
 	StaticText ""
 	Purchase D4DoomDollUpgrade2
 	StaticText ""

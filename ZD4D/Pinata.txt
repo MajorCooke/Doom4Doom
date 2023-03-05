@@ -401,7 +401,7 @@ Class D4PinataBase : CustomInventory
 	}
 }
 
-Class D4PinataParticles : Actor 
+Class D4PinataParticles : D4DFX 
 {
 	Color PT;
 	Vector3 oldpos;
@@ -1352,7 +1352,7 @@ Class D4PinataBulletsChaingunGuy : D4PinataBulletsZombieman	//only dropped by th
 // Le cash!
 // Unused.
 
-Class D4Cash : Actor 
+Class D4Cash : D4Actor 
 {
 	Default 
 	{

@@ -97,27 +97,6 @@ Class DEUnmakyr : Doom4SuperWeapon
 		Super.Travelled();
 	}
 	
-	// Upon spawning or travelling, makes BFG ammo spawn in place of cells
-	// and allows BFG ammo pinatas to spawn.
-	override void EnableAmmoSpawn()
-	{
-		if (!Event) Event = D4DHandler.Fetch();
-		if (Event)	Event.SetActorSpawn(D4DHandler.BFGAmmo, true);
-	}
-	
-	override bool TryPickup (in out Actor toucher)
-	{
-		if (Super.TryPickup(toucher))
-		{
-			if (!Event) Event = D4DHandler.Fetch();
-			if (Event)	Event.SetObtained(D4DHandler.OB_UNMAYKR,true);
-			for (int i = 10; i < 13; i++)
-				toucher.A_StartSound("Doom4/Weapon/BFG/Pickup", i, CHANF_OVERLAP, 1);
-			return true;
-		}
-		return false;
-	}
-	
 	//--------------------------------------------------------------------------
 	// DrawParts
 	// 

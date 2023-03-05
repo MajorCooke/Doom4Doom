@@ -48,7 +48,7 @@ Class PowerRevenantMorph : PowerRuneBase
 Class PlayerRevenant : DemonPlayerBase
 {
 	double USpeed;
-	
+	bool first;
 	Default 
 	{
 		Speed 1;
@@ -81,7 +81,7 @@ Class PlayerRevenant : DemonPlayerBase
 				A_Overlay(6004,"Overlay.Jetpack",true);
 				A_Overlay(6005,"Overlay.RocketCooldown",true);	
 				A_Overlay(6006,"Overlay.JetpackCooldown",true);	
-				A_PlaySound("Doom4/Monsters/Revenant/Sight",6);
+				PlaySound("Doom4/Monsters/Revenant/Sight",6);
 				A_GiveInventory("OverlaysStarted",1);
 			}
 		}
@@ -114,12 +114,12 @@ Class PlayerRevenant : DemonPlayerBase
 			{
 				if(USpeed > 150)
 				{
-					A_PlaySound("Player/Demon/RevenantStep",CHAN_AUTO,0.85);
+					PlaySound("Player/Demon/RevenantStep",CHAN_AUTO,0.85);
 					A_SetTics(12);
 				}
 				else if(USpeed > 20)
 				{
-					A_PlaySound("Player/Demon/RevenantStep",CHAN_AUTO,0.85);
+					PlaySound("Player/Demon/RevenantStep",CHAN_AUTO,0.85);
 					A_SetTics(15);
 				}
 			}
@@ -129,8 +129,13 @@ Class PlayerRevenant : DemonPlayerBase
 		M666 A 1
 		{
 			int input = GetPlayerInput(MODINPUT_BUTTONS);
-			if ((input & BT_ALTATTACK) && CountInv("JetpackFuel") && !CountInv("JetpackCooling") /*|| (GetPlayerInput(MODINPUT_BUTTONS) & BT_JUMP  )&&CountInv("JetpackFuel") && !CountInv("JetpackCooling")*/)
-			{ 
+			if ((input & BT_ALTATTACK) && CountInv("JetpackFuel") && !CountInv("JetpackCooling"))
+			{
+				if (!invoker.first)
+				{
+					A_StartSound("Player/Demon/Revenant/JetPackStartLoop",22,CHANF_LOOP);
+					invoker.first = true;
+				}
 				A_ChangeVelocity(vel.x,vel.y,3,CVF_REPLACE);
 				A_ChangeVelocity(
 				((input & BT_FORWARD  ) ? .5 : 0) - 
@@ -139,17 +144,17 @@ Class PlayerRevenant : DemonPlayerBase
 				((input & BT_MOVERIGHT) ? .5 : 0),
 				0,CVF_RELATIVE);
 				A_ChangeVelocity(vel.x*.97,vel.y*.97,vel.z,CVF_REPLACE);
-				A_PlaySound("Player/Demon/Revenant/JetPackStartLoop",7,1,1);
 				A_GiveInventory("RevenantFlyingToken",1);
 				A_TakeInventory("JetpackFuel",1);
 			}
 			else if (CountInv("RevenantFlyingToken"))
 			{
 				A_SetInventory("RevenantFlyingToken",0);
-				A_PlaySound("Player/Demon/Revenant/JetPackEndThrust",7);
+				PlaySound("Player/Demon/Revenant/JetPackEndThrust",22);
+				invoker.first = false;
 			}
 		}
-		Loop;
+		Wait;
 	Overlay.RocketCooldown:
 		M666 A 5 
 		{
@@ -180,7 +185,7 @@ Class PlayerRevenant : DemonPlayerBase
 			NoFastOverlay(OverlayID());
 			if (!GetCvar("D4D_SilentMorphs") && random(1,5)==5)
 			{
-				A_PlaySound("Doom4/Monsters/Revenant/Idle",5);
+				PlaySound("Doom4/Monsters/Revenant/Idle",5);
 			}
 		}
 		Loop;
@@ -247,7 +252,7 @@ Class D4DRevenantWeapon : DemonWeaponBase
 	FireP0:
 		M666 A 28
 		{
-			A_PlaySound("Player/Demon/Revenant/Fire",6);
+			PlaySound("Player/Demon/Revenant/Fire",6);
 			A_SetGunState("Overlay.WeaponFire");
 			A_FireProjectile("PlayerRevRocket",0,0,LeftOffset,12);
 			A_FireProjectile("PlayerRevRocket",0,0,RightOffset,12);
@@ -255,12 +260,12 @@ Class D4DRevenantWeapon : DemonWeaponBase
 		}
 		Goto VeryReady;
 	FireP1:
-		M666 A 12
+		M666 A 10
 		{
 			bool rightside = (invoker.count % 2 == 0);
 			double off = rightside ? RightOffset : LeftOffset;
 			A_SetGunState("Overlay.WeaponFire", (rightside ? Right : Left));
-			A_PlaySound("Player/Demon/Revenant/Fire",6);
+			PlaySound("Player/Demon/Revenant/Fire",6);
 			A_FireProjectile("PlayerRevRocket",0,0,off,12);
 			A_Overlay(6020, "Overlay.ZoomEffectHalf");
 			invoker.count = (invoker.count + 1) % 2;
@@ -269,7 +274,7 @@ Class D4DRevenantWeapon : DemonWeaponBase
 	FireP2:
 		M666 A 16
 		{
-			A_PlaySound("Player/Demon/Revenant/Fire",6);
+			PlaySound("Player/Demon/Revenant/Fire",6);
 			A_SetGunState("Overlay.WeaponFire");
 			A_FireProjectile("PlayerRevRocket",0,0,LeftOffset,12);
 			A_FireProjectile("PlayerRevRocket",0,0,RightOffset,12);
@@ -282,7 +287,7 @@ Class D4DRevenantWeapon : DemonWeaponBase
 		{
 			bool rightside = (invoker.count % 2 == 0);
 			double off = rightside ? RightOffset : LeftOffset;
-			A_PlaySound("Player/Demon/Revenant/Fire",6);
+			PlaySound("Player/Demon/Revenant/Fire",6);
 			A_SetGunState("Overlay.WeaponFire", (rightside ? Right : Left));
 			A_FireProjectile("PlayerRevRocket",0,0,off,12);
 			A_Overlay(6020, "Overlay.ZoomEffectHalf");
@@ -298,7 +303,7 @@ Class D4DRevenantWeapon : DemonWeaponBase
 		M666 AAAAAA 4
 		{
 			int channel = (invoker.count % 2 == 0) ? CHAN_WEAPON : 6;
-			A_PlaySound("Player/Demon/Revenant/Fire",channel);
+			PlaySound("Player/Demon/Revenant/Fire",channel);
 			A_SetGunState("Overlay.WeaponFire");
 			A_FireProjectile("PlayerRevRocket",0,0,LeftOffset,12);
 			A_FireProjectile("PlayerRevRocket",0,0,RightOffset,12);
@@ -447,7 +452,7 @@ Class PlayerRevRocket : D4AbstractMissilePlayer
 			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
 			A_SpawnParticle("FF4D00",SPF_FULLBRIGHT,random(20,40),random(2,4),0,0,0,0,frandom(2.5,-2.5),frandom(2.5,-2.5),frandom(1,5),0,0,-0.3);
 			bINVISIBLE = true;
-			A_PlaySound("Doom4/Weapon/RocketLauncher/Explode", volume: 0.4);
+			PlaySound("Doom4/Weapon/RocketLauncher/Explode", volume: 0.4);
 			if (GetCvar("HQEffects"))
 			{
 				A_SpawnItemEx("D4RocketExplosionSmoke",0,0,0,frandom(0.5,1.5),frandom(0.5,1.5),frandom(0.5,1.5),random(0,359),SXF_NOCHECKPOSITION);

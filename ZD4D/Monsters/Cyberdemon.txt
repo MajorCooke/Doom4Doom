@@ -34,6 +34,7 @@ BLESSED (White)
 
 Class D4Cyberdemon : D4AbstractBoss //replaces Cyberdemon
 {
+	const MelRad = 50;
 	const LaserDistance = 2048.0;
 	const ProjOffset = 22.0;
 	const LaserOffset = 20.0;
@@ -120,11 +121,11 @@ Class D4Cyberdemon : D4AbstractBoss //replaces Cyberdemon
 		}	
 		if (target && target.player)
 		{
-			A_PlaySound("Doom4/Weapon/GaussGun/Charge2Start",7,1.0,0,ATTN_NONE); //if its aiming at player, you'll hear it for sure
+			PlaySound("Doom4/Weapon/GaussGun/Charge2Start",7,1.0,0,ATTN_NONE); //if its aiming at player, you'll hear it for sure
 		}
 		else
 		{
-			A_PlaySound("Doom4/Weapon/GaussGun/Charge2Start",7); //if its aiming at Monster, no special attenuation
+			PlaySound("Doom4/Weapon/GaussGun/Charge2Start",7); //if its aiming at Monster, no special attenuation
 		}
 	}
 	
@@ -148,18 +149,18 @@ Class D4Cyberdemon : D4AbstractBoss //replaces Cyberdemon
 		CYBR AB 10 A_Look();
 		Loop;
 	See:
-		CYBR A 3 { D4Chase(); A_PlaySound("Doom4/Cyberdemon/Step", 6); }
+		CYBR A 3 { D4Chase(); PlaySound("Doom4/Cyberdemon/Step", 6); }
 		CYBR A 3 D4Chase();
-		CYBR B 3 { D4Chase(); A_PlaySound("Player/Demon/MastermindStep", 5); }
+		CYBR B 3 { D4Chase(); PlaySound("Player/Demon/MastermindStep", 5); }
 		CYBR B 3 D4Chase();
-		CYBR C 3 { D4Chase(); A_PlaySound("Doom4/Cyberdemon/StepMetal", 5); }
+		CYBR C 3 { D4Chase(); PlaySound("Doom4/Cyberdemon/StepMetal", 5); }
 		CYBR CDD 3 D4Chase();
 		Loop;
 	Melee:
 	Missile:
 		---- A 0 
 		{
-			A_PlaySound("Doom4/Cyberdemon/Attack",CHAN_ITEM);
+			PlaySound("Doom4/Cyberdemon/Attack",CHAN_ITEM);
 			if (target && Distance3DSquared(target) <= (LaserDistance ** 2))
 			{
 				if (target.bISMONSTER)
@@ -254,8 +255,8 @@ Class D4Cyberdemon : D4AbstractBoss //replaces Cyberdemon
 			A_CustomRailgun(0,offs[0],"","Orange",RGF_FULLBRIGHT|RGF_SILENT,1,0,"CyberdemonRailPuff",0,0,LaserDistance,1,100,0,null,0);
 			A_CustomBulletAttack(0,0,1,0,"PacifistPuff",2048,CBAF_AIMFACING|CBAF_PUFFTRACER,AAPTR_TARGET,"StaticTrailBigSpawner",35,0);
 			int soundFlags = (plr) ? ATTN_NONE : ATTN_NORM;
-			A_PlaySound("Doom4/Weapon/GaussGun/Charge2Fire",7,1.0,0,soundFlags); //if its aiming at player, you'll hear it for sure
-			A_PlaySound("Doom4/Monsters/MastermindLaserFire",8,1.0,0,soundFlags); 			
+			PlaySound("Doom4/Weapon/GaussGun/Charge2Fire",7,1.0,0,soundFlags); //if its aiming at player, you'll hear it for sure
+			PlaySound("Doom4/Monsters/MastermindLaserFire",8,1.0,0,soundFlags); 			
 		}
 		CYBR E 12;
 		Goto See;
@@ -278,7 +279,13 @@ Class D4Cyberdemon : D4AbstractBoss //replaces Cyberdemon
 		}
 		CYBR G 9;
 		Goto See;
+	GloryEnd:
+		TNT1 A 0 A_Die("MeleePunch");
 	Death:
+	Death.BerserkKill:
+	Death.MeleePunch:
+	Death.ChainsawPinata:
+	XDeath:
 		CYBR H 10 
 		{
 			bThruActors = true;
@@ -294,7 +301,7 @@ Class D4Cyberdemon : D4AbstractBoss //replaces Cyberdemon
 	Dead:
 		---- A -1 CanRaise 
 		{
-			A_BossDeath();
+			BossDeath();
 			bCorpse = true; 
 		}
 		Stop;
@@ -304,29 +311,6 @@ Class D4Cyberdemon : D4AbstractBoss //replaces Cyberdemon
 		CYBR NMLKJIH 10;
 		---- A 0 DoResurrect(1);
 		Goto See;
-		
-	GloryEnd:
-		TNT1 A 0 A_Die("MeleePunch");
-	Death.BerserkKill:
-	Death.MeleePunch:
-	Death.ChainsawPinata:
-	XDeath:
-	
-		CYBR H 0;
-		CYBR H 10 
-		{			
-			if (DamagetypeReceived != 'Massacre')
-			{
-				A_SpawnItemEx("CyberdemonDeathFX",0,0,0,0,0,0,0,SXF_NOCHECKPOSITION|SXF_SETMASTER|SXF_SETTRACER|SXF_ORIGINATOR|SXF_TRANSFERTRANSLATION);
-				A_SpawnItemEx("BossExploderSFX",0,0,0,0,0,0,0,32|SXF_SETTRACER|SXF_ORIGINATOR);
-			}
-		}
-		CYBR I 10 A_Scream();
-		CYBR JKL 10 { bThruActors = true; }
-		CYBR M 10 A_NoBlocking();
-		CYBR NO 10;
-		CYBR P 30;
-		Goto Dead;
 	//------------------------------------------------------------------------
 	// Start of Stagger / Glory Kill states
 	//------------------------------------------------------------------------
@@ -445,7 +429,7 @@ Class CyberdemonRailPuff : NoBloodPuff
 
 //-------------------------------------------------
 //laser attack
-Class CyberdemonChargeIndicator : Actor 
+Class CyberdemonChargeIndicator : D4DFX 
 {
 	Default 
 	{
@@ -468,7 +452,7 @@ Class CyberdemonChargeIndicator : Actor
 	}
 }
 
-Class CyberdemonLaserTrail : Actor 
+Class CyberdemonLaserTrail : D4DFX 
 {
 	Default 
 	{
@@ -499,7 +483,7 @@ Class CyberdemonLaserTrail : Actor
 
 //-------------------------------------------------
 //death effects
-Class CyberdemonDeathFX : Actor 
+Class CyberdemonDeathFX : D4DFX 
 {
 	int UMax;
 	int c;
@@ -518,7 +502,7 @@ Class CyberdemonDeathFX : Actor
 		TNT1 A 2 NoDelay
 		{
 			A_SetTics(random(2,5));
-			A_Warp(MasterPtr,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_COPYVELOCITY);
+			A_Warp(AAPTR_MASTER,0,0,0,0,WARPF_NOCHECKPOSITION|WARPF_COPYVELOCITY);
 			if (UMax == 0)
 			{	UMax = random(6,11);	}
 			
@@ -529,7 +513,7 @@ Class CyberdemonDeathFX : Actor
 				if (random(1,4) <= 1 || c == 0)
 				{
 					A_SpawnItemEx("BloodGibDropper",random(0,15),0,random(20,80),vel.x,vel.y,vel.z,random(0,359),SXF_NOCHECKPOSITION|SXF_ABSOLUTEVELOCITY|SXF_TRANSFERPOINTERS|SXF_TRANSFERTRANSLATION);
-					A_PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
+					PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
 				}
 			}
 			c++;
@@ -614,7 +598,7 @@ Class FireWaveMainSecondary : FireWaveMain
 		Loop;
 	}
 }
-Class FireWaveFx : Actor 
+Class FireWaveFx : D4DFX 
 {
 	Default 
 	{
@@ -659,7 +643,7 @@ Class CyberdemonRocket : D4AbstractMissile
 		MICR A 0 Light("RedMediumPoint3") NoDelay 
 		{
 			StartRocketFX();
-			A_PlaySound("Doom4/Monsters/RocketFlyLoop",7,0.7,1);
+			PlaySound("Doom4/Monsters/RocketFlyLoop",7,0.7,1);
 		}
 	Moving:
 		MICR A 1 Light("RedMediumPoint3") SpawnRocketFX();
@@ -711,7 +695,7 @@ Class CyberDemonRocketStream : D4AbstractMissile
 		MICR A 1 Light("RedMediumPoint3") NoDelay 
 		{
 			StartRocketFX();
-			A_PlaySound("Doom4/Monsters/RocketFlyLoop",7,0.7,1);
+			PlaySound("Doom4/Monsters/RocketFlyLoop",7,0.7,1);
 		}
 	Moving:
 		MICR A 1 Light("RedMediumPoint3");
@@ -969,7 +953,7 @@ Class OldCyberdemonRocket : D4AbstractMissileQuake //replaces Rocket ////replace
 	Spawn:
 		MICR A 3 Light("RedMediumPoint3") NoDelay 
 		{
-			A_PlaySound("Doom4/Monsters/RocketFlyLoop",7,0.7,1);
+			PlaySound("Doom4/Monsters/RocketFlyLoop",7,0.7,1);
 			StartRocketFX();
 		}
 	Moving:

@@ -100,53 +100,16 @@ LootList.SetEntry('SSNazi',				0,		0, 1,	40);
 */
 Class D4LootService : Service
 {
-	static const String loot[] =
-	{
-		// Applies "Inherit" and "Replacement" flags to all loot tables built in this class.
-		"All|Inherit|Replacement", 
-		"Zombieman			|Credits:  5|Crates:1;Chance:  2			|",
-		"ShotgunGuy			|Credits: 10|Crates:1;Chance:  4			|",
-		"ChaingunGuy		|Credits: 20|Crates:1;Chance:  8			|",
-		"DoomImp			|Credits: 10|Crates:1;Chance:  4			|",
-		"Demon				|Credits: 30|Crates:1;Chance:  4			|",
-		"Spectre			|Copy: Demon",
-		"LostSoul			|Credits: 10|Crates:1;Chance:  4			|",
-		"Cacodemon			|Credits: 40|Crates:1;Chance: 28			|",
-		"HellKnight			|Credits: 60|Crates:1;Chance: 16			|",
-		"BaronOfHell		|Credits:100|Crates:1;Chance: 32			|",
-		"PainElemental		|Credits: 80|Crates:1;Chance: 64			|",
-		"Fatso				|Credits: 90|Crates:1;Chance: 32			|",
-		"Revenant			|Credits: 60|Crates:1;Chance: 48			|",
-		"Arachnotron		|Credits: 70|Crates:1;Chance: 32			|",
-		"Archvile			|Credits:150|Crates:2;Chance: 64			|",
-		"Cyberdemon			|Credits:400|Crates:4;Chance:128:Always:2	|",
-		"SpiderMastermind	|Credits:400|Crates:4;Chance:128;Always:2	|",
-		"SSNazi				|Credits: 40|Crates:0;Always:1				|"
-		
-	};
 	
-	static const String rest[] =
-	{
-		""
-	};
-	// !!! DO NOT MODIFY THESE UNLESS YOU KNOW WHAT YOU'RE DOING !!!
+	
 	private String ProcessString(String request, String str, int index, double dArg, Object ob) const
 	{	
 		Name req = request;
-		if (req == "GetLoot")
-		{
-			if (index >= 0 && index < loot.Size())
-				return loot[index];
-		}
-		else if (req == 'GetRestrictions')
-		{
-			if (index >= 0 && index < rest.Size())
-				return rest[index];
-		}
+		
 		return "";
 	}
 	
-	
+	// !!! DO NOT MODIFY THESE UNLESS YOU KNOW WHAT YOU'RE DOING !!!
 	override String GetString(String request, String str, int index, double dArg, Object ob)
 	{	return ProcessString(request, str, index, dArg, ob);	}
 	

@@ -149,7 +149,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 			A_AlertMonsters();
 			A_GunFlash("Null");
 			A_ZoomFactor(0.99,ZOOM_NOSCALETURNING);
-			A_PlaySound("Doom4/Weapon/Shotgun/Fire",CHAN_WEAPON,1);
+			PlaySound("Doom4/Weapon/Shotgun/Fire",CHAN_WEAPON,1);
 			A_SetBlend("orange",0.05,6);
 			A_Overlay(2,"Overlay.PitchSetter");
 		}
@@ -226,9 +226,9 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 			A_GiveInventory("AltFireToken",1);
 			A_ZoomFactor(1.05,ZOOM_NOSCALETURNING);
 			if (CountInv("TriShotActive"))
-			{	A_PlaySound("Doom4/Weapon/Shotgun/TripleShotAim",5); }
+			{	PlaySound("Doom4/Weapon/Shotgun/TripleShotAim",5); }
 			else if (CountInv("GrenadeActive"))
-			{	A_PlaySound("Doom4/Weapon/Shotgun/GrenadeAim",5); }
+			{	PlaySound("Doom4/Weapon/Shotgun/GrenadeAim",5); }
 			return ResolveState("AltHold");			
 		}
 	DelayAltHold:
@@ -264,7 +264,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 		{
 			if (CountInv("TriShotActive") || CountInv("GrenadeActive"))
 			{
-				A_PlaySound("Doom4/Weapon/Shotgun/CancelAim",6);
+				PlaySound("Doom4/Weapon/Shotgun/CancelAim",6);
 			}
 			A_SetInventory("AltFireToken",0);
 			A_ZoomFactor(1.0,ZOOM_NOSCALETURNING);
@@ -288,7 +288,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 					{
 						//A_PrintBold("Mod not ready"); //Still cooling off.
 						D4Msg.PrintStatus(D4Msg.ModNotReady);
-						A_PlaySound("Doom4/Player/Nope",Channels);
+						PlaySound("Doom4/Player/Nope",Channels);
 						return ResolveState(null);
 					}
 				}
@@ -314,7 +314,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 				A_GunFlash("Null");
 				A_TakeInventory("TrishotClip",1);
 				A_ZoomFactor(0.995,ZOOM_NOSCALETURNING);
-				A_PlaySound("Doom4/Weapon/Shotgun/TripleFireDeeper",CHAN_WEAPON,1);
+				PlaySound("Doom4/Weapon/Shotgun/TripleFireDeeper",CHAN_WEAPON,1);
 				A_Overlay(3,"Overlay.PitchSetterQuick");
 				A_SetBlend("orange",0.03,3);
 				A_WeaponOffset(6,36);
@@ -397,7 +397,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 					else
 					{
 						D4Msg.PrintStatus(D4Msg.ModNotReady);
-						A_PlaySound("Doom4/Player/Nope",Channels);
+						PlaySound("Doom4/Player/Nope",Channels);
 						return ResolveState(null);
 					}
 				}
@@ -419,7 +419,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 				A_TakeInventory(invoker.AmmoType1,2,TIF_NOTAKEINFINITE);
 				A_Overlay(10,"Overlay.PitchSetter");
 				A_ZoomFactor(0.99,ZOOM_NOSCALETURNING);
-				A_PlaySound("Doom4/Weapon/Shotgun/GrenadeLaunch",CHAN_WEAPON,1);
+				PlaySound("Doom4/Weapon/Shotgun/GrenadeLaunch",CHAN_WEAPON,1);
 				A_SetBlend("orange",0.05,6);
 				A_GiveInventory("SGGrenadeTimer",52); //this is for the cooldown, handled by the weapon
 			}
@@ -497,7 +497,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 			DW3G H 1
 			{
 				A_WeaponOffset(0,-10,WOF_ADD);
-				A_PlaySound("Doom4/Weapon/Shotgun/SwitchToGrenade",5,1);
+				PlaySound("Doom4/Weapon/Shotgun/SwitchToGrenade",5,1);
 				A_GiveInventory("GrenadeActive",1);
 			}
 			DW3G JKK 2;
@@ -517,7 +517,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 			DW3B H 1
 			{
 				A_WeaponOffset(0,-10,WOF_ADD);
-				A_PlaySound("Doom4/Weapon/Shotgun/SwitchToTripleShot",5,1);
+				PlaySound("Doom4/Weapon/Shotgun/SwitchToTripleShot",5,1);
 				A_GiveInventory("TriShotActive",1);
 			}
 			DW3B IJKLM 1;
@@ -536,7 +536,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 			DW3G H 1
 			{
 				A_WeaponOffset(0,-10,WOF_ADD);
-				A_PlaySound("Doom4/Weapon/Shotgun/SwitchToGrenade",5,1);
+				PlaySound("Doom4/Weapon/Shotgun/SwitchToGrenade",5,1);
 				A_TakeInventory("TriShotActive",1);
 				A_GiveInventory("GrenadeActive",1);
 			}
@@ -557,7 +557,7 @@ Class D4Shotgun : Doom4Weapon //replaces Shotgun
 			DW3B H 1
 			{
 				A_WeaponOffset(0,-10,WOF_ADD);
-				A_PlaySound("Doom4/Weapon/Shotgun/SwitchToTripleShot",5,1);
+				PlaySound("Doom4/Weapon/Shotgun/SwitchToTripleShot",5,1);
 				A_TakeInventory("GrenadeActive",1);
 				A_GiveInventory("TrishotActive",1);
 			}
@@ -588,7 +588,7 @@ Class SGTripleShotTimer : Counter {} // Triple shot timer to cool off
 //	Primary fire related
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-Class SGSmokeSpawner : Actor 
+Class SGSmokeSpawner : D4DFX 
 {
 	Default 
 	{
@@ -601,10 +601,6 @@ Class SGSmokeSpawner : Actor
     States
     {
     Spawn:
-        TNT1 A 1;
-        TNT1 A 0 A_Die();
-        Goto Death;
-    Death:
 		TNT1 A 0 A_Stop();
 		TNT1 A 0 A_SpawnItemEx("SGSmoke",0,frandom(1.5,-1.5),0,0,0,frandom(0.05,0.3),0,32);
 		TNT1 AA 1 A_SpawnItemEx("SGSmoke",0,frandom(1.5,-1.5),0,0,0,frandom(0.05,0.3),0,32);
@@ -612,7 +608,7 @@ Class SGSmokeSpawner : Actor
     }
 }
 
-Class SGSmoke : Actor 
+Class SGSmoke : D4DFX 
 {
 	Default 
 	{
@@ -672,7 +668,7 @@ Class D4ShotgunGrenade : FastProjectile
 	Death:
 		TNT1 A 0 
 		{
-			if (CountInv("ProtectionBonus2", TargetPtr))
+			if (CountInv("ProtectionBonus2", AAPTR_TARGET))
 			{			
 				A_Explode(15,128);
 				A_Explode(113,180,0,0,60);
@@ -710,7 +706,7 @@ Class D4ShotgunGrenade : FastProjectile
 	}
 }
 
-Class GrenadeCluster : Actor 
+Class GrenadeCluster : D4Actor 
 {
 	Default 
 	{
@@ -742,7 +738,7 @@ Class GrenadeCluster : Actor
 }
 
 
-Class SGGrenadeExplo : Actor 
+Class SGGrenadeExplo : D4DFX 
 {
 	Default 
 	{
@@ -764,7 +760,7 @@ Class SGGrenadeExplo : Actor
 	}
 }
 
-Class SGGrenadeSmokeTrail : Actor 
+Class SGGrenadeSmokeTrail : D4DFX 
 {
 	Default 
 	{
@@ -794,7 +790,7 @@ Class SGGrenadeSmokeTrail : Actor
 //	Casing
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------
-Class ShotgunCasingSpawner : Actor 
+Class ShotgunCasingSpawner : D4DFX 
 {
 	const Flags = WARPF_NOCHECKPOSITION|WARPF_COPYPITCH;
 	const Distance = 22;
@@ -827,10 +823,10 @@ Class ShotgunCasingSpawner : Actor
 			{	pos = (sin(pitch) * 6);	}
 			
 			
-			A_Warp(MasterPtr,
+			A_Warp(AAPTR_MASTER,
 				(cos(-pitch)*(Distance)) - pos,
 				YOff,
-				(ZOff*GetCrouchFactor(MasterPtr))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
+				(ZOff*GetCrouchFactor(AAPTR_MASTER))+(sin(-pitch)*(Distance)),0,Flags|WARPF_INTERPOLATE);
 			
 			if (D4D_Casings)
 			{

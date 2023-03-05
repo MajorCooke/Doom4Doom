@@ -121,7 +121,7 @@ Class D4GrenadeLauncher : Doom4Weapon
 				gren = 'D4GrenadeCluster';
 			let grens = D4Grenade(FireProjectile(gren, (-1.0, 8.0, -7.0)));
 			if (grens)	invoker.Grenades.Push(grens);
-			A_PlaySound("Doom4/Weapon/GrenadeLauncher/Fire", CHAN_WEAPON);
+			PlaySound("Doom4/Weapon/GrenadeLauncher/Fire", CHAN_WEAPON);
 			if (IsDoubleSpeed())
 				A_Overlay(7001, "Overlay.OffsetsFast");
 			else

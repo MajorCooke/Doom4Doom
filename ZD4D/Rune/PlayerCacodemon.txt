@@ -115,7 +115,7 @@ Class PlayerCacodemon : DemonPlayerBase
 			NoFastOverlay(OverlayID());
 			if (!GetCvar("D4D_SilentMorphs") && random(1,8)==8)
 			{
-				A_PlaySound("Player/Demon/Demon/Idle",5);
+				PlaySound("Player/Demon/Demon/Idle",5);
 			}
 		}
 		Loop;
@@ -161,11 +161,11 @@ Class D4DCacodemonWeapon : DemonWeaponBase
 		TNT1 A 0 
 		{
 			A_FireProjectile("D4PlayerCacodemonBall",0,0,0,10);
-			A_PlaySound("Doom4/Monsters/Cacodemon/Attack1",CHAN_WEAPON);
+			PlaySound("Doom4/Monsters/Cacodemon/Attack1",CHAN_WEAPON);
 		}
-		TNT1 AAAA 1 A_SetPitch(pitch-1, SPF_INTERPOLATE);
+		TNT1 AAAA 1 A_SetViewPitch(viewpitch-1, SPF_INTERPOLATE);
 		TNT1 A 4;
-		TNT1 AAAAAAAA 1 A_SetPitch(pitch+0.5, SPF_INTERPOLATE);
+		TNT1 AAAAAAAA 1 A_SetViewPitch(viewpitch+0.5, SPF_INTERPOLATE);
 		TNT1 A 9;
 		Goto Ready+1;
 	User2:
@@ -177,12 +177,12 @@ Class D4DCacodemonWeapon : DemonWeaponBase
 	AltFireP6:
 	AltFireP7:
 	AltFireP0:
-		TNT1 AAAAAAAA 1 A_SetPitch(pitch-0.8, SPF_INTERPOLATE);
-		TNT1 A 0 A_PlaySound("Doom4/Monsters/Cacodemon/Attack2",7);
-		TNT1 AA 1 A_SetPitch(pitch-0.8, SPF_INTERPOLATE);
-		TNT1 AAAA 1 A_SetPitch(pitch+4, SPF_INTERPOLATE);
-		TNT1 A 0 A_CustomPunch(random(100,300),1,0,"DemonPuffMelee",80,0,0,null,"","");
-		TNT1 AAAAAAAAAA 1 A_SetPitch(pitch-0.8, SPF_INTERPOLATE);
+		TNT1 AAAAAAAA 1 A_SetViewPitch(viewpitch-0.8, SPF_INTERPOLATE);
+		TNT1 A 0 PlaySound("Doom4/Monsters/Cacodemon/Attack2",7);
+		TNT1 AA 1 A_SetViewPitch(viewpitch-0.8, SPF_INTERPOLATE);
+		TNT1 AAAA 1 A_SetViewPitch(viewpitch+4, SPF_INTERPOLATE); 
+		TNT1 A 0 A_CustomPunch(random(200,400) * GetPowerLevel(true),1,0,"DemonPuffMelee",80,0,0,null,"","");
+		TNT1 AAAAAAAAAA 1 A_SetViewPitch(viewpitch-0.8, SPF_INTERPOLATE);
 		TNT1 A 0 A_Refire;
 		Goto Ready+1;
 		
@@ -195,7 +195,7 @@ Class D4DCacodemonWeapon : DemonWeaponBase
 		Stop;
 	}
 }	
-Class D4PlayerCacodemonBall : Actor 
+Class D4PlayerCacodemonBall : D4Actor 
 {
 	Default 
 	{
@@ -231,7 +231,7 @@ Class D4PlayerCacodemonBall : Actor
 		TNT1 A 0 
 		{
 			A_Explode(64,128,0);
-			A_PlaySound("Doom4/Other/FireballHit1"); //in addition to the deathsound
+			PlaySound("Doom4/Other/FireballHit1"); //in addition to the deathsound
 			A_SpawnItemEx("D4CacoBallExplo",0,0,0,0,0,0,0,32);
 			if (GetCvar("HQEffectsWeapons"))
 			{

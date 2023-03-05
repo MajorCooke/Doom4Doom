@@ -48,12 +48,14 @@ Class D4AbstractMonster : D4Actor abstract
 		BloodColor "Red";
 		DamageFactor "Crush", 15.0;
 	}
-	
+	private int PostPowerLevel;
 	override void BeginPlay()
 	{
 		Super.BeginPlay();
 		PrevWoundHealth = WoundHealth;
+		PostPowerLevel = -1;
 	}
+	
 	
 	override void PostBeginPlay()
 	{
@@ -62,6 +64,17 @@ Class D4AbstractMonster : D4Actor abstract
 		MC = MCHandler.Fetch();
 	}
 	
+	
+	override void Tick()
+	{
+		if (bDESTROYED) return;
+		if (PostPowerLevel > -1)
+		{
+			SetupPowerLevel(PostPowerLevel);
+			PostPowerLevel = -1;
+		}
+		Super.Tick();
+	}
 	
 	void AimHead(Actor mo)
 	{
@@ -131,7 +144,7 @@ Class D4AbstractMonster : D4Actor abstract
 		if (Beams.Size() > 0)
 		{
 			A_StopSound(CHAN_WEAPON);
-			A_PlaySound(StopSound, CHAN_WEAPON);
+			PlaySound(StopSound, CHAN_WEAPON);
 			for (int i = 0; i < Beams.Size(); i++)
 			{
 				let mo = Beams[i];
@@ -167,6 +180,8 @@ Class D4AbstractMonster : D4Actor abstract
 		return gren;
 	}
 	
+	
+	
 	//--------------------------------------------------------------------------
 	// SetupPowerLevel
 	// 
@@ -174,6 +189,8 @@ Class D4AbstractMonster : D4Actor abstract
 	// function, ChoosePowerLevel. 
 	// Customizable power level RNG that can be overridden for specific monsters.
 	
+	void SetPostPowerLevel(int amt)
+	{	PostPowerLevel = amt;	}
 	
 	virtual int ChoosePowerLevel()
 	{
@@ -193,20 +210,23 @@ Class D4AbstractMonster : D4Actor abstract
 		if (nochange) amt = PrevAmt;
 		else if (amt < 0) amt = ChoosePowerLevel();
 		
-		A_SetInventory("D4MonsterUpgrader",Max(0,amt));
+		A_SetInventory("D4MonsterUpgrader",Clamp(amt, 0, MaxRunePower));
 			
 		if (amt > 0)
 		{
-			int hp = GetSpawnHealth();
+			int hp = Default.Health;
 			int amp = amt + 1;
 			if (hp < 1000)	amp += 1;
 			if (hp <= 500) 	amp += 1;
-			if (hp <= 400) 	amp += 1;
-			if (hp <= 300) 	amp += 1;
-			if (hp <= 200) 	amp += 1;
-			if (hp <= 100) 	amp += 1;
-			A_SetHealth(hp * amp);
+			if (hp <= 250) 	amp += 1;
+			health = (hp * amp);
+			StartHealth = health;
 			Mass = Default.Mass * (amt + 1);
+		}
+		else
+		{
+			Health = Default.Health;
+			StartHealth = Default.StartHealth;
 		}
 		Name suffix = PowerColor;
 		Switch(amt)
@@ -233,7 +253,7 @@ Class D4AbstractMonster : D4Actor abstract
 	
 	void PostResurrect()
 	{
-		SetupPowerLevel(-1, true);
+		
 		if (bFRIENDLY)
 		{
 			for (int i = 0; i < MAXPLAYERS; i++)
@@ -256,6 +276,7 @@ Class D4AbstractMonster : D4Actor abstract
 			bTHRUSPECIES = false;
 			bMTHRUSPECIES = false;
 		}
+		SetupPowerLevel(-1, true);
 	}
 	
 	//--------------------------------------------------------------------------
@@ -476,7 +497,7 @@ Class D4AbstractMonster : D4Actor abstract
 				}
 			}
 			if (!simple)	A_XScream();
-			A_PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
+			PlaySound("Doom4/Other/GibExplode",CHAN_AUTO);
 		}
 	}
 	//--------------------------------------------------------------------------
@@ -497,6 +518,11 @@ Class D4AbstractMonster : D4Actor abstract
 			}
 			return good;
 		}
+		else if (other is 'D4AbstractMonster' && 
+			other.CountInv("D4MonsterUpgrader") > CountInv("D4MonsterUpgrader"))
+			return false;
+				
+		
 		return true;
 	}
 	
@@ -509,10 +535,19 @@ Class D4AbstractMonster : D4Actor abstract
 		}
 	}
 	
+	void RezUpgradeCheck()
+	{
+		if (Rezzer && (Rezzer is 'D4AbstractMonster') && GetClass() != 'D4Archvile')
+			SetPostPowerLevel(max(CountInv('D4MonsterUpgrader'), Rezzer.CountInv('D4MonsterUpgrader')));
+	}
+	
 	void DoResurrect(int stage = 0)
 	{
 		if (stage == 0)
+		{
 			bNOPAIN = true;
+			RezUpgradeCheck();
+		}
 		else
 		{
 			PostResurrect();
@@ -540,6 +575,7 @@ Class D4AbstractMonster : D4Actor abstract
 		{
 			let mo = Spawn("SummonerSparksAlways", pos + (0, 0, height * 0.5));
 			A_UnsetShootable();
+			RezUpgradeCheck();
 		}
 		else if (phase == 1)
 		{
@@ -549,6 +585,12 @@ Class D4AbstractMonster : D4Actor abstract
 			A_SetShootable();
 			SetState(ResolveState("See"));
 		}
+	}
+	
+	protected void BossDeath()
+	{
+		if (bBOSS || bBOSSDEATH)
+			A_BossDeath();
 	}
 	
 	States
@@ -613,7 +655,7 @@ Class PainSoundToken : Inventory
 //===================================================================================
 //	Base actor from which they inherit
 //===================================================================================
-Class HighlightBase : Actor
+Class HighlightBase : D4DFX
 {
 	int MainCounter;
 	int woundvalue;
@@ -667,7 +709,7 @@ Class HighlightBase : Actor
 				return Destroy();
 			
 			if (Highlight)	//if the highlight is ON
-				A_CopySpriteFrame(MasterPtr,0);		//copies the sprite
+				A_CopySpriteFrame(AAPTR_MASTER,0);		//copies the sprite
 			
 			Warp(Master,1,0,0,0,WARPF_NOCHECKPOSITION);
 			
